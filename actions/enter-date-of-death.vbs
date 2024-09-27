@@ -77,7 +77,7 @@ Do
   Do
     err_msg = ""
     Dialog Dialog1
-    cancel_with_confirmation
+    cancel_without_confirmation()
     Call validate_MAXIS_case_number(err_msg, "*")
     Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
     If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
@@ -112,7 +112,7 @@ Do
   Do
     err_msg = ""
     Dialog Dialog1
-    cancel_with_confirmation
+    cancel_without_confirmation()
     If household_member_that_died = "Select One ..." THEN err_msg = err_msg & vbCr & "* Please select the household member that has died."
     If len(date_of_death) <> 10 or IsDate(date_of_death) = False THEN err_msg = err_msg & vbCr & "* Please enter the date of death in the format MM/DD/YYYY."
     
@@ -150,7 +150,6 @@ Loop
 If (stat_type_cash = "Y" OR stat_type_snap = "Y") and stat_type_hc <> "Y" Then
   'If CASH or SNAP case, but not HC case
   cash_snap_only = true
-  msgbox "cash_snap_only " & cash_snap_only
 ElseIf stat_type_hc = "Y" Then
   'If HC case, doesn't matter if CASH or SNAP is active because steps are the same
   hc_case = True
@@ -196,18 +195,57 @@ If left(household_member_that_died, 2) <> "01" Then
   End If
 End If
 
+If 
+
+function snap_cash_only_dialog_needs_updates()
+  Dialog1 = ""
+  BeginDialog Dialog1, 0, 0, 256, 80, "Household Member Death - SNAP or CASH Case"
+    ButtonGroup ButtonPressed
+      OkButton 155, 60, 45, 15
+      CancelButton 205, 60, 45, 15
+    Text 5, 5, 180, 10, "The script reviewed STAT/MEMB and STAT/REMO."
+    If DOD_memb_panel_blank = True Then Text 15, 15, 125, 10, "- STAT/MEMB has not been updated."
+    If DOD_memb_panel_blank = False Then Text 15, 15, 125, 10, "- STAT/MEMB has been updated already."
+    If DOD_remo_panel_blank = True Then Text 15, 25, 120, 10, "- STAT/REMO has not been updated."
+    If DOD_remo_panel_blank = False Then Text 15, 25, 120, 10, "- STAT/REMO has been updated already."
+    Text 5, 40, 245, 10, "The script will update STAT/MEMB and STAT/REMO with the date of death."
+    'Text will change depending on situation
+    ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+    ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+    ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+
+    Do
+      Dialog Dialog1
+      cancel_without_confirmation()
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+  EndDialog
+End Function
+
+'Dialog 
 'Dialog will update based on situation
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 256, 60, "Enter Date of Death for Household Member"
-ButtonGroup ButtonPressed
-  OkButton 155, 40, 45, 15
-  CancelButton 205, 40, 45, 15
-'Text will change depending on situation
-If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-
+BeginDialog Dialog1, 0, 0, 256, 80, "Enter Date of Death for Household Member"
+  ButtonGroup ButtonPressed
+    OkButton 155, 60, 45, 15
+    CancelButton 205, 60, 45, 15
+  Text 5, 5, 180, 10, "The script reviewed STAT/MEMB and STAT/REMO."
+  If DOD_memb_panel_blank = True Then Text 15, 15, 125, 10, "- STAT/MEMB has not been updated."
+  If DOD_memb_panel_blank = False Then Text 15, 15, 125, 10, "- STAT/MEMB has been updated already."
+  If DOD_remo_panel_blank = True Then Text 15, 25, 120, 10, "- STAT/REMO has not been updated."
+  If DOD_remo_panel_blank = False Then Text 15, 25, 120, 10, "- STAT/REMO has been updated already."
+  Text 5, 40, 245, 10, "The script will update STAT/MEMB and STAT/REMO with the date of death."
+  'Text will change depending on situation
+  ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+  ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+  ' If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
 EndDialog
+
+Do
+  Dialog Dialog1
+  cancel_without_confirmation()
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'If CASH or SNAP only, then Create a dialog that confirms whether updates have been made already
 If cash_snap_only = true Then
@@ -216,11 +254,8 @@ If cash_snap_only = true Then
     If DOD_memb_panel_blank = True Then
       'STAT/MEMB has not been updated and should be updated
 
-      Do
-        Dialog Dialog1
-        cancel_with_confirmation
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-      Loop until are_we_passworded_out = false					'loops until user passwords back in
+      'Placeholder
+      'Call cash_snap_only dialog
 
       'Navigate to SELF to update footer month to month of death
       back_to_SELF
@@ -241,6 +276,10 @@ If cash_snap_only = true Then
     End If
   Else
     If DOD_memb_panel_blank = True and DOD_remo_panel_blank = True Then
+
+      'Placeholder
+      'Call cash_snap_only dialog
+
       'STAT/MEMB has not been updated and should be updated
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
       'Navigate to HH Memb that died
@@ -249,14 +288,12 @@ If cash_snap_only = true Then
       'Put panel in edit mode and enter date of death
       PF9
       EMWriteScreen replace(date_of_death, "/", " "), 19, 42
+    Else
+      'STAT/MEMB has already been updated, the script will end
+      script_end_procedure("It appears that the date of death has already been updated on STAT/MEMB and/or STAT/REMO. The script will now end.")
     End If
   End If
-  'If HH Memb other than Memb 01 died, then updates STAT/MEMB and STAT/REMO
-  'Determine if updates have been completed already
-  If DOD_memb_panel_blank = True and left(household_member_that_died, 2) <> "01" Then
-    'add here
-  End If
-ElseIf hc_case = True
+ElseIf hc_case = True Then
   'If HC case steps
 
   BeginDialog Dialog1, 0, 0, 256, 80, "Enter Date of Death for Household Member"
