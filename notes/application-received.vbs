@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("09/27/2024", "Fixed and isssue in the script when a second cash program is pending and the script failed to identify the case is pending. New functionality will be more reliable in these situations.##~##", "Casey Love, Hennepin County.")
 Call changelog_update("08/08/2024", "Update to the CA Transfer process to transfer GRH/HS cases less often to maintain the caseload structure the GRH team uses. Additionally adds a separation of adult vs family GRH cases.", "Casey Love, Hennepin County.")
 Call changelog_update("05/23/2024", "Added contracted caseload selection for HCMC and North Memorial.", "Casey Love, Hennepin County.")
 Call changelog_update("04/29/2024", "Enhanced SPEC/XFER reminder when ransferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
@@ -573,12 +574,6 @@ If clt_hc_is_pending = True and InStr(programs_applied_for, "HC") = 0 Then
 	If programs_applied_for = "" Then programs_applied_for = "HC"
 End If
 
-case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
-script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending        'Adding details about CASE/CURR information to a script report out to BZST
-If case_status = "CAF1 PENDING" OR (case_pending = False and clt_hc_is_pending = False) Then                    'The case MUST be pending and NOT in PND1 to continue.
-    call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
-End If
-
 call back_to_SELF           'resetting
 EMReadScreen mx_region, 10, 22, 48
 mx_region = trim(mx_region)
@@ -587,19 +582,29 @@ If mx_region = "INQUIRY DB" Then
     ' If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
 End If
 
-multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
-EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
-Call navigate_to_MAXIS_screen("REPT", "PND2")
-EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
-If pnd2_disp_limit = "Display Limit" Then transmit
-row = 1                                             'searching for the CASE NUMBER to read from the right row
-col = 1
-EMSearch MAXIS_case_number, row, col
-If row <> 24 and row <> 0 Then pnd2_row = row
-If pnd2_row = "" Then
-	EMReadScreen too_big_basket, 7, 21, 13
-	Call script_end_procedure_with_error_report("This script - Application Received - cannot read this case on REPT/PND2. This is likely because PND2 for the caseload " & too_big_basket & " has reached the MAXIS display limit and the case is not displayed on the page. Transfer this case to a caseload with fewer cases in PND2 status for this script to operate.")
+case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
+script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending        'Adding details about CASE/CURR information to a script report out to BZST
+If case_status = "CAF1 PENDING" Then                    'The case MUST be pending and NOT in PND1 to continue.
+    call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
+Else
+	multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
+	EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
+	Call navigate_to_MAXIS_screen("REPT", "PND2")
+	EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+	If pnd2_disp_limit = "Display Limit" Then transmit
+	row = 1                                             'searching for the CASE NUMBER to read from the right row
+	col = 1
+	EMSearch MAXIS_case_number, row, col
+	If row <> 24 and row <> 0 Then pnd2_row = row
+	EMReadScreen pdn2_error_info, 40, 24, 2
+	pdn2_error_info = ucase(pdn2_error_info)
+	If InStr(pdn2_error_info, "IS NOT PENDING") Then call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
+	If pnd2_row = "" Then
+		EMReadScreen too_big_basket, 7, 21, 13
+		Call script_end_procedure_with_error_report("This script - Application Received - cannot read this case on REPT/PND2. This is likely because PND2 for the caseload " & too_big_basket & " has reached the MAXIS display limit and the case is not displayed on the page. Transfer this case to a caseload with fewer cases in PND2 status for this script to operate.")
+	End If
 End If
+
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
 oldest_app_date = application_date
@@ -684,6 +689,19 @@ If additional_es_application = True THEN                         'If it does thi
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     application_date = app_date_to_use                          'setting the application date selected to the application_date variable
+End If
+
+If (case_pending = False and clt_hc_is_pending = False) Then
+	If CA_1_code <> "" and CA_1_code <> " " and CA_1_code <> "_" Then unknown_cash_pending = True
+	If CA_2_code <> "" and CA_2_code <> " " and CA_2_code <> "_" Then unknown_cash_pending = True
+	If FS_1_code <> "" and FS_1_code <> " " and FS_1_code <> "_" Then snap_status = "PENDING"
+	If FS_2_code <> "" and FS_2_code <> " " and FS_2_code <> "_" Then snap_status = "PENDING"
+	If HC_1_code <> "" and HC_1_code <> " " and HC_1_code <> "_" Then unknown_hc_pending = True
+	If HC_2_code <> "" and HC_2_code <> " " and HC_2_code <> "_" Then unknown_hc_pending = True
+	If EA_1_code <> "" and EA_1_code <> " " and EA_1_code <> "_" Then emer_status = "PENDING"
+	If EA_2_code <> "" and EA_2_code <> " " and EA_2_code <> "_" Then emer_status = "PENDING"
+	If GR_1_code <> "" and GR_1_code <> " " and GR_1_code <> "_" Then grh_status = "PENDING"
+	If GR_2_code <> "" and GR_2_code <> " " and GR_2_code <> "_" Then grh_status = "PENDING"
 End If
 
 IF IsDate(application_date) = False THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
