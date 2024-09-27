@@ -76,12 +76,16 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
 					Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
 					Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row, 16).value, MA_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row, 17).value, MSP_status)
 
 					REPT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the Review Report
 					CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
 					CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
 					SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
 					SNAP_ER_Info = trim(objExcel.cells(excel_row, 15).value)
+					HC_SR_Info = trim(objExcel.cells(excel_row, 18).value)
+					HC_ER_Info = trim(objExcel.cells(excel_row, 19).value)
 
 					'CASH is first - if the status is T, I, or U - we are going to look at program status to firgure out which program of cash that it actually is
 					If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" Then
@@ -130,8 +134,13 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 						End If
 					End If
 					' 'HC Cases not set up yet as no REVWs and we cannot test
-					' If revw_status_hc = "T" Then
-					' End If
+					If revw_status_hc = "T" or revw_status_hc = "I" Then
+						If (MA_status = True or MSP_status = True) AND (HC_SR_Info = REPT_full OR HC_ER_Info = REPT_full) Then
+							autoclosed_programs = autoclosed_programs & "/Health Care"
+							If HC_SR_Info = REPT_full Then hc_autoclosed = "HC SR"
+							If HC_ER_Info = REPT_full Then hc_autoclosed = "HC ER"							'ER will overwirte SR
+						End If
+					End If
 
 					'Now we check for any programs that have an 'N' as the review status so we can add a line about a program that may not be active.
 					If revw_status_cash = "N" Then
