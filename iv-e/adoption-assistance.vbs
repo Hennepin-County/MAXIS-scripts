@@ -85,9 +85,9 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call check_for_MAXIS(False)
 
-If action_option = "Placement Ended" then
+If action_option = "Closed" then
     dialog1 = ""
-	BeginDialog dialog1, 0, 0, 316, 85, "Adoption Assistance Placement Ended"
+	BeginDialog dialog1, 0, 0, 316, 85, "Adoption Assistance Closed"
 		EditBox 95, 5, 215, 15, cancel_reason
 		EditBox 95, 25, 75, 15, effective_date
 		CheckBox 185, 30, 90, 10, "Transferred case to 4EC", transferred_checkbox
@@ -97,7 +97,7 @@ If action_option = "Placement Ended" then
 			OkButton 205, 65, 50, 15
 			CancelButton 260, 65, 50, 15
 		Text 45, 50, 40, 10, "Other notes:"
-		Text 5, 10, 85, 10, "Placement Ended reason:"
+		Text 30, 10, 60, 10, "AA Closed reason:"
 		Text 30, 70, 60, 10, "Worker signature:"
 		Text 40, 30, 50, 10, "Effective date:"
 	EndDialog
@@ -120,7 +120,7 @@ If action_option = "Placement Ended" then
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("--AA canceled effective " & effective_date & "--")
-    Call write_bullet_and_variable_in_CASE_NOTE("Reason(s) Placement Ended", cancel_reason)
+    Call write_bullet_and_variable_in_CASE_NOTE("Reason(s) Closed", cancel_reason)
     If transferred_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to 4EC.")
 END IF
 
@@ -178,24 +178,23 @@ If action_option = "Child in placement" then
 	If transfer_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to EW4.")
 END IF
 
-If action_option = "Closed" then
+If action_option = "Placement Ended" then
     dialog1 = ""
-	BeginDialog dialog1, 0, 0, 291, 140, "Adoption Assistance closed"
-		EditBox 115, 5, 170, 15, placement_ended
-		EditBox 70, 25, 215, 15, actions_taken
-		EditBox 70, 45, 215, 15, other_notes
-		CheckBox 70, 80, 90, 10, "Transferred case to FG1", transferred_checkbox
-		CheckBox 180, 80, 70, 10, "Deleted FC panels", deleted_FC_checkbox
-		CheckBox 70, 95, 95, 10, "Deleted AREP and ADDR", deleted_panels_checkbox
-		EditBox 70, 120, 105, 15, worker_signature
+	BeginDialog dialog1, 0, 0, 291, 120, "Adoption Assistance Placement Ended"
+		EditBox 115, 5, 65, 15, placement_ended
+		EditBox 70, 25, 215, 15, other_notes
+		CheckBox 70, 60, 90, 10, "Transferred case to FG1", transferred_checkbox
+		CheckBox 180, 60, 70, 10, "Deleted FC panels", deleted_FC_checkbox
+		CheckBox 70, 75, 95, 10, "Updated AREP and ADDR", deleted_panels_checkbox
+		EditBox 70, 100, 105, 15, worker_signature
 		ButtonGroup ButtonPressed
-			OkButton 180, 120, 50, 15
-			CancelButton 235, 120, 50, 15
-		Text 25, 50, 40, 10, "Other notes:"
+			OkButton 180, 100, 50, 15
+			CancelButton 235, 100, 50, 15
+		Text 25, 30, 40, 10, "Other notes:"
 		Text 5, 10, 110, 10, "AREP reported placement ended:"
-		Text 20, 30, 50, 10, "Actions taken:"
-		Text 5, 125, 60, 10, "Worker signature:"
-		GroupBox 5, 65, 280, 50, "Check each action that was completed:"
+		Text 5, 105, 60, 10, "Worker signature:"
+		GroupBox 5, 45, 280, 50, "Check each action that was completed:"
+		Text 185, 10, 50, 10, "(date)"
 	EndDialog
 	DO
 		DO
@@ -204,7 +203,6 @@ If action_option = "Closed" then
 			cancel_without_confirmation
 
 			If isDate(placement_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid placement ending date."
-			If actions_taken = "" then err_msg = err_msg & vbNewLine & "* Enter the actions taken on the case."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
@@ -214,11 +212,10 @@ If action_option = "Closed" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("--AA closed effective " & placement_ended & "--")
-	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+	Call write_variable_in_CASE_NOTE("--AA Placement Ended effective " & placement_ended & "--")
 	If transferred_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to FG1.")
 	If deleted_FC_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted FC panels.")
-	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted AREP and ADDR panels.")
+	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated AREP and ADDR panels.")
 END IF
 
 If action_option = "Opened" then
