@@ -3420,28 +3420,31 @@ function save_your_work()
             If verif_emer_checkbox = checked then objTextStream.WriteLine "verif_emer_checkbox"
             If verif_hc_checkbox = checked then objTextStream.WriteLine "verif_hc_checkbox"
 
-			objTextStream.WriteLine "FORM - 01 - " & confirm_resp_read
-			objTextStream.WriteLine "FORM - 02 - " & confirm_rights_read
-			objTextStream.WriteLine "FORM - 03 - " & confirm_ebt_read
+			'R&R 
+			If DHS_4163_checkbox = checked Then objTextStream.WriteLine "DHS_4163_checkbox"
+			If DHS_3315A_checkbox = checked Then objTextStream.WriteLine "DHS_3315A_checkbox"
+			If DHS_3979_checkbox = checked Then objTextStream.WriteLine "DHS_3979_checkbox"
+			If DHS_2759_checkbox = checked Then objTextStream.WriteLine "DHS_2759_checkbox"
+			If DHS_3353_checkbox = checked Then objTextStream.WriteLine "DHS_3353_checkbox"
+			If DHS_2920_checkbox = checked Then objTextStream.WriteLine "DHS_2920_checkbox"
+			If DHS_3477_checkbox = checked Then objTextStream.WriteLine "DHS_3477_checkbox"
+			If DHS_4133_checkbox = checked Then objTextStream.WriteLine "DHS_4133_checkbox"
+			If DHS_2647_checkbox = checked Then objTextStream.WriteLine "DHS_2647_checkbox"
+			If DHS_2929_checkbox = checked Then objTextStream.WriteLine "DHS_2929_checkbox"
+			If DHS_3323_checkbox = checked Then objTextStream.WriteLine "DHS_3323_checkbox"
+			If DHS_3393_checkbox = checked Then objTextStream.WriteLine "DHS_3393_checkbox"
+			If DHS_3163B_checkbox = checked Then objTextStream.WriteLine "DHS_3163B_checkbox"
+			If DHS_2338_checkbox = checked Then objTextStream.WriteLine "DHS_2338_checkbox"
+			If DHS_5561_checkbox = checked Then objTextStream.WriteLine "DHS_5561_checkbox"
+			If DHS_2961_checkbox = checked Then objTextStream.WriteLine "DHS_2961_checkbox"
+			If DHS_2887_checkbox = checked Then objTextStream.WriteLine "DHS_2887_checkbox"
+			If DHS_3238_checkbox = checked Then objTextStream.WriteLine "DHS_3238_checkbox"
+			If DHS_2625_checkbox = checked Then objTextStream.WriteLine "DHS_2625_checkbox"
 			objTextStream.WriteLine "FORM -a03 - " & case_card_info
 			objTextStream.WriteLine "FORM -b03 - " & clt_knows_how_to_use_ebt_card
-			objTextStream.WriteLine "FORM - 04 - " & confirm_ebt_how_to_read
-			objTextStream.WriteLine "FORM - 05 - " & confirm_npp_info_read
-			objTextStream.WriteLine "FORM - 06 - " & confirm_npp_rights_read
-			objTextStream.WriteLine "FORM - 07 - " & confirm_appeal_rights_read
-			objTextStream.WriteLine "FORM - 08 - " & confirm_civil_rights_read
-			objTextStream.WriteLine "FORM - 09 - " & confirm_cover_letter_read
-			objTextStream.WriteLine "FORM - 10 - " & confirm_program_information_read
-			objTextStream.WriteLine "FORM - 11 - " & confirm_DV_read
-			objTextStream.WriteLine "FORM - 12 - " & confirm_disa_read
-			objTextStream.WriteLine "FORM - 13 - " & confirm_mfip_forms_read
-			objTextStream.WriteLine "FORM - 14 - " & confirm_mfip_cs_read
-			objTextStream.WriteLine "FORM - 15 - " & confirm_minor_mfip_read
-			objTextStream.WriteLine "FORM - 16 - " & confirm_snap_forms_read
 			objTextStream.WriteLine "FORM -a16 - " & snap_reporting_type
 			objTextStream.WriteLine "FORM -b16 - " & next_revw_month
 			objTextStream.WriteLine "FORM - 17 - " & confirm_recap_read
-			objTextStream.WriteLine "FORM - 18 - " & confirm_ievs_info_read
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
 				' objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
@@ -3939,28 +3942,31 @@ function save_your_work()
             If verif_emer_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_emer_checkbox - CHECKED"
             If verif_hc_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox - CHECKED" & vbCr & vbCr
 
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 01 - " & confirm_resp_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 02 - " & confirm_rights_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 03 - " & confirm_ebt_read
+			'R&R 
+            If DHS_4163_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_4163_checkbox - CHECKED"
+            If DHS_3315A_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3315A_checkbox - CHECKED"
+            If DHS_3979_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3979_checkbox - CHECKED"
+            If DHS_2759_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2759_checkbox - CHECKED"
+            If DHS_3353_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3353_checkbox - CHECKED"
+            If DHS_2920_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2920_checkbox - CHECKED"
+            If DHS_3477_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3477_checkbox - CHECKED"
+            If DHS_4133_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_4133_checkbox - CHECKED"
+            If DHS_2647_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2647_checkbox - CHECKED"
+            If DHS_2929_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2929_checkbox - CHECKED"
+            If DHS_3323_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3323_checkbox - CHECKED"
+            If DHS_3393_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3393_checkbox - CHECKED"
+            If DHS_3163B_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3163B_checkbox - CHECKED"
+            If DHS_2338_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2338_checkbox - CHECKED"
+            If DHS_5561_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_5561_checkbox - CHECKED"
+            If DHS_2961_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2961_checkbox - CHECKED"
+            If DHS_2887_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2887_checkbox - CHECKED"
+            If DHS_3238_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3238_checkbox - CHECKED"
+            If DHS_2625_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_2625_checkbox - CHECKED" & vbCr & vbCr
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -a03 - " & case_card_info
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -b03 - " & clt_knows_how_to_use_ebt_card
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 04 - " & confirm_ebt_how_to_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 05 - " & confirm_npp_info_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 06 - " & confirm_npp_rights_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 07 - " & confirm_appeal_rights_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 08 - " & confirm_civil_rights_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 09 - " & confirm_cover_letter_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 10 - " & confirm_program_information_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 11 - " & confirm_DV_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 12 - " & confirm_disa_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 13 - " & confirm_mfip_forms_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 14 - " & confirm_mfip_cs_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 15 - " & confirm_minor_mfip_read
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 16 - " & confirm_snap_forms_read
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -a16 - " & snap_reporting_type
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -b16 - " & next_revw_month
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 17 - " & confirm_recap_read & vbCr & vbCr
-			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 18 - " & confirm_ievs_info_read & vbCr & vbCr
 
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -4554,29 +4560,33 @@ function restore_your_work(vars_filled)
                     If text_line = "verif_emer_checkbox" Then verif_emer_checkbox = checked
                     If text_line = "verif_hc_checkbox" Then verif_hc_checkbox = checked
 
-					If left(text_line, 9) = "FORM - 01" Then confirm_resp_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 02" Then confirm_rights_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 03" Then confirm_ebt_read = Mid(text_line, 13)
+					'R&R 
+					If text_line = "DHS_4163_checkbox" Then DHS_4163_checkbox = checked
+					If text_line = "DHS_3315A_checkbox" Then DHS_3315A_checkbox = checked
+					If text_line = "DHS_3979_checkbox" Then DHS_3979_checkbox = checked
+					If text_line = "DHS_2759_checkbox" Then DHS_2759_checkbox = checked
+					If text_line = "DHS_3353_checkbox" Then DHS_3353_checkbox = checked
+					If text_line = "DHS_2920_checkbox" Then DHS_2920_checkbox = checked
+					If text_line = "DHS_3477_checkbox" Then DHS_3477_checkbox = checked
+					If text_line = "DHS_4133_checkbox" Then DHS_4133_checkbox = checked
+					If text_line = "DHS_2647_checkbox" Then DHS_2647_checkbox = checked
+					If text_line = "DHS_2929_checkbox" Then DHS_2929_checkbox = checked
+					If text_line = "DHS_3323_checkbox" Then DHS_3323_checkbox = checked
+					If text_line = "DHS_3393_checkbox" Then DHS_3393_checkbox = checked
+					If text_line = "DHS_3163B_checkbox" Then DHS_3163B_checkbox = checked
+					If text_line = "DHS_2338_checkbox" Then DHS_2338_checkbox = checked
+					If text_line = "DHS_5561_checkbox" Then DHS_5561_checkbox = checked
+					If text_line = "DHS_2961_checkbox" Then DHS_2961_checkbox = checked
+					If text_line = "DHS_2887_checkbox" Then DHS_2887_checkbox = checked
+					If text_line = "DHS_3238_checkbox" Then DHS_3238_checkbox = checked
+					If text_line = "DHS_2625_checkbox" Then DHS_2625_checkbox = checked
 					If left(text_line, 9) = "FORM -a03" Then case_card_info = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM -b03" Then clt_knows_how_to_use_ebt_card = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 04" Then confirm_ebt_how_to_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 05" Then confirm_npp_info_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 06" Then confirm_npp_rights_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 07" Then confirm_appeal_rights_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 08" Then confirm_civil_rights_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 09" Then confirm_cover_letter_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 10" Then confirm_program_information_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 11" Then confirm_DV_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 12" Then confirm_disa_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 13" Then confirm_mfip_forms_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 14" Then confirm_mfip_cs_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 15" Then confirm_minor_mfip_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 16" Then confirm_snap_forms_read = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM -a16" Then snap_reporting_type = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM -b16" Then next_revw_month = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM - 17" Then confirm_recap_read = Mid(text_line, 13)
-					If left(text_line, 9) = "FORM - 18" Then confirm_ievs_info_read = Mid(text_line, 13)
-					' If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
+
 
 					If left(text_line, 3) = "ARR" Then
 						If MID(text_line, 7, 13) = "HH_MEMB_ARRAY" Then
@@ -6335,29 +6345,35 @@ function write_interview_CASE_NOTE()
 
 	If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 
+	'R&R 
 	forms_reviewed = ""
-	If left(confirm_resp_read, 4) = "YES!" AND left(confirm_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -4163"
-	If left(confirm_ebt_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -EBT Info"
-	If left(confirm_ebt_how_to_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3315A"
-	If left(confirm_npp_info_read, 4) = "YES!" AND left(confirm_npp_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3979"
-	If left(confirm_ievs_info_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2759"
-	If left(confirm_appeal_rights_read, 4) = "YES!" AND left(confirm_civil_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3353"
-	If left(confirm_cover_letter_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -Hennepin County Information "
-	If left(confirm_program_information_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2920"
-	If left(confirm_DV_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3477"
-	If left(confirm_disa_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -4133"
-	If left(confirm_mfip_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2647 -2929 -3323"
-	If left(confirm_mfip_cs_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3393 -3163B -2338 -5561"
-	If left(confirm_minor_mfip_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2961 -2887 -3238"
-	If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2625 -7635"
+	If DHS_4163_checkbox = checked Then forms_reviewed = forms_reviewed & " -4163 -EBT Info"
+	If DHS_3315A_checkbox = checked Then forms_reviewed = forms_reviewed & " -3315A"
+	If DHS_3979_checkbox = checked Then forms_reviewed = forms_reviewed & " -3979"
+	If DHS_2759_checkbox = checked Then forms_reviewed = forms_reviewed & " -2759"
+	If DHS_3353_checkbox = checked Then forms_reviewed = forms_reviewed & " -3353"
+	If DHS_2920_checkbox = checked Then forms_reviewed = forms_reviewed & " -2920"
+	If DHS_3477_checkbox = checked Then forms_reviewed = forms_reviewed & " -3477"
+	If DHS_4133_checkbox = checked Then forms_reviewed = forms_reviewed & " -4133"
+	If DHS_2647_checkbox = checked Then forms_reviewed = forms_reviewed & " -2647"
+	If DHS_2929_checkbox = checked Then forms_reviewed = forms_reviewed & " -2929"
+	If DHS_3323_checkbox = checked Then forms_reviewed = forms_reviewed & " -3323"
+	If DHS_3393_checkbox = checked Then forms_reviewed = forms_reviewed & " -3393"
+	If DHS_3163B_checkbox = checked Then forms_reviewed = forms_reviewed & " -3163B"
+	If DHS_2338_checkbox = checked Then forms_reviewed = forms_reviewed & " -2338"
+	If DHS_5561_checkbox = checked Then forms_reviewed = forms_reviewed & " -5561"
+	If DHS_2961_checkbox = checked Then forms_reviewed = forms_reviewed & " -2961"
+	If DHS_2887_checkbox = checked Then forms_reviewed = forms_reviewed & " -2887"
+	If DHS_3238_checkbox = checked Then forms_reviewed = forms_reviewed & " -3238"
+	If DHS_2625_checkbox = checked Then forms_reviewed = forms_reviewed & " -2625 -7635"
+
 	If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed DHS Forms", forms_reviewed)
-	If left(confirm_snap_forms_read, 4) = "YES!" Then
+	If DHS_2625_checkbox = checked Then
 		Call write_variable_in_CASE_NOTE("SNAP Reporting discussed. Case appears to be a " & snap_reporting_type & " reporter.")
         Call write_variable_in_CASE_NOTE("     Next review month of " & next_revw_month)
 		Call write_variable_in_CASE_NOTE("     This may change dependent on info received up until SNAP approval.")
 	End If
-
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -8195,10 +8211,10 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
 
-Dim confirm_resp_read, confirm_rights_read, confirm_ebt_read, confirm_ebt_how_to_read, confirm_npp_info_read, confirm_npp_rights_read
-Dim confirm_appeal_rights_read, confirm_civil_rights_read, confirm_cover_letter_read, confirm_program_information_read, confirm_DV_read
-Dim confirm_disa_read, confirm_mfip_forms_read, confirm_mfip_cs_read, confirm_minor_mfip_read, confirm_snap_forms_read, confirm_recap_read
-Dim confirm_ievs_info_read, case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month
+'R&R 
+Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
+Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
+Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination
@@ -9420,123 +9436,15 @@ End If
 MFIP_orientation_assessed_and_completed = True
 save_your_work
 
-'CLIENT RESPONSIBILITEIS
-If left(confirm_resp_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
 
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Responsibilities Discussed"+chr(9)+"No, I could not complete this", confirm_resp_read
-			  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				PushButton 430, 22, 100, 13, "Open DHS 4163", open_r_and_r_btn
-			  Text 10, 10, 160, 10, "REVIEW the information listed here to the resident:"
-			  Text 20, 35, 505, 35, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
-			  Text 20, 70, 275, 50, "- If you receive cash assistance and/or child care assistance, you must report changes which may affect your benefits to the county agency within 10 days after the change has occurred. If you receive Supplemental Nutrition Assistance Program (SNAP) benefits, report changes by the 10th of the month following the month of the change. Each program may have different requirements for reporting changes. Talk to your caseworker about what you must report."
+'R&R - Start of short and simple R&R ==========================================================
 
-			  Text 20, 120, 275, 10, "You may be required to report changes in:"
-			  Text 20, 130, 275, 20, "-Employment - starting or stopping a job or business; change in hours, earnings or expenses"
-			  Text 20, 150, 275, 25, "- Income - receipt or change in child support, Social Security, veteran benefits, unemployment insurance, inheritance or insurance benefits"
-			  Text 20, 170, 275, 20, "- Property - purchase, sale or transfer of a house, car or other items of value, or if you receive an inheritance or settlement"
-			  Text 20, 190, 275, 20, "- Household - When a person dies or becomes disabled, moves in or out of your home or temporarily leaves; pregnancy; birth of a child."
-			  Text 20, 210, 275, 10, "- Citizenship or immigration status"
-			  Text 20, 220, 275, 10, "- Address"
-			  Text 20, 230, 275, 10, "- Housing costs and/or rent subsidy"
-			  Text 20, 240, 275, 10, "- Utility costs"
-			  Text 20, 250, 275, 10, "- Filing a lawsuit"
-			  Text 20, 260, 275, 10, "- Absent parent custody or visits"
-			  Text 20, 270, 275, 10, "- Drug felony conviction"
-			  Text 20, 280, 275, 10, "- Marriage, separation or divorce"
-			  Text 20, 290, 275, 10, "- School attendance"
-			  Text 20, 300, 275, 10, "- Health insurance coverage and premiums"
-			  Text 20, 315, 275, 20, "Note: If you change child care providers, you must tell your child care worker and provider at least 15 days before the change goes into effect."
+family_cash_case_yn = "Yes"
+absent_parent_yn = "Yes"
+relative_caregiver_yn = "Yes"
+left(minor_caregiver_yn, 3) = "Yes"
 
-			  Text 15, 335, 520, 10, "If you have any questions or are unsure about any reporting rules, contact your worker. If your worker is not available, leave a message so the worker can get back to you."
-
-			  Text 310, 70, 225, 35, "- The county, state or federal agency may check any of the information you provide. To obtain some forms of information we must have your signed consent. If you don't allow the county to confirm your information, you might not receive assistance."
-			  Text 310, 105, 225, 35, "- If you give us information you know is untrue, withhold information or do not report as required, or we discover your information is untrue, you may be investigated for fraud. This may result in you being disqualified from receiving benefits, charged criminally, or both."
-			  Text 310, 140, 225, 50, "- The state or federal quality control agency may randomly choose your case for review. They will review statements you provided and will check to see if your eligibility was figured correctly. The state may seek information from other sources and will inform you about any contact they intend to make. If you do not cooperate, your benefits may stop."
-			  Text 310, 195, 225, 10, "Cooperation requirements:"
-			  Text 310, 205, 225, 45, "- If the county approves you for the Minnesota Family Investment Program (MFIP) or the Diversionary Work Program (DWP), you must cooperate with employment services, unless you are exempt. You must develop and sign an employment plan or your DWP application will be denied."
-			  Text 310, 250, 225, 55, "- To receive MFIP, DWP, and/or child care assistance, you must cooperate with child support enforcement for all children in your household. You have the right to claim 'good cause' for not cooperating with child support enforcement. Yo must assign your child support to the state of Minnesota for all eligible children. If you do not cooperate or assign your child support, benefits will be denied or terminated."
-			  Text 310, 305, 225, 30, "After the county approves your MFIP or DWP, if you receive child support directly from the noncustodial parent, you must report it to your worker."
-
-			  Text 10, 370, 210, 10, "Confirm you have reviewed resident responsibilities:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_resp_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_r_and_r_btn Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = False
-End If
-save_your_work
-
-'CLIENT RIGHTS
-If left(confirm_rights_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 160, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Rights Discussed"+chr(9)+"No, I could not complete this", confirm_rights_read
-			  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				PushButton 430, 22, 100, 13, "Open DHS 4163", open_r_and_r_btn
-			  Text 10, 10, 160, 10, "REVIEW the information listed here to the resident:"
-
-			  Text 275, 35, 150, 10, "Your Rights"
-
-			  Text 20, 50, 275, 30, "- Your right to privacy. Your private information, including your health information, is protected by state and federal laws. Your worker has given you a Notice of Privacy Practices (DHS-3979) information sheet explaining these rights."
-			  Text 20, 85, 275, 10, "- You have the right to reapply at any time if your benefits stop."
-			  Text 20, 95, 275, 20, "- You have the right to receive a paper OR electronic copy of your SNAP application."
-			  Text 20, 105, 275, 25, "- You have the right to know why, if we have not processed your application within:"
-			  Text 30, 115, 265, 20, "- 30 days for cash, SNAP and child care assistance"
-			  Text 30, 125, 265, 20, "- 60 days for cash related to disability."
-			  Text 20, 135, 275, 25, "- You have the right to know the rules of the program you are applying for and for the agency to tell you how your benefit amount was figured."
-			  Text 20, 155, 275, 10, "- You have the right to choose where and with whom you live."
-			  Text 20, 165, 275, 45, "- Expenses. You have the right to report expenses such as shelter, utilities, child care, child support or medical costs. These expenses may affect the amount of Supplemental Nutrition Assistance Program (SNAP) benefits that you receive. Failure to report or verify certain expenses listed will be a statement by your household that you do not want a deduction for the unreported expenses."
-
-			  Text 310, 50, 225, 35, "For SNAP, you may appeal within 90 days by writing or calling the county or the State Appeals Office. You may represent yourself at the hearing, or you may have someone (an attorney, relative, friend or another person) speak for you."
-			  Text 310, 90, 225, 50, "If you wish your assistance to continue until the hearing, you must appeal before the date of the proposed action or within 10 days after the date the agency notice was mailed, whichever is later. Ask your county or tribal worker to explain how the timing of your appeal could affect your present or future assistance."
-			  Text 310, 140, 225, 20, "- Access to free legal services. Contact your worker for information on free legal services."
-			  Text 310, 165, 225, 80, "- Appeal rights. If you are unhappy with the action taken or feel the agency did not act on your request for assistance, you may appeal. For cash, child care assistance and health care, you may appeal within 30 days from the date you receive the notice by writing to the county or tribal agency, or directly to the State Appeals Office at the Minnesota Department of Human Services, PO Box 64941, St. Paul, MN 55164-0941. (If you show good cause for not appealing your cash and health care within 30 days, the agency can accept your appeal for up to 90 days from the date you receive the notice.)"
-
-			  Text 10, 370, 150, 10, "Confirm you have reviewed resident rights:"
-			EndDialog
-
-			dialog Dialog1
-	 		cancel_confirmation
-
-			If confirm_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_r_and_r_btn Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
+'DHS4163 DHS3315A
 case_number_last_digit = right(MAXIS_case_number, 1)
 case_number_last_digit = case_number_last_digit * 1
 If case_number_last_digit = 4 Then snap_day_of_issuance = "4th"
@@ -9553,775 +9461,127 @@ If case_number_last_digit MOD 2 = 1 Then cash_day_of_issuance = "2nd to last day
 If case_number_last_digit MOD 2 = 0 Then cash_day_of_issuance = "last day"		'EVEN Number
 If cash_type = "ADULT" Then cash_day_of_issuance = "first day"
 
-'EBT RESPONSIBILITIES AND USAGE
-If left(confirm_ebt_read, 4) <> "YES!" Then
+
+Do
 	Do
-		Do
-			err_msg = ""
+		err_msg = ""
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+		 	CheckBox 10, 10, 250, 10, "Cash on an Electronic Benefit (EBT) Card (DHS-4163) Reviewed", DHS_4163_checkbox
+			DropListBox 195, 80, 135, 15, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change"+chr(9)+"Monthly", snap_reporting_type
+			EditBox 410, 80, 50, 15, next_revw_month
+			ComboBox 195, 95, 135, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
+			DropListBox 195, 110, 135, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
+			ButtonGroup ButtonPressed
+				PushButton 290, 170, 145, 15, "HSR Manual - Accounting", accounting_in_hsr_manual_btn
+				PushButton 290, 190, 145, 15, "Accounting Service Desk Sharepoint Site", accounting_service_desk_btn
+				PushButton 465, 15, 60, 15, "Open DHS4163", open_dhs_4163_btn
+				PushButton 465, 365, 80, 15, "Continue", continue_btn
+			Text 345, 85, 65, 10, "Your next renewal is "
+			Text 25, 40, 135, 10, "If approved, benefit Issuance: "
+			Text 25, 115, 160, 10, "Do you know how to use an EBT card?"
+			GroupBox 5, 0, 530, 305, ""
+			Text 35, 50, 180, 10, "- SNAP " & snap_day_of_issuance & " of the month"
+			Text 30, 195, 260, 10, "-Recipients with unstable housing can have the card mailed to a service center"
+			Text 35, 60, 185, 10, "- CASH " & cash_day_of_issuance & " of the month"
+			Text 25, 155, 100, 10, "First Time Recipients"
+			Text 25, 225, 220, 10, "False information may lead to a loss of benefits. Report changes:  "
+			Text 25, 270, 440, 10, "Appeal: SNAP within 90 days; Cash/Child care assistance/healthcare within 30 days of notice "
+			Text 25, 130, 440, 10, "EBT Card Customer Service (888) 997-2227 or www.ebtEDGE.com"
+			Text 25, 85, 155, 10, "This case is subject to which type of reporting?"
+			Text 25, 25, 365, 10, "Provided to help families meet their basic needs including: food, shelter, clothing, utilities and transportation."
+			Text 30, 235, 440, 10, "-SNAP by 10th next month"
+			Text 30, 245, 440, 10, "-Cash assistance/child care assistance within 10 days"
+			Text 30, 255, 440, 10, "-Child care provider change requires 15 day prior"
+			Text 30, 165, 180, 10, "-By default, receive card by mail"
+			Text 25, 100, 160, 10, "Do you already have an EBT card for this case? "
+			Text 30, 180, 260, 10, "-In-person pickup must be confirmed with the accounting service desk"
+		EndDialog
 
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-				ButtonGroup ButtonPressed
-					ComboBox 310, 45, 225, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
-					DropListBox 310, 75, 225, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
-					DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Basics Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_read
-					PushButton 465, 365, 80, 15, "Continue", continue_btn
-					Text 10, 10, 160, 10, "REVIEW the information listed here to the resident:"
-					GroupBox 10, 25, 530, 335, "EBT Information"
-					Text 20, 35, 275, 10, "For Cash and Supplemental Nutrition Assistance Program (SNAP) benefits:"
-					Text 30, 45, 265, 25, "- Each time you use your Electronic Benefits Transfer (EBT) card or sign your check, you state that you have informed the county or tribal agency about any changes in your situation that may affect your benefits."
-					Text 30, 75, 265, 25, "- Each time your EBT card is used, we assume you have received your cash or SNAP benefits, unless you reported your card lost or stolen to the county or tribal agency."
+		dialog Dialog1
+		cancel_confirmation
 
-					Text 20, 105, 275, 25, "The standard way to get your benefits to you is through issuance on an EBT card. For cash benefits, there may be other options such as a vendor payment or direct deposit. If you want more information about these options, please let us know."
+		If ButtonPressed = accounting_in_hsr_manual_btn or ButtonPressed = accounting_service_desk_btn or ButtonPressed = open_dhs_4163_btn Then
+			err_msg = "LOOP"
+			If ButtonPressed = accounting_in_hsr_manual_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Accounting.aspx"
+			If ButtonPressed = accounting_service_desk_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-faa/SitePages/Randle-Unit.aspx"
+			If ButtonPressed = open_dhs_4163_btn Then run  "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
+		End If
+		
+		If snap_reporting_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, select the correct reporting type for this case to ensure the best information is provided to the household."
+		If Trim(next_revw_month) = "" Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, indicate the next review month for this case."
+		If case_card_info = "Select or Type" or trim(case_card_info) = "" Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident has an EBT Card for this case."
+		If clt_knows_how_to_use_ebt_card = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident knows how to use their EBT Card."
 
-					Text 20, 140, 275, 10, "EBT card balances and information can be found:"
-					Text 30, 150, 265, 10, "- Call customer service, 24 hours a day / 7 days a week - Toll-free: 888-997-2227"
-					Text 30, 160, 265, 25, "- Go to www.ebtEDGE.com - Under EBT Cardholders, click on 'More Information' and log in using your user ID and password."
-					' Text 20, 105, 275, 25, ""
-
-					GroupBox 10, 190, 290, 75, "Your EBT Issuances"
-					Text 20, 205, 285, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
-					Text 20, 220, 285, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
-					Text 20, 235, 275, 20, "*** Due to processing changes or delay in receipt of information issuances days may change, you should access EBT information directly to ensure benefits are available."
-
-
-					Text 310, 35, 225, 10, "Do you already have an EBT card for this case?"
-
-					Text 310, 65, 225, 10, "Do you know how to use an EBT card?"
-
-					Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
-
-					Text 310, 95, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
-					Text 310, 115, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
-					Text 310, 135, 200, 20, "If they have never had an EBT card, see the ACCOUNTING page in the HSR manual."
-					PushButton 430, 145, 100, 12, "HSR Manual - Accounting", accounting_in_hsr_manual_btn
-					Text 310, 160, 200, 20, "The resident MAY be able to pick one up in one of the following service centers:"
-					Text 320, 180, 200, 10, "Central-Northeast HSB (525 Portland Ave South, Minneapolis)"
-					Text 320, 190, 200, 10, "South (2215 East Lake Street, Minneapolis)"
-					Text 320, 200, 215, 10, "Northwest (7051 Brooklyn Boulevard, Brooklyn Center - 1st floor)"
-					Text 320, 215, 180, 20, "REACH OUT TO THE ACCOUNTING SERVICE DESK TO CONFIRM CASE CAN RECEIVE A CARD IN OFFICE"
-					PushButton 320, 235, 180, 13, "Accounting Service Desk Sharepoint Site", accounting_service_desk_btn
-					Text 310, 255, 220, 35, "If resident does not have a stable mailing address to receive an EBT card and cannot get a new/replacement card in the office, there is a process to have the card mailed to one of the above service centers for pickup."
-					Text 310, 255, 220, 25, "If resident does not have a stable mailing address to receive an EBT card, there is a process to have the card mailed to a service center for pickup."
-					PushButton 310, 280, 180, 15, "Accounting Processes for EBT Cards", accounting_in_hsr_manual_btn
-					Text 320, 300, 115, 10, "This is helpful for residents who:"
-					Text 330, 310, 115, 10, "Need a replacement card."
-					Text 330, 320, 155, 20, "Accounting specifies resident cannot receive card in office."
-			EndDialog
-
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_ebt_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-			If confirm_ebt_read = "YES! EBT Basics Discussed" Then
-				If case_card_info = "Select or Type" or trim(case_card_info) = "" Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident has an EBT Card for this case."
-				If clt_knows_how_to_use_ebt_card = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident knows how to use their EBT Card."
-			End If
-
-			If ButtonPressed = accounting_service_desk_btn Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-faa/SitePages/Randle-Unit.aspx"
-			End If
-			If ButtonPressed = accounting_in_hsr_manual_btn Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Accounting.aspx"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
+		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 save_your_work
 
 If clt_knows_how_to_use_ebt_card = "No" then
-	If left(confirm_ebt_how_to_read, 4) <> "YES!" Then
-		Do
-			Do
-				err_msg = ""
-
-				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-				  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Detail Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_how_to_read
-				  ButtonGroup ButtonPressed
-				    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-				  GroupBox 10, 15, 530, 340, "How to Use Your Minnesota EBT Card"
-				  Text 185, 25, 345, 10, "Your EBT card is a safe, convenient and easy way for you to get your cash and food benefits each month."
-				  Text 10, 370, 210, 10, "Confirm you have reviewed How to Use EBT Information:"
-				  ButtonGroup ButtonPressed
-				    PushButton 440, 5, 100, 13, "Open DHS 3315A", open_ebt_brochure_btn
-				  Text 20, 30, 65, 10, "How to get a card:"
-				  Text 25, 40, 305, 10, "- Your first card will be mailed to you within 2 business days of your benefits being approved."
-				  Text 25, 50, 130, 10, "- Replacement cards are also mailed."
-				  Text 40, 60, 170, 10, "Call 1-888-997-2227 to request a replacement card"
-				  Text 40, 70, 170, 10, "Cards take about 5 business days to arrive."
-				  Text 40, 80, 275, 10, "There is a $2 charge for all replacement cards, which is reduced from your benefit."
-				  Text 25, 90, 230, 20, "NOTE: If you have cash benefits, you will be issued a card that has your name on it. SNAP only cases to not have names on the EBT card."
-				  Text 20, 115, 85, 10, "Where to use your card:"
-				  Text 25, 125, 120, 10, "At a store 'point-of-sale' machine."
-				  Text 25, 135, 75, 10, "At an ATM (Cash Only)"
-				  Text 25, 145, 140, 10, "At a check cashing business (Cash Only)"
-				  Text 365, 45, 80, 10, "Keep your card safe"
-				  Text 375, 55, 120, 10, "Lost benefits will not be replaced."
-				  Text 375, 65, 155, 15, "Do not leave your card lying around or lose it, treat it like a debit card or cash."
-				  Text 365, 90, 110, 10, "Do not throw your card away"
-				  Text 375, 105, 150, 20, "The same card will be used every month for as long as you have benefits."
-				  Text 375, 130, 155, 20, "Even if your cases closes and reopens in the future the same card may be used."
-				  Text 365, 155, 145, 10, "Misuse of your EBT Card is Unlawful"
-				  Text 370, 170, 160, 20, "- Selling your card or PIN to others may result in criminal charges and your benefits may end."
-				  Text 370, 190, 165, 20, "- Attempting to buy tobacco products or alcoholic beverages with your EBT Card is considered fraud."
-				  Text 370, 210, 165, 20, "- Repeated loss of your card may cause a fraud investigation to be opened on you."
-				  Text 20, 165, 105, 10, "How to get or change your PIN:"
-				  Text 25, 180, 135, 10, "- Call customer service at 888-997-2227"
-				  Text 25, 190, 165, 10, "- Visit your county or tribal human services office"
-				  Text 25, 200, 195, 10, "- Visit the ebtEDGE cardholder portal www.ebtEDGE.com"
-				  Text 25, 210, 195, 20, "- Access the ebtEDGE mobile application, www.FISGLOBal.COM/EBTEDGEMOBILE"
-				  Text 20, 230, 145, 20, "4 failed attepts to enter your PIN will lock your card until 12:01 am the next day."
-				  Text 20, 255, 185, 10, "Register to receive EBT Information by Text Message"
-				  Text 35, 325, 135, 10, "- Current Balance (text 'BAL' to 42265)"
-				  Text 35, 335, 145, 10, "- Last 5 transactions  (text 'MINI' to 42265)"
-				  Text 25, 265, 135, 10, "1. Go to www.ebtEDGE.com and log in"
-				  Text 25, 275, 80, 10, "2. Select 'EBT Account'"
-				  Text 25, 285, 205, 10, "3. Select 'Messaging Registration' under the Account Services menu"
-				  Text 25, 295, 140, 10, "4. Enter your mobile (cell) phone number."
-				  Text 25, 305, 230, 10, "5. Check the box next to SMS Balance, then click the 'Update' button."
-				  Text 25, 315, 190, 10, "6. Use the same mobil number and text for information:"
-				EndDialog
-
-				dialog Dialog1
-				cancel_confirmation
-
-				If confirm_ebt_how_to_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-				If ButtonPressed = open_ebt_brochure_btn Then
-					err_msg = "LOOP"
-					run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3315A-ENG"
-				End If
-
-				IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-
-			Loop until err_msg = ""
-			Call check_for_password(are_we_passworded_out)
-		Loop until are_we_passworded_out = FALSE
-	End If
-	save_your_work
-End If
-
-
-'NOTICE OF PRIVACY PRACTICES
-If left(confirm_npp_info_read, 4) <> "YES!" Then
 	Do
 		Do
 			err_msg = ""
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Information Discussed"+chr(9)+"No, I could not complete this", confirm_npp_info_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				PushButton 440, 5, 100, 13, "Open DHS 3979", open_npp_doc
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - About the Information you give us"
-			  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
-			  Text 15, 35, 275, 10, "Why do we ask for this information?"
-			  Text 15, 45, 275, 10, "In order to determine whether and how we can help you, we collect information:"
-			  Text 17, 55, 3, 10, "-"
-			  Text 20, 55, 275, 10, "To tell you apart from other people with the same or similar name"
-			  Text 17, 65, 3, 10, "-"
-			  Text 20, 65, 275, 10, "To decide what you are eligible for"
-			  Text 17, 75, 3, 10, "-"
-			  Text 20, 75, 275, 20, "To help you get medical, mental health, financial or social services and decide if you can pay for some services"
-			  Text 17, 95, 3, 10, "-"
-			  Text 20, 95, 275, 10, "To decide if you or your family need protective services"
-			  Text 17, 105, 3, 10, "-"
-			  Text 20, 105, 275, 10, "To decide about out-of-home care and in-home care for you or your children"
-			  Text 17, 115, 3, 10, "-"
-			  Text 20, 115, 275, 10, "To investigate the accuracy of the information in your application"
-			  Text 15, 125, 275, 20, "After we have begun to provide services or support to you, we may collect additional information:"
-			  Text 17, 145, 3, 10, "-"
-			  Text 20, 145, 275, 10, "To make reports, do research, do audits, and evaluate our programs"
-			  Text 17, 155, 3, 10, "-"
-			  Text 20, 155, 275, 10, "To investigate reports of people who may lie about the help they need"
-			  Text 17, 165, 3, 10, "-"
-			  Text 20, 165, 275, 20, "To collect money from other agencies, like insurance companies, if they should pay for your care"
-			  Text 17, 180, 3, 10, "-"
-			  Text 20, 180, 275, 10, "To collect money from the state or federal government for help we give you."
-			  Text 17, 190, 3, 10, "-"
-			  Text 20, 190, 275, 20, "When your or your family's circumstances change and you are required to report the change (see Client Responsibilities and Rights - DHS-4163)"
-			  Text 15, 210, 275, 10, "Why do we ask you for your Social Security number?"
-			  Text 20, 220, 275, 75, "We need your Social Security number to give you medical assistance, some kinds of financial help, or child support enforcement services (42 CFR 435.910 [2006]; Minn. Stat. 256D.03, subd.3(h); Minn. Stat.256L.04, subd. 1a; 45 CFR 205.52 [2001]; 42 USC 666; 45 CFR 303.30 [2001]). We also need your Social Security Number to verify identity and prevent duplication of state and federal benefits. Additionally, your Social Security Number is used to conduct computer data matches with collaborative, nonprofit and private agencies to verify income, resources, or other information that may affect your eligibility and/or benefits."
-			  Text 20, 285, 275, 10, "You do not have to give us the Social Security Number:"
-			  Text 22, 295, 3, 10, "-"
-			  Text 25, 295, 275, 10, "For persons in your home who are not applying for coverage"
-			  Text 22, 305, 3, 10, "-"
-			  Text 25, 305, 275, 10, "If you have religious objections"
-			  Text 22, 315, 3, 10, "-"
-			  Text 25, 315, 500, 10, "If you are not a United States citizen and are applying for Emergency Medical Assistance only"
-			  Text 22, 325, 3, 10, "-"
-			  Text 25, 325, 500, 20, "If you are from another country, in the United States on a temporary basis and do not have permission from the United States Citizenship and Immigration Services to live in the United States permanently"
-			  Text 22, 342, 3, 10, "-"
-			  Text 25, 342, 500, 10, "If you are living in the United States without the knowledge or approval of the U.S. Citizenship and Immigration Services."
-			  Text 305, 35, 225, 10, "Do you have to answer the questions we ask?"
-			  Text 310, 45, 240, 45, "You do not have to give us your personal information. Without the information, we may not be able to help you. If you give us wrong information on purpose, you can be investigated and charged with fraud."
-			  Text 305, 75, 225, 10, "With whom may we share information?"
-			  Text 305, 85, 225, 35, "We will only share information about you as needed and as allowed or required by law. We may share your information with the following agencies or persons who need the information to do their jobs:"
-			  Text 307, 110, 3, 10, "-"
-			  Text 310, 110, 225, 35, "Employees or volunteers with other state, county, local, federal, collaborative, nonprofit and private agencies"
-			  Text 307, 130, 3, 10, "-"
-			  Text 310, 130, 225, 35, "Researchers, auditors, investigators, and others who do quality of care reviews and studies or commence prosecutions or legal actions related to managing the human services programs."
-			  Text 307, 155, 3, 10, "-"
-			  Text 310, 155, 225, 35, "Court officials, county attorney, attorney general, other law enforcement officials, child support officials, and child protection and fraud investigators"
-			  Text 307, 180, 3, 10, "-"
-			  Text 310, 180, 225, 10, "Human services offices, including child support enforcement offices"
-			  Text 307, 190, 3, 10, "-"
-			  Text 310, 190, 225, 20, "Governmental agencies in other states administering public benefits programs"
-			  Text 307, 210, 3, 10, "-"
-			  Text 310, 210, 225, 20, "Health care providers, including mental health agencies and drug and alcohol treatment facilities"
-			  Text 307, 230, 3, 10, "-"
-			  Text 310, 230, 225, 20, "Health care insurers, health care agencies, managed care organizations and others who pay for your care"
-			  Text 307, 250, 3, 10, "-"
-			  Text 310, 250, 225, 10, "Guardians, conservators or persons with power of attorney"
-			  Text 307, 260, 3, 10, "-"
-			  Text 310, 260, 225, 20, "Coroners and medical investigators if you die and they investigate your death"
-			  Text 307, 280, 3, 10, "-"
-			  Text 310, 280, 225, 20, "Credit bureaus, creditors or collection agencies if you do not pay fees you owe to us for services"
-			  Text 307, 300, 3, 10, "-"
-			  Text 310, 300, 225, 10, "Anyone else to whom the law says we must or can give the information"
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices Information:"
-			EndDialog
 
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_npp_info_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_npp_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-If left(confirm_npp_rights_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-	  		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Rights Discussed"+chr(9)+"No, I could not complete this", confirm_npp_rights_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				PushButton 440, 5, 100, 13, "Open DHS 3979", open_npp_doc
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - Rights"
-			  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
-			  Text 15, 40, 275, 10, "What are your rights regarding the information we have about you?"
-			  Text 17, 50, 3, 10, "-"
-			  Text 20, 50, 275, 20, "You and people you have given permission to may see and copy private information we have about you. You may have to pay for the copies."
-			  Text 17, 70, 3, 10, "-"
-			  Text 20, 70, 275, 40, "You may question if the information we have about you is correct. Send your concerns in writing. Tell us why the information is wrong or not complete. Send your own explanation of the information you do not agree with. We will attach your explanation any time information is shared with another agency."
-			  Text 17, 110, 3, 10, "-"
-			  Text 20, 110, 275, 35, "You have the right to ask us in writing to share information with you in a certain way or in a certain place. For example, you may ask us to send health information to your work address instead of your home address. If we find that your request is reasonable, we will grant it."
-			  Text 17, 150, 3, 10, "-"
-			  Text 20, 150, 275, 20, "You have the right to ask us to limit or restrict the way that we use or disclose your information, but we are not required to agree to this request."
-			  Text 17, 170, 3, 10, "-"
-			  Text 20, 170, 275, 20, "If you do not understand the information, ask your worker to explain it to you. You can ask the Minnesota Department of Human Services for another copy of this notice."
-
-			  Text 15, 200, 150, 10, "What privacy rights do children have?"
-			  Text 20, 215, 490, 50, "If you are under 18, when parental consent for medical treatment is not required, information will not be shown to parents unless the health care provider believes not sharing the information would risk your health. Parents may see other information about you and let others see this information, unless you have asked that this information not be shared with your parents. You must ask for this in writing and say what information you do not want to share and why. If the agency agrees that sharing the information is not in your best interest, the information will not be shared with your parents. If the agency does not agree, the information may be shared with your parents if they ask for it."
-			  Text 15, 270, 275, 10, "What if you believe your privacy rights have been violated?"
-			  Text 20, 285, 490, 20, "If you think that the Minnesota Department of Human Services has violated your privacy rights, you may send a written complaint to the U.S. Department of Health and Human Services to the address below:"
-			  Text 20, 305, 275, 10, "Minnesota Department of Human Services"
-			  Text 20, 315, 275, 10, "Attn: Privacy Official"
-			  Text 20, 325, 275, 10, "PO Box 64998"
-			  Text 20, 335, 275, 10, "St. Paul, MN 55164-0998"
-
-			  Text 305, 40, 225, 10, "What are our responsibilities?"
-			  Text 307, 50, 3, 10, "-"
-			  Text 310, 50, 225, 20, "We must protect the privacy of your private information according to the terms of this notice."
-			  Text 307, 70, 3, 10, "-"
-			  Text 310, 70, 225, 40, "We may not use your information for reasons other than the reasons listed on this form or share your information with individuals and agencies other than those listed on this form unless you tell us in writing that we can."
-			  Text 307, 110, 3, 10, "-"
-			  Text 310, 110, 225, 40, "We must follow the terms of this notice, but we may change our privacy policy because privacy laws change. We will put changes to our privacy rules on our website at: http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
-			  ' ButtonGroup ButtonPressed
-			  '   PushButton 310, 150, 100, 13, "Open DHS 3979", open_npp_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices Rights:"
+				Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
+				CheckBox 10, 20, 195, 10, "How to Use Your Minnesota EBT Card Reviewed", DHS_3315A_checkbox
+				GroupBox 20, 35, 290, 95, "How to get a card:"
+				Text 35, 45, 270, 10, "- Your first card is mailed within 2 business days of your benefits being approved"
+				Text 35, 55, 130, 10, "- Replacement cards are mailed"
+				Text 50, 65, 170, 10, "Call 1-888-997-2227 to request a replacement card"
+				Text 50, 75, 170, 10, "Cards take about 5 business days to arrive."
+				Text 50, 85, 240, 10, "$2 charge for all replacement cards, which is reduced from your benefit."
+				Text 35, 95, 230, 20, "NOTE: If you have cash benefits, you will be issued a card that has your name on it. SNAP only cases do not have names on the EBT card."
+				Text 35, 135, 120, 10, "At a store 'point-of-sale' machine."
+				Text 35, 145, 75, 10, "At an ATM (Cash Only)"
+				Text 35, 155, 140, 10, "At a check cashing business (Cash Only)"
+				GroupBox 20, 125, 290, 55, "Where to use your card:"
+				Text 35, 185, 135, 10, "- Call customer service at 888-997-2227"
+				Text 35, 195, 165, 10, "- Visit your county or tribal human services office"
+				Text 35, 205, 195, 10, "- Visit the ebtEDGE cardholder portal www.ebtEDGE.com"
+				Text 35, 215, 195, 20, "- Access the ebtEDGE mobile application, www.FISGLOBal.COM/EBTEDGEMOBILE"
+				Text 35, 235, 270, 10, "NOTE: 4 failed attepts to enter your PIN locks your card until 12:01 am the next day"
+				GroupBox 20, 175, 290, 85, "How to get or change your PIN:"
+				GroupBox 20, 255, 290, 100, "Register to receive EBT Information by Text Message"
+				Text 35, 265, 135, 10, "1. Go to www.ebtEDGE.com and log in"
+				Text 35, 275, 80, 10, "2. Select 'EBT Account'"
+				Text 35, 285, 205, 10, "3. Select 'Messaging Registration' under the Account Services menu"
+				Text 35, 295, 140, 10, "4. Enter your mobile (cell) phone number."
+				Text 35, 305, 230, 10, "5. Check the box next to SMS Balance, then click the 'Update' button."
+				Text 35, 315, 190, 10, "6. Use the same mobil number and text for information:"
+				Text 45, 325, 135, 10, "- Current Balance (text 'BAL' to 42265)"
+				Text 45, 335, 145, 10, "- Last 5 transactions  (text 'MINI' to 42265)"
+				GroupBox 310, 35, 210, 320, "General Care/Use"
+				Text 325, 50, 80, 10, "Keep your card safe"
+				Text 335, 60, 120, 10, "Lost benefits will not be replaced."
+				Text 335, 70, 155, 15, "Do not leave your card lying around or lose it, treat it like a debit card or cash."
+				Text 325, 100, 110, 10, "Do not throw your card away"
+				Text 335, 110, 150, 20, "The same card will be used every month for as long as you have benefits."
+				Text 335, 135, 155, 20, "Even if your cases closes and reopens in the future the same card may be used."
+				Text 325, 165, 145, 10, "Misuse of your EBT Card is Unlawful"
+				Text 330, 175, 160, 20, "- Selling your card or PIN to others may result in criminal charges and your benefits may end."
+				Text 330, 195, 165, 20, "- Attempting to buy tobacco products or alcoholic beverages with your EBT Card is considered fraud."
+				Text 330, 215, 165, 20, "- Repeated loss of your card may cause a fraud investigation to be opened on you."
+				ButtonGroup ButtonPressed
+					PushButton 480, 5, 60, 15, "Open DHS3315A", open_ebt_brochure_btn
+					PushButton 465, 365, 80, 15, "Continue", continue_btn
 			EndDialog
 
 			dialog Dialog1
 			cancel_confirmation
 
-			If confirm_npp_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_npp_doc Then
+			If ButtonPressed = open_ebt_brochure_btn Then
 				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3315A-ENG"
 			End If
 
 			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
 
-'NOTICE ABOUT IEVS
-If left(confirm_ievs_info_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! IEVS Information Discussed"+chr(9)+"No, I could not complete this", confirm_ievs_info_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "IEVS Information"
-			  Text 15, 25, 275, 10, "What is the Income and Eligibility Verification System (IEVS)?"
-			  Text 20, 35, 275, 20, "The government has a way to check income. It is the 'Income and Eligibility Verification System' (IEVS)."
-			  Text 20, 55, 275, 30, "The law has us check your income with other agencies. We have to check income for all who ask for or get cash assistance, Supplemental Nutrition Assistance Program (SNAP) benefits or Medical Assistance (MA). This includes your children."
-			  Text 20, 85, 275, 30, "We need Social Security Numbers (SSN) for anyone wanting help. If you have no SSN, you must apply for one. Apply with your county human services agency. You must report all SSNs to your worker."
-
-			  Text 15, 115, 275, 10, "Agencies we get information from. We must trade facts with these agencies:"
-			  Text 17, 125, 3, 10, "-"
-			  Text 20, 125, 275, 10, "United States Social Security Administration (SSA)"
-			  Text 17, 135, 3, 10, "-"
-			  Text 20, 135, 275, 10, "United States Internal Revenue Service (IRS)"
-			  Text 17, 145, 3, 10, "-"
-			  Text 20, 145, 275, 10, "Minnesota Department of Employment and Economic Development (DEED)"
-			  Text 17, 155, 3, 10, "-"
-			  Text 20, 155, 275, 10, "Minnesota Office of Child Support Division"
-			  Text 17, 165, 3, 10, "-"
-			  Text 20, 165, 275, 10, "Agencies in other states that manage:"
-			  Text 17, 175, 3, 10, "-"
-			  Text 20, 175, 275, 10, "Unemployment Insurance"
-			  Text 17, 185, 3, 10, "-"
-			  Text 20, 185, 275, 10, "Cash assistance/SNAP/MA"
-			  Text 17, 195, 3, 10, "-"
-			  Text 20, 195, 275, 10, "Child support"
-			  Text 17, 205, 3, 10, "-"
-			  Text 20, 205, 275, 10, "SSI state supplements"
-			  Text 15, 215, 275, 30, "These agencies have the right to get certain facts from us about you. They have to use those facts for programs like RSDI, child support, cash assistance, SNAP, MA, Unemployment Insurance, and SSI."
-
-			  Text 15, 230, 275, 10, "Your duty to report"
-			  Text 20, 240, 275, 10, "You must report all of your income and assets."
-			  Text 20, 250, 275, 20, "You must still report all of your income, assets and other information on redetermination forms we send you.  "
-			  Text 20, 270, 275, 20, "You must help the county agency check your income, assets and health insurance. IEVS is one way of proving your income, assets and health insurance amounts."
-			  Text 15, 290, 275, 10, "What if you do not help"
-			  Text 20, 300, 275, 20, "You must help us check your income, assets and health insurance to get cash assistance, SNAP and MA. If you don't, you and your family will not get help."
-
-			  Text 120, 330, 380, 20, "Legal Authority - IEVS - 7 CFR, parts 271, 272, 273, 275; 42 CFR, parts 431, 435; 45 CFR, parts 205, 206, 233 - Work Reporting - Minnesota Statutes Section 256.998, Subd. 10"
-
-			  Text 305, 25, 225, 10, "What facts will we get? How will we use them?"
-			  Text 305, 35, 225, 40, "We check with other agencies about your income, assets and health insurance. If you didn't tell us about all of your income or assets, we will refigure your aid. Your aid might go lower or stop. If you get aid you should not be getting, we may use these facts in civil or criminal lawsuits."
-			  Text 305, 75, 225, 40, "We will tell you if facts from other agencies are not the same as the facts you gave us. We will tell you what facts we got, the kind of income or assets, and the amount. We give you 10 days to respond in writing to prove if our facts are wrong."
-			  Text 305, 115, 225, 40, "We will ask you to show proof of income, assets, or health insurance you did not report or that we could not verify. You may need to give us permission to check the facts with the source of data. We will tell you what happens if you do not sign for permission or do not help us."
-
-			  Text 305, 155, 225, 10, "What is the Work Reporting System?"
-			  Text 305, 165, 225, 40, "Minnesota employers must tell us when they hire someone. This information is used by the Child Support Program. We also use this information to see if a new employee is getting help from any of the programs listed above."
-			  Text 305, 205, 225, 10, "How do we use it?"
-			  Text 305, 215, 225, 40, "If the employee is getting help from any of these programs, the county worker gets a notice. If the client did not report the new job, the county worker will contact the client. The county worker may ask the client to show proof about the job. The client may need to give the county permission to check the facts with the employer. If a client does not help us check the information, they will lose benefits."
-			  Text 305, 265, 225, 10, "The law limits who gets facts about you"
-			  Text 305, 275, 225, 50, "The law limits the facts about you that we get from other agencies and the facts we give them. Contracts with the Minnesota Department of Human Services and those agencies also protect you. Only those agencies, the state, and the county agency where you apply for and get program benefits can use the facts about you. No one else can get the facts about you without your written permission."
-			  ButtonGroup ButtonPressed
-			    PushButton 15, 330, 100, 13, "Open DHS 2759", open_IEVS_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed IEVS Information:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_ievs_info_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_IEVS_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2759-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-'APPEAL RIGHTS
-If left(confirm_appeal_rights_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Appeal Rights Discussed"+chr(9)+"No, I could not complete this", confirm_appeal_rights_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Appeal Rights"
-			  Text 15, 25, 505, 10, "Appeal rights. An appeal is a legal process where a human services judge reviews a decision made by the agency. You may appeal a decision if:"
-			  Text 20, 35, 500, 10, "You feel the agency did not act on your request for assistance."
-			  Text 20, 45, 500, 10, "You do not agree with the action taken."
-			  Text 15, 55, 505, 10, "You may represent yourself at the hearing, or you may have someone (an attorney, relative, friend or another person) speak for you."
-
-			  Text 20, 65, 500, 20, "For emergency help, when your case is about an emergency and you need a faster decision on your appeal, you can ask for an emergency hearing in your appeal request. You can also request it by calling the Department of Human Services Appeals Division."
-			  Text 20, 85, 500, 40, "For cash, child care and health care, you may appeal within 30 days from the date you received this notice by sending a written appeal request saying you do not agree with the decision. You can send this letter to the agency, or directly to the Appeals Division. If you show good cause for not appealing your cash, child care and health care within 30 days, the agency can accept your appeal for up to 90 days from the date of the notice. Good cause is when you have a good reason for not appealing on time. The Appeals Division will decide if your reason is a good cause reason. You can ask to meet informally with agency staff to try to solve the problem, but this meeting will not delay or replace your right to an appeal."
-			  Text 20, 125, 500, 10, "For the Supplemental Nutrition Assistance Program, you may appeal within 90 days by writing or calling the agency or the Appeals Division."
-			  Text 20, 135, 500, 10, "Submit your appeal request:"
-			  Text 25, 145, 495, 10, "Online: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-0033-ENG"
-			  Text 25, 155, 495, 10, "Write: Minnesota Department of Human Services Appeals Division P.O. Box 64941 St. Paul, MN 55164-0941"
-			  Text 25, 165, 495, 10, "Fax: 651-431-7523"
-			  Text 25, 175, 495, 10, "Call: Metro: 651-431-3600 Greater Minnesota: 800-657-3510 "
-			  Text 20, 185, 500, 40, "If you want to keep receiving your benefits until the hearing, you must appeal within 10 days of the date on the agency’s notice of action letter or before the proposed action takes place in order to keep benefits in place. For most programs, if you file your appeal on time, you will get your benefits until the Appeals Division decides your appeal. If you lose your appeal, you may have to pay back the benefits you got while your appeal was pending. You can ask the agency to end your benefits until the decision. If you end your benefits and then win your appeal, you will be paid back for benefits that you should have received or, for child care assistance, your provider will be reimbursed for eligible costs that you paid or incurred. Ask your agency worker to explain how the timing of your appeal could affect your present or future assistance."
-			  Text 15, 235, 505, 10, "You have the right to reapply at any time if your benefits stop."
-			  Text 15, 245, 505, 20, "Access to free legal services. You may be able to get legal advice or help with an appeal from your local legal aid office. To find your local legal aid office, visit www.LawHelpMN.org or call 888-354-5522."
-
-			  ButtonGroup ButtonPressed
-			    PushButton 15, 265, 100, 13, "Open DHS 3353", open_appeal_rights_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Appeal Rights:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_appeal_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_appeal_rights_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-'CIVIL RIGHTS NOTICE AND COMPLAINTS
-If left(confirm_civil_rights_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Civil Rights Discussed"+chr(9)+"No, I could not complete this", confirm_civil_rights_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Civil Rights Notice and Complaints"
-			  Text 15, 25, 505, 10, "Discrimination is against the law. The Minnesota Department of Human Services (DHS) does not discriminate on the basis of any of the following:"
-			  Text 20, 35, 505, 10, "- race   - national origin   - religion   - public assistance status   - age   - sex   - color   - creed   - sexual orientation   - marital status   - disability   - political beliefs"
-
-			  Text 15, 50, 275, 10, "Civil Rights Complaints"
-			  Text 20, 60, 275, 20, "You have the right to file a discrimination complaint if you believe you were treated in a discriminatory way by a human services agency."
-			  Text 20, 80, 275, 10, "Contact DHS directly only if you have a discrimination complaint:"
-			  Text 25, 90, 275, 10, "Civil Rights Coordinator"
-			  Text 25, 100, 275, 10, "Minnesota Department of Human Services"
-			  Text 25, 110, 275, 10, "Equal Opportunity and Access Division"
-			  Text 25, 120, 275, 10, "P.O. Box 64997 St. Paul, MN 55164-0997"
-			  Text 25, 130, 275, 10, "651-431-3040 (voice) or use your preferred relay service"
-
-			  Text 15, 140, 275, 10, "Minnesota Department of Human Rights (MDHR)"
-			  Text 20, 150, 275, 20, "In Minnesota, you have the right to file a complaint with the MDHR if you believe you have been discriminated against because of any of the following:"
-			  Text 25, 170, 275, 10, "- race   - sex   - color   - sexual orientation   - national origin   - marital status"
-			  Text 25, 180, 275, 10, "- religion   - public assistance status   - creed   - disability"
-			  Text 20, 190, 275, 10, "Contact the MDHR directly to file a complaint:"
-			  Text 25, 200, 275, 10, "Minnesota Department of Human Rights"
-			  Text 25, 210, 275, 10, "Freeman Building, 625 North Robert Street St. Paul, MN 55155"
-			  Text 25, 220, 275, 10, "651-539-1100 (voice) 1-800-657-3704 (toll free) 651-296-9042 (fax)"
-			  Text 25, 230, 275, 10, "Info.MDHR@state.mn.us (email)"
-
-
-			  Text 15, 240, 275, 10, "U.S. Department of Health and Human Services' Office for Civil Rights (OCR)"
-			  Text 20, 250, 275, 20, "You have the right to file a complaint with the OCR, a federal agency, if you believe you have been discriminated against because of any of the following:"
-			  Text 25, 270, 275, 10, "- race   - age   - religion   - color   - disability   - national origin   - sex"
-			  Text 20, 280, 275, 10, "Contact the OCR directly to file a complaint:"
-			  Text 25, 290, 275, 10, "Director, U.S. Department of Health and Human Services' Office for Civil Rights"
-			  Text 25, 300, 275, 10, "200 Independence Avenue SW, Room 509F HHH Building Washington, DC 20201"
-			  Text 25, 310, 275, 10, "1-800-368-1019 (voice)  1-800-537-7697 (TDD)"
-			  Text 25, 320, 275, 10, "Complaint Portal: https://ocrportal.hhs.gov/ocr/portal/lobby.jsf"
-
-			  Text 305, 55, 225, 60, "In accordance with Federal civil rights law and U.S. Department of Agriculture (USDA) civil rights regulations and policies, the USDA, its Agencies, offices, and employees, and institutions participating in or administering USDA programs are prohibited from discriminating based on race, color, national origin, sex, religious creed, disability, age, political beliefs, or reprisal or retaliation for prior civil rights activity in any program or activity conducted or funded by USDA."
-			  Text 305, 115, 225, 70, "Persons with disabilities who require alternative means of communication for program information (e.g. Braille, large print, audiotape, American Sign Language, etc.), should contact the Agency (State or local) where they applied for benefits. Individuals who are deaf, hard of hearing or have speech disabilities may contact USDA through the Federal Relay Service at 1-800-877-8339. Additionally, program information may be made available in languages other than English."
-			  Text 305, 185, 225, 60, "To file a program complaint of discrimination, complete the USDA Program Discrimination Complaint Form, (AD-3027) found online at: http://www.ascr.usda.gov/complaint_filing_cust.html, and at any USDA office, or write a letter addressed to USDA and provide in the letter all of the information requested in the form. To request a copy of the complaint form, call 1-866- 632-9992. Submit your completed form or letter to USDA by:"
-			  Text 310, 245, 225, 10, "(1) mail: U.S. Department of Agriculture"
-			  Text 315, 255, 225, 10, "Office of the Assistant Secretary for Civil Rights"
-			  Text 315, 265, 225, 10, "1400 Independence Avenue, SW"
-			  Text 315, 275, 225, 10, "Washington, DC 20250-9410;"
-			  Text 310, 285, 225, 10, "(2) fax: 202-690-7442; or"
-			  Text 310, 295, 225, 10, "(3) email: program.intake@usda.gov"
-			  Text 310, 305, 225, 10, "This institution is an equal opportunity provider."
-
-			  ButtonGroup ButtonPressed
-			    PushButton 15, 340, 100, 13, "Open DHS 3353", open_civil_rights_rights_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Civil Rights Information:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_civil_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_civil_rights_rights_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-' 'COVER LETTER
-' Do
-' 	Do
-' 		err_msg = ""
-'
-' 		Dialog1 = ""
-' 		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-' 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
-' 		  ButtonGroup ButtonPressed
-' 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
-' 		  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-' 		  GroupBox 10, 15, 530, 345, "Hennepin County Cover Letter"
-'
-'
-'
-' 		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-' 		EndDialog
-'
-' 		dialog Dialog1
-'
-'
-' 		cancel_confirmation
-' 	Loop until err_msg = ""
-' 	Call check_for_password(are_we_passworded_out)
-' Loop until are_we_passworded_out = FALSE
-' save_your_work
-
-'PROGRAM INFORMATION FOR CASH, FOOD, CHILD CARE - 2920
-If left(confirm_program_information_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Program Information Discussed"+chr(9)+"No, I could not complete this", confirm_program_information_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Program Information for cash, food, and child care programs"
-			  Text 15, 25, 505, 10, "How do you apply for help?"
-			  Text 20, 35, 505, 10, "If you do not have enough money to meet your basic needs, you can apply to find out if you are eligible for these assistance programs."
-			  Text 25, 45, 505, 10, "Apply online at MNbenefits.mn.gov."
-			  Text 25, 55, 505, 10, "Mail or bring your completed application to your county human services agency"
-			  Text 20, 65, 505, 10, "Food and cash programs require an interview with a worker. Most of the time this can be a phone interview. You will need to bring proof of:"
-			  Text 20, 75, 505, 10, "- Who you are   - Where you live   - What family members live with you   - What your income is   - What you own."
-			  Text 20, 85, 505, 10, "Whether or not you can receive help and how much you receive may depend on:"
-			  Text 20, 95, 505, 10, "- How long you have lived in Minnesota   - How many people live with you   - How much income you and these people receive each month."
-			  Text 20, 105, 505, 10, "Each program has different rules."
-
-			  Text 15, 115, 275, 20, "Cash assistance is provided to help you meet your basic needs, if you are eligible. Some of the programs have time limits. Cash programs include:"
-			  Text 20, 135, 275, 10, "Diversionary Work Program (DWP)"
-			  Text 25, 145, 275, 30, "A short-term work program that provides employment services and basic living costs to eligible families. DWP is for families who are working or looking for work, but need help with basic living expenses and have not MFIP or DWP in the last 12 months."
-			  Text 20, 175, 275, 10, "Minnesota Family Investment Program (MFIP)"
-			  Text 25, 185, 275, 20, "A monthly cash assistance program for families with children under 19 or pregnant women, and who have low incomes."
-			  Text 20, 205, 275, 10, "General Assistance (GA)"
-			  Text 25, 215, 275, 10, "A monthly cash payment for adults who are unable to work who:"
-			  Text 30, 225, 275, 10, "- Have little or no income and will soon return to work, or"
-			  Text 30, 235, 275, 10, "- Are waiting to get help from other state or federal programs."
-			  Text 20, 245, 275, 10, "Minnesota Supplemental Aid (MSA)"
-			  Text 25, 255, 275, 10, "A small extra monthly cash payment for adults who are eligible for federal SSI."
-			  Text 20, 265, 275, 10, "Group Residential Housing (GRH)"
-			  Text 25, 275, 275, 20, "A monthly payment that helps pay room and board costs for people who live in authorized settings and are:"
-			  Text 130, 285, 275, 10, "- Age 65 or older "
-			  Text 130, 295, 275, 10, "- Disabled and age 18 or older, or "
-			  Text 130, 305, 275, 10, "- Have blindness."
-			  Text 20, 315, 275, 10, "Refugee Cash Assistance (RCA)"
-			  Text 25, 325, 275, 10, "A monthly cash payment for refugees and asylees. RCA is for people who:"
-			  Text 30, 335, 275, 10, "- Have been in the United States eight months or less, and "
-			  Text 30, 345, 275, 10, "- Have refugee or asylee status."
-
-			  Text 305, 115, 225, 20, "Minnesota's Child Care Assistance Program makes quality child care affordable for families with low incomes, from the following programs:"
-			  Text 310, 135, 225, 10, "MFIP Child Care"
-			  Text 315, 145, 225, 30, "Families who receive assistance from the Diversionary Work Program or Minnesota Family Investment Program are eligible for child care if the parents are in work related activities."
-			  Text 310, 175, 225, 10, "Transition Year Child Care"
-			  Text 315, 185, 225, 30, "Available to families for up to 12 consecutive months after their Diversionary Work Program or Minnesota Family Investment Program case closes."
-			  Text 310, 215, 225, 10, "Basic Sliding Fee Child Care"
-			  Text 315, 225, 225, 10, "Available for other families with low incomes."
-			  Text 310, 240, 225, 10, "Supplemental Nutrition Assistance Program (SNAP)"
-			  Text 315, 250, 225, 30, "A federal program that helps Minnesotans with low income buy food. Benefits are available through EBT cards that can be used like money. Benefits are for:"
-			  Text 320, 275, 225, 10, "- Single people"
-			  Text 320, 285, 225, 10, "- Families with or without children"
-			  Text 315, 295, 225, 20, "Your income, the size of your household, and your housing costs determines how much you can receive."
-
-
-			  ButtonGroup ButtonPressed
-			    PushButton 405, 340, 100, 13, "Open DHS 2920", open_program_info_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Program Information:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_program_information_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_program_info_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2920-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-'DOMESTIC VIOLENCE INFORMATION - 3477
-If left(confirm_DV_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Domestic Violence Discussed"+chr(9)+"No, I could not complete this", confirm_DV_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Domestic Violence Information"
-			  Text 15, 25, 505, 10, "If you are in danger from domestic violence or abuse and need help, call:"
-			  Text 20, 35, 505, 10, "The National Domestic Violence Hotline at 800-799-7233, (TTY:800-787-3224)"
-			  Text 20, 45, 505, 10, "The Minnesota Coalition for Battered Women at 866-289-6177"
-			  Text 20, 55, 505, 10, "The Minnesota Day One Emergency Shelter and Crisis Hotline at 800-223-1111"
-
-			  Text 15, 65, 275, 10, "What is domestic violence?"
-			  Text 20, 75, 275, 40, "Domestic violence or abuse is what someone says or does over and over again to make you feel afraid or to control you. People who are elderly, frail, have a disability, or who depend on others for assistance may not be able to protect themselves from domestic violence or abuse. Minnesota has a law to protect and assist people who are vulnerable to abuse or who are not able to care for themselves. Examples of violence or abuse include:"
-			  Text 25, 115, 275, 10, "- Swearing or screaming at you"
-			  Text 25, 125, 275, 10, "- Calling you names"
-			  Text 25, 135, 275, 10, "- Taking money or property without permission"
-			  Text 25, 145, 275, 10, "- Threatening to hurt you or others you care about"
-			  Text 25, 155, 275, 10, "- Failing to provide care for you"
-			  Text 25, 165, 275, 10, "- Not letting you leave your house"
-			  Text 25, 175, 275, 10, "- Blaming you for everything that goes wrong"
-			  Text 25, 185, 275, 10, "- Stalking you"
-			  Text 25, 195, 275, 10, "- Being touched against your wishes or forced to have sex"
-			  Text 25, 205, 275, 10, "- Choking, grabbing, hitting, pushing, pinching or kicking you."
-
-			  Text 15, 215, 275, 20, "What services are available to victims of domestic violence or abuse?"
-
-			  Text 20, 225, 275, 10, "Toll-free Hotlines have counselors who provide services, including:"
-			  Text 25, 235, 275, 10, "- Crisis counseling"
-			  Text 25, 245, 275, 10, "- Safety planning"
-			  Text 25, 255, 275, 10, "- Assistance with finding shelter."
-			  Text 20, 265, 275, 10, "Referrals to other organizations including:"
-			  Text 25, 275, 275, 10, "- Legal services support groups"
-			  Text 25, 285, 275, 10, "- Advocacy with the police."
-
-
-			  Text 305, 65, 225, 10, "Safe At Home (SAH) Program"
-			  Text 310, 75, 225, 60, "The Safe At Home (SAH) Program is a statewide address confidentiality program that assists survivors of domestic violence, sexual assault, stalking and others who fear for their safety by providing a substitute address for people who move or are about to move to a new location unknown to their aggressors. For information on this program, contact Safe At Home at 651-201-1399 or 866-723-3035."
-			  Text 305, 135, 225, 10, "Vulnerable adults"
-			  Text 310, 145, 225, 30, "Call the Senior LinkAge Line at 800-333-2433 to report concerns and to help a vulnerable adult get needed protection and assistance. Ask your worker for more resource information."
-			  Text 305, 175, 225, 10, "What are domestic violence waivers?"
-			  Text 310, 185, 225, 30, "If you are eligible for public assistance and you experience domestic violence, certain program requirements may not apply in your situation."
-			  Text 310, 215, 225, 30, "If domestic violence or abuse makes it hard for you to follow program rules, talk to your county worker."
-
-
-			  ButtonGroup ButtonPressed
-			    PushButton 15, 340, 100, 13, "Open DHS 3477", open_DV_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Domestic Violence Information:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_DV_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_DV_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
-save_your_work
-
-'DO YOU HAVE A DISABILITY - 4133
-If left(confirm_disa_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Disability Information Discussed"+chr(9)+"No, I could not complete this", confirm_disa_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 15, 530, 345, "Do you have a Disability"
-			  Text 15, 25, 505, 10, "Please tell us if you have a disability so we can help you access human services programs and benefits."
-
-			  Text 15, 35, 275, 10, "What medical conditions may be disabilities?"
-			  Text 20, 45, 275, 20, "A disability is a physical, sensory, or mental impairment that materially limits a major life activity. Types of disabilities may include:"
-			  Text 25, 65, 275, 10, "- Diseases like diabetes, epilepsy or cancer"
-			  Text 25, 75, 275, 10, "- Learning disorders like dyslexia"
-			  Text 25, 85, 275, 10, "- Developmental delays"
-			  Text 25, 95, 275, 10, "- Clinical depression"
-			  Text 25, 105, 275, 10, "- Hearing loss or low vision"
-			  Text 25, 115, 275, 10, "- Movement restrictions like trouble with walking, reaching or grasping"
-			  Text 25, 125, 275, 10, "- History of alcohol or drug addiction"
-			  Text 35, 135, 275, 10, "(current illegal drug use is not a disability)"
-			  Text 20, 145, 275, 30, "If you are asking for or are getting benefits through either a county human services agency or the Minnesota Department of Human Services, that office will let you know if you have a disability using information from you and your doctor."
-
-			  Text 305, 35, 225, 10, "What help is available?"
-			  Text 310, 45, 225, 20, "If you have a disability, your county or the state human services agency can help you by:"
-			  Text 315, 65, 225, 20, "- Calling you or meeting with you in another place if you are not able to come into the office"
-			  Text 315, 85, 225, 10, "- Using a sign language interpreter"
-			  Text 315, 95, 225, 20, "- Giving you letters and forms in other formats like computer files, audio recordings, large print or Braille"
-			  Text 315, 115, 225, 10, "- Telling you the meaning of the information we give you"
-			  Text 315, 125, 225, 10, "- Helping you fill out forms"
-			  Text 315, 135, 225, 10, "- Helping you make a plan so you can work even with your disability"
-			  Text 315, 145, 225, 10, "- Sending you to other services that may help you"
-			  Text 315, 155, 225, 20, "- Helping you to appeal agency decisions about you if you disagree with them"
-			  Text 310, 175, 225, 30, "You will not have to pay extra for help. If you want help, ask your agency as soon as possible. An agency may not be able to accommodate requests made within 48 hours of need."
-
-			  Text 15, 205, 505, 10, "How does the law protect people with disabilities?"
-			  Text 20, 215, 505, 40, "The Americans with Disabilities Act (ADA) and the ADA Amendments Act are federal laws, and the Minnesota Human Rights Act is a state law. Each gives individuals with disabilities the same legal rights and protections as people without disabilities, including access to public assistance benefits. You will not be denied benefits because you have a disability. Your benefits will not be stopped because of your disability. If your disability makes getting benefits hard for you, your county human services agency will help you access all of the programs that are available to you."
-
-			  ButtonGroup ButtonPressed
-			    PushButton 15, 340, 100, 13, "Open DHS 4133", open_disa_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Disability Information:"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If confirm_disa_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-			If ButtonPressed = open_disa_doc Then
-				err_msg = "LOOP"
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-4133-ENG"
-			End If
-
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
@@ -10329,61 +9589,155 @@ End If
 save_your_work
 
 
+'DHS3979 DHS2759 DHS3353 DHS2920
+Do
+	Do
+		err_msg = ""
 
-'MFIP CASES
-	'Reporting Responsibilities for MFIP Households (DHS-2647) (PDF).
-	'Notice of Requirement to Attend MFIP Overview (DHS-2929) (PDF). See 0028.09 (ES Overview/SNAP E&T Orientation).
-	'Family Violence Referral (DHS-3323) (PDF) and
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+			CheckBox 15, 15, 250, 10, "Notice of Privacy Practices (DHS-3979) Reviewed", DHS_3979_checkbox
+			CheckBox 15, 95, 250, 10, "Income and Eligibility Verification System (DHS-2759) Reviewed", DHS_2759_checkbox
+			CheckBox 15, 170, 280, 10, "Appeal Rights and Civil Rights Notice and Complaints (DHS-3353) Reviewed", DHS_3353_checkbox
+			CheckBox 15, 280, 320, 10, "Program Information for Cash, Food and Child Care Programs (DHS-2920) Reviewed", DHS_2920_checkbox
+
+
+			ButtonGroup ButtonPressed
+				PushButton 475, 10, 60, 15, "Open DHS3979", open_npp_doc
+				PushButton 475, 95, 60, 15, "Open DHS2759", open_IEVS_doc
+				PushButton 475, 170, 60, 15, "Open DHS3353", open_appeal_rights_doc
+				PushButton 475, 280, 60, 15, "Open DHS2920", open_program_info_doc
+				PushButton 465, 365, 80, 15, "Continue", continue_btn
+			GroupBox 5, 85, 535, 80, ""
+			Text 30, 290, 430, 10, "-If you do not have enough money to meet your basic needs, you can apply for assistance "
+			Text 30, 125, 310, 10, "-SSN is required for anyone requesting help. If you don't have one, you must apply for one."
+			Text 30, 105, 365, 10, "-Cash assistance, SNAP and MA require income, asset, and health insurance are verified"
+			Text 30, 180, 425, 10, "-If you do not agree with a decision made by the agency, you may appeal"
+			Text 40, 230, 415, 10, "-Minnesota Department of Human Rights - Metro: (651) 431-3600 or Greater MN: (800) 657-3510"
+			Text 30, 115, 365, 10, "-If there are discrepancies, you must respond in writing within 10 days of notification "
+			Text 30, 135, 310, 10, "-Child Support Program checks for employment and current benefits "
+			GroupBox 5, 160, 535, 115, ""
+			Text 30, 190, 455, 10, "-Appeal cash, child care, and health care in writing, within 30 days of notice (good cause extends to within 90 days) "
+			Text 30, 200, 455, 10, "-If your benefits stop, you have the right to reapply "
+			Text 30, 210, 455, 10, "-If you feel you have been discriminated against by a human service agency you have the right to file a complaint"
+			Text 30, 220, 455, 10, "Resources: "
+			Text 40, 240, 415, 10, "-US Department of Health and Human Services Office for Civil Rights"
+			Text 40, 250, 415, 10, "-US Department of Agriculture"
+			GroupBox 5, 270, 535, 80, ""
+			Text 30, 300, 430, 10, "-Food and cash programs require an interview"
+			Text 30, 310, 430, 10, "-Required proof: who you are, where you live, what family lives with you, your income and assets"
+			Text 30, 320, 505, 10, "-How long you've lived in MN, how many people live with you, how much income you/these people receive each month may impact how much you receive"
+			Text 30, 330, 505, 10, "-Cash programs include: DWP, MFIP, GA, MSA, GRH, RCA, MN Child Care Assistance Program "
+			GroupBox 5, 0, 535, 90, ""
+			Text 30, 25, 505, 10, "-Private information helps determine eligibility, you can refuse but it may impact benefits. We use information collected to ensure accurate benefit issuance."
+			Text 30, 35, 365, 10, "-SSN required for medical assistance, some financial help, and child support "
+			Text 30, 45, 365, 10, "-Information is only shared with agencies/workers on a need to know basis "
+			Text 30, 55, 505, 10, "-Private information is only disclosed to those given permission. If you are under 18 information is shared with your parents, unless requested otherwise."
+			Text 30, 65, 505, 10, "-Contact MN Department of Human Services in writing if you believe your privacy rights have been violated"
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		If ButtonPressed = open_npp_doc or ButtonPressed = open_program_info_doc or ButtonPressed = open_appeal_rights_doc or ButtonPressed = open_IEVS_doc  Then
+			err_msg = "LOOP"
+			If ButtonPressed = open_npp_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
+			If ButtonPressed = open_program_info_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-2920-ENG"
+			If ButtonPressed = open_appeal_rights_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
+			If ButtonPressed = open_IEVS_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-2759-ENG"
+		End If
+		
+		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+save_your_work
+
+'DHS3477 DHS4133 
+Do	
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+			CheckBox 10, 15, 250, 10, "Domestic Violence Information (DHS-3477) Reviewed", DHS_3477_checkbox
+			CheckBox 10, 115, 280, 10, "Do you have a disability? (DHS-4133) Reviewed", DHS_4133_checkbox
+
+			ButtonGroup ButtonPressed
+				PushButton 470, 5, 60, 15, "Open DHS3477", open_dhs_3477_btn
+				PushButton 465, 110, 60, 15, "Open DHS4133", open_disa_doc
+				PushButton 465, 365, 80, 15, "Continue", continue_btn
+			GroupBox 5, 0, 530, 105, ""
+			Text 25, 130, 455, 10, "-Assistance is available for accessing services and benefits if you have a disability at no cost"
+			Text 25, 25, 490, 10, "-Domestic violence or abuse is what someone says or does over and over again to make you feel afraid or to control you. Services Available:"
+			Text 35, 45, 485, 10, "-Minnesota Coalition for Battered Women (866) 289-6177"
+			Text 35, 35, 470, 10, "-National Domestic Violence Hotline (800) 799-7233 (TTY: (800) 787-3224"
+			Text 35, 55, 480, 10, "-Minnesota Day One Emergency Shelter and Crisis Hotline (800) 233-1111"
+			GroupBox 5, 100, 530, 95, ""
+			Text 25, 140, 455, 10, "-Disabilities are physical, sensory, or mental impairment such as diabetes, epilepsy, cancer, learning disorders, clinical depression, etc. "
+			Text 25, 150, 455, 10, "-Laws like ADA and Human Rights Act protect your rights and ensure you won't be denied benefits due to a disability"
+			Text 35, 65, 470, 10, "-Safe At Home (SAH) Program (651) 201-1399 or (866) 723-3035"
+			Text 35, 75, 460, 10, "-Vulnerable Adults (800) 333-2433"
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		If ButtonPressed = open_DV_doc or ButtonPressed = open_disa_doc Then
+			err_msg = "LOOP"
+			If ButtonPressed = open_DV_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
+			If ButtonPressed = open_disa_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4133-ENG"
+			
+		End If
+		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+save_your_work
+
 If family_cash_case_yn = "Yes" Then
-	If left(confirm_mfip_forms_read, 4) <> "YES!" Then
+	Do
 		Do
-			Do
-				err_msg = ""
+			err_msg = ""
 
-				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 
-				  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_forms_read
-				  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-				  GroupBox 10, 15, 530, 345, "MFIP Cases"
+				CheckBox 10, 30, 250, 10, "Reporting Responsibilities for MFIP Households (DHS-2647) Reviewed", DHS_2647_checkbox
+				CheckBox 10, 130, 280, 10, "Notice of Requirement to Attend MFIP Overview (DHS-2929) Reviewed", DHS_2929_checkbox
+				CheckBox 10, 240, 280, 10, "Family Violent Referral (DHS-3323) Reviewed", DHS_3323_checkbox
+				ButtonGroup ButtonPressed
+					PushButton 470, 20, 60, 15, "Open DHS2647", open_cs_2647_doc
+					PushButton 470, 130, 60, 15, "Open DHS2929", open_cs_2929_doc
+					PushButton 470, 240, 60, 15, "Open DHS3323", open_cs_3323_doc
+				Text 25, 50, 470, 10, "-Changes must be reported on the monthly Household Report form as applicable otherwise on any Report form within 10 days of the change."
+				GroupBox 5, 15, 530, 110, ""
+				GroupBox 5, 120, 530, 115, ""
+				Text 20, 250, 420, 10, "-If you or someone in your home is a victim of domestic abuse the county can help."
+				Text 20, 260, 420, 10, "-Resources: National Domestic Violence Hot Line (800) 799-7233 and Legal Aid (888) 354-5522"
+				Text 25, 150, 455, 10, "-If you do not attend the meeting, your MFIP grant may be reduced until you do."
+				Text 25, 140, 420, 10, "-All MFIP caregivers are required to attend an MFIP overview and participate in Employment Services."
+				GroupBox 5, 230, 530, 120, ""
+				ButtonGroup ButtonPressed
+					PushButton 465, 365, 80, 15, "Continue", continue_btn
+				Text 20, 270, 455, 10, "-Victims of domestic abuse on MFIP are exempt from some rules"
+				Text 25, 40, 490, 10, "-MFIP cases must report changes to income, assets and household composition"
+			EndDialog
 
-				  GroupBox 10, 25, 530, 105, "Reporting Responsibilities for MFIP Households (DHS-2647)"
-				  Text 15, 40, 505, 10, "Changes you must report: Anything that could impact eligibility. Particularly: Income, Assets, Household Comp"
-				  Text 15, 50, 505, 10, "When do Changes need to be Reported: On the monthly Household Report Form, if you do not have one, within 10 days of the change"
-				  Text 15, 60, 505, 10, "How to report Changes: On any Report Form or call the county."
-				  GroupBox 10, 125, 530, 105, "Notice of Requirement to Attend MFIP Overview (DHS-2929)"
-				  Text 15, 140, 505, 10, "All MFIP caregivers are required to attend an MFIP overview and participate in Employment Services."
-				  Text 15, 150, 505, 10, "If you do not go to your scheduled overview meeting without good reason, your MFIP grant may be reduced until you go to the meeting."
-				  Text 15, 160, 505, 10, "Call the contact person above if you: - Need child care or help getting to the meeting - Have problems attending the meeting."
-				  GroupBox 10, 225, 530, 105, "Family Violence Referral (DHS-3323)"
-				  Text 15, 240, 505, 10, "If you, or someone in your home is a victim of domestic abuse the county can help you."
-				  Text 15, 250, 505, 10, "You can also call the National Domestic Violence Hot Line at (800) 799-7233 or Legal Aid at (888) 354-5522."
-				  Text 15, 260, 505, 20, "Some of the Minnesota Family Investment Program (MFIP) rules do not apply to domestic abuse victims. You must tell us about the abuse and have a special employment plan that includes activities to help keep your family safe. Please talk to your worker or an advocate if you want to know about this."
-				  ButtonGroup ButtonPressed
-				    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				    PushButton 430, 22, 100, 13, "Open DHS 2647", open_cs_2647_doc
-					PushButton 430, 122, 100, 13, "Open DHS 2929", open_cs_2929_doc
-					PushButton 430, 222, 100, 13, "Open DHS 3323", open_cs_3323_doc
-				  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Specific Information:"
-				EndDialog
+			dialog Dialog1
+			cancel_confirmation
 
-				dialog Dialog1
-				cancel_confirmation
+			If ButtonPressed = open_cs_2647_doc OR ButtonPressed = open_cs_2929_doc OR ButtonPressed = open_cs_3323_doc Then
+				err_msg = "LOOP"
+				If ButtonPressed = open_cs_2647_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2647-ENG"
+				If ButtonPressed = open_cs_2929_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2929-ENG"
+				If ButtonPressed = open_cs_3323_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3323-ENG"
+			End If
 
-				If confirm_mfip_forms_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-				If ButtonPressed = open_cs_2647_doc OR ButtonPressed = open_cs_2929_doc OR ButtonPressed = open_cs_3323_doc Then
-					err_msg = "LOOP"
-					If ButtonPressed = open_cs_2647_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2647-ENG"
-					If ButtonPressed = open_cs_2929_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2929-ENG"
-					If ButtonPressed = open_cs_3323_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3323-ENG"
-				End If
-
-				IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-			Loop until err_msg = ""
-			Call check_for_password(are_we_passworded_out)
-		Loop until are_we_passworded_out = FALSE
-	End If
+			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 	save_your_work
 
 	If absent_parent_yn = "Yes" Then
@@ -10393,62 +9747,60 @@ If family_cash_case_yn = "Yes" Then
 			'Cooperation with Child Support Enforcement (DHS-2338) (PDF). See 0012.21.06 (Child Support Good Cause Exemptions).
 		'If a non-parental caregiver applies,
 			'MFIP Child Only Assistance (DHS-5561) (PDF).
-		If left(confirm_mfip_cs_read, 4) <> "YES!" Then
+		Do
 			Do
-				Do
-					err_msg = ""
+				err_msg = ""
 
-					Dialog1 = ""
-					BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-					  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Child Support Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_cs_read
-					  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-					  GroupBox 10, 15, 530, 345, "MFIP Case with at least 1 ABPS - Child Support Information"
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+				  	CheckBox 20, 10, 335, 10, "Understanding Child Support - A Handbook for Parents (DHS-3393) Reviewed ", DHS_3393_checkbox
+					CheckBox 15, 95, 250, 10, "Referral to Support and Collections (DHS-3163B)  Reviewed", DHS_3163B_checkbox
+					CheckBox 15, 180, 280, 10, "Cooperation with Child Support Enforcement (DHS-2338) Reviewed", DHS_2338_checkbox
+					Text 30, 115, 365, 10, "-Understanding Child Support: A Handbook for Parents (DHS3393)"
+					Text 30, 200, 455, 10, "-If good cause is granted, you do not have to cooperate and your case is closed"
+					GroupBox 5, 0, 535, 90, ""
+					Text 30, 105, 365, 10, "-Child support agency uses information you provide to collect child support"
+					Text 30, 190, 425, 10, "-Cooperating with the child support agency includes providing requested information and attending appointments "
+					Text 30, 25, 440, 10, "-Provides support and guidance regarding child support "
+					Text 30, 35, 365, 10, "-Every child has the right to financial and emotional support from both parents"
+					GroupBox 5, 85, 535, 90, ""
+					GroupBox 5, 170, 535, 90, ""
+					
 
-					  GroupBox 10, 25, 530, 105, "Understanding Child Support - A Handbook for Parents (DHS-3393)"
-					  Text 15, 40, 505, 20, "Every child needs financial and emotional support. Every child has the right to this support from both parents. Devoted parents can be loving and supportive forces in a child's life. Even when parents do not live together, they need to work together to support their child."
-					  Text 15, 60, 505, 20, "Minnesoda Child Support and Hennepin County Child Support provide support and guidance. The Handbook 'Understanding Child Support' provides information about the details of these programs."
-					  GroupBox 10, 125, 530, 105, "Referral to Support and Collections (DHS-3163B)"
-					  Text 15, 140, 505, 10, "Purpose of form: The child support agency will use the information you give to help collect support."
-					  Text 15, 150, 505, 20, "How to complete this form: Fill in each blank. If there are boxes, check the box or boxes that fit your situation. Complete a separate form for each parent or alleged parent other than yourself."
-					  Text 15, 170, 505, 20, "Please read the booklet 'Understanding Child Support: A Handbook for Parents' (DHS-3393) before signing. The booklet explains information about the child support services you may be receiving."
-					  GroupBox 10, 225, 530, 105, "Cooperation with Child Support Enforcement (DHS-2338)"
-					  Text 15, 240, 505, 10, "This notice explains your rights and responsibilities for cooperating with the MN Department of Human Services, Child Support Division."
-					  Text 15, 250, 505, 10, "Cooperation with the child support agency includes answering questions, filling out forms, and appearing at appointments and/or court hearings."
-					  Text 15, 260, 505, 40, "This notice also explains how you make a 'good cause claim' that gives you the right not to cooperate if your claim is granted. If you choose to claim good cause and your county child support agency is currently collecting your child support payments, the county will immediately stop collecting those payments for the child(ren) you name on the attached form. The county will stop providing all child support services until it makes a decision on your good cause claim. If you are granted a good cause exemption, the child support agency will close your case."
-					  If relative_caregiver_yn = "Yes" Then
-						  GroupBox 10, 325, 530, 40, "If Non-Custodial Caregiver - MFIP Child Only Assistance (DHS-5561)"
-						  Text 15, 335, 505, 30, "The Minnesota Department of Human Services has assistance programs available to help children who are cared for and supported by their relatives. This brochure answers some frequently asked questions relatives may have about the Minnesota Family Investment Program (MFIP)"
-					  End If
-					  ButtonGroup ButtonPressed
-					    PushButton 465, 365, 80, 15, "Continue", continue_btn
-					    PushButton 430, 22, 100, 13, "Open DHS 3393", open_cs_3393_doc
-						PushButton 430, 122, 100, 13, "Open DHS 3163B", open_cs_3163B_doc
-						PushButton 430, 222, 100, 13, "Open DHS 2338", open_cs_2338_doc
-						If relative_caregiver_yn = "Yes" Then PushButton 430, 322, 100, 13, "Open DHS 5561", open_cs_5561_doc
 
-					  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Child Support Information:"
-					EndDialog
-
-					dialog Dialog1
-					cancel_confirmation
-
-					If confirm_mfip_cs_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-					If ButtonPressed = open_cs_3393_doc OR ButtonPressed = open_cs_3163B_doc OR ButtonPressed = open_cs_2338_doc OR ButtonPressed = open_cs_5561_doc Then
-						err_msg = "LOOP"
-						If ButtonPressed = open_cs_3393_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3393-ENG"
-						If ButtonPressed = open_cs_3163B_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3163B-ENG"
-						If ButtonPressed = open_cs_2338_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2338-ENG"
-						If ButtonPressed = open_cs_5561_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-5561-ENG"
+					If relative_caregiver_yn = "Yes" Then
+						CheckBox 15, 265, 320, 10, "If Non-Custodial Caregiver - MFIP Child Only Assistance (DHS-5561) Reviewed", DHS_5561_checkbox
+						GroupBox 5, 255, 535, 90, ""
+						Text 30, 275, 430, 10, "-Provides information about MFIP for relatives who care for a relative's child"
 					End If
+					ButtonGroup ButtonPressed
+					PushButton 475, 10, 60, 15, "Open DHS3393", open_cs_3393_doc
+					PushButton 475, 95, 60, 15, "Open DHS3163B", open_cs_3163B_doc
+					PushButton 475, 180, 60, 15, "Open DHS2338", open_cs_2338_doc
+					If relative_caregiver_yn = "Yes" Then PushButton 475, 265, 60, 15, "Open DHS5561", open_cs_5561_doc
+					PushButton 465, 365, 80, 15, "Continue", continue_btn
 
-					IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-				Loop until err_msg = ""
-				Call check_for_password(are_we_passworded_out)
-			Loop until are_we_passworded_out = FALSE
-		End If
+				EndDialog
+
+				dialog Dialog1
+				cancel_confirmation
+
+
+				If ButtonPressed = open_cs_3393_doc OR ButtonPressed = open_cs_3163B_doc OR ButtonPressed = open_cs_2338_doc OR ButtonPressed = open_cs_5561_doc Then
+					err_msg = "LOOP"
+					If ButtonPressed = open_cs_3393_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3393-ENG"
+					If ButtonPressed = open_cs_3163B_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3163B-ENG"
+					If ButtonPressed = open_cs_2338_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2338-ENG"
+					If ButtonPressed = open_cs_5561_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-5561-ENG"
+				End If
+
+				IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+			Loop until err_msg = ""
+			Call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = FALSE
 		save_your_work
 	End If
+	save_your_work
 
 	If left(minor_caregiver_yn, 3) = "Yes" Then
 		'If there is a custodial parent under 20, the
@@ -10456,181 +9808,155 @@ If family_cash_case_yn = "Yes" Then
 			'Graduate to Independence - MFIP Teen Parent Informational Brochure (DHS-2887) (PDF).
 		'If there is a custodial parent under age 18, the
 			'MFIP for Minor Caregivers (DHS-3238) (PDF) brochure.
-		If left(confirm_minor_mfip_read, 4) <> "YES!" Then
-			Do
-				Do
-					err_msg = ""
-
-					Dialog1 = ""
-					BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-					  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Minor Caregiver Discussed"+chr(9)+"No, I could not complete this", confirm_minor_mfip_read
-					  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-					  GroupBox 10, 15, 530, 345, "MFIP Case Minor Caregiver Cases"
-
-					  GroupBox 10, 25, 530, 105, "Notice of Requirement to Attend School (DHS-2961)"
-					  Text 15, 40, 505, 10, "This form tells you that, unless you are exempt, you must attend school and what will happen if you do not go to school."
-					  Text 15, 50, 505, 20, "The first step is for us to complete an assessment with you. We will review your educational progress, needs, literacy level, family circumstances, skills, and work experience. We will see if you need child care or other services so you can go to school."
-					  Text 15, 70, 505, 10, "If you do not cooperate or do not attend school, without good cause, we will send you a notice. This notice will tell you that your MFIP grant may be reduced. "
-					  GroupBox 10, 125, 530, 105, "Graduate to Independence - MFIP Teen Parent Informational Brochure (DHS-2887)"
-					  Text 15, 140, 505, 20, "If you are a teen parent under the age of 20, and do not have a high school diploma or an equivalent, you are expected to attend an approved educational program to qualify for the Minnesota Family Investment Program."
-					  Text 15, 160, 505, 20, "Earning your diploma is the first step in getting ready for a job. County human services staff will help you with counseling, child care, and transportation so you can go to school. They will also help you find a school program that is best for you."
-					  Text 15, 180, 505, 10, "If you fail to attend school, without good cause, your human services worker will reduce your grant by 10 percent or more of your standard of need."
-					  If minor_caregiver_yn = "Yes - Caregiver is under 18" Then
-						  GroupBox 10, 225, 530, 105, "MFIP for Minor Caregivers (DHS-3238)"
-						  Text 15, 240, 505, 20, "You are a minor caregiver if: "
-						  Text 25, 250, 505, 20, "- You are younger than 18 - You have never been married - You are not emancipated and - You are the parent of a child(ren) living in the same household."
-						  Text 15, 260, 505, 10, "If you are a minor caregiver, to receive benefits and services, you must be living: "
-						  Text 25, 270, 505, 20, "- With a parent or with an adult relative caregiver or with a legal guardian or - In an agency-approved living arrangement."
-						  Text 15, 280, 505, 10, "A social worker must approve any exception(s) to your living arrangement."
-					  End If
-					  ButtonGroup ButtonPressed
-					  	PushButton 465, 365, 80, 15, "Continue", continue_btn
-					    PushButton 430, 22, 100, 13, "Open DHS 2961", open_cs_2961_doc
-						PushButton 430, 122, 100, 13, "Open DHS 2887", open_cs_2887_doc
-						If minor_caregiver_yn = "Yes - Caregiver is under 18" Then PushButton 430, 222, 100, 13, "Open DHS 3238", open_cs_3238_doc
-
-					  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Minor Caregiver Information:"
-					EndDialog
-
-					dialog Dialog1
-					cancel_confirmation
-
-					If confirm_minor_mfip_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-
-					If ButtonPressed = open_cs_2961_doc OR ButtonPressed = open_cs_2887_doc OR ButtonPressed = open_cs_3238_doc Then
-						err_msg = "LOOP"
-						If ButtonPressed = open_cs_2961_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Legacy/DHS-2961-ENG"
-						If ButtonPressed = open_cs_2887_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2887-ENG"
-						If ButtonPressed = open_cs_3238_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3238-ENG"
-					End If
-
-					IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-				Loop until err_msg = ""
-				Call check_for_password(are_we_passworded_out)
-			Loop until are_we_passworded_out = FALSE
-		End If
-		save_your_work
-	End If
-End If
-
-
-If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Then
-	'SNAP CASES'
-		'Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625).
-		'Facts on Voluntarily Quitting Your Job If You Are on the Supplemental Nutrition Assistance Program (SNAP) (DHS-2707).
-		'Work Registration Notice (DHS-7635).
-	If left(confirm_snap_forms_read, 4) <> "YES!" Then
 		Do
 			Do
 				err_msg = ""
 
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-				  DropListBox 90, 40, 105, 45, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change"+chr(9)+"Monthly", snap_reporting_type
-				  EditBox 115, 55, 40, 15, next_revw_month
-				  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! SNAP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_snap_forms_read
-				  Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-				  GroupBox 10, 15, 530, 345, "SNAP Case"
-				  GroupBox 10, 25, 530, 105, "Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625)"
-				  Text 15, 45, 75, 10, "This case is subject to "
-				  Text 200, 45, 40, 10, "reporting."
-				  Text 15, 60, 95, 10, "Your next renewal will be for "
-				  Text 160, 60, 310, 10, " Which means you will need to complete the required form and process in the month before."
-				  Text 15, 75, 185, 10, "Explain reporting details based on the reporter type."
-				  Text 15, 100, 395, 10, "Timely reporting of changes means the change is reported by the 10th of the month following the month of the change."
-				  GroupBox 10, 125, 530, 220, "SNAP General Work Rules"
-				  ButtonGroup ButtonPressed
-				    PushButton 465, 365, 80, 15, "Continue", continue_btn
-				    PushButton 430, 20, 100, 15, "Open DHS 2625", open_cs_2625_doc
-				    PushButton 25, 85, 90, 15, "Six Month Reporting", explain_six_month_rept
-				    PushButton 115, 85, 90, 15, "Change Reporting", explain_change_rept
-				    PushButton 205, 85, 90, 15, "Monthly Reporting", explain_monthly_rept
-					PushButton 325, 130, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
-				  Text 10, 370, 210, 10, "Confirm you have reviewed SNAP Specific Information:"
-				  Text 15, 135, 310, 10, "Explain to the resident which members of the household are subject to the work rules."
-				  Text 15, 150, 305, 10, "To follow the general work rules, these members must:"
-				  Text 15, 170, 450, 10, "* Accept any job offer received, unless there is a good reason they can't. "
-				  Text 15, 185, 490, 20, "* If they have a job, don't quit or choose to work less than 30 hours each week without having a good reason. Good reasons could be getting sick, being discriminated against, or not getting paid."
-				  Text 15, 210, 450, 10, "* You may lose your SNAP benefits if you don't follow these work rules without having a good reason."
-				  Text 15, 230, 450, 10, "It is important for you to know that there are consequences if you/they don't follow these General Work Rules: "
-				  Text 15, 245, 450, 20, "The first time [you/they] don't follow these rules, and you don't have a good reason, you can't get SNAP benefits for 1 month."
-				  Text 15, 260, 450, 10, "The second time [you/they] don't follow these rules, you can't get SNAP benefits for 3 months."
-				  Text 15, 275, 450, 10, "The third time, and any time after that, [you/they] can't get SNAP benefits for 6 months."
-				  
-				    
-				EndDialog
+					CheckBox 10, 15, 250, 10, "Notice of Requirement to Attend School (DHS-2961) Reviewed", DHS_2961_checkbox
+					CheckBox 10, 115, 280, 10, "MFIP Teen Parent Information Brochure (DHS-2887) Reviewed", DHS_2887_checkbox
+					
+					GroupBox 5, 0, 530, 105, ""
+					GroupBox 5, 100, 530, 100, ""
+					Text 25, 135, 455, 10, "-County human services provides support attendance "
+					Text 25, 145, 455, 10, "-Failure to comply without good cause results in 10% or more grant reduction"
+					Text 25, 125, 430, 10, "-Teen parents under 20 years old without a high school diploma must attend an approved educational program to qualify for MFIP"
+					Text 25, 45, 470, 10, "-Assess needs to support school attendance "
+					Text 25, 35, 470, 10, "-Failure to comply without good cause results in loss of MFIP benefits "
+					GroupBox 5, 195, 530, 105, ""
+					Text 25, 25, 490, 10, "-Required to attend school, unless exempt"
+					
+					
+					If minor_caregiver_yn = "Yes - Caregiver is under 18" Then
+						CheckBox 10, 210, 280, 10, "MFIP for Minor Caregivers (DHS3238) Reviewed", DHS_3238_checkbox
+						Text 20, 225, 505, 20, "You are a minor caregiver if: "
+						Text 30, 235, 500, 20, "- You are younger than 18 - You have never been married - You are not emancipated and - You are the parent of a child(ren) living in the same household."
+						Text 20, 245, 505, 10, "If you are a minor caregiver, to receive benefits and services, you must be living: "
+						Text 30, 255, 465, 20, "- With a parent or with an adult relative caregiver or with a legal guardian or - In an agency-approved living arrangement."
+						Text 20, 265, 505, 10, "A social worker must approve any exception(s) to your living arrangement."
+					End If
 
+					ButtonGroup ButtonPressed
+						PushButton 470, 5, 60, 15, "Open DHS2961", open_cs_2961_doc
+						PushButton 465, 110, 60, 15, "Open DHS2887", open_cs_2887_doc
+						If minor_caregiver_yn = "Yes - Caregiver is under 18" Then PushButton 465, 205, 60, 15, "Open DHS3238", open_cs_3238_doc
+						PushButton 465, 365, 80, 15, "Continue", continue_btn
+
+				EndDialog
 
 				dialog Dialog1
 				cancel_confirmation
 
-				If confirm_snap_forms_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
-				If confirm_snap_forms_read = "YES! SNAP Forms Discussed" Then
-					If snap_reporting_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, select the correct reporting type for this case to ensure the best information is provided to the household."
-					If Trim(next_revw_month) = "" Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, indicate the next review month for this case."
-				End If
-
-				If ButtonPressed = open_cs_2625_doc OR ButtonPressed = open_cs_2707_doc OR ButtonPressed = open_cs_7635_doc Then
+				If ButtonPressed = open_cs_2961_doc OR ButtonPressed = open_cs_2887_doc OR ButtonPressed = open_cs_3238_doc Then
 					err_msg = "LOOP"
-					If ButtonPressed = open_cs_2625_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2625-ENG"
-					If ButtonPressed = open_cs_2707_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2707-ENG"
-					If ButtonPressed = open_cs_7635_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-7635-ENG"
-				End If
-
-				If ButtonPressed = explain_six_month_rept OR ButtonPressed = explain_change_rept OR ButtonPressed = explain_monthly_rept OR ButtonPressed = exemptions_button Then
-					err_msg = "LOOP"
-					If ButtonPressed = explain_six_month_rept Then MsgBox "SIX MONTH REPORTING" & vbCr & vbCR &_
-																		  "There are only TWO changes that are required to be reported:" & vbCr &_
-																		  "  - Income received in any month exceeds 130% FPG for the Household "  & vbCr &_
-																		  "    Size." & vbCr &_
-																		  "  - For any ABAWD, a change in work or job activities that cause their "  & vbCr &_
-																		  "    hours to fall below 20 hours per week, averaged 80 hours monthly." & vbCr & vbCr &_
-																		  "It can be beneficial to report other changes, and we encourage you to do this. Examples include:" & vbCr &_
-																		  "  - Address Changes " & vbCr &_
-																		  "    (We communicate via mail and missing mail can cause your "  & vbCr &_
-																		  "    benefits to close for lack of response.)" & vbCr &_
-																		  "  - Decreases in Income " & vbCr &_
-																		  "    (Income is used to determine your benefit amount and any reduction " & vbCr &_
-																		  "     MAY cause your benefit amount to increase.)" & vbCr &_
-																		  "  - Increases in Housing Expense or New Utility Responsibilities " & vbCr &_
-																		  "    (Expenses are used to offset income and changes here could " & vbCr &_
-																		  "    change your benefit amount.)" & vbCr &_
-																		  "  - Other Expenses " & vbCr &_
-																		  "    ie. Child Care, Child Support, sometimes Medical Expenses " & vbCr &_
-																		  "    (These can also impact your benefit amount.)" & vbCr & vbCr &_
-																		  "As a Six-Month Reporter, you are certified for six months at a time, which means you will have a review within six months."
-					If ButtonPressed = explain_change_rept Then MsgBox "CHANGE REPORTING" & vbCr & vbCR &_
-																	   "Changes that are required to be reported:" & vbCr &_
-																	   "  - A change in the source of income, including starting or stopping a " & vbCr &_
-																	   "    job, if the change in employment is accompanied by a change in " & vbCr &_
-																	   "    income." & vbCr &_
-																	   "  - A change in more than $125 per month in gross earned income." & vbCr &_
-																	   "  - A change of more than $125 in the amount of unearned income, " & vbCr &_
-																	   "    EXCEPT changes related to public assistance." & vbCr &_
-																	   "  - A change in unit composition." & vbCr &_
-																	   "  - A change in residence." & vbCr &_
-																	   "  - A change in housing expense due to residency change." & vbCr &_
-																	   "  - A change in legal obligation to pay child support." & vbCr &_
-																	   "  - For any ABAWD, a change in work or job activities that cause their " & vbCr &_
-																	   "    hours to fall below 20 hours per week, averaged 80 hours monthly." & vbCr & vbCr &_
-																	   "As a Change Reporter, you typically have a certification period of a year but it could be two years."
-					If ButtonPressed = explain_monthly_rept Then MsgBox "MONTHLY REPORTING" & vbCr & vbCR &_
-																	    "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached." & vbCr & vbCr &_
-																		"The Household Report Form must be answered in its entirety. Any unanswered question will make the form incomplete and ongoing benefits will not be able to be processed. The form includes all changes that must be reported." & vbCr & vbCr &_
-																	    "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within twelve months." & vbCr &_
-																		"However the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached."
-
-					If ButtonPressed = exemptions_button Then call display_exemptions()
+					If ButtonPressed = open_cs_2961_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Legacy/DHS-2961-ENG"
+					If ButtonPressed = open_cs_2887_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2887-ENG"
+					If ButtonPressed = open_cs_3238_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3238-ENG"
 				End If
 
 				IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-
 			Loop until err_msg = ""
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = FALSE
+		save_your_work
 	End If
+End If
+save_your_work
+
+If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Then
+	'SNAP CASES'
+		'Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625).
+		'Facts on Voluntarily Quitting Your Job If You Are on the Supplemental Nutrition Assistance Program (SNAP) (DHS-2707).
+		'Work Registration Notice (DHS-7635).
+	Do
+		Do
+			err_msg = ""
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
+		  		CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+				Text 25, 25, 365, 10, snap_reporting_type & " Reporting"
+
+				If snap_reporting_type = "Six-Month" Then 
+					Text 35, 40, 435, 10, "As a 6 month reporter, you are certified for six months at a time, which means you will have a  review within six months "
+					Text 35, 55, 160, 10, "Changes required to report"
+					Text 45, 65, 440, 10, "-Income received in any month exceeds 130% FPG for the Household Size"
+					Text 45, 75, 440, 10, "-For any ABAWD, a change in work or job activities that cause their hours to fall below 20 hours per week, averaged 80 hours monthly"
+					Text 35, 95, 470, 10, "It can be beneficial to report other changes, and we encourage you to do this. Examples include: "
+					Text 45, 105, 430, 10, "-Address Change: we communicate via mail and missing mail can cause your benefits to close for lack of response"
+					Text 45, 115, 450, 10, "-Decreases in Income: Income is used to determine your benefit amount and any reduction MAY cause your benefit amount to increase"
+					Text 45, 125, 450, 10, "-Other Expenses: Child Care, Child Support, sometimes Medical Expenses: Can impact your benefit amount "
+					Text 25, 155, 135, 10, "Your next renewal is " & next_revw_month
+					Text 25, 170, 245, 10, "Complete the required form and process the month before renewal. "
+					Text 25, 185, 440, 10, "Report changes by the 10th of the month following the month of the change"
+					Text 25, 200, 445, 20, "SNAP General Work Rules require some household members to accept any job offers and to maintain their current job/hours. If not met, benefits could be decreased/ended. "
+					ButtonGroup ButtonPressed
+						PushButton 25, 225, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
+						PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
+						PushButton 465, 365, 80, 15, "Continue", continue_btn
+					GroupBox 5, 0, 535, 280, ""
+				End If
+				If snap_reporting_type = "Change" Then 
+					CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+					ButtonGroup ButtonPressed
+						PushButton 25, 235, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
+						PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
+						PushButton 465, 365, 80, 15, "Continue", continue_btn
+					Text 25, 165, 135, 10, "Your next renewal is " & next_revw_month
+					Text 35, 55, 160, 10, "Change required to report:"
+					Text 35, 40, 435, 10, "As a Change Reporter, you typically have a certification period of a year but it could be two years."
+					Text 45, 65, 480, 10, "-Change in the source of income, including starting or stopping a job, if the change in employment is accompanied by a change in income."
+					Text 25, 180, 245, 10, "Complete the required form and process the month before renewal. "
+					Text 25, 25, 365, 10, snap_reporting_type & " Reporting"
+					Text 25, 195, 440, 10, "Report changes by the 10th of the month following the month of the change"
+					Text 25, 210, 445, 20, "SNAP General Work Rules require some household members to accept any job offers and to maintain their current job/hours. If not met, benefits could be decreased/ended. "
+					Text 45, 75, 480, 10, "-A change in more than $125 per month in gross earned income"
+					Text 45, 85, 480, 10, "-A change of more than $125 in the amount of unearned income EXCEPT changes related to public assistance "
+					Text 45, 95, 480, 10, "-A change in unit composition "
+					Text 45, 105, 480, 10, "-A change in residence"
+					Text 45, 115, 480, 10, "-A change in housing expense due to residency change "
+					Text 45, 125, 480, 10, "-A change in legal obligation to pay child support"
+					Text 45, 135, 480, 10, "-For any ABAWD, a change in work or job activities that cause their hours to fall below 20 hours per week, averaged 80 hours monthly. "
+					GroupBox 5, 0, 540, 270, ""
+				End If
+				If snap_reporting_type = "Monthly" Then 
+					CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+					ButtonGroup ButtonPressed
+						PushButton 20, 185, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
+						PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
+						PushButton 465, 365, 80, 15, "Continue", continue_btn
+					Text 25, 115, 135, 10, "Your next renewal is " & next_revw_month
+					GroupBox 5, 0, 530, 265, ""
+					Text 40, 40, 435, 20, "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within 12 months. However, the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached. "
+					Text 25, 130, 245, 10, "Complete the required form and process the month before renewal. "
+					Text 25, 145, 440, 10, "Report changes by the 10th of the month following the month of the change"
+					Text 40, 65, 470, 10, "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached"
+					Text 25, 160, 445, 20, "SNAP General Work Rules require some household members to accept any job offers and to maintain their current job/hours. If not met, benefits could be decreased/ended. "
+					Text 40, 80, 470, 20, "The Household Report Form must be answered in its entirety. Any unanswered questions will make the form incomplete and ongoing benefits will not be able to be processed. The form includes all changes that must be reported."
+				End If
+			EndDialog
+
+
+			dialog Dialog1
+			cancel_confirmation
+
+			If ButtonPressed = open_cs_2625_doc or ButtonPressed = exemptions_button Then
+				err_msg = "LOOP"
+				If ButtonPressed = open_cs_2625_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2625-ENG"
+				If ButtonPressed = exemptions_button Then call display_exemptions()
+			End If
+		
+			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 	save_your_work
 End If
+save_your_work
+'END HERE WITH R&R CODE ======================================
+
+
 'Employment Services Registration.
 
 'REPORTING
