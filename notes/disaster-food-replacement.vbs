@@ -163,10 +163,17 @@ Do
     IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Request Approved" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
     IF TSS_BENE_sent_checkbox = CHECKED and replacement_status <> "Request Approved" THEN err_msg = err_msg & vbCr & "* Please only check the TSS BENE Webform checkbox if you are approving the request."
     If ButtonPressed = TSS_BENE_webform_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/MMR/TSSBENE_BENE_request.asp"
-    If IsDate(dhs_1609_due_date) <> TRUE and trim(dhs_1609_due_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the DHS-1609 is due back."
-    IF IsDate(dhs1609_sig_date) <> TRUE and trim(dhs1609_sig_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the client signed the form."
-    IF IsDate(dhs1609_rcvd_date) <> TRUE and trim(dhs1609_rcvd_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county received the request."
-    If IsDate(dhs1609_done_date) <> TRUE and trim(dhs1609_done_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county signed the form."
+    If replacement_status = "Request Approved" THEN 
+      If IsDate(dhs_1609_due_date) <> TRUE or trim(dhs_1609_due_date) = "" Then err_msg = err_msg & vbCr & "* Please enter the date the DHS-1609 is due back."
+      IF IsDate(dhs1609_sig_date) <> TRUE or trim(dhs1609_sig_date) = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client signed the form."
+      IF IsDate(dhs1609_rcvd_date) <> TRUE or trim(dhs1609_rcvd_date) = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county received the request."
+      If IsDate(dhs1609_done_date) <> TRUE or trim(dhs1609_done_date) = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county signed the form."
+    Else
+      If IsDate(dhs_1609_due_date) <> TRUE and trim(dhs_1609_due_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the DHS-1609 is due back."
+      IF IsDate(dhs1609_sig_date) <> TRUE and trim(dhs1609_sig_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the client signed the form."
+      IF IsDate(dhs1609_rcvd_date) <> TRUE and trim(dhs1609_rcvd_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county received the request."
+      If IsDate(dhs1609_done_date) <> TRUE and trim(dhs1609_done_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county signed the form."
+    End If
     IF err_msg <> "" and ButtonPressed <> TSS_BENE_webform_btn THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
   LOOP UNTIL err_msg = "" and ButtonPressed <> TSS_BENE_webform_btn									'loops until all errors are resolved
