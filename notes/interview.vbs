@@ -9439,11 +9439,6 @@ save_your_work
 
 'R&R - Start of short and simple R&R ==========================================================
 
-family_cash_case_yn = "Yes"
-absent_parent_yn = "Yes"
-relative_caregiver_yn = "Yes"
-left(minor_caregiver_yn, 3) = "Yes"
-
 'DHS4163 DHS3315A
 case_number_last_digit = right(MAXIS_case_number, 1)
 case_number_last_digit = case_number_last_digit * 1
