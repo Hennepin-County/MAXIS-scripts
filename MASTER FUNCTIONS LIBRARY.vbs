@@ -2502,45 +2502,77 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
 	        	EMWriteScreen paid_to, 7, 50
 			End If
 
-			EMWriteScreen right("        " & rent_retro_amt, 8), 		11, 37
-	        EMWriteScreen left(rent_retro_verif, 2),      				11, 48
-	        EMWriteScreen right("        " & rent_prosp_amt, 8),    	11, 56
-	        EMWriteScreen left(rent_prosp_verif, 2),      				11, 67
+			If rent_retro_amt <> "" and rent_retro_amt <> "0" Then
+				EMWriteScreen right("        " & rent_retro_amt, 8), 		11, 37
+				EMWriteScreen left(rent_retro_verif, 2),      				11, 48
+			End If
+			If rent_prosp_amt <> "" and rent_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & rent_prosp_amt, 8),    	11, 56
+				EMWriteScreen left(rent_prosp_verif, 2),      				11, 67
+			End If
 
-			EMWriteScreen right("        " & lot_rent_retro_amt, 8),    12, 37
-	        EMWriteScreen left(lot_rent_retro_verif, 2),  				12, 48
-	        EMWriteScreen right("        " & lot_rent_prosp_amt, 8),    12, 56
-	        EMWriteScreen left(lot_rent_prosp_verif, 2),  				12, 67
+			If lot_rent_retro_amt <> "" and lot_rent_retro_amt <> "0" Then
+				EMWriteScreen right("        " & lot_rent_retro_amt, 8),    12, 37
+				EMWriteScreen left(lot_rent_retro_verif, 2),  				12, 48
+			End If
+			If lot_rent_prosp_amt <> "" and lot_rent_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & lot_rent_prosp_amt, 8),    12, 56
+				EMWriteScreen left(lot_rent_prosp_verif, 2),  				12, 67
+			End If
 
-			EMWriteScreen right("        " & mortgage_retro_amt, 8),    13, 37
-	        EMWriteScreen left(mortgage_retro_verif, 2),  				13, 48
-	        EMWriteScreen right("        " & mortgage_prosp_amt, 8),    13, 56
-	        EMWriteScreen left(mortgage_prosp_verif, 2),  				13, 67
+			If mortgage_retro_amt <> "" and mortgage_retro_amt <> "0" Then
+				EMWriteScreen right("        " & mortgage_retro_amt, 8),    13, 37
+				EMWriteScreen left(mortgage_retro_verif, 2),  				13, 48
+			End If
+			If mortgage_prosp_amt <> "" and mortgage_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & mortgage_prosp_amt, 8),    13, 56
+				EMWriteScreen left(mortgage_prosp_verif, 2),  				13, 67
+			End If
 
-			EMWriteScreen right("        " & insurance_retro_amt, 8),   14, 37
-	        EMWriteScreen left(insurance_retro_verif, 2), 				14, 48
-	        EMWriteScreen right("        " & insurance_prosp_amt, 8),   14, 56
-	        EMWriteScreen left(insurance_prosp_verif, 2), 				14, 67
+			If insurance_retro_amt <> "" and insurance_retro_amt <> "0" Then
+				EMWriteScreen right("        " & insurance_retro_amt, 8),   14, 37
+				EMWriteScreen left(insurance_retro_verif, 2), 				14, 48
+			End If
+			If insurance_prosp_amt <> "" and insurance_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & insurance_prosp_amt, 8),   14, 56
+				EMWriteScreen left(insurance_prosp_verif, 2), 				14, 67
+			End If
 
-			EMWriteScreen right("        " & tax_retro_amt, 8),         15, 37
-	        EMWriteScreen left(tax_retro_verif, 2),       				15, 48
-	        EMWriteScreen right("        " & tax_prosp_amt, 8),         15, 56
-	        EMWriteScreen left(tax_prosp_verif, 2),       				15, 67
+			If tax_retro_amt <> "" and tax_retro_amt <> "0" Then
+				EMWriteScreen right("        " & tax_retro_amt, 8),         15, 37
+				EMWriteScreen left(tax_retro_verif, 2),       				15, 48
+			End If
+			If tax_prosp_amt <> "" and tax_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & tax_prosp_amt, 8),         15, 56
+				EMWriteScreen left(tax_prosp_verif, 2),       				15, 67
+			End If
 
-			EMWriteScreen right("        " & room_retro_amt, 8),        16, 37
-	        EMWriteScreen left(room_retro_verif, 2),      				16, 48
-	        EMWriteScreen right("        " & room_prosp_amt, 8),        16, 56
-	        EMWriteScreen left(room_prosp_verif, 2),      				16, 67
+			If room_retro_amt <> "" and room_retro_amt <> "0" Then
+				EMWriteScreen right("        " & room_retro_amt, 8),        16, 37
+				EMWriteScreen left(room_retro_verif, 2),      				16, 48
+			End If
+			If room_prosp_amt <> "" and room_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & room_prosp_amt, 8),        16, 56
+				EMWriteScreen left(room_prosp_verif, 2),      				16, 67
+			End If
 
-			EMWriteScreen right("        " & garage_retro_amt, 8),      17, 37
-			EMWriteScreen left(garage_retro_verif, 2),    				17, 48
-			EMWriteScreen right("        " & garage_prosp_amt, 8),      17, 56
-			EMWriteScreen left(garage_prosp_verif, 2),    				17, 67
+			If garage_retro_amt <> "" and garage_retro_amt <> "0" Then
+				EMWriteScreen right("        " & garage_retro_amt, 8),      17, 37
+				EMWriteScreen left(garage_retro_verif, 2),    				17, 48
+			End If
+			If garage_prosp_amt <> "" and garage_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & garage_prosp_amt, 8),      17, 56
+				EMWriteScreen left(garage_prosp_verif, 2),    				17, 67
+			End If
 
-			EMWriteScreen right("        " & subsidy_retro_amt, 8),     18, 37
-			EMWriteScreen left(subsidy_retro_verif, 2),   				18, 48
-			EMWriteScreen right("        " & subsidy_prosp_amt, 8),     18, 56
-			EMWriteScreen left(subsidy_prosp_verif, 2),   				18, 67
+			If subsidy_retro_amt <> "" and subsidy_retro_amt <> "0" Then
+				EMWriteScreen right("        " & subsidy_retro_amt, 8),     18, 37
+				EMWriteScreen left(subsidy_retro_verif, 2),   				18, 48
+			End If
+			If subsidy_prosp_amt <> "" and subsidy_prosp_amt <> "0" Then
+				EMWriteScreen right("        " & subsidy_prosp_amt, 8),     18, 56
+				EMWriteScreen left(subsidy_prosp_verif, 2),   				18, 67
+			End If
 
 		End If
 	End If
@@ -8158,7 +8190,7 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 	If housing_questions_step <> 4 Then PushButton 390, 325, 70, 10, "CONTINUE", housing_change_continue_btn
 end function
 
-function display_SHEL_information(update_shel, show_totals, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, total_paid_to, percent_paid_by_household, percent_paid_by_others, total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, const_memb_buttons, clear_all_btn, view_total_shel_btn, update_household_percent_button)
+function display_SHEL_information(update_shel, show_totals, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, display_totals, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, total_paid_to, percent_paid_by_household, percent_paid_by_others, total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, const_memb_buttons, clear_all_btn, view_total_shel_btn, update_household_percent_button)
 '--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of SHEL information in different scripts/dialogs
 '~~~~~ update_shel: boolean - indicating if the dialog information should be in edit mode or not
 '~~~~~ show_totals: boolean - indicates if we are looking at the case total information or the Member specific information
@@ -8269,7 +8301,11 @@ function display_SHEL_information(update_shel, show_totals, SHEL_ARRAY, selectio
 	    Text 70, 250, 30, 10, "Subsidy:"
 
 	Else
-		PushButton 400, 250, 75, 15, "TOTAL SHEL", view_total_shel_btn
+		If display_totals <> False Then PushButton 400, 250, 75, 15, "TOTAL SHEL", view_total_shel_btn
+		If SHEL_ARRAY(const_hud_sub_yn, selection) = "Y" Then SHEL_ARRAY(const_hud_sub_yn, selection) = "Yes"
+		If SHEL_ARRAY(const_hud_sub_yn, selection) = "N" Then SHEL_ARRAY(const_hud_sub_yn, selection) = "No"
+		If SHEL_ARRAY(const_shared_yn, selection) = "Y" Then SHEL_ARRAY(const_shared_yn, selection) = "Yes"
+		If SHEL_ARRAY(const_shared_yn, selection) = "N" Then SHEL_ARRAY(const_shared_yn, selection) = "No"
 
 		If update_shel = True Then
 			EditBox 105, 25, 165, 15, SHEL_ARRAY(const_paid_to, selection)
