@@ -58,7 +58,7 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 	If add_case_note = True Then 'only run the details here if we are running the 'end of month processing'
 
 		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then
-			If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
+			If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" OR revw_status_hc = "T" OR revw_status_hc = "I" Then
 				'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
 				EMReadScreen pw_county, 2, 21, 16									'reading to make sure this is still in Hennepin Country
@@ -2760,24 +2760,21 @@ ElseIf renewal_option = "Create Worklist" Then
 
 				'Saving the information from the excel into the array
 				' review_array(interview_const,       recert_cases) = ObjExcel.Cells(excel_row,  3).value     'COL C
-				If  trim(ObjExcel.Cells(excel_row,  3).value) = "TRUE" Then review_array(interview_const,       recert_cases) = TRUE
-				If  trim(ObjExcel.Cells(excel_row,  3).value) = "FALSE" Then review_array(interview_const,       recert_cases) = FALSE
-				review_array(no_interview_const,    recert_cases) = ObjExcel.Cells(excel_row,  4).value     'COL D
-				review_array(current_SR_const,      recert_cases) = ObjExcel.Cells(excel_row,  5).value     'COL E
-				If  trim(ObjExcel.Cells(excel_row,  5).value) = "TRUE" Then review_array(current_SR_const,       recert_cases) = TRUE
-				If  trim(ObjExcel.Cells(excel_row,  5).value) = "FALSE" Then review_array(current_SR_const,       recert_cases) = FALSE
-				review_array(MFIP_status_const,     recert_cases) = ObjExcel.Cells(excel_row,  6).value     'COL F
-				review_array(DWP_status_const,      recert_cases) = ObjExcel.Cells(excel_row,  7).value     'COL G
-				review_array(GA_status_const,       recert_cases) = ObjExcel.Cells(excel_row,  8).value     'COL H
-				review_array(MSA_status_const,      recert_cases) = ObjExcel.Cells(excel_row,  9).value     'COL I
-				review_array(GRH_status_const,      recert_cases) = ObjExcel.Cells(excel_row, 10).value     'COL J
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).value, review_array(interview_const, recert_cases))
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  4).value, review_array(no_interview_const, recert_cases))     	'COL D
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  5).value, review_array(current_SR_const, recert_cases))     	'COL E
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  6).value, review_array(MFIP_status_const, recert_cases))		'COL F
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  7).value, review_array(DWP_status_const, recert_cases))			'COL G
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  8).value, review_array(GA_status_const, recert_cases))			'COL H
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  9).value, review_array(MSA_status_const, recert_cases))			'COL I
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  10).value, review_array(GRH_status_const, recert_cases))		'COL J
 				review_array(CASH_next_SR_const,    recert_cases) = ObjExcel.Cells(excel_row, 11).value     'COL K
 				review_array(CASH_next_ER_const,    recert_cases) = ObjExcel.Cells(excel_row, 12).value     'COL L
-				review_array(SNAP_status_const,     recert_cases) = ObjExcel.Cells(excel_row, 13).value     'COL M
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  13).value, review_array(SNAP_status_const, recert_cases))		'COL M
 				review_array(SNAP_next_SR_const,    recert_cases) = ObjExcel.Cells(excel_row, 14).value     'COL N
 				review_array(SNAP_next_ER_const,    recert_cases) = ObjExcel.Cells(excel_row, 15).value     'COL O
-				review_array(MA_status_const,       recert_cases) = ObjExcel.Cells(excel_row, 16).value     'COL P
-				review_array(MSP_status_const,      recert_cases) = ObjExcel.Cells(excel_row, 17).value     'COL Q
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  16).value, review_array(MA_status_const, recert_cases))			'COL P
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  17).value, review_array(MSP_status_const, recert_cases))		'COL Q
 				review_array(HC_next_SR_const,      recert_cases) = ObjExcel.Cells(excel_row, 18).value     'COL R
 				review_array(HC_next_ER_const,      recert_cases) = ObjExcel.Cells(excel_row, 19).value     'COL S
 				review_array(Language_const,        recert_cases) = ObjExcel.Cells(excel_row, 20).value     'COL T
