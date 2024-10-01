@@ -181,3 +181,51 @@ CALL write_value_and_transmit(client_SSN, 3, 63)
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/01/2024
+'--Tab orders reviewed & confirmed----------------------------------------------10/01/2024
+'--Mandatory fields all present & Reviewed--------------------------------------10/01/2024------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------10/01/2024------------------N/A
+'--Review dialog names for content and content fit in dialog--------------------10/01/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------10/01/2024
+'--Create a button to reference instructions------------------------------------10/01/2024------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/01/2024------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/01/2024------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/01/2024------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation used---10/01/2024------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/01/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/01/2024------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/01/2024
+'--Out-of-County handling reviewed----------------------------------------------10/01/2024------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/01/2024------------------N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------10/01/2024------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/01/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/01/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------10/01/2024
+'--Denomination reviewed -------------------------------------------------------10/01/2024
+'--Script name reviewed---------------------------------------------------------10/01/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/01/2024------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/01/2024
+'--comment Code-----------------------------------------------------------------10/01/2024
+'--Update Changelog for release/update------------------------------------------10/01/2024
+'--Remove testing message boxes-------------------------------------------------10/01/2024
+'--Remove testing code/unnecessary code-----------------------------------------10/01/2024
+'--Review/update SharePoint instructions----------------------------------------In Progress
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/01/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Post-Pull Request
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/01/2024------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------10/01/2024------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------10/01/2024
