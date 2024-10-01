@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/01/2024", "Enrollment for AHPS is set to process the 2025 year.", "Casey Love, Hennepin County")
 call changelog_update("11/16/2023", "Updated Enrollment script with the Enrollment cutoff dates for 2024 so the script is ready for next year processing.", "Casey Love, Hennepin County")
 call changelog_update("10/11/2023", "Open Enrollment Dates updated for 2024.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Updates for AHPS for 2023, updating the enrollment year selection for processing AHPS.##~####~##No changes to plans or capitation dates at this time.", "Casey Love, Hennepin County")
@@ -154,7 +155,7 @@ End If
 
 open_enrollment_case = FALSE
 ask_about_oe = FALSE
-nov_cut_off_date = #11/17/2023#
+nov_cut_off_date = #11/17/2024#		'THIS MIGHT NOT BE THE RIGHT DATE EXACTLY - the year was updated for this option to trigger
 If Month(date) = 10 OR Month(date) = 11 Then
 	If DateDiff("d", date, nov_cut_off_date) >= 0 Then ask_about_oe = TRUE
 End If
@@ -163,7 +164,7 @@ If ask_about_oe = TRUE Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
-		enrollment_year = "24"
+		enrollment_year = "25"
 		open_enrollment_case = TRUE
 		case_open_enrollment_yn = "Yes"
 	End If
@@ -249,7 +250,7 @@ Do
 	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 	If case_open_enrollment_yn = "Yes" Then
 		enrollment_month = "01"
-		enrollment_year = "24"
+		enrollment_year = "25"
 		open_enrollment_case = TRUE
 	Else
 		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
