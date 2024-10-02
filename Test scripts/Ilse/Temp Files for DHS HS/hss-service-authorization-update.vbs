@@ -1288,7 +1288,7 @@ For item = 0 to Ubound(adjustment_array, 2)
     'Row’s that are not identified as an Impacted Vendor (“Yes”)
     'Open-ended facility spans or recipients that have faci panels that close after the HSS start date.
     'Rows that may already be done.
-    'Rate costs that are not 15.87
+    'Rate costs that are not 16.27
     If (adjustment_array(case_status_const, item) = "" and _
         adjustment_array(rate_reduction_notes_const, item) = "" and _
         adjustment_array(HS_status_const, item) <> "" and _
@@ -1299,7 +1299,7 @@ For item = 0 to Ubound(adjustment_array, 2)
     Else
     'Failure Reasons
         If adjustment_array(HS_status_const, item) = "" then rate_reduction_status = rate_reduction_status & "No HS Status in MAXIS Case. "
-        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "15.87" then rate_reduction_status = rate_reduction_status & "Rate is not 15.87, review manually. "
+        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "16.27" then rate_reduction_status = rate_reduction_status & "Rate is not 16.27, review manually. "
         If adjustment_array(impacted_vendor_const, item) <> "Yes" then rate_reduction_status = rate_reduction_status & "Not an impacted vendor. "
         If active_facility = False then rate_reduction_status = rate_reduction_status & "Not an active facility. "
         If adjustment_array(case_status_const, item) <> "" then rate_reduction_status = rate_reduction_status & adjustment_array(case_status_const, item)
