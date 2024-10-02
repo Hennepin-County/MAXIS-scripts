@@ -322,47 +322,6 @@ total_paid_by_others 		= 0
 
 'FUNCTIONS DEFINED===========================================================================
 
-'Copied from ELIG SUMM
-function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
-'--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
-'~~~~~ footer_month: relevant footer month - the calculation changes every October and we need to ensure we are pulling the correct amount
-'~~~~~ footer_year: relevant footer year - the calculation changes every October and we need to ensure we are pulling the correct amount
-'~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
-'~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
-'===== Keywords: SNAP, calculation, Income Test
-	month_to_review = footer_month & "/1/" & footer_year		'making this a date
-	month_to_review = DateAdd("d", 0, month_to_review)
-
-	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
-		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'on or after 10/1/23
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 291
-			If hh_size = 2 Then thrifty_food_plan = 535
-			If hh_size = 3 Then thrifty_food_plan = 766
-			If hh_size = 4 Then thrifty_food_plan = 973
-			If hh_size = 5 Then thrifty_food_plan = 1155
-			If hh_size = 6 Then thrifty_food_plan = 1386
-			If hh_size = 7 Then thrifty_food_plan = 1532
-			If hh_size = 8 Then thrifty_food_plan = 1751
-
-			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then			'between 10/22-09/23
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 250
-			If hh_size = 2 Then thrifty_food_plan = 459
-			If hh_size = 3 Then thrifty_food_plan = 658
-			If hh_size = 4 Then thrifty_food_plan = 835
-			If hh_size = 5 Then thrifty_food_plan = 992
-			If hh_size = 6 Then thrifty_food_plan = 1190
-			If hh_size = 7 Then thrifty_food_plan = 1316
-			If hh_size = 8 Then thrifty_food_plan = 1504
-
-			If hh_size > 8 Then thrifty_food_plan = 1504 + (188 * (hh_size-8))
-		End If
-	End If
-end function
-
 'ASSET CODE-START
 function update_ACCT_panel_from_dialog()
     EMWriteScreen "                    ", 7, 44
