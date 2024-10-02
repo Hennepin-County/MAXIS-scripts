@@ -9463,7 +9463,7 @@ Do
 		err_msg = ""
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-		 	CheckBox 10, 10, 250, 10, "Cash on an Electronic Benefit (EBT) Card (DHS-4163) Reviewed", DHS_4163_checkbox
+		 	CheckBox 10, 10, 315, 10, "Check here if Cash on an Electronic Benefit (EBT) Card (DHS- 4163) was reviewed", DHS_4163_checkbox
 			DropListBox 195, 80, 135, 15, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change"+chr(9)+"Monthly", snap_reporting_type
 			EditBox 410, 80, 50, 15, next_revw_month
 			ComboBox 195, 95, 135, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
@@ -9525,7 +9525,7 @@ If clt_knows_how_to_use_ebt_card = "No" then
 
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 				Text 10, 5, 160, 10, "REVIEW the information listed here to the resident:"
-				CheckBox 10, 20, 195, 10, "How to Use Your Minnesota EBT Card Reviewed", DHS_3315A_checkbox
+				CheckBox 10, 20, 270, 10, "Check here if How to Use Your Minnesota EBT Card was reviewed", DHS_3315A_checkbox
 				GroupBox 20, 35, 290, 95, "How to get a card:"
 				Text 35, 45, 270, 10, "- Your first card is mailed within 2 business days of your benefits being approved"
 				Text 35, 55, 130, 10, "- Replacement cards are mailed"
@@ -9592,10 +9592,10 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			CheckBox 15, 15, 250, 10, "Notice of Privacy Practices (DHS-3979) Reviewed", DHS_3979_checkbox
-			CheckBox 15, 95, 250, 10, "Income and Eligibility Verification System (DHS-2759) Reviewed", DHS_2759_checkbox
-			CheckBox 15, 170, 280, 10, "Appeal Rights and Civil Rights Notice and Complaints (DHS-3353) Reviewed", DHS_3353_checkbox
-			CheckBox 15, 280, 320, 10, "Program Information for Cash, Food and Child Care Programs (DHS-2920) Reviewed", DHS_2920_checkbox
+			CheckBox 15, 15, 285, 10, "Check here if Notice of Privacy Practices (DHS- 3979) was reviewed", DHS_3979_checkbox
+			CheckBox 15, 95, 330, 10, "Check here if Income and Eligibility Verification System (DHS- 2759) was reviewed", DHS_2759_checkbox
+			CheckBox 15, 170, 365, 10, "Check here if Appeal Rights and Civil Rights Notice and Complaints (DHS- 3353) was reviewed", DHS_3353_checkbox
+			CheckBox 15, 280, 390, 10, "Check here if Program Information for Cash, Food and Child Care Programs (DHS- 2920) was reviewed", DHS_2920_checkbox
 
 
 			ButtonGroup ButtonPressed
@@ -9656,8 +9656,8 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			CheckBox 10, 15, 250, 10, "Domestic Violence Information (DHS-3477) Reviewed", DHS_3477_checkbox
-			CheckBox 10, 115, 280, 10, "Do you have a disability? (DHS-4133) Reviewed", DHS_4133_checkbox
+			CheckBox 10, 15, 250, 10, "Check here if Domestic Violence Information (DHS- 3477) was reviewed", DHS_3477_checkbox
+  			CheckBox 10, 115, 280, 10, "Check here if Do you have a disability? (DHS- 4133) was reviewed", DHS_4133_checkbox
 
 			ButtonGroup ButtonPressed
 				PushButton 470, 5, 60, 15, "Open DHS3477", open_dhs_3477_btn
@@ -9699,9 +9699,9 @@ If family_cash_case_yn = "Yes" Then
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 
-				CheckBox 10, 30, 250, 10, "Reporting Responsibilities for MFIP Households (DHS-2647) Reviewed", DHS_2647_checkbox
-				CheckBox 10, 130, 280, 10, "Notice of Requirement to Attend MFIP Overview (DHS-2929) Reviewed", DHS_2929_checkbox
-				CheckBox 10, 240, 280, 10, "Family Violent Referral (DHS-3323) Reviewed", DHS_3323_checkbox
+				CheckBox 10, 30, 300, 10, "Check here if Reporting Responsibilities for MFIP Households (DHS- 2647) was reviewed", DHS_2647_checkbox
+				CheckBox 10, 130, 300, 10, "Check here if Notice of Requirement to Attend MFIP Overview (DHS- 2929) was reviewed", DHS_2929_checkbox
+				CheckBox 10, 240, 280, 10, "Check here if Family Violent Referral (DHS- 3323) was reviewed", DHS_3323_checkbox
 				ButtonGroup ButtonPressed
 					PushButton 470, 20, 60, 15, "Open DHS2647", open_cs_2647_doc
 					PushButton 470, 130, 60, 15, "Open DHS2929", open_cs_2929_doc
@@ -9749,10 +9749,10 @@ If family_cash_case_yn = "Yes" Then
 
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-				  	CheckBox 20, 10, 335, 10, "Understanding Child Support - A Handbook for Parents (DHS-3393) Reviewed ", DHS_3393_checkbox
-					CheckBox 15, 95, 250, 10, "Referral to Support and Collections (DHS-3163B)  Reviewed", DHS_3163B_checkbox
-					CheckBox 15, 180, 280, 10, "Cooperation with Child Support Enforcement (DHS-2338) Reviewed", DHS_2338_checkbox
-					Text 30, 115, 365, 10, "-Understanding Child Support: A Handbook for Parents (DHS3393)"
+				  	CheckBox 20, 10, 335, 10, "Check here if Understanding Child Support - A Handbook for Parents (DHS- 3393) was reviewed ", DHS_3393_checkbox
+					CheckBox 15, 95, 270, 10, "Check here if Referral to Support and Collections (DHS- 3163B) was reviewed", DHS_3163B_checkbox
+					CheckBox 15, 180, 295, 10, "Check here if Cooperation with Child Support Enforcement (DHS- 2338) was reviewed", DHS_2338_checkbox
+					Text 30, 115, 365, 10, "-Understanding Child Support: A Handbook for Parents (DHS- 3393)"
 					Text 30, 200, 455, 10, "-If good cause is granted, you do not have to cooperate and your case is closed"
 					GroupBox 5, 0, 535, 90, ""
 					Text 30, 105, 365, 10, "-Child support agency uses information you provide to collect child support"
@@ -9765,7 +9765,7 @@ If family_cash_case_yn = "Yes" Then
 
 
 					If relative_caregiver_yn = "Yes" Then
-						CheckBox 15, 265, 320, 10, "If Non-Custodial Caregiver - MFIP Child Only Assistance (DHS-5561) Reviewed", DHS_5561_checkbox
+						CheckBox 15, 265, 320, 10, "Check here if Non-Custodial Caregiver - MFIP Child Only Assistance (DHS- 5561) was reviewed", DHS_5561_checkbox
 						GroupBox 5, 255, 535, 90, ""
 						Text 30, 275, 430, 10, "-Provides information about MFIP for relatives who care for a relative's child"
 					End If
@@ -9810,9 +9810,8 @@ If family_cash_case_yn = "Yes" Then
 
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-					CheckBox 10, 15, 250, 10, "Notice of Requirement to Attend School (DHS-2961) Reviewed", DHS_2961_checkbox
-					CheckBox 10, 115, 280, 10, "MFIP Teen Parent Information Brochure (DHS-2887) Reviewed", DHS_2887_checkbox
-					
+					CheckBox 10, 15, 275, 10, "Check here if Notice of Requirement to Attend School (DHS- 2961) was reviewed", DHS_2961_checkbox
+  					CheckBox 10, 115, 280, 10, "Check here if MFIP Teen Parent Information Brochure (DHS- 2887) was reviewed", DHS_2887_checkbox
 					GroupBox 5, 0, 530, 105, ""
 					GroupBox 5, 100, 530, 100, ""
 					Text 25, 135, 455, 10, "-County human services provides support attendance "
@@ -9825,7 +9824,7 @@ If family_cash_case_yn = "Yes" Then
 					
 					
 					If minor_caregiver_yn = "Yes - Caregiver is under 18" Then
-						CheckBox 10, 210, 280, 10, "MFIP for Minor Caregivers (DHS3238) Reviewed", DHS_3238_checkbox
+						CheckBox 10, 210, 280, 10, "Check here if MFIP for Minor Caregivers (DHS- 3238) was reviewed", DHS_3238_checkbox
 						Text 20, 225, 505, 20, "You are a minor caregiver if: "
 						Text 30, 235, 500, 20, "- You are younger than 18 - You have never been married - You are not emancipated and - You are the parent of a child(ren) living in the same household."
 						Text 20, 245, 505, 10, "If you are a minor caregiver, to receive benefits and services, you must be living: "
@@ -9870,7 +9869,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 			err_msg = ""
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-		  		CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+		  		CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 				Text 25, 25, 365, 10, snap_reporting_type & " Reporting"
 
 				If snap_reporting_type = "Six-Month" Then 
@@ -9893,7 +9892,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 					GroupBox 5, 0, 535, 280, ""
 				End If
 				If snap_reporting_type = "Change" Then 
-					CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+					CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 					ButtonGroup ButtonPressed
 						PushButton 25, 235, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
 						PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
@@ -9916,7 +9915,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 					GroupBox 5, 0, 540, 270, ""
 				End If
 				If snap_reporting_type = "Monthly" Then 
-					CheckBox 10, 10, 330, 10, "Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS-2625) Reviewed", DHS_2625_checkbox
+					CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 					ButtonGroup ButtonPressed
 						PushButton 20, 185, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
 						PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
