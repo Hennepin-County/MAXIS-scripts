@@ -7450,6 +7450,46 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 	If right(list_pending_programs, 1) = "," THEN list_pending_programs = left(list_pending_programs, len(list_pending_programs) - 1)
 End Function
 
+function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
+'--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
+'~~~~~ footer_month: relevant footer month - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
+'~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
+'===== Keywords: SNAP, calculation, Income Test
+	month_to_review = footer_month & "/1/" & footer_year		'making this a date
+	month_to_review = DateAdd("d", 0, month_to_review)
+
+	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+		hh_size = hh_size*1
+		If DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then				'on or after 10/1/24
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 292
+			If hh_size = 2 Then thrifty_food_plan = 536
+			If hh_size = 3 Then thrifty_food_plan = 768
+			If hh_size = 4 Then thrifty_food_plan = 975
+			If hh_size = 5 Then thrifty_food_plan = 1158
+			If hh_size = 6 Then thrifty_food_plan = 1390
+			If hh_size = 7 Then thrifty_food_plan = 1536
+			If hh_size = 8 Then thrifty_food_plan = 1756
+
+			If hh_size > 8 Then thrifty_food_plan = 1756 + (220 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then			'between 10/23-09/24
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 291
+			If hh_size = 2 Then thrifty_food_plan = 535
+			If hh_size = 3 Then thrifty_food_plan = 766
+			If hh_size = 4 Then thrifty_food_plan = 973
+			If hh_size = 5 Then thrifty_food_plan = 1155
+			If hh_size = 6 Then thrifty_food_plan = 1386
+			If hh_size = 7 Then thrifty_food_plan = 1532
+			If hh_size = 8 Then thrifty_food_plan = 1751
+
+			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
+		End If
+	End If
+end function
+
 
 function digital_experience()
 '--- This function standardizes the digital experience coding information so that we only have to update it in one location.
