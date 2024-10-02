@@ -179,6 +179,14 @@ Do
     SA_number = ""  'Blanking out variables for next loop
 Loop
 
+'----------------------------------------------------------------------------------------------------Notes on updates
+'Rates prior to 2024 should use the following rates:
+'    •  Full Rate: $15.87
+'    •  Reduced Rate: $7.94
+'Anything 01/01/2024 - ongoing should use the following rates: 
+'    •  Full Rate: $16.27
+'    •  Reduced Rate: $8.14
+
 '----------------------------------------------------------------------------------------------------determine which rows of information are going to have a rate reduction or not.
 For item = 0 to Ubound(adjustment_array, 2)
     'Determining which date to use to end/start the agreements. Initial conversion date is 07/01/21. We cannot use a date earlier than this. If a date is earlier than this, the date is 07/01/21.
@@ -218,18 +226,18 @@ For item = 0 to Ubound(adjustment_array, 2)
     'Row’s that are not identified as an Impacted Vendor (“Yes”)
     'Open-ended facility spans or recipients that have faci panels that close after the HSS start date.
     'Rows that may already be done.
-    'Rate costs that are not 15.87
+    'Rate costs that are not 16.27
     If (adjustment_array(case_status_const, item) = "" and _
         adjustment_array(rate_reduction_notes_const, item) = "" and _
         adjustment_array(HS_status_const, item) <> "" and _
         adjustment_array(impacted_vendor_const, item) = "Yes" and _
-        adjustment_array(rate_amt_const, item) = "15.87" and _
+        adjustment_array(rate_amt_const, item) = "16.27" and _
         active_facility = True) then
         adjustment_array(passed_case_tests_const, item) = True
     Else
     'Failure Reasons
         If adjustment_array(HS_status_const, item) = "" then rate_reduction_status = rate_reduction_status & "No HS Status in MAXIS Case. "
-        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "15.87" then rate_reduction_status = rate_reduction_status & "Rate is not 15.87, review manually. "
+        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "16.27" then rate_reduction_status = rate_reduction_status & "Rate is not 16.27, review manually. "
         If adjustment_array(impacted_vendor_const, item) <> "Yes" then rate_reduction_status = rate_reduction_status & "Not an impacted vendor. "
         If active_facility = False then rate_reduction_status = rate_reduction_status & "Not an active facility. "
         If adjustment_array(case_status_const, item) <> "" then rate_reduction_status = rate_reduction_status & adjustment_array(case_status_const, item)
@@ -290,8 +298,8 @@ For item = 0 to Ubound(adjustment_array, 2)
                 Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
 
                 EmReadscreen line_1_rate, 5, 9, 24
-                If trim(line_1_rate) = "7.94" then
-                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 7.94."
+                If trim(line_1_rate) = "8.14" then
+                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 8.14."
                     PF6 'cancel
                     transmit 'to re-enter ASA1
                     EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
@@ -308,8 +316,8 @@ For item = 0 to Ubound(adjustment_array, 2)
                         PF3
                         adjustment_array(reduce_rate_const, item) = False
                         'creating status message if reduce is already in exisitance.
-                        If line_2_rate = "7.94" then
-                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 7.94."
+                        If line_2_rate = "8.14" then
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 8.14."
                         Else
                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement already exists in Line 2. Review Manually."
                         End if
