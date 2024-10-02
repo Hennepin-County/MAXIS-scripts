@@ -151,8 +151,10 @@ Do
     If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please enter the dollar amount the client reported."
     If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reported the loss of food to county."
     If trim(disaster_description) = "" Then err_msg = err_msg & vbCr & "* Please describe the type of disaster. If it was a power outage, please specify what caused the power outage."
-    If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster was verified - news reports, social worker, Red Cross, utility confirmation, etc."
-    If IsDate(loss_verification_date) <> TRUE or loss_verification_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county verified the loss of food."
+    If replacement_status = "Request Approved" Then
+      If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster was verified - news reports, social worker, Red Cross, utility confirmation, etc."
+      If IsDate(loss_verification_date) <> TRUE or loss_verification_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county verified the loss of food."
+    End If
     IF replacement_status = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the status of the replacement."
     IF replacement_status = "Pending Verification(s)" and trim(verif_needed) = "" THEN err_msg = err_msg & vbCr & "* Please complete the pending verifications field."
     IF replacement_status = "Request Denied" and denial_reason = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the reason for the denial."
