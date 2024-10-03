@@ -59,79 +59,79 @@ changelog_display
 
 'DECLARATIONS ==============================================================================================================
 
-const ref_number					= 0
-const access_denied					= 1
-const full_name_const				= 2
-const last_name_const				= 3
-const first_name_const				= 4
-const mid_initial					= 5
-const other_names					= 6
-const age							= 7
-const date_of_birth					= 8
-const ssn							= 9
-const ssn_verif						= 10
-const birthdate_verif				= 11
-const gender						= 12
-const race							= 13
-const spoken_lang					= 14
-const written_lang					= 15
-const interpreter					= 16
-const alias_yn						= 17
-const ethnicity_yn					= 18
-const id_verif						= 19
-const rel_to_applcnt				= 20
-const cash_minor					= 21
-const snap_minor					= 22
-const marital_status				= 23
-const spouse_ref					= 24
-const spouse_name					= 25
-const last_grade_completed 			= 26
-const citizen						= 27
-const other_st_FS_end_date 			= 28
-const in_mn_12_mo					= 29
-const residence_verif				= 30
-const mn_entry_date					= 31
-const former_state					= 32
-const fs_pwe						= 33
-const button_one					= 34
-const button_two					= 35
-const imig_status 					= 36
-const clt_has_sponsor				= 37
-const client_verification			= 38
-const client_verification_details	= 39
-const client_notes					= 40
-const intend_to_reside_in_mn		= 41
-const race_a_checkbox				= 42
-const race_b_checkbox				= 43
-const race_n_checkbox				= 44
-const race_p_checkbox				= 45
-const race_w_checkbox				= 46
-const snap_req_checkbox				= 47
-const cash_req_checkbox				= 48
-const emer_req_checkbox				= 49
-const none_req_checkbox				= 50
-const ssn_no_space					= 51
-const edrs_msg						= 52
-const edrs_match					= 53
-const edrs_notes 					= 54
-const ignore_person                 = 55
-const pers_in_maxis                 = 56
-const memb_is_caregiver             = 57
-const cash_request_const            = 58
-const hours_per_week_const          = 59
-const exempt_from_ed_const          = 60
-const comply_with_ed_const          = 61
-const orientation_needed_const      = 62
-const orientation_done_const        = 63
-const orientation_exempt_const      = 64
-const exemption_reason_const        = 65
-const emps_exemption_code_const     = 66
-const choice_form_done_const        = 67
-const orientation_notes             = 68
-const last_const					= 69
+' const ref_number					= 0
+' const access_denied					= 1
+' const full_name_const				= 2
+' const last_name_const				= 3
+' const first_name_const				= 4
+' const mid_initial					= 5
+' const other_names					= 6
+' const age							= 7
+' const date_of_birth					= 8
+' const ssn							= 9
+' const ssn_verif						= 10
+' const birthdate_verif				= 11
+' const gender						= 12
+' const race							= 13
+' const spoken_lang					= 14
+' const written_lang					= 15
+' const interpreter					= 16
+' const alias_yn						= 17
+' const ethnicity_yn					= 18
+' const id_verif						= 19
+' const rel_to_applcnt				= 20
+' const cash_minor					= 21
+' const snap_minor					= 22
+' const marital_status				= 23
+' const spouse_ref					= 24
+' const spouse_name					= 25
+' const last_grade_completed 			= 26
+' const citizen						= 27
+' const other_st_FS_end_date 			= 28
+' const in_mn_12_mo					= 29
+' const residence_verif				= 30
+' const mn_entry_date					= 31
+' const former_state					= 32
+' const fs_pwe						= 33
+' const button_one					= 34
+' const button_two					= 35
+' const imig_status 					= 36
+' const clt_has_sponsor				= 37
+' const client_verification			= 38
+' const client_verification_details	= 39
+' const client_notes					= 40
+' const intend_to_reside_in_mn		= 41
+' const race_a_checkbox				= 42
+' const race_b_checkbox				= 43
+' const race_n_checkbox				= 44
+' const race_p_checkbox				= 45
+' const race_w_checkbox				= 46
+' const snap_req_checkbox				= 47
+' const cash_req_checkbox				= 48
+' const emer_req_checkbox				= 49
+' const none_req_checkbox				= 50
+' const ssn_no_space					= 51
+' const edrs_msg						= 52
+' const edrs_match					= 53
+' const edrs_notes 					= 54
+' const ignore_person                 = 55
+' const pers_in_maxis                 = 56
+' const memb_is_caregiver             = 57
+' const cash_request_const            = 58
+' const hours_per_week_const          = 59
+' const exempt_from_ed_const          = 60
+' const comply_with_ed_const          = 61
+' const orientation_needed_const      = 62
+' const orientation_done_const        = 63
+' const orientation_exempt_const      = 64
+' const exemption_reason_const        = 65
+' const emps_exemption_code_const     = 66
+' const choice_form_done_const        = 67
+' const orientation_notes             = 68
+' const last_const					= 69
 
-Dim HH_MEMB_ARRAY()
-ReDim HH_MEMB_ARRAY(last_const, 0)
+' Dim HH_MEMB_ARRAY()
+' ReDim HH_MEMB_ARRAY(last_const, 0)
 '===========================================================================================================================
 
 'FUNCTIONS =================================================================================================================
@@ -243,7 +243,7 @@ function check_for_errors(interview_questions_clear)
 
 	qual_memb_one = trim(qual_memb_one)
 	qual_memb_two = trim(qual_memb_two)
-	qual_memb_there = trim(qual_memb_there)
+	qual_memb_three = trim(qual_memb_three)
 	qual_memb_four = trim(qual_memb_four)
 	qual_memb_five = trim(qual_memb_five)
 	If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
@@ -256,10 +256,10 @@ function check_for_errors(interview_questions_clear)
 		If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
-	If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type")) Then
+	If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type")) Then
 		err_msg = err_msg & "~!~" & "5^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
 		If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-		If qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+		If qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 	If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
 		err_msg = err_msg & "~!~" & "5^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
@@ -617,7 +617,7 @@ function define_main_dialog()
 			DropListBox 220, 80, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_two
 			ComboBox 340, 80, 105, 45, all_the_clients, qual_memb_two
 			DropListBox 220, 110, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_three
-			ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_there
+			ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_three
 			DropListBox 220, 140, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_four
 			ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
 			DropListBox 220, 160, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_five
@@ -1689,7 +1689,7 @@ function save_your_work()
 			objTextStream.WriteLine "QQ2A - " & qual_question_two
 			objTextStream.WriteLine "QQ2M - " & qual_memb_two
 			objTextStream.WriteLine "QQ3A - " & qual_question_three
-			objTextStream.WriteLine "QQ3M - " & qual_memb_there
+			objTextStream.WriteLine "QQ3M - " & qual_memb_three
 			objTextStream.WriteLine "QQ4A - " & qual_question_four
 			objTextStream.WriteLine "QQ4M - " & qual_memb_four
 			objTextStream.WriteLine "QQ5A - " & qual_question_five
@@ -2017,7 +2017,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ2A - " & qual_question_two
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ2M - " & qual_memb_two
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ3A - " & qual_question_three
-			script_run_lowdown = script_run_lowdown & vbCr & "QQ3M - " & qual_memb_there
+			script_run_lowdown = script_run_lowdown & vbCr & "QQ3M - " & qual_memb_three
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ4A - " & qual_question_four
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ4M - " & qual_memb_four
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ5A - " & qual_question_five
@@ -2403,7 +2403,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 4) = "QQ2A" Then qual_question_two = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ2M" Then qual_memb_two = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ3A" Then qual_question_three = Mid(text_line, 8)
-					If left(text_line, 4) = "QQ3M" Then qual_memb_there = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ3M" Then qual_memb_three = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ4A" Then qual_question_four = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ4M" Then qual_memb_four = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ5A" Then qual_question_five = Mid(text_line, 8)
@@ -4746,122 +4746,7 @@ end function
 
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-const jobs_employee_name 			= 0
-const jobs_hourly_wage 				= 1
-const jobs_gross_monthly_earnings	= 2
-const jobs_employer_name 			= 3
-const jobs_edit_btn					= 4
-const jobs_intv_notes				= 5
-const verif_yn						= 6
-const verif_details					= 7
-const jobs_notes 					= 8
-
-Const end_of_doc = 6			'This is for word document ennumeration
-
-Call find_user_name(worker_name)						'defaulting the name of the suer running the script
-' worker_name = user_ID_for_validation
-Dim TABLE_ARRAY
-Dim ALL_CLIENTS_ARRAY
-ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
-
-const account_type_const	= 0
-const account_owner_const	= 1
-const bank_name_const		= 2
-const account_amount_const	= 3
-const account_notes_const 	= 4
-
-Dim EXP_ACCT_ARRAY
-ReDim EXP_ACCT_ARRAY(account_notes_const, 0)
-
-const jobs_employee_const 	= 0
-const jobs_employer_const	= 1
-const jobs_wage_const		= 2
-const jobs_hours_const		= 3
-const jobs_frequency_const 	= 4
-const jobs_monthly_pay_const= 5
-const jobs_notes_const 		= 6
-
-Dim EXP_JOBS_ARRAY
-ReDim EXP_JOBS_ARRAY(jobs_notes_const, 0)
-
-const busi_owner_const 				= 0
-const busi_info_const 				= 1
-const busi_monthly_earnings_const	= 2
-const busi_annual_earnings_const	= 3
-const busi_notes_const 				= 4
-
-Dim EXP_BUSI_ARRAY
-ReDim EXP_BUSI_ARRAY(busi_notes_const, 0)
-
-const unea_owner_const 				= 0
-const unea_info_const 				= 1
-const unea_monthly_earnings_const	= 2
-const unea_weekly_earnings_const	= 3
-const unea_notes_const 				= 4
-
-Dim EXP_UNEA_ARRAY
-ReDim EXP_UNEA_ARRAY(unea_notes_const, 0)
-
-Call remove_dash_from_droplist(state_list)
-'These are all the definitions for droplists
-
-memb_panel_relationship_list = "Select One..."
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"01 Applicant"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"02 Spouse"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"03 Child"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"04 Parent"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"05 Sibling"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"06 Step Sibling"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"08 Step Child"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"09 Step Parent"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"10 Aunt"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"11 Uncle"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"12 Niece"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"13 Nephew"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"14 Cousin"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"15 Grandparent"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"16 Grandchild"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"17 Other Relative"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"18 Legal Guardian"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"24 Not Related"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"25 Live-In Attendant"
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"27 Unknown"
-
-marital_status_list = "Select One..."
-marital_status_list = marital_status_list+chr(9)+"N  Never Married"
-marital_status_list = marital_status_list+chr(9)+"M  Married Living With Spouse"
-marital_status_list = marital_status_list+chr(9)+"S  Married Living Apart (Sep)"
-marital_status_list = marital_status_list+chr(9)+"L  Legally Sep"
-marital_status_list = marital_status_list+chr(9)+"D  Divorced"
-marital_status_list = marital_status_list+chr(9)+"W  Widowed"
-
-id_droplist_info = "BC - Birth Certificate"
-id_droplist_info = id_droplist_info+chr(9)+"RE - Religious Record"
-id_droplist_info = id_droplist_info+chr(9)+"DL - Drivers License/ST ID"
-id_droplist_info = id_droplist_info+chr(9)+"DV - Divorce Decree"
-id_droplist_info = id_droplist_info+chr(9)+"AL - Alien Card"
-id_droplist_info = id_droplist_info+chr(9)+"AD - Arrival//Depart"
-id_droplist_info = id_droplist_info+chr(9)+"DR - Doctor Stmt"
-id_droplist_info = id_droplist_info+chr(9)+"PV - Passport/Visa"
-id_droplist_info = id_droplist_info+chr(9)+"OT - Other Document"
-id_droplist_info = id_droplist_info+chr(9)+"NO - No Ver Prvd"
-id_droplist_info = id_droplist_info+chr(9)+"Found in SOLQ/SMI"
-id_droplist_info = id_droplist_info+chr(9)+"Requested"
-
-question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
-
-Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
-user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
-
-'Dimming all the variables because they are defined and set within functions
-Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
-Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
-Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
-Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
-Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
-Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
-Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
+'THIS IS WHERE CONSTANTS AND DIMMING HAPPENS IN THE INTERVIEW SCRIPT - REMOVED FROM HERE BECAUSE WE CANNOT REDEFINE CONSTANTS
 
 Dim household_info, earned_income_info, unearned_income_info, housing_expanese_info
 Dim other_expenses_info, assets_info, other_notes_info, form_changes_info
@@ -4869,42 +4754,7 @@ Dim rights_responsibilities_checkbox, privacy_practices_checkbox, ebt_card_check
 Dim reporting_resp_checkbox, program_info_checkbox, child_support_info_checkbox, mfip_minor_caregiver_checkbox
 Dim renewal_info_checkbox, ievs_info_checkbox, appeal_rights_checkbox
 
-Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
-Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip
-Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
-Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_street, CAF_arep_addr_city, CAF_arep_addr_state, CAF_arep_addr_zip
-Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
-Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_use_SNAP_checkbox
-Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
-Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
-Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
-Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
-Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
-Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
-Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
-Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
-
-Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_case_info
-Dim show_qual, show_pg_last, show_arep_page, expedited_determination
-Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
-Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
-Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
-Dim type_of_emer, the_process_for_emer, q_12_totally_blank, q_14_totally_blank, q_15_totally_blank, q_20_totally_blank, q_24_totally_blank
-
-
-'EXPEDITED DETERMINATION VARIABLES'
-Dim expedited_determination_completed, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources
-Dim jobs_income_yn, busi_income_yn, unea_income_yn, cash_amount_yn, bank_account_yn, all_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, expedited_screening
-Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, caf_1_resources, caf_1_expenses
-' Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, CAF_datestamp, interview_date
-Dim applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four
-' Dim applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four
-Dim postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn
-Dim other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done
-Dim rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, cash_amount
-Dim previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn
-Dim delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn
-Dim income_review_completed, assets_review_completed, shel_review_completed, note_calculation_detail
+Dim show_case_info
 
 
 show_pg_one_memb01_and_exp	= 1
@@ -4930,7 +4780,6 @@ children_under_22_in_hh = False
 school_age_children_in_hh = False
 expedited_determination_needed = False
 expedited_determination_completed = False
-' first_time_in_exp_det = True
 
 intv_exp_pay_heat_checkbox = unchecked
 intv_exp_pay_ac_checkbox = unchecked
@@ -4957,7 +4806,7 @@ verif_view = "Add A Verif"
 EMConnect ""
 Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
-' CAF_datestamp = date & ""
+
 interview_date = date & ""
 show_err_msg_during_movement = ""
 script_run_lowdown = ""
@@ -4987,71 +4836,7 @@ msg_show_quick_start_guide_btn = 106
 msg_show_faq_btn = 107
 interpreter_servicves_btn = 108
 
-'Showing the case number dialog
-Do
-	DO
-		err_msg = ""
-
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
-		  EditBox 75, 45, 60, 15, MAXIS_case_number
-		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-		  EditBox 75, 85, 145, 15, worker_signature
-		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-		  ButtonGroup ButtonPressed
-		    OkButton 260, 300, 50, 15
-		    CancelButton 315, 300, 50, 15
-		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
-		    PushButton 205, 35, 155, 15, "Press HERE for details on using this script", msg_script_interaction_btn
-            PushButton 220, 65, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
-		    PushButton 165, 175, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
-		    PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
-		    PushButton 10, 300, 50, 15, "Instructions", msg_show_instructions_btn
-		    PushButton 60, 300, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
-		    PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
-		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
-		  Text 20, 50, 50, 10, "Case number:"
-		  Text 10, 70, 60, 10, "Actual CAF Form:"
-		  Text 10, 90, 60, 10, "Worker Signature:"
-		  Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
-		  Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
-		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
-		  Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
-		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
-		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
-		  Text 80, 205, 220, 10, "You should have this script running DURING the entire interview."
-		  Text 90, 220, 195, 20, "You  are capturing BOTH the information written on the form AND the verbal responses in the script fields."
-		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-		EndDialog
-
-		Dialog Dialog1
-		cancel_without_confirmation
-
-		If ButtonPressed > 100 Then
-			err_msg = "LOOP"
-
-			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
-			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
-			If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
-            If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
-			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
-
-			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx"
-			If ButtonPressed = msg_show_quick_start_guide_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20QUICK%20START%20GUIDE.docx"
-			If ButtonPressed = msg_show_faq_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20FAQ.docx"
-		Else
-			Call validate_MAXIS_case_number(err_msg, "*")
-			If no_case_number_checkbox = checked Then err_msg = ""
-			' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-			If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
-			' If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		End If
-	LOOP UNTIL err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
-Call check_for_MAXIS(False)
+'THIS IS WHERE THE CASE NUMBER DIALOG BELONGS BUT SINCE THIS SCRIPT IS ACCESSED FROM A REDIRECT WE DON'T NEED A REDIRECT
 
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -6581,47 +6366,50 @@ call write_interview_CASE_NOTE
 
 Call script_end_procedure_with_error_report(end_msg)
 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/3/2024
+'--Tab orders reviewed & confirmed----------------------------------------------10/3/2024
+'--Mandatory fields all present & Reviewed--------------------------------------10/3/2024
+'--All variables in dialog match mandatory fields-------------------------------10/3/2024
+'Review dialog names for content and content fit in dialog----------------------10/3/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------10/3/2024
+'--Create a button to reference instructions------------------------------------10/3/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/3/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/3/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------10/3/2024
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/3/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/3/2024
+'--PRIV Case handling reviewed -------------------------------------------------10/3/2024
+'--Out-of-County handling reviewed----------------------------------------------10/3/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/3/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/3/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/3/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------10/3/2024
+'--Script name reviewed---------------------------------------------------------10/3/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
-
-
-
-
-
-
-
-'This dialog will replace the initial dialog for the interview
-BeginDialog Dialog1, 0, 0, 371, 315, "Interview Script Case number dialog"
-  EditBox 75, 25, 60, 15, MAXIS_case_number
-  DropListBox 75, 45, 145, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-  EditBox 75, 65, 145, 15, worker_signature
-  DropListBox 10, 270, 350, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-  ButtonGroup ButtonPressed
-    OkButton 260, 295, 50, 15
-    CancelButton 315, 295, 50, 15
-    PushButton 235, 20, 125, 15, "Open Interpreter Services Link", interpreter_servicves_btn
-    PushButton 235, 35, 125, 15, "HSR Manual - Interview", hrs_manual_interview
-    PushButton 235, 50, 125, 15, "SIR - SNAP Phone Interview Guide", sir_snap_interview
-    PushButton 235, 65, 60, 15, "Script Overview", msg_what_script_does_btn
-    PushButton 295, 65, 65, 15, "Script How to Use", msg_script_interaction_btn
-    PushButton 10, 160, 120, 15, "Interview Summary", run_interview_summary_btn
-    PushButton 240, 200, 120, 15, "More about 'SAVE YOUR WORK'", msg_save_your_work_btn
-    PushButton 240, 235, 120, 15, "Details on Dialog Correction", msg_script_messaging_btn
-    PushButton 10, 295, 50, 15, "Instructions", msg_show_instructions_btn
-    PushButton 60, 295, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
-    PushButton 130, 295, 30, 15, "FAQ", msg_show_faq_btn
-  GroupBox 5, 10, 220, 75, "Case Information"
-  Text 20, 30, 50, 10, "Case number:"
-  Text 10, 50, 60, 10, "Actual CAF Form:"
-  Text 10, 70, 60, 10, "Worker Signature:"
-  GroupBox 230, 10, 135, 75, "Policy and Resources"
-  GroupBox 5, 90, 360, 90, "Important Points"
-  Text 10, 105, 240, 10, "* * * THIS  SCRIPT  SHOULD  BE  RUN  DURING  THE  INTERVIEW * * *"
-  Text 25, 115, 315, 10, "Start this script at the beginning of the interview and use it to record the interview as it happens."
-  Text 10, 130, 205, 10, "* Capture info from the form AND info from the conversation."
-  Text 10, 150, 315, 10, "If the interview is already over, we have a temporary option to record the interview information:"
-  GroupBox 5, 190, 360, 95, "Script Functionality"
-  Text 10, 205, 185, 10, "This script SAVES the information you enter as it runs!"
-  Text 10, 215, 345, 10, "IF the script errors, fails, is cancelled, the network goes down. YOU CAN GET YOUR WORK BACK!!!"
-  Text 10, 240, 215, 10, "Dialog correction messages can be handled in two different ways."
-  Text 10, 255, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-EndDialog
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/3/2024
+'--comment Code-----------------------------------------------------------------10/3/2024
+'--Update Changelog for release/update------------------------------------------10/3/2024
+'--Remove testing message boxes-------------------------------------------------10/3/2024
+'--Remove testing code/unnecessary code-----------------------------------------10/3/2024
+'--Review/update SharePoint instructions----------------------------------------10/3/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/3/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------10/3/2024
+'--Update project team/issue contact (if applicable)----------------------------10/3/2024
