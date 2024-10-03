@@ -332,7 +332,7 @@ function check_for_errors(interview_questions_clear)
 		'if any question is 'Yes' Then must have a person selected
 		qual_memb_one = trim(qual_memb_one)
 		qual_memb_two = trim(qual_memb_two)
-		qual_memb_three = trim(qual_memb_three)
+		qual_memb_there = trim(qual_memb_there)
 		qual_memb_four = trim(qual_memb_four)
 		qual_memb_five = trim(qual_memb_five)
 		If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
@@ -345,10 +345,10 @@ function check_for_errors(interview_questions_clear)
 			If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 			If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 		End If
-		If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type")) Then
+		If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type")) Then
 			err_msg = err_msg & "~!~" & "10^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
 			If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+			If qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 		End If
 		If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
 			err_msg = err_msg & "~!~" & "10^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
@@ -1426,7 +1426,7 @@ function define_main_dialog()
 			DropListBox 220, 80, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_two
 			ComboBox 340, 80, 105, 45, all_the_clients, qual_memb_two
 			DropListBox 220, 110, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_three
-			ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_three
+			ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_there
 			DropListBox 220, 140, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_four
 			ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
 			DropListBox 220, 160, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_five
@@ -3232,7 +3232,7 @@ function save_your_work()
 			objTextStream.WriteLine "QQ2A - " & qual_question_two
 			objTextStream.WriteLine "QQ2M - " & qual_memb_two
 			objTextStream.WriteLine "QQ3A - " & qual_question_three
-			objTextStream.WriteLine "QQ3M - " & qual_memb_three
+			objTextStream.WriteLine "QQ3M - " & qual_memb_there
 			objTextStream.WriteLine "QQ4A - " & qual_question_four
 			objTextStream.WriteLine "QQ4M - " & qual_memb_four
 			objTextStream.WriteLine "QQ5A - " & qual_question_five
@@ -3421,7 +3421,7 @@ function save_your_work()
             If verif_emer_checkbox = checked then objTextStream.WriteLine "verif_emer_checkbox"
             If verif_hc_checkbox = checked then objTextStream.WriteLine "verif_hc_checkbox"
 
-			'R&R
+			'R&R 
 			If DHS_4163_checkbox = checked Then objTextStream.WriteLine "DHS_4163_checkbox"
 			If DHS_3315A_checkbox = checked Then objTextStream.WriteLine "DHS_3315A_checkbox"
 			If DHS_3979_checkbox = checked Then objTextStream.WriteLine "DHS_3979_checkbox"
@@ -3757,7 +3757,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ2A - " & qual_question_two
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ2M - " & qual_memb_two
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ3A - " & qual_question_three
-			script_run_lowdown = script_run_lowdown & vbCr & "QQ3M - " & qual_memb_three
+			script_run_lowdown = script_run_lowdown & vbCr & "QQ3M - " & qual_memb_there
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ4A - " & qual_question_four
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ4M - " & qual_memb_four
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ5A - " & qual_question_five
@@ -3943,7 +3943,7 @@ function save_your_work()
             If verif_emer_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_emer_checkbox - CHECKED"
             If verif_hc_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox - CHECKED" & vbCr & vbCr
 
-			'R&R
+			'R&R 
             If DHS_4163_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_4163_checkbox - CHECKED"
             If DHS_3315A_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3315A_checkbox - CHECKED"
             If DHS_3979_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_3979_checkbox - CHECKED"
@@ -4341,7 +4341,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 4) = "QQ2A" Then qual_question_two = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ2M" Then qual_memb_two = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ3A" Then qual_question_three = Mid(text_line, 8)
-					If left(text_line, 4) = "QQ3M" Then qual_memb_three = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ3M" Then qual_memb_there = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ4A" Then qual_question_four = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ4M" Then qual_memb_four = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ5A" Then qual_question_five = Mid(text_line, 8)
@@ -4561,7 +4561,7 @@ function restore_your_work(vars_filled)
                     If text_line = "verif_emer_checkbox" Then verif_emer_checkbox = checked
                     If text_line = "verif_hc_checkbox" Then verif_hc_checkbox = checked
 
-					'R&R
+					'R&R 
 					If text_line = "DHS_4163_checkbox" Then DHS_4163_checkbox = checked
 					If text_line = "DHS_3315A_checkbox" Then DHS_3315A_checkbox = checked
 					If text_line = "DHS_3979_checkbox" Then DHS_3979_checkbox = checked
@@ -6346,7 +6346,7 @@ function write_interview_CASE_NOTE()
 
 	If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 
-	'R&R
+	'R&R 
 	forms_reviewed = ""
 	If DHS_4163_checkbox = checked Then forms_reviewed = forms_reviewed & " -4163 -EBT Info"
 	If DHS_3315A_checkbox = checked Then forms_reviewed = forms_reviewed & " -3315A"
@@ -8197,7 +8197,7 @@ Dim question_22_yn, question_22_notes, question_22_verif_yn, question_22_verif_d
 Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_details, question_23_interview_notes
 Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details, question_24_interview_notes
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
-Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
+Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
 Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_street, CAF_arep_addr_city, CAF_arep_addr_state, CAF_arep_addr_zip
@@ -8212,7 +8212,7 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
 
-'R&R
+'R&R 
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
 Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
 Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read
@@ -8316,80 +8316,77 @@ If MX_region = "TRAINING" Then developer_mode = True
 interview_started_time = time
 MFIP_orientation_assessed_and_completed = False
 
-msg_what_script_does_btn 		= 101
-msg_save_your_work_btn 			= 102
-msg_script_interaction_btn 		= 103
-msg_show_instructions_btn 		= 104
-msg_script_messaging_btn 		= 105
-msg_show_quick_start_guide_btn 	= 106
-msg_show_faq_btn 				= 107
-interpreter_servicves_btn 		= 108
-hsr_manual_interview_btn		= 109
-sir_snap_interview				= 110
-run_interview_summary_btn		= 99
-switch_to_summary = False
+msg_what_script_does_btn = 101
+msg_save_your_work_btn = 102
+msg_script_interaction_btn = 103
+msg_show_instructions_btn = 104
+msg_script_messaging_btn = 105
+msg_show_quick_start_guide_btn = 106
+msg_show_faq_btn = 107
+interpreter_servicves_btn = 108
 
 'Showing the case number dialog
 Do
 	DO
 		err_msg = ""
 
+		' EditBox 245, 50, 50, 15, CAF_datestamp
+		' CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+		' CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+		' CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
+		' Text 155, 55, 90, 10, "Date Application Received:"
+		' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
+
+		' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
+		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
+		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 315, "Interview Script Case number dialog"
-			EditBox 75, 25, 60, 15, MAXIS_case_number
-			DropListBox 75, 45, 145, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-			EditBox 75, 65, 145, 15, worker_signature
-			DropListBox 10, 270, 350, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-			ButtonGroup ButtonPressed
-				OkButton 260, 295, 50, 15
-				CancelButton 315, 295, 50, 15
-				PushButton 235, 20, 125, 15, "HSR Manual - Interpreter Services", interpreter_servicves_btn
-				PushButton 235, 35, 125, 15, "HSR Manual - Interview", hsr_manual_interview_btn
-				PushButton 235, 50, 125, 15, "SIR - SNAP Phone Interview Guide", sir_snap_interview
-				PushButton 235, 65, 60, 15, "Script Overview", msg_what_script_does_btn
-				PushButton 295, 65, 65, 15, "Script How to Use", msg_script_interaction_btn
-				PushButton 10, 160, 120, 15, "Interview Summary", run_interview_summary_btn
-				PushButton 240, 200, 120, 15, "More about 'SAVE YOUR WORK'", msg_save_your_work_btn
-				PushButton 240, 235, 120, 15, "Details on Dialog Correction", msg_script_messaging_btn
-				PushButton 10, 295, 50, 15, "Instructions", msg_show_instructions_btn
-				PushButton 60, 295, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
-				PushButton 130, 295, 30, 15, "FAQ", msg_show_faq_btn
-			GroupBox 5, 10, 220, 75, "Case Information"
-			Text 20, 30, 50, 10, "Case number:"
-			Text 10, 50, 60, 10, "Actual CAF Form:"
-			Text 10, 70, 60, 10, "Worker Signature:"
-			GroupBox 230, 10, 135, 75, "Policy and Resources"
-			GroupBox 5, 90, 360, 90, "Important Points"
-			Text 10, 105, 240, 10, "* * * THIS  SCRIPT  SHOULD  BE  RUN  DURING  THE  INTERVIEW * * *"
-			Text 25, 115, 315, 10, "Start this script at the beginning of the interview and use it to record the interview as it happens."
-			Text 10, 130, 205, 10, "* Capture info from the form AND info from the conversation."
-			Text 10, 150, 315, 10, "If the interview is already over, we have a temporary option to record the interview information:"
-			GroupBox 5, 190, 360, 95, "Script Functionality"
-			Text 10, 205, 185, 10, "This script SAVES the information you enter as it runs!"
-			Text 10, 215, 345, 10, "IF the script errors, fails, is cancelled, the network goes down. YOU CAN GET YOUR WORK BACK!!!"
-			Text 10, 240, 215, 10, "Dialog correction messages can be handled in two different ways."
-			Text 10, 255, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
+		  EditBox 75, 45, 60, 15, MAXIS_case_number
+		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+		  EditBox 75, 85, 145, 15, worker_signature
+		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+		  ButtonGroup ButtonPressed
+		    OkButton 260, 300, 50, 15
+		    CancelButton 315, 300, 50, 15
+		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
+		    PushButton 205, 35, 155, 15, "Press HERE for details on using this script", msg_script_interaction_btn
+            PushButton 220, 65, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+		    PushButton 165, 175, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
+		    PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
+		    PushButton 10, 300, 50, 15, "Instructions", msg_show_instructions_btn
+		    PushButton 60, 300, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
+		    PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
+		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
+		  Text 20, 50, 50, 10, "Case number:"
+		  Text 10, 70, 60, 10, "Actual CAF Form:"
+		  Text 10, 90, 60, 10, "Worker Signature:"
+		  Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
+		  Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
+		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
+		  Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
+		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
+		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
+		  Text 80, 205, 220, 10, "You should have this script running DURING the entire interview."
+		  Text 90, 220, 195, 20, "You  are capturing BOTH the information written on the form AND the verbal responses in the script fields."
+		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
 		EndDialog
 
 		Dialog Dialog1
 		cancel_without_confirmation
 
-		If ButtonPressed = run_interview_summary_btn Then switch_to_summary = True
 		If ButtonPressed > 100 Then
 			err_msg = "LOOP"
 
 			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
 			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
-			If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Interpretive_Services.aspx"
+			If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
             If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
 			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
 
 			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx"
 			If ButtonPressed = msg_show_quick_start_guide_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20QUICK%20START%20GUIDE.docx"
 			If ButtonPressed = msg_show_faq_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20FAQ.docx"
-
-			If ButtonPressed = hsr_manual_interview_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Interview_Resources.aspx"
-			If ButtonPressed = sir_snap_interview Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Telephone%20Interview%20Guide.pdf"
 		Else
 			Call validate_MAXIS_case_number(err_msg, "*")
 			If no_case_number_checkbox = checked Then err_msg = ""
@@ -8403,7 +8400,6 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 Call check_for_MAXIS(False)
-If switch_to_summary = True Then Call run_from_GitHub(script_repository & "notes/interview-summary.vbs" )
 
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -9507,7 +9503,7 @@ Do
 			If ButtonPressed = accounting_service_desk_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-faa/SitePages/Randle-Unit.aspx"
 			If ButtonPressed = open_dhs_4163_btn Then run  "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
 		End If
-
+		
 		If snap_reporting_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, select the correct reporting type for this case to ensure the best information is provided to the household."
 		If Trim(next_revw_month) = "" Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, indicate the next review month for this case."
 		If case_card_info = "Select or Type" or trim(case_card_info) = "" Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident has an EBT Card for this case."
@@ -9646,15 +9642,15 @@ Do
 			If ButtonPressed = open_appeal_rights_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
 			If ButtonPressed = open_IEVS_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-2759-ENG"
 		End If
-
+		
 		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 save_your_work
 
-'DHS3477 DHS4133
-Do
+'DHS3477 DHS4133 
+Do	
 	Do
 		err_msg = ""
 
@@ -9687,7 +9683,7 @@ Do
 			err_msg = "LOOP"
 			If ButtonPressed = open_DV_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
 			If ButtonPressed = open_disa_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4133-ENG"
-
+			
 		End If
 		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
@@ -9765,7 +9761,7 @@ If family_cash_case_yn = "Yes" Then
 					Text 30, 35, 365, 10, "-Every child has the right to financial and emotional support from both parents"
 					GroupBox 5, 85, 535, 90, ""
 					GroupBox 5, 170, 535, 90, ""
-
+					
 
 
 					If relative_caregiver_yn = "Yes" Then
@@ -9825,8 +9821,8 @@ If family_cash_case_yn = "Yes" Then
 					Text 25, 35, 470, 10, "-Failure to comply without good cause results in loss of MFIP benefits "
 					GroupBox 5, 195, 530, 105, ""
 					Text 25, 25, 490, 10, "-Required to attend school, unless exempt"
-
-
+					
+					
 					If minor_caregiver_yn = "Yes - Caregiver is under 18" Then
 						CheckBox 10, 210, 280, 10, "Check here if MFIP for Minor Caregivers (DHS- 3238) was reviewed", DHS_3238_checkbox
 						Text 20, 225, 505, 20, "You are a minor caregiver if: "
@@ -9876,7 +9872,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 		  		CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 				Text 25, 25, 365, 10, snap_reporting_type & " Reporting"
 
-				If snap_reporting_type = "Six-Month" Then
+				If snap_reporting_type = "Six-Month" Then 
 					Text 35, 40, 435, 10, "As a 6 month reporter, you are certified for six months at a time, which means you will have a  review within six months "
 					Text 35, 55, 160, 10, "Changes required to report"
 					Text 45, 65, 440, 10, "-Income received in any month exceeds 130% FPG for the Household Size"
@@ -9895,7 +9891,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 						PushButton 465, 365, 80, 15, "Continue", continue_btn
 					GroupBox 5, 0, 535, 280, ""
 				End If
-				If snap_reporting_type = "Change" Then
+				If snap_reporting_type = "Change" Then 
 					CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 					ButtonGroup ButtonPressed
 						PushButton 25, 235, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
@@ -9918,7 +9914,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 					Text 45, 135, 480, 10, "-For any ABAWD, a change in work or job activities that cause their hours to fall below 20 hours per week, averaged 80 hours monthly. "
 					GroupBox 5, 0, 540, 270, ""
 				End If
-				If snap_reporting_type = "Monthly" Then
+				If snap_reporting_type = "Monthly" Then 
 					CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
 					ButtonGroup ButtonPressed
 						PushButton 20, 185, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
@@ -9944,7 +9940,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 				If ButtonPressed = open_cs_2625_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2625-ENG"
 				If ButtonPressed = exemptions_button Then call display_exemptions()
 			End If
-
+		
 			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		Loop until err_msg = ""
@@ -11801,7 +11797,7 @@ objSelection.TypeText chr(9) & qual_question_two & vbCr
 If trim(qual_memb_two) <> "" AND qual_memb_two <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_two & vbCr
 objSelection.TypeText "Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
 objSelection.TypeText chr(9) & qual_question_three & vbCr
-If trim(qual_memb_three) <> "" AND qual_memb_three <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_three & vbCr
+If trim(qual_memb_there) <> "" AND qual_memb_there <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_there & vbCr
 objSelection.TypeText "Has anyone in your household been convicted of a drug felony in the past 10 years?" & vbCr
 objSelection.TypeText chr(9) & qual_question_four & vbCr
 If trim(qual_memb_four) <> "" AND qual_memb_four <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_four & vbCr
