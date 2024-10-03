@@ -1553,7 +1553,7 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		save_your_work_path = user_myDocs_folder & "interview-summary-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
 	With (CreateObject("Scripting.FileSystemObject"))
@@ -2250,7 +2250,7 @@ end function
 function restore_your_work(vars_filled)
 
 	'Now determines name of file
-	save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	save_your_work_path = user_myDocs_folder & "interview-summary-answers-" & MAXIS_case_number & "-info.txt"
 
 	With (CreateObject("Scripting.FileSystemObject"))
 
