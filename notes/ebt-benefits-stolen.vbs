@@ -43,6 +43,7 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+call changelog_update("10/03/2024", "Updated CASE/NOTE language to align with SPEC/MEMO.", "Mark Riegel, Hennepin County")
 call changelog_update("04/22/2024", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
