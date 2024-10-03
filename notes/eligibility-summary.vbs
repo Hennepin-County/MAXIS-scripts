@@ -3511,8 +3511,9 @@ function define_hc_elig_dialog()
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 460, 85, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
-		PushButton 460, 100, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
+		If apprvs_y_pos < 85 Then apprvs_y_pos = 85
+		PushButton 460, apprvs_y_pos, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 460, apprvs_y_pos+15, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) <> "HC DENIAL" Then
 			GroupBox 5, y_pos, 540, income_box_len, "Income"
@@ -18090,7 +18091,7 @@ class hc_eligibility_detail
 
 												' MARK ALL OF THE POSSIBLE POPUPS
 												EMReadScreen ema_person_test_check, 3, 3, 27
-												EMWriteScreen "X", 7, 3				'Assets'
+												' EMWriteScreen "X", 7, 3				'Assets'			'THIS CAUSES PROBEMS ON INELIG SPANS - Since we aren't reading anything from here we are going to ignore it
 												EMWriteScreen "X", 10, 3			'Cooperration'
 												EMWriteScreen "X", 14, 3			'Fail to File'
 												If ema_person_test_check <> "EMA" Then EMWriteScreen "X", 14, 44							'Verification'
