@@ -489,6 +489,9 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_Case_Note("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_Case_Note("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_Case_Note("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If denial_state_case_assistance = 1 then Call write_variable_in_Case_Note("> State funded case assistance, including state funded housing grants, are not eligible for EBT replacement")
+    If denial_MSA_GA_GRH = 1 then Call write_variable_in_Case_Note("> MSA, GA, and GRH benefits are not eligible for EBT replacement")
+    If denial_state_funded_SNAP = 1 then Call write_variable_in_Case_Note("> State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement")
     If trim(denial_additional_reasons) <> "" then Call write_variable_in_Case_Note(denial_additional_reasons)
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)    
@@ -548,7 +551,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     start_a_blank_case_note
 
     'Worker is awaiting additional information from forms, will CASE/NOTE and then end
-    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - SPEC/MEMO Sent--")
+    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - Approval SPEC/MEMO Sent--")
     CALL write_variable_in_Case_Note("SPEC/MEMO sent to client informing them of approval of benefits replacement request. Information provided in SPEC/MEMO provided below:")
     CALL write_variable_in_Case_Note("----")
     Call write_variable_in_Case_Note("Your request for the replacement of stolen EBT benefits has been approved.")
