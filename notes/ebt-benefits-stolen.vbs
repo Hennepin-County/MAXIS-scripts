@@ -362,7 +362,7 @@ If action_step = "CASE/NOTE Information about Request" Then
       ButtonGroup ButtonPressed
         OkButton 175, 305, 50, 15
         CancelButton 230, 305, 50, 15
-      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
       Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
@@ -431,7 +431,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
       ButtonGroup ButtonPressed
         OkButton 175, 305, 50, 15
         CancelButton 230, 305, 50, 15
-      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
       Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
