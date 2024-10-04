@@ -324,8 +324,15 @@ Function check_and_add_new_jobs_panel(testing_status)
             'PF4 to navigate to CASE/NOTE
             PF4
 
+            EMReadScreen jobs_panel_not_saved, 25, 24, 2
+            'If unable to navigate to CASE/NOTE due to not saving JOBS panel, then another transmit is needed
+            If instr(jobs_panel_not_saved, "CASE OR PERSON NOTES ARE") Then 
+                transmit
+                PF4
+            End If
+
             EMReadScreen case_note_check, 4, 2, 45
-            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here1"
 
             'Open new CASE/NOTE
             PF9
@@ -618,6 +625,7 @@ Function check_and_add_new_jobs_panel(testing_status)
 
                             transmit
                             EmReadScreen PIC_warning, 7, 20, 6
+
                             IF PIC_warning = "WARNING" then transmit 'to clear message
                             transmit 'back to JOBS panel
                             If testing_status = True Then Msgbox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
@@ -751,12 +759,18 @@ Function check_and_add_new_jobs_panel(testing_status)
 
                             'Write information to CASE/NOTE
                             If testing_status = True Then MsgBox "Testing -- Script will now CASE/NOTE information. Navigate to CASE/NOTE"
-
+                            
                             'PF4 to navigate to CASE/NOTE
                             PF4
-
+                            
+                            EMReadScreen jobs_panel_not_saved, 25, 24, 2
+                            'If unable to navigate to CASE/NOTE due to not saving JOBS panel, then another transmit is needed
+                            If instr(jobs_panel_not_saved, "CASE OR PERSON NOTES ARE") Then 
+                                transmit
+                                PF4
+                            End If
                             EMReadScreen case_note_check, 4, 2, 45
-                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here2"
 
                             'Open new CASE/NOTE
                             PF9
@@ -2724,8 +2738,15 @@ If CSES_messages = 1 Then
                                                             'PF4 to navigate to CASE/NOTE
                                                             PF4
 
+                                                            EMReadScreen jobs_panel_not_saved, 25, 24, 2
+                                                            'If unable to navigate to CASE/NOTE due to not saving JOBS panel, then another transmit is needed
+                                                            If instr(jobs_panel_not_saved, "CASE OR PERSON NOTES ARE") Then 
+                                                                transmit
+                                                                PF4
+                                                            End If
+
                                                             EMReadScreen case_note_check, 4, 2, 45
-                                                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                                                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here3"
 
                                                             'Open new CASE/NOTE
                                                             PF9
@@ -3116,8 +3137,15 @@ If CSES_messages = 1 Then
                                                                             'PF4 to navigate to CASE/NOTE
                                                                             PF4
 
+                                                                            EMReadScreen jobs_panel_not_saved, 25, 24, 2
+                                                                            'If unable to navigate to CASE/NOTE due to not saving JOBS panel, then another transmit is needed
+                                                                            If instr(jobs_panel_not_saved, "CASE OR PERSON NOTES ARE") Then 
+                                                                                transmit
+                                                                                PF4
+                                                                            End If
+
                                                                             EMReadScreen case_note_check, 4, 2, 45
-                                                                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                                                                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here4"
 
                                                                             'Open new CASE/NOTE
                                                                             PF9
@@ -4976,7 +5004,7 @@ If HIRE_messages = 1 Then
                                                                 PF4
 
                                                                 EMReadScreen case_note_check, 4, 2, 45
-                                                                If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                                                                If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here5"
                                                                 'Open a new case note
                                                                 PF9
 
@@ -5466,7 +5494,7 @@ If HIRE_messages = 1 Then
                                                                 'Navigate to CASE/NOTE
                                                                 PF4
                                                                 EMReadScreen case_note_check, 4, 2, 45
-                                                                If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                                                                If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here6"
 
                                                                 'Open a new case note
                                                                 PF9
