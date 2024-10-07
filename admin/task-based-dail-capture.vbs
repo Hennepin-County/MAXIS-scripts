@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/05/2024", "Change email communications from Ilse to Dave.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/12/2204", "Updated DAIL types that are selected based on the SOP processing calendar.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2024", "Housekeeping updates: streamlined code, and added supports when only DAIL message on a page is deleted.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
@@ -364,7 +365,7 @@ Next
 objConnection.Close
 
 'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
-Call create_outlook_email("", "Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
+Call create_outlook_email("", "David.Courtright@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
 stats_counter = stats_counter -1
 script_end_procedure("Success! Actionable DAILs have been added to the database.")
 
