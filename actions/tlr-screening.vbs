@@ -71,20 +71,25 @@ BeginDialog Dialog1, 0, 0, 181, 110, "Case & Member Number Selection"
   Text 10, 75, 60, 10, "Worker Signature:"
   EditBox 75, 70, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 90, 45, 15
-    CancelButton 130, 90, 45, 15
+    PushButton 15, 90, 70, 15, "Script Instructions", script_instructions
+    OkButton 90, 90, 40, 15
+    CancelButton 135, 90, 40, 15
 EndDialog
 
 Do
 	Do
 	    err_msg = ""
   		Dialog Dialog1
-  		Cancel_without_confirmation
+        Cancel_without_confirmation
   		Call validate_MAXIS_case_number(err_msg, "*")
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-  	    If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B58B17691-CF4B-4EBF-8B97-B556E995F67D%7D&file=ACTIONS%20-%20TLR%20SCREENING.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
