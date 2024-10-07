@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/07/2024", "Added Age-Based exemption from 53-59 to 55-59 based on 10/2024 policy.", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/27/2024", "Added update handling for residents who meet military service ABAWD/TLR exemptions.", "Ilse Ferris, Hennepin County")
 Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -116,7 +117,7 @@ If panel_exists = "1" then
 	'Resetting the variables
 	bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
 	bene_yr_row = 10
-	abawd_counted_months = 0					'delclares the variables values at 0 or blanks
+	abawd_counted_months = 0					'declares the variables values at 0 or blanks
 	second_set_count = 0
 	abawd_status = 0
 	wreg_status = 0
@@ -158,7 +159,7 @@ If panel_exists = "1" then
     		abawd_counted_months_string = abawd_counted_months_string & counted_date_month & "/" & counted_date_year & " | "
         END IF
         
-        'counting and checking for counted banked months
+        'counting and checking for counted 2nd set months
         IF is_counted_month = "Y" or is_counted_month = "N" THEN
         	EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
         	second_set_count = second_set_count + 1				'adding counted months
@@ -246,7 +247,7 @@ Do
           Text 5, 65, 315, 10, "=============================================================================="
           Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 2 of 2)"
           Text 5, 95, 315, 10, "=============================================================================="
-          CheckBox 5, 110, 120, 10, "Age 53 - 59?*", age_exempt_checkbox
+          CheckBox 5, 110, 120, 10, "Age 55 - 59?*", age_exempt_checkbox
           CheckBox 5, 125, 125, 10, "Child under 18 in your SNAP unit?*", minor_hh_checkbox
           CheckBox 5, 140, 155, 10, "16-17 and NOT living with parent/caregiver?*", minor_wo_caregiver_checkbox
           CheckBox 5, 155, 45, 10, "Pregnant?*", PX_checkbox
@@ -380,7 +381,7 @@ If minor_wo_caregiver_checkbox = 1 then
 End if
 If age_exempt_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "-  Age 53 - 59|"
+    exempt_text = exempt_text & "-  Age 55 - 59|"
     verified_wreg = verified_wreg & "16|"
 End if 
 If RCA_checkbox = 1 then
