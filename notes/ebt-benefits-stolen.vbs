@@ -43,6 +43,7 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+call changelog_update("10/03/2024", "Updated CASE/NOTE language to align with SPEC/MEMO.", "Mark Riegel, Hennepin County")
 call changelog_update("04/22/2024", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -361,7 +362,7 @@ If action_step = "CASE/NOTE Information about Request" Then
       ButtonGroup ButtonPressed
         OkButton 175, 305, 50, 15
         CancelButton 230, 305, 50, 15
-      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
       Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
@@ -430,7 +431,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
       ButtonGroup ButtonPressed
         OkButton 175, 305, 50, 15
         CancelButton 230, 305, 50, 15
-      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
       Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
@@ -489,6 +490,9 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_Case_Note("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_Case_Note("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_Case_Note("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If denial_state_case_assistance = 1 then Call write_variable_in_Case_Note("> State funded case assistance, including state funded housing grants, are not eligible for EBT replacement")
+    If denial_MSA_GA_GRH = 1 then Call write_variable_in_Case_Note("> MSA, GA, and GRH benefits are not eligible for EBT replacement")
+    If denial_state_funded_SNAP = 1 then Call write_variable_in_Case_Note("> State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement")
     If trim(denial_additional_reasons) <> "" then Call write_variable_in_Case_Note(denial_additional_reasons)
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)    
@@ -548,7 +552,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     start_a_blank_case_note
 
     'Worker is awaiting additional information from forms, will CASE/NOTE and then end
-    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - SPEC/MEMO Sent--")
+    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - Approval SPEC/MEMO Sent--")
     CALL write_variable_in_Case_Note("SPEC/MEMO sent to client informing them of approval of benefits replacement request. Information provided in SPEC/MEMO provided below:")
     CALL write_variable_in_Case_Note("----")
     Call write_variable_in_Case_Note("Your request for the replacement of stolen EBT benefits has been approved.")
