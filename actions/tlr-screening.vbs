@@ -60,7 +60,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 member_number = "01"
 
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 181, 110, "Case & Member Number Selection"
+BeginDialog Dialog1, 0, 0, 181, 110, "ACTIONS - TLR SCREENING"
   Text 20, 15, 50, 10, "Case Number: "
   EditBox 75, 10, 45, 15, MAXIS_case_number
   Text 10, 35, 60, 10, "Member Number:"
@@ -718,12 +718,15 @@ script_end_procedure_with_error_report("Success! This member has been assessed f
 '--Mandatory fields all present & Reviewed---------------------------------------12/29/2023
 '--All variables in dialog match mandatory fields--------------------------------12/29/2023
 'Review dialog names for content and content fit in dialog-----------------------12/29/2023
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog--------------------10/07/2024
+'--Create a button to reference instructions-------------------------------------10/07/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)----------------------------------12/29/2023
 '--CASE:NOTE Header doesn't look funky-------------------------------------------12/29/2023
 '--Leave CASE:NOTE in edit mode if applicable------------------------------------12/29/2023
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-12/29/2023
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used------12/29/2023
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed---------------------------------------12/29/2023
@@ -747,9 +750,9 @@ script_end_procedure_with_error_report("Success! This member has been assessed f
 '--Update Changelog for release/update-------------------------------------------12/29/2023
 '--Remove testing message boxes--------------------------------------------------12/29/2023
 '--Remove testing code/unnecessary code------------------------------------------12/29/2023
-'--Review/update SharePoint instructions-----------------------------------------12/29/2023
+'--Review/update SharePoint instructions-----------------------------------------10/07/2024
 '--Other SharePoint sites review (HSR Manual, etc.)------------------------------12/29/2023
-'--COMPLETE LIST OF SCRIPTS reviewed---------------------------------------------12/29/2023
+'--COMPLETE LIST OF SCRIPTS reviewed---------------------------------------------10/07/2024
 '--COMPLETE LIST OF SCRIPTS update policy references-----------------------------12/29/2023
 '--Complete misc. documentation (if applicable)----------------------------------12/29/2023
 '--Update project team/issue contact (if applicable)-----------------------------12/29/2023
