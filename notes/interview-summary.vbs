@@ -1048,7 +1048,8 @@ function dialog_movement()
 		If page_display = show_case_info 				Then ButtonPressed = caf_qual_q_btn
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
 		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
-		If expedited_determination_needed = True Then
+
+		If expedited_determination_needed = True AND page_display = show_pg_last Then
 			If expedited_determination_completed = False Then
 				ButtonPressed = expedited_determination_btn
 			Else
@@ -5500,10 +5501,10 @@ Do
 	Do
 		Do
 			Do
-
+			leave_loop = false
 			Dialog1 = Empty
 				call define_main_dialog
-
+				'call dialog_movement
 				err_msg = ""
 
 				prev_page = page_display
