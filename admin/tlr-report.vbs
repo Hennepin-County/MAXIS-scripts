@@ -755,12 +755,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    If best_wreg_code = "21" then best_abawd_code = "04"
 	    If best_wreg_code = "17" then best_abawd_code = "12"
 	    If best_wreg_code = "23" then best_abawd_code = "05"
-
-        'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
-        If verified_wreg = "30" then 
-            best_abawd_code = "09"
-        End if
-    
+        If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
+        
 		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
 		EMReadScreen next_revw_mo, 2, 9, 57
@@ -929,7 +925,8 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
+'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\11-2024 ABAWD-TLR's.xlsx" 'testing code
 
 'column constants
 case_number_col 	= 1		'Col A
