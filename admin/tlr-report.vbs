@@ -303,7 +303,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
             If cl_age = 53 or _
                 cl_age = 54 then
-                verified_wreg = verified_wreg & "16" & "|" 
                 age_53_54 = True
             End if 
 
@@ -957,13 +956,10 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF
-
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
 Call MAXIS_footer_month_confirmation
 
 excel_row = 2
-
 Do
     MAXIS_case_number = ""
 	MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value
