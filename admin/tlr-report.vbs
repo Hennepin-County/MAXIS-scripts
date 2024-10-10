@@ -259,7 +259,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			End if
 
 		    'person-based determination
-			age_50 = False 
+			age_50 = False
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen cl_age, 2, 8, 76
@@ -763,12 +763,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-		If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP Review Next Month."
-	
+        
+		If next_SNAP_revw = next_month then  ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
     
-		    '----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
+		'----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
 		age_50_workaround = False
         manual_code = "F"  'manual code for exemption cases  
         If age_50 = True then
@@ -847,16 +847,14 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	    	    PF3
-	    	    
 			    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
-			    ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
 	    	End if
             'Support for if banked months are already set up
         Elseif (data_wreg = "30" and data_abawd = "13") then
             If (best_wreg_code = "30" and best_abawd_code = "10") then 
                 best_abawd_code = "13" 'for output in the spreadsheet 
                 updates_needed = False
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Banked Months already set up. No action needed."
+                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Banked Months already set up. No action needed."
             End if 
 	    Else
             'script will update the WREG panel for the member if an update
@@ -895,17 +893,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
 	    			updates_needed = False
-                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed."
+                    ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "No Updates Needed."
                 End if
             End if
 	    Else 
-	    	ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP is " & snap_status 	
+	    	ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP is " & snap_status 	
         End if
         If best_abawd_code = "10" or age_50 = True then
             If banked_months = True then 
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Assess for banked months. All TLR months used."
+                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Assess for banked months. All TLR months used."
             ElseIf abawd_counted_months => 3 then 
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Assess for banked months. All TLR months used."
+                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Assess for banked months. All TLR months used."
             End if 
         End if
     End if 
@@ -941,7 +939,7 @@ CM_abawd_col		= 9		'Col I
 best_wreg_col		= 10	'Col J
 best_abawd_col		= 11	'Col K
 notes_col			= 12	'Col L
-auto_wreg_col  		= 13    'Col M
+                            'Col M - 13 Assignee Name
 verified_wreg_col 	= 14	'Col N
 counted_months_col	= 15	'Col O
 all_exemptions_col	= 16	'Col P
@@ -998,15 +996,13 @@ Do
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
-        ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
-		ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
+        ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Privliged case"
     Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
         If county_code <> UCASE(worker_county_code) then
-            ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
-			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
+            ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Out-of-county Case"
         Else
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Do
@@ -1032,7 +1028,7 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
-				If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
+				If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign."
             End if
         End if
     End if
