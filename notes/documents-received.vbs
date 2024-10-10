@@ -3297,7 +3297,6 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		End If
 		'MsgBox "dialog mfip/msa" & diet_mfip_msa_status
 
-		diet_mfip_msa_status = "MSA-Active - DIET Panel will update" 'todo delete
 	End IF
 
 	If form_type_array(form_type_const, maxis_panel_read) = sf_form_name Then	'MAXIS NAVIGATION FOR PSN: READ MEMB, ADDR, HEST, SHEL
