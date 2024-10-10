@@ -642,8 +642,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 					End If
 				End if
             End If
-
-            
 		    '----------------------------------------------------------------------------------------------------30/09 - Military Servive
             '>>>>>>>>>>MEMI
 		    'Person-based determination
@@ -728,37 +726,38 @@ Function BULK_ABAWD_FSET_exemption_finder()
             next
 	    End if
     
-	    If best_wreg_code = "03" or _
-	    	best_wreg_code = "04" or _
-	    	best_wreg_code = "05" or _
-	    	best_wreg_code = "06" or _
-	    	best_wreg_code = "07" or _
-	    	best_wreg_code = "08" or _
-	    	best_wreg_code = "09" or _ 
-	    	best_wreg_code = "10" or _
-	    	best_wreg_code = "11" or _
-	    	best_wreg_code = "12" or _
-	    	best_wreg_code = "13" or _
-	    	best_wreg_code = "14" or _
-	    	best_wreg_code = "20" then
-	    		best_abawd_code = "01"
-	    End if
-    
-	    If best_wreg_code = "15" then best_abawd_code = "02"
-	    If best_wreg_code = "16" then best_abawd_code = "03"
-	    If best_wreg_code = "21" then best_abawd_code = "04"
-	    If best_wreg_code = "17" then best_abawd_code = "12"
-	    If best_wreg_code = "23" then best_abawd_code = "05"
-        If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
-        
+	    If trim(best_abawd_code) = "" then 
+            If best_wreg_code = "03" or _
+	    	    best_wreg_code = "04" or _
+	    	    best_wreg_code = "05" or _
+	    	    best_wreg_code = "06" or _
+	    	    best_wreg_code = "07" or _
+	    	    best_wreg_code = "08" or _
+	    	    best_wreg_code = "09" or _ 
+	    	    best_wreg_code = "10" or _
+	    	    best_wreg_code = "11" or _
+	    	    best_wreg_code = "12" or _
+	    	    best_wreg_code = "13" or _
+	    	    best_wreg_code = "14" or _
+	    	    best_wreg_code = "20" then
+	    	        best_abawd_code = "01"
+	        End if
+	        If best_wreg_code = "15" then best_abawd_code = "02"
+	        If best_wreg_code = "16" then best_abawd_code = "03"
+	        If best_wreg_code = "21" then best_abawd_code = "04"
+	        If best_wreg_code = "17" then best_abawd_code = "12"
+	        If best_wreg_code = "23" then best_abawd_code = "05"
+            If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
+        End If 
+
 		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
 		EMReadScreen next_revw_mo, 2, 9, 57
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-
-		If next_SNAP_revw = next_month then  ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
+		'If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
+        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month."        
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
     
@@ -773,92 +772,91 @@ Function BULK_ABAWD_FSET_exemption_finder()
             manual_code = "M"    
         End if  
 
-	    	Call navigate_to_MAXIS_screen("STAT", "WREG")
-            Call write_value_and_transmit(member_number, 20, 76)
-            PF9
-			EMWriteScreen best_wreg_code, 8, 50
-			EMWriteScreen best_abawd_code, 13, 50
-			If best_wreg_code = "30" then
-			    EmWriteScreen "N", 8, 80
-			Else
-			    EMWriteScreen "_", 8, 80
-			End if
+	    Call navigate_to_MAXIS_screen("STAT", "WREG")
+        Call write_value_and_transmit(member_number, 20, 76)
+        PF9
+		EMWriteScreen best_wreg_code, 8, 50
+		EMWriteScreen best_abawd_code, 13, 50
+		If best_wreg_code = "30" then
+		    EmWriteScreen "N", 8, 80
+		Else
+		    EMWriteScreen "_", 8, 80
+		End if
 
-            'Updating the ATR if the codes are already not updated for the CM      
-            ATR_updates = array("D",manual_code)
-            For each update_code in ATR_updates
-               Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'              
-                bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))      'col to search starts at 15, increased by 4 for each footer month
-                bene_yr_row = 10
-                EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
-                'This bit will only update to the manual codes if the month isn't already reflecting that. 
-                If manual_code = "F" then 
-                    If ATR_code = "E" or ATR_code = "F" then
-                        exit for 'F and E are exmept
-                    Else 
-                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                    End if 
-                ELSEIF manual_code = "M" then 
-                    If ATR_code = "X" or ATR_code = "M" then 
-                        exit for 'X and M are counted months
-                    Else 
-                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                    End if 
+        'Updating the ATR if the codes are already not updated for the CM      
+        ATR_updates = array("D",manual_code)
+        For each update_code in ATR_updates
+           Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'              
+            bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))      'col to search starts at 15, increased by 4 for each footer month
+            bene_yr_row = 10
+            EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
+            'This bit will only update to the manual codes if the month isn't already reflecting that. 
+            If manual_code = "F" then 
+                If ATR_code = "E" or ATR_code = "F" then
+                    exit for 'F and E are exmept
                 Else 
                     Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
                 End if 
-               PF3 'to go back to WREG/Panel
-            Next
-    
-            'Count all the ABAWD months
-            Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 
-	    	transmit ' to save 
-			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
-			If orientation_warning = "WARNING" then transmit 
-	        PF3 'to save and exit to stat/wrap
+            ELSEIF manual_code = "M" then 
+                If ATR_code = "X" or ATR_code = "M" then 
+                    exit for 'X and M are counted months
+                Else 
+                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                End if 
+            Else 
+                Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+            End if 
+           PF3 'to go back to WREG/Panel
+        Next
 
-	    	'case note workaround
-            If age_50_workaround = True then 
-	    	    start_a_blank_CASE_NOTE
-                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
-			    Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
-	    	    Call write_variable_in_CASE_NOTE("---")
-	    	    Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
-	    	    Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(Worker_Signature)
-	    	    PF3
-			    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
-	    	End if
-	    Else
-            'script will update the WREG panel for the member if an update
-            Call navigate_to_MAXIS_screen("STAT", "WREG")
-            Call write_value_and_transmit(member_number, 20, 76)
-            PF9
-            EMWriteScreen best_wreg_code, 8, 50
-            EMWriteScreen best_abawd_code, 13, 50
-            If best_wreg_code = "30" then
-                EmWriteScreen "N", 8, 80
-            Else
-                EMWriteScreen "_", 8, 80
-            End if
-        
-            transmit ' to save 
-			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
-			If orientation_warning = "WARNING" then transmit 
-	        PF3 'to save and exit to stat/wrap
+        'Count all the ABAWD months
+        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 
+	    transmit ' to save 
+		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
+		If orientation_warning = "WARNING" then transmit 
+	    PF3 'to save and exit to stat/wrap
+
+	    'case note workaround
+        If age_50_workaround = True then 
+	        start_a_blank_CASE_NOTE
+            Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
+		    Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
+	        Call write_variable_in_CASE_NOTE("---")
+	        Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
+	        Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
+            Call write_variable_in_CASE_NOTE("---")
+            Call write_variable_in_CASE_NOTE(Worker_Signature)
+	        PF3
+		    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
+	    End if
+
+        'script will update the WREG panel for the member if an update
+        Call navigate_to_MAXIS_screen("STAT", "WREG")
+        Call write_value_and_transmit(member_number, 20, 76)
+        PF9
+        EMWriteScreen best_wreg_code, 8, 50
+        EMWriteScreen best_abawd_code, 13, 50
+        If best_wreg_code = "30" then
+            EmWriteScreen "N", 8, 80
+        Else
+            EMWriteScreen "_", 8, 80
+        End if
     
-	    	If homeless_exemption = True then
-	    	    start_a_blank_CASE_NOTE
-                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
-	    		Call write_variable_in_CASE_NOTE("---")
-	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
-				Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(Worker_Signature)
-	    		PF3
-	    	End if 
-        End if 
+        transmit ' to save 
+		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
+		If orientation_warning = "WARNING" then transmit 
+	    PF3 'to save and exit to stat/wrap
+
+	    If homeless_exemption = True then
+	        start_a_blank_CASE_NOTE
+            Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
+	    	Call write_variable_in_CASE_NOTE("---")
+	    	Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
+			Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
+            Call write_variable_in_CASE_NOTE("---")
+            Call write_variable_in_CASE_NOTE(Worker_Signature)
+	    	PF3
+	    End if
     End if 
 
     'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned. 
@@ -867,16 +865,19 @@ Function BULK_ABAWD_FSET_exemption_finder()
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
 	    			updates_needed = False
-                    ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "No Updates Needed."
+                    'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "No Updates Needed."
+                    report_notes = report_notes & "No Updates Needed."
                 End if
             End if
 	    Else 
-	    	ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP is " & snap_status 	
+	    	'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP is " & snap_status 
+            report_notes = report_notes & "SNAP is " & snap_status	
         End if
     End if 
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
+    ObjExcel.Cells(excel_row, notes_col).Value = report_notes
 	ObjExcel.Cells(excel_row, verified_wreg_col).Value = verified_wreg
 	ObjExcel.Cells(excel_row, counted_months_col).Value = abawd_counted_months
     ObjExcel.Cells(excel_row, all_exemptions_col).Value = trim(possible_exemptions)
@@ -946,6 +947,7 @@ back_to_SELF
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
 Call MAXIS_footer_month_confirmation
+report_notes = ""
 excel_row = 2
 
 Do
@@ -963,13 +965,15 @@ Do
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
-        ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Privliged case"
+        'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Privliged case."
+        report_notes = report_notes & "Don't assign - Privliged case."
     Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
         If county_code <> UCASE(worker_county_code) then
-            ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Out-of-county Case"
+            'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Out-of-county Case."
+            report_notes = report_notes & "Don't assign - Out-of-county Case."
         Else
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Do
@@ -985,7 +989,8 @@ Do
                 End if
             Loop until end_of_membs_message = "ENTER"
             If trim(member_number) = "" then
-                ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
+                report_notes = report_notes = "Unable to find member on case"
+                'ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
             Else
 	            Call navigate_to_MAXIS_screen("STAT", "WREG")
                 Call write_value_and_transmit(member_number, 20, 76)
@@ -995,10 +1000,12 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
-				If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign."
+				'If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Inactive."
+                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign - Inactive."
             End if
         End if
     End if
+    ObjExcel.Cells(excel_row, notes_col).Value = report_notes
     excel_row = excel_row + 1
     PMI_number = ""
 Loop until ObjExcel.Cells(excel_row, 1).Value = ""
@@ -1008,4 +1015,4 @@ FOR i = 1 to 15		'formatting the cells'
 NEXT
 
 STATS_counter = STATS_counter - 1 'since we start with 1
-script_end_procedure("Success! Please review your ABAWD list.")
+script_end_procedure("Success! Please review the TLR list.")
