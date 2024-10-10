@@ -901,7 +901,7 @@ Do
                 cancel_confirmation
 
                 If cash_one_program = "Select one..." Then err_msg = err_msg & vbNewLine & "* Select at least one cash program that is actually being denied."
-                If trim(cash_one_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the first cash progam is being denied."
+                If trim(cash_one_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the first cash program is being denied."
                 If cash_two_program = "Select one..." AND trim(cash_two_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the second cash program is being denied."
 
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -1053,12 +1053,8 @@ If postponed_verif_wcom_checkbox = checked Then
 	If wreg_verifs_needed <> "" Then CALL write_variable_in_CASE_NOTE("   -" & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & ".")
 End If
 If abawd_child_18_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_18_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
-'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-' If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
 If voluntary_quit_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & vol_quit_name & " is sanctioned from SNAP due to: " & vol_quit_sanction_reason & ".")
 If additional_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Verifs not provided: " & add_verifs_missing & ", which were due on " & add_verifs_due_date & ".")
-'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-' If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & temp_disa_memb_name & " meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
 If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
