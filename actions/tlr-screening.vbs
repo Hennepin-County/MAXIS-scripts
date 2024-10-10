@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/07/2024", "Added Age-Based exemption from 53-59 to 55-59 based on 10/2024 policy.", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/27/2024", "Added update handling for residents who meet military service ABAWD/TLR exemptions.", "Ilse Ferris, Hennepin County")
 Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -59,7 +60,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 member_number = "01"
 
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 181, 110, "Case & Member Number Selection"
+BeginDialog Dialog1, 0, 0, 181, 110, "ACTIONS - TLR SCREENING"
   Text 20, 15, 50, 10, "Case Number: "
   EditBox 75, 10, 45, 15, MAXIS_case_number
   Text 10, 35, 60, 10, "Member Number:"
@@ -70,20 +71,25 @@ BeginDialog Dialog1, 0, 0, 181, 110, "Case & Member Number Selection"
   Text 10, 75, 60, 10, "Worker Signature:"
   EditBox 75, 70, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 90, 45, 15
-    CancelButton 130, 90, 45, 15
+    PushButton 15, 90, 70, 15, "Script Instructions", script_instructions
+    OkButton 90, 90, 40, 15
+    CancelButton 135, 90, 40, 15
 EndDialog
 
 Do
 	Do
 	    err_msg = ""
   		Dialog Dialog1
-  		Cancel_without_confirmation
+        Cancel_without_confirmation
   		Call validate_MAXIS_case_number(err_msg, "*")
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-  	    If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B58B17691-CF4B-4EBF-8B97-B556E995F67D%7D&file=ACTIONS%20-%20TLR%20SCREENING.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -116,7 +122,7 @@ If panel_exists = "1" then
 	'Resetting the variables
 	bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
 	bene_yr_row = 10
-	abawd_counted_months = 0					'delclares the variables values at 0 or blanks
+	abawd_counted_months = 0					'declares the variables values at 0 or blanks
 	second_set_count = 0
 	abawd_status = 0
 	wreg_status = 0
@@ -158,7 +164,7 @@ If panel_exists = "1" then
     		abawd_counted_months_string = abawd_counted_months_string & counted_date_month & "/" & counted_date_year & " | "
         END IF
         
-        'counting and checking for counted banked months
+        'counting and checking for counted 2nd set months
         IF is_counted_month = "Y" or is_counted_month = "N" THEN
         	EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
         	second_set_count = second_set_count + 1				'adding counted months
@@ -246,7 +252,7 @@ Do
           Text 5, 65, 315, 10, "=============================================================================="
           Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 2 of 2)"
           Text 5, 95, 315, 10, "=============================================================================="
-          CheckBox 5, 110, 120, 10, "Age 53 - 59?*", age_exempt_checkbox
+          CheckBox 5, 110, 120, 10, "Age 55 - 59?*", age_exempt_checkbox
           CheckBox 5, 125, 125, 10, "Child under 18 in your SNAP unit?*", minor_hh_checkbox
           CheckBox 5, 140, 155, 10, "16-17 and NOT living with parent/caregiver?*", minor_wo_caregiver_checkbox
           CheckBox 5, 155, 45, 10, "Pregnant?*", PX_checkbox
@@ -380,7 +386,7 @@ If minor_wo_caregiver_checkbox = 1 then
 End if
 If age_exempt_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "-  Age 53 - 59|"
+    exempt_text = exempt_text & "-  Age 55 - 59|"
     verified_wreg = verified_wreg & "16|"
 End if 
 If RCA_checkbox = 1 then
@@ -712,12 +718,15 @@ script_end_procedure_with_error_report("Success! This member has been assessed f
 '--Mandatory fields all present & Reviewed---------------------------------------12/29/2023
 '--All variables in dialog match mandatory fields--------------------------------12/29/2023
 'Review dialog names for content and content fit in dialog-----------------------12/29/2023
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog--------------------10/07/2024
+'--Create a button to reference instructions-------------------------------------10/07/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)----------------------------------12/29/2023
 '--CASE:NOTE Header doesn't look funky-------------------------------------------12/29/2023
 '--Leave CASE:NOTE in edit mode if applicable------------------------------------12/29/2023
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-12/29/2023
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used------12/29/2023
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed---------------------------------------12/29/2023
@@ -741,9 +750,9 @@ script_end_procedure_with_error_report("Success! This member has been assessed f
 '--Update Changelog for release/update-------------------------------------------12/29/2023
 '--Remove testing message boxes--------------------------------------------------12/29/2023
 '--Remove testing code/unnecessary code------------------------------------------12/29/2023
-'--Review/update SharePoint instructions-----------------------------------------12/29/2023
+'--Review/update SharePoint instructions-----------------------------------------10/07/2024
 '--Other SharePoint sites review (HSR Manual, etc.)------------------------------12/29/2023
-'--COMPLETE LIST OF SCRIPTS reviewed---------------------------------------------12/29/2023
+'--COMPLETE LIST OF SCRIPTS reviewed---------------------------------------------10/07/2024
 '--COMPLETE LIST OF SCRIPTS update policy references-----------------------------12/29/2023
 '--Complete misc. documentation (if applicable)----------------------------------12/29/2023
 '--Update project team/issue contact (if applicable)-----------------------------12/29/2023
