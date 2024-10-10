@@ -67,7 +67,6 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
 	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         bene_yr_row = 10
         abawd_counted_months = 0					'declares the variables values at 0
-	    banked_months_count = 0
         month_count = 0
     
         DO
@@ -98,12 +97,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         		EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
         		abawd_counted_months = abawd_counted_months + 1				'adding counted months
         	END IF
-	    	'counting and checking for counted banked months
-        	IF is_counted_month = "B" or is_counted_month = "C" THEN
-        		EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
-        		banked_months_count = banked_months_count + 1				'adding counted months
-        	END IF
-        	bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+        	bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
         	IF bene_mo_col = 15 THEN
         		bene_yr_row = bene_yr_row - 1
         		bene_mo_col = 63
@@ -763,7 +757,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-        
+
 		If next_SNAP_revw = next_month then  ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
@@ -772,19 +766,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		age_50_workaround = False
         manual_code = "F"  'manual code for exemption cases  
         If age_50 = True then
-	    	If best_wreg_code = "30" then
-                If abawd_counted_months => 3 then
-                    best_abawd_code = "13" 'banked months for the 50-52 year old workarounds 
-                    banked_months = True 
-                    manual_code = "C"
-                Else      
-				    'changing codes per temp policy 
-				    best_wreg_code = "16"
-				    best_abawd_code = "03"
-                    age_50_workaround = True 
-                    manual_code = "M"
-                End if
-            End if  
+			'changing codes per temp policy 
+			best_wreg_code = "16"
+			best_abawd_code = "03"
+            age_50_workaround = True 
+            manual_code = "M"    
+        End if  
 
 	    	Call navigate_to_MAXIS_screen("STAT", "WREG")
             Call write_value_and_transmit(member_number, 20, 76)
@@ -808,12 +795,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 If manual_code = "F" then 
                     If ATR_code = "E" or ATR_code = "F" then
                         exit for 'F and E are exmept
-                    Else 
-                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                    End if 
-                ELSEIF manual_code = "C" then 
-                    If ATR_code = "C" or ATR_code = "B" then 
-                        exit for ' C and B are banked months
                     Else 
                         Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
                     End if 
@@ -849,13 +830,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	    PF3
 			    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
 	    	End if
-            'Support for if banked months are already set up
-        Elseif (data_wreg = "30" and data_abawd = "13") then
-            If (best_wreg_code = "30" and best_abawd_code = "10") then 
-                best_abawd_code = "13" 'for output in the spreadsheet 
-                updates_needed = False
-                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Banked Months already set up. No action needed."
-            End if 
 	    Else
             'script will update the WREG panel for the member if an update
             Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -898,13 +872,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
             End if
 	    Else 
 	    	ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP is " & snap_status 	
-        End if
-        If best_abawd_code = "10" or age_50 = True then
-            If banked_months = True then 
-                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Assess for banked months. All TLR months used."
-            ElseIf abawd_counted_months => 3 then 
-                ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Assess for banked months. All TLR months used."
-            End if 
         End if
     End if 
 
@@ -951,7 +918,7 @@ BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - TLR REPORT"
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   GroupBox 10, 5, 250, 85, "Using this script:"
-  Text 20, 20, 235, 25, "This script should be used when a list of SNAP cases wtih member numbers are provided by BOBI to gather ABAWD, FSET and Banked Months information."
+  Text 20, 20, 235, 25, "This script should be used when a list of SNAP recipients with member numbers to assess Time-Limited recipients (TLR's)."
   EditBox 15, 50, 180, 15, file_selection_path
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
