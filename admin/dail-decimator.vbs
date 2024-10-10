@@ -142,6 +142,8 @@ dail_to_decimate = "ALL"
 all_workers_check = 1
 
 this_month = CM_mo & " " & CM_yr
+this_month_date = CM_mo & "/01/" & CM_yr
+this_month_date = DateAdd("m", 0, this_month_date)
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 last_month = CM_minus_1_mo & " " & CM_minus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
@@ -327,12 +329,41 @@ For each worker in worker_array
             If instr(all_dail_array, "*" & dail_string & "*") then
                 If dail_type = "HIRE" then
                     capture_message = True
+
+					'Determine if HIRE message is over 12 months old
+					dail_month_date = replace(dail_month, " ", "/01/20")
+					dail_month_date = dateadd("m", 1, dail_month_date)
+					dail_months_old = DateDiff("m", dail_month_date, this_month_date)
+
+					If dail_months_old > 12 Then
+						If Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
+							msgbox "dail over 12 months, should delete, old case"
+							actionable_dail = False
+						End If
+					End If
+
                 Else
                     capture_message = False
 					false_count = false_count + 1
                 End if
             else
-                capture_message = True
+				If dail_type = "HIRE" then
+                    capture_message = True
+
+					'Determine if HIRE message is over 12 months old
+					dail_month_date = replace(dail_month, " ", "/01/20")
+					dail_month_date = dateadd("m", 0, dail_month_date)
+					dail_months_old = DateDiff("m", dail_month_date, this_month_date)
+
+					If dail_months_old > 12 Then
+						If Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
+							msgbox "dail over 12 months, should delete, new case"
+							actionable_dail = False
+						End If
+					End If
+				Else
+					capture_message = True
+				End If
             End if
 
 			If capture_message = True then
