@@ -352,7 +352,6 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
         'Making sure there is no other text entered in the WCOM area as it needs to be open to being written in.
         For wcom_row = 3 to 17
             EMReadScreen wcom_line, 60, wcom_row, 17
-            'msgBox "~" & wcom_line & "~"
             If trim(wcom_line) <> "" Then
                 PF10
                 PF3
@@ -403,9 +402,7 @@ Do
         BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
             CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
             CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-            ' CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
             CheckBox 20, 100, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-            ' CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
             CheckBox 20, 115, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
             CheckBox 20, 150, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
             CheckBox 20, 165, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
@@ -429,12 +426,6 @@ Do
             Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
             GroupBox 5, 50, 230, 240, "SNAP"
         EndDialog
-
-		' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
-		' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-		' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-		' CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-		' GroupBox 20, 135, 195, 60, "Banked Months"
 
         Dialog Dialog1       'running the dialog to select which WCOMs are going to be added
         cancel_confirmation
@@ -810,35 +801,8 @@ Do
             CALL add_words_to_message(abawd_exempt_child_18_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to a child(ren) under the age of 18 in the SNAP unit.")
         End If
 
-        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-        ' If abawd_child_6_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
-        '     'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        '     Dialog1 = ""
-        '     BeginDialog Dialog1, 0, 0, 235, 65, "WCOM Details"
-        '       DropListBox 60, 20, 135, 15, client_dropdown, abawd_exempt_child_6_name
-        '       ButtonGroup ButtonPressed
-        '         OkButton 145, 45, 50, 15
-        '       Text 5, 5, 220, 10, "Client exempt from ABAWD due to child 6 or under in the SNAP Unit."
-        '       Text 5, 25, 50, 10, "Client Name:"
-        '     EndDialog
-
-        '     Do                          'displaying the dialog and ensuring that all required information is entered
-        '         err_msg = ""
-
-        '         Dialog Dialog1
-        '         cancel_confirmation
-
-        '         If abawd_exempt_child_6_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that is using child under 6 years exemption."
-        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        '     Loop until err_msg = ""
-
-        '     abawd_exempt_child_6_name = right(abawd_exempt_child_6_name, len(abawd_exempt_child_6_name)-5)
-        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        '     CALL add_words_to_message(abawd_exempt_child_6_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to caring for a child under the age of 6.")
-        ' End If
-
         If voluntary_quit_wcom_checkbox = checked Then
-
+            
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 246, 80, "WCOM Details"
               DropListBox 85, 20, 150, 45, client_dropdown, vol_quit_name
@@ -866,36 +830,6 @@ Do
             CALL add_words_to_message(vol_quit_name & " is sanctioned from SNAP because they have " & vol_quit_sanction_reason & ". They are sanctioned until they return to the same job, they accept similar employment or they become exempt from work registration for a reason other than receiving Unemployment Compensation.")
 
         End If
-
-        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-        ' If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
-        '     'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        '     Dialog1 = ""
-        '     BeginDialog Dialog1, 0, 0, 211, 80, "WCOM Details"
-        '       DropListBox 75, 20, 130, 45, client_dropdown, temp_disa_memb_name
-        '       EditBox 185, 40, 20, 15, numb_disa_mos
-        '       ButtonGroup ButtonPressed
-        '         OkButton 155, 60, 50, 15
-        '       Text 5, 5, 120, 10, "DISA indicated on form from Doctor"
-        '       Text 10, 25, 60, 10, "Disabled Member"
-        '       Text 80, 45, 105, 10, "Number of months of disability"
-        '     EndDialog
-
-        '     Do                          'displaying the dialog and ensuring that all required information is entered
-        '         err_msg = ""
-
-        '         Dialog Dialog1
-        '         cancel_confirmation
-
-        '         If temp_disa_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
-        '         If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "* Enter the number of months the disability is expected to last from the doctor's information."
-        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        '     Loop until err_msg = ""
-
-        '     temp_disa_memb_name = right(temp_disa_memb_name, len(temp_disa_memb_name)-5)
-        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        '     CALL add_words_to_message(temp_disa_memb_name & " is exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
-        ' End If
 
         If voluntary_e_t_wcom_checkbox = checked Then
 
