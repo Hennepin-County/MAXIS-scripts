@@ -254,6 +254,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		    'person-based determination
 			age_50 = False
+            age_53_54 = False 
+            age_53_54_counted = False 'temporary coding to support. Effective 10/1/24 53-54 YO's starting being TLR's after their next renewal
+            
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen cl_age, 2, 8, 76
@@ -297,6 +300,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				cl_age = 52 then 
 				age_50 = True
 			End if 
+
+            If cl_age = 53 or _
+                cl_age = 54 then
+                verified_wreg = verified_wreg & "16" & "|" 
+                age_53_54 = True
+            End if 
 
 			'----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO. 
 			If cl_age < 24 then 
@@ -757,7 +766,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		'If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
-        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month."        
+        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month."   
+        If (age_53_54 = True and best_wreg_code = "16") then 
+            'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & "."
+            report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & "."
+            age_53_54_counted = True 
+        End If      
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
     
@@ -769,7 +783,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			best_wreg_code = "16"
 			best_abawd_code = "03"
             age_50_workaround = True 
-            manual_code = "M"    
+            manual_code = "M" 
         End if  
 
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -947,7 +961,7 @@ back_to_SELF
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
 Call MAXIS_footer_month_confirmation
-report_notes = ""
+
 excel_row = 2
 
 Do
@@ -962,6 +976,8 @@ Do
 
 	data_wreg =  trim(ObjExcel.Cells(excel_row, data_wreg_col).Value)
 	data_abawd = trim(ObjExcel.Cells(excel_row, data_abawd_col).Value)
+
+    report_notes = ""
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
