@@ -402,6 +402,7 @@ Do
         BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
             CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
             CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+            CheckBox 20, 85, 195, 10, "Time-Limited Recipient Closed", TLR_closed_checkbox
             CheckBox 20, 100, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
             CheckBox 20, 115, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
             CheckBox 20, 150, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
@@ -418,14 +419,15 @@ Do
             CheckBox 10, 340, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
             CheckBox 10, 360, 100, 10, "PARIS Match - Health Care", paris_match_HC_checkbox
             ButtonGroup ButtonPressed
-                OkButton 135, 375, 50, 15
-                CancelButton 185, 375, 50, 15
+              OkButton 135, 375, 50, 15
+              CancelButton 185, 375, 50, 15
             GroupBox 15, 60, 215, 70, "ABAWD's"
             GroupBox 15, 140, 215, 145, "Other SNAP"
             GroupBox 5, 300, 230, 55, "Cash"
             Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
             GroupBox 5, 50, 230, 240, "SNAP"
         EndDialog
+
 
         Dialog Dialog1       'running the dialog to select which WCOMs are going to be added
         cancel_confirmation
@@ -828,9 +830,34 @@ Do
             vol_quit_name = right(vol_quit_name, len(vol_quit_name)-5)
 
             CALL add_words_to_message(vol_quit_name & " is sanctioned from SNAP because they have " & vol_quit_sanction_reason & ". They are sanctioned until they return to the same job, they accept similar employment or they become exempt from work registration for a reason other than receiving Unemployment Compensation.")
-
         End If
 
+        'TLR Approved 
+        last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_of_month a string
+
+        If TLR_closed_checkbox = checked Then
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 171, 45, "WCOM Details"
+                EditBox 115, 5, 50, 15, last_day_of_month
+                ButtonGroup ButtonPressed
+                  OkButton 115, 25, 50, 15
+                Text 5, 10, 105, 10, "Enter the SNAP date of closure:"
+            EndDialog
+
+            Do                          'displaying the dialog and ensuring that all required information is entered
+                err_msg = ""
+
+                Dialog Dialog1
+                cancel_confirmation
+
+                If isdate(last_day_of_month) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date of closure."
+                If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+            Loop until err_msg = ""
+
+            abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
+            CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
+        End If
+    
         If voluntary_e_t_wcom_checkbox = checked Then
 
             Dialog1 = ""
