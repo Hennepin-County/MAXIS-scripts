@@ -59,88 +59,83 @@ changelog_display
 'Connecting to MAXIS, and grabbing the case number and current footer month/year
 EMConnect ""
 
-EMReadScreen are_we_at_ABAWD_tracking_record, 8, 1, 71
-If are_we_at_ABAWD_tracking_record = "FMCDJAMF" Then
-    EMGetCursor tracker_row, tracker_col
+Function ABAWD_FSET_exemption_finder_test()
+'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
+'excluding armed forces participation dur to non-MAXIS indicators. 
+'----------------------------------------------------------------------------------------------------Determining the EATS Household
 
-    If tracker_col = 19 Then
-        MAXIS_footer_month = "01"
-    ElseIf tracker_col = 23 Then
-        MAXIS_footer_month = "02"
-    ElseIf tracker_col = 27 Then
-        MAXIS_footer_month = "03"
-    ElseIf tracker_col = 31 Then
-        MAXIS_footer_month = "04"
-    ElseIf tracker_col = 35 Then
-        MAXIS_footer_month = "05"
-    ElseIf tracker_col = 39 Then
-        MAXIS_footer_month = "06"
-    ElseIf tracker_col = 43 Then
-        MAXIS_footer_month = "07"
-    ElseIf tracker_col = 47 Then
-        MAXIS_footer_month = "08"
-    ElseIf tracker_col = 51 Then
-        MAXIS_footer_month = "09"
-    ElseIf tracker_col = 55 Then
-        MAXIS_footer_month = "10"
-    ElseIf tracker_col = 59 Then
-        MAXIS_footer_month = "11"
-    ElseIf tracker_col = 63 Then
-        MAXIS_footer_month = "12"
-    End If
+    Dim eats_group_array()
+    ReDim eats_group_array(memb_verified_abawd_const,0)
 
-    If MAXIS_footer_month <> "" Then EMReadScreen MAXIS_footer_year, 2, tracker_row, 15
+    'constants for array
+    const memb_name_const = 0
+    const memb_number_const = 1
+    const verified_exemption_const = 2
+    const memb_potential_exempt_const = 3
+    const memb_verified_wreg_const = 4
+    const memb_verified_abawd_const = 5
+    
 
-    MX_mo = MAXIS_footer_month * 1
-    MX_yr = MAXIS_footer_year * 1
-    curr_mo = CM_plus_1_mo * 1
-    curr_yr = CM_plus_1_yr * 1
+    entry_record = 0
+    case_based_exemptions = ""
+    eats_HH_count = 0
 
-    If  MX_yr > curr_yr Then
-        MAXIS_footer_month = ""
-        MAXIS_footer_year = ""
-    ElseIf MX_yr = curr_yr AND MX_mo > curr_mo Then
-        MAXIS_footer_month = ""
-        MAXIS_footer_year = ""
-    End If
+    CALL navigate_to_MAXIS_screen("STAT", "EATS")
+    eats_group_members = ""
+    memb_found = True
+    EMReadScreen all_eat_together, 1, 4, 72
 
-    PF3
-End If
+    IF all_eat_together = "_" THEN
+        eats_group_members = "01" & "," 'single member HH's
+		eats_HH_count = 1
+    ELSEIF all_eat_together = "Y" THEN
+    'HH's where all members eat together
+        eats_row = 5
+        DO
+            EMReadScreen eats_pers, 2, eats_row, 3
+            eats_pers = replace(eats_pers, " ", "")
+            IF eats_pers <> "" THEN
+                eats_group_members = eats_group_members & eats_pers & ","
+				eats_HH_count = eats_HH_count  + 1
+                eats_row = eats_row + 1
+            END IF
+        LOOP UNTIL eats_pers = ""
+    ELSEIF all_eat_together = "N" THEN
+    'multiple eats HH cases - we are only caring about the 1st eats group that contains MEMB 01.
+        eats_row = 13
+        DO
+            EMReadScreen eats_group, 38, eats_row, 39
+            find_memb01 = InStr(eats_group, eats_pers)
+            IF find_memb01 = 0 THEN
+                eats_row = eats_row + 1
+                IF eats_row = 18 THEN
+                    memb_found = False
+                    EXIT DO
+                END IF
+            END IF
+        LOOP UNTIL find_memb01 <> 0
 
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+        'Gathering the eats group members
+        eats_col = 39
+        DO
+            EMReadScreen eats_group, 2, eats_row, eats_col
+            IF eats_group <> "__" THEN
+                eats_group_members = eats_group_members & eats_group & ","
+                eats_col = eats_col + 4
+				eats_HH_count = eats_HH_count  + 1
+            END IF
+        LOOP UNTIL eats_group = "__"
+    END IF
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 50, "ACTIONS - ABAWD FSET EXEMPTION CHECK"
-  EditBox 55, 5, 45, 15, MAXIS_case_number
-  EditBox 170, 5, 20, 15, MAXIS_footer_month
-  EditBox 195, 5, 20, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    PushButton 20, 30, 80, 15, "Script Instructions", script_instructions
-    OkButton 120, 30, 45, 15
-    CancelButton 170, 30, 45, 15
-  Text 105, 10, 65, 10, "Footer month/year:"
-  Text 5, 10, 45, 10, "Case number:"
-EndDialog
+    eats_group_members = trim(eats_group_members)
+    eats_group_members = split(eats_group_members, ",")
 
-Do
-	DO
-		err_msg = ""
-		dialog Dialog1
-		Cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-        If ButtonPressed = script_instructions then 
-            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ABAWD%20FSET%20EXEMPTION%20CHECK.docx")
-            err_msg = "LOOP" & err_msg
-        End if
-		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+    For each memb in eats_group_members    
+    	ReDim Preserve eats_group_array(memb_verified_abawd_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+    	eats_group_array(memb_number_const, entry_record) = memb
+    	entry_record = entry_record + 1			'This increments to the next entry in the array'
+    	stats_counter = stats_counter + 1
+    Next 
 
-'Confirming that the footer month from the dialog matches the footer month in MAXIS
-Call MAXIS_footer_month_confirmation
-Call ABAWD_FSET_exemption_finder
-
-script_end_procedure("")
+    msgbox entry_entry
+    'For item = 0 to UBound(eats_group_array, 2)
