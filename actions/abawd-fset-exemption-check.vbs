@@ -111,25 +111,30 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 166, 70, "Case number dialog"
-  EditBox 65, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 130, 25, 30, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 221, 50, "ACTIONS - ABAWD FSET EXEMPTION CHECK"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 170, 5, 20, 15, MAXIS_footer_month
+  EditBox 195, 5, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 35, 50, 50, 15
-    CancelButton 95, 50, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 100, 30, 25, 10, "Year:"
+    PushButton 20, 30, 80, 15, "Script Instructions", script_instructions
+    OkButton 120, 30, 45, 15
+    CancelButton 170, 30, 45, 15
+  Text 105, 10, 65, 10, "Footer month/year:"
+  Text 5, 10, 45, 10, "Case number:"
 EndDialog
+
 Do
 	DO
 		err_msg = ""
 		dialog Dialog1
-		cancel_confirmation
+		Cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ABAWD%20FSET%20EXEMPTION%20CHECK.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
