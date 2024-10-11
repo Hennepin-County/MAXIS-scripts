@@ -58,8 +58,9 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
     Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'
     EMWaitReady 0, 0
     EMReadscreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
+    EMWaitReady 0,0
     If tracking_record_check <> "Tracking Record" then
-		ObjExcel.Cells(excel_row, notes_col).Value = "Error accessing ATR."
+		report_notes = report_notes & "Error accessing ATR. "
     ELSE
         TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
 	    TLR_fixed_clock_yr = "23"
@@ -202,8 +203,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		foster_care = False 
 	else 
 		If Trim(IV-E_status) <> "DENY" then 
-			foster_care = True 
-			ObjExcel.Cells(excel_row, notes_col).Value = "Found foster care case!"
+			foster_care = True
 		else 
 			foster_care = False 
 		End if 
@@ -248,7 +248,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				If adult_HH_count = 1 then
 					verified_wreg = verified_wreg & "08" & "|"
 				Else
-					possible_exemptions = possible_exemptions & vbcr & "Child under 6 is in the SNAP Household."
+					possible_exemptions = possible_exemptions & vbcr & "Child under 6 is in the SNAP Household. "
 				End if
 			End if
 
@@ -308,7 +308,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 			'----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO. 
 			If cl_age < 24 then 
-				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case."
+				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case. "
 			End if 
 			
 			'<<<<<<<<<<DISA
@@ -327,23 +327,23 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			IF IsDate(disa_end_dt) = True THEN
             				IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN
 								disa_status = True
-            					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & "."
+            					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & ". "
             				END IF
             			ELSE
             				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
 								disa_status = True
-								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date."
+								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date. "
             				END IF
             			END IF
             			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
             				IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN
-								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & "."
+								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & ". "
 							End if
 						ELSE
             				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
             					EMReadScreen cert_begin_dt, 8, 7, 47
             					IF cert_begin_dt <> "__ __ __" THEN
-									If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date."
+									If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date. "
 								End if
 							END IF
             			END IF
@@ -549,7 +549,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    						verified_wreg = verified_wreg & "03" & "|"
 		    						Exit do
 		    					Else
-		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have VA disability benefits."
+		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have VA disability benefits. "
 		    					End if
 		    				End if
             			END IF
@@ -571,7 +571,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
             			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-                        'If unea_type = "14" then msgbox DateDiff("D", ABAWD_eval_date, unea_end_dt)
             				IF unea_type = "14" then
 		    					EmReadScreen UC_verif_code, 1, 5, 65
 		    					If UC_verif_code <> "N" then
@@ -579,7 +578,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    						verified_wreg = verified_wreg & "11" & "|"
 		    						Exit do
 		    					Else
-		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active unemployment benefits."
+		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active unemployment benefits. "
 		    					End if
 		    				End if
             			END IF
@@ -613,7 +612,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
                                 pben_row = pben_row + 1
                             End if 
             			Else
-		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits."
+		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits. "
                             pben_row = pben_row + 1
             			END IF
             		ELSE
@@ -629,7 +628,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			Call write_value_and_transmit(member_number, 20, 76)
 		    EMReadScreen num_of_PREG, 1, 2, 78
             IF num_of_PREG <> "0" THEN
-				'ObjExcel.Cells(excel_row, notes_col).Value = "Found PX case!"
                 EMReadScreen preg_due_dt, 8, 10, 53
                 preg_due_dt = replace(preg_due_dt, " ", "/")
             	EMReadScreen preg_end_dt, 8, 12, 53
@@ -645,7 +643,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 						Elseif preg_verif = "?" then 
 							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption. 
 						Else 
-							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
+							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy. "
 						End if
 					End If
 				End if
@@ -676,10 +674,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 					verified_wreg = verified_wreg & "03" & "|"
 					homeless_exemption = True 
 				Else
-					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match."  
+					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match. "  
 				End if 
             Elseif addr_line_01 = "GENERAL DELIVERY" THEN
-                possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery."
+                possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery. "
 			Else 
 				homeless_exemption = False
             End if
@@ -705,13 +703,13 @@ Function BULK_ABAWD_FSET_exemption_finder()
                             SNAP_code = "10" then
                             verified_wreg = verified_wreg & "12" & "|"
                         Else
-                            If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be in school w/ unverified school status."
+                            If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be in school w/ unverified school status. "
                         End if
                     End if
                 End if
 		    End if
 
-            IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
+            IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions. "
 		End if
 
 	    'filter the list here for best_wreg_code
@@ -764,11 +762,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-		'If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP Review Next Month."
-        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month."   
+		
+        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "   
         If (age_53_54 = True and best_wreg_code = "16") then 
-            'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & "."
-            report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & "."
+            report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & ". "
             age_53_54_counted = True 
         End If      
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
@@ -878,13 +875,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
 	    			updates_needed = False
-                    'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "No Updates Needed."
-                    report_notes = report_notes & "No Updates Needed."
+                    report_notes = report_notes & "No Updates Needed. "
                 End if
             End if
 	    Else 
-	    	'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "SNAP is " & snap_status 
-            report_notes = report_notes & "SNAP is " & snap_status	
+            report_notes = report_notes & "SNAP is " & snap_status & ". "
         End if
     End if 
 
@@ -977,15 +972,13 @@ Do
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
-        'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Privliged case."
-        report_notes = report_notes & "Don't assign - Privliged case."
+        report_notes = report_notes & "Don't assign - Privliged case. "
     Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
         If county_code <> UCASE(worker_county_code) then
-            'ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Out-of-county Case."
-            report_notes = report_notes & "Don't assign - Out-of-county Case."
+            report_notes = report_notes & "Don't assign - Out-of-county Case. "
         Else
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Do
@@ -1002,7 +995,6 @@ Do
             Loop until end_of_membs_message = "ENTER"
             If trim(member_number) = "" then
                 report_notes = report_notes = "Unable to find member on case"
-                'ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
             Else
 	            Call navigate_to_MAXIS_screen("STAT", "WREG")
                 Call write_value_and_transmit(member_number, 20, 76)
@@ -1012,8 +1004,7 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
-				'If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, notes_col).Value = report_notes = report_notes & "Don't assign - Inactive."
-                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign - Inactive."
+                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign - Inactive. "
             End if
         End if
     End if
