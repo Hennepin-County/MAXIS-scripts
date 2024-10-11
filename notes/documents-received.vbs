@@ -3282,16 +3282,19 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
 	End If
 
+	Email_diet_team = FALSE
 	If form_type_array(form_type_const, maxis_panel_read) = diet_form_name Then	'MAXIS NAVIGATION FOR DIET: CASE CURR: Reading status of programs
 		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 		If Instr(list_active_programs, "MSA") Then
 			diet_mfip_msa_status = "MSA-Active - DIET Panel will update"
 		ElseIf Instr(list_active_programs, "MFIP") Then
 			diet_mfip_msa_status = "MFIP-Active - DIET Panel will update"
+			Email_diet_team = TRUE
 		ElseIf Instr(list_pending_programs, "MSA") Then
 			diet_mfip_msa_status = "MSA-Pending - DIET Panel will update"
 		ElseIf Instr(list_pending_programs, "MFIP") Then
 			diet_mfip_msa_status = "MFIP-Pending - DIET Panel will update"
+			Email_diet_team = TRUE
 		Else
 			diet_mfip_msa_status = "MFIP/MSA Not Active/Pending - DIET Panel will NOT update"
 		End If
@@ -4948,6 +4951,22 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 	End If
 Next
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
+
+'EMAIL hp.specialdiet@hennepin.us team anytime a diet form is received. They address any discrepancies and grant benefits
+If email_diet_team = TRUE Then 
+    email_body = "Special Diet Instruction Request (HC12664 / D440) Received for: " &  vbCR
+    email_body = email_body & "Case Number: " & MAXIS_case_number  & vbCr
+    email_body = email_body & "Diet Member: " & diet_member_number & vbCr
+    email_body = email_body & "Date Form Received: " & diet_date_received &  vbCR
+
+    If worker_signature <> "UUDDLRLRBA" Then
+        email_body = email_body & vbCr
+        email_body = email_body & worker_signature & vbCr
+    End If
+        
+    Call create_outlook_email("", "hp.specialdiet@hennepin.us", "", "", "Special Diet Instruction Request Received for MX Case", 1, False, "", "", False, "", email_body, False, "", True)
+End If
+
 
 'CASE NOTE===========================================================================
 case_header = FALSE			'Boolean to only create a case note header once
