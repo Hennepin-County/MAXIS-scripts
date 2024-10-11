@@ -4314,6 +4314,22 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
+script_array(script_num).script_name 			= "TLR Report"																		'Script name
+' script_array(script_num).description 			= "Updates FSET/ABAWD coding on STAT/WREG and case notes ABAWD exemptions."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ","ABAWD","SNAP")
+script_array(script_num).dlg_keys               = array("Cn", "Up")
+script_array(script_num).subcategory            = array("ABAWD")
+script_array(script_num).release_date           = #06/17/2021#
+script_array(script_num).hot_topic_date         = ""
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("CM Time-Limited_SNAP_Recipient 11.24", "CM Who_Is_Exempt_From_SNAP_Work_Registration 28.06.12")	
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)
+Set script_array(script_num) = new script_bowie
 script_array(script_num).script_name 			= "TLR Screening"																		'Script name
 ' script_array(script_num).description 			= "Updates FSET/ABAWD coding on STAT/WREG and case notes ABAWD exemptions."
 script_array(script_num).category               = "ACTIONS"
