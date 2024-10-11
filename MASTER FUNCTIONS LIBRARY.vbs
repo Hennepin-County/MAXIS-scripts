@@ -818,96 +818,54 @@ end class
 Function ABAWD_FSET_exemption_finder()
 '--- This function screens for ABAWD/FSET exemptions for SNAP.
 '===== Keywords: MAXIS, ABAWD, FSET, exemption, SNAP
-    CALL check_for_MAXIS(False)
-    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "EATS", is_this_priv)
-    If is_this_priv = True then script_end_procedure("This case is privileged. The script will now end.")
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    '>>>>>Checking for privileged<<<<<
+    row = 1
+    col = 1
+    EMSearch "PRIVILEGED", row, col
+    IF row <> 0 THEN script_end_procedure("This case appears to be privileged. The script cannot access it.")
 
-    'default strings and counts
-	'verified_wreg = ""
-	'verified_abawd = ""
+    DO
+    	CALL HH_member_custom_dialog(HH_member_array)
+    	IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
+    LOOP UNTIL uBound(HH_member_array) <> -1
+
+    'Building a placeholder array for EATS group comparison
+    placeholder_HH_array = ""
+    person_count = 0
+    FOR EACH person IN HH_member_array
+    	placeholder_HH_array = placeholder_HH_array & person & ","
+    NEXT
+
+    CALL check_for_MAXIS(False)
 
     closing_message = ""
 
-	eats_HH_count = 0
-    eats_group_members = ""
-    memb_found = True
-
-    EMReadScreen all_eat_together, 1, 4, 72
-    IF all_eat_together = "_" THEN
-        eats_group_members = "01" & "," 'single member HH's
-		eats_HH_count = 1
-    ELSEIF all_eat_together = "Y" THEN
-    'HH's where all members eat together
-        eats_row = 5
-        DO
-            EMReadScreen eats_pers, 2, eats_row, 3
-            eats_pers = replace(eats_pers, " ", "")
-            IF eats_pers <> "" THEN
-                eats_group_members = eats_group_members & eats_pers & ","
-				eats_HH_count = eats_HH_count  + 1
-                eats_row = eats_row + 1
-            END IF
-        LOOP UNTIL eats_pers = ""
-    ELSEIF all_eat_together = "N" THEN
-    'multiple eats HH cases - we are only caring about the 1st eats group that contains MEMB 01.
-        eats_row = 13
-        DO
-            EMReadScreen eats_group, 38, eats_row, 39
-            find_memb01 = InStr(eats_group, eats_pers)
-            IF find_memb01 = 0 THEN
-                eats_row = eats_row + 1
-                IF eats_row = 18 THEN
-                    memb_found = False
-                    EXIT DO
-                END IF
-            END IF
-        LOOP UNTIL find_memb01 <> 0
-
-        'Gathering the eats group members
-        eats_col = 39
-        DO
-            EMReadScreen eats_group, 2, eats_row, eats_col
-            IF eats_group <> "__" THEN
-                eats_group_members = eats_group_members & eats_group & ","
-                eats_col = eats_col + 4
-				eats_HH_count = eats_HH_count  + 1
-            END IF
-        LOOP UNTIL eats_group = "__"
-    END IF
-
-    eats_group_members = trim(eats_group_members)
-    eats_group_members = split(eats_group_members, ",")
-
-    IF all_eat_together <> "_" THEN
-    	CALL write_value_and_transmit("MEMB", 20, 71)
-    	FOR EACH eats_pers IN eats_group_members
-    		IF eats_pers <> "" AND person <> eats_pers THEN
-    			CALL write_value_and_transmit(eats_pers, 20, 76)
-    			EMReadScreen cl_age, 2, 8, 76
-    			IF cl_age = "  " THEN cl_age = 0
-    				cl_age = cl_age * 1
-                    IF cl_age =< 6 THEN closing_message = closing_message & vbCr & "* M" & person & ": May have exemption for care of child under 6. Household member " & eats_pers & " is minor. Please review for accuracy."
-    				IF cl_age =< 17 THEN closing_message = closing_message & vbCr & "* M" & person & ": May have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
-    				IF cl_age < 18 OR cl_age >= 55 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have exemption. Age = " & cl_age & "."
-                End If 
-    		END IF
-    	NEXT
-    END IF
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    FOR EACH person IN HH_member_array
+    	IF person <> "" THEN
+    		CALL write_value_and_transmit(person, 20, 76)
+    		EMReadScreen cl_age, 2, 8, 76
+    		IF cl_age = "  " THEN cl_age = 0
+    		cl_age = cl_age * 1
+    		IF cl_age < 18 OR cl_age >= 50 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have exemption. Age = " & cl_age & "."
+    	END IF
+    NEXT
 
     CALL navigate_to_MAXIS_screen("STAT", "MEMI")
-    FOR EACH eats_pers IN eats_group_members
-    	IF eats_pers <> "" AND person <> eats_pers THEN
-    	    CALL write_value_and_transmit(eats_pers, 20, 76)
+    FOR EACH person IN HH_member_array
+    	IF person <> "" THEN
+    		CALL write_value_and_transmit(person, 20, 76)
             EMReadScreen military_service_code, 1, 12, 78
             If military_service_code = "Y" then closing_message = closing_message & vbCr & "* M" & person & ": Appears to be exempt due to military service."
     	END IF
     NEXT
 
-    CALL write_value_and_transmit("DISA", 20, 71)
-    FOR EACH disa_pers IN eats_group_members
+    CALL navigate_to_MAXIS_screen("STAT", "DISA")
+    FOR EACH person IN HH_member_array
     	disa_status = false
-    	IF disa_pers <> "" AND disa_pers <> person THEN
-    		CALL write_value_and_transmit(disa_pers, 20, 76)
+    	IF person <> "" THEN
+    		CALL write_value_and_transmit(person, 20, 76)
     		EMReadScreen num_of_DISA, 1, 2, 78
     		IF num_of_DISA <> "0" THEN
     			EMReadScreen disa_end_dt, 10, 6, 69
@@ -916,27 +874,124 @@ Function ABAWD_FSET_exemption_finder()
     			cert_end_dt = replace(cert_end_dt, " ", "/")
     			IF IsDate(disa_end_dt) = True THEN
     				IF DateDiff("D", date, disa_end_dt) > 0 THEN
-    					closing_message = closing_message & vbCr & "* M" & person & ": MAY have an exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
-    					disa_status = TRUE
+    					closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA end date = " & disa_end_dt & "."
+    					disa_status = True
     				END IF
-    			ELSEIF IsDate(disa_end_dt) = False THEN
+    			ELSE
     				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-    					closing_message = closing_message & vbCr & "* M" & person & " : MAY have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
-    					disa_status = true
+    					closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA has no end date."
+    					disa_status = True
     				END IF
     			END IF
     			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-    				IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
+    				IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
     			ELSE
-    				IF (cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999") THEN
+    				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
     					EMReadScreen cert_begin_dt, 8, 7, 47
-    					IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
+    					IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA certification has no end date."
     				END IF
     			END IF
     		END IF
     	END IF
     NEXT
-    
+
+    '>>>>>>>>>>>> EATS GROUP
+    FOR EACH person IN HH_member_array
+    	CALL navigate_to_MAXIS_screen("STAT", "EATS")
+    	eats_group_members = ""
+    	memb_found = True
+    	EMReadScreen all_eat_together, 1, 4, 72
+    	IF all_eat_together = "_" THEN
+    		eats_group_members = "01" & ","
+    	ELSEIF all_eat_together = "Y" THEN
+    		eats_row = 5
+    		DO
+    			EMReadScreen eats_person, 2, eats_row, 3
+    			eats_person = replace(eats_person, " ", "")
+    			IF eats_person <> "" THEN
+    				eats_group_members = eats_group_members & eats_person & ","
+    				eats_row = eats_row + 1
+    			END IF
+    		LOOP UNTIL eats_person = ""
+    	ELSEIF all_eat_together = "N" THEN
+    		eats_row = 13
+    		DO
+    			EMReadScreen eats_group, 38, eats_row, 39
+    			find_memb01 = InStr(eats_group, person)
+    			IF find_memb01 = 0 THEN
+    				eats_row = eats_row + 1
+    				IF eats_row = 18 THEN
+    					memb_found = False
+    					EXIT DO
+    				END IF
+    			END IF
+    		LOOP UNTIL find_memb01 <> 0
+    		eats_col = 39
+    		DO
+    			EMReadScreen eats_group, 2, eats_row, eats_col
+    			IF eats_group <> "__" THEN
+    				eats_group_members = eats_group_members & eats_group & ","
+    				eats_col = eats_col + 4
+    			END IF
+    		LOOP UNTIL eats_group = "__"
+    	END IF
+
+    	IF memb_found = True THEN
+    		IF placeholder_HH_array <> eats_group_members THEN script_end_procedure("You are asking the script to verify ABAWD and SNAP E&T exemptions for a household that does not match the EATS group. The script cannot support this request. It will now end." & vbCr & vbCr & "Please re-run the script selecting only the individuals in the EATS group.")
+    		eats_group_members = trim(eats_group_members)
+    		eats_group_members = split(eats_group_members, ",")
+
+    		IF all_eat_together <> "_" THEN
+    			CALL write_value_and_transmit("MEMB", 20, 71)
+    			FOR EACH eats_pers IN eats_group_members
+    				IF eats_pers <> "" AND person <> eats_pers THEN
+    					CALL write_value_and_transmit(eats_pers, 20, 76)
+    					EMReadScreen cl_age, 2, 8, 76
+    					IF cl_age = "  " THEN cl_age = 0
+    						cl_age = cl_age * 1
+    						IF cl_age =< 17 THEN
+    							closing_message = closing_message & vbCr & "* M" & person & ": May have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
+    						END IF
+    				END IF
+    			NEXT
+    		END IF
+
+    		CALL write_value_and_transmit("DISA", 20, 71)
+    		FOR EACH disa_pers IN eats_group_members
+    			disa_status = false
+    			IF disa_pers <> "" AND disa_pers <> person THEN
+    				CALL write_value_and_transmit(disa_pers, 20, 76)
+    				EMReadScreen num_of_DISA, 1, 2, 78
+    				IF num_of_DISA <> "0" THEN
+    					EMReadScreen disa_end_dt, 10, 6, 69
+    					disa_end_dt = replace(disa_end_dt, " ", "/")
+    					EMReadScreen cert_end_dt, 10, 7, 69
+    					cert_end_dt = replace(cert_end_dt, " ", "/")
+    					IF IsDate(disa_end_dt) = True THEN
+    						IF DateDiff("D", date, disa_end_dt) > 0 THEN
+    							closing_message = closing_message & vbCr & "* M" & person & ": MAY have an exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+    							disa_status = TRUE
+    						END IF
+    					ELSEIF IsDate(disa_end_dt) = False THEN
+    						IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
+    							closing_message = closing_message & vbCr & "* M" & person & " : MAY have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+    							disa_status = true
+    						END IF
+    					END IF
+    					IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+    						IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
+    					ELSE
+    						IF (cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999") THEN
+    							EMReadScreen cert_begin_dt, 8, 7, 47
+    							IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
+    						END IF
+    					END IF
+    				END IF
+    			END IF
+    		NEXT
+    	END IF
+    NEXT
+
     '>>>>>>>>>>>>>>EARNED INCOME
     FOR EACH person IN HH_member_array
     	IF person <> "" THEN
