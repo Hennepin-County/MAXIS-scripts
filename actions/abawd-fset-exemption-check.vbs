@@ -55,10 +55,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'The script----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS, and grabbing the case number and current footer month/year
-EMConnect ""
-
 Function ABAWD_FSET_exemption_finder_test()
 'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
 'excluding armed forces participation dur to non-MAXIS indicators. 
@@ -71,11 +67,10 @@ Function ABAWD_FSET_exemption_finder_test()
     const memb_name_const = 0
     const memb_number_const = 1
     const verified_exemption_const = 2
-    const memb_potential_exempt_const = 3
-    const memb_verified_wreg_const = 4
-    const memb_verified_abawd_const = 5
+    const potential_exempt_const = 3
+    const verified_wreg_const = 4
+    const verified_abawd_const = 5
     
-
     entry_record = 0
     case_based_exemptions = ""
     eats_HH_count = 0
@@ -138,4 +133,42 @@ Function ABAWD_FSET_exemption_finder_test()
     Next 
 
     msgbox entry_entry
-    'For item = 0 to UBound(eats_group_array, 2)
+    
+
+    'Case-based determination
+    '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
+	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+	
+    	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
+	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
+	row = 1                                            
+    col = 1
+    EMSearch "RCA:", row, col
+    If row <> 0 Then
+        EMReadScreen rca_status, 9, row, col + 5
+        rca_status = trim(rca_status)
+		rca_status = rca_status
+        If rca_status = "ACTIVE" or rca_status = "APP CLOSE" or rca_status = "APP OPEN" Then
+            rca_case = TRUE
+			verified_wreg = verified_wreg & "17" & "|"
+        End If
+	End if 
+
+    For items = 0 to UBound(eats_group_array, 2)    
+        If mfip_case = True then 
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active" & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
+        End if 
+
+        If DWP_case = True then 
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active" & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "20" & "|"
+        End if 
+    
+        If rca_case = TRUE = True then 
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active" & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
+        End if 
+    Next 
+
