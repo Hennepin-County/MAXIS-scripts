@@ -119,6 +119,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	verified_abawd = ""
 	eats_HH_count = 0
 	possible_exemptions = ""
+    actv_case_number = ""
 
     CALL navigate_to_MAXIS_screen("STAT", "EATS")
     eats_group_members = ""
@@ -741,6 +742,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
                         exit for
                     End if
                 next
+            Elseif len(verified_wreg) = 3 then
+	    	    best_wreg_code = replace(verified_wreg, "|", "")    
             End if         
         End if 
     
@@ -768,6 +771,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
         End If 
 
+        '----------------------------------------------------------------------------------------------------STAT/REVW
 		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
 		EMReadScreen next_revw_mo, 2, 9, 57
@@ -782,14 +786,14 @@ Function BULK_ABAWD_FSET_exemption_finder()
             Call navigate_to_MAXIS_screen("REPT", "ACTV")
             EMReadScreen actv_case_number, 8, 7, 12
             actv_case_number = trim(actv_case_number)
-            actv_case_number = right(00000000 & actv_case_number, 8)
             
-            If MAXIS_case_number = trim(actv_case_number) then 
+            If instr(MAXIS_case_number, actv_case_number) then 
                 EMReadScreen next_revw_date, 8, 7, 42
                 next_revw_date = replace(next_revw_date, " ", "/")
                 report_notes = report_notes & next_revw_date & " - 53-54 YO becomes TLR. "
             End if 
-        End If      
+        End If   
+
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
     
@@ -861,23 +865,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	        PF3
 		    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
 	    End if
-
-        'script will update the WREG panel for the member if an update
-        Call navigate_to_MAXIS_screen("STAT", "WREG")
-        Call write_value_and_transmit(member_number, 20, 76)
-        PF9
-        EMWriteScreen best_wreg_code, 8, 50
-        EMWriteScreen best_abawd_code, 13, 50
-        If best_wreg_code = "30" then
-            EmWriteScreen "N", 8, 80
-        Else
-            EMWriteScreen "_", 8, 80
-        End if
-    
-        transmit ' to save 
-		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
-		If orientation_warning = "WARNING" then transmit 
-	    PF3 'to save and exit to stat/wrap
 
 	    If homeless_exemption = True then
 	        start_a_blank_CASE_NOTE
