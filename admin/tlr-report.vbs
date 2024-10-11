@@ -516,7 +516,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             EMWriteScreen "RBIC", 20, 71
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_RBIC, 1, 2, 78
-            IF num_of_RBIC <> "0" then ObjExcel.Cells(excel_row, notes_col).Value = "Actually found an RBIC."
+            IF num_of_RBIC <> "0" then report_notes = report_notes & "Actually found an RBIC."
 	
             IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
 		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
@@ -863,7 +863,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             Call write_variable_in_CASE_NOTE("---")
             Call write_variable_in_CASE_NOTE(Worker_Signature)
 	        PF3
-		    ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
+		    report_notes = report_notes & cl_age & " year old! "
 	    End if
 
 	    If homeless_exemption = True then
@@ -908,8 +908,7 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
-'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\11-2024 ABAWD-TLR's.xlsx" 'testing code
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
 
 'column constants
 case_number_col 	= 1		'Col A
@@ -947,8 +946,7 @@ BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - TLR REPORT"
 EndDialog
 
 Do
-    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
-    'Show initial dialog
+    'Initial Dialog to determine the excel file to use
     Do
         err_msg = ""
     	Dialog Dialog1
@@ -958,6 +956,8 @@ Do
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
 
 back_to_SELF
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -982,7 +982,7 @@ Do
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
         report_notes = report_notes & "Don't assign - Privliged case. "
-    Else
+    Else    
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
@@ -1020,6 +1020,7 @@ Do
     ObjExcel.Cells(excel_row, notes_col).Value = report_notes
     excel_row = excel_row + 1
     PMI_number = ""
+    stats_counter = stats_counter + 1
 Loop until ObjExcel.Cells(excel_row, 1).Value = ""
 
 FOR i = 1 to 15		'formatting the cells'
@@ -1028,3 +1029,51 @@ NEXT
 
 STATS_counter = STATS_counter - 1 'since we start with 1
 script_end_procedure("Success! Please review the TLR list.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/11/2024
+'--Tab orders reviewed & confirmed----------------------------------------------10/11/2024
+'--Mandatory fields all present & Reviewed--------------------------------------10/11/2024
+'--All variables in dialog match mandatory fields-------------------------------10/11/2024
+'--Review dialog names for content and content fit in dialog--------------------10/11/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------10/11/2024
+'--Create a button to reference instructions------------------------------------10/11/2024-----------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/11/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/11/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/11/2024-----------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that punctuation is used ------10/11/2024
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/11/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/11/2024
+'--PRIV Case handling reviewed -------------------------------------------------10/11/2024
+'--Out-of-County handling reviewed----------------------------------------------10/11/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/11/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------10/11/2024-----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/11/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/11/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------10/11/2024
+'--Denomination reviewed -------------------------------------------------------10/11/2024
+'--Script name reviewed---------------------------------------------------------10/11/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/11/2024
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/11/2024
+'--comment Code-----------------------------------------------------------------10/11/2024
+'--Update Changelog for release/update------------------------------------------10/11/2024
+'--Remove testing message boxes-------------------------------------------------10/11/2024
+'--Remove testing code/unnecessary code-----------------------------------------10/11/2024
+'--Review/update SharePoint instructions----------------------------------------10/11/2024-----------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/11/2024-----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/11/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/11/2024
+'--Complete misc. documentation (if applicable)---------------------------------10/11/2024
+'--Update project team/issue contact (if applicable)----------------------------10/11/2024
