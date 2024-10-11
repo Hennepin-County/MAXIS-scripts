@@ -722,7 +722,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	End if
 	    Elseif len(verified_wreg) = 3 then
 	    	best_wreg_code = replace(verified_wreg, "|", "")
-	    Else
+        Else 
             wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
             for each code in wreg_hierarchy
                 If instr(verified_wreg, code) then
@@ -731,6 +731,18 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 End if
             next
 	    End if
+        'Use this determination for 53-54 YO's
+        If age_53_54 = True then 
+            If len(verified_wreg) > 2 then
+                wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","16","30")  'Code 16 moved to be a lower exemption 
+                for each code in wreg_hierarchy
+                    If instr(verified_wreg, code) then
+                        best_wreg_code = code
+                        exit for
+                    End if
+                next
+            End if         
+        End if 
     
 	    If trim(best_abawd_code) = "" then 
             If best_wreg_code = "03" or _
@@ -764,9 +776,19 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		
         If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "   
+
+        'Checking/managing 53-54 yo's who don't start counting until their next review. 
         If (age_53_54 = True and best_wreg_code = "16") then 
-            report_notes = report_notes & "53-54 YO becomes TLR after " & next_SNAP_revw & ". "
-            age_53_54_counted = True 
+            Call navigate_to_MAXIS_screen("REPT", "ACTV")
+            EMReadScreen actv_case_number, 8, 7, 12
+            actv_case_number = trim(actv_case_number)
+            actv_case_number = right(00000000 & actv_case_number, 8)
+            
+            If MAXIS_case_number = trim(actv_case_number) then 
+                EMReadScreen next_revw_date, 8, 7, 42
+                next_revw_date = replace(next_revw_date, " ", "/")
+                report_notes = report_notes & next_revw_date & " - 53-54 YO becomes TLR. "
+            End if 
         End If      
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
