@@ -136,8 +136,6 @@ Function ABAWD_FSET_exemption_finder_test()
     msgbox entry_entry
     
     'Case-based determination
-    '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
-	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	
     '----------------------------------------------------------------------------------------------------17 – Receiving RCA
@@ -156,23 +154,23 @@ Function ABAWD_FSET_exemption_finder_test()
 	End if 
 
      For items = 0 to UBound(eats_group_array, 2)    
+        '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
         If mfip_case = True then 
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active" & "|"
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
         End if 
-
+        '----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
         If DWP_case = True then 
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active" & "|"
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "20" & "|"
         End if 
-    
+        '----------------------------------------------------------------------------------------------------17 - Receiving RCA
         If rca_case = TRUE = True then 
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active" & "|"
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
         End if 
     Next 
 
-	'----------------------------------------------------------------------------------------------------'Foster care on 18th 
 	''<<<<<<<<<<PROG for Foster care
     CALL navigate_to_MAXIS_screen("STAT", "PROG")
 	EmReadScreen IV-E_prog, 8, 11, 33 
@@ -189,7 +187,6 @@ Function ABAWD_FSET_exemption_finder_test()
 
 	Call HCRE_panel_bypass	'making sure we don't get stuck 
 
-    '----------------------------------------------------------------------------------------------------Age-Based Exemptions
     child_under_six = False 	'defaulting to False
 	child_under_18 = False		'defaulting to False
 	adult_HH_count = 0
@@ -207,6 +204,7 @@ Function ABAWD_FSET_exemption_finder_test()
     '    age_53_54 = True
     'End if 
 
+    'person-based determination (age-based exemptions): STAT/MEMB
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
     For items = 0 to UBound(eats_group_array, 2)    
@@ -231,7 +229,6 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
     NEXT
 
-    'person-based determination (age-based exemptions)
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
     For items = 0 to UBound(eats_group_array, 2)   
         If child_under_18 = True then 
@@ -273,14 +270,79 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
         '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
 		If cl_age => 60 then
-		If age_verif_code <> "NO" then
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older.". & "|"
-            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
+		    If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older.". & "|"
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
 			End if
 		End if
 
-        '----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO. 
+        '----------------------------------------------------------------------------------------------------'Foster care on 18th birthday for < 24 YO's 
 		If cl_age < 24 then 
 			If foster_care = True then eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Under age 24 & may have been in foster case on 18th birthday. Review for exemption. "
 		End if 
     Next 
+
+    'Person based evaluation: STAT/DISA 
+    disabled_eats_member = False 
+    For items = 0 to UBound(eats_group_array, 2)    
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+		verified_disa = False
+		disa_status = False
+        EMReadScreen num_of_DISA, 1, 2, 78
+		IF num_of_DISA <> "0" THEN
+        	EMReadScreen disa_end_dt, 10, 6, 69
+        	disa_end_dt = replace(disa_end_dt, " ", "/")
+        	EMReadScreen cert_end_dt, 10, 7, 69
+        	cert_end_dt = replace(cert_end_dt, " ", "/")
+        	IF IsDate(disa_end_dt) = True THEN
+        		IF DateDiff("D", date, disa_end_dt) > 0 THEN disa_status = True
+        	ELSE
+        		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
+        	END IF
+        	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+        		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = True
+			ELSE
+        		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
+        			EMReadScreen cert_begin_dt, 8, 7, 47
+        			IF cert_begin_dt <> "__ __ __" THEN disa_status = True
+				End if
+			End if
+		END IF
+        If disa_status = True then
+            row = 11
+            Do
+                EmReadscreen prog_disa_code, 2, row, 59
+                If prog_disa_code <> "__" then
+                    EmReadscreen prog_disa_verif, 1, row, 69
+                    If prog_disa_verif <> "N" then
+                        If row = 11 or row = 13 then
+                            verified_disa = True
+                            exit do
+                        Else
+                            If prog_disa_verif = "7" then
+                                verified_disa = False
+                            Else
+                                verified_disa = True
+                                exit do
+                            End if
+                        End if
+                    End if
+                End if
+                row = row + 1
+            Loop until row = 14
+            If verified_disa = True then  
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
+                disabled_eats_member = True 
+            End if 
+		End if
+    Next 
+
+    If disabled_eats_member = True then 
+        For items = 0 to UBound(eats_group_array, 2)   
+            If instr(eats_group_array(verified_wreg_const, items), "03") then 
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled". & "|"
+            Else 
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Care of disabled HH member. "
+            End if 
+        Next 
+    End if 
