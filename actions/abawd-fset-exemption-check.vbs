@@ -337,6 +337,7 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
     Next 
 
+    'determines if members meet disa exemption for themselves or potential exemption based on HH's. 
     If disabled_eats_member = True then 
         For items = 0 to UBound(eats_group_array, 2)   
             If instr(eats_group_array(verified_wreg_const, items), "03") then 
@@ -346,3 +347,134 @@ Function ABAWD_FSET_exemption_finder_test()
             End if 
         Next 
     End if 
+
+    '----------------------------------------------------------------------------------------------------09 - Employe 30 hours/week or Earning = to Fed Min Wage x 30 hours/week 
+    For items = 0 to UBound(eats_group_array, 2)   
+		'Person-based determination for Earned Income
+        prosp_inc = 0
+        prosp_hrs = 0
+        prospective_hours = 0
+        CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+        EMWriteScreen (eats_group_array(memb_number_const, items), 20, 76)
+		Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
+        EMReadScreen num_of_JOBS, 1, 2, 78
+        IF num_of_JOBS <> "0" THEN
+        	DO
+        	 	EMReadScreen jobs_end_dt, 8, 9, 49
+        		EMReadScreen cont_end_dt, 8, 9, 73
+        		IF jobs_end_dt = "__ __ __" THEN
+					EMReadScreen jobs_verif_code, 1, 6, 34
+        			CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC
+        			EMReadScreen prosp_monthly, 8, 18, 56
+        			prosp_monthly = trim(prosp_monthly)
+        			IF prosp_monthly = "" THEN prosp_monthly = 0
+        			prosp_inc = prosp_inc + prosp_monthly
+        			EMReadScreen prosp_hrs, 8, 16, 50
+        			IF prosp_hrs = "        " THEN prosp_hrs = 0
+        			prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        			EMReadScreen pay_freq, 1, 5, 64
+        			IF pay_freq = "1" THEN
+        				prosp_hrs = prosp_hrs
+        			ELSEIF pay_freq = "2" THEN
+        				prosp_hrs = (2 * prosp_hrs)
+        			ELSEIF pay_freq = "3" THEN
+        				prosp_hrs = (2.15 * prosp_hrs)
+        			ELSEIF pay_freq = "4" THEN
+        				prosp_hrs = (4.3 * prosp_hrs)
+        			END IF
+                    transmit		'to exit PIC
+        			prospective_hours = prospective_hours + prosp_hrs
+        		ELSE
+        			jobs_end_dt = replace(jobs_end_dt, " ", "/")
+        			IF DateDiff("D", date, jobs_end_dt) > 0 THEN
+        				'Going into the PIC for a job with an end date in the future
+        				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
+        				EMReadScreen prosp_monthly, 8, 18, 56
+        				prosp_monthly = trim(prosp_monthly)
+        				IF prosp_monthly = "" THEN prosp_monthly = 0
+        				prosp_inc = prosp_inc + prosp_monthly
+        				EMReadScreen prosp_hrs, 8, 16, 50
+        				IF prosp_hrs = "        " THEN prosp_hrs = 0
+        				prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        				EMReadScreen pay_freq, 1, 5, 64
+        				IF pay_freq = "1" THEN
+        					prosp_hrs = prosp_hrs
+        				ELSEIF pay_freq = "2" THEN
+        					prosp_hrs = (2 * prosp_hrs)
+        				ELSEIF pay_freq = "3" THEN
+        					prosp_hrs = (2.15 * prosp_hrs)
+        				ELSEIF pay_freq = "4" THEN
+        					prosp_hrs = (4.3 * prosp_hrs)
+        				END IF
+                        transmit		'to exit PIC
+        				'added separate incremental variable to account for multiple jobs
+        				prospective_hours = prospective_hours + prosp_hrs
+        			END IF
+        		END IF
+        		EMReadScreen JOBS_panel_current, 1, 2, 73
+        		'looping until all the jobs panels are calculated
+        		If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+        	Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
+        END IF
+		'Person-based determination
+        EMWriteScreen "BUSI", 20, 71
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+        EMReadScreen num_of_BUSI, 1, 2, 78
+        IF num_of_BUSI <> "0" THEN
+        	DO
+        		EMReadScreen busi_end_dt, 8, 5, 72
+        		busi_end_dt = replace(busi_end_dt, " ", "/")
+        		IF IsDate(busi_end_dt) = True THEN
+					Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
+					EMReadScreen busi_verif_code, 1, 11, 73
+					PF3 'to exit pop up
+        			IF DateDiff("D", date, busi_end_dt) > 0 THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		ELSE
+        			IF busi_end_dt = "__/__/__" THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+
+		'Person based since very unlikely to be case based at this point.
+        EMWriteScreen "RBIC", 20, 71
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_RBIC, 1, 2, 78
+        eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Has RBIC panel. Review manually for exemptions. "
+
+        IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
+			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+				If busi_verif_code <> "_" or busi_verif_code <> "N" then
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month).". & "|"
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "09" & "|"
+				End if
+			End if
+        ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
+			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+				If busi_verif_code <> "_" or busi_verif_code <> "N" then
+					eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
+				End if
+			End if
+        END IF
+    Next 
+    
+        
