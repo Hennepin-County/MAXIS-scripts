@@ -64,12 +64,13 @@ Function ABAWD_FSET_exemption_finder_test()
     ReDim eats_group_array(memb_verified_abawd_const,0)
 
     'constants for array
-    const memb_name_const = 0
-    const memb_number_const = 1
-    const verified_exemption_const = 2
-    const potential_exempt_const = 3
-    const verified_wreg_const = 4
-    const verified_abawd_const = 5
+    const memb_name_const           = 0
+    const memb_number_const         = 1
+    const memb_age_const            = 2
+    const verified_exemption_const  = 3
+    const potential_exempt_const    = 4
+    const verified_wreg_const       = 5
+    const verified_abawd_const      = 6
     
     entry_record = 0
     case_based_exemptions = ""
@@ -134,13 +135,12 @@ Function ABAWD_FSET_exemption_finder_test()
 
     msgbox entry_entry
     
-
     'Case-based determination
     '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
 	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	
-    	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
+    '----------------------------------------------------------------------------------------------------17 – Receiving RCA
 	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
 	row = 1                                            
     col = 1
@@ -155,7 +155,7 @@ Function ABAWD_FSET_exemption_finder_test()
         End If
 	End if 
 
-    For items = 0 to UBound(eats_group_array, 2)    
+     For items = 0 to UBound(eats_group_array, 2)    
         If mfip_case = True then 
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active" & "|"
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
@@ -172,3 +172,115 @@ Function ABAWD_FSET_exemption_finder_test()
         End if 
     Next 
 
+	'----------------------------------------------------------------------------------------------------'Foster care on 18th 
+	''<<<<<<<<<<PROG for Foster care
+    CALL navigate_to_MAXIS_screen("STAT", "PROG")
+	EmReadScreen IV-E_prog, 8, 11, 33 
+	EMReadScreen IV-E_status, 4, 11, 74
+	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then 
+		foster_care = False 
+	else 
+		If Trim(IV-E_status) <> "DENY" then 
+			foster_care = True
+		else 
+			foster_care = False 
+		End if 
+	End if
+
+	Call HCRE_panel_bypass	'making sure we don't get stuck 
+
+    '----------------------------------------------------------------------------------------------------Age-Based Exemptions
+    child_under_six = False 	'defaulting to False
+	child_under_18 = False		'defaulting to False
+	adult_HH_count = 0
+
+    'age_50 = False
+    'age_53_54 = False 
+    'age_53_54_counted = False 'temporary coding to support. Effective 10/1/24 53-54 YO's starting being TLR's after their next renewal
+    'If cl_age = 50 or _
+	'	cl_age = 51 or _ 
+	'	cl_age = 52 then 
+	'	age_50 = True
+	'End if
+    'If cl_age = 53 or _
+    '    cl_age = 54 then
+    '    age_53_54 = True
+    'End if 
+
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+
+    For items = 0 to UBound(eats_group_array, 2)    
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+        EMReadScreen, first_name, 12, 6, 63
+        first_name = replace(first_name, "_", "")
+        Call fix_case_for_name(first_name)
+        eats_group_array(memb_name_const, items) = first_name
+
+        EMReadScreen cl_age, 2, 8, 76
+        cl_age = trim(cl_age)
+        IF cl_age = "" THEN cl_age = 0
+        cl_age = cl_age * 1
+        eats_group_array(memb_age_const, items) = cl_age
+
+        'case-based exemption 
+		If cl_age < 6 then child_under_six = True
+        IF cl_age =< 17 THEN
+			child_under_18 = True
+		Else
+			adult_HH_count = adult_HH_count + 1
+		End if
+    NEXT
+
+    'person-based determination (age-based exemptions)
+    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
+    For items = 0 to UBound(eats_group_array, 2)   
+        If child_under_18 = True then 
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household." & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+        End if 
+        '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
+        If child_under_6 = True then
+            If adult_HH_count = 1 then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6." & "|"
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
+            Else     
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household." & "|"
+            End if 
+        End if 
+        '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
+        If cl_age = 16 or cl_age = 17 then
+			EMReadScreen age_verif_code, 2, 8, 68
+			If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17". & "|"
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "07" & "|"
+			End if
+		End if
+		'----------------------------------------------------------------------------------------------------06 – Under age 16
+        If cl_age < 16 then
+		    If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16.". & "|"
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
+		    End if
+		End if
+        '----------------------------------------------------------------------------------------------------'16 – 55-59 Years Old
+        If cl_age => 55 then
+		    If cl_age < 60 then
+		    	If age_verif_code <> "NO" then
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59.". & "|"
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
+		    	End if
+		    End if
+		End if
+        '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
+		If cl_age => 60 then
+		If age_verif_code <> "NO" then
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older.". & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
+			End if
+		End if
+
+        '----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO. 
+		If cl_age < 24 then 
+			If foster_care = True then eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Under age 24 & may have been in foster case on 18th birthday. Review for exemption. "
+		End if 
+    Next 
