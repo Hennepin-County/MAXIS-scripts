@@ -535,6 +535,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             '>>>>>>>>>>>>UNEA
 		    '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
 		    'Person-based determination
+            Call navigate_to_MAXIS_screen("STAT", "UNEA")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_UNEA, 1, 2, 78
             IF num_of_UNEA <> "0" THEN
