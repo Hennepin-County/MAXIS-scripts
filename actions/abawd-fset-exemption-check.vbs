@@ -585,3 +585,34 @@ Function ABAWD_FSET_exemption_finder_test()
         End if 
     Next 
 
+    'Case based determination: ADDR
+	'----------------------------------------------------------------------------------------------------03 - Homeless
+	homeless_exemption = False
+    possible_homeless = False 
+    CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+    EMReadScreen homeless_code, 1, 10, 43
+	EMReadScreen living_situation, 2, 11, 43
+    EmReadscreen addr_line_01, 16, 6, 43
+    IF homeless_code = "Y" then
+		If living_situation = "02" or _
+			living_situation = "06" or _							
+			living_situation = "07" or _
+			living_situation = "08" then 
+			homeless_exemption = True 
+		Else
+            possible_homeless = True 
+		End if 
+    End if
+
+    If homeless_exemption = True or possible_homeless = True then 
+        For items = 0 to UBound(eats_group_array, 2) then 
+            If homeless_exemption = True then 
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Homeless." & "|"
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
+            Elseif possible_homeless = True then 
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Case's ADDR is coded Y for homeless but living situation doesn't match. "  
+            End if 
+        Next 
+    End if 
+    
+    
