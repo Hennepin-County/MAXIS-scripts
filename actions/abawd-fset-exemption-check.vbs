@@ -551,7 +551,7 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
     Next 
 
-        'Person-based determination: PREG
+    'Person-based determination: PREG
 	'----------------------------------------------------------------------------------------------------23 – Pregnant
     CALL navigate_to_MAXIS_screen("STAT", "PREG")
     For items = 0 to UBound(eats_group_array, 2) 
@@ -573,3 +573,15 @@ Function ABAWD_FSET_exemption_finder_test()
         End If
     Next 
 		
+    'Person-based determination: MEMI
+    '----------------------------------------------------------------------------------------------------30/09 - Military Servive
+    CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+    For items = 0 to UBound(eats_group_array, 2) 
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+        EMReadScreen military_service_code, 1, 12, 78
+        If military_service_code = "Y" then 
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Military Service." & "|"
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "30" & "|"
+        End if 
+    Next 
+
