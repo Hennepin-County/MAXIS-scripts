@@ -615,4 +615,30 @@ Function ABAWD_FSET_exemption_finder_test()
         Next 
     End if 
     
-    
+    'Person-based determination: SCHL 
+    '----------------------------------------------------------------------------------------------------12 - School 
+    CALL navigate_to_MAXIS_screen("STAT", "SCHL")
+    For items = 0 to UBound(eats_group_array, 2) 
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)    
+        EMReadScreen num_of_SCHL, 1, 2, 78
+        IF num_of_SCHL = "1" THEN
+        	EMReadScreen school_status, 1, 6, 40
+            EMReadScreen school_verif, 2, 6, 63
+            EMReadScreen SNAP_code, 2, 16, 63
+        	IF school_status = "F" or school_status = "H" then
+                If school_verif = "SC" or school_verif = "OT" then
+                    If  SNAP_code = "01" or _
+                        SNAP_code = "02" or _
+                        SNAP_code = "04" or _
+                        SNAP_code = "05" or _
+                        SNAP_code = "06" or _
+                        SNAP_code = "07" or _
+                        SNAP_code = "09" or _
+                        SNAP_code = "10" then
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Student." & "|"
+                        eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "12" & "|"
+                    End if
+                End if
+            End if
+		End if
+    Next 
