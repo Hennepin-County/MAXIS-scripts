@@ -519,8 +519,6 @@ Function ABAWD_FSET_exemption_finder_test()
         END IF
     Next 
 
-
-    
 	'Person-based determination: PBEN
     '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
     CALL navigate_to_MAXIS_screen("STAT", "PBEN")
@@ -553,3 +551,25 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
     Next 
 
+        'Person-based determination: PREG
+	'----------------------------------------------------------------------------------------------------23 – Pregnant
+    CALL navigate_to_MAXIS_screen("STAT", "PREG")
+    For items = 0 to UBound(eats_group_array, 2) 
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+		EMReadScreen num_of_PREG, 1, 2, 78
+        IF num_of_PREG <> "0" THEN
+            EMReadScreen preg_due_dt, 8, 10, 53
+            preg_due_dt = replace(preg_due_dt, " ", "/")
+        	EMReadScreen preg_end_dt, 8, 12, 53
+            If preg_due_dt <> "__/__/__" Then
+				EMReadscreen preg_verif, 1, 6, 75
+                If DateDiff("d", date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
+					If preg_verif <> "_" then
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant." & "|"
+                        eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "23" & "|"
+					End if
+				End If
+			End if
+        End If
+    Next 
+		
