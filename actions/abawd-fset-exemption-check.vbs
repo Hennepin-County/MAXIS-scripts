@@ -519,3 +519,37 @@ Function ABAWD_FSET_exemption_finder_test()
         END IF
     Next 
 
+
+    
+	'Person-based determination: PBEN
+    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
+    CALL navigate_to_MAXIS_screen("STAT", "PBEN")
+    For items = 0 to UBound(eats_group_array, 2) 
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+		EMReadScreen num_of_PBEN, 1, 2, 78
+        IF num_of_PBEN <> "0" THEN
+        	pben_row = 8
+        	DO
+                EMreadscreen pben_type, 2, pben_row, 24
+                If pben_type = "__" then exit do
+        	    IF pben_type = "12" THEN		'UI pending'
+        			EMReadScreen pben_disp, 1, pben_row, 77
+        			IF pben_disp = "A" OR pben_disp = "P" THEN
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+                        eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
+						EXIT DO
+                    elseif pben_disp = "E" then                         
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+                        eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
+                        Exit do
+        			Else
+                        eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "May have pending, appealing, or eligible Unemployment benefits. "
+                        pben_row = pben_row + 1
+        			END IF
+        		ELSE
+        			pben_row = pben_row + 1
+        		END IF
+        	LOOP UNTIL pben_row = 12
+		End if
+    Next 
+
