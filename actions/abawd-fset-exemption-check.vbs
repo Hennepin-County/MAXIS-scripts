@@ -248,14 +248,14 @@ Function ABAWD_FSET_exemption_finder_test()
         If cl_age = 16 or cl_age = 17 then
 			EMReadScreen age_verif_code, 2, 8, 68
 			If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17". & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "07" & "|"
 			End if
 		End if
 		'----------------------------------------------------------------------------------------------------06 – Under age 16
         If cl_age < 16 then
 		    If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16.". & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
 		    End if
 		End if
@@ -263,7 +263,7 @@ Function ABAWD_FSET_exemption_finder_test()
         If cl_age => 55 then
 		    If cl_age < 60 then
 		    	If age_verif_code <> "NO" then
-                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59.". & "|"
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59." & "|"
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
 		    	End if
 		    End if
@@ -271,7 +271,7 @@ Function ABAWD_FSET_exemption_finder_test()
         '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
 		If cl_age => 60 then
 		    If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older.". & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
 			End if
 		End if
@@ -284,6 +284,7 @@ Function ABAWD_FSET_exemption_finder_test()
 
     'Person based evaluation: STAT/DISA 
     disabled_eats_member = False 
+    Call navigate_to_MAXIS_screen("STAT", "DISA")
     For items = 0 to UBound(eats_group_array, 2)    
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
 		verified_disa = False
@@ -341,16 +342,16 @@ Function ABAWD_FSET_exemption_finder_test()
     If disabled_eats_member = True then 
         For items = 0 to UBound(eats_group_array, 2)   
             If instr(eats_group_array(verified_wreg_const, items), "03") then 
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled". & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled." & "|"
             Else 
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Care of disabled HH member. "
             End if 
         Next 
     End if 
 
+    'Person-based determination for Earned Income
     '----------------------------------------------------------------------------------------------------09 - Employe 30 hours/week or Earning = to Fed Min Wage x 30 hours/week 
     For items = 0 to UBound(eats_group_array, 2)   
-		'Person-based determination for Earned Income
         prosp_inc = 0
         prosp_hrs = 0
         prospective_hours = 0
@@ -464,7 +465,7 @@ Function ABAWD_FSET_exemption_finder_test()
         IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
 			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
 				If busi_verif_code <> "_" or busi_verif_code <> "N" then
-                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month).". & "|"
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month)." & "|"
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "09" & "|"
 				End if
 			End if
@@ -476,5 +477,45 @@ Function ABAWD_FSET_exemption_finder_test()
 			End if
         END IF
     Next 
-    
-        
+
+    'Person-based determination: UNEA
+    '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
+    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
+    CALL navigate_to_MAXIS_screen("STAT", "UNEA")
+    For items = 0 to UBound(eats_group_array, 2) 
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+        EMReadScreen num_of_UNEA, 1, 2, 78
+        IF num_of_UNEA <> "0" THEN
+        	DO
+        		EMReadScreen unea_type, 2, 5, 37
+        		EMReadScreen unea_end_dt, 8, 7, 68
+        		unea_end_dt = replace(unea_end_dt, " ", "/")
+        		IF IsDate(unea_end_dt) = True THEN
+        			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+        				IF unea_type = "11" then
+        					EmReadScreen VA_verif_code, 1, 5, 65
+        					If VA_verif_code <> "N" then
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability." & "|"
+        						verified_wreg = verified_wreg & "03" & "|"
+        						Exit do
+        					Else
+                                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Appears to have VA disability benefits. "
+        					End if
+        				Elseif unea_type = "14" then
+		    				EmReadScreen UC_verif_code, 1, 5, 65
+		    				If UC_verif_code <> "N" then
+                                uc_unea = True 
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+		    					verified_wreg = verified_wreg & "11" & "|"
+		    					Exit do
+		    				Else
+                                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Appears to have active unemployment benefits. "
+		    				End if
+                        End if 
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+    Next 
