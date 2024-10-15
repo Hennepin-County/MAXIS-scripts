@@ -496,7 +496,7 @@ Function ABAWD_FSET_exemption_finder_test()
         					EmReadScreen VA_verif_code, 1, 5, 65
         					If VA_verif_code <> "N" then
                                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability." & "|"
-        						verified_wreg = verified_wreg & "03" & "|"
+                                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
         						Exit do
         					Else
                                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Appears to have VA disability benefits. "
@@ -504,9 +504,8 @@ Function ABAWD_FSET_exemption_finder_test()
         				Elseif unea_type = "14" then
 		    				EmReadScreen UC_verif_code, 1, 5, 65
 		    				If UC_verif_code <> "N" then
-                                uc_unea = True 
                                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
-		    					verified_wreg = verified_wreg & "11" & "|"
+		    					eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
 		    					Exit do
 		    				Else
                                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Appears to have active unemployment benefits. "
@@ -519,3 +518,4 @@ Function ABAWD_FSET_exemption_finder_test()
         	LOOP UNTIL enter_a_valid = "ENTER A VALID"
         END IF
     Next 
+
