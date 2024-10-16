@@ -158,17 +158,17 @@ Function ABAWD_FSET_exemption_finder_test()
      For items = 0 to UBound(eats_group_array, 2)    
         '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
         If mfip_case = True then 
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active" & "|"
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
         End if 
         '----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
         If DWP_case = True then 
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active" & "|"
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "20" & "|"
         End if 
         '----------------------------------------------------------------------------------------------------17 - Receiving RCA
         If rca_case = TRUE = True then 
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active" & "|"
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
         End if 
     Next 
@@ -222,30 +222,30 @@ Function ABAWD_FSET_exemption_finder_test()
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
     For items = 0 to UBound(eats_group_array, 2)   
         If child_under_18 = True then 
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household." & "|"
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
         End if 
         '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
         If child_under_6 = True then
             If adult_HH_count = 1 then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
             Else     
-                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household." & "|"
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. " 
             End if 
         End if 
         '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
         If eats_group_array(memb_age_const, items) = 16 or eats_group_array(memb_age_const, items) = 17 then
 			EMReadScreen age_verif_code, 2, 8, 68
 			If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17. "  
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "07" & "|"
 			End if
 		End if
 		'----------------------------------------------------------------------------------------------------06 – Under age 16
         If eats_group_array(memb_age_const, items) < 16 then
 		    If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16. " 
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
 		    End if
 		End if
@@ -253,7 +253,7 @@ Function ABAWD_FSET_exemption_finder_test()
         If eats_group_array(memb_age_const, items) => 55 then
 		    If eats_group_array(memb_age_const, items) < 60 then
 		    	If age_verif_code <> "NO" then
-                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59." & "|"
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59. " 
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
 		    	End if
 		    End if
@@ -261,7 +261,7 @@ Function ABAWD_FSET_exemption_finder_test()
         '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
 		If eats_group_array(memb_age_const, items) => 60 then
 		    If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
 			End if
 		End if
@@ -332,7 +332,7 @@ Function ABAWD_FSET_exemption_finder_test()
     If disabled_eats_member = True then 
         For items = 0 to UBound(eats_group_array, 2)   
             If instr(eats_group_array(verified_wreg_const, items), "03") then 
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled. "
             Else 
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Care of disabled HH member. "
             End if 
@@ -456,7 +456,7 @@ Function ABAWD_FSET_exemption_finder_test()
         IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
 			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
 				If busi_verif_code <> "_" or busi_verif_code <> "N" then
-                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month)." & "|"
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month). "
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "09" & "|"
 				End if
 			End if
@@ -486,7 +486,7 @@ Function ABAWD_FSET_exemption_finder_test()
         				IF unea_type = "11" then
         					EmReadScreen VA_verif_code, 1, 5, 65
         					If VA_verif_code <> "N" then
-                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability." & "|"
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability. "  
                                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
         						Exit do
         					Else
@@ -495,7 +495,7 @@ Function ABAWD_FSET_exemption_finder_test()
         				Elseif unea_type = "14" then
 		    				EmReadScreen UC_verif_code, 1, 5, 65
 		    				If UC_verif_code <> "N" then
-                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "  
 		    					eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
 		    					Exit do
 		    				Else
@@ -524,11 +524,11 @@ Function ABAWD_FSET_exemption_finder_test()
         	    IF pben_type = "12" THEN		'UI pending'
         			EMReadScreen pben_disp, 1, pben_row, 77
         			IF pben_disp = "A" OR pben_disp = "P" THEN
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. " 
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
 						EXIT DO
                     elseif pben_disp = "E" then                         
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment." & "|"
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
                         Exit do
         			Else
@@ -556,7 +556,7 @@ Function ABAWD_FSET_exemption_finder_test()
 				EMReadscreen preg_verif, 1, 6, 75
                 If DateDiff("d", date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
 					If preg_verif <> "_" then
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant." & "|"
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant. " 
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "23" & "|"
 					End if
 				End If
@@ -571,7 +571,7 @@ Function ABAWD_FSET_exemption_finder_test()
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen military_service_code, 1, 12, 78
         If military_service_code = "Y" then 
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Military Service." & "|"
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Military Service. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "30" & "|"
         End if 
     Next 
@@ -598,7 +598,7 @@ Function ABAWD_FSET_exemption_finder_test()
     If homeless_exemption = True or possible_homeless = True then 
         For items = 0 to UBound(eats_group_array, 2)
             If homeless_exemption = True then 
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Homeless." & "|"
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Homeless. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
             Elseif possible_homeless = True then 
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Case's ADDR is coded Y for homeless but living situation doesn't match. "  
@@ -626,7 +626,7 @@ Function ABAWD_FSET_exemption_finder_test()
                         SNAP_code = "07" or _
                         SNAP_code = "09" or _
                         SNAP_code = "10" then
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Student." & "|"
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Student. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "12" & "|"
                     End if
                 End if
@@ -639,10 +639,10 @@ Function ABAWD_FSET_exemption_finder_test()
         If trim(eats_group_array(verified_exemption_const, items)) = "" then eats_group_array(verified_exemption_const, items) = "N/A"
         If trim(eats_group_array(potential_exempt_const, items)) = "" then eats_group_array(potential_exempt_const, items) = "N/A"
         exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _ 
-        "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr & vbcr
+        "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr
     Next 
 
-    MsgBox exemption_message, vbInformation + vbSystemModal, "Exemptions for EATS HH with MEMB 01"
+    MsgBox exemption_message, vbInformation + vbSystemModal, "Exemptions for EATS Household members with MEMB 01"
 End Function
 
 '----------------------------------------------------------------------------------------------------The Script
