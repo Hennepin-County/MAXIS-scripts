@@ -2575,7 +2575,7 @@ Do
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20DOCUMENTS%20RECEIVED.docx?d=w1dce0cc33ca541f68855f406a63ab02b&csf=1&web=1&e=LXojaV"
 			err_msg = "LOOP"
 		ElseIf ButtonPressed = demo_video_btn Then
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:v:/r/teams/hs-es-manual/BlueZone/Documents%20Received%20Script%20Demo%20Video.webm?csf=1&web=1&e=t63m6W"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:v:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/BlueZone%20Script%20Resources/Documents%20Received%20Script%20Demo%20Video.webm?csf=1&web=1&e=8Ar3y0"
 			err_msg = "LOOP"
 		End If
 		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
