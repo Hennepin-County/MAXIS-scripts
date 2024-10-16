@@ -61,7 +61,7 @@ Function ABAWD_FSET_exemption_finder_test()
 '----------------------------------------------------------------------------------------------------Determining the EATS Household
 
     Dim eats_group_array()
-    ReDim eats_group_array(memb_verified_abawd_const,0)
+    ReDim eats_group_array(verified_abawd_const,0)
 
     'constants for array
     const memb_name_const           = 0
@@ -90,12 +90,14 @@ Function ABAWD_FSET_exemption_finder_test()
         DO
             EMReadScreen eats_pers, 2, eats_row, 3
             eats_pers = replace(eats_pers, " ", "")
-            IF eats_pers <> "" THEN
+            IF trim(eats_pers) = "" THEN
+                Exit do 
+            Else 
                 eats_group_members = eats_group_members & eats_pers & ","
 				eats_HH_count = eats_HH_count  + 1
                 eats_row = eats_row + 1
             END IF
-        LOOP UNTIL eats_pers = ""
+        LOOP
     ELSEIF all_eat_together = "N" THEN
     'multiple eats HH cases - we are only caring about the 1st eats group that contains MEMB 01.
         eats_row = 13
@@ -123,17 +125,17 @@ Function ABAWD_FSET_exemption_finder_test()
         LOOP UNTIL eats_group = "__"
     END IF
 
+    'sets up array for the exemption and potential exemption checks. 
     eats_group_members = trim(eats_group_members)
     eats_group_members = split(eats_group_members, ",")
-
     For each memb in eats_group_members    
-    	ReDim Preserve eats_group_array(memb_verified_abawd_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-    	eats_group_array(memb_number_const, entry_record) = memb
+    	ReDim Preserve eats_group_array(verified_abawd_const, entry_record)	'This resizes the array based on the number of members
+        eats_group_array(memb_number_const, entry_record) = memb
     	entry_record = entry_record + 1			'This increments to the next entry in the array'
     	stats_counter = stats_counter + 1
     Next 
 
-    msgbox entry_entry
+    msgbox entry_record
     
     'Case-based determination
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
@@ -191,25 +193,12 @@ Function ABAWD_FSET_exemption_finder_test()
 	child_under_18 = False		'defaulting to False
 	adult_HH_count = 0
 
-    'age_50 = False
-    'age_53_54 = False 
-    'age_53_54_counted = False 'temporary coding to support. Effective 10/1/24 53-54 YO's starting being TLR's after their next renewal
-    'If cl_age = 50 or _
-	'	cl_age = 51 or _ 
-	'	cl_age = 52 then 
-	'	age_50 = True
-	'End if
-    'If cl_age = 53 or _
-    '    cl_age = 54 then
-    '    age_53_54 = True
-    'End if 
-
     'person-based determination (age-based exemptions): STAT/MEMB
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
     For items = 0 to UBound(eats_group_array, 2)    
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
-        EMReadScreen, first_name, 12, 6, 63
+        EMReadScreen first_name, 12, 6, 63
         first_name = replace(first_name, "_", "")
         Call fix_case_for_name(first_name)
         eats_group_array(memb_name_const, items) = first_name
@@ -356,7 +345,7 @@ Function ABAWD_FSET_exemption_finder_test()
         prosp_hrs = 0
         prospective_hours = 0
         CALL navigate_to_MAXIS_screen("STAT", "JOBS")
-        EMWriteScreen (eats_group_array(memb_number_const, items), 20, 76)
+        EMWriteScreen eats_group_array(memb_number_const, items), 20, 76
 		Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
         EMReadScreen num_of_JOBS, 1, 2, 78
         IF num_of_JOBS <> "0" THEN
@@ -605,7 +594,7 @@ Function ABAWD_FSET_exemption_finder_test()
     End if
 
     If homeless_exemption = True or possible_homeless = True then 
-        For items = 0 to UBound(eats_group_array, 2) then 
+        For items = 0 to UBound(eats_group_array, 2)
             If homeless_exemption = True then 
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Homeless." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
@@ -642,3 +631,105 @@ Function ABAWD_FSET_exemption_finder_test()
             End if
 		End if
     Next 
+
+    exemption_message = ""
+    For items = 0 to UBound(eats_group_array, 2) 
+        If trim(eats_group_array(verified_exemption_const, items)) = "" then eats_group_array(verified_exemption_const, items) = "N/A"
+        If trim(eats_group_array(potential_exempt_const, items)) = "" then eats_group_array(potential_exempt_const, items) = "N/A"
+        exemption_message = "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , i) & " " & eats_group_array(memb_name_const, i) & ":" & vbcr & "------------------------------ " & vbcr & _ 
+        "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr & vbcr
+    Next 
+
+    'MsgBox exemption_message, vbSystemModal, "**Exemption results for EATS household with Member 01**"
+    MsgBox exemption_message, vbInformation + vbSystemModal, "**Exemption results for EATS household with Member 01**"
+End Function
+
+
+'----------------------------------------------------------------------------------------------------The Script
+EMConnect ""
+
+EMReadScreen are_we_at_ABAWD_tracking_record, 8, 1, 71
+If are_we_at_ABAWD_tracking_record = "FMCDJAMF" Then
+    EMGetCursor tracker_row, tracker_col
+
+    If tracker_col = 19 Then
+        MAXIS_footer_month = "01"
+    ElseIf tracker_col = 23 Then
+        MAXIS_footer_month = "02"
+    ElseIf tracker_col = 27 Then
+        MAXIS_footer_month = "03"
+    ElseIf tracker_col = 31 Then
+        MAXIS_footer_month = "04"
+    ElseIf tracker_col = 35 Then
+        MAXIS_footer_month = "05"
+    ElseIf tracker_col = 39 Then
+        MAXIS_footer_month = "06"
+    ElseIf tracker_col = 43 Then
+        MAXIS_footer_month = "07"
+    ElseIf tracker_col = 47 Then
+        MAXIS_footer_month = "08"
+    ElseIf tracker_col = 51 Then
+        MAXIS_footer_month = "09"
+    ElseIf tracker_col = 55 Then
+        MAXIS_footer_month = "10"
+    ElseIf tracker_col = 59 Then
+        MAXIS_footer_month = "11"
+    ElseIf tracker_col = 63 Then
+        MAXIS_footer_month = "12"
+    End If
+
+    If MAXIS_footer_month <> "" Then EMReadScreen MAXIS_footer_year, 2, tracker_row, 15
+
+    MX_mo = MAXIS_footer_month * 1
+    MX_yr = MAXIS_footer_year * 1
+    curr_mo = CM_plus_1_mo * 1
+    curr_yr = CM_plus_1_yr * 1
+
+    If  MX_yr > curr_yr Then
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
+    ElseIf MX_yr = curr_yr AND MX_mo > curr_mo Then
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
+    End If
+
+    PF3
+End If
+
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 50, "ACTIONS - ABAWD FSET EXEMPTION CHECK"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 170, 5, 20, 15, MAXIS_footer_month
+  EditBox 195, 5, 20, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    PushButton 20, 30, 80, 15, "Script Instructions", script_instructions
+    OkButton 120, 30, 45, 15
+    CancelButton 170, 30, 45, 15
+  Text 105, 10, 65, 10, "Footer month/year:"
+  Text 5, 10, 45, 10, "Case number:"
+EndDialog
+
+Do
+	DO
+		err_msg = ""
+		dialog Dialog1
+		Cancel_without_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ABAWD%20FSET%20EXEMPTION%20CHECK.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'Confirming that the footer month from the dialog matches the footer month in MAXIS
+Call MAXIS_footer_month_confirmation
+Call ABAWD_FSET_exemption_finder_test
+
+script_end_procedure_with_error_report("")
