@@ -128,15 +128,15 @@ Function ABAWD_FSET_exemption_finder_test()
     'sets up array for the exemption and potential exemption checks. 
     eats_group_members = trim(eats_group_members)
     eats_group_members = split(eats_group_members, ",")
-    For each memb in eats_group_members    
-    	ReDim Preserve eats_group_array(verified_abawd_const, entry_record)	'This resizes the array based on the number of members
-        eats_group_array(memb_number_const, entry_record) = memb
-    	entry_record = entry_record + 1			'This increments to the next entry in the array'
-    	stats_counter = stats_counter + 1
+    For each memb in eats_group_members 
+        If trim(memb) <> "" then    
+    	    ReDim Preserve eats_group_array(verified_abawd_const, entry_record)	'This resizes the array based on the number of members
+            eats_group_array(memb_number_const, entry_record) = memb
+    	    entry_record = entry_record + 1			'This increments to the next entry in the array'
+    	    stats_counter = stats_counter + 1
+        End if 
     Next 
 
-    msgbox entry_record
-    
     'Case-based determination
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	
@@ -196,7 +196,8 @@ Function ABAWD_FSET_exemption_finder_test()
     'person-based determination (age-based exemptions): STAT/MEMB
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
-    For items = 0 to UBound(eats_group_array, 2)    
+    For items = 0 to UBound(eats_group_array, 2) 
+        cl_age = ""   
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen first_name, 12, 6, 63
         first_name = replace(first_name, "_", "")
@@ -234,7 +235,7 @@ Function ABAWD_FSET_exemption_finder_test()
             End if 
         End if 
         '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
-        If cl_age = 16 or cl_age = 17 then
+        If eats_group_array(memb_age_const, items) = 16 or eats_group_array(memb_age_const, items) = 17 then
 			EMReadScreen age_verif_code, 2, 8, 68
 			If age_verif_code <> "NO" then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17." & "|"
@@ -242,15 +243,15 @@ Function ABAWD_FSET_exemption_finder_test()
 			End if
 		End if
 		'----------------------------------------------------------------------------------------------------06 – Under age 16
-        If cl_age < 16 then
+        If eats_group_array(memb_age_const, items) < 16 then
 		    If age_verif_code <> "NO" then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
 		    End if
 		End if
         '----------------------------------------------------------------------------------------------------'16 – 55-59 Years Old
-        If cl_age => 55 then
-		    If cl_age < 60 then
+        If eats_group_array(memb_age_const, items) => 55 then
+		    If eats_group_array(memb_age_const, items) < 60 then
 		    	If age_verif_code <> "NO" then
                     eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59." & "|"
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
@@ -258,7 +259,7 @@ Function ABAWD_FSET_exemption_finder_test()
 		    End if
 		End if
         '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
-		If cl_age => 60 then
+		If eats_group_array(memb_age_const, items) => 60 then
 		    If age_verif_code <> "NO" then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60 or older." & "|"
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
@@ -266,7 +267,7 @@ Function ABAWD_FSET_exemption_finder_test()
 		End if
 
         '----------------------------------------------------------------------------------------------------'Foster care on 18th birthday for < 24 YO's 
-		If cl_age < 24 then 
+		If eats_group_array(memb_age_const, items) < 24 then 
 			If foster_care = True then eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Under age 24 & may have been in foster case on 18th birthday. Review for exemption. "
 		End if 
     Next 
@@ -339,7 +340,7 @@ Function ABAWD_FSET_exemption_finder_test()
     End if 
 
     'Person-based determination for Earned Income
-    '----------------------------------------------------------------------------------------------------09 - Employe 30 hours/week or Earning = to Fed Min Wage x 30 hours/week 
+    '----------------------------------------------------------------------------------------------------09 - Employed 30 hours/week or Earning = to Fed Min Wage x 30 hours/week 
     For items = 0 to UBound(eats_group_array, 2)   
         prosp_inc = 0
         prosp_hrs = 0
@@ -445,11 +446,12 @@ Function ABAWD_FSET_exemption_finder_test()
         	LOOP UNTIL enter_a_valid = "ENTER A VALID"
         END IF
 
+        
 		'Person based since very unlikely to be case based at this point.
         EMWriteScreen "RBIC", 20, 71
         CALL write_value_and_transmit(member_number, 20, 76)
         EMReadScreen num_of_RBIC, 1, 2, 78
-        eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Has RBIC panel. Review manually for exemptions. "
+        If num_of_RBIC <> "0" then eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Has RBIC panel. Review manually for exemptions. "
 
         IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
 			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
@@ -636,14 +638,12 @@ Function ABAWD_FSET_exemption_finder_test()
     For items = 0 to UBound(eats_group_array, 2) 
         If trim(eats_group_array(verified_exemption_const, items)) = "" then eats_group_array(verified_exemption_const, items) = "N/A"
         If trim(eats_group_array(potential_exempt_const, items)) = "" then eats_group_array(potential_exempt_const, items) = "N/A"
-        exemption_message = "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , i) & " " & eats_group_array(memb_name_const, i) & ":" & vbcr & "------------------------------ " & vbcr & _ 
+        exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _ 
         "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr & vbcr
     Next 
 
-    'MsgBox exemption_message, vbSystemModal, "**Exemption results for EATS household with Member 01**"
-    MsgBox exemption_message, vbInformation + vbSystemModal, "**Exemption results for EATS household with Member 01**"
+    MsgBox exemption_message, vbInformation + vbSystemModal, "Exemptions for EATS HH with MEMB 01"
 End Function
-
 
 '----------------------------------------------------------------------------------------------------The Script
 EMConnect ""
