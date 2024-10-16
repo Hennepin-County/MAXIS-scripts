@@ -947,10 +947,11 @@ For each worker in worker_array
 
 			'Navigation handling for if a case is actionable or not. If actionable the dail_row needs to increment
 			If actionable_DAIL = False then
-				If (dail_type = "HIRE" and Instr(dail_msg, "NDNH") = 0 and Instr(dail_msg, "JOB DETAILS FOR  ") = 0) or dail_type <> = "HIRE" Then
+				If (dail_type = "HIRE" and Instr(dail_msg, "NDNH") = 0 and Instr(dail_msg, "JOB DETAILS FOR  ") = 0) or dail_type <> "HIRE" Then
 					Call write_value_and_transmit("D", dail_row, 3)
 					EMReadScreen other_worker_error, 13, 24, 2
 					If other_worker_error = "** WARNING **" then transmit
+				End If 
 			Elseif actionable_DAIL = True then
 				dail_row = dail_row + 1
 			End if
