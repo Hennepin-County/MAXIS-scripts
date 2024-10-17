@@ -822,7 +822,7 @@ Do
                 Dialog Dialog1
                 cancel_confirmation
 
-                If vol_quit_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the name of the client whole voluntarily quit."
+                If vol_quit_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the name of the client that voluntarily quit."
                 If vol_quit_sanction_reason = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the reason for the voluntary quit sanction."
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
             Loop until err_msg = ""
