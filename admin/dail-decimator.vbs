@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/15/2024", "Added functionality to remove HIRE messages over 12 months old.", "Mark Riegel, Hennepin County")
 call changelog_update("06/05/2023", "Added option for removing SVES/TPQY responses sent for Ex Parte cases.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/10/2022", "Added restart functionality when using all workers option.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/01/2021", "Updated boolean variable name for clarity.", "Ilse Ferris, Hennepin County")
@@ -140,8 +141,11 @@ EMConnect ""
 Call Check_for_MAXIS(False)
 dail_to_decimate = "ALL"
 all_workers_check = 1
+hire_messages_to_skip = "*"
 
 this_month = CM_mo & " " & CM_yr
+this_month_date = CM_mo & "/01/" & CM_yr
+this_month_date = DateAdd("m", 0, this_month_date)
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 last_month = CM_minus_1_mo & " " & CM_minus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
@@ -325,14 +329,597 @@ For each worker in worker_array
 
             'If the case number is found in the string of case numbers, it's not added again.
             If instr(all_dail_array, "*" & dail_string & "*") then
-                If dail_type = "HIRE" then
+                If dail_type = "HIRE" and (dail_to_decimate = "ALL" or dail_to_decimate = "INFO") then
                     capture_message = True
+
+					'Determine if HIRE message is over 12 months old
+					dail_month_date = replace(dail_month, " ", "/01/20")
+					dail_month_date = dateadd("m", 1, dail_month_date)
+					dail_months_old = DateDiff("m", dail_month_date, this_month_date)
+
+					If dail_months_old > 12 Then
+						If Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
+							actionable_dail = False
+						ElseIf Instr(dail_msg, "NDNH") or Instr(dail_msg, "JOB DETAILS FOR  ") Then
+							If InStr(hire_messages_to_skip, "*" & MAXIS_case_number & full_dail_msg & "*") Then
+								capture_message = False 
+							ElseIf InStr(hire_messages_to_skip, "*" & MAXIS_case_number & full_dail_msg & "*") = 0 Then
+
+								'Reset variables
+								date_hired = ""
+								HIRE_employer_name = ""
+								priv_case_escape = 1
+								hire_match = ""
+								full_dail_msg_case_number_only  = ""
+								full_dail_msg = ""
+								full_dail_date_hired = ""
+								full_dail_state = ""
+								full_dail_msg_line_1 = ""
+								full_dail_msg_line_2 = ""
+								full_dail_msg_line_3 = ""
+								full_dail_msg_line_4 = ""
+
+								'Enters “X” on DAIL message to open full message. 
+								Call write_value_and_transmit("X", dail_row, 3)
+
+								'Read entire DAIL message
+								EMReadScreen full_dail_msg_line_1, 60, 9, 5
+								full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+								EMReadScreen full_dail_msg_line_2, 60, 10, 5
+								full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+								EMReadScreen full_dail_msg_line_3, 60, 11, 5
+								full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+								EMReadScreen full_dail_msg_line_4, 60, 12, 5
+								full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+
+								full_dail_msg = trim(full_dail_msg_case_number & " " & full_dail_msg_case_name & " " & full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4)
+
+								'Reads MAXIS case number for use in clearing INFC
+								EMReadScreen full_dail_msg_case_number_only, 12, 6, 57
+								full_dail_msg_case_number_only = trim(full_dail_msg_case_number_only)
+
+								'Read the NDNH message to find the date hired and convert to MM/DD/YY format
+								row = 1
+								col = 1
+								EMSearch "DATE HIRED   :", row, col
+								EMReadScreen full_dail_date_hired, 10, row, col + 15
+								If full_dail_date_hired = "  -  -  EM" OR full_dail_date_hired = "UNKNOWN  E" then
+									hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*" 
+									transmit 'Transmit out of HIRE message popup
+								Else
+									full_dail_date_hired = trim(full_dail_date_hired)
+									full_dail_date_hired = Left(full_dail_date_hired, 6) & Right(full_dail_date_hired, 2)
+
+									If Instr(dail_msg, "NDNH") Then
+										'Read the state of employment
+										row = 1
+										col = 1
+										EMSearch "NDNH MEMB", row, col
+										EMReadScreen full_dail_state, 2, row, col + 17
+										full_dail_state = trim(full_dail_state)
+
+									ElseIf Instr(dail_msg, "JOB DETAILS FOR  ") Then
+										'Read the state of employment
+										row = 1
+										col = 1
+										EMReadScreen dail_msg_line_1, 74, 9, 5
+										dail_msg_line_1 = trim(dail_msg_line_1)
+										full_dail_state_array = split(dail_msg_line_1, " ")
+										full_dail_state = full_dail_state_array(2)
+									End If
+
+									'Read NDNH message employer
+									row = 1
+									col = 1
+									EMSearch "EMPLOYER: ", row, col
+									EMReadScreen full_dail_employer_full_name, 20, row, col + 10
+									full_dail_employer_full_name = trim(full_dail_employer_full_name)
+									
+									'Transmit back to DAIL message
+									transmit
+
+									'Navigate to INFC, includes handling to return to DAIL and skip if case is privileged
+									Call write_value_and_transmit("I", dail_row, 3)
+									EmReadScreen infc_screen_check, 4, 2, 45
+									If infc_screen_check <> "INFC" Then
+										EmReadScreen self_screen_check, 4, 2, 50
+										If self_screen_check = "SELF" Then
+											EMReadScreen privileged_check, 22, 24, 2
+											If privileged_check = "YOU ARE NOT PRIVILEGED" Then
+												EMWriteScreen "DAIL", 16, 43
+												EMWriteScreen "________", 18, 43
+												EMWriteScreen priv_case_escape, 18, 43
+												EMWriteScreen cm_mo, 20, 43
+												EMWriteScreen CM_yr, 20, 46
+												EMWriteScreen "DAIL", 21, 70
+												transmit
+												EMReadScreen invalid_case_check, 12, 24, 2
+												If invalid_case_check = "INVALID CASE" Then
+													Do
+														priv_case_escape = priv_case_escape + 1
+														EMWriteScreen priv_case_escape, 18, 43
+														transmit
+														EMReadScreen privileged_check, 22, 24, 2
+														If privileged_check <> "INVALID CASE" Then Exit Do
+													Loop
+												End If
+											End If
+										End If
+
+										
+										If dail_to_decimate = "ALL" Then
+											EMWriteScreen worker, 21, 6
+											transmit
+											EMWriteScreen "X", 4, 12
+											transmit
+											EMWriteScreen "X", 7, 39
+											EMWriteScreen "_", 8, 39
+											EMWriteScreen "_", 9, 39
+											EMWriteScreen "_", 10, 39
+											EMWriteScreen "_", 11, 39
+											EMWriteScreen "_", 12, 39
+											EMWriteScreen "_", 13, 39
+											EMWriteScreen "_", 14, 39
+											EMWriteScreen "_", 15, 39
+											EMWriteScreen "_", 16, 39
+											EMWriteScreen "_", 17, 39
+											EMWriteScreen "_", 18, 39
+											EMWriteScreen "_", 19, 39
+											EMWriteScreen "_", 20, 39
+											transmit
+										ElseIf dail_to_decimate = "INFO" Then
+											EMWriteScreen worker, 21, 6
+											transmit
+											EMWriteScreen "X", 4, 12
+											transmit
+											EMWriteScreen "_", 7, 39
+											EMWriteScreen "_", 8, 39
+											EMWriteScreen "_", 9, 39
+											EMWriteScreen "_", 10, 39
+											EMWriteScreen "_", 11, 39
+											EMWriteScreen "_", 12, 39
+											EMWriteScreen "X", 13, 39
+											EMWriteScreen "_", 14, 39
+											EMWriteScreen "_", 15, 39
+											EMWriteScreen "_", 16, 39
+											EMWriteScreen "_", 17, 39
+											EMWriteScreen "_", 18, 39
+											EMWriteScreen "_", 19, 39
+											EMWriteScreen "_", 20, 39
+											transmit
+										End If
+										
+										'Skip this case moving forward
+										hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+				
+									Else
+				
+										EMReadScreen SSN_present_check, 9, 3, 63
+										If SSN_present_check = "_________" Then 
+											PF3 'Back to DAIL
+											'Checks if SSN carried forward, if not, it will skip the case moving forward
+											hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+				
+										Else
+											
+											'Navigate to HIRE interface
+											Call write_value_and_transmit("HIRE", 20, 71)
+				
+											'Handling to ensure script navigated to INFC/HIRE, if not script will end
+											EMReadScreen infc_hire_check, 8, 2, 50
+											If InStr(infc_hire_check, "HIRE") = 0 Then 
+												hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+											Else
+
+												'checking for IRS non-disclosure agreement.
+												EMReadScreen agreement_check, 9, 2, 24
+												IF agreement_check = "Automated" THEN 
+													script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+												End If
+												'Navigate through the interface panel to find the matching employer
+												row = 9
+												DO
+													EMReadScreen infc_case_number, 8, row, 5
+													infc_case_number = trim(infc_case_number)
+													IF infc_case_number = full_dail_msg_case_number_only THEN
+														EMReadScreen infc_employer, 20, row, 36
+														infc_employer = trim(infc_employer)
+														IF trim(infc_employer) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
+														IF infc_employer = full_dail_employer_full_name THEN
+															EMReadScreen known_by_agency, 1, row, 61
+															IF known_by_agency = " " THEN
+																EmReadscreen infc_hire_date, 8, row, 20
+																EmReadscreen infc_hire_state, 2, row, 31
+																infc_hire_state = trim(infc_hire_state)
+																If infc_hire_state = "" Then
+																	If infc_hire_date = full_dail_date_hired Then
+																		hire_match = TRUE
+																		match_row = row
+																		EXIT DO
+																	End IF
+																ElseIf infc_hire_state <> "" Then
+																	If infc_hire_state = full_dail_state AND infc_hire_date = full_dail_date_hired Then
+																		hire_match = TRUE
+																		match_row = row
+																		EXIT DO
+																	End If
+																End If
+															END IF
+														END IF
+													END IF
+													row = row + 1
+													IF row = 19 THEN
+														PF8
+														EmReadscreen end_of_list, 9, 24, 14
+														If end_of_list = "LAST PAGE" Then Exit Do
+														row = 9
+													END IF
+												LOOP UNTIL infc_case_number = ""
+					
+												IF hire_match <> TRUE THEN 
+													'Script failed to clear INFC match, will skip case number moving forward
+													hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+												ElseIf hire_match = TRUE Then
+													'entering the INFC/HIRE match '
+													Call write_value_and_transmit("U", match_row, 3)
+													EMReadscreen panel_check, 4, 2, 49
+													IF panel_check <> "NHMD" THEN 
+														'Unable to clear match
+														hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+													Else
+														EMWriteScreen "Y", 16, 54
+														'Agency action must be blank
+														TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+														TRANSMIT 'this confirms the cleared status'
+														PF3
+														EMReadscreen cleared_confirmation, 1, match_row, 61
+														IF cleared_confirmation = " " THEN 
+															'Message failed to clear
+															hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*" 
+														ElseIf cleared_confirmation <> " " THEN 
+															'The total DAILs decreased by 1, message deleted successfully
+															actionable_dail = False
+															'To do - confirm if necessary to subtract from dail_row
+															dail_row = dail_row - 1
+														End If
+													End If
+												End If
+					
+												PF3' this takes us back to DAIL/DAIL
+												EMReadScreen dail_panel_check, 8, 2, 46
+												If InStr(dail_panel_check, "DAIL") = 0 Then 
+													PF3
+													EMReadScreen dail_panel_check, 8, 2, 46
+													If InStr(dail_panel_check, "DAIL") = 0 Then 
+														PF3
+														EMReadScreen dail_panel_check, 8, 2, 46
+														If InStr(dail_panel_check, "DAIL") = 0 Then
+															script_end_procedure("Unable to navigate to back to DAIL.")
+														End If
+													End IF
+												End If
+					
+												EMReadScreen infc_clear_error, 40, 24, 2
+												EMReadScreen no_ssn_match_error, 15, 24, 5
+												infc_clear_error = trim(infc_clear_error)
+												EmReadScreen dail_empty_check, 10, 3, 67
+												dail_empty_check = trim(dail_empty_check)
+												
+												If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") and dail_empty_check = "" Then
+													'Handling for instances where the DAIL is blank after removing a NDNH message
+													PF5
+					
+													'To do - use DAIL/PICK function
+													Call dail_pick_selection
+													
+												End If
+											End If
+										End If
+									End If
+								End If
+							End If
+						End If
+					End If
                 Else
                     capture_message = False
 					false_count = false_count + 1
                 End if
             else
-                capture_message = True
+				If dail_type = "HIRE" and (dail_to_decimate = "ALL" or dail_to_decimate = "INFO") then
+                    capture_message = True
+
+					'Determine if HIRE message is over 12 months old
+					dail_month_date = replace(dail_month, " ", "/01/20")
+					dail_month_date = dateadd("m", 0, dail_month_date)
+					dail_months_old = DateDiff("m", dail_month_date, this_month_date)
+
+					If dail_months_old > 12 Then
+						If Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
+							actionable_dail = False
+						ElseIf Instr(dail_msg, "NDNH") or Instr(dail_msg, "JOB DETAILS FOR  ") Then
+							If InStr(hire_messages_to_skip, "*" & MAXIS_case_number & full_dail_msg & "*") Then
+								capture_message = False 
+							ElseIf InStr(hire_messages_to_skip, "*" & MAXIS_case_number & full_dail_msg & "*") = 0 Then
+
+								'Reset variables
+								date_hired = ""
+								HIRE_employer_name = ""
+								priv_case_escape = 1
+								hire_match = ""
+								full_dail_msg_case_number_only  = ""
+								full_dail_msg = ""
+								full_dail_date_hired = ""
+								full_dail_state = ""
+								full_dail_msg_line_1 = ""
+								full_dail_msg_line_2 = ""
+								full_dail_msg_line_3 = ""
+								full_dail_msg_line_4 = ""
+
+								'Enters “X” on DAIL message to open full message. 
+								Call write_value_and_transmit("X", dail_row, 3)
+
+								'Read entire DAIL message
+								EMReadScreen full_dail_msg_line_1, 60, 9, 5
+								full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+								EMReadScreen full_dail_msg_line_2, 60, 10, 5
+								full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+								EMReadScreen full_dail_msg_line_3, 60, 11, 5
+								full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+								EMReadScreen full_dail_msg_line_4, 60, 12, 5
+								full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+
+								full_dail_msg = trim(full_dail_msg_case_number & " " & full_dail_msg_case_name & " " & full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4)
+
+								'Reads MAXIS case number for use in clearing INFC
+								EMReadScreen full_dail_msg_case_number_only, 12, 6, 57
+								full_dail_msg_case_number_only = trim(full_dail_msg_case_number_only)
+
+								'Read the NDNH message to find the date hired and convert to MM/DD/YY format
+								row = 1
+								col = 1
+								EMSearch "DATE HIRED   :", row, col
+								EMReadScreen full_dail_date_hired, 10, row, col + 15
+								If full_dail_date_hired = "  -  -  EM" OR full_dail_date_hired = "UNKNOWN  E" then
+									hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*" 
+									transmit 'Transmit out of HIRE message popup
+								Else
+									full_dail_date_hired = trim(full_dail_date_hired)
+									full_dail_date_hired = Left(full_dail_date_hired, 6) & Right(full_dail_date_hired, 2)
+
+									If Instr(dail_msg, "NDNH") Then
+										'Read the state of employment
+										row = 1
+										col = 1
+										EMSearch "NDNH MEMB", row, col
+										EMReadScreen full_dail_state, 2, row, col + 17
+										full_dail_state = trim(full_dail_state)
+
+									ElseIf Instr(dail_msg, "JOB DETAILS FOR  ") Then
+										'Read the state of employment
+										row = 1
+										col = 1
+										EMReadScreen dail_msg_line_1, 74, 9, 5
+										dail_msg_line_1 = trim(dail_msg_line_1)
+										full_dail_state_array = split(dail_msg_line_1, " ")
+										full_dail_state = full_dail_state_array(2)
+									End If
+
+									'Read NDNH message employer
+									row = 1
+									col = 1
+									EMSearch "EMPLOYER: ", row, col
+									EMReadScreen full_dail_employer_full_name, 20, row, col + 10
+									full_dail_employer_full_name = trim(full_dail_employer_full_name)
+									
+									'Transmit back to DAIL message
+									transmit
+
+									'Navigate to INFC, includes handling to return to DAIL and skip if case is privileged
+									Call write_value_and_transmit("I", dail_row, 3)
+									EmReadScreen infc_screen_check, 4, 2, 45
+									If infc_screen_check <> "INFC" Then
+										EmReadScreen self_screen_check, 4, 2, 50
+										If self_screen_check = "SELF" Then
+											EMReadScreen privileged_check, 22, 24, 2
+											If privileged_check = "YOU ARE NOT PRIVILEGED" Then
+												EMWriteScreen "DAIL", 16, 43
+												EMWriteScreen "________", 18, 43
+												EMWriteScreen priv_case_escape, 18, 43
+												EMWriteScreen cm_mo, 20, 43
+												EMWriteScreen CM_yr, 20, 46
+												EMWriteScreen "DAIL", 21, 70
+												transmit
+												EMReadScreen invalid_case_check, 12, 24, 2
+												If invalid_case_check = "INVALID CASE" Then
+													Do
+													priv_case_escape = priv_case_escape + 1
+														EMWriteScreen priv_case_escape, 18, 43
+														transmit
+														EMReadScreen privileged_check, 22, 24, 2
+														If privileged_check <> "INVALID CASE" Then Exit Do
+													Loop
+												End If
+											End If
+										End If
+
+										'Get back to ALL or HIRE messages for current X number
+										If dail_to_decimate = "ALL" Then
+											EMWriteScreen worker, 21, 6
+											transmit
+											EMWriteScreen "X", 4, 12
+											transmit
+											EMWriteScreen "X", 7, 39
+											EMWriteScreen "_", 8, 39
+											EMWriteScreen "_", 9, 39
+											EMWriteScreen "_", 10, 39
+											EMWriteScreen "_", 11, 39
+											EMWriteScreen "_", 12, 39
+											EMWriteScreen "_", 13, 39
+											EMWriteScreen "_", 14, 39
+											EMWriteScreen "_", 15, 39
+											EMWriteScreen "_", 16, 39
+											EMWriteScreen "_", 17, 39
+											EMWriteScreen "_", 18, 39
+											EMWriteScreen "_", 19, 39
+											EMWriteScreen "_", 20, 39
+											transmit
+										ElseIf dail_to_decimate = "INFO" Then
+											EMWriteScreen worker, 21, 6
+											transmit
+											EMWriteScreen "X", 4, 12
+											transmit
+											EMWriteScreen "_", 7, 39
+											EMWriteScreen "_", 8, 39
+											EMWriteScreen "_", 9, 39
+											EMWriteScreen "_", 10, 39
+											EMWriteScreen "_", 11, 39
+											EMWriteScreen "_", 12, 39
+											EMWriteScreen "X", 13, 39
+											EMWriteScreen "_", 14, 39
+											EMWriteScreen "_", 15, 39
+											EMWriteScreen "_", 16, 39
+											EMWriteScreen "_", 17, 39
+											EMWriteScreen "_", 18, 39
+											EMWriteScreen "_", 19, 39
+											EMWriteScreen "_", 20, 39
+											transmit
+										End If
+
+										'Skip this case moving forward
+										hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+				
+									Else
+				
+										EMReadScreen SSN_present_check, 9, 3, 63
+										If SSN_present_check = "_________" Then 
+											PF3 'Back to DAIL
+											'Checks if SSN carried forward, if not, it will skip the case moving forward
+											hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+				
+										Else
+											
+											'Navigate to HIRE interface
+											Call write_value_and_transmit("HIRE", 20, 71)
+				
+											'Handling to ensure script navigated to INFC/HIRE, if not script will end
+											EMReadScreen infc_hire_check, 8, 2, 50
+											If InStr(infc_hire_check, "HIRE") = 0 Then 
+												hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+											Else
+
+												'checking for IRS non-disclosure agreement.
+												EMReadScreen agreement_check, 9, 2, 24
+												IF agreement_check = "Automated" THEN 
+													script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+												End If
+
+												'Navigate through the interface panel to find the matching employer
+												row = 9
+												DO
+													EMReadScreen infc_case_number, 8, row, 5
+													infc_case_number = trim(infc_case_number)
+													IF infc_case_number = full_dail_msg_case_number_only THEN
+														EMReadScreen infc_employer, 20, row, 36
+														infc_employer = trim(infc_employer)
+														IF trim(infc_employer) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
+														IF infc_employer = full_dail_employer_full_name THEN
+															EMReadScreen known_by_agency, 1, row, 61
+															IF known_by_agency = " " THEN
+																EmReadscreen infc_hire_date, 8, row, 20
+																EmReadscreen infc_hire_state, 2, row, 31
+																infc_hire_state = trim(infc_hire_state)
+																If infc_hire_state = "" Then
+																	If infc_hire_date = full_dail_date_hired Then
+																		hire_match = TRUE
+																		match_row = row
+																		EXIT DO
+																	End IF
+																ElseIf infc_hire_state <> "" Then
+																	If infc_hire_state = full_dail_state AND infc_hire_date = full_dail_date_hired Then
+																		hire_match = TRUE
+																		match_row = row
+																		EXIT DO
+																	End If
+																End If
+															END IF
+														END IF
+													END IF
+													row = row + 1
+													IF row = 19 THEN
+														PF8
+														EmReadscreen end_of_list, 9, 24, 14
+														If end_of_list = "LAST PAGE" Then Exit Do
+														row = 9
+													END IF
+												LOOP UNTIL infc_case_number = ""
+					
+												IF hire_match <> TRUE THEN 
+													'Script failed to clear INFC match, will skip case number moving forward
+													hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+												ElseIf hire_match = TRUE Then
+													'entering the INFC/HIRE match '
+													Call write_value_and_transmit("U", match_row, 3)
+													EMReadscreen panel_check, 4, 2, 49
+													IF panel_check <> "NHMD" THEN 
+														'Unable to clear match
+														hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*"
+													Else
+														EMWriteScreen "Y", 16, 54
+														'Agency action must be blank
+														TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+														TRANSMIT 'this confirms the cleared status'
+														PF3
+														EMReadscreen cleared_confirmation, 1, match_row, 61
+														IF cleared_confirmation = " " THEN 
+															'Message failed to clear
+															hire_messages_to_skip = hire_messages_to_skip & MAXIS_case_number & full_dail_msg & "*" 
+														ElseIf cleared_confirmation <> " " THEN 
+															'The total DAILs decreased by 1, message deleted successfully
+															actionable_dail = False
+															'To do - confirm if necessary to subtract from dail_row
+															dail_row = dail_row - 1
+														End If
+													End If
+												End If
+					
+												PF3' this takes us back to DAIL/DAIL
+												EMReadScreen dail_panel_check, 8, 2, 46
+												If InStr(dail_panel_check, "DAIL") = 0 Then 
+													PF3
+													EMReadScreen dail_panel_check, 8, 2, 46
+													If InStr(dail_panel_check, "DAIL") = 0 Then 
+														PF3
+														EMReadScreen dail_panel_check, 8, 2, 46
+														If InStr(dail_panel_check, "DAIL") = 0 Then
+															script_end_procedure("Unable to navigate to back to DAIL.")
+														End If
+													End IF
+												End If
+					
+												EMReadScreen infc_clear_error, 40, 24, 2
+												EMReadScreen no_ssn_match_error, 15, 24, 5
+												infc_clear_error = trim(infc_clear_error)
+												EmReadScreen dail_empty_check, 10, 3, 67
+												dail_empty_check = trim(dail_empty_check)
+												
+												If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") and dail_empty_check = "" Then
+													'Handling for instances where the DAIL is blank after removing a NDNH message
+													PF5
+					
+													'To do - use DAIL/PICK function
+													Call dail_pick_selection
+													
+												End If
+											End If
+										End If
+									End If
+								End If
+							End If
+						End If
+					End If
+				Else
+					capture_message = True
+				End If
             End if
 
 			If capture_message = True then
@@ -360,9 +947,11 @@ For each worker in worker_array
 
 			'Navigation handling for if a case is actionable or not. If actionable the dail_row needs to increment
 			If actionable_DAIL = False then
-				Call write_value_and_transmit("D", dail_row, 3)
-			    EMReadScreen other_worker_error, 13, 24, 2
-			    If other_worker_error = "** WARNING **" then transmit
+				If (dail_type = "HIRE" and Instr(dail_msg, "NDNH") = 0 and Instr(dail_msg, "JOB DETAILS FOR  ") = 0) or dail_type <> "HIRE" Then
+					Call write_value_and_transmit("D", dail_row, 3)
+					EMReadScreen other_worker_error, 13, 24, 2
+					If other_worker_error = "** WARNING **" then transmit
+				End If 
 			Elseif actionable_DAIL = True then
 				dail_row = dail_row + 1
 			End if
