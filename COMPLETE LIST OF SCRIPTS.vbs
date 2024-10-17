@@ -441,6 +441,7 @@ script_array(script_num).hot_topic_date         = #06/20/2023#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("CM Time-Limited_SNAP_Recipient 11.24", "CM Who_Is_Exempt_From_SNAP_Work_Registration 28.06.12")	
+script_array(script_num).usage_eval				= ""
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)
@@ -474,6 +475,7 @@ script_array(script_num).hot_topic_date         = #06/20/2023#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("CM Time-Limited_SNAP_Recipient 11.24", "CM Who_Is_Exempt_From_SNAP_Work_Registration 28.06.12")					'SEE Line 58 for format'
+script_array(script_num).usage_eval				= ""
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -4603,6 +4605,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("CM Time-Limited_SNAP_Recipient 11.24", "CM Who_Is_Exempt_From_SNAP_Work_Registration 28.06.12")
+script_array(script_num).usage_eval				= ""
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
