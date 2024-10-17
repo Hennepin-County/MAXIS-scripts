@@ -115,7 +115,7 @@ Function Create_List_Of_Notices
 
 			If array_counter = 0 AND notice_date = "" Then no_notices = TRUE     'This resets the notices boolean to indicate the notice type and month/year have no waiting notices
 
-			NOTICES_ARRAY(selected,    array_counter) = unchecked                'Adding the notice information to the arra
+			NOTICES_ARRAY(selected,    array_counter) = unchecked                'Adding the notice information to the array
 			NOTICES_ARRAY(information, array_counter) = notice_info & " - " & notice_date & " - Status: " & notice_stat
 			NOTICES_ARRAY(MAXIS_row,   array_counter) = memo_row
 
@@ -147,7 +147,7 @@ Function add_words_to_message(message_to_add)
             trimmed_word = trim(word)
             trimmed_word = replace(word, ";", "")
             If len(trimmed_word) + len(message_line) > 59 Then              'there are only 59 characters available in each line
-                'MsgBox "On the word ~" & trimmed_word & "~ the line was too long." & vbNewLine & "Line is currenlty ~" & message_line & "~" & vbNewLine & "The position is " & len(trimmed_word) + len(message_line)
+                'MsgBox "On the word ~" & trimmed_word & "~ the line was too long." & vbNewLine & "Line is currently ~" & message_line & "~" & vbNewLine & "The position is " & len(trimmed_word) + len(message_line)
                 ReDim Preserve array_of_msg_lines(lines_in_msg)     'increases the size of the array of lines in the message input
                 array_of_msg_lines(lines_in_msg) = message_line     'adding the combined words to the array
                 lines_in_msg = lines_in_msg + 1
@@ -171,7 +171,7 @@ Function add_words_to_message(message_to_add)
         lines_in_msg = lines_in_msg + 1
 
         'MsgBox "End of WCOM Row: " & end_of_wcom_row & vbNewLine & "Lines Used:" & lines_in_msg
-        'Adding a seperator if there is already a message in WCOM
+        'Adding a separator if there is already a message in WCOM
         If UBound(WCOM_TO_WRITE_ARRAY) = 0 AND WCOM_TO_WRITE_ARRAY(0) = "" Then
             notice_line = 0
         Else
@@ -352,7 +352,6 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
         'Making sure there is no other text entered in the WCOM area as it needs to be open to being written in.
         For wcom_row = 3 to 17
             EMReadScreen wcom_line, 60, wcom_row, 17
-            'msgBox "~" & wcom_line & "~"
             If trim(wcom_line) <> "" Then
                 PF10
                 PF3
@@ -403,10 +402,8 @@ Do
         BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
             CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
             CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-            CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-            ' CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+            CheckBox 20, 85, 195, 10, "Time-Limited Recipient Closed", TLR_closed_checkbox
             CheckBox 20, 100, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-            ' CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
             CheckBox 20, 115, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
             CheckBox 20, 150, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
             CheckBox 20, 165, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
@@ -422,8 +419,8 @@ Do
             CheckBox 10, 340, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
             CheckBox 10, 360, 100, 10, "PARIS Match - Health Care", paris_match_HC_checkbox
             ButtonGroup ButtonPressed
-                OkButton 135, 375, 50, 15
-                CancelButton 185, 375, 50, 15
+              OkButton 135, 375, 50, 15
+              CancelButton 185, 375, 50, 15
             GroupBox 15, 60, 215, 70, "ABAWD's"
             GroupBox 15, 140, 215, 145, "Other SNAP"
             GroupBox 5, 300, 230, 55, "Cash"
@@ -431,11 +428,6 @@ Do
             GroupBox 5, 50, 230, 240, "SNAP"
         EndDialog
 
-		' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
-		' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-		' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-		' CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-		' GroupBox 20, 135, 195, 60, "Banked Months"
 
         Dialog Dialog1       'running the dialog to select which WCOMs are going to be added
         cancel_confirmation
@@ -536,7 +528,7 @@ Do
               End If
               ButtonGroup ButtonPressed
                 OkButton 245, 85, 50, 15
-              Text 5, 10, 210, 10, "Missing Veifications that caused the SNAP case to be CLOSED:"
+              Text 5, 10, 210, 10, "Missing Verifications that caused the SNAP case to be CLOSED:"
               Text 15, 50, 90, 10, "Verifications were due on:"
             EndDialog
 
@@ -654,7 +646,7 @@ Do
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
             Loop until err_msg = ""
 
-            CALL add_words_to_message("Receipt of signature on application (last page signature required) has been poostponed. Return the application page with signature and date to continue to be eligible for SNAP benefits. If not received, SNAP will close on " & snap_closure_date_sig & ".")
+            CALL add_words_to_message("Receipt of signature on application (last page signature required) has been postponed. Return the application page with signature and date to continue to be eligible for SNAP benefits. If not received, SNAP will close on " & snap_closure_date_sig & ".")
         End If
 
         If inelig_student_wcoms_checkbox = checked Then
@@ -717,7 +709,7 @@ Do
               EditBox 85, 40, 50, 15, future_elig_begin_date
               ButtonGroup ButtonPressed
                 OkButton 145, 40, 50, 15
-              Text 5, 5, 185, 10, "Future Eiligibility Begin Date Request Information"
+              Text 5, 5, 185, 10, "Future Eligibility Begin Date Request Information"
               Text 25, 25, 55, 10, "Date of request:"
               Text 5, 45, 80, 10, "Requested Begin Date:"
             EndDialog
@@ -811,35 +803,8 @@ Do
             CALL add_words_to_message(abawd_exempt_child_18_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to a child(ren) under the age of 18 in the SNAP unit.")
         End If
 
-        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-        ' If abawd_child_6_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
-        '     'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        '     Dialog1 = ""
-        '     BeginDialog Dialog1, 0, 0, 235, 65, "WCOM Details"
-        '       DropListBox 60, 20, 135, 15, client_dropdown, abawd_exempt_child_6_name
-        '       ButtonGroup ButtonPressed
-        '         OkButton 145, 45, 50, 15
-        '       Text 5, 5, 220, 10, "Client exempt from ABAWD due to child 6 or under in the SNAP Unit."
-        '       Text 5, 25, 50, 10, "Client Name:"
-        '     EndDialog
-
-        '     Do                          'displaying the dialog and ensuring that all required information is entered
-        '         err_msg = ""
-
-        '         Dialog Dialog1
-        '         cancel_confirmation
-
-        '         If abawd_exempt_child_6_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that is using child under 6 years exemption."
-        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        '     Loop until err_msg = ""
-
-        '     abawd_exempt_child_6_name = right(abawd_exempt_child_6_name, len(abawd_exempt_child_6_name)-5)
-        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        '     CALL add_words_to_message(abawd_exempt_child_6_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to caring for a child under the age of 6.")
-        ' End If
-
         If voluntary_quit_wcom_checkbox = checked Then
-
+            
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 246, 80, "WCOM Details"
               DropListBox 85, 20, 150, 45, client_dropdown, vol_quit_name
@@ -857,7 +822,7 @@ Do
                 Dialog Dialog1
                 cancel_confirmation
 
-                If vol_quit_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the name of the client whole coluntarily quit."
+                If vol_quit_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the name of the client that voluntarily quit."
                 If vol_quit_sanction_reason = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the reason for the voluntary quit sanction."
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
             Loop until err_msg = ""
@@ -865,39 +830,34 @@ Do
             vol_quit_name = right(vol_quit_name, len(vol_quit_name)-5)
 
             CALL add_words_to_message(vol_quit_name & " is sanctioned from SNAP because they have " & vol_quit_sanction_reason & ". They are sanctioned until they return to the same job, they accept similar employment or they become exempt from work registration for a reason other than receiving Unemployment Compensation.")
-
         End If
 
-        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-        ' If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
-        '     'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        '     Dialog1 = ""
-        '     BeginDialog Dialog1, 0, 0, 211, 80, "WCOM Details"
-        '       DropListBox 75, 20, 130, 45, client_dropdown, temp_disa_memb_name
-        '       EditBox 185, 40, 20, 15, numb_disa_mos
-        '       ButtonGroup ButtonPressed
-        '         OkButton 155, 60, 50, 15
-        '       Text 5, 5, 120, 10, "DISA indicated on form from Doctor"
-        '       Text 10, 25, 60, 10, "Disabled Member"
-        '       Text 80, 45, 105, 10, "Number of months of disability"
-        '     EndDialog
+        'TLR Approved 
+        last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_of_month a string
 
-        '     Do                          'displaying the dialog and ensuring that all required information is entered
-        '         err_msg = ""
+        If TLR_closed_checkbox = checked Then
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 171, 45, "WCOM Details"
+                EditBox 115, 5, 50, 15, last_day_of_month
+                ButtonGroup ButtonPressed
+                  OkButton 115, 25, 50, 15
+                Text 5, 10, 105, 10, "Enter the SNAP date of closure:"
+            EndDialog
 
-        '         Dialog Dialog1
-        '         cancel_confirmation
+            Do                          'displaying the dialog and ensuring that all required information is entered
+                err_msg = ""
 
-        '         If temp_disa_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
-        '         If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "* Enter the number of months the disability is expected to last from the doctor's information."
-        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        '     Loop until err_msg = ""
+                Dialog Dialog1
+                cancel_confirmation
 
-        '     temp_disa_memb_name = right(temp_disa_memb_name, len(temp_disa_memb_name)-5)
-        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        '     CALL add_words_to_message(temp_disa_memb_name & " is exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
-        ' End If
+                If isdate(last_day_of_month) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date of closure."
+                If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+            Loop until err_msg = ""
 
+            abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
+            CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
+        End If
+    
         If voluntary_e_t_wcom_checkbox = checked Then
 
             Dialog1 = ""
@@ -924,12 +884,8 @@ Do
             CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
         End If
 
-        If (abawd_homeless_wcom_checkbox = checked OR banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked) AND voluntary_e_t_wcom_checkbox = unchecked THen
+        If (banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked) AND voluntary_e_t_wcom_checkbox = unchecked THen
             CALL add_words_to_message("You receive time-limited SNAP as you are an ABAWD (Able-bodied adult without dependents).")
-        End If
-
-        If abawd_homeless_wcom_checkbox = checked Then
-            CALL add_words_to_message("You previously reported that you are homeless, specifically defined for this purpose as lacking both:; *Fixed/regular nighttime residence (inc. temporary housing); *Access to work-related necessities (shower/laundry/etc.); Based on this information, you may qualify for SNAP benefits that are not time-limited. If you believe you meet the homeless and unfit for employment exemption (or any other exemption), please contact your team.")
         End If
 
         'currently no checkbox for this one - we should never be using it as client's no longer need to request banked months
@@ -972,7 +928,7 @@ Do
                 cancel_confirmation
 
                 If cash_one_program = "Select one..." Then err_msg = err_msg & vbNewLine & "* Select at least one cash program that is actually being denied."
-                If trim(cash_one_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the first cash progam is being denied."
+                If trim(cash_one_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the first cash program is being denied."
                 If cash_two_program = "Select one..." AND trim(cash_two_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the second cash program is being denied."
 
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -1124,14 +1080,9 @@ If postponed_verif_wcom_checkbox = checked Then
 	If wreg_verifs_needed <> "" Then CALL write_variable_in_CASE_NOTE("   -" & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & ".")
 End If
 If abawd_child_18_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_18_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
-'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-' If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
 If voluntary_quit_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & vol_quit_name & " is sanctioned from SNAP due to: " & vol_quit_sanction_reason & ".")
 If additional_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Verifs not provided: " & add_verifs_missing & ", which were due on " & add_verifs_due_date & ".")
-'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
-' If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & temp_disa_memb_name & " meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
 If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
-If abawd_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Information about ABAWD Exemption for homelessness.")
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
