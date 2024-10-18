@@ -55,41 +55,47 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
 call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-'Showing the case number - defining the dialog for the case number
-BeginDialog Dialog1 , 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 216, 65, "NOTES - LTC - 5181"
+  EditBox 65, 5, 45, 15, MAXIS_case_number
+  EditBox 170, 5, 40, 15, form_date
+  EditBox 65, 25, 145, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 25, 45, 50, 15
-	CancelButton 85, 45, 50, 15
+    PushButton 35, 45, 70, 15, "Script Instructions", script_instructions
+    OkButton 115, 45, 45, 15
+    CancelButton 165, 45, 45, 15
+  Text 15, 10, 45, 10, "Case number:"
+  Text 120, 10, 50, 10, "Date on 5181:"
+  Text 5, 30, 60, 10, "Worker signature:"
 EndDialog
 
-DO
+Do
 	DO
-		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog Dialog1				'main dialog
-		cancel_without_confirmation
+		err_msg = ""
+		dialog Dialog1
+		Cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		If isdate(form_date) = False then err_msg = err_msg & "* Enter a valid form date."
+        If trim(worker_signature) = "" then err_msg = err_msg & "* Sign your case note."
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B887FAA9D-2818-4F6A-8996-3746BF0EBA5A%7D&file=NOTES%20-%20LTC%20-%205181.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
+'Confirming that the footer month from the dialog matches the footer month in MAXIS
+Call MAXIS_footer_month_confirmation
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
