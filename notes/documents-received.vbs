@@ -4964,7 +4964,7 @@ If email_diet_team = TRUE Then
         email_body = email_body & worker_signature & vbCr
     End If
         
-    Call create_outlook_email("", "hp.specialdiet@hennepin.us", "", "", "Special Diet Instruction Request Received for MX Case", 1, False, "", "", False, "", email_body, False, "", True)
+    Call create_outlook_email("", "hp.specialdiet@hennepin.us", "", "", "Special Diet Instruction Request Received for MX Case - " & MAXIS_case_number, 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
 
