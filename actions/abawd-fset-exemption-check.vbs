@@ -2,7 +2,7 @@
 name_of_script = "ACTIONS - ABAWD FSET EXEMPTION CHECK.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 98                	'manual run time in seconds
+STATS_manualtime = 120                	'manual run time in seconds
 STATS_denomination = "M"       		'M is for each MEMBER
 'END OF stats block=========================================================================================================
 
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/16/2024", "Updated exemption finder to include all current Time-Limited and Work Rules exemptions, and updated user experience (no longer need to select HH members, increased readability, etc.).", "Ilse Ferris, Hennepin County")
 call changelog_update("08/19/2019", "Updated script so that if started from the ABAWD Tracking Record pop-up on WREG, the script will read where the cursor is placed in the tracking record and if placed on a specific month, the script will autofill that footer month.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated universal ABWAWD function.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/25/2018", "Updated SCHL exemption coding.", "Ilse Ferris, Hennepin County")
@@ -55,9 +56,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'The script----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS, and grabbing the case number and current footer month/year
+'----------------------------------------------------------------------------------------------------The Script
 EMConnect ""
+Call check_for_MAXIS(False)
 
 EMReadScreen are_we_at_ABAWD_tracking_record, 8, 1, 71
 If are_we_at_ABAWD_tracking_record = "FMCDJAMF" Then
@@ -111,31 +112,85 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 166, 70, "Case number dialog"
-  EditBox 65, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 130, 25, 30, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 221, 50, "ACTIONS - ABAWD FSET EXEMPTION CHECK"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 170, 5, 20, 15, MAXIS_footer_month
+  EditBox 195, 5, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 35, 50, 50, 15
-    CancelButton 95, 50, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 100, 30, 25, 10, "Year:"
+    PushButton 20, 30, 80, 15, "Script Instructions", script_instructions
+    OkButton 120, 30, 45, 15
+    CancelButton 170, 30, 45, 15
+  Text 105, 10, 65, 10, "Footer month/year:"
+  Text 5, 10, 45, 10, "Case number:"
 EndDialog
+
 Do
 	DO
 		err_msg = ""
 		dialog Dialog1
-		cancel_confirmation
+		Cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+        If ButtonPressed = script_instructions then 
+            call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ABAWD%20FSET%20EXEMPTION%20CHECK.docx")
+            err_msg = "LOOP" & err_msg
+        End if
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Call check_for_MAXIS(False)
 'Confirming that the footer month from the dialog matches the footer month in MAXIS
 Call MAXIS_footer_month_confirmation
 Call ABAWD_FSET_exemption_finder
 
-script_end_procedure("")
+script_end_procedure_with_error_report("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/16/2024
+'--Tab orders reviewed & confirmed----------------------------------------------10/16/2024
+'--Mandatory fields all present & Reviewed--------------------------------------10/16/2024
+'--All variables in dialog match mandatory fields-------------------------------10/16/2024
+'--Review dialog names for content and content fit in dialog--------------------10/16/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------10/16/2024
+'--Create a button to reference instructions------------------------------------10/16/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/16/2024-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/16/2024-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/16/2024-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used ----10/16/2024-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/16/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/16/2024-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/16/2024-------------------In function
+'--Out-of-County handling reviewed----------------------------------------------10/16/2024-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/16/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------10/16/2024-------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/16/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/16/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------10/16/2024-----------------In function
+'--Denomination reviewed -------------------------------------------------------10/16/2024
+'--Script name reviewed---------------------------------------------------------10/16/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/16/2024-----------------In function
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/16/2024
+'--comment Code-----------------------------------------------------------------10/16/2024
+'--Update Changelog for release/update------------------------------------------10/16/2024
+'--Remove testing message boxes-------------------------------------------------10/16/2024
+'--Remove testing code/unnecessary code-----------------------------------------10/16/2024
+'--Review/update SharePoint instructions----------------------------------------10/16/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/16/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/16/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/16/2024
+'--Complete misc. documentation (if applicable)---------------------------------10/16/2024
+'--Update project team/issue contact (if applicable)----------------------------10/16/2024
