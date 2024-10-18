@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/17/2024", "Updated IMIG nationalities", "Megan Geissler, Hennepin County")
 Call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -134,7 +135,7 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Immigration Status"
  DropListBox 60, 35, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 LPR"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"US Citizen", immig_status_dropdown
  DropListBox 60, 55, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 None"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"N/A", LPR_status_dropdown
  DropListBox 255, 35, 95, 15, "Select One:"+chr(9)+"SAVE Primary"+chr(9)+"SAVE Secondary"+chr(9)+"Alien Card"+chr(9)+"Passport/Visa"+chr(9)+"Re-Entry Prmt"+chr(9)+"INS Correspondence"+chr(9)+"Other Document"+chr(9)+"Certificate of Naturalization"+chr(9)+"No Ver Prvd", status_verification
- DropListBox 255, 55, 95, 15, "Select One:"+chr(9)+"AA Amerasian"+chr(9)+"EH Ethnic Chinese"+chr(9)+"EL Ethnic Lao"+chr(9)+"HG Hmong"+chr(9)+"KD Kurd"+chr(9)+"SJ Soviet Jew"+chr(9)+"TT Tinh"+chr(9)+"AF Afghanistan"+chr(9)+"BK Bosnia"+chr(9)+"CB Cambodia"+chr(9)+"CH China"+chr(9)+"CU Cuba"+chr(9)+"ES El Salvador"+chr(9)+"ER Eritrea"+chr(9)+"ET Ethiopia"+chr(9)+"GT Guatemala"+chr(9)+"HA Haiti"+chr(9)+"HO Honduras"+chr(9)+"IR Iran"+chr(9)+"IZ Iraq"+chr(9)+"LI Liberia"+chr(9)+"MC Micronesia"+chr(9)+"MI Marshall Islands"+chr(9)+"MX Mexico"+chr(9)+"WA Namibia"+chr(9)+"PK Pakistan"+chr(9)+"RP Philippines"+chr(9)+"PL Poland"+chr(9)+"RO Romania"+chr(9)+"RS Russia"+chr(9)+"SO Somalia"+chr(9)+"SF South Africa"+chr(9)+"TH Thailand"+chr(9)+"VM Vietnam"+chr(9)+"OT All Others", nationality_dropdown
+ DropListBox 255, 55, 95, 15, "Select One:"+chr(9)+"AA Amerasian"+chr(9)+"EH Ethnic Chinese"+chr(9)+"EL Ethnic Lao"+chr(9)+"HG Hmong"+chr(9)+"KA Karen"+chr(9)+"KD Kurd"+chr(9)+"OR Oromo"+chr(9)+"PL Palestinian"+chr(9)+"SJ Soviet Jew"+chr(9)+"TI Tibetan"+chr(9)+"TT Tinh"+chr(9)+"AF Afghanistan"+chr(9)+"BK Bosnia"+chr(9)+"CA Canada"+chr(9)+"CB Cambodia"+chr(9)+"CH China"+chr(9)+"CU Cuba"+chr(9)+"DC DR Congo"+chr(9)+"EC Ecuador"+chr(9)+"ES El Salvador"+chr(9)+"ER Eritrea"+chr(9)+"ET Ethiopia"+chr(9)+"GT Guatemala"+chr(9)+"HA Haiti"+chr(9)+"HO Honduras"+chr(9)+"IN India"+chr(9)+"IR Iran"+chr(9)+"IZ Iraq"+chr(9)+"KE Kenya"+chr(9)+"LI Liberia"+chr(9)+"MC Micronesia"+chr(9)+"MI Marshall Islands"+chr(9)+"MX Mexico"+chr(9)+"MY Myanmar (Burma)"+chr(9)+"NI Nicaragua"+chr(9)+"NG Nigeria"+chr(9)+"WA Namibia"+chr(9)+"PA Palau"+chr(9)+"PK Pakistan"+chr(9)+"RP Philippines"+chr(9)+"PL Poland"+chr(9)+"RO Romania"+chr(9)+"RS Russia"+chr(9)+"SO Somalia"+chr(9)+"SF South Africa"+chr(9)+"SS South Sudan"+chr(9)+"SU Sudan"+chr(9)+"SY Syria"+chr(9)+"TH Thailand"+chr(9)+"UK Ukraine"+chr(9)+"VE Venezuela"+chr(9)+"VM Vietnam"+chr(9)+"OT All Others", nationality_dropdown
  DropListBox 255, 75, 95, 15, "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document"+chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"+chr(9)+"No Ver Prvd", immig_doc_type
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
@@ -423,27 +424,40 @@ IF case_note_only_checkbox <> CHECKED THEN
     	IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
     	IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
     	IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
+    	IF nationality_dropdown = "KA Karen" THEN nationality_status = "KA"
     	IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
+    	IF nationality_dropdown = "OR Oromo" THEN nationality_status = "OR"
+    	IF nationality_dropdown = "PL Palestinian" THEN nationality_status = "PL"
     	IF nationality_dropdown = "SJ Soviet Jew" THEN nationality_status = "SJ"
+    	IF nationality_dropdown = "TI Tibetan" THEN nationality_status = "TI"
     	IF nationality_dropdown = "TT Tinh" THEN nationality_status = "TT"
     	IF nationality_dropdown = "AF Afghanistan" THEN nationality_status = "AF"
     	IF nationality_dropdown = "BK Bosnia" THEN nationality_status = "BK"
+    	IF nationality_dropdown = "CA Canada" THEN nationality_status = "CA"
     	IF nationality_dropdown = "CB Cambodia" THEN nationality_status = "CB"
     	IF nationality_dropdown = "CH China Mainland" THEN nationality_status = "CH"
     	IF nationality_dropdown = "CU Cuba" THEN nationality_status = "CU"
+    	IF nationality_dropdown = "DC DR Congo" THEN nationality_status = "DC"
+    	IF nationality_dropdown = "EC Ecuador" THEN nationality_status = "EC"
     	IF nationality_dropdown = "ES El Salvador" THEN nationality_status = "ES"
     	IF nationality_dropdown = "ER Eritrea" THEN nationality_status = "ER"
     	IF nationality_dropdown = "ET Ethiopia" THEN nationality_status = "ET"
     	IF nationality_dropdown = "GT Guatemala" THEN nationality_status = "GT"
     	IF nationality_dropdown = "HA Haiti" THEN nationality_status = "HA"
     	IF nationality_dropdown = "HO Honduras" THEN nationality_status = "HO"
+    	IF nationality_dropdown = "IN India" THEN nationality_status = "IN"
     	IF nationality_dropdown = "IR Iran" THEN nationality_status = "IR"
     	IF nationality_dropdown = "IZ Iraq" THEN nationality_status = "IZ"
+    	IF nationality_dropdown = "KE Kenya" THEN nationality_status = "KE"
     	IF nationality_dropdown = "LI Liberia" THEN nationality_status = "LI"
     	IF nationality_dropdown = "MC Micronesia" THEN nationality_status = "MC"
     	IF nationality_dropdown = "MI Marshall Islands" THEN nationality_status = "MI"
     	IF nationality_dropdown = "MX Mexico" THEN nationality_status = "MX"
+    	IF nationality_dropdown = "MY Myanmar (Burma)" THEN nationality_status = "MY"
+    	IF nationality_dropdown = "NI Nicaragua" THEN nationality_status = "NI"
+    	IF nationality_dropdown = "NG Nigeria" THEN nationality_status = "NG"
     	IF nationality_dropdown = "WA Namibia" THEN nationality_status = "WA"
+    	IF nationality_dropdown = "PA Palau" THEN nationality_status = "PA"
     	IF nationality_dropdown = "PK Pakistan" THEN nationality_status = "PK"
     	IF nationality_dropdown = "RP Philippines" THEN nationality_status = "RP"
     	IF nationality_dropdown = "PL Poland" THEN nationality_status = "PL"
@@ -451,7 +465,12 @@ IF case_note_only_checkbox <> CHECKED THEN
     	IF nationality_dropdown = "RS Russia" THEN nationality_status = "RS"
     	IF nationality_dropdown = "SO Somalia" THEN nationality_status = "SO"
     	IF nationality_dropdown = "SF South Africa" THEN nationality_status = "SF"
+    	IF nationality_dropdown = "SS South Sudan" THEN nationality_status = "SS"
+    	IF nationality_dropdown = "SU Sudan" THEN nationality_status = "SU"
+    	IF nationality_dropdown = "SY Syria" THEN nationality_status = "SY"
     	IF nationality_dropdown = "TH Thailand" THEN nationality_status = "TH"
+    	IF nationality_dropdown = "UK Ukraine" THEN nationality_status = "UK"
+    	IF nationality_dropdown = "VE Venezuela" THEN nationality_status = "VE"
     	IF nationality_dropdown = "VM Vietnam" THEN nationality_status = "VM"
     	IF nationality_dropdown = "OT All Others" THEN nationality_status = "OT"
     	EMWriteScreen nationality_status, 10, 45
