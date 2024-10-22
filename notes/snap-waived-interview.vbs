@@ -8926,6 +8926,9 @@ msg_show_quick_start_guide_btn = 106
 msg_show_faq_btn = 107
 interpreter_servicves_btn = 108
 
+
+msgbox "                       SNAP Waived Interview Expires Oct 31st" & VBCR & "--------------------------------------------------------------------------------------" & VBCR & VBCR & "Starting Nov 1st all SNAP applications will require an interview." & VBCR & "NOTES - Interview Script supports documenting an interview. "
+
 'Showing the case number dialog
 If SNAP_Waived_interview_return_contact_needed <> True Then		'if this script was redirected from Client Contact, we do not need the initial dialog, we already have CASE Number, Worker Signature, and can automatically select the form type - skipping the initial dialog
 
