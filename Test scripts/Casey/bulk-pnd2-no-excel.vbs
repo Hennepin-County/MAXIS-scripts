@@ -78,7 +78,8 @@ ReDim PND2_ARRAY(pnd2_last_const, 0)
 get_county_code
 
 'preselect the baskets for testing - to make it easier
-worker_number = "X127EE2, X127EN5, X127EG4, X127ED8, X127EH8, X127EQ3, X127EQ2, X127ET9, X127ET8, X127ES8, X127ES3, X127EP6, X127EP7, X127EP8"
+' worker_number = "X127EE2, X127EN5, X127EG4, X127ED8, X127EH8, X127EQ3, X127EQ2, X127ET9, X127ET8, X127ES8, X127ES3, X127EP6, X127EP7, X127EP8"
+worker_number = "X127L1S, X127GM1, X127MG2, X127MR7, X127DC6"
 
 'Connects to BlueZone
 EMConnect ""
@@ -126,41 +127,10 @@ case_count = 0
 
 'creates an array of workers.
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
-If all_workers_check = checked then
+If all_workers_check = checked then	'WE COULD REMOVE THE ALL WORKERS OPTION FOR THE POC
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else		'If worker numbers are litsted - this will create an array of workers to check
-	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
-
-	'formatting array
-	For each x1_number in x1s_from_dialog
-		x1_number = trim(ucase(x1_number))					'Formatting the x numbers so there are no errors
-		Call navigate_to_MAXIS_screen ("REPT", "USER")		'This part will check to see if the x number entered is a supervisor of anyone
-		PF5
-		PF5
-		EMWriteScreen x1_number, 21, 12
-		transmit
-		EMReadScreen sup_id_check, 7, 7, 5					'This is the spot where the first person is listed under this supervisor
-		IF sup_id_check <> "       " Then 					'If this frist one is not blank then this person is a supervisor
-			supervisor_array = trim(supervisor_array & " " & x1_number)		'The script will add this x number to a list of supervisors
-		Else
-			If worker_array = "" then						'Otherwise this x number is added to a list of workers to run the script on
-				worker_array = trim(x1_number)
-			Else
-				worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-			End if
-		End If
-		PF3
-	Next
-
-	If supervisor_array <> "" Then 				'If there are any x numbers identified as a supervisor, the script will run the function above
-		Call create_array_of_all_active_x_numbers_by_supervisor (more_workers_array, supervisor_array)
-		workers_to_add = join(more_workers_array, ", ")
-		If worker_array = "" then				'Adding all x numbers listed under the supervisor to the worker array
-			worker_array = workers_to_add
-		Else
-			worker_array = worker_array & ", " & trim(ucase(workers_to_add))
-		End if
-	End If
+	worker_array = UCASE(worker_array)
 
 	'Split worker_array
 	worker_array = split(worker_array, ", ")
