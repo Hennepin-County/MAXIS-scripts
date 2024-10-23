@@ -4006,11 +4006,11 @@ function save_your_work()
             If verif_hc_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox - CHECKED" & vbCr & vbCr
 
 			'Emergency questions
-			script_run_lowdown = script_run_lowdown & vbCr & "Resident experiencing an emergency - " & resident_emergency_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "Type of emergency - " & emergency_type
-			script_run_lowdown = script_run_lowdown & vbCr & "Discussion of emergency with resident - " & emergency_discussion
-			script_run_lowdown = script_run_lowdown & vbCr & "Amount needed to resolve emergency - " & emergency_amount
-			script_run_lowdown = script_run_lowdown & vbCr & "Deadline to resolve emergency - " & emergency_deadline & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "EMER EXP - " & resident_emergency_yn
+			script_run_lowdown = script_run_lowdown & vbCr & "EMER TYPE - " & emergency_type
+			script_run_lowdown = script_run_lowdown & vbCr & "EMER DISCUSSION - " & emergency_discussion
+			script_run_lowdown = script_run_lowdown & vbCr & "EMER AMOUNT - " & emergency_amount
+			script_run_lowdown = script_run_lowdown & vbCr & "EMER DEADLINE - " & emergency_deadline & vbCr & vbCr
 
 			'R&R
             If DHS_4163_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_4163_checkbox - CHECKED"
