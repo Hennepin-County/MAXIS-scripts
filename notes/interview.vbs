@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/23/2024", "Added emergency questions.", "Mark Riegel, Hennepin County")
 call changelog_update("09/30/2023", "Revised rights and responsibilities dialogs.", "Megan Geissler, Hennepin County")
 call changelog_update("08/30/2023", "Updates to NOTES - Interview##~##- The script will carry over 'Interview Notes' from relevant questions into the Expedited Determination so you can reference notes already made during the script run.##~##- Additional resources around EBT Cards, including reference to the HSR Manual Accounting page.##~##- Background updates and bug fixes.##~## ##~##Please send any comments or feedback about these update to hsph.ews.bluezonescripts@hennepin.us.", "Casey Love, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
@@ -465,10 +466,19 @@ function check_for_errors(interview_questions_clear)
 		If disc_rent_amounts = "EXISTS" Then err_msg = err_msg & "~!~12^* HOUSING EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Housing Expense appear to have a discrepancy - clarify which is accurate."
 		If disc_utility_amounts = "EXISTS" Then err_msg = err_msg & "~!~12^* UTILITY EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Utility Expense appear to have a discrepancy - clarify which is accurate."
 		' If  = "" Then err_msg = err_msg & "~!~12^* TITLE ##~##   - MESSAGE"
-
-
 	End If
 
+	If EMER_on_CAF_checkbox = checked Then
+		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select one" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+			err_msg = err_msg & "~!~" & "14^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
+		End If
+	End If
+	
+	If resident_emergency_yn = "Yes" Then 
+		If trim(emergency_type) = "" or emergency_type = "Select one" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+			err_msg = err_msg & "~!~" & "14^* You indicated the resident is experiencing an emergency. You must fill out all of the fields describing the emergency."
+		End If
+	End If
 end function
 
 function define_main_dialog()
@@ -1788,8 +1798,28 @@ function define_main_dialog()
 			If discrepancies_exist = True Then btn_pos = btn_pos + 15
 			Text 505, btn_pos+2, 60, 10, "EXPEDITED"
 
-		' ElseIf page_display =  Then
+		ElseIf page_display = emergency_questions Then
+			btn_pos = 180
+			If discrepancies_exist = True and expedited_determination_needed = True Then 
+				btn_pos = btn_pos + 30
+			Else
+				btn_pos = btn_pos + 15
+			End If
+			
+			Text 505, btn_pos+2, 60, 10, "EMER Q"
 
+			GroupBox 5, 5, 475, 115, "Emergency Details"
+			Text 15, 20, 145, 10, "Is the resident experiencing an emergency?"
+			DropListBox 190, 20, 30, 15, " "+chr(9)+"Yes"+chr(9)+"No", resident_emergency_yn
+			Text 15, 40, 160, 10, "What emergency is the resident is experiencing?"
+			ComboBox 190, 40, 90, 25, "Select one"+chr(9)+"Bus Tickets"+chr(9)+"Damage Deposit"+chr(9)+"Eviction Notice"+chr(9)+"First Month's Rent"+chr(9)+"Foreclosure"+chr(9)+"Home Repairs"+chr(9)+"Moving Expenses"+chr(9)+"Previous Rent"+chr(9)+"Property Taxes"+chr(9)+"Utility Bills/Disconnect", emergency_type
+			Text 15, 65, 130, 10, "Discussion of emergency with resident:"
+			EditBox 190, 60, 120, 15, emergency_discussion
+			Text 15, 85, 170, 10, "What amount is needed to resolve the emergency?"
+			EditBox 190, 80, 45, 15, emergency_amount
+			Text 15, 105, 170, 10, "What is the deadline to resolve the emergency?"
+			EditBox 190, 100, 45, 15, emergency_deadline
+		' ElseIf page_display =  Then
 		End If
 
 		Text 485, 5, 75, 10, "---   DIALOGS   ---"
@@ -1804,6 +1834,7 @@ function define_main_dialog()
 		Text 485, 137, 10, 10, "9"
 		Text 485, 152, 10, 10, "10"
 		Text 485, 167, 10, 10, "11"
+		
 		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 		' If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
@@ -1814,7 +1845,7 @@ function define_main_dialog()
 		If page_display <> show_q_14_15 				Then PushButton 495, 105, 55, 13, "Q. 14 - 15", caf_q_14_15_btn
 		If page_display <> show_q_16_20 				Then PushButton 495, 120, 55, 13, "Q. 16 - 20", caf_q_16_20_btn
 		If page_display <> show_q_21_24 				Then PushButton 495, 135, 55, 13, "Q. 21 - 24", caf_q_21_24_btn
-
+		
 		If page_display <> show_qual 					Then PushButton 495, 150, 55, 13, "CAF QUAL Q", caf_qual_q_btn
 		If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
 		btn_pos = 180
@@ -1828,6 +1859,9 @@ function define_main_dialog()
 			If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
 			btn_pos = btn_pos + 15
 		End If
+		If page_display <> emergency_questions			Then PushButton 495, btn_pos, 55, 13, "EMER Q", emer_questions_btn
+		Text 485, btn_pos + 2, 10, 10, "14"
+
 		PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
 		PushButton 140, 365, 130, 15, "View Verifications", verif_button
 		PushButton 415, 365, 50, 15, "NEXT", next_btn
@@ -2014,19 +2048,30 @@ function dialog_movement()
 		If page_display = show_q_16_20 					Then ButtonPressed = caf_q_21_24_btn
 		If page_display = show_q_21_24 					Then ButtonPressed = caf_qual_q_btn
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
-		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
-		If discrepancies_exist = True Then
-			If page_display = show_pg_last 				Then ButtonPressed = discrepancy_questions_btn
-			If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
+		If page_display = show_pg_last 					Then 
+			If discrepancies_exist = True Then
+				ButtonPressed = discrepancy_questions_btn
+			ElseIf expedited_determination_needed = True Then
+				If expedited_determination_completed = True Then
+					ButtonPressed = emer_questions_btn
+				ElseIf expedited_determination_completed = False Then
+					ButtonPressed = expedited_determination_btn
+				End If
+			End If
+			If discrepancies_exist <> True and expedited_determination_needed <> True Then ButtonPressed = emer_questions_btn
 		End If
-		If expedited_determination_needed = True Then
-			If expedited_determination_completed = False Then
-				If discrepancies_exist = False AND page_display = show_pg_last Then ButtonPressed = expedited_determination_btn
-				If page_display = discrepancy_questions 	Then ButtonPressed = expedited_determination_btn
-			ElseIf discrepancies_exist = False AND page_display = show_pg_last Then
-				ButtonPressed = finish_interview_btn
+		If page_display = discrepancy_questions			Then
+			If expedited_determination_needed = True Then
+				If expedited_determination_completed = True Then
+					ButtonPressed = emer_questions_btn
+				ElseIf expedited_determination_completed = False Then
+					ButtonPressed = expedited_determination_btn
+				End If
+			Else
+				ButtonPressed = emer_questions_btn
 			End If
 		End If
+		If page_display = emergency_questions 					Then ButtonPressed = finish_interview_btn
 	End If
 
 	If ButtonPressed = caf_page_one_btn Then
@@ -2069,6 +2114,9 @@ function dialog_movement()
 		' page_display = expedited_determination
 		STATS_manualtime = STATS_manualtime + 150
 		call display_expedited_dialog
+	End If
+	If ButtonPressed = emer_questions_btn Then
+		page_display = emergency_questions
 	End If
 
 	If ButtonPressed = incomplete_interview_btn Then
@@ -2146,6 +2194,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					If current_listing = "10" Then tagline = ": CAF QUAL Q"
 	                If current_listing = "11" Then tagline = ": CAF Last Page"
 					If current_listing = "12" Then tagline = ": Clarifications"
+					If current_listing = "14" Then tagline = ": Emergency Questions"
 	                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 	            End If
 	            if msg_header = "" Then back_to_dialog = current_listing
@@ -2167,6 +2216,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				If page_display = show_qual 			Then page_to_review = "10"
 				If page_display = show_pg_last			Then page_to_review = "11"
 				If page_display = discrepancy_questions Then page_to_review = "12"
+				If page_display = emergency_questions	Then page_to_review = "14"
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
 				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
@@ -2183,6 +2233,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					If current_listing = "10" Then tagline = ": CAF QUAL Q"
 					If current_listing = "11" Then tagline = ": CAF Last Page"
 					If current_listing = "12" Then tagline = ": Clarifications"
+					If current_listing = "14" Then tagline = ": Emergency Questions"
 					If error_message = "" Then error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 					message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
 
@@ -2214,22 +2265,25 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		' If show_err_msg_during_movement = True AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = finish_interview_btn Then show_msg = True
-		If discrepancies_exist = True AND expedited_determination_needed = False Then
-			' MsgBox "1"
-			If page_display = discrepancy_questions Then
-				' MsgBox "2"
-				If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-			End If
-		ElseIf expedited_determination_needed = True Then
-			' MsgBox "3" & vbCr & "Page Display - ~" & page_display & "~" & vbCr & "LAST Page - ~" & show_pg_last & "~" & vbCr & "exp complete - ~" & expedited_determination_completed& "~"
-			If expedited_determination_completed = True AND page_display = show_pg_last Then
-				' MsgBox "4"
-				If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-			End If
-		ElseIf page_display = show_pg_last Then
-			' MsgBox "5"
-			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-		End If
+
+		If page_display = emergency_questions and (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
+		' If discrepancies_exist = True AND expedited_determination_needed = False Then
+		' 	' MsgBox "1"
+		' 	If page_display = discrepancy_questions Then
+		' 		' MsgBox "2"
+		' 		If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+		' 	End If
+		' ElseIf expedited_determination_needed = True Then
+		' 	' MsgBox "3" & vbCr & "Page Display - ~" & page_display & "~" & vbCr & "LAST Page - ~" & show_pg_last & "~" & vbCr & "exp complete - ~" & expedited_determination_completed& "~"
+		' 	If expedited_determination_completed = True AND page_display = show_pg_last Then
+		' 		' MsgBox "4"
+		' 		If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+		' 	End If
+		' ElseIf page_display = show_pg_last Then
+		' 	' MsgBox "5"
+		' 	If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+		' End If
+
 		' MsgBox "Page Display - " & page_display & vbCr & "disc - " & discrepancies_exist & vbCr & "exp det - " & expedited_determination_needed & vbCr & "exp complete - " & expedited_determination_completed & vbCR & "ButtonPressed - " & ButtonPressed & vbCr & "SHOW MSG - " & show_msg
 		' MsgBox "Button - " & ButtonPressed & vbCr & "Show? " & show_msg & vbCr & vbCr & "Errors: " & err_msg
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
@@ -2249,6 +2303,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
             If back_to_dialog = "11" Then ButtonPressed = caf_last_page_btn
             If back_to_dialog = "12" Then ButtonPressed = discrepancy_questions_btn
 			If back_to_dialog = "13" Then ButtonPressed = expedited_determination_btn
+			If back_to_dialog = "14" Then ButtonPressed = emer_questions_btn
 
             Call dialog_movement          'this is where the navigation happens
         End If
@@ -2800,7 +2855,7 @@ function display_expedited_dialog()
 
 	Loop until err_msg = ""
 
-	page_display = show_pg_last
+	page_display = emergency_questions
 end function
 
 Function display_exemptions() 'A message box showing exemptions from SNAP work rules
@@ -3421,6 +3476,13 @@ function save_your_work()
             If verif_emer_checkbox = checked then objTextStream.WriteLine "verif_emer_checkbox"
             If verif_hc_checkbox = checked then objTextStream.WriteLine "verif_hc_checkbox"
 
+			'Emergency questions
+			objTextStream.WriteLine "EMER EXP - " & resident_emergency_yn
+			objTextStream.WriteLine "EMER TYPE - " & emergency_type
+			objTextStream.WriteLine "EMER DISCUSSION - " & emergency_discussion
+			objTextStream.WriteLine "EMER AMOUNT - " & emergency_amount
+			objTextStream.WriteLine "EMER DEADLINE - " & emergency_deadline
+
 			'R&R
 			If DHS_4163_checkbox = checked Then objTextStream.WriteLine "DHS_4163_checkbox"
 			If DHS_3315A_checkbox = checked Then objTextStream.WriteLine "DHS_3315A_checkbox"
@@ -3942,6 +4004,13 @@ function save_your_work()
             If verif_grh_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox - CHECKED"
             If verif_emer_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_emer_checkbox - CHECKED"
             If verif_hc_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox - CHECKED" & vbCr & vbCr
+
+			'Emergency questions
+			script_run_lowdown = script_run_lowdown & vbCr & "Resident experiencing an emergency - " & resident_emergency_yn
+			script_run_lowdown = script_run_lowdown & vbCr & "Type of emergency - " & emergency_type
+			script_run_lowdown = script_run_lowdown & vbCr & "Discussion of emergency with resident - " & emergency_discussion
+			script_run_lowdown = script_run_lowdown & vbCr & "Amount needed to resolve emergency - " & emergency_amount
+			script_run_lowdown = script_run_lowdown & vbCr & "Deadline to resolve emergency - " & emergency_deadline & vbCr & vbCr
 
 			'R&R
             If DHS_4163_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "DHS_4163_checkbox - CHECKED"
@@ -4560,6 +4629,13 @@ function restore_your_work(vars_filled)
                     If text_line = "verif_grh_checkbox" Then verif_grh_checkbox = checked
                     If text_line = "verif_emer_checkbox" Then verif_emer_checkbox = checked
                     If text_line = "verif_hc_checkbox" Then verif_hc_checkbox = checked
+
+					'Emergency questions
+					If left(text_line, 11) = "EMER EXP - " Then resident_emergency_yn = Mid(text_line, 12)
+					If left(text_line, 12) = "EMER TYPE - " Then emergency_type = Mid(text_line, 13)
+					If left(text_line, 18) = "EMER DISCUSSION - " Then emergency_discussion = Mid(text_line, 19)
+					If left(text_line, 14) = "EMER AMOUNT - " Then emergency_amount = Mid(text_line, 15)
+					If left(text_line, 16) = "EMER DEADLINE - " Then emergency_deadline = Mid(text_line, 17)
 
 					'R&R
 					If text_line = "DHS_4163_checkbox" Then DHS_4163_checkbox = checked
@@ -6316,6 +6392,16 @@ function write_interview_CASE_NOTE()
 		If trim(question_24_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_24_verif_yn & ": " & question_24_verif_details)
 	End If
     If trim(question_24_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_24_interview_notes)
+
+	'If at least one field is filled in, then it will write the emergency info to case note
+	If resident_emergency_yn <> " " or trim(emergency_type) <> "" or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+		CALL write_variable_in_CASE_NOTE("-----  Emergency Questions -----")
+		CALL write_variable_in_CASE_NOTE("      Resident experiencing an emergency - " & resident_emergency_yn)
+		CALL write_variable_in_CASE_NOTE("      Type of emergency - " & emergency_type)
+		CALL write_variable_in_CASE_NOTE("      Discussion of emergency with resident - " & emergency_discussion)
+		CALL write_variable_in_CASE_NOTE("      Amount needed to resolve emergency - " & emergency_amount)
+		CALL write_variable_in_CASE_NOTE("      Deadline to resolve emergency - " & emergency_deadline)
+	End If
 
 	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
 	If edrs_match_found = True Then
@@ -8208,6 +8294,7 @@ Dim signature_detail, signature_person, signature_date, second_signature_detail,
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
+Dim resident_emergency_yn, emergency_type, emergency_discussion, emergency_amount, emergency_deadline
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
@@ -8218,7 +8305,7 @@ Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox,
 Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
-Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination
+Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination, emergency_questions
 Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
 Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
 Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
@@ -8254,6 +8341,7 @@ show_pg_last				= 11
 discrepancy_questions		= 12
 show_arep_page				= 13
 expedited_determination		= 14
+emergency_questions 		= 15
 
 
 show_exp_pg_amounts = 1
@@ -9078,6 +9166,7 @@ caf_last_page_btn			= 2300
 finish_interview_btn		= 2400
 exp_income_guidance_btn 	= 2500
 discrepancy_questions_btn	= 2600
+emer_questions_btn 			= 2605
 open_hsr_manual_transfer_page_btn = 2610
 incomplete_interview_btn	= 2700
 verif_button				= 2800
@@ -11808,6 +11897,18 @@ If trim(qual_memb_four) <> "" AND qual_memb_four <> "Select or Type" Then objSel
 objSelection.TypeText "Is anyone in your household currently violating a condition of parole, probation or supervised release?" & vbCr
 objSelection.TypeText chr(9) & qual_question_five & vbCr
 If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
+
+objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
+objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
+objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
+objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
+objSelection.TypeText chr(9) & emergency_type & vbCr
+objSelection.TypeText "Discussion of emergency with resident:" & vbCr
+objSelection.TypeText chr(9) & emergency_discussion & vbCr
+objSelection.TypeText "What amount is needed to resolve the emergency?" & vbCr
+objSelection.TypeText chr(9) & emergency_amount & vbCr
+objSelection.TypeText "What is the deadline to resolve the emergency?" & vbCr
+objSelection.TypeText chr(9) & emergency_deadline & vbCr
 
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
