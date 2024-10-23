@@ -49,6 +49,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'define the array
 const worker_numb_const	= 0
 const case_numb_const 	= 1
 const case_name_const 	= 2
@@ -76,11 +77,13 @@ ReDim PND2_ARRAY(pnd2_last_const, 0)
 'Gathering county code for multi-county...
 get_county_code
 
+'preselect the baskets for testing - to make it easier
 worker_number = "X127EE2, X127EN5, X127EG4, X127ED8, X127EH8, X127EQ3, X127EQ2, X127ET9, X127ET8, X127ES8, X127ES3, X127EP6, X127EP7, X127EP8"
 
 'Connects to BlueZone
 EMConnect ""
 
+'dialog to select the case information
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 286, 135, "Pull REPT data into Excel dialog"
   EditBox 135, 20, 145, 15, worker_number
@@ -116,12 +119,12 @@ query_start_time = timer
 'Checking for MAXIS
 Call check_for_MAXIS(True)
 
-'CREATE ARRAY HERE
 
 'Setting the variable for what's to come
 all_case_numbers_array = "*"
 case_count = 0
 
+'creates an array of workers.
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -163,6 +166,7 @@ Else		'If worker numbers are litsted - this will create an array of workers to c
 	worker_array = split(worker_array, ", ")
 End if
 
+'read REPT/PND2 for each worker in the worker array and save information into the array
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
@@ -266,7 +270,7 @@ For each worker in worker_array
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
 
-'CREATE DIALOG WITH INFO
+'CREATE statistics/counts
 total_case_count = 0
 
 snap_case_count = 0
@@ -307,6 +311,7 @@ grh_pending_over_45 = 0
 ive_case_count = 0
 ccap_case_count = 0
 
+'Read the array for each program if selected and update the counts/stats
 for each_case = 0 to UBound(PND2_ARRAY, 2)
 	total_case_count = total_case_count + 1
 	If SNAP_check = checked then
@@ -458,12 +463,7 @@ If IVE_check = checked or CC_check = checked then
 	dlg_len = dlg_len + 20
 End If
 
-
-If IVE_check = checked then
-End If
-If CC_check = checked then
-End If
-
+'display the ifnormation about the dialog
 y_pos = 25
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 371, dlg_len, "CASE COUNT"
@@ -569,7 +569,7 @@ EndDialog
 
 dialog Dialog1
 
-
+'TODO - create a way to pull specitic query information - on a loop
 
 
 call script_end_procedure("")
