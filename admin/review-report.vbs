@@ -2382,7 +2382,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 				renewal_guidance_needed = False
 				renewal_guidance_confirmed = False
 
-				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+				Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_interview)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
@@ -2424,8 +2424,8 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 				notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
 
-				' If er_with_intherview = True Then
-				If er_with_intherview = True AND MFIP_status = True Then
+				' If er_with_interview = True AND MFIP_status = True Then
+				If er_with_interview = True Then
 					'Writing the SPEC MEMO - dates will be input from the determination made earlier.
 					' MsgBox "We're writing a MEMO here"
 					Call start_a_new_spec_memo_and_continue(memo_started)
@@ -3172,7 +3172,7 @@ If renewal_option = "Send NOMIs" Then
 			' MsgBox excel_row
 			forms_to_arep = ""
 			forms_to_swkr = ""
-			er_with_intherview = False
+			er_with_interview = False
 			MFIP_status = False
 			SNAP_status = False
 			appt_notc_sent = ""
@@ -3180,7 +3180,7 @@ If renewal_option = "Send NOMIs" Then
 			caf_date_as_of_today = ""
 			' programs = ""
 
-			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_interview)
 			Call read_boolean_from_excel(ObjExcel.cells(excel_row,  6).value, MFIP_status)
 			Call read_boolean_from_excel(ObjExcel.cells(excel_row, 13).value, SNAP_status)
 
@@ -3192,8 +3192,8 @@ If renewal_option = "Send NOMIs" Then
 			send_nomi_now = False
 			in_county = True
 
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
+			If er_with_interview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
+			' If er_with_interview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
 
 			If send_nomi_now = True Then
 				If notes_info = "PRIV Case." Then send_nomi_now = False
@@ -3259,15 +3259,15 @@ If renewal_option = "Send NOMIs" Then
 					PF3
 				End If
 
-			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
+			ElseIf er_with_interview = True AND interview_date_as_of_today <> "" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "INTV Done"
-			ElseIf er_with_intherview = True AND appt_notc_sent <> "Y" Then
+			ElseIf er_with_interview = True AND appt_notc_sent <> "Y" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
-			ElseIf er_with_intherview = False Then
+			ElseIf er_with_interview = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
 			ElseIf in_county = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Out of County - " & right(curr_primary_worker, 2)
-			ElseIf er_with_intherview = True  AND MFIP_status = False Then
+			ElseIf er_with_interview = True  AND MFIP_status = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Not MFIP"
 			End If
 		End If
