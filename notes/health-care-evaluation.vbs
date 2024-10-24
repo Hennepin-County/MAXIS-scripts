@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/24/2024", "BUG FIX - updated handling for BILS dialog.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Added a reminder to review Remedial Care for any person in a type 55 or 56 Facility.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Updated the script to handle ex parte phase 1 for households with 3 or more members on health care.", "Dave Courtright, Hennepin County")
 call changelog_update("07/02/2024", "Added Asset total by member to case note.", "Megan Geissler, Hennepin County")
@@ -6685,8 +6686,11 @@ If bils_exist = True then										'if the panel exists, read the details
 		bils_row = bils_row + 1
 		If bils_row = 18 Then
 			PF20
+			EMReadScreen bils_page_number, 2, 3, 72
+			bils_page_number = trim(bils_page_number)
 			EMReadScreen end_of_list, 9, 24, 14
 			If end_of_list = "LAST PAGE" Then Exit Do
+			If bils_page_number = "3" Then Exit Do
 			bils_row = 6
 		End If
 		EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
