@@ -130,7 +130,7 @@ case_count = 0
 If all_workers_check = checked then	'WE COULD REMOVE THE ALL WORKERS OPTION FOR THE POC
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else		'If worker numbers are litsted - this will create an array of workers to check
-	worker_array = UCASE(worker_array)
+	worker_array = UCASE(worker_number)
 
 	'Split worker_array
 	worker_array = split(worker_array, ", ")
