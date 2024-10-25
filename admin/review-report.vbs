@@ -2609,6 +2609,9 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	objExcel.Columns(1).AutoFit()
 	objExcel.Columns(2).AutoFit()
 
+    'Saves and closes the main reivew report
+    objWorkbook.Save()
+
 	end_msg = "NOTICES have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel document."
 
 ElseIf renewal_option = "Create Worklist" Then
@@ -3337,6 +3340,10 @@ If renewal_option = "Send NOMIs" Then
 
 	ObjExcel.columns(4).AutoFit()
 	ObjExcel.columns(5).AutoFit()
+
+    'Saves and closes the main reivew report
+    objWorkbook.Save()
+
 	end_msg = end_msg & vbCr & vbCr & "NOMIs have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel Document"
 End If
 
