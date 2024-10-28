@@ -21349,13 +21349,13 @@ class stat_detail
 			EMReadScreen stat_memb_id_verif_code(memb_count), 2, 9, 68
 			EMReadScreen stat_memb_rel_to_applct_code(memb_count), 2, 10, 42
 			EMReadScreen ssn_prov, 1, 7, 68
-			If stat_memb_id_verif_code(memb_count) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Identidy of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			If ssn_prov = "N" Then panels_not_verif_string = panels_not_verif_string & "Social Sec Number of Memb " & stat_memb_ref_numb(memb_count) & " not provided.; "
 
 			stat_memb_age(memb_count) = trim(stat_memb_age(memb_count))
 			If stat_memb_age(memb_count) = "" Then stat_memb_age(memb_count) = 0
 			stat_memb_age(memb_count) = stat_memb_age(memb_count)*1
 			If stat_memb_age(memb_count) < 18 Then children_on_case = True
+			If stat_memb_id_verif_code(memb_count) = "NO" and stat_memb_age(memb_count) >= 18 Then panels_not_verif_string = panels_not_verif_string & "Identity of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 
 			If stat_memb_id_verif_code(memb_count) = "BC" Then stat_memb_id_verif_info(memb_count) = "Birth Certificate"
 			If stat_memb_id_verif_code(memb_count) = "RE" Then stat_memb_id_verif_info(memb_count) = "Religious Record"
