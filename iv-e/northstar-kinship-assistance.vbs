@@ -116,7 +116,7 @@ If TIKL_checkbox = checked Then
 		If DateDiff("d", memb_01_DOB, dob_for_18_today) >=0 Then		'If the DOB is before or the same as someone who turns 18 today, the child is already 18
 			end_msg = end_msg & vbCr & vbCr & "TIKL for 18 years could not be entered because it appears MEMB 01 is already 18."
 		Else
-			eighteenth_birthday = DateAdd("yyyy", 19, memb_01_DOB)		'creating a variable for the child's 18th birthday
+			eighteenth_birthday = DateAdd("yyyy", 18, memb_01_DOB)		'creating a variable for the child's 18th birthday
 			month_turns_18 = DatePart("m", eighteenth_birthday)
 			year_turns_18 = DatePart("yyyy", eighteenth_birthday)
 			TIKL_date = month_turns_18 & "/1/" & year_turns_18			'Setting a variable for the date the TIKL should be set
