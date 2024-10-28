@@ -23107,33 +23107,39 @@ class stat_detail
 				If stat_shel_prosp_subsidy_verif_code(each_memb) = "NO" Then stat_shel_prosp_subsidy_verif_info(each_memb) = "No Verif Provided"
 
 
-
 				stat_shel_prosp_rent_amount(each_memb) = trim(stat_shel_prosp_rent_amount(each_memb))
 				If stat_shel_prosp_rent_amount(each_memb) = "________" Then stat_shel_prosp_rent_amount(each_memb) = 0
+				If stat_shel_prosp_rent_amount(each_memb) = "?_______" Then stat_shel_prosp_rent_amount(each_memb) = 0
 				stat_shel_prosp_rent_amount(each_memb) = stat_shel_prosp_rent_amount(each_memb)*1
 
 				stat_shel_prosp_lot_rent_amount(each_memb) = trim(stat_shel_prosp_lot_rent_amount(each_memb))
 				If stat_shel_prosp_lot_rent_amount(each_memb) = "________" Then stat_shel_prosp_lot_rent_amount(each_memb) = 0
+				If stat_shel_prosp_lot_rent_amount(each_memb) = "?_______" Then stat_shel_prosp_lot_rent_amount(each_memb) = 0
 				stat_shel_prosp_lot_rent_amount(each_memb) = stat_shel_prosp_lot_rent_amount(each_memb)*1
 
 				stat_shel_prosp_mortgage_amount(each_memb) = trim(stat_shel_prosp_mortgage_amount(each_memb))
 				If stat_shel_prosp_mortgage_amount(each_memb) = "________" Then stat_shel_prosp_mortgage_amount(each_memb) = 0
+				If stat_shel_prosp_mortgage_amount(each_memb) = "?_______" Then stat_shel_prosp_mortgage_amount(each_memb) = 0
 				stat_shel_prosp_mortgage_amount(each_memb) = stat_shel_prosp_mortgage_amount(each_memb)*1
 
 				stat_shel_prosp_insurance_amount(each_memb) = trim(stat_shel_prosp_insurance_amount(each_memb))
 				If stat_shel_prosp_insurance_amount(each_memb) = "________" Then stat_shel_prosp_insurance_amount(each_memb) = 0
+				If stat_shel_prosp_insurance_amount(each_memb) = "?_______" Then stat_shel_prosp_insurance_amount(each_memb) = 0
 				stat_shel_prosp_insurance_amount(each_memb) = stat_shel_prosp_insurance_amount(each_memb)*1
 
 				stat_shel_prosp_taxes_amount(each_memb) = trim(stat_shel_prosp_taxes_amount(each_memb))
 				If stat_shel_prosp_taxes_amount(each_memb) = "________" Then stat_shel_prosp_taxes_amount(each_memb) = 0
+				If stat_shel_prosp_taxes_amount(each_memb) = "?_______" Then stat_shel_prosp_taxes_amount(each_memb) = 0
 				stat_shel_prosp_taxes_amount(each_memb) = stat_shel_prosp_taxes_amount(each_memb)*1
 
 				stat_shel_prosp_room_amount(each_memb) = trim(stat_shel_prosp_room_amount(each_memb))
 				If stat_shel_prosp_room_amount(each_memb) = "________" Then stat_shel_prosp_room_amount(each_memb) = 0
+				If stat_shel_prosp_room_amount(each_memb) = "?_______" Then stat_shel_prosp_room_amount(each_memb) = 0
 				stat_shel_prosp_room_amount(each_memb) = stat_shel_prosp_room_amount(each_memb)*1
 
 				stat_shel_prosp_garage_amount(each_memb) = trim(stat_shel_prosp_garage_amount(each_memb))
 				If stat_shel_prosp_garage_amount(each_memb) = "________" Then stat_shel_prosp_garage_amount(each_memb) = 0
+				If stat_shel_prosp_garage_amount(each_memb) = "?_______" Then stat_shel_prosp_garage_amount(each_memb) = 0
 				stat_shel_prosp_garage_amount(each_memb) = stat_shel_prosp_garage_amount(each_memb)*1
 
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_rent_amount(each_memb)
