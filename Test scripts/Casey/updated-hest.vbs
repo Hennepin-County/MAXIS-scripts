@@ -87,6 +87,7 @@ Do
         original_month = trim(original_month)       'cleaning up the entry here
         original_year = trim(original_year)
         If len(original_year) <> 2 or len(original_month) <> 2 Then err_msg = err_msg & vbNewLine & "* Enter a 2 digit footer month and year."          'forcing 2 digit month and year to be entered
+		If err_msg <> "" Then MsgBox "Resolve:" & vbCr & err_msg
     Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
