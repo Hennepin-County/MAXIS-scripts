@@ -1812,9 +1812,9 @@ function define_main_dialog()
 			Text 15, 20, 145, 10, "Is the resident experiencing an emergency?"
 			DropListBox 190, 20, 30, 15, " "+chr(9)+"Yes"+chr(9)+"No", resident_emergency_yn
 			Text 15, 40, 160, 10, "What emergency is the resident is experiencing?"
-			ComboBox 190, 40, 90, 25, "Select or type"+chr(9)+"Bus Tickets"+chr(9)+"Damage Deposit"+chr(9)+"Eviction Notice"+chr(9)+"First Month's Rent"+chr(9)+"Foreclosure"+chr(9)+"Home Repairs"+chr(9)+"Moving Expenses"+chr(9)+"Previous Rent"+chr(9)+"Property Taxes"+chr(9)+"Utility Bills/Disconnect"+chr(9)+emergency_type, emergency_type
+			ComboBox 190, 40, 210, 25, "Select or Type"+chr(9)+"Eviction"+chr(9)+"Forced Move"+chr(9)+"Foreclosure"+chr(9)+"Utility Disconnect"+chr(9)+"Home Repairs"+chr(9)+"Property Taxes"+chr(9)+"Bus Ticket"+chr(9)+emergency_type, emergency_type
 			Text 15, 65, 130, 10, "Discussion of emergency with resident:"
-			EditBox 190, 60, 120, 15, emergency_discussion
+			EditBox 190, 60, 210, 15, emergency_discussion
 			Text 15, 85, 170, 10, "What amount is needed to resolve the emergency?"
 			EditBox 190, 80, 45, 15, emergency_amount
 			Text 15, 105, 170, 10, "What is the deadline to resolve the emergency?"
