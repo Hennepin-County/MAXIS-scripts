@@ -6413,6 +6413,7 @@ function write_interview_CASE_NOTE()
             End If
 		Next
 	End If
+	CALL write_variable_in_CASE_NOTE("      EDRS Notes - " & edrs_notes_for_case)
 
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No verifications were indicated at this time.")
