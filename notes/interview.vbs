@@ -5368,7 +5368,7 @@ function jobs_details_dlg(this_jobs)
 			JOBS_ARRAY(jobs_notes, this_jobs) = ""
 		End If
 	Loop until ButtonPressed = return_btn
-	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select One..." Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
+	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select or Type" Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 
 end function
 
