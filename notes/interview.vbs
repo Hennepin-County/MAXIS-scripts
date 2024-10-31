@@ -5335,7 +5335,7 @@ function jobs_details_dlg(this_jobs)
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 321, 165, "Add Job"
-		  DropListBox 10, 35, 135, 45, pick_a_client+chr(9)+"", JOBS_ARRAY(jobs_employee_name, this_jobs)
+		  ComboBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
 		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
 		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
 		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
