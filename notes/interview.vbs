@@ -1984,7 +1984,10 @@ function dialog_movement()
 
 	If arep_name <> "" Then arep_exists = True
 	If ButtonPressed = update_information_btn Then
-		If page_display = show_pg_one_address Then update_addr = TRUE
+		If page_display = show_pg_one_address Then 
+			update_addr = TRUE
+			need_to_update_addr = TRUE
+		End If
 		If page_display = show_pg_memb_list Then update_pers = TRUE
 		If page_display = show_pg_last Then page_display = show_arep_page
 		' MsgBox update_arep & " - in dlg move"
@@ -3072,6 +3075,7 @@ function save_your_work()
 			objTextStream.WriteLine "ADR - RESI - CIT - " & resi_addr_city
 			objTextStream.WriteLine "ADR - RESI - STA - " & resi_addr_state
 			objTextStream.WriteLine "ADR - RESI - ZIP - " & resi_addr_zip
+			objTextStream.WriteLine "ADR - RESI - UPD - " & need_to_update_addr
 
 			objTextStream.WriteLine "ADR - RESI - RES - " & reservation_yn
 			objTextStream.WriteLine "ADR - RESI - NAM - " & reservation_name
@@ -3609,6 +3613,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - NAM - " & reservation_name
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - HML - " & homeless_yn
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - UPD - " & need_to_update_addr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - LIV - " & living_situation & vbCr & vbCr
 
@@ -4200,6 +4205,7 @@ function restore_your_work(vars_filled)
 						If mid(text_line, 7, 10) = "RESI - NAM" Then reservation_name = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "RESI - HML" Then homeless_yn = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "RESI - LIV" Then living_situation = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - UPD" Then need_to_update_addr = MID(text_line, 20)
 
 						If mid(text_line, 7, 10) = "MAIL - STR" Then mail_addr_street_full = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "MAIL - CIT" Then mail_addr_city = MID(text_line, 20)
@@ -8285,7 +8291,7 @@ Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_d
 Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details, question_24_interview_notes
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
-Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip
+Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
 Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_street, CAF_arep_addr_city, CAF_arep_addr_state, CAF_arep_addr_zip
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
@@ -8351,6 +8357,7 @@ show_exp_pg_review = 3
 
 update_addr = FALSE
 update_pers = FALSE
+need_to_update_addr = FALSE
 page_display = 1
 discrepancies_exist = False
 children_under_18_in_hh = False
@@ -9068,7 +9075,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Next
 
 	'Now we gather the address information that exists in MAXIS
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+	resi_line_one = ""
+    resi_line_two = ""
+    mail_line_one = ""
+    mail_line_two = ""
 
 	arep_in_MAXIS = False
 	arep_exists = False
@@ -9329,6 +9341,13 @@ Do
 Loop until are_we_passworded_out = FALSE
 
 Call check_for_MAXIS(False)
+
+If need_to_update_addr = "True" then need_to_update_addr = True
+If need_to_update_addr = "False" then need_to_update_addr = False
+
+If need_to_update_addr = "True" Then 
+    Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+End If
 
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
