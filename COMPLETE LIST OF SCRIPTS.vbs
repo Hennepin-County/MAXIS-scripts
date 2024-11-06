@@ -5235,6 +5235,22 @@ script_array(script_num).usage_eval				= ""
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "SDX MATCH"																		'Script name
+' script_array(script_num).description 			= "Opens a dialog with links to policy information for processing DAIL messages."
+script_array(script_num).category               = "DAIL"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Adult Cash", "Health Care", "HS/GRH", "Income", "LTC", "SNAP")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/06/2024#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("CM Interim_Assistance_Agreements 12.12.03", "Interim_Assistance_Reimbursement_Interface 02.12.14")						'SEE Line 58 for format'
+script_array(script_num).usage_eval				= ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "TPQY Response"																		'Script name
 ' script_array(script_num).description 			= "Jumps to SVES/TPQY for the case which has received a response."
 script_array(script_num).category               = "DAIL"
