@@ -1182,7 +1182,7 @@ function define_main_dialog()
 			y_pos = y_pos + 25
 
 
-			GroupBox 5, y_pos, 475, 135, "15. Does your household have the following utility expenses any time during the year? "
+			GroupBox 5, y_pos, 475, 155, "15. Does your household have the following utility expenses any time during the year? "
 			y_pos = y_pos + 15
 
 			col_1_1 = 20
@@ -1193,6 +1193,11 @@ function define_main_dialog()
 
 			col_3_1 = 335
 			col_3_2 = 380
+
+			EditBox 225, y_pos -5, 145, 15, all_persons_paying
+			Text 	20, y_pos , 210, 10, "List household members who pay utilities (separated by commas):" 
+			y_pos = y_pos + 15
+
 
 			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
 			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
@@ -3227,7 +3232,7 @@ function save_your_work()
 			objTextStream.WriteLine "14V - " & question_14_verif_yn
 			objTextStream.WriteLine "14D - " & question_14_verif_details
 			objTextStream.WriteLine "14I - " & question_14_interview_notes
-
+			objTextStream.WriteLine "15A - PP - " & all_persons_paying 
 			objTextStream.WriteLine "15A - HA - " & question_15_heat_ac_yn
 			objTextStream.WriteLine "15A - EL - " & question_15_electricity_yn
 			objTextStream.WriteLine "15A - CF - " & question_15_cooking_fuel_yn
@@ -3764,7 +3769,8 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "14V - " & question_14_verif_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "14D - " & question_14_verif_details
 			script_run_lowdown = script_run_lowdown & vbCr & "14I - " & question_14_interview_notes & vbCr & vbCr
-
+			
+			script_run_lowdown = script_run_lowdown & vbCr & "15A - PP - " & all_persons_paying
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - HA - " & question_15_heat_ac_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - EL - " & question_15_electricity_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - CF - " & question_15_cooking_fuel_yn
@@ -4362,6 +4368,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "14D" Then question_14_verif_details = Mid(text_line, 7)
 					If left(text_line, 3) = "14I" Then question_14_interview_notes = Mid(text_line, 7)
 
+					If left(text_line, 8) = "15A - PP" Then all_persons_paying = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - HA" Then question_15_heat_ac_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - EL" Then question_15_electricity_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - CF" Then question_15_cooking_fuel_yn = Mid(text_line, 12)
@@ -6292,6 +6299,15 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("        Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
 		CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn)
         CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & question_15_liheap_yn)
+       
+		If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
+			Call write_variable_in_CASE_NOTE("    Updated HEST Panel - Choice Date: " & choice_date)
+			CALL write_variable_in_CASE_NOTE("     -Persons Paying: " & all_persons_paying) 
+			If hest_update_heat_ac = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Heat/Air - Yes" )
+			If hest_update_electric = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Electric - Yes" )
+			If hest_update_phone = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Phone - Yes" )
+		End If
+
 		If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
 	End If
 	If question_15_verif_yn <> "" Then
@@ -8311,6 +8327,7 @@ Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_d
 Dim question_14_rent_yn, question_14_subsidy_yn, question_14_mortgage_yn, question_14_association_yn, question_14_insurance_yn, question_14_room_yn, question_14_taxes_yn
 Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes, question_15_phone_details
 Dim question_15_heat_ac_yn, question_15_electricity_yn, question_15_cooking_fuel_yn, question_15_water_and_sewer_yn, question_15_garbage_yn, question_15_phone_yn, question_15_liheap_yn
+Dim prosp_heat_ac_yn, prosp_heat_ac_units, prosp_electric_yn, prosp_electric_units, prosp_phone_yn, prosp_phone_units, choice_date, all_persons_paying
 Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details, question_16_interview_notes
 Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details, question_17_interview_notes
 Dim question_18_yn, question_18_notes, question_18_verif_yn, question_18_verif_details, question_18_interview_notes
@@ -9380,6 +9397,48 @@ If need_to_update_addr = "False" then need_to_update_addr = False
 If need_to_update_addr = "True" Then 
     Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 End If
+
+'Units can have either the heat/air standard utility deduction OR one or both of the electric and phone standard utility deduction(s) when they are not responsible for heating and/or cooling expenses.
+choice_date = CAF_datestamp
+hest_update_heat_ac 	= FALSE 
+hest_update_electric 	= FALSE 
+hest_update_phone 		= FALSE
+
+If question_15_heat_ac_yn = "Yes" Then 	'If heat/ac is paid for then set phone and electric to blank because we can only claim heat/ac
+	hest_update_heat_ac = TRUE
+	prosp_heat_ac_yn = "Y"
+	prosp_electric_yn = " " 
+	prosp_electric_units = "  "
+	prosp_phone_yn = " "
+	prosp_phone_units = "  "
+
+Else 									'If heat/ac is not paid for, then electric and/or phone can be claimed 
+	prosp_heat_ac_yn = " "
+	prosp_heat_ac_units = "  "
+
+	If question_15_electricity_yn = "Yes" Then 
+		hest_update_electric = TRUE
+		prosp_electric_yn = "Y" 
+	
+	Else
+		prosp_electric_yn = " " 
+		prosp_electric_units = "  "
+	End If 
+
+	If question_15_phone_yn = "Yes" Then 
+		hest_update_phone = TRUE
+		prosp_phone_yn = "Y"
+	Else
+		prosp_phone_yn = " "
+		prosp_phone_units = "  "
+	End If 
+End If 
+
+'If one of the utlitlies is "Yes" Then we will update HEST
+If question_15_heat_ac_yn = "Yes" OR question_15_electricity_yn = "Yes" OR question_15_phone_yn = "Yes" Then 
+	' msgbox "update hest" & vbcr & "persons paying: " & all_persons_paying & vbcr & "heat/ac: " & hest_update_heat_ac & vbcr & "electric: " & hest_update_electric & vbcr & "phone: " & hest_update_phone & vbcr & "retro_heat_ac_yn" & retro_heat_ac_yn & vbcr & "retro_electric_yn" & retro_electric_yn & vbcr & "retro_phone_yn" & retro_phone_yn
+	Call access_HEST_panel("WRITE", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+End If 
 
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
@@ -11773,6 +11832,15 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 ' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 array_counters = array_counters + 1
+objSelection.TypeParagraph()						'adds a line between the table and the next information
+If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
+	objSelection.TypeText chr(9) & "Updated HEST" & vbCr
+	objSelection.TypeText chr(9) &" -Choice Date: " & choice_date & vbCr
+	objSelection.TypeText chr(9) &" -Persons Paying: " & all_persons_paying & vbCr
+	If hest_update_heat_ac = TRUE Then objSelection.TypeText chr(9) & " -Prospective Heat/Air - Yes" & vbCr
+	If hest_update_electric = TRUE Then objSelection.TypeText chr(9) & " -Prospective Electric - Yes" & vbCr
+	If hest_update_phone = TRUE Then objSelection.TypeText chr(9) & " -Prospective Phone - Yes" & vbCr
+End If
 
 If question_15_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_15_notes & vbCr
 If question_15_verif_yn <> "Mot Needed" AND question_15_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_15_verif_yn & vbCr
