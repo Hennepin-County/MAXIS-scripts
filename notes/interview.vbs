@@ -1194,8 +1194,8 @@ function define_main_dialog()
 			col_3_1 = 335
 			col_3_2 = 380
 
-			EditBox 225, y_pos -5, 145, 15, all_persons_paying
-			Text 	20, y_pos , 210, 10, "List household members who pay utilities (separated by commas):" 
+			EditBox 200, y_pos -5, 180, 15, all_persons_paying
+			Text 	20, y_pos , 180, 10, "List HH member numbers who pay utilities (i.e. 01, 02):" 
 			y_pos = y_pos + 15
 
 
