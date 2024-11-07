@@ -1,5 +1,5 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "DAIL - SDX Match.vbs"
+name_of_script = "DAIL - SDX MATCH.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 1            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the anctual manualtime based on time study

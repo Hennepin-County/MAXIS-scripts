@@ -5235,7 +5235,7 @@ script_array(script_num).usage_eval				= ""
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "SDX MATCH"																		'Script name
+script_array(script_num).script_name 			= "SDX Match"																		'Script name
 ' script_array(script_num).description 			= "Opens a dialog with links to policy information for processing DAIL messages."
 script_array(script_num).category               = "DAIL"
 script_array(script_num).workflows              = ""
