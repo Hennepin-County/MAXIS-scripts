@@ -4097,14 +4097,22 @@ If HIRE_messages = 1 Then
                             objExcel.Cells(case_excel_row, 9).Value = case_details_array(processable_based_on_case_const, case_count)
                             case_excel_row = case_excel_row + 1
 
-                            'Return to DAIL by PF3
-                            PF3
+                            EmReadScreen case_curr_check, 4, 2, 55
+                            If case_curr_check = "CURR" Then
+                                EMWriteScreen MAXIS_footer_month, 20, 54
+                                EMWriteScreen MAXIS_footer_year, 20, 57
+                                'PF3 back to DAIL
+                                PF3 
+                            Else
+                                'Return to DAIL by PF3
+                                PF3
 
-                            'Reset the footer month/year to CM through CASE/CURR
-                            Call write_value_and_transmit("H", dail_row, 3)
-                            EMWriteScreen MAXIS_footer_month, 20, 54
-                            EMWriteScreen MAXIS_footer_year, 20, 57
-                            PF3
+                                'Reset the footer month/year to CM through CASE/CURR
+                                Call write_value_and_transmit("H", dail_row, 3)
+                                EMWriteScreen MAXIS_footer_month, 20, 54
+                                EMWriteScreen MAXIS_footer_year, 20, 57
+                                PF3
+                            End If
                         
                             'Increment the case_count for updating the array
                             case_count = case_count + 1
