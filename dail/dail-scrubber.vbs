@@ -340,6 +340,11 @@ If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
 
+'SDX match (provides reference information for properly processing message)
+If instr(full_message, "SDX MATCH - SSI PENDING - MAXIS CREATED PBEN - IAA NEEDED") or instr(full_message, "SDX MATCH - SSI PENDING - IAA NEEDED") then
+	call run_from_GitHub(script_repository & "dail/sdx-match.vbs")
+END IF
+
 'SSA info received by agency (loads TPQY RESPONSE)
 If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message, "COVERED QTRS RESPONSE RECEIVED FROM SSA") then
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
