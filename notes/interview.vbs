@@ -9413,24 +9413,21 @@ If question_15_heat_ac_yn = "Yes" Then 	'If heat/ac is paid for then set phone a
 	prosp_phone_units = "  "
 
 Else 									'If heat/ac is not paid for, then electric and/or phone can be claimed 
-	prosp_heat_ac_yn = " "
-	prosp_heat_ac_units = "  "
+	prosp_heat_ac_yn = "N"
 
 	If question_15_electricity_yn = "Yes" Then 
 		hest_update_electric = TRUE
 		prosp_electric_yn = "Y" 
 	
 	Else
-		prosp_electric_yn = " " 
-		prosp_electric_units = "  "
+		prosp_electric_yn = "N" 
 	End If 
 
 	If question_15_phone_yn = "Yes" Then 
 		hest_update_phone = TRUE
 		prosp_phone_yn = "Y"
 	Else
-		prosp_phone_yn = " "
-		prosp_phone_units = "  "
+		prosp_phone_yn = "N"
 	End If 
 End If 
 
