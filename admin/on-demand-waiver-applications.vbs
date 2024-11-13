@@ -375,6 +375,24 @@ For tester = 0 to UBound(tester_array)                         'looping through 
 	End If
 Next
 
+'This block ensures that a folder exists for the current month so that when daily action data is saved at the end of the script - there is aplace for it to go
+current_daily_case_list_folder_name = right("0" & DatePart("m", date), 2) & "-" & DatePart("yyyy", date)
+current_daily_case_list_folder_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & current_daily_case_list_folder_name
+Set fso = CreateObject("Scripting.FileSystemObject")
+If NOT (fso.FolderExists(current_daily_case_list_folder_path)) Then
+	fso.CreateFolder current_daily_case_list_folder_path
+End If
+
+'This block ensures any folder from two months prior is moved to the archive to ensure the folder is clean
+archive_month = DateAdd("m", -2, date)
+archive_daily_case_list_folder_name = right("0" & DatePart("m", archive_month), 2) & "-" & DatePart("yyyy", archive_month)
+archive_daily_case_list_folder_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & archive_daily_case_list_folder_name
+archive_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/Archive/" & archive_daily_case_list_folder_name
+If fso.FolderExists(archive_daily_case_list_folder_path) = True Then
+	set folder = fso.GetFolder(archive_daily_case_list_folder_path)
+	folder.Move archive_path
+End If
+
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 160, "Select the source file"
