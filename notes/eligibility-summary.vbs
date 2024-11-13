@@ -31502,6 +31502,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 			PF10
 			MsgBox "ER Note Gone?"
 		End If
+		PF3
 	End If
 
 
@@ -31536,6 +31537,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 			PF10
 			MsgBox "SR NOTE Gone?"
 		End If
+		PF3
 	End If
 Next
 
