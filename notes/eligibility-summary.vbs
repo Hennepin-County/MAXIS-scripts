@@ -31148,6 +31148,12 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
 
+				If developer_mode = True Then
+					MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+					PF10
+					Msgbox "You forgot - but the NOTE is gone"
+				End If
+				PF3
 			End If
 
 			If progs_denied_for_wthdrw <> "" Then
@@ -31163,6 +31169,13 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE("* Resident requested to withdraw application.")
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
+
+				If developer_mode = True Then
+					MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+					PF10
+					Msgbox "You forgot - but the NOTE is gone"
+				End If
+				PF3
 			End If
 
 		End If
@@ -31243,6 +31256,12 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
 
+				If developer_mode = True Then
+					MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+					PF10
+					Msgbox "You forgot - but the NOTE is gone"
+				End If
+				PF3
 			End If
 
 			If progs_denied_for_wthdrw <> "" Then
@@ -31258,6 +31277,13 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE("* Resident requested to withdraw application.")
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
+
+				If developer_mode = True Then
+					MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+					PF10
+					Msgbox "You forgot - but the NOTE is gone"
+				End If
+				PF3
 			End If
 		End If
 	End If
