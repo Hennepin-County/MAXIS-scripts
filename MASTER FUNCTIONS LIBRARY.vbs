@@ -13212,6 +13212,12 @@ function start_a_blank_CASE_NOTE()
 	call navigate_to_MAXIS_screen("CASE", "NOTE")
 	DO
 		PF9
+		EMReadScreen case_note_opened_already, 31, 24, 2
+		If case_note_opened_already = "PF9 IS NOT IN USE ON THIS PANEL" Then
+			'PF3 back to case note and then open a new CASE/NOTE
+			PF3
+			PF9
+		End If
 		EMReadScreen case_note_open_check, 8, 1, 72
 		If case_note_open_check <> "FMCAMAM2" then
 			'Check MAXIS mode
