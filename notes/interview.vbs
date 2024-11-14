@@ -9394,18 +9394,9 @@ Call check_for_MAXIS(False)
 If need_to_update_addr = "True" then need_to_update_addr = True
 If need_to_update_addr = "False" then need_to_update_addr = False
 
+
 If need_to_update_addr = "True" Then 
-	If right("0" & DatePart("m", address_change_date), 2) <> MAXIS_footer_month OR right(year(address_change_date), 2) <> MAXIS_footer_year Then 'If address change date doesn't match maxis footer month/year must update maxis footer month/year for ADDR udpate
-		orig_footer_month = MAXIS_footer_month
-		orig_footer_year = MAXIS_footer_year
-		MAXIS_footer_month = right("0" & DatePart("m", address_change_date), 2)
-		MAXIS_footer_year = right(year(address_change_date), 2)
-    	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-		MAXIS_footer_month = orig_footer_month
-		MAXIS_footer_year = orig_footer_year
-	Else 				'If footer month/year already matches maxis footer month/year we can simply run the function
-    	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-	End If
+	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 End If
 MAXIS_background_check		'Making sure we aren't stuck in background before Hest function is run
 
