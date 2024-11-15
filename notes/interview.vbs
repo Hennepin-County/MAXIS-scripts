@@ -575,19 +575,22 @@ function define_main_dialog()
 				Else
 					Text 245, 115, 130, 45, living_situation
 				End If
-				Text 70, 165, 305, 15, mail_addr_street_full
-				Text 70, 185, 105, 15, mail_addr_city
-				Text 205, 185, 110, 45, mail_addr_state
-				Text 340, 185, 35, 15, mail_addr_zip
-				Text 20, 240, 90, 15, phone_one_number
-				Text 125, 240, 65, 45, phone_one_type
-				Text 20, 260, 90, 15, phone_two_number
-				Text 125, 260, 65, 45, phone_two_type
-				Text 20, 280, 90, 15, phone_three_number
-				Text 125, 280, 65, 45, phone_three_type
-				Text 325, 220, 50, 15, address_change_date
-				Text 255, 255, 120, 45, resi_addr_county
-				PushButton 290, 300, 95, 15, "Update Information", update_information_btn
+				Text 350, 135, 15, 10, meal_provided
+  				Text 150, 155, 210, 10, residence_name_phone
+				Text 175, 135, 25, 10, licensed_facility
+				Text 70, 205, 305, 15, mail_addr_street_full
+				Text 70, 225, 105, 15, mail_addr_city
+				Text 205, 225, 110, 45, mail_addr_state
+				Text 340, 225, 35, 15, mail_addr_zip
+				Text 20, 280, 90, 15, phone_one_number
+				Text 125, 280, 65, 45, phone_one_type
+				Text 20, 300, 90, 15, phone_two_number
+				Text 125, 300, 65, 45, phone_two_type
+				Text 20, 320, 90, 15, phone_three_number
+				Text 125, 320, 65, 45, phone_three_type
+				Text 325, 265, 50, 15, address_change_date
+				Text 255, 295, 120, 45, resi_addr_county
+				PushButton 290, 340, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_addr = TRUE Then
 				EditBox 70, 50, 305, 15, resi_addr_street_full
@@ -598,27 +601,31 @@ function define_main_dialog()
 				EditBox 245, 90, 130, 15, reservation_name
 				DropListBox 125, 110, 45, 45, "No"+chr(9)+"Yes", homeless_yn
 				DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
-				EditBox 70, 160, 305, 15, mail_addr_street_full
-				EditBox 70, 180, 105, 15, mail_addr_city
-				DropListBox 205, 180, 110, 45, ""+chr(9)+state_list, mail_addr_state
-				EditBox 340, 180, 35, 15, mail_addr_zip
-				EditBox 20, 240, 90, 15, phone_one_number
-				DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_one_type
-				EditBox 20, 260, 90, 15, phone_two_number
-				DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_two_type
-				EditBox 20, 280, 90, 15, phone_three_number
-				DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_three_type
-				EditBox 325, 220, 50, 15, address_change_date
-				ComboBox 255, 255, 120, 45, county_list+chr(9)+resi_addr_county, resi_addr_county
-				PushButton 290, 300, 95, 15, "Save Information", save_information_btn
+				DropListBox 175, 130, 30, 15, ""+chr(9)+"No"+chr(9)+"Yes", licensed_facility
+				DropListBox 350, 130, 30, 15, ""+chr(9)+"No"+chr(9)+"Yes", meal_provided
+				EditBox 150, 150, 230, 15, residence_name_phone
+				EditBox 70, 200, 305, 15, mail_addr_street_full
+				EditBox 70, 220, 105, 15, mail_addr_city
+				DropListBox 205, 220, 110, 45, ""+chr(9)+state_list, mail_addr_state
+				EditBox 340, 220, 35, 15, mail_addr_zip
+				EditBox 20, 280, 90, 15, phone_one_number
+				DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_one_type
+				EditBox 20, 300, 90, 15, phone_two_number
+				DropListBox 125, 300, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_two_type
+				EditBox 20, 320, 90, 15, phone_three_number
+				DropListBox 125, 320, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_three_type
+				EditBox 325, 260, 50, 15, address_change_date
+				ComboBox 255, 295, 120, 45, county_list+chr(9)+resi_addr_county, resi_addr_county
+				PushButton 290, 340, 95, 15, "Save Information", save_information_btn
 			End If
 
-			PushButton 325, 145, 50, 10, "CLEAR", clear_mail_addr_btn
-			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
-			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
-			PushButton 205, 280, 35, 10, "CLEAR", clear_phone_three_btn
+			PushButton 325, 185, 50, 10, "CLEAR", clear_mail_addr_btn
+			PushButton 205, 280, 35, 10, "CLEAR", clear_phone_one_btn
+			PushButton 205, 300, 35, 10, "CLEAR", clear_phone_two_btn
+			PushButton 205, 320, 35, 10, "CLEAR", clear_phone_three_btn
+
 			Text 10, 10, 450, 10, "Review the Address informaiton known with the resident. If it needs updating, press the 'Update Information' button to make changes:"
-			GroupBox 10, 35, 375, 95, "Residence Address"
+			GroupBox 10, 35, 375, 135, "Residence Address"
 			Text 20, 55, 45, 10, "House/Street"
 			Text 45, 75, 20, 10, "City"
 			Text 185, 75, 20, 10, "State"
@@ -627,16 +634,21 @@ function define_main_dialog()
 			Text 180, 95, 60, 10, "If yes, which one?"
 			Text 20, 115, 100, 10, "Resident Indicates Homeless:"
 			Text 185, 115, 60, 10, "Living Situation?"
-			GroupBox 10, 135, 375, 70, "Mailing Address"
-			Text 20, 165, 45, 10, "House/Street"
-			Text 45, 185, 20, 10, "City"
-			Text 185, 185, 20, 10, "State"
-			Text 325, 185, 15, 10, "Zip"
-			GroupBox 10, 210, 235, 90, "Phone Number"
-			Text 20, 225, 50, 10, "Number"
-			Text 125, 225, 25, 10, "Type"
-			Text 255, 225, 60, 10, "Date of Change:"
-			Text 255, 245, 75, 10, "County of Residence:"
+			Text 20, 135, 155, 10, "Are you currently residing in a licensed facility?"
+			Text 210, 135, 140, 10, "Does the place you reside provide meals?"
+			Text 20, 155, 130, 10, "Name and phone number of residence: "
+			GroupBox 10, 175, 375, 70, "Mailing Address"
+			Text 20, 205, 45, 10, "House/Street"
+			Text 45, 225, 20, 10, "City"
+			Text 185, 225, 20, 10, "State"
+			Text 325, 225, 15, 10, "Zip"
+			GroupBox 10, 250, 235, 90, "Phone Number"
+			Text 20, 265, 50, 10, "Number"
+			Text 125, 265, 25, 10, "Type"
+			Text 255, 265, 60, 10, "Date of Change:"
+			Text 255, 285, 75, 10, "County of Residence:"
+
+  
 		ElseIf page_display = show_pg_memb_list Then
 			Text 504, 47, 60, 10, "CAF MEMBs"
 			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
@@ -1170,7 +1182,7 @@ function define_main_dialog()
 			y_pos = y_pos + 25
 
 
-			GroupBox 5, y_pos, 475, 135, "15. Does your household have the following utility expenses any time during the year? "
+			GroupBox 5, y_pos, 475, 155, "15. Does your household have the following utility expenses any time during the year? "
 			y_pos = y_pos + 15
 
 			col_1_1 = 20
@@ -1181,6 +1193,11 @@ function define_main_dialog()
 
 			col_3_1 = 335
 			col_3_2 = 380
+
+			EditBox 200, y_pos -5, 180, 15, all_persons_paying
+			Text 	20, y_pos , 180, 10, "List HH member numbers who pay utilities (i.e. 01, 02):" 
+			y_pos = y_pos + 15
+
 
 			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
 			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
@@ -1984,7 +2001,10 @@ function dialog_movement()
 
 	If arep_name <> "" Then arep_exists = True
 	If ButtonPressed = update_information_btn Then
-		If page_display = show_pg_one_address Then update_addr = TRUE
+		If page_display = show_pg_one_address Then 
+			update_addr = TRUE
+			need_to_update_addr = TRUE
+		End If
 		If page_display = show_pg_memb_list Then update_pers = TRUE
 		If page_display = show_pg_last Then page_display = show_arep_page
 		' MsgBox update_arep & " - in dlg move"
@@ -1996,8 +2016,10 @@ function dialog_movement()
 
 	End If
 	If ButtonPressed = clear_mail_addr_btn Then
-		' phone_one_number = ""
-		' phone_one_type = "Select One..."
+		mail_addr_street_full = ""
+		mail_addr_city = ""
+		mail_addr_state = ""
+		mail_addr_zip = ""
 	End If
 	If ButtonPressed = clear_phone_one_btn Then
 		phone_one_number = ""
@@ -3072,6 +3094,7 @@ function save_your_work()
 			objTextStream.WriteLine "ADR - RESI - CIT - " & resi_addr_city
 			objTextStream.WriteLine "ADR - RESI - STA - " & resi_addr_state
 			objTextStream.WriteLine "ADR - RESI - ZIP - " & resi_addr_zip
+			objTextStream.WriteLine "ADR - RESI - UPD - " & need_to_update_addr
 
 			objTextStream.WriteLine "ADR - RESI - RES - " & reservation_yn
 			objTextStream.WriteLine "ADR - RESI - NAM - " & reservation_name
@@ -3079,6 +3102,10 @@ function save_your_work()
 			objTextStream.WriteLine "ADR - RESI - HML - " & homeless_yn
 
 			objTextStream.WriteLine "ADR - RESI - LIV - " & living_situation
+
+			objTextStream.WriteLine "ADR - HOUS - LIC - " & licensed_facility
+			objTextStream.WriteLine "ADR - HOUS - MEA - " & meal_provided
+			objTextStream.WriteLine "ADR - HOUS - NAM - " & residence_name_phone
 
 			objTextStream.WriteLine "ADR - MAIL - STR - " & mail_addr_street_full
 			objTextStream.WriteLine "ADR - MAIL - CIT - " & mail_addr_city
@@ -3205,7 +3232,7 @@ function save_your_work()
 			objTextStream.WriteLine "14V - " & question_14_verif_yn
 			objTextStream.WriteLine "14D - " & question_14_verif_details
 			objTextStream.WriteLine "14I - " & question_14_interview_notes
-
+			objTextStream.WriteLine "15A - PP - " & all_persons_paying 
 			objTextStream.WriteLine "15A - HA - " & question_15_heat_ac_yn
 			objTextStream.WriteLine "15A - EL - " & question_15_electricity_yn
 			objTextStream.WriteLine "15A - CF - " & question_15_cooking_fuel_yn
@@ -3609,8 +3636,13 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - NAM - " & reservation_name
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - HML - " & homeless_yn
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - UPD - " & need_to_update_addr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - RESI - LIV - " & living_situation & vbCr & vbCr
+
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - HOUS - LIC - " & licensed_facility
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - HOUS - MEA - " & meal_provided
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - HOUS - NAM - " & residence_name_phone & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - MAIL - STR - " & mail_addr_street_full
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - MAIL - CIT - " & mail_addr_city
@@ -3737,7 +3769,8 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "14V - " & question_14_verif_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "14D - " & question_14_verif_details
 			script_run_lowdown = script_run_lowdown & vbCr & "14I - " & question_14_interview_notes & vbCr & vbCr
-
+			
+			script_run_lowdown = script_run_lowdown & vbCr & "15A - PP - " & all_persons_paying
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - HA - " & question_15_heat_ac_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - EL - " & question_15_electricity_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - CF - " & question_15_cooking_fuel_yn
@@ -4200,11 +4233,17 @@ function restore_your_work(vars_filled)
 						If mid(text_line, 7, 10) = "RESI - NAM" Then reservation_name = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "RESI - HML" Then homeless_yn = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "RESI - LIV" Then living_situation = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - UPD" Then need_to_update_addr = MID(text_line, 20)
 
 						If mid(text_line, 7, 10) = "MAIL - STR" Then mail_addr_street_full = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "MAIL - CIT" Then mail_addr_city = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "MAIL - STA" Then mail_addr_state = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "MAIL - ZIP" Then mail_addr_zip = MID(text_line, 20)
+
+
+						If mid(text_line, 7, 10) = "HOUS - LIC" Then licensed_facility = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "HOUS - MEA" Then meal_provided = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "HOUS - NAM" Then residence_name_phone = MID(text_line, 20)
 
 						If mid(text_line, 7, 10) = "PHON - NON" Then phone_one_number = MID(text_line, 20)
 						If mid(text_line, 7, 10) = "PHON - TON" Then phone_one_type = MID(text_line, 20)
@@ -4329,6 +4368,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "14D" Then question_14_verif_details = Mid(text_line, 7)
 					If left(text_line, 3) = "14I" Then question_14_interview_notes = Mid(text_line, 7)
 
+					If left(text_line, 8) = "15A - PP" Then all_persons_paying = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - HA" Then question_15_heat_ac_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - EL" Then question_15_electricity_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - CF" Then question_15_cooking_fuel_yn = Mid(text_line, 12)
@@ -5335,7 +5375,7 @@ function jobs_details_dlg(this_jobs)
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 321, 165, "Add Job"
-		  DropListBox 10, 35, 135, 45, pick_a_client+chr(9)+"", JOBS_ARRAY(jobs_employee_name, this_jobs)
+		  ComboBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
 		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
 		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
 		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
@@ -5368,7 +5408,7 @@ function jobs_details_dlg(this_jobs)
 			JOBS_ARRAY(jobs_notes, this_jobs) = ""
 		End If
 	Loop until ButtonPressed = return_btn
-	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select One..." Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
+	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select or Type" Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 
 end function
 
@@ -5993,6 +6033,10 @@ function write_interview_CASE_NOTE()
 	CALL write_variable_in_CASE_NOTE("    Living Situation: " & living_situation)
 	CALL write_variable_in_CASE_NOTE("Reporting Homeless: " & homeless_yn)
 	If disc_homeless_no_mail_addr = "RESOLVED" Then call write_variable_in_CASE_NOTE("* Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation)
+	CALL write_variable_in_CASE_NOTE("Housing Support Information: ")
+	If trim(licensed_facility) <> "" Then CALL write_variable_in_CASE_NOTE("    Currently reside in licensed facility? " & licensed_facility)
+	If trim(meal_provided) <> "" Then CALL write_variable_in_CASE_NOTE("    Residence provides meals? " & meal_provided)
+	If trim(residence_name_phone) <> "" Then CALL write_variable_in_CASE_NOTE("    Name/phone number of residence: " & residence_name_phone)
 	If trim(mail_addr_street_full) <> "" OR trim(mail_addr_city) <> "" OR trim(mail_addr_state) <> "" OR trim(mail_addr_zip) <> "" Then
 		CALL write_variable_in_CASE_NOTE("Mailing Address:")
 		CALL write_variable_in_CASE_NOTE("    " & mail_addr_street_full)
@@ -6255,6 +6299,15 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("        Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
 		CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn)
         CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & question_15_liheap_yn)
+       
+		If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
+			Call write_variable_in_CASE_NOTE("    Updated HEST Panel - Choice Date: " & choice_date)
+			CALL write_variable_in_CASE_NOTE("     -Persons Paying: " & all_persons_paying) 
+			If hest_update_heat_ac = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Heat/Air - Yes" )
+			If hest_update_electric = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Electric - Yes" )
+			If hest_update_phone = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Phone - Yes" )
+		End If
+
 		If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
 	End If
 	If question_15_verif_yn <> "" Then
@@ -6413,6 +6466,7 @@ function write_interview_CASE_NOTE()
             End If
 		Next
 	End If
+	CALL write_variable_in_CASE_NOTE("      EDRS Notes - " & edrs_notes_for_case)
 
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No verifications were indicated at this time.")
@@ -8247,6 +8301,7 @@ user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the 
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
+Dim licensed_facility, meal_provided, residence_name_phone
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
@@ -8272,6 +8327,7 @@ Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_d
 Dim question_14_rent_yn, question_14_subsidy_yn, question_14_mortgage_yn, question_14_association_yn, question_14_insurance_yn, question_14_room_yn, question_14_taxes_yn
 Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes, question_15_phone_details
 Dim question_15_heat_ac_yn, question_15_electricity_yn, question_15_cooking_fuel_yn, question_15_water_and_sewer_yn, question_15_garbage_yn, question_15_phone_yn, question_15_liheap_yn
+Dim prosp_heat_ac_yn, prosp_heat_ac_units, prosp_electric_yn, prosp_electric_units, prosp_phone_yn, prosp_phone_units, choice_date, all_persons_paying
 Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details, question_16_interview_notes
 Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details, question_17_interview_notes
 Dim question_18_yn, question_18_notes, question_18_verif_yn, question_18_verif_details, question_18_interview_notes
@@ -8284,7 +8340,7 @@ Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_d
 Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details, question_24_interview_notes
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
-Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip
+Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
 Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_street, CAF_arep_addr_city, CAF_arep_addr_state, CAF_arep_addr_zip
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
@@ -8350,6 +8406,7 @@ show_exp_pg_review = 3
 
 update_addr = FALSE
 update_pers = FALSE
+need_to_update_addr = FALSE
 page_display = 1
 discrepancies_exist = False
 children_under_18_in_hh = False
@@ -9067,7 +9124,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Next
 
 	'Now we gather the address information that exists in MAXIS
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+	resi_line_one = ""
+    resi_line_two = ""
+    mail_line_one = ""
+    mail_line_two = ""
 
 	arep_in_MAXIS = False
 	arep_exists = False
@@ -9328,6 +9390,54 @@ Do
 Loop until are_we_passworded_out = FALSE
 
 Call check_for_MAXIS(False)
+
+If need_to_update_addr = "True" then need_to_update_addr = True
+If need_to_update_addr = "False" then need_to_update_addr = False
+
+
+If need_to_update_addr = "True" Then 
+	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+End If
+MAXIS_background_check		'Making sure we aren't stuck in background before Hest function is run
+
+'Units can have either the heat/air standard utility deduction OR one or both of the electric and phone standard utility deduction(s) when they are not responsible for heating and/or cooling expenses.
+choice_date = CAF_datestamp
+hest_update_heat_ac 	= FALSE 
+hest_update_electric 	= FALSE 
+hest_update_phone 		= FALSE
+
+If question_15_heat_ac_yn = "Yes" Then 	'If heat/ac is paid for then set phone and electric to blank because we can only claim heat/ac
+	hest_update_heat_ac = TRUE
+	prosp_heat_ac_yn = "Y"
+	prosp_electric_yn = " " 
+	prosp_electric_units = "  "
+	prosp_phone_yn = " "
+	prosp_phone_units = "  "
+
+Else 									'If heat/ac is not paid for, then electric and/or phone can be claimed 
+	prosp_heat_ac_yn = "N"
+
+	If question_15_electricity_yn = "Yes" Then 
+		hest_update_electric = TRUE
+		prosp_electric_yn = "Y" 
+	
+	Else
+		prosp_electric_yn = "N" 
+	End If 
+
+	If question_15_phone_yn = "Yes" Then 
+		hest_update_phone = TRUE
+		prosp_phone_yn = "Y"
+	Else
+		prosp_phone_yn = "N"
+	End If 
+End If 
+
+'If one of the utlitlies is "Yes" Then we will update HEST
+If question_15_heat_ac_yn = "Yes" OR question_15_electricity_yn = "Yes" OR question_15_phone_yn = "Yes" Then 
+	' msgbox "update hest" & vbcr & "persons paying: " & all_persons_paying & vbcr & "heat/ac: " & hest_update_heat_ac & vbcr & "electric: " & hest_update_electric & vbcr & "phone: " & hest_update_phone & vbcr & "retro_heat_ac_yn" & retro_heat_ac_yn & vbcr & "retro_electric_yn" & retro_electric_yn & vbcr & "retro_phone_yn" & retro_phone_yn
+	Call access_HEST_panel("WRITE", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+End If 
 
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
@@ -11036,6 +11146,12 @@ objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
+objSelection.TypeText "Housing Support Info" & vbCR
+objSelection.TypeText "-Currently residing in a licensed facility: " & licensed_facility & vbCR
+objSelection.TypeText "-Residence provides meals? " & meal_provided & vbCR
+objSelection.TypeText "-Name/Phone number of residence: " & residence_name_phone & vbCR
+objSelection.TypeParagraph()						'adds a line between the table and the next information
+
 objSelection.TypeText "Household Lives in " & resi_addr_county & " County" & vbCR
 If disc_out_of_county = "RESOLVED" Then objSelection.TypeText "- Household reported living Out of Hennepin County - Case Needs Transfer - additional interview conversation: " & disc_out_of_county_confirmation & vbCr
 
@@ -11715,6 +11831,15 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 ' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 array_counters = array_counters + 1
+objSelection.TypeParagraph()						'adds a line between the table and the next information
+If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
+	objSelection.TypeText chr(9) & "Updated HEST" & vbCr
+	objSelection.TypeText chr(9) &" -Choice Date: " & choice_date & vbCr
+	objSelection.TypeText chr(9) &" -Persons Paying: " & all_persons_paying & vbCr
+	If hest_update_heat_ac = TRUE Then objSelection.TypeText chr(9) & " -Prospective Heat/Air - Yes" & vbCr
+	If hest_update_electric = TRUE Then objSelection.TypeText chr(9) & " -Prospective Electric - Yes" & vbCr
+	If hest_update_phone = TRUE Then objSelection.TypeText chr(9) & " -Prospective Phone - Yes" & vbCr
+End If
 
 If question_15_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_15_notes & vbCr
 If question_15_verif_yn <> "Mot Needed" AND question_15_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_15_verif_yn & vbCr
