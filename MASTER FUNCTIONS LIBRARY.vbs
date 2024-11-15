@@ -1763,14 +1763,39 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
 		If current_information <> original_information Then						'If the information in the beginning and the information inthe end do not match - we need to update
 			update_attempted = True
+			addr_greater = FALSE
+			addr_less = FALSE
+			day_different = FALSE
+
+			'Determining correct month to update ADDR panel 
+			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+			If addr_eff_date > footer_month_as_date Then	'If addr_eff provided in the dialog is greater than the footer month date, we need to change the footer month to align with addr_eff month
+				addr_greater = TRUE 
+				orig_footer_month = MAXIS_footer_month
+				orig_footer_year = MAXIS_footer_year
+				CALL convert_date_into_MAXIS_footer_month(addr_eff_date, MAXIS_footer_month, MAXIS_footer_year)
+			End If
+			
+			If addr_eff_date < footer_month_as_date Then 	'If addr_eff provided in the dialog is less than the footer month date, we need to change the footer month to the MAXIS footer month 
+				addr_less = TRUE
+				orig_addr_eff_date = addr_eff_date
+				addr_eff_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+			End If	
 
 			Call navigate_to_MAXIS_screen("STAT", "ADDR")							'going to ADDR
+			EMReadScreen panel_addr_eff_date, 2, 4, 43								'reading addr effective date because we will need to compare it to the one provided in the dialog
 			EMReadScreen curr_addr_footer_month, 2, 20, 55							'reading the footer month and year on the panel because there is footer months pecific differences
 			EMReadScreen curr_addr_footer_year, 2, 20, 58
 			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year		'making a date out of the footer month
 			the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
 			new_version = True														'defaulting to using the new verion of the panel with text authorization and email
 			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False	'if the footer months is BEFORE 10/1/2021, then we need to read the old version
+			panel_addr_eff_date = replace(panel_addr_eff_date, " ", "/")
+			If addr_eff_date < panel_addr_eff_date Then 				'handling to update the addr_eff_date if it is before the date already in the panel
+				day_different = TRUE
+				og_addr_eff = addr_eff_date
+				addr_eff_date = panel_addr_eff_date
+            End If
 
 	        PF9																	'Put it in edit mode
 
@@ -2005,7 +2030,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				EMSendKey "<eraseEOF>"
 				EMWriteScreen addr_email, 19, 31
 			End If
-
+	        
 	        save_attempt = 1
 	        Do
 	            transmit
@@ -2031,6 +2056,17 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 	            save_attempt = save_attempt + 1
 	        Loop until save_attempt = 20
+			'Resetting variables changed due to addr_eff date vs footer month
+			If addr_greater = TRUE Then
+				MAXIS_footer_month = orig_footer_month 
+				MAXIS_footer_year = orig_footer_year 
+			End If 
+			If addr_less = TRUE Then 
+				addr_eff_date = orig_addr_eff_date
+			End If
+			If day_different = TRUE Then 
+				addr_eff_date = og_addr_eff
+            End If
 		End IF
     End If
 end function
