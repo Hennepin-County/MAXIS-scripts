@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2024", "Updates made for the 2025 AHPS.##~## ##~##- Enrollment dates updated for 2025.##~##- Removed United HealthCare from a selection option for enrollment.", "Casey Love, Hennepin County")
 call changelog_update("10/01/2024", "Enrollment for AHPS is set to process the 2025 year.", "Casey Love, Hennepin County")
 call changelog_update("11/16/2023", "Updated Enrollment script with the Enrollment cutoff dates for 2024 so the script is ready for next year processing.", "Casey Love, Hennepin County")
 call changelog_update("10/11/2023", "Open Enrollment Dates updated for 2024.", "Casey Love, Hennepin County")
