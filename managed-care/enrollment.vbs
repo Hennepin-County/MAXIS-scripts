@@ -219,7 +219,7 @@ BeginDialog Dialog1, 0, 0, 206, 180, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   EditBox 90, 45, 20, 15, enrollment_month
   EditBox 115, 45, 20, 15, enrollment_year
-  DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", Health_plan
+  DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", Health_plan
   CheckBox 120, 95, 25, 10, "Yes", Insurance_yes
   CheckBox 120, 105, 25, 10, "Yes", foster_care_yes
   DropListBox 110, 120, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
@@ -632,7 +632,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
 		Text 240, (x * 20) + 25, 35, 10, MMIS_clients_array(current_plan_date, person)
 	  	EditBox 285, (x * 20) + 20, 45, 15, MMIS_clients_array(med_code, person)
 	  	EditBox 340, (x * 20) + 20, 45, 15, MMIS_clients_array(dent_code, person)
-	    DropListBox 390, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan, person)
+	    DropListBox 390, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan, person)
 	  	DropListBox 460, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array(contr_code, person)
 		DropListBox 520, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
 	  	DropListBox 585, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary"+chr(9)+"DELETE SPAN", MMIS_clients_array(disenrol_rsn, person)
@@ -874,7 +874,6 @@ If MNSURE_Case = TRUE Then
 				If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 				If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 				If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
-				If MMIS_clients_array(new_plan, member) = "United Healthcare" then health_plan_code = "A168407400"
 				If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 				If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
 
@@ -976,7 +975,7 @@ If MNSURE_Case = TRUE Then
 							err_msg = ""
 
 							BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-							  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan_two, member)
+							  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
 							  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
 							  EditBox 390, 185, 50, 15, new_enrol_date
 							  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
@@ -1350,7 +1349,6 @@ Else
 				If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 				If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 				If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
-				If MMIS_clients_array(new_plan, member) = "United Healthcare" then health_plan_code = "A168407400"
 				If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 				If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
 
@@ -1455,7 +1453,7 @@ Else
 							err_msg = ""
 
 							BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-							  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan_two, member)
+							  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
 							  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
 							  EditBox 390, 185, 50, 15, new_enrol_date
 							  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
