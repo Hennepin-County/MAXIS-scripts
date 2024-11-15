@@ -756,8 +756,8 @@ BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
   DropListBox 440, 95, 60, 45, "", leave_a_message
   Text 25, 115, 400, 10, "Do you have any questions or requests I can pass on to the processing worker or a program specialist?"
   EditBox 25, 125, 475, 15, resident_questions
-  Text 15, 155, 505, 10, "Your address and phone number are our best way to contact you, let us know if these change so you do not missing any notices or requests."
-  Text 20, 165, 505, 10, "Our mail does not forward and missing noces can cause your benefits to end."
+  Text 15, 155, 505, 10, "Your address and phone number are our best way to contact you, let us know of these changes so you do not miss any notices or requests."
+  Text 20, 165, 505, 10, "Our mail does not forward and missing notices can cause your benefits to end."
   Text 15, 185, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
   GroupBox 15, 210, 505, 95, "Contact to Hennepin County by phone, in person, or online. Ask the resident if they need any more details:"
   Text 20, 220, 40, 10, "By Phone:"
