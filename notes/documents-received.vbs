@@ -2048,21 +2048,7 @@ function addr_shel_hest_panel_dialog()
 			Loop until ButtonPressed = -1
 			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		Loop until are_we_passworded_out = false					'loops until user passwords back in
-		'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-		footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-
-		'Calculates the difference between the two dates (date of admission and footer month)
-		difference_between_dates = DateDiff("m", addr_eff_date, footer_month_as_date)
-
-		'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-		If difference_between_dates <> 0 THEN
-			back_to_SELF
-			CALL convert_date_into_MAXIS_footer_month(addr_eff_date, MAXIS_footer_month, MAXIS_footer_year)
-			EMWriteScreen MAXIS_footer_month, 20, 43
-			EMWriteScreen MAXIS_footer_year, 20, 46
-			Transmit
-		END IF
-
+		
 		Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 
 		For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
