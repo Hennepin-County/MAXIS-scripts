@@ -178,31 +178,31 @@ IF open_enrollment_case = FALSE Then
 	this_year = year(date)
 	Select Case this_month
 	    Case "January"
-			cut_off_date = #01/22/2024#
+			cut_off_date = #01/22/2025#
 	    Case "February"
-			cut_off_date = #02/20/2024#
+			cut_off_date = #02/19/2025#
 	    Case "March"
-			cut_off_date = #03/20/2024#
+			cut_off_date = #03/20/2025#
 	    Case "April"
-			cut_off_date = #04/19/2024#
+			cut_off_date = #04/21/2025#
 	    Case "May"
-			cut_off_date = #05/21/2024#
+			cut_off_date = #05/20/2025#
 	    Case "June"
-			cut_off_date = #06/18/2024#
+			cut_off_date = #06/18/2025#
 	    Case "July"
-			cut_off_date = #07/22/2024#
+			cut_off_date = #07/22/2025#
 	    Case "August"
-			cut_off_date = #08/21/2024#
+			cut_off_date = #08/20/2025#
 	    Case "September"
-			cut_off_date = #09/19/2024#
+			cut_off_date = #09/19/2025#
 	    Case "October"
-			cut_off_date = #10/22/2024#
+			cut_off_date = #10/22/2025#
 	    Case "November"
-			if this_year = 2023 Then cut_off_date = #11/17/2023#
 			if this_year = 2024 Then cut_off_date = #11/18/2024#
+			if this_year = 2025 Then cut_off_date = #11/17/2025#
 	    Case "December"
-			if this_year = 2023 Then cut_off_date = #12/19/2023#
 			if this_year = 2024 Then cut_off_date = #12/19/2024#
+			if this_year = 2025 Then cut_off_date = #12/19/2025#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
