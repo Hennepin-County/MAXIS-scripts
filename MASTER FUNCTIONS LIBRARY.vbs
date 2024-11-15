@@ -2209,21 +2209,54 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 
 			If IsDate(choice_date) = True Then Call create_mainframe_friendly_date(choice_date, 7, 40, "YY")
 	        EMWriteScreen actual_initial_exp, 8, 61
-
+			
+			If retro_heat_ac_yn = "" Then retro_heat_ac_yn = " "
 			EMWriteScreen retro_heat_ac_yn, 13, 34
-	        If retro_heat_ac_yn = "Y" Then EMWriteScreen "01", 13, 42
+	        If retro_heat_ac_yn = "Y" Then 
+				EMWriteScreen "01", 13, 42
+			Else 
+				EMWriteScreen "  ", 13, 42
+			End If
+
+			If retro_electric_yn = "" Then retro_electric_yn = " "
 	        EMWriteScreen retro_electric_yn, 14, 34
-	        If retro_electric_yn = "Y" Then EMWriteScreen "01", 14, 42
+	        If retro_electric_yn = "Y" Then 
+				EMWriteScreen "01", 14, 42
+			Else 
+				EMWriteScreen "  ", 14, 42
+			End If
+
+			If retro_phone_yn = "" Then retro_phone_yn = " "
 	        EMWriteScreen retro_phone_yn, 15, 34
-	        If retro_phone_yn = "Y" Then EMWriteScreen "01", 15, 42
+	        If retro_phone_yn = "Y" Then 
+				EMWriteScreen "01", 15, 42
+			Else 
+				EMWriteScreen "  ", 15, 42
+			End If
 
+			If prosp_heat_ac_yn = "" Then prosp_heat_ac_yn = " "
 	        EMWriteScreen prosp_heat_ac_yn, 13, 60
-	        If prosp_heat_ac_yn = "Y" Then EMWriteScreen "01", 13, 68
-	        EMWriteScreen prosp_electric_yn, 14, 60
-	        If prosp_electric_yn = "Y" Then EMWriteScreen "01", 14, 68
-	        EMWriteScreen prosp_phone_yn, 15, 60
-	        If prosp_phone_yn = "Y" Then EMWriteScreen "01", 15, 68
+	        If prosp_heat_ac_yn = "Y" Then 
+				EMWriteScreen "01", 13, 68
+			Else 
+				EMWriteScreen "  ", 13, 68
+			End If
 
+			If prosp_electric_yn = "" Then prosp_electric_yn = " "
+	        EMWriteScreen prosp_electric_yn, 14, 60
+	        If prosp_electric_yn = "Y" Then 
+				EMWriteScreen "01", 14, 68
+			Else
+				EMWriteScreen "  ", 14, 68
+			End If
+
+			If prosp_phone_yn = "" Then prosp_phone_yn = " "
+	        EMWriteScreen prosp_phone_yn, 15, 60
+	        If prosp_phone_yn = "Y" Then 
+				EMWriteScreen "01", 15, 68
+			Else
+				EMWriteScreen "  ", 15, 68
+			End If
 			transmit
 
 			EMReadScreen retro_heat_ac_amt, 6, 13, 49
