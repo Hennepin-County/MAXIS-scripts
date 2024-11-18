@@ -2983,14 +2983,14 @@ function define_hc_elig_dialog()
 				Else
 					Text 30, y_pos+35, 95, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind)
 				End If
-				x_pos = 155
 
 
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" Then
-					GroupBox x_pos, y_pos+10, 130, 30, "Waiver Approved"
-					Text x_pos+5, y_pos+25, 120, 10, "Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver_detail(memb_ind)
-					x_pos = x_pos + 140
+					GroupBox 15, y_pos+65, 130, 30, "Waiver Approved"
+					Text 20, y_pos+80, 120, 10, "Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver_detail(memb_ind)
+					' x_pos = x_pos + 140
 				End If
+				x_pos = 155
 
 				If HC_ELIG_APPROVALS(elig_ind).LTC_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 150, 50, "LTC Spenddown Exists"
@@ -3006,8 +3006,8 @@ function define_hc_elig_dialog()
 					Text x_pos+5, y_pos+45, 115, 10, "Waiver Obligation $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind)
 
 				ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
-					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "Spenddown Exists"
-					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 250, 50, "Spenddown Exists"
+					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 80, "Spenddown Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 80, "Spenddown Exists"
 					Text x_pos+5, y_pos+25, 75, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind)
@@ -3015,15 +3015,10 @@ function define_hc_elig_dialog()
 				End If
 				'REMEDIAL CARE UPDATES
 				If HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
-					If dp_option_selected = True Then
-						Text 285, y_pos+35, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
-						Text 285, y_pos+45, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
-						' Text 300, y_pos+65, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
-					Else
-						Text 285, y_pos+25, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
-						Text 285, y_pos+35, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
-						' Text 300, y_pos+35, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
-					End If
+					Text x_pos+5, y_pos+55, 115, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
+					Text x_pos+5, y_pos+65, 115, 10, "Recipient Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_recipient_amount(memb_ind)
+					Text x_pos+5, y_pos+75, 115, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
+					' Text 300, y_pos+65, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 					GroupBox 290, y_pos+10, 155, 50, "Emergency Medical Assistance - EMA"
@@ -3041,6 +3036,8 @@ function define_hc_elig_dialog()
 					End If
 				End If
 				y_pos = y_pos + 65
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" OR (HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP") Then y_pos = y_pos + 35
+
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) = "DP" Then
 					' GroupBox 15, y_pos+60, 130, 30, "MA - EPD"
 					GroupBox 15, y_pos, 430, 40, "MA - EPD"
@@ -6888,20 +6885,21 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("------- MA Approved with an LTC Spenddown ----------------------------------")
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("            Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind))
-				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
+				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind), 8))
 
 			ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with an EW Waiver Obligation ---------------------------")
 				Call write_variable_in_CASE_NOTE("     Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_type_info(memb_ind))
-				Call write_variable_in_CASE_NOTE("  Waiver Obligation: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind))
-				Call write_variable_in_CASE_NOTE("    Total Liability: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_liability(memb_ind))
+				Call write_variable_in_CASE_NOTE("  Waiver Obligation: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind), 8))
+				Call write_variable_in_CASE_NOTE("    Total Liability: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_liability(memb_ind), 8))
 			ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with a Spenddown ---------------------------------------")
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind))
-				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind))
+				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind), 8))
 				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
-					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
+					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind), 8))
+					Call write_variable_in_CASE_NOTE("  Recipient Amount: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_recipient_amount(memb_ind), 8))
+					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind), 8))
 				End If
 			End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
