@@ -4806,7 +4806,6 @@ verif_view = "Add A Verif"
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
 Call check_for_MAXIS(true)
-Call MAXIS_case_number_finder(MAXIS_case_number)
 
 interview_date = date & ""
 show_err_msg_during_movement = ""
