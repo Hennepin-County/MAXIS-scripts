@@ -5,7 +5,12 @@ STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
-' run_locally = TRUE
+
+If script_repository = "" Then
+	script_repository = "C:\MAXIS-Scripts\"		'This is a safety measure for if the script is run directly.
+	run_locally = True
+End If
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
     IF on_the_desert_island = TRUE Then
@@ -263,8 +268,6 @@ full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid
 
 function check_for_errors(interview_questions_clear)
 	' If  Then err_msg = err_msg & "~!~" & "1^* FIELD##~##   - "
-	' page_display = show_pg_one_memb01_and_exp
-	' If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
 	If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
 	If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
@@ -275,34 +278,9 @@ function check_for_errors(interview_questions_clear)
 	If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
 		If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
 	End If
-	' If snap_status <> "ACTIVE" Then
-	' 	intv_app_month_income = trim(intv_app_month_income)
-	' 	intv_app_month_asset = trim(intv_app_month_asset)
-	' 	intv_app_month_housing_expense = trim(intv_app_month_housing_expense)
-	'
-	' 	If intv_app_month_income = "" Then intv_app_month_income = 0
-	' 	If intv_app_month_asset = "" Then intv_app_month_asset = 0
-	' 	If intv_app_month_housing_expense = "" Then intv_app_month_housing_expense = 0
-	'
-	' 	If IsNumeric(intv_app_month_income) = False Then err_msg = err_msg & "~!~" & "1 ^* What is the total of the income received in the month of application?##~##   - Enter the amount of income in the month of application as a number. We MUST gather the income in the application month.##~##"
-	' 	If IsNumeric(intv_app_month_asset) = False Then err_msg = err_msg & "~!~" & "1 ^* Use the best detail of assets the resident has available. Liquid Asset amount?##~##   - Enter the total assets in the month of application as a number. We MUST gather the assets in the application month.##~##"
-	' 	If IsNumeric(intv_app_month_housing_expense) = False Then err_msg = err_msg & "~!~" & "1 ^* What is the housing expense (Rend, Mortgage, etc)##~##   - Enter the rent/mortgage in the month of application as a number. We MUST gather the expenses in the application month.##~##"
-	'
-	' 	'If Interview utilities have no checkmarks - then we need a checkmoark - if none - then check none
-	' 	If intv_exp_pay_heat_checkbox = unchecked AND intv_exp_pay_ac_checkbox = unchecked AND intv_exp_pay_electricity_checkbox = unchecked AND intv_exp_pay_phone_checkbox = unchecked AND intv_exp_pay_none_checkbox = unchecked Then err_msg = err_msg & "~!~" & "1^* What utilities expenses exist?##~##   - You must indicate which utilities expenses the household has. If there are none, check the box for 'NONE'"
-	' 	 		'If non is checked and others are checked - we need to resolve
-	' 	If intv_exp_pay_none_checkbox = checked AND (intv_exp_pay_heat_checkbox = checked OR intv_exp_pay_ac_checkbox = checked OR intv_exp_pay_electricity_checkbox = checked OR intv_exp_pay_phone_checkbox = checked) Then err_msg = err_msg & "~!~" & "1^* What utilities expenses exist?##~##   - You have selected 'None' for utilities expenses and also selected one or more of the utilities. If 'None' you must not select one of utilities, but if there is utilities expense, you should not select 'None'."
-	' End If
 
-
-	' If current_listing = "2"  Then tagline = ": CAF ADDR"
-		'If living situation is 'Blank' or 'Unknown' - ask it and update
 	If living_situation = "10 - Unknown" OR living_situation = "Blank" or living_situation = "Select" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
 
-	' If current_listing = "3"  Then tagline = ": CAF MEMBs"
-		'If IMIG Statis is not blank - require sponsor information
-		'require 'intends to reside in MN
-		'ID for 01? Other caregiver?
 	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
             HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
@@ -312,78 +290,53 @@ function check_for_errors(interview_questions_clear)
         End If
 	Next
 
-	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
-		'if children in home - school notes need detail
-	question_3_interview_notes = trim(question_3_interview_notes)
-	If school_age_children_in_hh = True AND question_3_interview_notes = "" Then err_msg = err_msg & "~!~" & "4 ^* 3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
+	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "3 ^* Principal Wage Earner##~##   - Since we have SNAP to consider, you must indicate who the resident selects as PWE."
 
-	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
-		'if SNAP - must select PWE'
-	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "5 ^* Principal Wage Earner##~##   - Since we have SNAP to consider, you must indicate who the resident selects as PWE."
-
-	' If current_listing = "6"  Then tagline = ": Q. 12 - 13"
-
-	' If current_listing = "7"  Then tagline = ": Q. 14 - 15"
-
-	' If current_listing = "8"  Then tagline = ": Q. 16 - 20"
-
-	' If current_listing = "9"  Then tagline = ": Q. 21 - 24"
-
-	' If current_listing = "10" Then tagline = ": CAF QUAL Q"
-		'if any question is 'Yes' Then must have a person selected
-		qual_memb_one = trim(qual_memb_one)
-		qual_memb_two = trim(qual_memb_two)
-		qual_memb_three = trim(qual_memb_three)
-		qual_memb_four = trim(qual_memb_four)
-		qual_memb_five = trim(qual_memb_five)
-		If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
-			If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_two = "?" OR (qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-			If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
-			If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
-			If qual_question_four = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_five = "?" OR (qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-			If qual_question_five = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+		list_err = False
+		If FORM_QUESTION_ARRAY(quest).mandated = True Then
+			list_err = True
+			If FORM_QUESTION_ARRAY(quest).error_info = "school" AND (school_age_children_in_hh = False OR FORM_QUESTION_ARRAY(quest).interview_notes <> "") Then list_err = False
 		End If
 
+		If list_err = True Then err_msg = err_msg & "~!~" & FORM_QUESTION_ARRAY(quest).dialog_page_numb & " ^* " & FORM_QUESTION_ARRAY(quest).error_verbiage
+	Next
 
-		'THERE WILL BE MORE ONCE THE BENEFIT DETAILS ARE ENTERED
+	qual_memb_one = trim(qual_memb_one)
+	qual_memb_two = trim(qual_memb_two)
+	qual_memb_three = trim(qual_memb_three)
+	qual_memb_four = trim(qual_memb_four)
+	qual_memb_five = trim(qual_memb_five)
+	If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & qual_numb & "^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+		If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_two = "?" OR (qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & qual_numb & "^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+		If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & qual_numb & "^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+		If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_three = "Yes" AND (qual_memb_three = "" OR qual_memb_three = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & qual_numb & "^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
+		If qual_question_four = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_five = "?" OR (qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & qual_numb & "^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+		If qual_question_five = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
 
-	' If current_listing = "12" Then tagline = ": Discrepancies"
-		'If no phone number - confirm no phone number
-		'If homeless and no mailing address - confirm and explain about mail
-		'If out of county - confirm and explain transfer
-		'rent on CAF1 and Q14 do not match
-		'utilities on CAF1 and Q15 do not match
-	'
-	'
-	' If current_listing = "13" Then tagline = ": Expedited"
-		If expedited_determination_needed = True Then
-			If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & "13 ^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
-		End If
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	If expedited_determination_needed = True Then
+		If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & exp_num & "^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
+	End If
+
 	If err_msg = "" Then interview_questions_clear = TRUE
 
 	If interview_questions_clear = TRUE Then
@@ -393,90 +346,62 @@ function check_for_errors(interview_questions_clear)
 		second_signature_detail = trim(second_signature_detail)
 		signature_person = trim(signature_person)
 		second_signature_person = trim(second_signature_person)
-		If signature_detail = "Select or Type" OR signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult##~##   - Indicate how the signature information has been received (or not received)."
-		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received). If no second adult is on the case or the signature of the second adult is not required, select 'Not Required'."
+		If signature_detail = "Select or Type" OR signature_detail = "" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult##~##   - Indicate how the signature information has been received (or not received)."
+		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received). If no second adult is on the case or the signature of the second adult is not required, select 'Not Required'."
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
-			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
+			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
 			If IsDate(signature_date) = False Then
-				err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
+				err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
 			Else
-				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
+				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
 			End If
 		End If
 		If second_signature_detail = "Signature Completed" OR second_signature_detail  = "Accepted Verbally" Then
-			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
+			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
 			If IsDate(second_signature_date) = False Then
-				err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
+				err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
 			Else
-				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
+				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
 			End If
 		End If
 		'Interview date must be a date and not in the future
 		' If  Then err_msg = err_msg & "~!~" & "11^* FIELD##~##   - "
 		If IsDate(interview_date) = False Then
-			err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - Enter the date of the interview as a valid date."
+			err_msg = err_msg & "~!~" & last_num & "^* Interview Date##~##   - Enter the date of the interview as a valid date."
 		Else
-			If DateDiff("d", date, interview_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - The date of the interview cannot be in the future."
+			If DateDiff("d", date, interview_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Interview Date##~##   - The date of the interview cannot be in the future."
 		End If
 
-		'If APP Date is too far away - explain delays
-		'If APP Date is blank - add app date, deny date, or explain delays
-		'If Deny date exists - explain denial
-
-
-		' If snap_status = "PENDING" Then
-		' 	If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
-		' 		err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
-		' 	ElseIf IsDate(snap_denial_date) = TRUE Then
-		' 		If DateDiff("d", date, snap_denial_date) > 0 Then err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
-		' 		If trim(snap_denial_explain) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DENIAL ##~##   - Since you have a denial date listed, add some detail to explain the denial reason or other information."
-		' 	ElseIf trim(snap_denial_date) = "" Then
-		' 		If case_is_expedited = True Then
-		' 			If IsDate(exp_snap_approval_date) = TRUE Then
-		' 				If DateDiff("d", date, exp_snap_approval_date) > 0 Then
-		' 					err_msg = err_msg & "~!~11^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
-		' 				ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
-		' 					err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
-		' 				End If
-		' 			Else
-		' 				If trim(exp_snap_delays) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
-		' 			End If
-		' 		End If
-		' 	End If
-		' End If
 		If snap_status = "INACTIVE" AND case_is_expedited = True Then
-			If pend_snap_on_case = "?" Then err_msg = err_msg & "~!~11^* SHOULD SNAP BE PENDED ##~##   - Since SNAP is not active on this case, review for possible program eligibility."
+			If pend_snap_on_case = "?" Then err_msg = err_msg & "~!~" & last_num & "^* SHOULD SNAP BE PENDED ##~##   - Since SNAP is not active on this case, review for possible program eligibility."
 		End If
 		IF family_cash_case = True OR adult_cash_case = True OR unknown_cash_pending = True Then
 			If family_cash_case_yn = "?" Then
-				err_msg = err_msg & "~!~11^* IS THIS A FAMILY CASH CASE ##~##   - Since this case has cash active or pending, indicate if this cash is MFIP/DWP."
+				err_msg = err_msg & "~!~" & last_num & "^* IS THIS A FAMILY CASH CASE ##~##   - Since this case has cash active or pending, indicate if this cash is MFIP/DWP."
 			ElseIf family_cash_case_yn = "Yes" Then
-				If absent_parent_yn = "?" Then err_msg = err_msg & "~!~11^* IS THERE AN ABPS ON THIS CASE ##~##   - Since this is a family cash case, indicate if there is an absent parent for any child on the case."
-				If relative_caregiver_yn = "?" Then err_msg = err_msg & "~!~11^* IS THIS A RELATIVE CAREGIVER CASE ##~##   - Since this is a family cash case, indicate if this is a relative caregiver case."
+				If absent_parent_yn = "?" Then err_msg = err_msg & "~!~" & last_num & "^* IS THERE AN ABPS ON THIS CASE ##~##   - Since this is a family cash case, indicate if there is an absent parent for any child on the case."
+				If relative_caregiver_yn = "?" Then err_msg = err_msg & "~!~" & last_num & "^* IS THIS A RELATIVE CAREGIVER CASE ##~##   - Since this is a family cash case, indicate if this is a relative caregiver case."
 			End If
-			' If  = "" Then err_msg = err_msg & "~!~11^* TITLE ##~##   - MESSAGE"
-			' If  = "" Then err_msg = err_msg & "~!~11^* TITLE ##~##   - MESSAGE"
  		End If
 
 
-		If disc_no_phone_number = "EXISTS" Then err_msg = err_msg & "~!~12^* PHONE CONTACT Clarification ##~##   - Since no phone numbers were listed - confirm with the resident about phone contact and clarify."
-		If disc_homeless_no_mail_addr = "EXISTS" Then err_msg = err_msg & "~!~12^* HOMELESS MAILING Clarification ##~##   - Since this case is listed as Homeless - confirm you have discussed mailing and responses."
-		If disc_out_of_county = "EXISTS" Then err_msg = err_msg & "~!~12^* OUT OF COUNTY Clarification ##~##   - Since this case is indicated as being out of county - confirm you have explained case transfers."
-		If disc_rent_amounts = "EXISTS" Then err_msg = err_msg & "~!~12^* HOUSING EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Housing Expense appear to have a discrepancy - clarify which is accurate."
-		If disc_utility_amounts = "EXISTS" Then err_msg = err_msg & "~!~12^* UTILITY EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Utility Expense appear to have a discrepancy - clarify which is accurate."
-		' If  = "" Then err_msg = err_msg & "~!~12^* TITLE ##~##   - MESSAGE"
+		If disc_no_phone_number = "EXISTS" Then err_msg = err_msg & "~!~" & discrep_num & "^* PHONE CONTACT Clarification ##~##   - Since no phone numbers were listed - confirm with the resident about phone contact and clarify."
+		If disc_homeless_no_mail_addr = "EXISTS" Then err_msg = err_msg & "~!~" & discrep_num & "^* HOMELESS MAILING Clarification ##~##   - Since this case is listed as Homeless - confirm you have discussed mailing and responses."
+		If disc_out_of_county = "EXISTS" Then err_msg = err_msg & "~!~" & discrep_num & "^* OUT OF COUNTY Clarification ##~##   - Since this case is indicated as being out of county - confirm you have explained case transfers."
+		If disc_rent_amounts = "EXISTS" Then err_msg = err_msg & "~!~" & discrep_num & "^* HOUSING EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Housing Expense appear to have a discrepancy - clarify which is accurate."
+		If disc_utility_amounts = "EXISTS" Then err_msg = err_msg & "~!~" & discrep_num & "^* UTILITY EXPENSE Clarification ##~##   - Since the amounts reported on the CAF for Utility Expense appear to have a discrepancy - clarify which is accurate."
 	End If
 
 	If EMER_on_CAF_checkbox = checked Then
 		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
-			err_msg = err_msg & "~!~" & "14^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
+			err_msg = err_msg & "~!~" & emer_numb & "^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
 		End If
 	End If
-	
-	If resident_emergency_yn = "Yes" Then 
+
+	If resident_emergency_yn = "Yes" Then
 		If trim(emergency_type) = "" or emergency_type = "Select one" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
-			err_msg = err_msg & "~!~" & "14^* You indicated the resident is experiencing an emergency. You must fill out all of the fields describing the emergency."
+			err_msg = err_msg & "~!~" & emer_numb & "^* You indicated the resident is experiencing an emergency. You must fill out all of the fields describing the emergency."
 		End If
 	End If
 end function
@@ -485,6 +410,74 @@ function define_main_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
 
+		Text 485, 5, 75, 10, "---   DIALOGS   ---"
+		Text 485, 17, 10, 10, "1"
+		Text 485, 32, 10, 10, "2"
+		Text 485, 47, 10, 10, "3"
+		Text 485, 62, 10, 10, "4"
+		num_pos = 77
+		If last_page_of_questions => 5 Then
+			Text 485, num_pos, 10, 10, "5"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 6 Then
+			Text 485, num_pos, 10, 10, "6"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 7 Then
+			Text 485, num_pos, 10, 10, "7"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 8 Then
+			Text 485, num_pos, 10, 10, "8"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 9 Then
+			Text 485, num_pos, 10, 10, "9"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 10 Then
+			Text 485, num_pos, 10, 10, "10"
+			num_pos = num_pos + 15
+		End If
+		If last_page_of_questions => 11 Then
+			Text 485, num_pos, 10, 10, "11"
+			num_pos = num_pos + 15
+		End If
+
+		qual_numb = show_qual
+		show_qual = show_qual * 1
+		Text 485, num_pos, 10, 10, qual_numb
+		qual_pos = num_pos
+		num_pos = num_pos + 15
+
+		emer_numb = emergency_questions
+		emergency_questions = emergency_questions * 1
+		Text 485, num_pos, 10, 10, emer_numb
+		emer_pos = num_pos
+		num_pos = num_pos + 15
+
+		running_num = last_page_of_questions + 3
+		If discrepancies_exist = True Then
+			discrep_num = running_num
+			Text 485, num_pos, 10, 10, running_num
+			discrep_pos = num_pos
+			running_num = running_num + 1
+			num_pos = num_pos + 15
+		End If
+
+		If expedited_determination_needed = True Then
+			exp_num = running_num
+			Text 485, num_pos, 10, 10, running_num
+			exp_pos = num_pos
+			running_num = running_num + 1
+			num_pos = num_pos + 15
+		End If
+
+		last_num = running_num
+		Text 485, num_pos, 10, 10, running_num
+		last_pos = num_pos
+		num_pos = num_pos + 15
 	  ButtonGroup ButtonPressed
 	    If page_display = show_pg_one_memb01_and_exp Then
 			Text 497, 17, 60, 10, "INTVW / CAF 1"
@@ -588,8 +581,8 @@ function define_main_dialog()
 				Text 125, 300, 65, 45, phone_two_type
 				Text 20, 320, 90, 15, phone_three_number
 				Text 125, 320, 65, 45, phone_three_type
-				Text 325, 265, 50, 15, address_change_date
-				Text 255, 295, 120, 45, resi_addr_county
+				Text 325, 255, 50, 15, address_change_date
+				Text 255, 285, 120, 45, resi_addr_county
 				PushButton 290, 340, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_addr = TRUE Then
@@ -614,8 +607,8 @@ function define_main_dialog()
 				DropListBox 125, 300, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_two_type
 				EditBox 20, 320, 90, 15, phone_three_number
 				DropListBox 125, 320, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", phone_three_type
-				EditBox 325, 260, 50, 15, address_change_date
-				ComboBox 255, 295, 120, 45, county_list+chr(9)+resi_addr_county, resi_addr_county
+				EditBox 325, 250, 50, 15, address_change_date
+				ComboBox 255, 285, 120, 45, county_list+chr(9)+resi_addr_county, resi_addr_county
 				PushButton 290, 340, 95, 15, "Save Information", save_information_btn
 			End If
 
@@ -645,14 +638,21 @@ function define_main_dialog()
 			GroupBox 10, 250, 235, 90, "Phone Number"
 			Text 20, 265, 50, 10, "Number"
 			Text 125, 265, 25, 10, "Type"
-			Text 255, 265, 60, 10, "Date of Change:"
-			Text 255, 285, 75, 10, "County of Residence:"
+			Text 255, 255, 60, 10, "Date of Change:"
+			Text 255, 275, 75, 10, "County of Residence:"
 
-  
+			Text 255, 305, 125, 10, "Send Updates via TEXT MESSAGE:"
+			DropListBox 380, 300, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_text
+			Text 290, 325, 90, 10, "Send Updates via EMAIL:"
+			DropListBox 380, 320, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_email
+
+
 		ElseIf page_display = show_pg_memb_list Then
 			Text 504, 47, 60, 10, "CAF MEMBs"
 			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
 			Text 10, 15, 400, 10, "You must click on each Person button below and on the left to view each person."
+
+
 
 			If update_pers = FALSE Then
 				Text 70, 45, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
@@ -748,6 +748,10 @@ function define_main_dialog()
 				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Interview Questions"
 
 			End If
+
+			Text 225, 350, 75, 10, "Pricipal Wage Earner"
+			DropListBox 300, 345, 175, 45, pick_a_client, pwe_selection
+
 			y_pos = 35
 			For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 				If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
@@ -789,664 +793,9 @@ function define_main_dialog()
 			Text 70, 285, 50, 10, "Verification"
 			Text 155, 285, 65, 10, "Verification Details"
 			Text 70, 315, 50, 10, "Notes:"
-		ElseIf page_display = show_q_1_6 Then
-			Text 510, 62, 60, 10, "Q. 1 - 6"
-			y_pos = 10
-
-			GroupBox 5, y_pos, 475, 55, "1. Does everyone in your household buy, fix or eat food with you?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_1_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_1_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_1_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_1_notes
-				Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_1_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			y_pos = y_pos + 20
-
-			'TESTING CODE
-			'NEW QUESTION LAYOUT OPTION
-			' Text 400, y_pos, 40, 10, "CAF Answer"
-			' DropListBox 440, y_pos - 5, 35, 45, question_answers, question_1_yn
-			' PushButton 400, y_pos + 10, 75, 10, "ADD WRITE-IN", question_1_add_wwrite_in_bnt
-			' y_pos = y_pos + 20
-			' Text 15, y_pos, 60, 10, "Verbal Answer"
-			' DropListBox 75, y_pos - 5, 35, 45, question_answers, question_1_verbal_yn
-			' If question_1_verif_yn <> "" Then Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
-			' PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			'
-			' y_pos = y_pos + 20
-			' Text 15, y_pos, 60, 10, "Interview Notes:"
-			' EditBox 75, y_pos - 5, 400, 15, question_1_interview_notes
-			' y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
-			y_pos = y_pos + 20
-			' Text 20, 55, 115, 10, "buy or fix food due to a disability?"
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_2_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_2_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_2_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_2_notes
-				Text 360, y_pos, 110, 10, "Q2 - Verification - " & question_2_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_2_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_2_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "3. Is anyone in the household attending school?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_3_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_3_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_3_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_3_notes
-				Text 360, y_pos, 110, 10, "Q3 - Verification - " & question_3_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_3_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_3_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "4. Is anyone in your household temporarily not living in your home? (eg. vacation, foster care, treatment, hospital, job search)"
-			y_pos = y_pos + 20
-			' Text 20, 135, 230, 10, "(for example: vacation, foster care, treatment, hospital, job search)"
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_4_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_4_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_4_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_4_notes
-				Text 360, y_pos, 110, 10, "Q4 - Verification - " & question_4_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_4_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_4_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
-			y_pos = y_pos + 20
-			' Text 20, 180, 185, 10, " that limits the ability to work or perform daily activities?"
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_5_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_5_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_5_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_5_notes
-				Text 360, y_pos, 110, 10, "Q5 - Verification - " & question_5_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_5_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_5_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "6. Is anyone unable to work for reasons other than illness or disability?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_6_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_6_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_6_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_6_notes
-				Text 360, y_pos, 110, 10, "Q6 - Verification - " & question_6_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_6_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_6_btn
-			y_pos = y_pos + 20
-
-		ElseIf page_display = show_q_7_11 Then
-			Text 508, 77, 60, 10, "Q. 7 - 11"
-			y_pos = 10
-
-			GroupBox 5, y_pos, 475, 55, "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
-			' Text 20, 315, 350, 10, "- Stop working or quit a job?   - Refuse a job offer? - Ask to work fewer hours?   - Go on strike?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_7_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_7_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_7_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_7_notes
-				Text 360, y_pos, 110, 10, "Q7 - Verification - " & question_7_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_7_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_7_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 65, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_8_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_8_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_8_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_8_notes
-				Text 360, y_pos, 110, 10, "Q8 - Verification - " & question_8_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 400, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?       CAF Answer"
-			DropListBox 415, y_pos - 5, 35, 45, question_answers, question_8a_yn
-			y_pos = y_pos + 15
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_8_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_8_btn
-			y_pos = y_pos + 25
-
-			grp_len = 35
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
-			next
-			GroupBox 5, y_pos, 475, grp_len, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-			PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_9_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			EditBox 120, y_pos - 5, 350, 15, question_9_notes
-			' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
-			' y_pos = y_pos + 20
-
-			' PushButton 300, 100, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-			' y_pos = 110
-			' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
-			First_job = TRUE
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-					If First_job = TRUE Then y_pos = y_pos + 20
-					First_job = FALSE
-					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
-					PushButton 450, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
-					y_pos = y_pos + 10
-				End If
-			next
-			If First_job = TRUE Then y_pos = y_pos + 10
-			y_pos = y_pos + 15
-
-			GroupBox 5, y_pos, 475, 55, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_10_yn
-			Text 95, y_pos, 50, 10, "Gross Earnings:"
-			EditBox 145, y_pos - 5, 35, 15, question_10_monthly_earnings
-			Text 180, y_pos, 25, 10, "write-in:"
-			If question_10_verif_yn = "" Then
-				EditBox 205, y_pos - 5, 270, 15, question_10_notes
-			Else
-				EditBox 205, y_pos - 5, 150, 15, question_10_notes
-				Text 360, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_10_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_10_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "11. Do you expect any changes in income, expenses or work hours?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_11_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_11_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_11_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_11_notes
-				Text 360, y_pos, 110, 10, "Q11 - Verification - " & question_11_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_11_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
-			y_pos = y_pos + 25
-
-			Text 5, y_pos, 75, 10, "Pricipal Wage Earner"
-			DropListBox 85, y_pos - 5, 175, 45, pick_a_client, pwe_selection
-			y_pos = y_pos + 10
-
-
-		ElseIf page_display = show_q_12_13 Then
-			Text 505, 92, 60, 10, "Q. 12 - 13"
-			y_pos = 10
-
-			GroupBox 5, y_pos, 475, 125, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
-			' y_pos = y_pos + 15
-			PushButton 385, y_pos + 5, 90, 13, "ALL Q. 12 Answered 'No'", q_12_all_no_btn
-			y_pos = y_pos + 20
-			col_1_1 = 15
-			col_1_2 = 55
-			col_1_3 = 115
-
-			col_2_1 = 165
-			col_2_2 = 205
-			col_2_3 = 260
-
-			col_3_1 = 320
-			col_3_2 = 360
-			col_3_3 = 430
-
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_1_3 - 3, 	y_pos, 40, 10, "CAF Amount"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_3 - 3, 	y_pos, 40, 10, "CAF Amount"
-			Text 	col_3_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_3_3 - 3, 	y_pos, 40, 10, "CAF Amount"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_rsdi_yn
-			Text 			col_1_2, 	y_pos + 5, 	60, 10, "RSDI                  $"
-			EditBox 		col_1_3,	y_pos, 		35, 15, question_12_rsdi_amt
-			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_ssi_yn
-			Text 			col_2_2, 	y_pos + 5, 	60, 10, "SSI                $"
-			EditBox 		col_2_3, 	y_pos, 		35, 15, question_12_ssi_amt
-			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_va_yn
-			Text 			col_3_2, 	y_pos + 5, 	70, 10, "VA                          $"
-			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_va_amt
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_ui_yn
-			Text 			col_1_2, 	y_pos + 5, 	60, 10, "UI                       $"
-			EditBox 		col_1_3, 	y_pos, 		35, 15, question_12_ui_amt
-			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_wc_yn
-			Text 			col_2_2, 	y_pos + 5, 	60, 10, "WC                $"
-			EditBox 		col_2_3, 	y_pos, 		35, 15, question_12_wc_amt
-			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_ret_yn
-			Text 			col_3_2, 	y_pos + 5, 	85, 10, "Retirement Ben.     $"
-			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_ret_amt
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_trib_yn
-			Text 			col_1_2, 	y_pos + 5, 	60, 10, "Tribal Payments  $"
-			EditBox 		col_1_3, 	y_pos, 		35, 15, question_12_trib_amt
-			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_cs_yn
-			Text 			col_2_2, 	y_pos + 5, 	60, 10, "CSES             $"
-			EditBox 		col_2_3,	y_pos, 		35, 15, question_12_cs_amt
-			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_other_yn
-			Text 			col_3_2, 	y_pos + 5, 	110, 10, "Other unearned       $"
-			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_other_amt
-			y_pos = y_pos + 25
-
-			Text 15, y_pos, 25, 10, "Write-in:"
-			If question_12_verif_yn = "" Then
-				EditBox 40, y_pos - 5, 435, 15, question_12_notes
-			Else
-				EditBox 40, y_pos - 5, 315, 15, question_12_notes
-				Text 360, y_pos, 110, 10, "Q12 - Verification - " & question_12_verif_yn
-			End If
-			' Text 360, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_12_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_12_btn
-			y_pos = y_pos + 25
-
-			' Text 0, 0, 0, 0, ""
-			' Text 0, 0, 0, 0, ""
-			' Text 0, 0, 0, 0, ""
-			' Text 0, 0, 0, 0, ""
-			' Text 0, 0, 0, 0, ""
-			GroupBox 5, y_pos, 475, 55, "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_13_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_13_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_13_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_13_notes
-				Text 360, y_pos, 110, 10, "Q13 - Verification - " & question_13_verif_yn
-			End If
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_13_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_13_btn
-			y_pos = y_pos + 20
-
-		ElseIf page_display = show_q_14_15 Then
-			Text 505, 107, 60, 10, "Q. 14 - 15"
-			y_pos = 10
-
-			GroupBox 5, 10, 475, 130, "14. Does your household have the following housing expenses?"
-			PushButton 385, 15, 90, 13, "ALL Q. 14 Answered 'No'", q_14_all_no_btn
-
-			y_pos = y_pos + 15
-			col_1_1 = 15
-			col_1_2 = 85
-			col_2_1 = 220
-			col_2_2 = 290
-
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_rent_yn
-			Text 			col_1_2, y_pos, 	70, 10, "Rent"
-			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_subsidy_yn
-			Text 			col_2_2, y_pos, 	100, 10, "Rent or Section 8 Subsidy"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_mortgage_yn
-			Text 			col_1_2, y_pos, 	125, 10, "Mortgage/contract for deed payment"
-			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_association_yn
-			Text 			col_2_2, y_pos, 	70, 10, "Association fees"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_insurance_yn
-			Text 			col_1_2, y_pos, 	85, 10, "Homeowner's insurance"
-			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_room_yn
-			Text 			col_2_2, y_pos, 	70, 10, "Room and/or board"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_taxes_yn
-			Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 25, 10, "Write-in:"
-			If question_14_verif_yn = "" Then
-				EditBox 40, y_pos - 5, 435, 15, question_14_notes
-			Else
-				EditBox 40, y_pos - 5, 315, 15, question_14_notes
-				Text 360, y_pos, 110, 10, "Q14 - Verification - " & question_14_verif_yn
-			End If
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_14_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_14_btn
-			y_pos = y_pos + 25
-
-
-			GroupBox 5, y_pos, 475, 155, "15. Does your household have the following utility expenses any time during the year? "
-			y_pos = y_pos + 15
-
-			col_1_1 = 20
-			col_1_2 = 65
-
-			col_2_1 = 185
-			col_2_2 = 230
-
-			col_3_1 = 335
-			col_3_2 = 380
-
-			EditBox 200, y_pos -5, 180, 15, all_persons_paying
-			Text 	20, y_pos , 180, 10, "List HH member numbers who pay utilities (i.e. 01, 02):" 
-			y_pos = y_pos + 15
-
-
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_3_1, 		y_pos, 40, 10, "CAF Answer"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_heat_ac_yn
-			Text 			col_1_2, y_pos, 	85, 10, "Heating/air conditioning"
-			DropListBox 	col_2_1, y_pos - 5, 35, 45, question_answers, question_15_electricity_yn
-			Text 			col_2_2, y_pos, 	70, 10, "Electricity"
-			DropListBox 	col_3_1, y_pos - 5, 35, 45, question_answers, question_15_cooking_fuel_yn
-			Text 			col_3_2, y_pos, 	70, 10, "Cooking fuel"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_water_and_sewer_yn
-			Text 			col_1_2, y_pos, 	75, 10, "Water and sewer"
-			DropListBox 	col_2_1, y_pos - 5, 35, 45, question_answers, question_15_garbage_yn
-			Text 			col_2_2, y_pos, 	60, 10, "Garbage removal"
-			DropListBox 	col_3_1, y_pos - 5, 35, 45, question_answers, question_15_phone_yn
-			Text 			col_3_2, y_pos, 	70, 10, "Phone/cell phone"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_liheap_yn
-			Text 			col_1_2, y_pos, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 25, 10, "Write-in:"
-			If question_15_verif_yn = "" Then
-				EditBox 40, y_pos - 5, 435, 15, question_15_notes
-			Else
-				EditBox 40, y_pos - 5, 315, 15, question_15_notes
-				Text 360, y_pos, 110, 10, "Q15 - Verification - " & question_15_verif_yn
-			End If
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_15_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_15_btn
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 100, 10, "Does phone have an expense?"
-			ComboBox 115, y_pos - 5, 360, 15, "Select or Type"+chr(9)+"Yes there is a cost, the bill is the responsibility of a unit member."+chr(9)+"Yes there is a cost, the household has a partial subsidy but pays a portion of the bill."+chr(9)+"No Expense, this is from a free phone program and does not cost the household anything."+chr(9)+"Yes there is a cost, optional service add-ons to a free phone program are paid by the household."+chr(9)+"No Expense, this household does not have a phone of their own."+chr(9)+question_15_phone_details, question_15_phone_details
-
-		ElseIf page_display = show_q_16_20 Then
-			Text 505, 122, 60, 10, "Q. 16 - 20"
-			y_pos = 10
-
-			GroupBox 5, y_pos, 475, 55, "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
-			' Text 95, 200, 125, 10, "looking for work or going to school?"
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_16_yn
-			Text 		95, y_pos, 		25, 10, "write-in:"
-			If question_16_verif_yn = "" Then
-				EditBox 	120, y_pos - 5, 355, 15, question_16_notes
-			Else
-				EditBox 	120, y_pos - 5, 235, 15, question_16_notes
-				Text 		360, y_pos, 	110, 10, "Q16 - Verification - " & question_16_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		60, 10, "Interview Notes:"
-			EditBox 	75, y_pos - 5, 	320, 15, question_16_interview_notes
-			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_16_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "17. Does anyone have costs for care of an ill/disabled adult because you or they are working, looking for work or going to school?"
-			' Text 95, 245, 125, 10, "looking for work or going to school?"
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_17_yn
-			Text 		95, y_pos, 		25, 10, "write-in:"
-			If question_17_verif_yn = "" Then
-				EditBox 	120, y_pos - 5, 355, 15, question_17_notes
-			Else
-				EditBox 	120, y_pos - 5, 235, 15, question_17_notes
-				Text 		360, y_pos, 	110, 10, "Q17 - Verification - " & question_17_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		60, 10, "Interview Notes:"
-			EditBox 	75, y_pos - 5, 	320, 15, question_17_interview_notes
-			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_17_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 55, "18. Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
-			' Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_18_yn
-			Text 		95, y_pos, 		25, 10, "write-in:"
-			If question_18_verif_yn = "" Then
-				EditBox 	120, y_pos - 5, 355, 15, question_18_notes
-			Else
-				EditBox 	120, y_pos - 5, 235, 15, question_18_notes
-				Text 		360, y_pos, 	110, 10, "Q18 - Verification - " & question_18_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		60, 10, "Interview Notes:"
-			EditBox 	75, y_pos - 5, 	320, 15, question_18_interview_notes
-			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_18_btn
-			y_pos = y_pos + 20
-
-			' Text 0, 0, 0, 0, ""
-			' Text 0, 0, 0, 0, ""
-			GroupBox 5, y_pos, 475, 55, "19. For SNAP only: Does anyone in the household have medical expenses? "
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 		40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_19_yn
-			Text 		95, y_pos, 		25, 10, "write-in:"
-			If question_19_verif_yn = "" Then
-				EditBox 	120, y_pos - 5, 355, 15, question_19_notes
-			Else
-				EditBox 	120, y_pos - 5, 235, 15, question_19_notes
-				Text 		360, y_pos, 	110, 10, "Q19 - Verification - " & question_19_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 		15, y_pos, 60, 	10, "Interview Notes:"
-			EditBox 	75, y_pos - 5, 	320, 15, question_19_interview_notes
-			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_19_btn
-			y_pos = y_pos + 20
-
-			GroupBox 5, y_pos, 475, 100, "20. Does anyone in the household own, or is anyone buying, any of the following?"
-			y_pos = y_pos + 10
-			col_1_1 = 25
-			col_1_2 = 90
-			col_2_1 = 230
-			col_2_2 = 295
-
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_20_cash_yn
-			Text 			col_1_2, y_pos, 	70, 10, "Cash"
-			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_20_acct_yn
-			Text 			col_2_2, y_pos, 	175, 10, "Bank accounts (savings, checking, debit card, etc.)"
-			y_pos = y_pos + 15
-
-			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_20_secu_yn
-			Text 			col_1_2, y_pos, 	125, 10, "Stocks, bonds, annuities, 401k, etc."
-			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_20_cars_yn
-			Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 25, 10, "Write-in:"
-			If question_20_verif_yn = "" Then
-				EditBox 40, y_pos - 5, 435, 15, question_20_notes
-			Else
-				EditBox 40, y_pos - 5, 315, 15, question_20_notes
-				Text 360, y_pos, 110, 10, "Q20 - Verification - " & question_20_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_20_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_20_btn
-			y_pos = y_pos + 25
-
-		ElseIf page_display = show_q_21_24 Then
-			Text 505, 137, 60, 10, "Q. 21 - 24"
-			y_pos = 10
-
-			GroupBox 5, y_pos, 475, 55, "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? "
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_21_yn
-			Text 95, y_pos, 25, 10, "Write-in:"
-			If question_21_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_21_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_21_notes
-				Text 360, y_pos, 110, 10, "Q21 - Verification - " & question_21_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_21_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_21_btn
-			y_pos = y_pos + 25
-
-			GroupBox 5, y_pos, 475, 55, "22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_22_yn
-			Text 95, y_pos, 25, 10, "Write-in:"
-			If question_22_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_22_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_22_notes
-				Text 360, y_pos, 110, 10, "Q22 - Verification - " & question_22_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_22_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_22_btn
-			y_pos = y_pos + 25
-
-			GroupBox 5, y_pos, 475, 55, "23. For children under the age of 19, are both parents living in the home?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_23_yn
-			Text 95, y_pos, 25, 10, "Write-in:"
-			If question_23_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_23_notes
-			Else
-	 			EditBox 120, y_pos - 5, 235, 15, question_23_notes
-				Text 360, y_pos, 110, 10, "Q23 - Verification - " & question_23_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_23_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_23_btn
-			y_pos = y_pos + 25
-
-			GroupBox 5, y_pos, 475, 100, "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
-			y_pos = y_pos + 10
-
-			col_1_1 = 25
-			col_1_2 = 90
-			col_2_1 = 230
-			col_2_2 = 295
-
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			y_pos = y_pos + 15
-
-			DropListBox col_1_1, y_pos - 5, 60, 45, question_answers, question_24_rep_payee_yn
-			Text 		col_1_2, y_pos, 	95, 10, "Representative Payee fees"
-			DropListBox col_2_1, y_pos - 5, 60, 45, question_answers, question_24_guardian_fees_yn
-			Text 		col_2_2, y_pos, 	105, 10, "Guardian Conservator fees"
-			y_pos = y_pos + 15
-
-			DropListBox col_1_1, y_pos - 5, 60, 45, question_answers, question_24_special_diet_yn
-			Text 		col_1_2, y_pos, 	125, 10, "Physician-perscribed special diet"
-			DropListBox col_2_1, y_pos - 5, 60, 45, question_answers, question_24_high_housing_yn
-			Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
-			y_pos = y_pos + 20
-
-			Text 15, y_pos, 25, 10, "Write-in:"
-			If question_24_verif_yn = "" Then
-				EditBox 40, y_pos - 5, 435, 15, question_24_notes
-			Else
-				EditBox 40, y_pos - 5, 315, 15, question_24_notes
-				Text 360, y_pos, 110, 10, "Q24 - Verification - " & question_24_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_24_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_24_btn
 
 		ElseIf page_display = show_qual Then
-			Text 500, 152, 60, 10, "CAF QUAL Q"
+			Text 500, qual_pos, 60, 10, "CAF QUAL Q"
 
 			DropListBox 220, 40, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_one
 			ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
@@ -1470,8 +819,92 @@ function define_main_dialog()
 			Text 260, 110, 70, 10, "Household Member:"
 			Text 260, 140, 70, 10, "Household Member:"
 			Text 260, 160, 70, 10, "Household Member:"
+		ElseIf page_display = discrepancy_questions Then
+			Text 504, discrep_pos, 60, 10, "Clarifications"
+
+			y_pos = 10
+			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "No Phone Number, Review Phone Contact"
+				Text 20, y_pos + 20, 165, 10, "Confirm with the resident about phone contact."
+				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
+				y_pos = y_pos + 40
+			End If
+			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
+				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
+				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
+				y_pos = y_pos + 40
+			End If
+			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "No Phone Number Listed, Phone Expense Indicated"
+				Text 20, y_pos + 20, 165, 10, "Clarify a phone number or explain expense:"
+				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Paying phone for somone outside the home."+chr(9)+"Lost phone, number is changing."+chr(9)+"Getting a new number."+chr(9)+disc_no_phone_yes_expense_confirmation, disc_no_phone_yes_expense_confirmation
+				y_pos = y_pos + 40
+			End If
+			If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
+				grp_len = 80
+				If mail_addr_street_full <> "" Then grp_len = 95
+				GroupBox 10, y_pos, 455, grp_len, "Homeless, Review Mailing Options"
+				Text 20, y_pos + 10, 435, 40, "Explain that actions on the case are going to come officially through the mail. General Delivery can work as a mail option, but you need to collect your mail very regularly, at least once a week, to ensure you get your informaiton and notifications timely. If you have a trusted address you can use as a mailing address, maybe a friend or family member, that is often easier to navigate. Know that much of our mail must be responded to right away, we may need to receive verification within days of a mailing."
+				Text 25, y_pos + 45, 400, 10, "RESIDENCE ADDR: " & resi_addr_street_full & " " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip
+				y_pos = y_pos + 65
+				If mail_addr_street_full <> "" Then
+					Text 25, y_pos - 5, 400, 10, "MAILING ADDR: " & mail_addr_street_full & " " & mail_addr_city & ", " & left(mail_addr_state, 2) & " " & mail_addr_zip
+					y_pos = y_pos + 15
+				End If
+				' y_pos = y_pos + 5
+				Text 20, Y_pos, 200, 10, "Confirm you have discussed the difficulties/issues with mail"
+				ComboBox 210, Y_pos - 5, 245, 10, "Select or Type"+chr(9)+"Confirmed Understanding of General Delivery"+chr(9)+"Added a Trusted Mailing Address"+chr(9)+"Resident will look for a new Solution and Communicate"+chr(9)+disc_homeless_confirmation,disc_homeless_confirmation
+				y_pos = y_pos + 20
+			End If
+			If disc_out_of_county = "EXISTS" OR disc_out_of_county = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "Residence is Out of County. Review Case Transfer"
+				PushButton 305, y_pos - 2, 150, 13, "HSR Manual - Transfer to Another County", open_hsr_manual_transfer_page_btn
+				Text 20, y_pos + 20, 150, 10, "Confirm Out of County process discussed:"
+				ComboBox 165, y_pos + 15, 290, 45, "Select or Type"+chr(9)+"Discussion Completed"+chr(9)+"County of Residence Updated"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
+				y_pos = y_pos + 40
+
+			End If
+			If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 65, "CAF Answers for Housing Expense do not Match, Review and Clarify"
+				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
+				Text 20, y_pos + 30, 400, 10, "Question 14 Housing Expense: " & question_14_summary
+
+				Text 20, y_pos + 50, 110, 10, "Confirm Housing Expense Detail: "
+				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_rent_amounts_confirmation, disc_rent_amounts_confirmation
+				y_pos = y_pos + 70
+			End If
+			If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 65, "CAF Answers for Utility Expense do not Match, Review and Clarify"
+				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary
+				Text 20, y_pos + 30, 400, 10, "Question 15 Utility Expense: " & disc_utility_q_15_summary
+
+				Text 20, y_pos + 50, 110, 10, "Confirm Utility Expense Detail: "
+				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Household pays for Heat"+chr(9)+"Household pays for AC"+chr(9)+"Houshold pays Electricity which INCLUDES AC"+chr(9)+"Houshold pays Electricity which INCLUDES Heat"+chr(9)+"Houshold pays Electricity which INCLUDES AC and Heat"+chr(9)+"Houshold pays Electricity, but this does not include Heat or AC"+chr(9)+"Houshold pays Electricity and Phone"+chr(9)+"Houshold pays Phone Only"+chr(9)+"Houshold pays NO Utility Expenses"+chr(9)+disc_utility_amounts_confirmation, disc_utility_amounts_confirmation
+				y_pos = y_pos + 70
+			End If
+
+		ElseIf page_display = expedited_determination Then
+			Text 505, exp_pos, 60, 10, "EXPEDITED"
+
+		ElseIf page_display = emergency_questions Then
+
+			Text 505, emer_pos, 60, 10, "EMER Q"
+
+			GroupBox 5, 5, 475, 115, "Emergency Details"
+			Text 15, 20, 145, 10, "Is the resident experiencing an emergency?"
+			DropListBox 190, 20, 30, 15, " "+chr(9)+"Yes"+chr(9)+"No", resident_emergency_yn
+			Text 15, 40, 160, 10, "What emergency is the resident is experiencing?"
+			ComboBox 190, 40, 210, 25, "Select or Type"+chr(9)+"Eviction"+chr(9)+"Forced Move"+chr(9)+"Foreclosure"+chr(9)+"Utility Disconnect"+chr(9)+"Home Repairs"+chr(9)+"Property Taxes"+chr(9)+"Bus Ticket"+chr(9)+emergency_type, emergency_type
+			Text 15, 65, 130, 10, "Discussion of emergency with resident:"
+			EditBox 190, 60, 210, 15, emergency_discussion
+			Text 15, 85, 170, 10, "What amount is needed to resolve the emergency?"
+			EditBox 190, 80, 45, 15, emergency_amount
+			Text 15, 105, 170, 10, "What is the deadline to resolve the emergency?"
+			EditBox 190, 100, 45, 15, emergency_deadline
+		' ElseIf page_display =  Then
 		ElseIf page_display = show_pg_last Then
-			Text 498, 167, 60, 10, "CAF Last Page"
+			Text 498, last_pos, 60, 10, "CAF Last Page"
 
 			GroupBox 5, 5, 475, 60, "Confirm Authorized Representative"
 
@@ -1744,140 +1177,68 @@ function define_main_dialog()
 			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verbal"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate written document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
 			PushButton 395, 292, 85, 13, "Save AREP Detail", save_information_btn
 
-		ElseIf page_display = discrepancy_questions Then
-			btn_pos = 180
-			Text 504, btn_pos + 2, 60, 10, "Clarifications"
-
+		ElseIf page_display >= 4 or page_display <= last_page_of_questions Then		'This has to be at the end of the ifs because
+			' display_count = 1
 			y_pos = 10
-			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "No Phone Number, Review Phone Contact"
-				Text 20, y_pos + 20, 165, 10, "Confirm with the resident about phone contact."
-				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
-				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
-				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "No Phone Number Listed, Phone Expense Indicated"
-				Text 20, y_pos + 20, 165, 10, "Clarify a phone number or explain expense:"
-				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Paying phone for somone outside the home."+chr(9)+"Lost phone, number is changing."+chr(9)+"Getting a new number."+chr(9)+disc_no_phone_yes_expense_confirmation, disc_no_phone_yes_expense_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
-				grp_len = 80
-				If mail_addr_street_full <> "" Then grp_len = 95
-				GroupBox 10, y_pos, 455, grp_len, "Homeless, Review Mailing Options"
-				Text 20, y_pos + 10, 435, 40, "Explain that actions on the case are going to come officially through the mail. General Delivery can work as a mail option, but you need to collect your mail very regularly, at least once a week, to ensure you get your informaiton and notifications timely. If you have a trusted address you can use as a mailing address, maybe a friend or family member, that is often easier to navigate. Know that much of our mail must be responded to right away, we may need to receive verification within days of a mailing."
-				Text 25, y_pos + 45, 400, 10, "RESIDENCE ADDR: " & resi_addr_street_full & " " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip
-				y_pos = y_pos + 65
-				If mail_addr_street_full <> "" Then
-					Text 25, y_pos - 5, 400, 10, "MAILING ADDR: " & mail_addr_street_full & " " & mail_addr_city & ", " & left(mail_addr_state, 2) & " " & mail_addr_zip
-					y_pos = y_pos + 15
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				If FORM_QUESTION_ARRAY(quest).dialog_page_numb = page_display Then
+					' If FORM_QUESTION_ARRAY(quest).dialog_order = display_count Then
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = true  Then
+						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_HOUSING_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_UTILITIES_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_ASSETS_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_MSA_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_STWK_ARRAY)
+					End If
+					' y_pos = y_pos + FORM_QUESTION_ARRAY(quest).dialog_height
+					' MsgBox "y_pos - " & y_pos
+					' 	display_count = display_count + 1
+					' End If
 				End If
-				' y_pos = y_pos + 5
-				Text 20, Y_pos, 200, 10, "Confirm you have discussed the difficulties/issues with mail"
-				ComboBox 210, Y_pos - 5, 245, 10, "Select or Type"+chr(9)+"Confirmed Understanding of General Delivery"+chr(9)+"Added a Trusted Mailing Address"+chr(9)+"Resident will look for a new Solution and Communicate"+chr(9)+disc_homeless_confirmation,disc_homeless_confirmation
-				y_pos = y_pos + 20
-			End If
-			If disc_out_of_county = "EXISTS" OR disc_out_of_county = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "Residence is Out of County. Review Case Transfer"
-				PushButton 305, y_pos - 2, 150, 13, "HSR Manual - Transfer to Another County", open_hsr_manual_transfer_page_btn
-				Text 20, y_pos + 20, 150, 10, "Confirm Out of County process discussed:"
-				ComboBox 165, y_pos + 15, 290, 45, "Select or Type"+chr(9)+"Discussion Completed"+chr(9)+"County of Residence Updated"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
-				y_pos = y_pos + 40
+			Next
+			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 62, 55, 10, pg_4_label
+			If page_display = 5 and last_page_of_questions => 5 Then Text 505, 77, 55, 10, pg_5_label
+			If page_display = 6 and last_page_of_questions => 6 Then Text 505, 92, 55, 10, pg_6_label
+			If page_display = 7 and last_page_of_questions => 7 Then Text 505, 107, 55, 10, pg_7_label
+			If page_display = 8 and last_page_of_questions => 8 Then Text 505, 122, 55, 10, pg_8_label
+			If page_display = 9 and last_page_of_questions => 9 Then Text 505, 137, 55, 10, pg_9_label
+			If page_display = 10 and last_page_of_questions => 10 Then Text 505, 152, 55, 10, pg_10_label
+			If page_display = 11 and last_page_of_questions => 11 Then Text 505, 167, 55, 10, pg_11_label
 
-			End If
-			If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 65, "CAF Answers for Housing Expense do not Match, Review and Clarify"
-				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
-				Text 20, y_pos + 30, 400, 10, "Question 14 Housing Expense: " & question_14_summary
-
-				Text 20, y_pos + 50, 110, 10, "Confirm Housing Expense Detail: "
-				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_rent_amounts_confirmation, disc_rent_amounts_confirmation
-				y_pos = y_pos + 70
-			End If
-			If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 65, "CAF Answers for Utility Expense do not Match, Review and Clarify"
-				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary
-				Text 20, y_pos + 30, 400, 10, "Question 15 Utility Expense: " & disc_utility_q_15_summary
-
-				Text 20, y_pos + 50, 110, 10, "Confirm Utility Expense Detail: "
-				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Household pays for Heat"+chr(9)+"Household pays for AC"+chr(9)+"Houshold pays Electricity which INCLUDES AC"+chr(9)+"Houshold pays Electricity which INCLUDES Heat"+chr(9)+"Houshold pays Electricity which INCLUDES AC and Heat"+chr(9)+"Houshold pays Electricity, but this does not include Heat or AC"+chr(9)+"Houshold pays Electricity and Phone"+chr(9)+"Houshold pays Phone Only"+chr(9)+"Houshold pays NO Utility Expenses"+chr(9)+disc_utility_amounts_confirmation, disc_utility_amounts_confirmation
-				y_pos = y_pos + 70
-			End If
-
-		ElseIf page_display = expedited_determination Then
-			btn_pos = 180
-			If discrepancies_exist = True Then btn_pos = btn_pos + 15
-			Text 505, btn_pos+2, 60, 10, "EXPEDITED"
-
-		ElseIf page_display = emergency_questions Then
-			btn_pos = 180
-			If discrepancies_exist = True and expedited_determination_needed = True Then 
-				btn_pos = btn_pos + 30
-			Else
-				btn_pos = btn_pos + 15
-			End If
-			
-			Text 505, btn_pos+2, 60, 10, "EMER Q"
-
-			GroupBox 5, 5, 475, 115, "Emergency Details"
-			Text 15, 20, 145, 10, "Is the resident experiencing an emergency?"
-			DropListBox 190, 20, 30, 15, " "+chr(9)+"Yes"+chr(9)+"No", resident_emergency_yn
-			Text 15, 40, 160, 10, "What emergency is the resident is experiencing?"
-			ComboBox 190, 40, 210, 25, "Select or Type"+chr(9)+"Eviction"+chr(9)+"Forced Move"+chr(9)+"Foreclosure"+chr(9)+"Utility Disconnect"+chr(9)+"Home Repairs"+chr(9)+"Property Taxes"+chr(9)+"Bus Ticket"+chr(9)+emergency_type, emergency_type
-			Text 15, 65, 130, 10, "Discussion of emergency with resident:"
-			EditBox 190, 60, 210, 15, emergency_discussion
-			Text 15, 85, 170, 10, "What amount is needed to resolve the emergency?"
-			EditBox 190, 80, 45, 15, emergency_amount
-			Text 15, 105, 170, 10, "What is the deadline to resolve the emergency?"
-			EditBox 190, 100, 45, 15, emergency_deadline
-		' ElseIf page_display =  Then
 		End If
 
-		Text 485, 5, 75, 10, "---   DIALOGS   ---"
-		Text 485, 17, 10, 10, "1"
-		Text 485, 32, 10, 10, "2"
-		Text 485, 47, 10, 10, "3"
-		Text 485, 62, 10, 10, "4"
-		Text 485, 77, 10, 10, "5"
-		Text 485, 92, 10, 10, "6"
-		Text 485, 107, 10, 10, "7"
-		Text 485, 122, 10, 10, "8"
-		Text 485, 137, 10, 10, "9"
-		Text 485, 152, 10, 10, "10"
-		Text 485, 167, 10, 10, "11"
-		
+
 		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 		' If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
 		If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
-		If page_display <> show_q_1_6 					Then PushButton 495, 60, 55, 13, "Q. 1 - 6", caf_q_1_6_btn
-		If page_display <> show_q_7_11 					Then PushButton 495, 75, 55, 13, "Q. 7 - 11", caf_q_7_11_btn
-		If page_display <> show_q_12_13 				Then PushButton 495, 90, 55, 13, "Q. 12 - 13", caf_q_12_13_btn
-		If page_display <> show_q_14_15 				Then PushButton 495, 105, 55, 13, "Q. 14 - 15", caf_q_14_15_btn
-		If page_display <> show_q_16_20 				Then PushButton 495, 120, 55, 13, "Q. 16 - 20", caf_q_16_20_btn
-		If page_display <> show_q_21_24 				Then PushButton 495, 135, 55, 13, "Q. 21 - 24", caf_q_21_24_btn
-		
-		If page_display <> show_qual 					Then PushButton 495, 150, 55, 13, "CAF QUAL Q", caf_qual_q_btn
-		If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
-		btn_pos = 180
+		btn_pos = 60
+		If page_display <> 4 									Then PushButton 495, btn_pos, 		55, 13, pg_4_label, caf_q_pg_4_btn
+		If page_display <> 5 and last_page_of_questions => 5 	Then PushButton 495, btn_pos + 15, 	55, 13, pg_5_label, caf_q_pg_5_btn
+		If page_display <> 6 and last_page_of_questions => 6 	Then PushButton 495, btn_pos + 30, 	55, 13, pg_6_label, caf_q_pg_6_btn
+		If page_display <> 7 and last_page_of_questions => 7 	Then PushButton 495, btn_pos + 45, 	55, 13, pg_7_label, caf_q_pg_7_btn
+		If page_display <> 8 and last_page_of_questions => 8 	Then PushButton 495, btn_pos + 60, 	55, 13, pg_8_label, caf_q_pg_8_btn
+		If page_display <> 9 and last_page_of_questions => 9 	Then PushButton 495, btn_pos + 75, 	55, 13, pg_9_label, caf_q_pg_9_btn
+		If page_display <> 10 and last_page_of_questions => 10 	Then PushButton 495, btn_pos + 90, 	55, 13, pg_10_label, caf_q_pg_10_btn
+		If page_display <> 11 and last_page_of_questions => 11 	Then PushButton 495, btn_pos + 105, 55, 13, pg_11_label, caf_q_pg_11_btn
+		btn_pos = (last_page_of_questions * 15) + 15
+
+		If page_display <> show_qual 					Then PushButton 495, btn_pos, 		55, 13, "CAF QUAL Q", caf_qual_q_btn
+		If page_display <> emergency_questions			Then PushButton 495, btn_pos + 15, 	55, 13, "EMER Q", emer_questions_btn
+		btn_pos = btn_pos + 30
+
 		If discrepancies_exist = True Then
-			Text 485, btn_pos + 2, 10, 10, "12"
 			If page_display <> discrepancy_questions 	Then PushButton 495, btn_pos, 55, 13, "Clarifications", discrepancy_questions_btn
 			btn_pos = btn_pos + 15
 		End If
 		If expedited_determination_needed = True Then
-			Text 485, btn_pos + 2, 10, 10, "13"
 			If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
 			btn_pos = btn_pos + 15
 		End If
-		If page_display <> emergency_questions			Then PushButton 495, btn_pos, 55, 13, "EMER Q", emer_questions_btn
-		Text 485, btn_pos + 2, 10, 10, "14"
+
+		If page_display <> show_pg_last 				Then PushButton 495, btn_pos, 55, 13, "CAF Last Page", caf_last_page_btn
 
 		PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
 		PushButton 140, 365, 130, 15, "View Verifications", verif_button
@@ -1951,57 +1312,83 @@ function dialog_movement()
             selected_memb = 0
         End If
 	Next
-	If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
-	If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
-	If ButtonPressed = add_verif_3_btn Then Call verif_details_dlg(3)
-	If ButtonPressed = add_verif_4_btn Then Call verif_details_dlg(4)
-	If ButtonPressed = add_verif_5_btn Then Call verif_details_dlg(5)
-	If ButtonPressed = add_verif_6_btn Then Call verif_details_dlg(6)
-	If ButtonPressed = add_verif_7_btn Then Call verif_details_dlg(7)
-	If ButtonPressed = add_verif_8_btn Then Call verif_details_dlg(8)
-	If ButtonPressed = add_verif_9_btn Then Call verif_details_dlg(9)
-	If ButtonPressed = add_verif_10_btn Then Call verif_details_dlg(10)
-	If ButtonPressed = add_verif_11_btn Then Call verif_details_dlg(11)
-	If ButtonPressed = add_verif_12_btn Then Call verif_details_dlg(12)
-	If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
-	If ButtonPressed = add_verif_14_btn Then Call verif_details_dlg(14)
-	If ButtonPressed = add_verif_15_btn Then Call verif_details_dlg(15)
-	If ButtonPressed = add_verif_16_btn Then Call verif_details_dlg(16)
-	If ButtonPressed = add_verif_17_btn Then Call verif_details_dlg(17)
-	If ButtonPressed = add_verif_18_btn Then Call verif_details_dlg(18)
-	If ButtonPressed = add_verif_19_btn Then Call verif_details_dlg(19)
-	If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
-	If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
-	If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
-	If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
-	If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
+
+
+	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+		If ButtonPressed = FORM_QUESTION_ARRAY(quest).verif_btn Then
+			call FORM_QUESTION_ARRAY(quest).capture_verif_detail()
+		End If
+		If ButtonPressed = FORM_QUESTION_ARRAY(quest).prefil_btn Then
+			For i = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_ans_list)
+				FORM_QUESTION_ARRAY(quest).item_ans_list(i) = "No"
+			Next
+			If FORM_QUESTION_ARRAY(quest).sub_phrase <> "" Then FORM_QUESTION_ARRAY(quest).sub_answer = "No"
+		End If
+
+		If ButtonPressed = FORM_QUESTION_ARRAY(quest).add_to_array_btn Then
+			another_job = ""
+			count = 0
+			for each_item = 0 to UBOUND(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+				count = count + 1
+				blank_item = true
+				If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
+					If FORM_QUESTION_ARRAY(quest).detail_business(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_value(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_explain(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_date(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_amount(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then
+					If FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_amount(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "expense" Then
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_amount(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_current(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "winnings" Then
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_amount(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_date(each_item) <> "" Then blank_item = false
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "changes" Then
+					If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_date(each_item) <> "" Then blank_item = false
+					If FORM_QUESTION_ARRAY(quest).detail_explain(each_item) <> "" Then blank_item = false
+				End If
+				If blank_item = true Then another_job = each_item
+			Next
+			If another_job = "" Then
+				another_job = count
+				' MsgBox "another_job - " & another_job & vbCr & IsArray(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+				FORM_QUESTION_ARRAY(quest).add_detail_item(another_job)
+				FORM_QUESTION_ARRAY(quest).detail_edit_btn(another_job) = 2000 + quest*10 + another_job
+
+			End If
+			Call array_details_dlg(quest, another_job)
+		End If
+		If IsArray(FORM_QUESTION_ARRAY(quest).detail_interview_notes) = true Then
+			for each_item = 0 to UBOUND(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+				If ButtonPressed = FORM_QUESTION_ARRAY(quest).detail_edit_btn(each_item) Then Call array_details_dlg(quest, each_item)
+			next
+		End If
+	Next
+
+
 
 	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Case-Transfers.aspx"
-	If ButtonPressed = add_job_btn Then
-		another_job = ""
-		count = 0
-		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-			count = count + 1
-			If JOBS_ARRAY(jobs_employer_name, each_job) = "" AND JOBS_ARRAY(jobs_employee_name, each_job) = "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) = "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) = "" Then
-				another_job = each_job
-			End If
-		Next
-		If another_job = "" Then
-			another_job = count
-			ReDim Preserve JOBS_ARRAY(jobs_notes, another_job)
-		End If
-		Call jobs_details_dlg(another_job)
-	End If
-
-	for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-		If ButtonPressed = JOBS_ARRAY(jobs_edit_btn, each_job) Then
-			Call jobs_details_dlg(each_job)
-		End If
-	next
 
 	If arep_name <> "" Then arep_exists = True
 	If ButtonPressed = update_information_btn Then
-		If page_display = show_pg_one_address Then 
+		If page_display = show_pg_one_address Then
 			update_addr = TRUE
 			need_to_update_addr = TRUE
 		End If
@@ -2060,40 +1447,9 @@ function dialog_movement()
 	End If
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
-		If page_display = show_pg_one_memb01_and_exp 	Then ButtonPressed = caf_addr_btn
-		If page_display = show_pg_one_address 			Then ButtonPressed = caf_membs_btn
-		If page_display = show_pg_memb_list 			Then ButtonPressed = caf_q_1_6_btn
-		If page_display = show_q_1_6 					Then ButtonPressed = caf_q_7_11_btn
-		If page_display = show_q_7_11 					Then ButtonPressed = caf_q_12_13_btn
-		If page_display = show_q_12_13 					Then ButtonPressed = caf_q_14_15_btn
-		If page_display = show_q_14_15 					Then ButtonPressed = caf_q_16_20_btn
-		If page_display = show_q_16_20 					Then ButtonPressed = caf_q_21_24_btn
-		If page_display = show_q_21_24 					Then ButtonPressed = caf_qual_q_btn
-		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
-		If page_display = show_pg_last 					Then 
-			If discrepancies_exist = True Then
-				ButtonPressed = discrepancy_questions_btn
-			ElseIf expedited_determination_needed = True Then
-				If expedited_determination_completed = True Then
-					ButtonPressed = emer_questions_btn
-				ElseIf expedited_determination_completed = False Then
-					ButtonPressed = expedited_determination_btn
-				End If
-			End If
-			If discrepancies_exist <> True and expedited_determination_needed <> True Then ButtonPressed = emer_questions_btn
-		End If
-		If page_display = discrepancy_questions			Then
-			If expedited_determination_needed = True Then
-				If expedited_determination_completed = True Then
-					ButtonPressed = emer_questions_btn
-				ElseIf expedited_determination_completed = False Then
-					ButtonPressed = expedited_determination_btn
-				End If
-			Else
-				ButtonPressed = emer_questions_btn
-			End If
-		End If
-		If page_display = emergency_questions 					Then ButtonPressed = finish_interview_btn
+		page_display = page_display + 1
+		If page_display = discrepancy_questions and discrepancies_exist = False Then page_display = page_display + 1
+		If page_display = expedited_questions and expedited_determination_needed = False Then page_display = page_display + 1
 	End If
 
 	If ButtonPressed = caf_page_one_btn Then
@@ -2105,24 +1461,15 @@ function dialog_movement()
 	If ButtonPressed = caf_membs_btn Then
 		page_display = show_pg_memb_list
 	End If
-	If ButtonPressed = caf_q_1_6_btn Then
-		page_display = show_q_1_6
-	End If
-	If ButtonPressed = caf_q_7_11_btn Then
-		page_display = show_q_7_11
-	End If
-	If ButtonPressed = caf_q_12_13_btn Then
-		page_display = show_q_12_13
-	End If
-	If ButtonPressed = caf_q_14_15_btn Then
-		page_display = show_q_14_15
-	End If
-	If ButtonPressed = caf_q_16_20_btn Then
-		page_display = show_q_16_20
-	End If
-	If ButtonPressed = caf_q_21_24_btn Then
-		page_display = show_q_21_24
-	End If
+	If ButtonPressed = caf_q_pg_4_btn Then page_display = 4
+	If ButtonPressed = caf_q_pg_5_btn Then page_display = 5
+	If ButtonPressed = caf_q_pg_6_btn Then page_display = 6
+	If ButtonPressed = caf_q_pg_7_btn Then page_display = 7
+	If ButtonPressed = caf_q_pg_8_btn Then page_display = 8
+	If ButtonPressed = caf_q_pg_9_btn Then page_display = 9
+	If ButtonPressed = caf_q_pg_10_btn Then page_display = 10
+	If ButtonPressed = caf_q_pg_11_btn Then page_display = 11
+
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
 	End If
@@ -2193,6 +1540,7 @@ function dialog_movement()
 end function
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
+	' MsgBox "the_err_msg" & vbCr & the_err_msg
     If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
         If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
         err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
@@ -2204,20 +1552,25 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 	            current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing = trim(current_listing)
 	            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
-	                If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
+	                If current_listing = "1"  Then tagline = ": Interview"        'Adding a specific tagline to the header for the errors
 	                If current_listing = "2"  Then tagline = ": CAF ADDR"
 	                If current_listing = "3"  Then tagline = ": CAF MEMBs"
-	                If current_listing = "4"  Then tagline = ": Q. 1- 6"
-	                If current_listing = "5"  Then tagline = ": Q. 7 - 11"
-	                If current_listing = "6"  Then tagline = ": Q. 12 - 13"
-	                If current_listing = "7"  Then tagline = ": Q. 14 - 15"
-					If current_listing = "8"  Then tagline = ": Q. 16 - 20"
-					If current_listing = "9"  Then tagline = ": Q. 21 - 24"
-					If current_listing = "10" Then tagline = ": CAF QUAL Q"
-	                If current_listing = "11" Then tagline = ": CAF Last Page"
-					If current_listing = "12" Then tagline = ": Clarifications"
-					If current_listing = "14" Then tagline = ": Emergency Questions"
-	                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
+
+					If current_listing = "4"  									Then tagline = ": " & pg_4_label
+					If last_page_of_questions => 5 and current_listing = "5" 	Then tagline = ": " & pg_5_label
+					If last_page_of_questions => 6 and current_listing = "6" 	Then tagline = ": " & pg_6_label
+					If last_page_of_questions => 7 and current_listing = "7" 	Then tagline = ": " & pg_7_label
+					If last_page_of_questions => 8 and current_listing = "8" 	Then tagline = ": " & pg_8_label
+					If last_page_of_questions => 9 and current_listing = "9" 	Then tagline = ": " & pg_9_label
+					If last_page_of_questions => 10 and current_listing = "10" 	Then tagline = ": " & pg_10_label
+					If last_page_of_questions => 11 and current_listing = "11" 	Then tagline = ": " & pg_11_label
+
+					If current_listing = qual_numb 		Then tagline = ": CAF QUAL Q"
+					If current_listing = emer_numb 		Then tagline = ": Emergency Questions"
+					If current_listing = discrep_num 	Then tagline = ": Clarifications"
+					If current_listing = last_num 		Then tagline = ": CAF Last Page"
+
+					error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 	            End If
 	            if msg_header = "" Then back_to_dialog = current_listing
 	            msg_header = current_listing        'setting for the next loop
@@ -2226,36 +1579,42 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
 	            error_message = error_message & vbNewLine & right(message, len(message) - 3)        'Adding the error information to the message list.
 			ElseIf show_err_msg_during_movement = TRUE Then
-				If page_display = show_pg_one_memb01_and_exp Then page_to_review = "1"
-				If page_display = show_pg_one_address 	Then page_to_review = "2"
-				If page_display = show_pg_memb_list 	Then page_to_review = "3"
-				If page_display = show_q_1_6 			Then page_to_review = "4"
-				If page_display = show_q_7_11 			Then page_to_review = "5"
-				If page_display = show_q_12_13 			Then page_to_review = "6"
-				If page_display = show_q_14_15 			Then page_to_review = "7"
-				If page_display = show_q_16_20 			Then page_to_review = "8"
-				If page_display = show_q_21_24 			Then page_to_review = "9"
-				If page_display = show_qual 			Then page_to_review = "10"
-				If page_display = show_pg_last			Then page_to_review = "11"
-				If page_display = discrepancy_questions Then page_to_review = "12"
-				If page_display = emergency_questions	Then page_to_review = "14"
+				' If page_display = show_pg_one_memb01_and_exp Then page_to_review = "1"
+				' If page_display = show_pg_one_address 	Then page_to_review = "2"
+				' If page_display = show_pg_memb_list 	Then page_to_review = "3"
+				' If page_display = show_q_1_6 			Then page_to_review = "4"
+				' If page_display = show_q_7_11 			Then page_to_review = "5"
+				' If page_display = show_q_12_13 			Then page_to_review = "6"
+				' If page_display = show_q_14_15 			Then page_to_review = "7"
+				' If page_display = show_q_16_20 			Then page_to_review = "8"
+				' If page_display = show_q_21_24 			Then page_to_review = "9"
+				' If page_display = show_qual 			Then page_to_review = "10"
+				' If page_display = show_pg_last			Then page_to_review = "11"
+				' If page_display = discrepancy_questions Then page_to_review = "12"
+				' If page_display = emergency_questions	Then page_to_review = "14"
+				page_to_review = page_display & ""
+
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
 				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
 				If current_listing = page_to_review Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
-					If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
-					If current_listing = "2"  Then tagline = ": CAF ADDR"
-					If current_listing = "3"  Then tagline = ": CAF MEMBs"
-					If current_listing = "4"  Then tagline = ": Q. 1- 6"
-					If current_listing = "5"  Then tagline = ": Q. 7 - 11"
-					If current_listing = "6"  Then tagline = ": Q. 12 - 13"
-					If current_listing = "7"  Then tagline = ": Q. 14 - 15"
-					If current_listing = "8"  Then tagline = ": Q. 16 - 20"
-					If current_listing = "9"  Then tagline = ": Q. 21 - 24"
-					If current_listing = "10" Then tagline = ": CAF QUAL Q"
-					If current_listing = "11" Then tagline = ": CAF Last Page"
-					If current_listing = "12" Then tagline = ": Clarifications"
-					If current_listing = "14" Then tagline = ": Emergency Questions"
+	                If current_listing = "1"  Then tagline = ": Interview"        'Adding a specific tagline to the header for the errors
+	                If current_listing = "2"  Then tagline = ": CAF ADDR"
+	                If current_listing = "3"  Then tagline = ": CAF MEMBs"
+
+					If current_listing = "4"  									Then tagline = ": " & pg_4_label
+					If last_page_of_questions => 5 and current_listing = "5" 	Then tagline = ": " & pg_5_label
+					If last_page_of_questions => 6 and current_listing = "6" 	Then tagline = ": " & pg_6_label
+					If last_page_of_questions => 7 and current_listing = "7" 	Then tagline = ": " & pg_7_label
+					If last_page_of_questions => 8 and current_listing = "8" 	Then tagline = ": " & pg_8_label
+					If last_page_of_questions => 9 and current_listing = "9" 	Then tagline = ": " & pg_9_label
+					If last_page_of_questions => 10 and current_listing = "10" 	Then tagline = ": " & pg_10_label
+					If last_page_of_questions => 11 and current_listing = "11" 	Then tagline = ": " & pg_11_label
+
+					If current_listing = qual_numb 		Then tagline = ": CAF QUAL Q"
+					If current_listing = emer_numb 		Then tagline = ": Emergency Questions"
+					If current_listing = discrep_num 	Then tagline = ": Clarifications"
+					If current_listing = last_num 		Then tagline = ": CAF Last Page"
 					If error_message = "" Then error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 					message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
 
@@ -2263,6 +1622,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				End If
 			End If
         Next
+		' MsgBox "SECOND - error_message" & vbCr & error_message
 		If error_message = "" then the_err_msg = ""
 		' MsgBox error_message
         'This is the display of all of the messages.
@@ -2368,125 +1728,144 @@ function display_expedited_dialog()
 	exp_page_display = show_exp_pg_amounts
 
 	If first_time_in_exp_det = True Then
-		If question_9_yn = "Yes" Then jobs_income_yn = "Yes"
-		If question_9_yn = "No" Then jobs_income_yn = "No"
-		If question_10_yn = "Yes" Then busi_income_yn = "Yes"
-		If question_10_yn = "No" Then busi_income_yn = "No"
-		exp_job_count = 0
-		For each_caf_job = 0 to UBound(JOBS_ARRAY, 2)
-			If JOBS_ARRAY(jobs_employer_name, each_caf_job) <> "" Then
-				ReDim Preserve EXP_JOBS_ARRAY(jobs_notes_const, exp_job_count)
-				EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count) = JOBS_ARRAY(jobs_employee_name, each_caf_job)
-				If len(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count)) > 5 Then EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count) = right(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count), len(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count))-5)
-
-				EXP_JOBS_ARRAY(jobs_employer_const, exp_job_count) = JOBS_ARRAY(jobs_employer_name, each_caf_job)
-				EXP_JOBS_ARRAY(jobs_wage_const, exp_job_count) = JOBS_ARRAY(jobs_hourly_wage, each_caf_job)
-
-				If IsNumeric(JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)) = True and IsNumeric(JOBS_ARRAY(jobs_hourly_wage, each_caf_job)) = True Then
-                    If JOBS_ARRAY(jobs_hourly_wage, each_caf_job) > 0 Then      'making sure we are not dividing by zero. I will not be defaulting to a zero income job - no autofils
-    					monthly_hours = JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)/JOBS_ARRAY(jobs_hourly_wage, each_caf_job)
-    					weekly_hours = monthly_hours/4
-    					EXP_JOBS_ARRAY(jobs_hours_const, exp_job_count) = weekly_hours
-    					EXP_JOBS_ARRAY(jobs_frequency_const, exp_job_count) = "Weekly"
-                    End If
-				End If
-
-				exp_job_count = exp_job_count + 1
-			End If
-		Next
-		exp_unea_count = 0
-		If IsNumeric(question_12_rsdi_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "RSDI"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_rsdi_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_ssi_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "SSI"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_ssi_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_va_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "VA Benefit"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_va_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_ui_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Unemployment"
-			EXP_UNEA_ARRAY(unea_weekly_earnings_const, exp_unea_count) = question_12_ui_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_wc_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Workers Comp"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_wc_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_ret_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Retirement Benefits"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_ret_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_trib_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Tribal Payment"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_trib_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_cs_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Child Support"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_cs_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If IsNumeric(question_12_other_amt) = True Then
-			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
-			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = ""
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = question_12_other_amt
-			exp_unea_count = exp_unea_count + 1
-		End If
-		If exp_unea_count > 0 Then unea_income_yn = "Yes"
-
-		Call app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, EXP_JOBS_ARRAY, EXP_BUSI_ARRAY, EXP_UNEA_ARRAY)
-
-		If question_20_cash_yn = "Yes" Then cash_amount_yn = "Yes"
-		If question_20_acct_yn = "Yes" Then bank_account_yn = "Yes"
-		If question_20_cash_yn = "No" Then cash_amount_yn = "No"
-		If question_20_acct_yn = "No" Then bank_account_yn = "No"
-		Call app_month_asset_detail(determined_assets, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, EXP_ACCT_ARRAY)
-
-
-		If question_14_rent_yn = "Yes" Then
-			rent_amount = exp_q_3_rent_this_month
-		ElseIf question_14_mortgage_yn = "Yes" Then
-			mortgage_amount = exp_q_3_rent_this_month
-		ElseIf question_14_room_yn = "Yes" Then
-			room_amount = exp_q_3_rent_this_month
-		ElseIf question_14_insurance_yn = "Yes" Then
-			insurance_amount = exp_q_3_rent_this_month
-		ElseIf question_14_taxes_yn = "Yes" Then
-			tax_amount = exp_q_3_rent_this_month
-		End If
-
-
-		Call app_month_housing_detail(determined_shel, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, subsidy_amount)
-
-
 		heat_expense = False
 		ac_expense = False
 		electric_expense = False
 		phone_expense = False
 
-		If question_15_heat_ac_yn = "Yes" Then
-			heat_expense = True
-			ac_expense = True
-		End If
-		If question_15_electricity_yn = "Yes" Then electric_expense = True
-		If question_15_phone_yn = "Yes" Then phone_expense = True
+		For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
+			If FORM_QUESTION_ARRAY(each_question).info_type = "jobs" or FORM_QUESTION_ARRAY(each_question).detail_source = "jobs" Then
+				If FORM_QUESTION_ARRAY(each_question).caf_answer = "Yes" Then jobs_income_yn = "Yes"
+				If FORM_QUESTION_ARRAY(each_question).caf_answer = "No" Then jobs_income_yn = "No"
+				If FORM_QUESTION_ARRAY(each_question).detail_array_exists = True Then
+					exp_job_count = 0
+					For each_caf_job = 0 to UBound(FORM_QUESTION_ARRAY(each_question).detail_business)
+						If FORM_QUESTION_ARRAY(each_question).detail_business(each_caf_job) <> "" Then
+							ReDim Preserve EXP_JOBS_ARRAY(jobs_notes_const, exp_job_count)
+							EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count) = FORM_QUESTION_ARRAY(each_question).detail_resident_name(each_caf_job)
+							If len(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count)) > 5 Then EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count) = right(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count), len(EXP_JOBS_ARRAY(jobs_employee_const, exp_job_count))-5)
+
+							EXP_JOBS_ARRAY(jobs_employer_const, exp_job_count) = FORM_QUESTION_ARRAY(each_question).detail_business(each_caf_job)
+							EXP_JOBS_ARRAY(jobs_wage_const, exp_job_count) = FORM_QUESTION_ARRAY(each_question).detail_hourly_wage(each_caf_job)
+
+							If IsNumeric(FORM_QUESTION_ARRAY(each_question).detail_monthly_amount(each_caf_job)) = True and IsNumeric(FORM_QUESTION_ARRAY(each_question).detail_hourly_wage(each_caf_job)) = True Then
+								If FORM_QUESTION_ARRAY(each_question).detail_hourly_wage(each_caf_job) > 0 Then      'making sure we are not dividing by zero. I will not be defaulting to a zero income job - no autofils
+									monthly_hours = FORM_QUESTION_ARRAY(each_question).detail_monthly_amount(each_caf_job)/FORM_QUESTION_ARRAY(each_question).detail_hourly_wage(each_caf_job)
+									weekly_hours = monthly_hours/4
+									EXP_JOBS_ARRAY(jobs_hours_const, exp_job_count) = weekly_hours
+									EXP_JOBS_ARRAY(jobs_frequency_const, exp_job_count) = "Weekly"
+								End If
+							End If
+
+							exp_job_count = exp_job_count + 1
+						End If
+					Next
+				End If
+			End If
+
+			If InStr(FORM_QUESTION_ARRAY(each_question).note_phrasing, "Is anyone self-employed?") <> 0 Then
+				If FORM_QUESTION_ARRAY(each_question).caf_answer = "Yes" Then busi_income_yn = "Yes"
+				If FORM_QUESTION_ARRAY(each_question).caf_answer = "No" Then busi_income_yn = "No"
+			End If
+
+			If FORM_QUESTION_ARRAY(each_question).info_type = "unea" Then
+				unea_income_yn = "No"
+				exp_unea_count = 0
+				If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+					For each_unea = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+						If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_unea) = "Yes" Then
+							ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
+							EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = FORM_QUESTION_ARRAY(each_question).item_info_list(each_unea)
+							EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = FORM_QUESTION_ARRAY(each_question).item_detail_list(each_unea)
+							exp_unea_count = exp_unea_count + 1
+							unea_income_yn = "Yes"
+						End If
+					Next
+				End If
+			End If
+			If FORM_QUESTION_ARRAY(each_question).detail_source = "unea" Then
+				unea_income_yn = "No"
+				exp_unea_count = 0
+				If FORM_QUESTION_ARRAY(each_question).detail_array_exists = True Then
+					each_caf_unea = 0
+					For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(each_question).detail_type)
+						If FORM_QUESTION_ARRAY(each_question).detail_type(each_caf_unea) <> "" Then
+							ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
+							EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = FORM_QUESTION_ARRAY(each_question).detail_type(each_caf_unea)
+							EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = FORM_QUESTION_ARRAY(each_question).detail_amount(each_caf_unea)
+							exp_unea_count = exp_unea_count + 1
+							unea_income_yn = "Yes"
+						End If
+					Next
+				End If
+			End If
+
+
+			If FORM_QUESTION_ARRAY(each_question).info_type = "assets" Then
+				If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+					For each_acct = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_acct) = "Cash" Then
+							If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_acct) = "Yes" Then cash_amount_yn = "Yes"
+							If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_acct) = "No" Then cash_amount_yn = "No"
+						End If
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_acct) = "Bank Accounts" Then
+							If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_acct) = "Yes" Then bank_account_yn = "Yes"
+							If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_acct) = "No" Then bank_account_yn = "No"
+						End If
+					Next
+				End If
+			End If
+			If FORM_QUESTION_ARRAY(each_question).detail_source = "assets" Then
+				bank_account_yn = "No"
+				If FORM_QUESTION_ARRAY(each_question).detail_array_exists = True Then
+					each_caf_asset = 0
+					For each_caf_asset = 0 to UBound(FORM_QUESTION_ARRAY(each_question).detail_type)
+						If FORM_QUESTION_ARRAY(each_question).detail_type(each_caf_asset) <> "" Then bank_account_yn = "Yes"
+					Next
+				End If
+			End If
+
+			If FORM_QUESTION_ARRAY(each_question).detail_source = "shel-hest" Then
+				If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked Then
+					heat_expense = True
+					ac_expense = True
+				End If
+				If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked Then electric_expense = True
+				If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked Then phone_expense = True
+				determined_shel = FORM_QUESTION_ARRAY(each_question).housing_payment
+			End If
+
+
+			If FORM_QUESTION_ARRAY(each_question).info_type = "housing" Then
+				If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+					For each_shel = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+						If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_shel) = "Yes" Then
+							If FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel) = "Rent" 								Then rent_amount = exp_q_3_rent_this_month
+							If FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel) = "Mortgage/contract for deed payment" 	Then mortgage_amount = exp_q_3_rent_this_month
+							If FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel) = "Room and/or Board" 					Then room_amount = exp_q_3_rent_this_month
+							If FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel) = "Homeowner's insurance" 				Then insurance_amount = exp_q_3_rent_this_month
+							If FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel) = "Real estate taxes" 					Then tax_amount = exp_q_3_rent_this_month
+						End If
+					Next
+				End If
+			End If
+
+
+			If FORM_QUESTION_ARRAY(each_question).info_type = "utilities" Then
+				If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+					For each_util = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+						If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_util) = "Yes" Then
+							If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" Then
+								heat_expense = True
+								ac_expense = True
+							End If
+							If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then electric_expense = True
+							If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		Then phone_expense = True
+						End If
+					Next
+				End If
+			End If
+		Next
 
 		determined_utilities = 0
 		If heat_expense = True OR ac_expense = True Then
@@ -2504,6 +1883,9 @@ function display_expedited_dialog()
 		If heat_expense = False AND ac_expense = False AND electric_expense = False AND phone_expense = False Then all_utilities = all_utilities & ", None"
 		If left(all_utilities, 2) = ", " Then all_utilities = right(all_utilities, len(all_utilities) - 2)
 
+		Call app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, EXP_JOBS_ARRAY, EXP_BUSI_ARRAY, EXP_UNEA_ARRAY)
+		Call app_month_asset_detail(determined_assets, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, EXP_ACCT_ARRAY)
+		Call app_month_housing_detail(determined_shel, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, subsidy_amount)
 		If question_15_heat_ac_yn = "" AND question_15_electricity_yn = "" AND question_15_phone_yn = "" Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 
 
@@ -2573,47 +1955,15 @@ function display_expedited_dialog()
 				y_pos = 215
 				GroupBox 5, y_pos, 545, 100, "Interview NOTES entered into the Script already"
 				y_pos = y_pos + 15
-				If trim(question_8_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "8. Has anyone in the household had a job or been self-employed? " & question_8_interview_notes
-					y_pos = y_pos + 10
-				End If
-				first_job = True
-				for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-					If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-						interview_note_details_exists = True
-						If first_job = True Then
-							Text 15, y_pos, 360, 10, "9. Does anyone in the household have a job?"
-							y_pos = y_pos + 10
-						End If
-						Text 20, y_pos, 525, 10, JOBS_ARRAY(jobs_employee_name, each_job) & " at " & JOBS_ARRAY(jobs_employer_name, each_job) & " $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "/mo. Notes: " & JOBS_ARRAY(jobs_intv_notes, each_job)
-						y_pos = y_pos + 10
-						first_job = False
-					End If
-				next
-				If trim(question_10_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "10. Is anyone in the household self-employed? " & question_10_interview_notes
-					y_pos = y_pos + 10
-				End If
-				If trim(question_12_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "12. Does anyone have Unearned Income? " & question_12_interview_notes
-					y_pos = y_pos + 10
-				End If
-				If trim(question_14_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "14. Does your household have housing expenses? " & question_14_interview_notes
-					y_pos = y_pos + 10
-				End If
-				If trim(question_15_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "15. Does your household have utility expenses any time during the year? " & question_15_interview_notes
-					y_pos = y_pos + 10
-				End If
-				If trim(question_20_interview_notes) <> "" Then
-					Text 15, y_pos, 530, 10, "20. Does anyone in the household have assets? " & question_20_interview_notes
-					y_pos = y_pos + 10
-				End If
-				If y_pos = 230 Then
-					Text 15, y_pos, 530, 10, "No details entered into Interview Notes sections of relevant questions (8, 9, 10, 12, 14, 15, 20) and no specific job details were entered in question 9."
-					y_pos = y_pos + 10
-				End If
+				' If trim(question_8_interview_notes) <> "" Then
+				' 	Text 15, y_pos, 530, 10, "8. Has anyone in the household had a job or been self-employed? " & question_8_interview_notes
+				' 	y_pos = y_pos + 10
+				' End If
+
+				' If y_pos = 230 Then
+				' 	Text 15, y_pos, 530, 10, "No details entered into Interview Notes sections of relevant questions (8, 9, 10, 12, 14, 15, 20) and no specific job details were entered in question 9."
+				' 	y_pos = y_pos + 10
+				' End If
 
 			End If
 			If exp_page_display = show_exp_pg_determination then
@@ -3004,6 +2354,7 @@ end function
 
 function save_your_work()
 'This function records the variables into a txt file so that it can be retrieved by the script if run later.
+	Call save_form_details(FORM_QUESTION_ARRAY)
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
@@ -3121,193 +2472,10 @@ function save_your_work()
 
 			objTextStream.WriteLine "ADR - DATE - " & address_change_date
 			objTextStream.WriteLine "ADR - CNTY - " & resi_addr_county
-
-			objTextStream.WriteLine "01A - " & question_1_yn
-			objTextStream.WriteLine "01N - " & question_1_notes
-			objTextStream.WriteLine "01V - " & question_1_verif_yn
-			objTextStream.WriteLine "01D - " & question_1_verif_details
-			objTextStream.WriteLine "01I - " & question_1_interview_notes
-
-			objTextStream.WriteLine "02A - " & question_2_yn
-			objTextStream.WriteLine "02N - " & question_2_notes
-			objTextStream.WriteLine "02V - " & question_2_verif_yn
-			objTextStream.WriteLine "02D - " & question_2_verif_details
-			objTextStream.WriteLine "02I - " & question_2_interview_notes
-
-			objTextStream.WriteLine "03A - " & question_3_yn
-			objTextStream.WriteLine "03N - " & question_3_notes
-			objTextStream.WriteLine "03V - " & question_3_verif_yn
-			objTextStream.WriteLine "03D - " & question_3_verif_details
-			objTextStream.WriteLine "03I - " & question_3_interview_notes
-
-			objTextStream.WriteLine "04A - " & question_4_yn
-			objTextStream.WriteLine "04N - " & question_4_notes
-			objTextStream.WriteLine "04V - " & question_4_verif_yn
-			objTextStream.WriteLine "04D - " & question_4_verif_details
-			objTextStream.WriteLine "04I - " & question_4_interview_notes
-
-			objTextStream.WriteLine "05A - " & question_5_yn
-			objTextStream.WriteLine "05N - " & question_5_notes
-			objTextStream.WriteLine "05V - " & question_5_verif_yn
-			objTextStream.WriteLine "05D - " & question_5_verif_details
-			objTextStream.WriteLine "05I - " & question_5_interview_notes
-
-			objTextStream.WriteLine "06A - " & question_6_yn
-			objTextStream.WriteLine "06N - " & question_6_notes
-			objTextStream.WriteLine "06V - " & question_6_verif_yn
-			objTextStream.WriteLine "06D - " & question_6_verif_details
-			objTextStream.WriteLine "06I - " & question_6_interview_notes
-
-			objTextStream.WriteLine "07A - " & question_7_yn
-			objTextStream.WriteLine "07N - " & question_7_notes
-			objTextStream.WriteLine "07V - " & question_7_verif_yn
-			objTextStream.WriteLine "07D - " & question_7_verif_details
-			objTextStream.WriteLine "07I - " & question_7_interview_notes
-
-			objTextStream.WriteLine "08A - " & question_8_yn
-			objTextStream.WriteLine "08N - " & question_8_notes
-			objTextStream.WriteLine "08V - " & question_8_verif_yn
-			objTextStream.WriteLine "08D - " & question_8_verif_details
-			objTextStream.WriteLine "08I - " & question_8_interview_notes
-
-			objTextStream.WriteLine "09A - " & question_9_yn
-			objTextStream.WriteLine "09N - " & question_9_notes
-			objTextStream.WriteLine "09V - " & question_9_verif_yn
-			objTextStream.WriteLine "09D - " & question_9_verif_details
-
-			objTextStream.WriteLine "10A - " & question_10_yn
-			objTextStream.WriteLine "10N - " & question_10_notes
-			objTextStream.WriteLine "10V - " & question_10_verif_yn
-			objTextStream.WriteLine "10D - " & question_10_verif_details
-			objTextStream.WriteLine "10G - " & question_10_monthly_earnings
-			objTextStream.WriteLine "10I - " & question_10_interview_notes
-
-			objTextStream.WriteLine "11A - " & question_11_yn
-			objTextStream.WriteLine "11N - " & question_11_notes
-			objTextStream.WriteLine "11V - " & question_11_verif_yn
-			objTextStream.WriteLine "11D - " & question_11_verif_details
-			objTextStream.WriteLine "11I - " & question_11_interview_notes
+			objTextStream.WriteLine "ADR - TEXT - " & send_text
+			objTextStream.WriteLine "ADR - EMAL - " & send_email
 
 			objTextStream.WriteLine "PWE - " & pwe_selection
-
-			objTextStream.WriteLine "12A - RS - " & question_12_rsdi_yn
-			objTextStream.WriteLine "12$ - RS - " & question_12_rsdi_amt
-			objTextStream.WriteLine "12A - SS - " & question_12_ssi_yn
-			objTextStream.WriteLine "12$ - SS - " & question_12_ssi_amt
-			objTextStream.WriteLine "12A - VA - " & question_12_va_yn
-			objTextStream.WriteLine "12$ - VA - " & question_12_va_amt
-			objTextStream.WriteLine "12A - UI - " & question_12_ui_yn
-			objTextStream.WriteLine "12$ - UI - " & question_12_ui_amt
-			objTextStream.WriteLine "12A - WC - " & question_12_wc_yn
-			objTextStream.WriteLine "12$ - WC - " & question_12_wc_amt
-			objTextStream.WriteLine "12A - RT - " & question_12_ret_yn
-			objTextStream.WriteLine "12$ - RT - " & question_12_ret_amt
-			objTextStream.WriteLine "12A - TP - " & question_12_trib_yn
-			objTextStream.WriteLine "12$ - TP - " & question_12_trib_amt
-			objTextStream.WriteLine "12A - CS - " & question_12_cs_yn
-			objTextStream.WriteLine "12$ - CS - " & question_12_cs_amt
-			objTextStream.WriteLine "12A - OT - " & question_12_other_yn
-			objTextStream.WriteLine "12$ - OT - " & question_12_other_amt
-			objTextStream.WriteLine "12A - " & q_12_answered
-			objTextStream.WriteLine "12N - " & question_12_notes
-			objTextStream.WriteLine "12V - " & question_12_verif_yn
-			objTextStream.WriteLine "12D - " & question_12_verif_details
-			objTextStream.WriteLine "12I - " & question_12_interview_notes
-
-			objTextStream.WriteLine "13A - " & question_13_yn
-			objTextStream.WriteLine "13N - " & question_13_notes
-			objTextStream.WriteLine "13V - " & question_13_verif_yn
-			objTextStream.WriteLine "13D - " & question_13_verif_details
-			objTextStream.WriteLine "13I - " & question_13_interview_notes
-
-			objTextStream.WriteLine "14A - RT - " &  question_14_rent_yn
-			objTextStream.WriteLine "14A - SB - " &  question_14_subsidy_yn
-			objTextStream.WriteLine "14A - MT - " &  question_14_mortgage_yn
-			objTextStream.WriteLine "14A - AS - " &  question_14_association_yn
-			objTextStream.WriteLine "14A - IN - " &  question_14_insurance_yn
-			objTextStream.WriteLine "14A - RM - " &  question_14_room_yn
-			objTextStream.WriteLine "14A - TX - " &  question_14_taxes_yn
-			objTextStream.WriteLine "14A - " & q_14_answered
-			objTextStream.WriteLine "14N - " & question_14_notes
-			objTextStream.WriteLine "14V - " & question_14_verif_yn
-			objTextStream.WriteLine "14D - " & question_14_verif_details
-			objTextStream.WriteLine "14I - " & question_14_interview_notes
-			objTextStream.WriteLine "15A - PP - " & all_persons_paying 
-			objTextStream.WriteLine "15A - HA - " & question_15_heat_ac_yn
-			objTextStream.WriteLine "15A - EL - " & question_15_electricity_yn
-			objTextStream.WriteLine "15A - CF - " & question_15_cooking_fuel_yn
-			objTextStream.WriteLine "15A - WS - " & question_15_water_and_sewer_yn
-			objTextStream.WriteLine "15A - GR - " & question_15_garbage_yn
-			objTextStream.WriteLine "15A - PN - " & question_15_phone_yn
-			objTextStream.WriteLine "15A - LP - " & question_15_liheap_yn
-			objTextStream.WriteLine "15A - " & q_15_answered
-			objTextStream.WriteLine "15N - " & question_15_notes
-			objTextStream.WriteLine "15V - " & question_15_verif_yn
-			objTextStream.WriteLine "15D - " & question_15_verif_details
-			objTextStream.WriteLine "15I - " & question_15_interview_notes
-			objTextStream.WriteLine "15PD - " & question_15_phone_details
-
-			objTextStream.WriteLine "16A - " & question_16_yn
-			objTextStream.WriteLine "16N - " & question_16_notes
-			objTextStream.WriteLine "16V - " & question_16_verif_yn
-			objTextStream.WriteLine "16D - " & question_16_verif_details
-			objTextStream.WriteLine "16I - " & question_16_interview_notes
-
-			objTextStream.WriteLine "17A - " & question_17_yn
-			objTextStream.WriteLine "17N - " & question_17_notes
-			objTextStream.WriteLine "17V - " & question_17_verif_yn
-			objTextStream.WriteLine "17D - " & question_17_verif_details
-			objTextStream.WriteLine "17I - " & question_17_interview_notes
-
-			objTextStream.WriteLine "18A - " & question_18_yn
-			objTextStream.WriteLine "18N - " & question_18_notes
-			objTextStream.WriteLine "18V - " & question_18_verif_yn
-			objTextStream.WriteLine "18D - " & question_18_verif_details
-			objTextStream.WriteLine "18I - " & question_18_interview_notes
-
-			objTextStream.WriteLine "19A - " & question_19_yn
-			objTextStream.WriteLine "19N - " & question_19_notes
-			objTextStream.WriteLine "19V - " & question_19_verif_yn
-			objTextStream.WriteLine "19D - " & question_19_verif_details
-			objTextStream.WriteLine "19I - " & question_19_interview_notes
-
-			objTextStream.WriteLine "20A - CA - " & question_20_cash_yn
-			objTextStream.WriteLine "20A - AC - " & question_20_acct_yn
-			objTextStream.WriteLine "20A - SE - " & question_20_secu_yn
-			objTextStream.WriteLine "20A - CR - " & question_20_cars_yn
-			objTextStream.WriteLine "20A - " & q_20_answered
-			objTextStream.WriteLine "20N - " & question_20_notes
-			objTextStream.WriteLine "20V - " & question_20_verif_yn
-			objTextStream.WriteLine "20D - " & question_20_verif_details
-			objTextStream.WriteLine "20I - " & question_20_interview_notes
-
-			objTextStream.WriteLine "21A - " & question_21_yn
-			objTextStream.WriteLine "21N - " & question_21_notes
-			objTextStream.WriteLine "21V - " & question_21_verif_yn
-			objTextStream.WriteLine "21D - " & question_21_verif_details
-			objTextStream.WriteLine "21I - " & question_21_interview_notes
-
-			objTextStream.WriteLine "22A - " & question_22_yn
-			objTextStream.WriteLine "22N - " & question_22_notes
-			objTextStream.WriteLine "22V - " & question_22_verif_yn
-			objTextStream.WriteLine "22D - " & question_22_verif_details
-			objTextStream.WriteLine "22I - " & question_22_interview_notes
-
-			objTextStream.WriteLine "23A - " & question_23_yn
-			objTextStream.WriteLine "23N - " & question_23_notes
-			objTextStream.WriteLine "23V - " & question_23_verif_yn
-			objTextStream.WriteLine "23D - " & question_23_verif_details
-			objTextStream.WriteLine "23I - " & question_23_interview_notes
-
-			objTextStream.WriteLine "24A - RP - " & question_24_rep_payee_yn
-			objTextStream.WriteLine "24A - GF - " & question_24_guardian_fees_yn
-			objTextStream.WriteLine "24A - SD - " & question_24_special_diet_yn
-			objTextStream.WriteLine "24A - HH - " & question_24_high_housing_yn
-			objTextStream.WriteLine "24A - " & q_24_answered
-			objTextStream.WriteLine "24N - " & question_24_notes
-			objTextStream.WriteLine "24V - " & question_24_verif_yn
-			objTextStream.WriteLine "24D - " & question_24_verif_details
-			objTextStream.WriteLine "24I - " & question_24_interview_notes
 
 			objTextStream.WriteLine "QQ1A - " & qual_question_one
 			objTextStream.WriteLine "QQ1M - " & qual_memb_one
@@ -3573,11 +2741,6 @@ function save_your_work()
                 HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
-			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
-				objTextStream.WriteLine "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&_
-				JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_edit_btn, this_jobs)&"~"&JOBS_ARRAY(jobs_intv_notes, this_jobs)&"~"&JOBS_ARRAY(verif_yn, this_jobs)&"~"&JOBS_ARRAY(verif_details, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs)
-			Next
-
 			'Close the object so it can be opened again shortly
 			objTextStream.Close
 
@@ -3657,7 +2820,9 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - PHON - TTH - " & phone_three_type & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - DATE - " & address_change_date
-			script_run_lowdown = script_run_lowdown & vbCr & "ADR - CNTY - " & resi_addr_county & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - CNTY - " & resi_addr_county
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - TEXT - " & send_text
+			script_run_lowdown = script_run_lowdown & vbCr & "ADR - EMAL - " & send_email & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "01A - " & question_1_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "01N - " & question_1_notes
@@ -3769,7 +2934,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "14V - " & question_14_verif_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "14D - " & question_14_verif_details
 			script_run_lowdown = script_run_lowdown & vbCr & "14I - " & question_14_interview_notes & vbCr & vbCr
-			
+
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - PP - " & all_persons_paying
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - HA - " & question_15_heat_ac_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15A - EL - " & question_15_electricity_yn
@@ -4109,11 +3274,6 @@ function save_your_work()
                 HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
 			Next
 
-			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
-				script_run_lowdown = script_run_lowdown & vbCr & "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&_
-				JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_edit_btn, this_jobs)&"~"&JOBS_ARRAY(jobs_intv_notes, this_jobs)&"~"&JOBS_ARRAY(verif_yn, this_jobs)&"~"&JOBS_ARRAY(verif_details, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs) & vbCr & vbCr
-			Next
-
 			'Since the file was new, we can simply exit the function
 			exit function
 		End if
@@ -4254,196 +3414,11 @@ function restore_your_work(vars_filled)
 
 						If mid(text_line, 7, 4) = "DATE" Then address_change_date = MID(text_line, 14)
 						If mid(text_line, 7, 4) = "CNTY" Then resi_addr_county = MID(text_line, 14)
-
+						If mid(text_line, 7, 4) = "TEXT" Then send_text = MID(text_line, 14)
+						If mid(text_line, 7, 4) = "EMAL" Then send_email = MID(text_line, 14)
 					End If
-					' If left(text_line, 3) = "" Then  = Mid(text_line, 7)
-					If left(text_line, 3) = "01A" Then question_1_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "01N" Then question_1_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "01V" Then question_1_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "01D" Then question_1_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "01I" Then question_1_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "02A" Then question_2_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "02N" Then question_2_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "02V" Then question_2_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "02D" Then question_2_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "02I" Then question_2_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "03A" Then question_3_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "03N" Then question_3_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "03V" Then question_3_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "03D" Then question_3_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "03I" Then question_3_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "04A" Then question_4_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "04N" Then question_4_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "04V" Then question_4_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "04D" Then question_4_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "04I" Then question_4_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "05A" Then question_5_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "05N" Then question_5_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "05V" Then question_5_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "05D" Then question_5_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "05I" Then question_5_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "06A" Then question_6_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "06N" Then question_6_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "06V" Then question_6_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "06D" Then question_6_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "06I" Then question_6_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "07A" Then question_7_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "07N" Then question_7_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "07V" Then question_7_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "07D" Then question_7_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "07I" Then question_7_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "08A" Then question_8_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "08N" Then question_8_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "08V" Then question_8_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "08D" Then question_8_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "08I" Then question_8_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "09A" Then question_9_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "09N" Then question_9_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "09V" Then question_9_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "09D" Then question_9_verif_details = Mid(text_line, 7)
-
-					If left(text_line, 3) = "10A" Then question_10_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "10N" Then question_10_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "10V" Then question_10_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "10D" Then question_10_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "10G" Then question_10_monthly_earnings = Mid(text_line, 7)
-					If left(text_line, 3) = "10I" Then question_10_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "11A" Then question_11_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "11N" Then question_11_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "11V" Then question_11_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "11D" Then question_11_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "11I" Then question_11_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "PWE" Then pwe_selection = Mid(text_line, 7)
-
-					If left(text_line, 8) = "12A - RS" Then question_12_rsdi_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - RS" Then question_12_rsdi_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - SS" Then question_12_ssi_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - SS" Then question_12_ssi_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - VA" Then question_12_va_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - VA" Then question_12_va_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - UI" Then question_12_ui_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - UI" Then question_12_ui_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - WC" Then question_12_wc_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - WC" Then question_12_wc_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - RT" Then question_12_ret_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - RT" Then question_12_ret_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - TP" Then question_12_trib_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - TP" Then question_12_trib_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - CS" Then question_12_cs_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - CS" Then question_12_cs_amt = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - OT" Then question_12_other_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12$ - OT" Then question_12_other_amt = Mid(text_line, 12)
-					If left(text_line, 3) = "12A" Then q_12_answered = Mid(text_line, 7)
-					If left(text_line, 3) = "12N" Then question_12_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "12V" Then question_12_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "12D" Then question_12_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "12I" Then question_12_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "13A" Then question_13_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "13N" Then question_13_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "13V" Then question_13_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "13D" Then question_13_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "13I" Then question_13_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 8) = "14A - RT" Then  question_14_rent_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - SB" Then  question_14_subsidy_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - MT" Then  question_14_mortgage_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - AS" Then  question_14_association_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - IN" Then  question_14_insurance_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - RM" Then  question_14_room_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "14A - TX" Then  question_14_taxes_yn = Mid(text_line, 12)
-					If left(text_line, 3) = "14A" Then q_14_answered = Mid(text_line, 7)
-					If left(text_line, 3) = "14N" Then question_14_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "14V" Then question_14_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "14D" Then question_14_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "14I" Then question_14_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 8) = "15A - PP" Then all_persons_paying = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - HA" Then question_15_heat_ac_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - EL" Then question_15_electricity_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - CF" Then question_15_cooking_fuel_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - WS" Then question_15_water_and_sewer_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - GR" Then question_15_garbage_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - PN" Then question_15_phone_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "15A - LP" Then question_15_liheap_yn = Mid(text_line, 12)
-					If left(text_line, 3) = "15A" Then q_15_answered = Mid(text_line, 7)
-					If left(text_line, 3) = "15N" Then question_15_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "15V" Then question_15_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "15D" Then question_15_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "15I" Then question_15_interview_notes = Mid(text_line, 7)
-					If left(text_line, 4) = "15PD" Then question_15_phone_details = Mid(text_line, 8)
-
-					If left(text_line, 3) = "16A" Then question_16_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "16N" Then question_16_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "16V" Then question_16_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "16D" Then question_16_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "16I" Then question_16_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "17A" Then question_17_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "17N" Then question_17_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "17V" Then question_17_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "17D" Then question_17_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "17I" Then question_17_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "18A" Then question_18_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "18N" Then question_18_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "18V" Then question_18_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "18D" Then question_18_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "18I" Then question_18_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "19A" Then question_19_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "19N" Then question_19_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "19V" Then question_19_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "19D" Then question_19_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "19I" Then question_19_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 8) = "20A - CA" Then question_20_cash_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "20A - AC" Then question_20_acct_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "20A - SE" Then question_20_secu_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "20A - CR" Then question_20_cars_yn = Mid(text_line, 12)
-					If left(text_line, 3) = "20A" Then q_20_answered = Mid(text_line, 7)
-					If left(text_line, 3) = "20N" Then question_20_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "20V" Then question_20_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "20D" Then question_20_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "20I" Then question_20_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "21A" Then question_21_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "21N" Then question_21_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "21V" Then question_21_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "21D" Then question_21_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "21I" Then question_21_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "22A" Then question_22_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "22N" Then question_22_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "22V" Then question_22_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "22D" Then question_22_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "22I" Then question_22_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 3) = "23A" Then question_23_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "23N" Then question_23_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "23V" Then question_23_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "23D" Then question_23_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "23I" Then question_23_interview_notes = Mid(text_line, 7)
-
-					If left(text_line, 8) = "24A - RP" Then question_24_rep_payee_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "24A - GF" Then question_24_guardian_fees_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "24A - SD" Then question_24_special_diet_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "24A - HH" Then question_24_high_housing_yn = Mid(text_line, 12)
-					If left(text_line, 3) = "24A" Then q_24_answered = Mid(text_line, 7)
-					If left(text_line, 3) = "24N" Then question_24_notes = Mid(text_line, 7)
-					If left(text_line, 3) = "24V" Then question_24_verif_yn = Mid(text_line, 7)
-					If left(text_line, 3) = "24D" Then question_24_verif_details = Mid(text_line, 7)
-					If left(text_line, 3) = "24I" Then question_24_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ1M" Then qual_memb_one = Mid(text_line, 8)
@@ -4825,22 +3800,6 @@ function restore_your_work(vars_filled)
 							known_membs = known_membs + 1
 						End If
 
-						If MID(text_line, 7, 10) = "JOBS_ARRAY" Then
-							array_info = Mid(text_line, 20)
-							array_info = split(array_info, "~")
-							ReDim Preserve JOBS_ARRAY(jobs_notes, known_jobs)
-							JOBS_ARRAY(jobs_employee_name, known_jobs) 			= array_info(0)
-							JOBS_ARRAY(jobs_hourly_wage, known_jobs) 			= array_info(1)
-							JOBS_ARRAY(jobs_gross_monthly_earnings, known_jobs)	= array_info(2)
-							JOBS_ARRAY(jobs_employer_name, known_jobs) 			= array_info(3)
-							JOBS_ARRAY(jobs_edit_btn, known_jobs)				= array_info(4)
-							JOBS_ARRAY(jobs_intv_notes, known_jobs)				= array_info(5)
-							JOBS_ARRAY(verif_yn, known_jobs)					= array_info(6)
-							JOBS_ARRAY(verif_details, known_jobs)				= array_info(7)
-							JOBS_ARRAY(jobs_notes, known_jobs) 					= array_info(8)
-							known_jobs = known_jobs + 1
-						End If
-
 						If MID(text_line, 7, 14) = "EXP_JOBS_ARRAY" Then
 							array_info = Mid(text_line, 24)
 							array_info = split(array_info, "~")
@@ -4904,6 +3863,19 @@ function restore_your_work(vars_filled)
 end function
 
 function review_information()
+
+	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+		If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+		If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
+			If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+			If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_HOUSING_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_UTILITIES_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_ASSETS_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_MSA_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_STWK_ARRAY)
+		End If
+	Next
+
 	for the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 		If HH_MEMB_ARRAY(id_verif, the_memb) = "Requested" Then
 			If Instr(HH_MEMB_ARRAY(client_verification_details, the_memb), "Identity verification for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)) = 0 Then
@@ -4917,69 +3889,6 @@ function review_information()
 		End If
 		If HH_MEMB_ARRAY(full_name_const, the_memb) = "" Then HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
 	next
-	q_12_totally_blank = True
-	If question_12_rsdi_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_rsdi_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_ssi_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_ssi_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_va_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_va_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_ui_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_ui_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_wc_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_wc_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_ret_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_ret_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_trib_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_trib_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_cs_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_cs_amt) <> "" Then q_12_totally_blank = False
-
-	If question_12_other_yn <> "" Then q_12_totally_blank = False
-	If trim(question_12_other_amt) <> "" Then q_12_totally_blank = False
-	If trim(question_12_notes) <> "" Then q_12_totally_blank = False
-
-	q_14_totally_blank = True
-	If question_14_rent_yn <> "" Then q_14_totally_blank = False
-	If question_14_subsidy_yn <> "" Then q_14_totally_blank = False
-	If question_14_mortgage_yn <> "" Then q_14_totally_blank = False
-	If question_14_taxes_yn <> "" Then q_14_totally_blank = False
-	If question_14_association_yn <> "" Then q_14_totally_blank = False
-	If question_14_insurance_yn <> "" Then q_14_totally_blank = False
-	If question_14_room_yn <> "" Then q_14_totally_blank = False
-	If trim(question_14_notes) <> "" Then q_14_totally_blank = False
-
-	q_15_totally_blank = True
-	If question_15_heat_ac_yn <> "" Then q_15_totally_blank = False
-	If question_15_electricity_yn <> "" Then q_15_totally_blank = False
-	If question_15_cooking_fuel_yn <> "" Then q_15_totally_blank = False
-	If question_15_water_and_sewer_yn <> "" Then q_15_totally_blank = False
-	If question_15_garbage_yn <> "" Then q_15_totally_blank = False
-	If question_15_phone_yn <> "" Then q_15_totally_blank = False
-	If question_15_liheap_yn <> "" Then q_15_totally_blank = False
-	If trim(question_15_notes) <> "" Then q_15_totally_blank = False
-
-	q_20_totally_blank = True
-	If question_20_cash_yn <> "" Then q_20_totally_blank = False
-	If question_20_acct_yn <> "" Then q_20_totally_blank = False
-	If question_20_secu_yn <> "" Then q_20_totally_blank = False
-	If question_20_cars_yn <> "" Then q_20_totally_blank = False
-	If trim(question_20_notes) <> "" Then q_20_totally_blank = False
-
-	q_24_totally_blank = True
-	If question_24_rep_payee_yn <> "" Then q_24_totally_blank = False
-	If question_24_guardian_fees_yn <> "" Then q_24_totally_blank = False
-	If question_24_special_diet_yn <> "" Then q_24_totally_blank = False
-	If question_24_high_housing_yn <> "" Then q_24_totally_blank = False
-	If trim(question_24_notes) <> "" Then q_24_totally_blank = False
-
 end function
 
 function review_for_discrepancies()
@@ -5165,253 +4074,6 @@ function review_for_discrepancies()
 	If disc_no_phone_number = "N/A" and disc_homeless_no_mail_addr = "N/A" and disc_out_of_county = "N/A" and disc_rent_amounts = "N/A" and disc_utility_amounts = "N/A" and disc_yes_phone_no_expense = "N/A" and disc_no_phone_yes_expense = "N/A" Then discrepancies_exist = False
 end function
 
-function verif_details_dlg(question_number)
-	Select Case question_number
-		Case 1
-			verif_selection = question_1_verif_yn
-			verif_detials = question_1_verif_details
-			question_words = "1. Does everyone in your household buy, fix or eat food with you?"
-		Case 2
-			verif_selection = question_2_verif_yn
-			verif_detials = question_2_verif_details
-			question_words = "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
-		Case 3
-			verif_selection = question_3_verif_yn
-			verif_detials = question_3_verif_details
-			question_words = "3. Is anyone in the household attending school?"
-		Case 4
-			verif_selection = question_4_verif_yn
-			verif_detials = question_4_verif_details
-			question_words = "4. Is anyone in your household temporarily not living in your home? (for example: vacation, foster care, treatment, hospital, job search)"
-		Case 5
-			verif_selection = question_5_verif_yn
-			verif_detials = question_5_verif_details
-			question_words = "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
-		Case 6
-			verif_selection = question_6_verif_yn
-			verif_detials = question_6_verif_details
-			question_words = "6. Is anyone unable to work for reasons other than illness or disability?"
-		Case 7
-			verif_selection = question_7_verif_yn
-			verif_detials = question_7_verif_details
-			question_words = "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
-		Case 8
-			verif_selection = question_8_verif_yn
-			verif_detials = question_8_verif_details
-			question_words = "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-		Case 9
-			verif_selection = question_9_verif_yn
-			verif_detials = question_9_verif_details
-			question_words = "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-		Case 10
-			verif_selection = question_10_verif_yn
-			verif_detials = question_10_verif_details
-			question_words = "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-		Case 11
-			verif_selection = question_11_verif_yn
-			verif_detials = question_11_verif_details
-			question_words = "11. Do you expect any changes in income, expenses or work hours?"
-		Case 12
-			verif_selection = question_12_verif_yn
-			verif_detials = question_12_verif_details
-			question_words = "12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
-		Case 13
-			verif_selection = question_13_verif_yn
-			verif_detials = question_13_verif_details
-			question_words = "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-		Case 14
-			verif_selection = question_14_verif_yn
-			verif_detials = question_14_verif_details
-			question_words = "14. Does your household have the following housing expenses?"
-		Case 15
-			verif_selection = question_15_verif_yn
-			verif_detials = question_15_verif_details
-			question_words = "15. Does your household have the following utility expenses any time during the year?"
-		Case 16
-			verif_selection = question_16_verif_yn
-			verif_detials = question_16_verif_details
-			question_words = "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
-		Case 17
-			verif_selection = question_17_verif_yn
-			verif_detials = question_17_verif_details
-			question_words = "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
-		Case 18
-			verif_selection = question_18_verif_yn
-			verif_detials = question_18_verif_details
-			question_words = "18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
-		Case 19
-			verif_selection = question_19_verif_yn
-			verif_detials = question_19_verif_details
-			question_words = "19. For SNAP only: Does anyone in the household have medical expenses? "
-		Case 20
-			verif_selection = question_20_verif_yn
-			verif_detials = question_20_verif_details
-			question_words = "20. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. "
-		Case 21
-			verif_selection = question_21_verif_yn
-			verif_detials = question_21_verif_details
-			question_words = "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)"
-		Case 22
-			verif_selection = question_22_verif_yn
-			verif_detials = question_22_verif_details
-			question_words = "22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-		Case 23
-			verif_selection = question_23_verif_yn
-			verif_detials = question_23_verif_details
-			question_words = "23. For children under the age of 19, are both parents living in the home?"
-		Case 24
-			verif_selection = question_24_verif_yn
-			verif_detials = question_24_verif_details
-			question_words = "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
-		Case 25
-			verif_selection = JOBS_ARRAY(verif_yn, this_jobs)
-			verif_detials = JOBS_ARRAY(verif_details, this_jobs)
-			question_words = "9.  Does anyone in the household have a job or expect to get income from a job this month or next month? Enter verification for "	& JOBS_ARRAY(jobs_employer_name, this_jobs)
-	End Select
-
-
-	BeginDialog Dialog1, 0, 0, 396, 95, "Add Verification"
-	  DropListBox 60, 35, 75, 45, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File"+chr(9)+"Verbal Attestation", verif_selection
-	  EditBox 60, 55, 330, 15, verif_detials
-	  ButtonGroup ButtonPressed
-	    PushButton 340, 75, 50, 15, "Return", return_btn
-		PushButton 145, 35, 50, 10, "CLEAR", clear_btn
-	  Text 10, 10, 380, 20, question_words
-	  Text 10, 40, 45, 10, "Verification: "
-	  Text 20, 60, 30, 10, "Details:"
-	EndDialog
-
-	Do
-		dialog Dialog1
-		If ButtonPressed = -1 Then ButtonPressed = return_btn
-		If ButtonPressed = clear_btn Then
-			verif_selection = "Not Needed"
-			verif_detials = ""
-		End If
-	Loop until ButtonPressed = return_btn
-
-	Select Case question_number
-		Case 1
-			question_1_verif_yn = verif_selection
-			question_1_verif_details = verif_detials
-		Case 2
-			question_2_verif_yn = verif_selection
-			question_2_verif_details = verif_detials
-		Case 3
-			question_3_verif_yn = verif_selection
-			question_3_verif_details = verif_detials
-		Case 4
-			question_4_verif_yn = verif_selection
-			question_4_verif_details = verif_detials
-		Case 5
-			question_5_verif_yn = verif_selection
-			question_5_verif_details = verif_detials
-		Case 6
-			question_6_verif_yn = verif_selection
-			question_6_verif_details = verif_detials
-		Case 7
-			question_7_verif_yn = verif_selection
-			question_7_verif_details = verif_detials
-		Case 8
-			question_8_verif_yn = verif_selection
-			question_8_verif_details = verif_detials
-		Case 9
-			question_9_verif_yn = verif_selection
-			question_9_verif_details = verif_detials
-		Case 10
-			question_10_verif_yn = verif_selection
-			question_10_verif_details = verif_detials
-		Case 11
-			question_11_verif_yn = verif_selection
-			question_11_verif_details = verif_detials
-		Case 12
-			question_12_verif_yn = verif_selection
-			question_12_verif_details = verif_detials
-		Case 13
-			question_13_verif_yn = verif_selection
-			question_13_verif_details = verif_detials
-		Case 14
-			question_14_verif_yn = verif_selection
-			question_14_verif_details = verif_detials
-		Case 15
-			question_15_verif_yn = verif_selection
-			question_15_verif_details = verif_detials
-		Case 16
-			question_16_verif_yn = verif_selection
-			question_16_verif_details = verif_detials
-		Case 17
-			question_17_verif_yn = verif_selection
-			question_17_verif_details = verif_detials
-		Case 18
-			question_18_verif_yn = verif_selection
-			question_18_verif_details = verif_detials
-		Case 19
-			question_19_verif_yn = verif_selection
-			question_19_verif_details = verif_detials
-		Case 20
-			question_20_verif_yn = verif_selection
-			question_20_verif_details = verif_detials
-		Case 21
-			question_21_verif_yn = verif_selection
-			question_21_verif_details = verif_detials
-		Case 22
-			question_22_verif_yn = verif_selection
-			question_22_verif_details = verif_detials
-		Case 23
-			question_23_verif_yn = verif_selection
-			question_23_verif_details = verif_detials
-		Case 24
-			question_24_verif_yn = verif_selection
-			question_24_verif_details = verif_detials
-		Case 25
-			JOBS_ARRAY(verif_yn, this_jobs) = verif_selection
-			JOBS_ARRAY(verif_details, this_jobs) = verif_detials
-	End Select
-
-end function
-
-function jobs_details_dlg(this_jobs)
-	Do
-
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 321, 165, "Add Job"
-		  ComboBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
-		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
-		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
-		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
-		  EditBox 10, 95, 305, 15, JOBS_ARRAY(jobs_notes, this_jobs)
-		  EditBox 10, 125, 305, 15, JOBS_ARRAY(jobs_intv_notes, this_jobs)
-
-		  ButtonGroup ButtonPressed
-		    PushButton 265, 145, 50, 15, "Return", return_btn
-			PushButton 120, 150, 75, 10, "ADD VERIFICATION", add_verif_jobs_btn
-		    PushButton 265, 10, 50, 10, "CLEAR", clear_job_btn
-		  Text 10, 10, 100, 10, "Enter Job Details/Information"
-		  Text 10, 25, 70, 10, "EMPLOYEE NAME:"
-		  Text 150, 25, 60, 10, "HOURLY WAGE:"
-		  Text 215, 25, 105, 10, "GROSS MONTHLY EARNINGS:"
-		  Text 10, 55, 110, 10, "EMPLOYER/BUSINESS NAME:"
-		  Text 10, 85, 110, 10, "CAF WRITE-IN INFORMATION:"
-		  Text 10, 115, 85, 10, "INTERVIEW NOTES:"
-		  Text 10, 150, 110, 10, "JOB Verification - " & JOBS_ARRAY(verif_yn, this_jobs)
-		EndDialog
-
-
-		dialog Dialog1
-		If ButtonPressed = -1 Then ButtonPressed = return_btn
-		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(25)
-		If ButtonPressed = clear_job_btn Then
-			JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
-			JOBS_ARRAY(jobs_hourly_wage, this_jobs) = ""
-			JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs) = ""
-			JOBS_ARRAY(jobs_employer_name, this_jobs) = ""
-			JOBS_ARRAY(jobs_notes, this_jobs) = ""
-		End If
-	Loop until ButtonPressed = return_btn
-	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select or Type" Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
-
-end function
-
 function format_phone_number(phone_variable, format_type)
 'This function formats phone numbers to match the specificed format.
 	' format_type_options:
@@ -5519,128 +4181,32 @@ function verification_dialog()
 						grp_len = grp_len + 15
 					End If
 				Next
-			  	If question_1_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q1 Verif Requested. Details: " & question_1_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_2_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q2 Verif Requested. Details: " & question_2_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_3_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q3 Verif Requested. Details: " & question_3_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_4_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q4 Verif Requested. Details: " & question_4_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_5_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q5 Verif Requested. Details: " & question_5_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_6_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q6 Verif Requested. Details: " & question_6_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_7_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q7 Verif Requested. Details: " & question_7_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_8_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q8 Verif Requested. Details: " & question_8_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				For each_job = 0 to UBound(JOBS_ARRAY, 2)
-					If JOBS_ARRAY(verif_yn, each_job) = "Requested" Then
-						Text 10, y_pos, 500, 10, "Q9 Verif Requested for " & JOBS_ARRAY(employer_name, each_job) & ". Details: " & JOBS_ARRAY(verif_details, each_job)
+
+				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+					If FORM_QUESTION_ARRAY(quest).verif_status = "Requested" Then
+						Text 10, y_pos, 500, 10, "Q" & FORM_QUESTION_ARRAY(quest).number & " Verif Requested. Details: " & FORM_QUESTION_ARRAY(quest).verif_notes
 						y_pos = y_pos + 15
 						grp_len = grp_len + 15
 					End If
+					If FORM_QUESTION_ARRAY(quest).detail_array_exists = True Then
+						For each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+							If FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = "Requested" Then
+								item_information = ""
+								If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " at " & FORM_QUESTION_ARRAY(quest).detail_business(each_item)
+								If FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " of " & FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+								If FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " of " & FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+								If FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then item_information = FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+								If FORM_QUESTION_ARRAY(quest).detail_source = "expense" Then item_information = "expense paid by " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item)
+								If FORM_QUESTION_ARRAY(quest).detail_source = "changes" Then item_information = "change"
+								If FORM_QUESTION_ARRAY(quest).detail_source = "winnings" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " winnings"
+
+								Text 10, y_pos, 500, 10, "Q" & FORM_QUESTION_ARRAY(quest).number & " Verif Requested for " & item_information & ". Details: " & FORM_QUESTION_ARRAY(quest).detail_verif_notes(each_item)
+								y_pos = y_pos + 15
+								grp_len = grp_len + 15
+							End If
+						Next
+					End If
 				Next
-				If question_10_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q10 Verif Requested. Details: " & question_10_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_11_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q11 Verif Requested. Details: " & question_11_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_12_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q12 Verif Requested. Details: " & question_12_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_13_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q13 Verif Requested. Details: " & question_13_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_14_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q14 Verif Requested. Details: " & question_14_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_15_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q15 Verif Requested. Details: " & question_15_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_16_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q16 Verif Requested. Details: " & question_16_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_17_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q17 Verif Requested. Details: " & question_17_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_18_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q18 Verif Requested. Details: " & question_18_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_19_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q19 Verif Requested. Details: " & question_19_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_20_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q20 Verif Requested. Details: " & question_20_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_21_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q21 Verif Requested. Details: " & question_21_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_22_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q22 Verif Requested. Details: " & question_22_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_23_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q23 Verif Requested. Details: " & question_23_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
-				If question_24_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q24 Verif Requested. Details: " & question_24_verif_details
-					y_pos = y_pos + 15
-					grp_len = grp_len + 15
-				End If
 
 				verifs_selected = trim(verifs_selected)
 				If right(verifs_selected, 1) = ";" Then
@@ -6051,225 +4617,12 @@ function write_interview_CASE_NOTE()
 
 	CALL write_variable_in_CASE_NOTE("-----  CAF Information and Notes -----")
 
-	q_1_verbiage = "Q1. Does everyone buy, fix, or eat food together?"
-    If question_1_yn <> "" OR trim(question_1_notes) <> "" OR question_1_verif_yn <> "" OR trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(q_1_verbiage)
-    q_1_input = "    CAF Answer - " & question_1_yn
-	If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
-	If q_1_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_1_input)
-	If trim(question_1_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_1_notes)
-	If question_1_verif_yn <> "" Then
-		If trim(question_1_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn)
-		If trim(question_1_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn & ": " & question_1_verif_details)
-	End If
-    If trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_1_interview_notes)
-
-	q_2_verbiage = "Q2. Is anyone (60+) disabled or unable to prepare food?"
-    If question_2_yn <> "" OR trim(question_2_notes) <> "" OR question_2_verif_yn <> "" OR trim(question_2_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_2_verbiage)
-    q_2_input = "    CAF Answer - " & question_2_yn
-	If question_2_yn <> "" OR trim(question_2_notes) <> "" Then q_2_input = q_2_input & " (Confirmed)"
-	If q_2_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_2_input)
-	If trim(question_2_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_2_notes)
-	If question_2_verif_yn <> "" Then
-		If trim(question_2_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn)
-		If trim(question_2_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn & ": " & question_2_verif_details)
-	End If
-    If trim(question_2_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_2_interview_notes)
-
-    q_3_verbiage = "Q3. Is anyone attending school?"
-    If question_3_yn <> "" OR trim(question_3_notes) <> "" OR question_3_verif_yn <> "" OR trim(question_3_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_3_verbiage)
-	q_3_input = "    CAF Answer - " & question_3_yn
-	If question_3_yn <> "" OR trim(question_3_notes) <> "" Then q_3_input = q_3_input & " (Confirmed)"
-	If q_3_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_3_input)
-	If trim(question_3_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_3_notes)
-	If question_3_verif_yn <> "" Then
-		If trim(question_3_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn)
-		If trim(question_3_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn & ": " & question_3_verif_details)
-	End If
-    If trim(question_3_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_3_interview_notes)
-
-    q_4_verbiage = "Q4. Is anyone temporarily not living in the home?"
-    If question_4_yn <> "" OR trim(question_4_notes) <> "" OR question_4_verif_yn <> "" OR trim(question_4_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_4_verbiage)
-	q_4_input = "    CAF Answer - " & question_4_yn
-	If question_4_yn <> "" OR trim(question_4_notes) <> "" Then q_4_input = q_4_input & " (Confirmed)"
-	If q_4_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_4_input)
-	If trim(question_4_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_4_notes)
-	If question_4_verif_yn <> "" Then
-		If trim(question_4_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn)
-		If trim(question_4_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn & ": " & question_4_verif_details)
-	End If
-    If trim(question_4_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_4_interview_notes)
-
-    q_5_verbiage = "Q5. Is anyone blind or does anyone have a limiting illness or disability?"
-    If question_5_yn <> "" OR trim(question_5_notes) <> "" OR question_5_verif_yn <> "" OR trim(question_5_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_5_verbiage)
-	q_5_input = "    CAF Answer - " & question_5_yn
-	If question_5_yn <> "" OR trim(question_5_notes) <> "" Then q_5_input = q_5_input & " (Confirmed)"
-	If q_5_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_5_input)
-	If trim(question_5_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_5_notes)
-	If question_5_verif_yn <> "" Then
-		If trim(question_5_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn)
-		If trim(question_5_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn & ": " & question_5_verif_details)
-	End If
-    If trim(question_5_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_5_interview_notes)
-
-    q_6_verbiage = "Q6. Is anyone unable to work?"
-    If question_6_yn <> "" OR trim(question_6_notes) <> "" OR question_6_verif_yn <> "" OR trim(question_6_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_6_verbiage)
-	q_6_input = "    CAF Answer - " & question_6_yn
-	If question_6_yn <> "" OR trim(question_6_notes) <> "" Then q_6_input = q_6_input & " (Confirmed)"
-	If q_6_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_6_input)
-	If trim(question_6_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_6_notes)
-	If question_6_verif_yn <> "" Then
-		If trim(question_6_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn)
-		If trim(question_6_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn & ": " & question_6_verif_details)
-	End If
-    If trim(question_6_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_6_interview_notes)
-
-    q_7_verbiage = "Q7. Has anyone stopped, quit or refused employment in the past 60 days?"
-    If question_7_yn <> "" OR trim(question_7_notes) <> "" OR question_7_verif_yn <> "" OR trim(question_7_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_7_verbiage)
-	q_7_input = "    CAF Answer - " & question_7_yn
-	If question_7_yn <> "" OR trim(question_7_notes) <> "" Then q_7_input = q_7_input & " (Confirmed)"
-	If q_7_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_7_input)
-	If trim(question_7_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_7_notes)
-	If question_7_verif_yn <> "" Then
-		If trim(question_7_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn)
-		If trim(question_7_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn & ": " & question_7_verif_details)
-	End If
-    If trim(question_7_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_7_interview_notes)
-
-    q_8_verbiage = "Q8. Has anyone had a job OR been self-employed in the past 12 months?"
-    If question_8_yn <> "" OR trim(question_8_notes) <> "" OR question_8a_yn <> "" OR question_8_verif_yn <> "" OR trim(question_8_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_8_verbiage)
-	q_8_input = "    CAF Answer - " & question_8_yn
-    If question_8_yn <> "" OR trim(question_8_notes) <> "" Then q_8_input = q_8_input & " (Confirmed)"
-    If q_8_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_8_input)
-    q_8a_verbiage = "    Q8a.In the past 36 months? (SNAP ONLY)"
-	If question_8a_yn <> "" Then
-        Call write_variable_in_CASE_NOTE(q_8a_verbiage)
-        Call write_variable_in_CASE_NOTE("        CAF Answer - " & question_8a_yn)
-    End If
-	If trim(question_8_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_8_notes)
-	If question_8_verif_yn <> "" Then
-		If trim(question_8_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn)
-		If trim(question_8_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn & ": " & question_8_verif_details)
-	End If
-    If trim(question_8_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_8_interview_notes)
-
-
-    q_9_verbiage = "Q9. Does anyone have a job?"
-    If question_9_yn <> "" OR trim(question_9_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_9_verbiage)
-    ' If question_9_yn <> "" OR trim(question_9_notes) <> "" OR question__verif_yn <> "" OR trim(question__interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_9_verbiage)
-	q_9_input = "    CAF Answer - " & question_9_yn
-	If question_9_yn <> "" OR trim(question_9_notes) <> "" Then q_9_input = q_9_input & " (Confirmed)"
-	If q_9_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_9_input)
-	for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-		If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-			CALL write_variable_in_CASE_NOTE("    Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & " for " & JOBS_ARRAY(jobs_employee_name, each_job) & " monthly earnings $" & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job))
-			If JOBS_ARRAY(verif_yn, each_job) <> "" Then
-				If trim(JOBS_ARRAY(verif_details, each_job)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job))
-				If trim(JOBS_ARRAY(verif_details, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job) & ": " & JOBS_ARRAY(verif_details, each_job))
-			End If
-			If trim(JOBS_ARRAY(jobs_notes, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer: " & JOBS_ARRAY(jobs_notes, each_job))
-			If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & JOBS_ARRAY(jobs_intv_notes, each_job))
-		End If
-	next
-
-    q_10_verbiage = "Q10.Is anyone self-employed?"
-    If question_10_yn <> "" OR trim(question_10_notes) <> "" OR question_10_verif_yn <> "" OR trim(question_10_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_10_verbiage)
-	q_10_input = "    CAF Answer - " & question_10_yn
-	If trim(question_10_monthly_earnings) <> "" Then q_10_input = q_10_input & " Gross Monthly Earnings: " & question_10_monthly_earnings
-	If question_10_yn <> "" OR trim(question_10_notes) <> "" Then q_10_input = q_10_input & " (Confirmed)"
-	If q_10_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_10_input)
-	If trim(question_10_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_10_notes)
-	If question_10_verif_yn <> "" Then
-		If trim(question_10_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn)
-		If trim(question_10_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn & ": " & question_10_verif_details)
-	End If
-    If trim(question_10_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_10_interview_notes)
-
-    q_11_verbiage = "Q11.Do you expect any changes in income, expenses, or work hours?"
-    If question_11_yn <> "" OR trim(question_11_notes) <> "" OR question_11_verif_yn <> "" OR trim(question_11_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_11_verbiage)
-	q_11_input = "    CAF Answer - " & question_11_yn
-	If question_11_yn <> "" OR trim(question_11_notes) <> "" Then q_11_input = q_11_input & " (Confirmed)"
-	If q_11_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_11_input)
-	If trim(question_11_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_11_notes)
-	If question_11_verif_yn <> "" Then
-		If trim(question_11_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn)
-		If trim(question_11_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn & ": " & question_11_verif_details)
-	End If
-    If trim(question_11_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_11_interview_notes)
-
 	If trim(pwe_selection) <> "" AND pwe_selection <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("PWE: " & pwe_selection)
 
-    q_12_verbiage = "Q12.Does anyone have any unearned income?"
-	If q_12_totally_blank = False Then
-        Call write_variable_in_CASE_NOTE(q_12_verbiage)
-		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
+	For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
+		FORM_QUESTION_ARRAY(each_question).enter_case_note()
+	Next
 
-		question_12_rsdi_yn = left(question_12_rsdi_yn & "   ", 5)
-		If trim(question_12_rsdi_amt) <> "" Then question_12_rsdi_amt = left("$" & question_12_rsdi_amt & ".00       ", 8)
-		question_12_ssi_yn = left(question_12_ssi_yn & "   ", 5)
-		If trim(question_12_ssi_amt) <> "" Then question_12_ssi_amt = left("$" & question_12_ssi_amt & ".00       ", 8)
-		question_12_va_yn = left(question_12_va_yn & "   ", 5)
-		If trim(question_12_va_amt) <> "" Then question_12_va_amt = left("$" & question_12_va_amt & ".00       ", 8)
-		question_12_ui_yn = left(question_12_ui_yn & "   ", 5)
-		If trim(question_12_ui_amt) <> "" Then question_12_ui_amt = left("$" & question_12_ui_amt & ".00       ", 8)
-		question_12_wc_yn = left(question_12_wc_yn & "   ", 5)
-		If trim(question_12_wc_amt) <> "" Then question_12_wc_amt = left("$" & question_12_wc_amt & ".00       ", 8)
-		question_12_ret_yn = left(question_12_ret_yn & "   ", 5)
-		If trim(question_12_ret_amt) <> "" Then question_12_ret_amt = left("$" & question_12_ret_amt & ".00       ", 8)
-		question_12_trib_yn = left(question_12_trib_yn & "   ", 5)
-		If trim(question_12_trib_amt) <> "" Then question_12_trib_amt = left("$" & question_12_trib_amt & ".00       ", 8)
-		question_12_cs_yn = left(question_12_cs_yn & "   ", 5)
-		If trim(question_12_cs_amt) <> "" Then question_12_cs_amt = left("$" & question_12_cs_amt & ".00       ", 8)
-		question_12_other_yn = left(question_12_other_yn & "   ", 5)
-		If trim(question_12_other_amt) <> "" Then question_12_other_amt = left("$" & question_12_other_amt & ".00       ", 8)
-
-
-		CALL write_variable_in_CASE_NOTE("    RSDI - " & question_12_rsdi_yn & " " & question_12_rsdi_amt & "   UI - " & question_12_ui_yn & " " & question_12_ui_amt & " Tribal - " & question_12_trib_yn & " " & question_12_trib_amt)
-		CALL write_variable_in_CASE_NOTE("     SSI - " & question_12_ssi_yn & " " & question_12_ssi_amt & "   WC - " & question_12_wc_yn & " " & question_12_wc_amt & "   CSES - " & question_12_cs_yn & " " & question_12_cs_amt)
-		CALL write_variable_in_CASE_NOTE("      VA - " & question_12_va_yn & " " & question_12_va_amt & "  Ret - " & question_12_ret_yn & " " & question_12_ret_amt & "  Other - " & question_12_other_yn & " " & question_12_other_amt)
-		If trim(question_12_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_12_notes)
-	End If
-	If question_12_verif_yn <> "" Then
-		If trim(question_12_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn)
-		If trim(question_12_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn & ": " & question_12_verif_details)
-	End If
-    If trim(question_12_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_12_interview_notes)
-
-    q_13_verbiage = "Q13.Does anyone receive financial aid for attending school?"
-    If question_13_yn <> "" OR trim(question_13_notes) <> "" OR question_13_verif_yn <> "" OR trim(question_13_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_13_verbiage)
-	q_13_input = "    CAF Answer - " & question_13_yn
-	If question_13_yn <> "" OR trim(question_13_notes) <> "" Then q_13_input = q_13_input & " (Confirmed)"
-	If q_13_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_13_input)
-	If trim(question_13_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_13_notes)
-	If question_13_verif_yn <> "" Then
-		If trim(question_13_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn)
-		If trim(question_13_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn & ": " & question_13_verif_details)
-	End If
-    If trim(question_13_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_13_interview_notes)
-
-    q_14_verbiage = "Q14.Are there any of the following housing expenses?"
-	If q_14_totally_blank = False Then
-        Call write_variable_in_CASE_NOTE(q_14_verbiage)
-		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
-
-		question_14_rent_yn = left(question_14_rent_yn & "   ", 5)
-		question_14_subsidy_yn = left(question_14_subsidy_yn & "   ", 5)
-		question_14_mortgage_yn = left(question_14_mortgage_yn & "   ", 5)
-		' question_14_taxes_yn = left(question_14_taxes_yn & "   ", 5)
-		question_14_association_yn = left(question_14_association_yn & "   ", 5)
-		' question_14_insurance_yn = left(question_14_insurance_yn & "   ", 5)
-		question_14_room_yn = left(question_14_room_yn & "   ", 5)
-
-		' CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn        & " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & " Taxes - " & question_14_taxes_yn)
-		' CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "     Room/Board - " & question_14_room_yn    & " Insurance - " & question_14_insurance_yn)
-		CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn &  " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & "    Taxes - " & question_14_taxes_yn)
-		CALL write_variable_in_CASE_NOTE("                        Assoc Fees - " & question_14_association_yn & "Room/Board - " & question_14_room_yn    & "Insurance - " & question_14_insurance_yn)
-        If trim(question_14_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_14_notes)
-	End If
-	If question_14_verif_yn <> "" Then
-		If trim(question_14_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn)
-		If trim(question_14_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn & ": " & question_14_verif_details)
-	End If
-    If trim(question_14_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_14_interview_notes)
 	If disc_rent_amounts = "RESOLVED" Then
 		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_rent_amounts_confirmation)
@@ -6283,168 +4636,11 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_no_phone_yes_expense_confirmation)
 	End If
 
-    q_15_verbiage = "Q15.Are there any of the following utility expenses?"
-	If q_15_totally_blank = False Then
-        Call write_variable_in_CASE_NOTE(q_15_verbiage)
-		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
-
-		question_15_heat_ac_yn = left(question_15_heat_ac_yn & "   ", 5)
-		question_15_electricity_yn = left(question_15_electricity_yn & "   ", 5)
-		' question_15_cooking_fuel_yn = left(question_15_cooking_fuel_yn & "   ", 5)
-		question_15_water_and_sewer_yn = left(question_15_water_and_sewer_yn & "   ", 5)
-		question_15_garbage_yn = left(question_15_garbage_yn & "   ", 5)
-		' question_15_phone_yn = left(question_15_phone_yn & "   ", 5)
-		' question_15_liheap_yn = left(question_15_liheap_yn & "   ", 5)
-
-		CALL write_variable_in_CASE_NOTE("        Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
-		CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn)
-        CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & question_15_liheap_yn)
-       
-		If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
-			Call write_variable_in_CASE_NOTE("    Updated HEST Panel - Choice Date: " & choice_date)
-			CALL write_variable_in_CASE_NOTE("     -Persons Paying: " & all_persons_paying) 
-			If hest_update_heat_ac = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Heat/Air - Yes" )
-			If hest_update_electric = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Electric - Yes" )
-			If hest_update_phone = TRUE Then CALL write_variable_in_CASE_NOTE("     -Prospective Phone - Yes" )
-		End If
-
-		If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
-	End If
-	If question_15_verif_yn <> "" Then
-		If trim(question_15_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn)
-		If trim(question_15_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn & ": " & question_15_verif_details)
-	End If
-    If trim(question_15_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_15_interview_notes)
-    If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("    PHONE DETAILS: " & question_15_phone_details)
-
 	If disc_utility_amounts = "RESOLVED" Then
 		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_utility_amounts_confirmation)
 	End If
 
-    q_16_verbiage = "Q16.Does anyone have costs for childcare?"
-    If question_16_yn <> "" OR trim(question_16_notes) <> "" OR question_16_verif_yn <> "" OR trim(question_16_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_16_verbiage)
-	q_16_input = "    CAF Answer - " & question_16_yn
-	If question_16_yn <> "" OR trim(question_16_notes) <> "" Then q_16_input = q_16_input & " (Confirmed)"
-	If q_16_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_16_input)
-	If trim(question_16_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_16_notes)
-	If question_16_verif_yn <> "" Then
-		If trim(question_16_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn)
-		If trim(question_16_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn & ": " & question_16_verif_details)
-	End If
-    If trim(question_16_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_16_interview_notes)
-
-    q_17_verbiage = "Q17.Does anyone have costs for adult care?"
-    If question_17_yn <> "" OR trim(question_17_notes) <> "" OR question_17_verif_yn <> "" OR trim(question_17_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_17_verbiage)
-	q_17_input = "    CAF Answer - " & question_17_yn
-	If question_17_yn <> "" OR trim(question_17_notes) <> "" Then q_17_input = q_17_input & " (Confirmed)"
-	If q_17_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_17_input)
-	If trim(question_17_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_17_notes)
-	If question_17_verif_yn <> "" Then
-		If trim(question_17_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn)
-		If trim(question_17_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn & ": " & question_17_verif_details)
-	End If
-    If trim(question_17_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_17_interview_notes)
-
-    q_18_verbiage = "Q18.Does anyone pay support to someone outside of the home?"
-    If question_18_yn <> "" OR trim(question_18_notes) <> "" OR question_18_verif_yn <> "" OR trim(question_18_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_18_verbiage)
-	q_18_input = "    CAF Answer - " & question_18_yn
-	If question_18_yn <> "" OR trim(question_18_notes) <> "" Then q_18_input = q_18_input & " (Confirmed)"
-	If q_18_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_18_input)
-	If trim(question_18_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_18_notes)
-	If question_18_verif_yn <> "" Then
-		If trim(question_18_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn)
-		If trim(question_18_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn & ": " & question_18_verif_details)
-	End If
-    If trim(question_18_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_18_interview_notes)
-
-    q_19_verbiage = "Q19.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
-    If question_19_yn <> "" OR trim(question_19_notes) <> "" OR question_19_verif_yn <> "" OR trim(question_19_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_19_verbiage)
-	q_19_input = "    CAF Answer - " & question_19_yn
-	If question_19_yn <> "" OR trim(question_19_notes) <> "" Then q_19_input = q_19_input & " (Confirmed)"
-	If q_19_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_19_input)
-	If trim(question_19_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_19_notes)
-	If question_19_verif_yn <> "" Then
-		If trim(question_19_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn)
-		If trim(question_19_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn & ": " & question_19_verif_details)
-	End If
-    If trim(question_19_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_19_interview_notes)
-
-    q_20_verbiage = "Q20.Does anyone own or is anyone buying any of the following:"
-	If q_20_totally_blank = False Then
-        Call write_variable_in_CASE_NOTE(q_20_verbiage)
-		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
-
-		question_20_cash_yn = left(question_20_cash_yn & "   ", 5)
-		question_20_acct_yn = left(question_20_acct_yn & "   ", 5)
-		question_20_secu_yn = left(question_20_secu_yn & "   ", 5)
-		question_20_cars_yn = left(question_20_cars_yn & "   ", 5)
-
-
-		CALL write_variable_in_CASE_NOTE("      Cash - " & question_20_cash_yn & " Bank Accounts - " & question_20_acct_yn)
-		CALL write_variable_in_CASE_NOTE("    Stocks - " & question_20_secu_yn & "      Vehicles - " & question_20_cars_yn)
-		If trim(question_20_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_20_notes)
-	End If
-	If question_20_verif_yn <> "" Then
-		If trim(question_20_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn)
-		If trim(question_20_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn & ": " & question_20_verif_details)
-	End If
-    If trim(question_20_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_20_interview_notes)
-
-    q_21_verbiage = "Q21.Has anyone sold/given away/traded assets in the past 12 mos?(CASH ONLY)"
-    If question_21_yn <> "" OR trim(question_21_notes) <> "" OR question_21_verif_yn <> "" OR trim(question_21_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_21_verbiage)
-	q_21_input = "    CAF Answer - " & question_21_yn
-	If question_21_yn <> "" OR trim(question_21_notes) <> "" Then q_21_input = q_21_input & " (Confirmed)"
-	If q_21_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_21_input)
-	If trim(question_21_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_21_notes)
-	If question_21_verif_yn <> "" Then
-		If trim(question_21_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn)
-		If trim(question_21_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn & ": " & question_21_verif_details)
-	End If
-    If trim(question_21_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_21_interview_notes)
-
-    q_22_verbiage = "Q22.Did anyone move in/out in the past 12 months? (REVW ONLY)"
-    If question_22_yn <> "" OR trim(question_22_notes) <> "" OR question_22_verif_yn <> "" OR trim(question_22_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(q_22_verbiage)
-    q_22_input = "    CAF Answer - " & question_22_yn
-	If question_22_yn <> "" OR trim(question_22_notes) <> "" Then q_22_input = q_22_input & " (Confirmed)"
-	If q_22_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_22_input)
-    If trim(question_22_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_22_notes)
-	If question_22_verif_yn <> "" Then
-		If trim(question_22_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn)
-		If trim(question_22_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn & ": " & question_22_verif_details)
-	End If
-    If trim(question_22_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_22_interview_notes)
-
-    q_23_verbiage = "Q23.Are both parents of children under 19 living in the home?"
-    If question_23_yn <> "" OR trim(question_23_notes) <> "" OR question_23_verif_yn <> "" OR trim(question_23_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(q_23_verbiage)
-	q_23_input = "    CAF Answer - " & question_23_yn
-	If question_23_yn <> "" OR trim(question_23_notes) <> "" Then q_23_input = q_23_input & " (Confirmed)"
-	If q_23_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_23_input)
-	If trim(question_23_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_23_notes)
-	If question_23_verif_yn <> "" Then
-		If trim(question_23_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn)
-		If trim(question_23_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn & ": " & question_23_verif_details)
-	End If
-    If trim(question_23_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_23_interview_notes)
-
-    q_24_verbiage = "Q24.Does anyone have any of the following expenses? (MSA ONLY)"
-	If q_24_totally_blank = False Then
-        Call write_variable_in_CASE_NOTE(q_24_verbiage)
-		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
-		question_24_rep_payee_yn = left(question_24_rep_payee_yn & "   ", 5)
-		question_24_guardian_fees_yn = left(question_24_guardian_fees_yn & "   ", 5)
-		question_24_special_diet_yn = left(question_24_special_diet_yn & "   ", 5)
-		question_24_high_housing_yn = left(question_24_high_housing_yn & "   ", 5)
-
-		CALL write_variable_in_CASE_NOTE("    REP Payee Fees - " & question_24_rep_payee_yn    & "         Guard Fees - " & question_24_guardian_fees_yn)
-		CALL write_variable_in_CASE_NOTE("      Special Diet - " & question_24_special_diet_yn & " High Housing Costs - " & question_24_high_housing_yn)
-		If trim(question_24_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_24_notes)
-	End If
-	If question_24_verif_yn <> "" Then
-		If trim(question_24_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_24_verif_yn)
-		If trim(question_24_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_24_verif_yn & ": " & question_24_verif_details)
-	End If
-    If trim(question_24_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_24_interview_notes)
 
 	'If at least one field is filled in, then it will write the emergency info to case note
 	If resident_emergency_yn <> " " or trim(emergency_type) <> "" or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
@@ -6522,7 +4718,6 @@ function write_interview_CASE_NOTE()
 end function
 
 function create_verifs_needed_list(verifs_selected, verifs_needed)
-
 	verifs_needed = verifs_selected
 	If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
 	If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
@@ -6535,126 +4730,30 @@ function create_verifs_needed_list(verifs_selected, verifs_needed)
     		End If
         End If
 	Next
-	If question_1_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q1 Information (P&P Together)"
-		If trim(question_1_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_1_verif_details
-	End If
-	If question_2_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q2 Information (Ages/DISA unable to buy food)"
-		If trim(question_2_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_2_verif_details
-	End If
 
-	If question_3_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q3 Information (Attending School)"
-		If trim(question_3_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_3_verif_details
-	End If
-
-	If question_4_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q4 Information (Temp out of Home)"
-		If trim(question_4_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_4_verif_details
-	End If
-
-	If question_5_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q5 Information (DISA)"
-		If trim(question_5_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_5_verif_details
-	End If
-
-	If question_6_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q6 Information (Unable to Work)"
-		If trim(question_6_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_6_verif_details
-	End If
-
-	If question_7_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q7 Information (Job end/reduce in past 60 Days)"
-		If trim(question_7_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_7_verif_details
-	End If
-
-	If question_8_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q8 Information (Employed in past 12 Months)"
-		If trim(question_8_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_8_verif_details
-	End If
-
-	For each_job = 0 to UBound(JOBS_ARRAY, 2)
-		If JOBS_ARRAY(verif_yn, each_job) = "Requested" Then
-			verifs_needed = verifs_needed & "; CAF Q9 Information (Job) - " & JOBS_ARRAY(employer_name, each_job)
-			If trim(JOBS_ARRAY(verif_details, each_job)) <> "" Then verifs_needed = verifs_needed & " - " & JOBS_ARRAY(verif_details, each_job)
+	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+		If FORM_QUESTION_ARRAY(quest).verif_status = "Requested" Then
+			verifs_needed = verifs_needed & "; " & FORM_QUESTION_ARRAY(quest).verif_verbiage
+			If FORM_QUESTION_ARRAY(quest).verif_notes <> "" Then verifs_needed = verifs_needed & " - " & FORM_QUESTION_ARRAY(quest).verif_notes
 		End If
+		If FORM_QUESTION_ARRAY(quest).detail_array_exists = True Then
+			For each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+				If FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = "Requested" Then
+					item_information = ""
+					If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " at " & FORM_QUESTION_ARRAY(quest).detail_business(each_item)
+					If FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " of " & FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+					If FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " of " & FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+					If FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then item_information = FORM_QUESTION_ARRAY(quest).detail_type(each_item)
+					If FORM_QUESTION_ARRAY(quest).detail_source = "expense" Then item_information = "expense paid by " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item)
+					If FORM_QUESTION_ARRAY(quest).detail_source = "changes" Then item_information = "change"
+					If FORM_QUESTION_ARRAY(quest).detail_source = "winnings" Then item_information = FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & " winnings"
 
+					verifs_needed = verifs_needed & "; " & FORM_QUESTION_ARRAY(quest).verif_verbiage & " - " & item_information
+					If FORM_QUESTION_ARRAY(quest).detail_verif_notes(each_item) <> "" Then verifs_needed = verifs_needed & " - " & FORM_QUESTION_ARRAY(quest).detail_verif_notes(each_item)
+				End If
+			Next
+		End If
 	Next
-	If question_10_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q10 Information (Self Employed)"
-		If trim(question_10_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_10_verif_details
-	End If
-
-	If question_11_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q11 Information (Income Changes)"
-		If trim(question_11_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_11_verif_details
-	End If
-
-	If question_12_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q12 Information (UNEA Income)"
-		If trim(question_12_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_12_verif_details
-	End If
-
-	If question_13_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q13 Information (School Financial Aid)"
-		If trim(question_13_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_13_verif_details
-	End If
-
-	If question_14_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q14 Information (Housing Expense)"
-		If trim(question_14_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_14_verif_details
-	End If
-
-	If question_15_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q15 Information (Utilities Expense)"
-		If trim(question_15_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_15_verif_details
-	End If
-
-	If question_16_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q16 Information (Child Care Expense)"
-		If trim(question_16_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_16_verif_details
-	End If
-
-	If question_17_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q17 Information (DISA Adult Care Expense)"
-		If trim(question_17_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_17_verif_details
-	End If
-
-	If question_18_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q18 Information (Child Support Expense)"
-		If trim(question_18_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_18_verif_details
-	End If
-
-	If question_19_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q19 Information (Medical Expenses)"
-		If trim(question_19_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_19_verif_details
-	End If
-
-	If question_20_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q20 Information (Assets)"
-		If trim(question_20_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_20_verif_details
-	End If
-
-	If question_21_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q21 Information (Asset Trade)"
-		If trim(question_21_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_21_verif_details
-	End If
-
-	If question_22_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q22 Information (Anyone Move In or Out)"
-		If trim(question_22_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_22_verif_details
-	End If
-
-	If question_23_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q23 Information (Both Parents in Home)"
-		If trim(question_23_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_23_verif_details
-	End If
-
-	If question_24_verif_yn = "Requested" Then
-		verifs_needed = verifs_needed & "; CAF Q24 Information (MSA Expenses)"
-		If trim(question_24_verif_details) <> "" Then verifs_needed = verifs_needed & " - " & question_24_verif_details
-	End If
 
 	verifs_needed = trim(verifs_needed)
 
@@ -6830,30 +4929,8 @@ function app_month_income_detail(determined_income, income_review_completed, job
 			'determining if additional length of the dialog is needed to display interview notes about income from the main script
 			interview_note_details_exists = False
 			intvw_notes_len = 20
-			If trim(question_8_interview_notes) <> "" Then
-				interview_note_details_exists = True
-				intvw_notes_len = intvw_notes_len + 20
-			End If
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				first_job = True
-				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-					interview_note_details_exists = True
-					If first_job = True Then intvw_notes_len = intvw_notes_len + 10
-					intvw_notes_len = intvw_notes_len + 10
-					If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then
-						intvw_notes_len = intvw_notes_len + 10
-					End If
-					first_job = False
-				End If
-			next
-			If trim(question_10_interview_notes) <> "" Then
-				interview_note_details_exists = True
-				intvw_notes_len = intvw_notes_len + 20
-			End If
-			If trim(question_12_interview_notes) <> "" Then
-				interview_note_details_exists = True
-				intvw_notes_len = intvw_notes_len + 20
-			End If
+
+			'TODO - Add information from the form answers
 
 			dlg_len = 45 + jobs_grp_len + busi_grp_len + unea_grp_len
 			If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 10
@@ -6866,38 +4943,12 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					If interview_note_details_exists = True Then
 						GroupBox 10, y_pos, 380, intvw_notes_len, "Interview NOTES entered into the Script already"
 						y_pos = y_pos + 15
-						If trim(question_8_interview_notes) <> "" Then
-							Text 20, y_pos, 360, 10, "8. Has anyone in the household had a job or been self-employed?"
-							Text 30, y_pos+10, 350, 10, question_8_interview_notes
-							y_pos = y_pos + 20
-						End If
-						first_job = True
-						for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-							If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-								interview_note_details_exists = True
-								If first_job = True Then
-									Text 20, y_pos, 360, 10, "9. Does anyone in the household have a job?"
-									y_pos = y_pos + 10
-								End If
-								Text 30, y_pos, 350, 10, JOBS_ARRAY(jobs_employee_name, each_job) & " at " & JOBS_ARRAY(jobs_employer_name, each_job) & " $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "/mo."
-								y_pos = y_pos + 10
-								If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then
-									Text 30, y_pos, 350, 10, "Notes: " & JOBS_ARRAY(jobs_intv_notes, each_job)
-									y_pos = y_pos + 10
-								End If
-								first_job = False
-							End If
-						next
-						If trim(question_10_interview_notes) <> "" Then
-							Text 20, y_pos, 360, 10, "10. Is anyone in the household self-employed?"
-							Text 30, y_pos+10, 350, 10, question_10_interview_notes
-							y_pos = y_pos + 20
-						End If
-						If trim(question_12_interview_notes) <> "" Then
-							Text 20, y_pos, 360, 10, "12. Does anyone have Unearned Income?"
-							Text 30, y_pos+10, 350, 10, question_12_interview_notes
-							y_pos = y_pos + 20
-						End If
+						' If trim(question_8_interview_notes) <> "" Then
+						' 	Text 20, y_pos, 360, 10, "8. Has anyone in the household had a job or been self-employed?"
+						' 	Text 30, y_pos+10, 350, 10, question_8_interview_notes
+						' 	y_pos = y_pos + 20
+						' End If
+
 						y_pos = y_pos + 10
 
 					End If
@@ -8205,9 +6256,7 @@ Call find_user_name(worker_name)						'defaulting the name of the suer running t
 ' worker_name = user_ID_for_validation
 Dim TABLE_ARRAY
 Dim ALL_CLIENTS_ARRAY
-Dim JOBS_ARRAY
 ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
-ReDim JOBS_ARRAY(jobs_notes, 0)
 
 const account_type_const	= 0
 const account_owner_const	= 1
@@ -8304,41 +6353,11 @@ Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_prev
 Dim licensed_facility, meal_provided, residence_name_phone
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
+Dim send_text, send_email
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
 
-Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details, question_1_interview_notes
-Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details, question_2_interview_notes
-Dim question_3_yn, question_3_notes, question_3_verif_yn, question_3_verif_details, question_3_interview_notes
-Dim question_4_yn, question_4_notes, question_4_verif_yn, question_4_verif_details, question_4_interview_notes
-Dim question_5_yn, question_5_notes, question_5_verif_yn, question_5_verif_details, question_5_interview_notes
-Dim question_6_yn, question_6_notes, question_6_verif_yn, question_6_verif_details, question_6_interview_notes
-Dim question_7_yn, question_7_notes, question_7_verif_yn, question_7_verif_details, question_7_interview_notes
-Dim question_8_yn, question_8a_yn, question_8_notes, question_8_verif_yn, question_8_verif_details, question_8_interview_notes
-Dim question_9_yn, question_9_notes, question_9_verif_yn, question_9_verif_details, question_9_interview_notes
-Dim question_10_yn, question_10_notes, question_10_verif_yn, question_10_verif_details, question_10_monthly_earnings, question_10_interview_notes
-Dim question_11_yn, question_11_notes, question_11_verif_yn, question_11_verif_details, question_11_interview_notes
-Dim pwe_selection
-Dim question_12_yn, question_12_notes, question_12_verif_yn, question_12_verif_details, question_12_interview_notes
-Dim question_12_rsdi_yn, question_12_rsdi_amt, question_12_ssi_yn, question_12_ssi_amt,  question_12_va_yn, question_12_va_amt, question_12_ui_yn, question_12_ui_amt, question_12_wc_yn, question_12_wc_amt, question_12_ret_yn, question_12_ret_amt, question_12_trib_yn, question_12_trib_amt, question_12_cs_yn, question_12_cs_amt, question_12_other_yn, question_12_other_amt
-Dim question_13_yn, question_13_notes, question_13_verif_yn, question_13_verif_details, question_13_interview_notes
-Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_details, question_14_interview_notes
-Dim question_14_rent_yn, question_14_subsidy_yn, question_14_mortgage_yn, question_14_association_yn, question_14_insurance_yn, question_14_room_yn, question_14_taxes_yn
-Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes, question_15_phone_details
-Dim question_15_heat_ac_yn, question_15_electricity_yn, question_15_cooking_fuel_yn, question_15_water_and_sewer_yn, question_15_garbage_yn, question_15_phone_yn, question_15_liheap_yn
-Dim prosp_heat_ac_yn, prosp_heat_ac_units, prosp_electric_yn, prosp_electric_units, prosp_phone_yn, prosp_phone_units, choice_date, all_persons_paying
-Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details, question_16_interview_notes
-Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details, question_17_interview_notes
-Dim question_18_yn, question_18_notes, question_18_verif_yn, question_18_verif_details, question_18_interview_notes
-Dim question_19_yn, question_19_notes, question_19_verif_yn, question_19_verif_details, question_19_interview_notes
-Dim question_20_yn, question_20_notes, question_20_verif_yn, question_20_verif_details, question_20_interview_notes
-Dim question_20_cash_yn, question_20_acct_yn, question_20_secu_yn, question_20_cars_yn
-Dim question_21_yn, question_21_notes, question_21_verif_yn, question_21_verif_details, question_21_interview_notes
-Dim question_22_yn, question_22_notes, question_22_verif_yn, question_22_verif_details, question_22_interview_notes
-Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_details, question_23_interview_notes
-Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details, question_24_interview_notes
-Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -8352,8 +6371,10 @@ Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_che
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
 Dim resident_emergency_yn, emergency_type, emergency_discussion, emergency_amount, emergency_deadline
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
+Dim pwe_selection
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
+Dim qual_numb, exp_num, last_num, emer_numb, discrep_num
 
 'R&R
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
@@ -8386,12 +6407,12 @@ Dim income_review_completed, assets_review_completed, shel_review_completed, not
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
 show_pg_memb_list			= 3
-show_q_1_6					= 4
-show_q_7_11					= 5
-show_q_12_13				= 6
-show_q_14_15				= 7
-show_q_16_20				= 8
-show_q_21_24				= 9
+' show_q_1_6					= 4
+' show_q_7_11					= 5
+' show_q_12_13				= 6
+' show_q_14_15				= 7
+' show_q_16_20				= 8
+' show_q_21_24				= 9
 show_qual					= 10
 show_pg_last				= 11
 discrepancy_questions		= 12
@@ -8474,6 +6495,13 @@ sir_snap_interview				= 110
 run_interview_summary_btn		= 99
 switch_to_summary = False
 
+form_list = "CAF (DHS-5223)"
+form_list = form_list+chr(9)+"HUF (DHS-8107)"
+form_list = form_list+chr(9)+"SNAP App for Srs (DHS-5223F)"
+form_list = form_list+chr(9)+"MNbenefits"
+form_list = form_list+chr(9)+"Combined AR for Certain Pops (DHS-3727)"
+
+
 'Showing the case number dialog
 Do
 	DO
@@ -8482,7 +6510,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 315, "Interview Script Case number dialog"
 			EditBox 75, 25, 60, 15, MAXIS_case_number
-			DropListBox 75, 45, 145, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+			DropListBox 75, 45, 145, 15, "Select One:"+chr(9)+form_list, CAF_form
 			EditBox 75, 65, 145, 15, worker_signature
 			DropListBox 10, 270, 350, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
 			ButtonGroup ButtonPressed
@@ -8556,28 +6584,25 @@ Do
 Loop until summ_check = "SUMM"
 EMReadScreen case_pw, 7, 21, 17
 
-If CAF_form = "CAF (DHS-5223)" Then CAF_form_name = "Combined Application Form"
-If CAF_form = "HUF (DHS-8107)" Then CAF_form_name = "Household Update Form"
-If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Application for Seniors"
-If CAF_form = "MNbenefits" Then CAF_form_name = "MNbenefits Web Form"
-If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Combined Annual Renewal"
-
-If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
-
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 261, 160, "Unsupported Forms"
-	  Text 10, 10, 215, 20, "The following forms have slightly different phrasing from the primary application/recertification forms (like the CAF or HUF):"
-	  Text 25, 40, 195, 10, "SNAP App for Srs (DHS-5223F)"
-	  Text 25, 50, 190, 10, "Combined AR for Certain Pops (DHS-3727)"
-	  Text 10, 70, 240, 20, "We are developing new support for this script as use continues. Until then, the Interview script will function using the phrasing of the CAF form."
-	  Text 10, 95, 240, 40, "The requirements of the interview remain the same regardless of the form received. Many questions can be left blank as necessary, the important steps are to document all information received and discussed in the interview. Use the fields in the script to the best of your ability to document the details of the interview."
-	  ButtonGroup ButtonPressed
-		OkButton 205, 140, 50, 15
-	EndDialog
-
-	dialog Dialog1
-	Call check_for_MAXIS(False)
-
+If CAF_form = "CAF (DHS-5223)" Then
+	CAF_form_name = "Combined Application Form"
+	form_number = "5223"
+End If
+If CAF_form = "HUF (DHS-8107)" Then
+	CAF_form_name = "Household Update Form"
+	form_number = "8107"
+End If
+If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+	CAF_form_name = "SNAP Application for Seniors"
+	form_number = "5223F"
+End If
+If CAF_form = "MNbenefits" Then
+	CAF_form_name = "MNbenefits Web Form"
+	form_number = ""
+End If
+If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
+	CAF_form_name = "Combined Annual Renewal"
+	form_number = "3727"
 End If
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
@@ -8589,11 +6614,115 @@ vars_filled = FALSE
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
+Call run_from_GitHub(script_repository & "misc/interview-forms-classes.vbs" )
+EMWaitReady 0, 0
+
+If vars_filled = True Then
+
+	xmlPath = user_myDocs_folder & "interview_questions_" & MAXIS_case_number & ".xml"
+
+	With (CreateObject("Scripting.FileSystemObject"))
+
+		'Creating an object for the stream of text which we'll use frequently
+		Dim objTextStream
+
+		If .FileExists(xmlPath) = True then
+			xmlDoc.Async = False
+
+			' Load the XML file
+			xmlDoc.load(xmlPath)
+
+			set node = xmlDoc.SelectSingleNode("//DHSNumber")
+			form_number = node.text
+			set node = xmlDoc.SelectSingleNode("//Name")
+			CAF_form = node.text
+			set node = xmlDoc.SelectSingleNode("//numbOfQuestions")
+			numb_of_quest = node.text
+			numb_of_quest = numb_of_quest * 1
+			set node = xmlDoc.SelectSingleNode("//lastPageOfQuestions")
+			last_page_of_questions = node.text
+
+			set question_nodes = xmlDoc.SelectNodes("//question")
+			question_num = 0
+
+			for each node in question_nodes
+				item_info_length = 0
+				ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "Combined AR for Certain Pops (DHS-3727)"
+				Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+
+				call FORM_QUESTION_ARRAY(question_num).restore_info(node)
+
+				question_num = question_num + 1
+			next
+			set xmlDoc = nothing
+
+			ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
+			If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
+			If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
+				TEMP_INFO_ARRAY(form_write_in_const, quest) = FORM_QUESTION_ARRAY(quest).write_in_info
+				TEMP_INFO_ARRAY(intv_notes_const, quest) = FORM_QUESTION_ARRAY(quest).interview_notes
+				TEMP_INFO_ARRAY(form_second_yn_const, quest) = FORM_QUESTION_ARRAY(quest).sub_answer
+				If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
+					If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
+						unea_1_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(0)
+						unea_2_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(1)
+						unea_3_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(2)
+						unea_4_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(3)
+						unea_5_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(4)
+						unea_6_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(5)
+						unea_7_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(6)
+						unea_8_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(7)
+						unea_9_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(8)
+						unea_1_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(0)
+						unea_2_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(1)
+						unea_3_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(2)
+						unea_4_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(3)
+						unea_5_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(4)
+						unea_6_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(5)
+						unea_7_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(6)
+						unea_8_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(7)
+						unea_9_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(8)
+					End If
+					If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
+						For i = 0 to UBound(TEMP_HOUSING_ARRAY)
+							TEMP_HOUSING_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
+						For i = 0 to UBound(TEMP_UTILITIES_ARRAY)
+							TEMP_UTILITIES_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then
+						For i = 0 to UBound(TEMP_ASSETS_ARRAY)
+							TEMP_ASSETS_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then
+						For i = 0 to UBound(TEMP_MSA_ARRAY)
+							TEMP_MSA_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then
+						For i = 0 to UBound(TEMP_STWK_ARRAY)
+							TEMP_STWK_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+						Next
+					End If
+				End If
+			Next
+		End If
+	End With
+End If
+
+
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 EMReadScreen worker_id_for_data_table, 7, 21, 14
 EMReadScreen case_name_for_data_table, 25, 21, 40
 case_name_for_data_table = trim(case_name_for_data_table)
-
+' MsgBox "case_pending - " & case_pending
 If snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then snap_status = "ACTIVE"
 If grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then grh_status = "ACTIVE"
 If mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then mfip_status = "ACTIVE"
@@ -8613,7 +6742,7 @@ If vars_filled = False Then
 		If row <> 24 and row <> 0 Then pnd2_row = row
 		EMReadScreen CAF_datestamp, 8, pnd2_row, 38
 		CAF_datestamp = replace(CAF_datestamp, " ", "/")
-
+		' MsgBox "CAF_datestamp - " & CAF_datestamp
 
 		If unknown_cash_pending = True Then CASH_on_CAF_checkbox = checked
 		If ga_status = "PENDING" Then CASH_on_CAF_checkbox = checked
@@ -9178,51 +7307,27 @@ End If
 'Giving the buttons specific unumerations so they don't think they are eachother
 next_btn					= 100
 ' back_btn					= 1010
-update_information_btn		= 1020
-save_information_btn		= 1030
-clear_mail_addr_btn			= 1040
-clear_phone_one_btn			= 1041
-clear_phone_two_btn			= 1042
-clear_phone_three_btn		= 1043
-add_person_btn				= 1050
-add_verif_1_btn				= 1060
-add_verif_2_btn				= 1061
-add_verif_3_btn				= 1062
-add_verif_4_btn				= 1063
-add_verif_5_btn				= 1064
-add_verif_6_btn				= 1065
-add_verif_7_btn				= 1066
-add_verif_8_btn				= 1070
-add_verif_9_btn				= 1071
-add_verif_10_btn			= 1072
-add_verif_11_btn			= 1073
-add_verif_12_btn			= 1074
-add_verif_12_btn			= 1075
-add_verif_13_btn			= 1076
-add_job_btn					= 1077
-add_verif_14_btn			= 1080
-add_verif_15_btn			= 1081
-add_verif_16_btn			= 1082
-add_verif_17_btn			= 1083
-add_verif_18_btn			= 1084
-add_verif_19_btn			= 1085
-add_verif_20_btn			= 1090
-add_verif_21_btn			= 1091
-add_verif_22_btn			= 1092
-add_verif_23_btn			= 1093
-add_verif_24_btn			= 1094
-add_verif_jobs_btn			= 1095
+update_information_btn		= 5020
+save_information_btn		= 5030
+clear_mail_addr_btn			= 5040
+clear_phone_one_btn			= 5041
+clear_phone_two_btn			= 5042
+clear_phone_three_btn		= 5043
+add_person_btn				= 5050
 clear_job_btn				= 1100
 open_r_and_r_btn 			= 1200
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
-caf_q_1_6_btn				= 1600
-caf_q_7_11_btn				= 1700
-caf_q_12_13_btn				= 1800
-caf_q_14_15_btn				= 1900
-caf_q_16_20_btn				= 2000
-caf_q_21_24_btn				= 2100
+caf_q_pg_4_btn				= 1600
+caf_q_pg_5_btn				= 1650
+caf_q_pg_6_btn				= 1700
+caf_q_pg_7_btn				= 1750
+caf_q_pg_8_btn				= 1800
+caf_q_pg_9_btn				= 1850
+caf_q_pg_10_btn				= 1900
+caf_q_pg_11_btn				= 1950
+
 caf_qual_q_btn				= 2200
 caf_last_page_btn			= 2300
 finish_interview_btn		= 2400
@@ -9321,10 +7426,6 @@ open_cs_2707_doc				= 725
 open_cs_7635_doc				= 726
 
 btn_placeholder = 4000
-for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
-	btn_placeholder = btn_placeholder + 1
-next
 For btn_count = 0 to UBound(HH_MEMB_ARRAY, 2)
 	HH_MEMB_ARRAY(button_one, btn_count) = 500 + btn_count
 	HH_MEMB_ARRAY(button_two, btn_count) = 600 + btn_count
@@ -9337,12 +7438,93 @@ interview_date = interview_date & ""
 selected_memb = 0
 pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 
+
+pg_4_label = ""
+pg_5_label = ""
+pg_6_label = ""
+pg_7_label = ""
+pg_8_label = ""
+pg_9_label = ""
+pg_10_label = ""
+pg_11_label = ""
+For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+	' MsgBox "dialog page number - " &  FORM_QUESTION_ARRAY(quest).dialog_page_numb & vbCr & "number - " & FORM_QUESTION_ARRAY(quest).number & vbCr & vbCr & "CAF Answer - " & FORM_QUESTION_ARRAY(quest).caf_answer & vbCr & "Write In - " & FORM_QUESTION_ARRAY(quest).write_in_info & vbCr & "Interview Notes - " & FORM_QUESTION_ARRAY(quest).interview_notes
+	If pg_4_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 4 Then pg_4_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	If pg_5_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 5 Then
+		If right(pg_4_label, 1) = " " Then pg_4_label = pg_4_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_5_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_6_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 6 Then
+		If right(pg_5_label, 1) = " " Then pg_5_label = pg_5_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_6_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_7_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 7 Then
+		If right(pg_6_label, 1) = " " Then pg_6_label = pg_6_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_7_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_8_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 8 Then
+		If right(pg_7_label, 1) = " " Then pg_7_label = pg_7_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_8_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_9_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 9 Then
+		If right(pg_8_label, 1) = " " Then pg_8_label = pg_8_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_9_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_10_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 10 Then
+		If right(pg_9_label, 1) = " " Then pg_9_label = pg_9_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_10_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+	If pg_11_label = "" and FORM_QUESTION_ARRAY(quest).dialog_page_numb = 11 Then
+		If right(pg_10_label, 1) = " " Then pg_10_label = pg_10_label & FORM_QUESTION_ARRAY(quest).number-1
+		pg_11_label = "Q. " & FORM_QUESTION_ARRAY(quest).number & " - "
+	End If
+
+Next
+If right(pg_4_label, 1) = " " Then
+	pg_4_label = pg_4_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 5
+End If
+If right(pg_5_label, 1) = " " Then
+	pg_5_label = pg_5_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 6
+End If
+If right(pg_6_label, 1) = " " Then
+	pg_6_label = pg_6_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 7
+End If
+If right(pg_7_label, 1) = " " Then
+	pg_7_label = pg_7_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 8
+End If
+If right(pg_8_label, 1) = " " Then
+	pg_8_label = pg_8_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 9
+End If
+If right(pg_9_label, 1) = " " Then
+	pg_9_label = pg_9_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 10
+End If
+If right(pg_10_label, 1) = " " Then
+	pg_10_label = pg_10_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 11
+End If
+If right(pg_11_label, 1) = " " Then
+	pg_11_label = pg_11_label & FORM_QUESTION_ARRAY(numb_of_quest).number
+	start_at = 12
+End If
+show_qual = start_at
+emergency_questions = start_at + 1
+discrepancy_questions = start_at + 2
+expedited_determination = start_at + 3
+show_pg_last = start_at + 4
+
+
 interview_questions_clear = False
 Do
 	Do
 		Do
 			Do
-				' MsgBox page_display
+				' MsgBox "OUT" & vbCr & vbCr & "page_display - " & page_display & vbCr & "show_qual - " & show_qual & vbCr & "discrepancy_questions - " & discrepancy_questions
 				' MsgBox update_arep & " - before define dlg"
 				Dialog1 = Empty
 				call define_main_dialog
@@ -9395,49 +7577,49 @@ If need_to_update_addr = "True" then need_to_update_addr = True
 If need_to_update_addr = "False" then need_to_update_addr = False
 
 
-If need_to_update_addr = "True" Then 
+If need_to_update_addr = "True" Then
 	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 End If
 MAXIS_background_check		'Making sure we aren't stuck in background before Hest function is run
 
 'Units can have either the heat/air standard utility deduction OR one or both of the electric and phone standard utility deduction(s) when they are not responsible for heating and/or cooling expenses.
 choice_date = CAF_datestamp
-hest_update_heat_ac 	= FALSE 
-hest_update_electric 	= FALSE 
+hest_update_heat_ac 	= FALSE
+hest_update_electric 	= FALSE
 hest_update_phone 		= FALSE
 
 If question_15_heat_ac_yn = "Yes" Then 	'If heat/ac is paid for then set phone and electric to blank because we can only claim heat/ac
 	hest_update_heat_ac = TRUE
 	prosp_heat_ac_yn = "Y"
-	prosp_electric_yn = " " 
+	prosp_electric_yn = " "
 	prosp_electric_units = "  "
 	prosp_phone_yn = " "
 	prosp_phone_units = "  "
 
-Else 									'If heat/ac is not paid for, then electric and/or phone can be claimed 
+Else 									'If heat/ac is not paid for, then electric and/or phone can be claimed
 	prosp_heat_ac_yn = "N"
 
-	If question_15_electricity_yn = "Yes" Then 
+	If question_15_electricity_yn = "Yes" Then
 		hest_update_electric = TRUE
-		prosp_electric_yn = "Y" 
-	
-	Else
-		prosp_electric_yn = "N" 
-	End If 
+		prosp_electric_yn = "Y"
 
-	If question_15_phone_yn = "Yes" Then 
+	Else
+		prosp_electric_yn = "N"
+	End If
+
+	If question_15_phone_yn = "Yes" Then
 		hest_update_phone = TRUE
 		prosp_phone_yn = "Y"
 	Else
 		prosp_phone_yn = "N"
-	End If 
-End If 
+	End If
+End If
 
 'If one of the utlitlies is "Yes" Then we will update HEST
-If question_15_heat_ac_yn = "Yes" OR question_15_electricity_yn = "Yes" OR question_15_phone_yn = "Yes" Then 
+If question_15_heat_ac_yn = "Yes" OR question_15_electricity_yn = "Yes" OR question_15_phone_yn = "Yes" Then
 	' msgbox "update hest" & vbcr & "persons paying: " & all_persons_paying & vbcr & "heat/ac: " & hest_update_heat_ac & vbcr & "electric: " & hest_update_electric & vbcr & "phone: " & hest_update_phone & vbcr & "retro_heat_ac_yn" & retro_heat_ac_yn & vbcr & "retro_electric_yn" & retro_electric_yn & vbcr & "retro_phone_yn" & retro_phone_yn
 	Call access_HEST_panel("WRITE", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
-End If 
+End If
 
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
@@ -11433,163 +9615,6 @@ Else
 	ReDim TABLE_ARRAY(0)			'This creates the table array for if there is only one person listed on the CAF
 End If
 
-'This is the rest of the verbiage from the CAF. It is not kept in tables - for the most part
-objSelection.TypeText "Q 1. Does everyone in your household buy, fix or eat food with you?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_1_yn & vbCr
-If question_1_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_1_notes & vbCr
-If question_1_verif_yn <> "Mot Needed" AND question_1_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_1_verif_yn & vbCr
-If question_1_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_1_verif_details & vbCr
-If question_1_yn <> "" OR trim(question_1_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_1_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_1_interview_notes & vbCR
-
-objSelection.TypeText "Q 2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_2_yn & vbCr
-If question_2_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_2_notes & vbCr
-If question_2_verif_yn <> "Mot Needed" AND question_2_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_2_verif_yn & vbCr
-If question_2_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_2_verif_details & vbCr
-If question_2_yn <> "" OR trim(question_2_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_2_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_2_interview_notes & vbCR
-
-objSelection.TypeText "Q 3. Is anyone in the household attending school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_3_yn & vbCr
-If question_3_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_3_notes & vbCr
-If question_3_verif_yn <> "Mot Needed" AND question_3_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_3_verif_yn & vbCr
-If question_3_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_3_verif_details & vbCr
-If question_3_yn <> "" OR trim(question_3_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_3_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_3_interview_notes & vbCR
-
-objSelection.TypeText "Q 4. Is anyone in your household temporarily not living in your home? (for example: vacation, foster care, treatment, hospital, job search)" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_4_yn & vbCr
-If question_4_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_4_notes & vbCr
-If question_4_verif_yn <> "Mot Needed" AND question_4_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_4_verif_yn & vbCr
-If question_4_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_4_verif_details & vbCr
-If question_4_yn <> "" OR trim(question_4_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_4_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_4_interview_notes & vbCR
-
-objSelection.TypeText "Q 5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_5_yn & vbCr
-If question_5_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_5_notes & vbCr
-If question_5_verif_yn <> "Mot Needed" AND question_5_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_5_verif_yn & vbCr
-If question_5_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_5_verif_details & vbCr
-If question_5_yn <> "" OR trim(question_5_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_5_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_5_interview_notes & vbCR
-
-objSelection.TypeText "Q 6. Is anyone unable to work for reasons other than illness or disability?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_6_yn & vbCr
-If question_6_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_6_notes & vbCr
-If question_6_verif_yn <> "Mot Needed" AND question_6_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_6_verif_yn & vbCr
-If question_6_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_6_verif_details & vbCr
-If question_6_yn <> "" OR trim(question_6_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_6_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_6_interview_notes & vbCR
-
-objSelection.TypeText "Q 7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_7_yn & vbCr
-If question_7_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_7_notes & vbCr
-If question_7_verif_yn <> "Mot Needed" AND question_7_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_7_verif_yn & vbCr
-If question_7_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_7_verif_details & vbCr
-If question_7_yn <> "" OR trim(question_7_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_7_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_7_interview_notes & vbCR
-
-objSelection.TypeText "Q 8. Has anyone in the household had a job or been self-employed in the past 12 months?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_8_yn & vbCr
-objSelection.TypeText "Q 8.a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?" & vbCr
-objSelection.TypeText chr(9) & question_8a_yn & vbCr
-If question_8_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_8_notes & vbCr
-If question_8_verif_yn <> "Mot Needed" AND question_8_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_8_verif_yn & vbCr
-If question_8_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_8_verif_details & vbCr
-If question_8_yn <> "" OR trim(question_8_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_8_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_8_interview_notes & vbCR
-
-objSelection.TypeText "Q 9. Does anyone in the household have a job or expect to get income from a job this month or next month?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_9_yn & vbCr
-job_added = FALSE
-for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-	If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-		job_added = TRUE
-
-		all_the_tables = UBound(TABLE_ARRAY) + 1
-		ReDim Preserve TABLE_ARRAY(all_the_tables)
-		Set objRange = objSelection.Range					'range is needed to create tables
-		objDoc.Tables.Add objRange, 8, 1					'This sets the rows and columns needed row then column'
-		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-		table_count = table_count + 1
-
-		TABLE_ARRAY(array_counters).AutoFormat(16)							'This adds the borders to the table and formats it
-		TABLE_ARRAY(array_counters).Columns(1).Width = 400
-
-		for row = 1 to 7 Step 2
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 10, 2
-		Next
-		for row = 2 to 8 Step 2
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 15, 2
-		Next
-
-		For row = 1 to 2
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
-
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 200, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 90, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 110, 2
-		Next
-		For col = 1 to 3
-			TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
-		Next
-		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Font.Size = 6
-		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Font.Size = 12
-		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Font.Size = 6
-		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Font.Size = 12
-		TABLE_ARRAY(array_counters).Cell(7, 1).Range.Font.Size = 6
-		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Font.Size = 12
-
-		TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = "EMPLOYEE NAME"
-		TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "HOURLY WAGE"
-		TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = "GROSS MONTHLY EARNINGS"
-		TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = JOBS_ARRAY(jobs_employee_name, each_job)
-		TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = JOBS_ARRAY(jobs_hourly_wage, each_job)
-		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-
-		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
-		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = JOBS_ARRAY(jobs_employer_name, each_job)
-
-		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "CAF NOTES"
-		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = JOBS_ARRAY(jobs_notes, each_job)
-
-		TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "INTERVIEW NOTES"
-		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = JOBS_ARRAY(jobs_intv_notes, each_job)
-
-		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-		' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-		array_counters = array_counters + 1
-
-		objSelection.TypeText "Verification: " & JOBS_ARRAY(verif_yn, each_job) & " - " & JOBS_ARRAY(verif_details, each_job) & vbCR
-	End If
-next
-
-If job_added = FALSE Then objSelection.TypeText chr(9) & "THERE ARE NO JOBS ENTERED." & vbCr
-
-If question_9_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_9_notes & vbCr
-' If question_9_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_9_verif_yn & vbCr
-' If question_9_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_9_verif_details & vbCr
-
-objSelection.TypeText "Q 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_10_yn & vbCr
-If question_10_monthly_earnings <> "" Then objSelection.TypeText chr(9) & "Gross Monthly Earnings: " & question_10_monthly_earnings & vbCr
-If question_10_monthly_earnings = "" Then objSelection.TypeText chr(9) & "Gross Monthly Earnings: NONE LISTED" & vbCr
-If question_10_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_10_notes & vbCr
-If question_10_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_10_verif_yn & vbCr
-If question_10_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_10_verif_details & vbCr
-If question_10_yn <> "" OR trim(question_10_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_10_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_10_interview_notes & vbCR
-
-objSelection.TypeText "Q 11. Do you expect any changes in income, expenses or work hours?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_11_yn & vbCr
-If question_11_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_11_notes & vbCr
-If question_11_verif_yn <> "Mot Needed" AND question_11_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_11_verif_yn & vbCr
-If question_11_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_11_verif_details & vbCr
-If question_11_yn <> "" OR trim(question_11_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_11_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_11_interview_notes & vbCR
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "Principal Wage Earner (PWE)" & vbCr
@@ -11625,385 +9650,9 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-objSelection.TypeText "Q 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?" & vbCr
-all_the_tables = UBound(TABLE_ARRAY) + 1
-ReDim Preserve TABLE_ARRAY(all_the_tables)
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 5, 1					'This sets the rows and columns needed row then column'
-set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-table_count = table_count + 1
-
-'note that this table does not use an autoformat - which is why there are no borders on this table.'
-TABLE_ARRAY(array_counters).Columns(1).Width = 500
-
-For row = 1 to 4
-	TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
-
-	TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 100, 2
-	TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 100, 2
-	TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 75, 2
+For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
+	FORM_QUESTION_ARRAY(each_question).add_to_wif()
 Next
-TABLE_ARRAY(array_counters).Rows(5).Cells.Split 1, 3, TRUE
-
-TABLE_ARRAY(array_counters).Cell(5, 1).SetWidth 75, 2
-TABLE_ARRAY(array_counters).Cell(5, 2).SetWidth 175, 2
-TABLE_ARRAY(array_counters).Cell(5, 3).SetWidth 75, 2
-
-TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = question_12_rsdi_yn
-TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "RSDI"
-TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = "$ " & question_12_rsdi_amt
-TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = question_12_ssi_yn
-TABLE_ARRAY(array_counters).Cell(1, 5).Range.Text = "SSI"
-TABLE_ARRAY(array_counters).Cell(1, 6).Range.Text = "$ " & question_12_ssi_amt
-
-TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = question_12_va_yn
-TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = "Veteran Benefits (VA)"
-TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = "$ " & question_12_va_amt
-TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = question_12_ui_yn
-TABLE_ARRAY(array_counters).Cell(2, 5).Range.Text = "Unemployment Insurance"
-TABLE_ARRAY(array_counters).Cell(2, 6).Range.Text = "$ " & question_12_ui_amt
-
-TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = question_12_wc_yn
-TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "Workers' Compensation"
-TABLE_ARRAY(array_counters).Cell(3, 3).Range.Text = "$ " & question_12_wc_amt
-TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = question_12_ret_yn
-TABLE_ARRAY(array_counters).Cell(3, 5).Range.Text = "Retirement Benefits"
-TABLE_ARRAY(array_counters).Cell(3, 6).Range.Text = "$ " & question_12_ret_amt
-
-TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = question_12_trib_yn
-TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = "Tribal payments"
-TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = "$ " & question_12_trib_amt
-TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = question_12_cs_yn
-TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = "Child or Spousal support"
-TABLE_ARRAY(array_counters).Cell(4, 6).Range.Text = "$ " & question_12_cs_amt
-
-TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = question_12_other_yn
-TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "Other unearned income"
-TABLE_ARRAY(array_counters).Cell(5, 3).Range.Text = "$ " & question_12_other_amt
-
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-array_counters = array_counters + 1
-
-If question_12_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_12_notes & vbCr
-If question_12_verif_yn <> "Mot Needed" AND question_12_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_12_verif_yn & vbCr
-If question_12_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_12_verif_details & vbCr
-q_12_answered = FALSE
-If question_12_rsdi_yn <> "" Then q_12_answered = TRUE
-If question_12_rsdi_amt <> "" Then q_12_answered = TRUE
-If question_12_ssi_yn <> "" Then q_12_answered = TRUE
-If question_12_ssi_amt <> "" Then q_12_answered = TRUE
-If question_12_va_yn <> "" Then q_12_answered = TRUE
-If question_12_va_amt <> "" Then q_12_answered = TRUE
-If question_12_ui_yn <> "" Then q_12_answered = TRUE
-If question_12_ui_amt <> "" Then q_12_answered = TRUE
-If question_12_wc_yn <> "" Then q_12_answered = TRUE
-If question_12_wc_amt <> "" Then q_12_answered = TRUE
-If question_12_ret_yn <> "" Then q_12_answered = TRUE
-If question_12_ret_amt <> "" Then q_12_answered = TRUE
-If question_12_trib_yn <> "" Then q_12_answered = TRUE
-If question_12_trib_amt <> "" Then q_12_answered = TRUE
-If question_12_cs_yn <> "" Then q_12_answered = TRUE
-If question_12_cs_amt <> "" Then q_12_answered = TRUE
-If question_12_other_yn <> "" Then q_12_answered = TRUE
-If question_12_other_amt <> "" Then q_12_answered = TRUE
-If question_12_notes <> "" Then q_12_answered = TRUE
-If q_12_answered = TRUE Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_12_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_12_interview_notes & vbCR
-
-objSelection.TypeText "Q 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
-If question_13_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_13_notes & vbCr
-If question_13_verif_yn <> "Mot Needed" AND question_13_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_13_verif_yn & vbCr
-If question_13_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_13_verif_details & vbCr
-If question_13_yn <> "" OR trim(question_13_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_13_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_13_interview_notes & vbCR
-
-objSelection.TypeText "Q 14. Does your household have the following housing expenses?" & vbCr
-all_the_tables = UBound(TABLE_ARRAY) + 1
-ReDim Preserve TABLE_ARRAY(all_the_tables)
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 4, 1					'This sets the rows and columns needed row then column'
-set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-table_count = table_count + 1
-
-'note that this table does not use an autoformat - which is why there are no borders on this table.'
-TABLE_ARRAY(array_counters).Columns(1).Width = 520
-
-For row = 1 to 3
-	TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
-
-	TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 170, 2
-	TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 170, 2
-Next
-TABLE_ARRAY(array_counters).Rows(4).Cells.Split 1, 2, TRUE
-
-TABLE_ARRAY(array_counters).Cell(4, 1).SetWidth 90, 2
-TABLE_ARRAY(array_counters).Cell(4, 2).SetWidth 430, 2
-
-TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = question_14_rent_yn
-TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "Rent (include mobile home lot rental)"
-TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = question_14_subsidy_yn
-TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "Rent or Section 8 subsidy"
-
-TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = question_14_mortgage_yn
-TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = "Mortgage/contract for deed payment"
-TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = question_14_association_yn
-TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = "Association fees"
-
-TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = question_14_insurance_yn
-TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "Homeowner's insurance (if not included in mortgage) "
-TABLE_ARRAY(array_counters).Cell(3, 3).Range.Text = question_14_room_yn
-TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "Room and/or board"
-
-TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = question_14_taxes_yn
-TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = "Real estate taxes (if not included in mortgage)"
-
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-array_counters = array_counters + 1
-
-If question_14_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_14_notes & vbCr
-If question_14_verif_yn <> "Mot Needed" AND question_14_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_14_verif_yn & vbCr
-If question_14_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_14_verif_details & vbCr
-q_14_answered = FALSE
-If question_14_rent_yn <> "" Then q_14_answered = TRUE
-If question_14_subsidy_yn <> "" Then q_14_answered = TRUE
-If question_14_mortgage_yn <> "" Then q_14_answered = TRUE
-If question_14_association_yn <> "" Then q_14_answered = TRUE
-If question_14_insurance_yn <> "" Then q_14_answered = TRUE
-If question_14_room_yn <> "" Then q_14_answered = TRUE
-If question_14_taxes_yn <> "" Then q_14_answered = TRUE
-If q_14_answered = TRUE  Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_14_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_14_interview_notes & vbCR
-
-objSelection.TypeText "Q 15. Does your household have the following utility expenses any time during the year?" & vbCr
-all_the_tables = UBound(TABLE_ARRAY) + 1
-ReDim Preserve TABLE_ARRAY(all_the_tables)
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
-set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-table_count = table_count + 1
-
-'note that this table does not use an autoformat - which is why there are no borders on this table.'
-TABLE_ARRAY(array_counters).Columns(1).Width = 525
-
-For row = 1 to 2
-	TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
-
-	TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 100, 2
-	TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 100, 2
-	TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 75, 2
-	TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 100, 2
-Next
-TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 2, TRUE
-
-TABLE_ARRAY(array_counters).Cell(3, 1).SetWidth 75, 2
-TABLE_ARRAY(array_counters).Cell(3, 2).SetWidth 450, 2
-
-TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = question_15_heat_ac_yn
-TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "Heating/air conditioning"
-TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = question_15_electricity_yn
-TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "Electricity"
-TABLE_ARRAY(array_counters).Cell(1, 5).Range.Text = question_15_cooking_fuel_yn
-TABLE_ARRAY(array_counters).Cell(1, 6).Range.Text = "Cooking fuel"
-
-TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = question_15_water_and_sewer_yn
-TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = "Water and sewer"
-TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = question_15_garbage_yn
-TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = "Garbage removal"
-TABLE_ARRAY(array_counters).Cell(2, 5).Range.Text = question_15_phone_yn
-TABLE_ARRAY(array_counters).Cell(2, 6).Range.Text = "Phone/cell phone"
-
-TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = question_15_liheap_yn
-TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
-
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-array_counters = array_counters + 1
-objSelection.TypeParagraph()						'adds a line between the table and the next information
-If hest_update_heat_ac = TRUE OR hest_update_electric = TRUE OR hest_update_phone = TRUE Then 
-	objSelection.TypeText chr(9) & "Updated HEST" & vbCr
-	objSelection.TypeText chr(9) &" -Choice Date: " & choice_date & vbCr
-	objSelection.TypeText chr(9) &" -Persons Paying: " & all_persons_paying & vbCr
-	If hest_update_heat_ac = TRUE Then objSelection.TypeText chr(9) & " -Prospective Heat/Air - Yes" & vbCr
-	If hest_update_electric = TRUE Then objSelection.TypeText chr(9) & " -Prospective Electric - Yes" & vbCr
-	If hest_update_phone = TRUE Then objSelection.TypeText chr(9) & " -Prospective Phone - Yes" & vbCr
-End If
-
-If question_15_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_15_notes & vbCr
-If question_15_verif_yn <> "Mot Needed" AND question_15_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_15_verif_yn & vbCr
-If question_15_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_15_verif_details & vbCr
-q_15_answered = FALSE
-If question_15_heat_ac_yn <> "" Then q_15_answered = TRUE
-If question_15_electricity_yn <> "" Then q_15_answered = TRUE
-If question_15_cooking_fuel_yn <> "" Then q_15_answered = TRUE
-If question_15_water_and_sewer_yn <> "" Then q_15_answered = TRUE
-If question_15_garbage_yn <> "" Then q_15_answered = TRUE
-If question_15_phone_yn <> "" Then q_15_answered = TRUE
-If question_15_liheap_yn <> "" Then q_15_answered = TRUE
-' If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then q_15_answered = TRUE
-If q_15_answered = TRUE  Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes & vbCR
-If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then objSelection.TypeText chr(9) & "Detail about phone: " & question_15_phone_details & vbCr
-
-objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_16_yn & vbCr
-If question_16_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_16_notes & vbCr
-If question_16_verif_yn <> "Mot Needed" AND question_16_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_16_verif_yn & vbCr
-If question_16_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_16_verif_details & vbCr
-If question_16_yn <> "" OR trim(question_16_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_16_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_16_interview_notes & vbCR
-
-objSelection.TypeText "Q 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_17_yn & vbCr
-If question_17_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_17_notes & vbCr
-If question_17_verif_yn <> "Mot Needed" AND question_17_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_17_verif_yn & vbCr
-If question_17_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_17_verif_details & vbCr
-If question_17_yn <> "" OR trim(question_17_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_17_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_17_interview_notes & vbCR
-
-objSelection.TypeText "Q 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_18_yn & vbCr
-If question_18_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_18_notes & vbCr
-If question_18_verif_yn <> "Mot Needed" AND question_18_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_18_verif_yn & vbCr
-If question_18_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_18_verif_details & vbCr
-If question_18_yn <> "" OR trim(question_18_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_18_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_18_interview_notes & vbCR
-
-objSelection.TypeText "Q 19. For SNAP only: Does anyone in the household have medical expenses? " & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_19_yn & vbCr
-If question_19_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_19_notes & vbCr
-If question_19_verif_yn <> "Mot Needed" AND question_19_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_19_verif_yn & vbCr
-If question_19_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_19_verif_details & vbCr
-If question_19_yn <> "" OR trim(question_19_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_19_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_19_interview_notes & vbCR
-
-objSelection.TypeText "Q 20. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. " & vbCr
-all_the_tables = UBound(TABLE_ARRAY) + 1
-ReDim Preserve TABLE_ARRAY(all_the_tables)
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
-set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-table_count = table_count + 1
-
-'note that this table does not use an autoformat - which is why there are no borders on this table.'
-TABLE_ARRAY(array_counters).Columns(1).Width = 520
-
-For row = 1 to 2
-	TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
-
-	TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 170, 2
-	TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 170, 2
-Next
-
-TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = question_20_cash_yn
-TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "Cash"
-TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = question_20_acct_yn
-TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "Bank accounts (savings, checking, debit card, etc.)"
-
-TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = question_20_secu_yn
-TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = "Stocks, bonds, annuities, 401K, etc."
-TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = question_20_cars_yn
-TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = "Vehicles (cars, trucks, motorcycles, campers, trailers)"
-
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-array_counters = array_counters + 1
-
-If question_20_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_20_notes & vbCr
-If question_20_verif_yn <> "Mot Needed" AND question_20_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_20_verif_yn & vbCr
-If question_20_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_20_verif_details & vbCr
-q_20_answered = FALSE
-If question_20_cash_yn <> "" Then q_20_answered = TRUE
-If question_20_acct_yn <> "" Then q_20_answered = TRUE
-If question_20_secu_yn <> "" Then q_20_answered = TRUE
-If question_20_cars_yn <> "" Then q_20_answered = TRUE
-If q_20_answered = TRUE  Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_20_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_20_interview_notes & vbCR
-
-objSelection.TypeText "Q 21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_21_yn & vbCr
-If question_21_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_21_notes & vbCr
-If question_21_verif_yn <> "Mot Needed" AND question_21_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_21_verif_yn & vbCr
-If question_21_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_21_verif_details & vbCr
-If question_21_yn <> "" OR trim(question_21_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_21_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_21_interview_notes & vbCR
-
-objSelection.TypeText "Q 22. For recertifications only: Did anyone move in or out of your home in the past 12 months?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_22_yn & vbCr
-If question_22_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_22_notes & vbCr
-If question_22_verif_yn <> "Mot Needed" AND question_22_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_22_verif_yn & vbCr
-If question_22_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_22_verif_details & vbCr
-If question_22_yn <> "" OR trim(question_22_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_22_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_22_interview_notes & vbCR
-
-objSelection.TypeText "Q 23. For children under the age of 19, are both parents living in the home?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_23_yn & vbCr
-If question_23_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_23_notes & vbCr
-If question_23_verif_yn <> "Mot Needed" AND question_23_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_23_verif_yn & vbCr
-If question_23_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_23_verif_details & vbCr
-If question_23_yn <> "" OR trim(question_23_notes) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_23_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_23_interview_notes & vbCR
-
-objSelection.TypeText "Q 24. For MSA recipients only: Does anyone in the household have any of the following expenses?" & vbCr
-all_the_tables = UBound(TABLE_ARRAY) + 1
-ReDim Preserve TABLE_ARRAY(all_the_tables)
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
-set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-table_count = table_count + 1
-
-'note that this table does not use an autoformat - which is why there are no borders on this table.'
-TABLE_ARRAY(array_counters).Columns(1).Width = 520
-
-For row = 1 to 2
-	TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
-
-	TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 170, 2
-	TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 90, 2
-	TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 170, 2
-Next
-
-TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = question_24_rep_payee_yn
-TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "Representative Payee fees"
-TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = question_24_guardian_fees_yn
-TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "Guardian or Conservator fees"
-
-TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = question_24_special_diet_yn
-TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = "Physician-prescribed special diet "
-TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = question_24_high_housing_yn
-TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = "High housing costs"
-
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-array_counters = array_counters + 1
-
-If question_24_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_24_notes & vbCr
-If question_24_verif_yn <> "Mot Needed" AND question_24_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_24_verif_yn & vbCr
-If question_24_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_24_verif_details & vbCr
-q_24_answered = FALSE
-If question_24_rep_payee_yn <> "" Then q_24_answered = TRUE
-If question_24_guardian_fees_yn <> "" Then q_24_answered = TRUE
-If question_24_special_diet_yn <> "" Then q_24_answered = TRUE
-If question_24_high_housing_yn <> "" Then q_24_answered = TRUE
-If q_24_answered = TRUE  Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
-If question_24_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_24_interview_notes & vbCR
 
 objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
 
@@ -12364,7 +10013,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 			With (CreateObject("Scripting.FileSystemObject"))
 
 				'Creating an object for the stream of text which we'll use frequently
-				Dim objTextStream
+				Set objTextStream = nothing
 
 				Set objTextStream = .OpenTextFile(exp_info_file_path, ForWriting, true)
 
