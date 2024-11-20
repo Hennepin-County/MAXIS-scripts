@@ -293,7 +293,7 @@ class form_questions
 			y_pos = y_pos + 20
 		ElseIf info_type = "unea" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
-			PushButton 385, y_pos + 5, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
+			button_pos = y_pos + 5
 			y_pos = y_pos + 20
 
 			col_1_1 = 15
@@ -360,6 +360,8 @@ class form_questions
 			y_pos = y_pos + 20
 			Text 15, y_pos, 60, 10, "Interview Notes:"
 			EditBox 75, y_pos - 5, 320, 15, question_interview_notes
+
+			PushButton 385, button_pos, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", verif_btn
 			y_pos = y_pos + 25
 
@@ -369,7 +371,7 @@ class form_questions
 
 
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
-			If allow_prefil = true Then PushButton 385, y_pos+5, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
+			button_pos = y_pos+5
 			y_pos = y_pos + 15
 
 			col_1_1 = ""
@@ -509,6 +511,8 @@ class form_questions
 
 			Text 15, y_pos, 60, 10, "Interview Notes:"
 			EditBox 75, y_pos - 5, 320, 15, question_interview_notes
+
+			If allow_prefil = true Then PushButton 385, button_pos, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", verif_btn
 			y_pos = y_pos + 25
 
