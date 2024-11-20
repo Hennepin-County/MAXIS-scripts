@@ -2186,19 +2186,18 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
     End If
 
 	If access_type = "WRITE" Then
-		EMReadScreen hest_version, 1, 2, 73
-		If hest_version = "1" Then PF9
-		If hest_version = "0" Then
-			EMWriteScreen "NN", 20, 79
-			transmit
-		End If
-
 		all_persons_paying = trim(all_persons_paying)
 		If all_persons_paying <> "" Then
 			If InStr(all_persons_paying, ",") = 0 Then
 				persons_array = array(all_persons_paying)
 			Else
 				persons_array = split(all_persons_paying, ",")
+			End If
+			EMReadScreen hest_version, 1, 2, 73
+			If hest_version = "1" Then PF9
+			If hest_version = "0" Then
+				EMWriteScreen "NN", 20, 79
+				transmit
 			End If
 
 			hest_col = 40
