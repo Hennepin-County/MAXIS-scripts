@@ -1776,7 +1776,8 @@ class form_questions
 		End If
 		Set subNode = node.SelectSingleNode("verifBtn")
 		If Not subNode Is Nothing Then
-			verif_btn = verif_btn = verif_btn * 1
+			verif_btn = subNode.Text
+			verif_btn = verif_btn * 1
 		End If
 		Set subNode = node.SelectSingleNode("prefilBtn")
 		If Not subNode Is Nothing Then
