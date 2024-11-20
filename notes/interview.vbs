@@ -613,6 +613,11 @@ function define_main_dialog()
 				PushButton 290, 340, 95, 15, "Save Information", save_information_btn
 			End If
 
+			Text 255, 305, 125, 10, "Send Updates via TEXT MESSAGE:"
+			DropListBox 380, 300, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_text
+			Text 290, 325, 90, 10, "Send Updates via EMAIL:"
+			DropListBox 380, 320, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_email
+
 			PushButton 325, 185, 50, 10, "CLEAR", clear_mail_addr_btn
 			PushButton 205, 280, 35, 10, "CLEAR", clear_phone_one_btn
 			PushButton 205, 300, 35, 10, "CLEAR", clear_phone_two_btn
@@ -641,12 +646,6 @@ function define_main_dialog()
 			Text 125, 265, 25, 10, "Type"
 			Text 255, 255, 60, 10, "Date of Change:"
 			Text 255, 275, 75, 10, "County of Residence:"
-
-			Text 255, 305, 125, 10, "Send Updates via TEXT MESSAGE:"
-			DropListBox 380, 300, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_text
-			Text 290, 325, 90, 10, "Send Updates via EMAIL:"
-			DropListBox 380, 320, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", send_email
-
 
 		ElseIf page_display = show_pg_memb_list Then
 			Text 504, 47, 60, 10, "CAF MEMBs"
@@ -4615,6 +4614,10 @@ function write_interview_CASE_NOTE()
 	If trim(phone_three_number) <> "" Then CALL write_variable_in_CASE_NOTE("    " & phone_three_number & " Type: " & phone_three_type)
 	If trim(phone_one_number) <> "" AND trim(phone_two_number) <> "" AND trim(phone_three_number) <> "" Then CALL write_variable_in_CASE_NOTE("    No Phone Number provided.")
 	If disc_no_phone_number = "RESOLVED" Then call write_variable_in_CASE_NOTE("* No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation)
+	If send_text = "Yes" Then call write_variable_in_CASE_NOTE("  - Send Updates Via Text Message: Yes")
+	If send_text = "No" Then call write_variable_in_CASE_NOTE("  - Send Updates Via Text Message: No")
+	If send_email = "Yes" Then call write_variable_in_CASE_NOTE("  - Send Updates Via E-Mail: Yes")
+	If send_email = "No" Then call write_variable_in_CASE_NOTE("  - Send Updates Via E-Mail: No")
 
 	CALL write_variable_in_CASE_NOTE("-----  CAF Information and Notes -----")
 
@@ -9328,6 +9331,11 @@ objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
+
+If send_text = "Yes" Then objSelection.TypeText "Send Updates Via Text Message: Yes" & vbCR
+If send_text = "No" Then objSelection.TypeText "Send Updates Via Text Message: No" & vbCR
+If send_email = "Yes" Then objSelection.TypeText "Send Updates Via E-Mail: Yes" & vbCR
+If send_email = "No" Then objSelection.TypeText "Send Updates Via E-Mail: No" & vbCR
 
 objSelection.TypeText "Housing Support Info" & vbCR
 objSelection.TypeText "-Currently residing in a licensed facility: " & licensed_facility & vbCR
