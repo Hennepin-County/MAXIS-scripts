@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2024", "BIG NEWS ! ##~## ##~## The Interview Script now supports different questions for different form selections!!!!##~## ##~##As this is brand new AND a very large change there may be some unexpected results or bugs. Please alert the script team to any bugs, questions, or thoughts you have on the updates.##~## ##~##We are very excited to be able to get this functionality out.", "Casey Love, Hennepin County")
 call changelog_update("10/23/2024", "Added emergency questions.", "Mark Riegel, Hennepin County")
 call changelog_update("09/30/2023", "Revised rights and responsibilities dialogs.", "Megan Geissler, Hennepin County")
 call changelog_update("08/30/2023", "Updates to NOTES - Interview##~##- The script will carry over 'Interview Notes' from relevant questions into the Expedited Determination so you can reference notes already made during the script run.##~##- Additional resources around EBT Cards, including reference to the HSR Manual Accounting page.##~##- Background updates and bug fixes.##~## ##~##Please send any comments or feedback about these update to hsph.ews.bluezonescripts@hennepin.us.", "Casey Love, Hennepin County")
