@@ -2215,6 +2215,28 @@ class form_questions
 		Set info_number = xmlDoc.createTextNode(dialog_height)
 		XML_dialog_height.appendChild info_number
 	end sub
+
+	sub add_to_SRL()
+		script_run_lowdown = script_run_lowdown & vbCr & number & ". " & dialog_phrasing
+		script_run_lowdown = script_run_lowdown & vbCr & "info_type - " & info_type
+		script_run_lowdown = script_run_lowdown & vbCr & "caf_answer - " & caf_answer
+		If sub_number <> "" Then
+			script_run_lowdown = script_run_lowdown & vbCr & sub_number & ". " & sub_phrase
+			script_run_lowdown = script_run_lowdown & vbCr & "sub_answer - " & sub_answer
+		End If
+		script_run_lowdown = script_run_lowdown & vbCr & "write_in_info - " & write_in_info
+		script_run_lowdown = script_run_lowdown & vbCr & "interview_notes - " & interview_notes
+		If answer_is_array = True Then
+			For each_item = 0 to UBound(item_info_list)
+				script_run_lowdown = script_run_lowdown & vbCr & item_info_list(each_item) & " - " & item_ans_list(each_item)
+				If IsArray(item_detail_list) = True Then script_run_lowdown = script_run_lowdown & vbCr & "  - " & item_detail_list(each_item)
+			Next
+		End If
+		If detail_array_exists = True Then
+			script_run_lowdown = script_run_lowdown & vbCr & "DETAIL ARRAY: detail_source - " & detail_source & " - SIZE: " & UBound(detail_interview_notes)
+		End If
+		script_run_lowdown = script_run_lowdown & vbCr & vbCr
+	end sub
 end class
 
 
