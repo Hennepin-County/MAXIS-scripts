@@ -868,7 +868,7 @@ function define_main_dialog()
 			If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
 				GroupBox 10, y_pos, 455, 65, "CAF Answers for Housing Expense do not Match, Review and Clarify"
 				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
-				Text 20, y_pos + 30, 400, 10, "Question 14 Housing Expense: " & question_14_summary
+				Text 20, y_pos + 30, 400, 10, "Question on Housing Expense: " & rent_summary
 
 				Text 20, y_pos + 50, 110, 10, "Confirm Housing Expense Detail: "
 				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_rent_amounts_confirmation, disc_rent_amounts_confirmation
@@ -877,7 +877,7 @@ function define_main_dialog()
 			If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
 				GroupBox 10, y_pos, 455, 65, "CAF Answers for Utility Expense do not Match, Review and Clarify"
 				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary
-				Text 20, y_pos + 30, 400, 10, "Question 15 Utility Expense: " & disc_utility_q_15_summary
+				Text 20, y_pos + 30, 400, 10, "Question on Utility Expense: " & utility_summary
 
 				Text 20, y_pos + 50, 110, 10, "Confirm Utility Expense Detail: "
 				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Household pays for Heat"+chr(9)+"Household pays for AC"+chr(9)+"Houshold pays Electricity which INCLUDES AC"+chr(9)+"Houshold pays Electricity which INCLUDES Heat"+chr(9)+"Houshold pays Electricity which INCLUDES AC and Heat"+chr(9)+"Houshold pays Electricity, but this does not include Heat or AC"+chr(9)+"Houshold pays Electricity and Phone"+chr(9)+"Houshold pays Phone Only"+chr(9)+"Houshold pays NO Utility Expenses"+chr(9)+disc_utility_amounts_confirmation, disc_utility_amounts_confirmation
@@ -1180,6 +1180,7 @@ function define_main_dialog()
 		ElseIf page_display >= 4 or page_display <= last_page_of_questions Then		'This has to be at the end of the ifs because
 			' display_count = 1
 			y_pos = 10
+
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).dialog_page_numb = page_display Then
 					' If FORM_QUESTION_ARRAY(quest).dialog_order = display_count Then
@@ -1484,7 +1485,8 @@ function dialog_movement()
 	If ButtonPressed = discrepancy_questions_btn Then
 		page_display = discrepancy_questions
 	End If
-	If ButtonPressed = expedited_determination_btn Then
+	If ButtonPressed = expedited_determination_btn OR page_display = expedited_determination Then
+		'TODO - update here when we have a different expedtied determination path for the interview team
 		' page_display = expedited_determination
 		STATS_manualtime = STATS_manualtime + 150
 		call display_expedited_dialog
@@ -2207,7 +2209,7 @@ function display_expedited_dialog()
 
 	Loop until err_msg = ""
 
-	page_display = emergency_questions
+	page_display = show_pg_last
 end function
 
 Function display_exemptions() 'A message box showing exemptions from SNAP work rules
@@ -2804,193 +2806,9 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - TEXT - " & send_text
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - EMAL - " & send_email & vbCr & vbCr
 
-			script_run_lowdown = script_run_lowdown & vbCr & "01A - " & question_1_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "01N - " & question_1_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "01V - " & question_1_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "01D - " & question_1_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "01I - " & question_1_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "02A - " & question_2_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "02N - " & question_2_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "02V - " & question_2_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "02D - " & question_2_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "02I - " & question_2_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "03A - " & question_3_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "03N - " & question_3_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "03V - " & question_3_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "03D - " & question_3_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "03I - " & question_3_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "04A - " & question_4_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "04N - " & question_4_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "04V - " & question_4_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "04D - " & question_4_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "04I - " & question_4_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "05A - " & question_5_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "05N - " & question_5_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "05V - " & question_5_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "05D - " & question_5_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "05I - " & question_5_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "06A - " & question_6_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "06N - " & question_6_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "06V - " & question_6_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "06D - " & question_6_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "06I - " & question_6_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "07A - " & question_7_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "07N - " & question_7_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "07V - " & question_7_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "07D - " & question_7_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "07I - " & question_7_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "08A - " & question_8_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "08N - " & question_8_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "08V - " & question_8_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "08D - " & question_8_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "08I - " & question_8_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "09A - " & question_9_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "09N - " & question_9_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "09V - " & question_9_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "09D - " & question_9_verif_details & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "10A - " & question_10_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "10N - " & question_10_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "10V - " & question_10_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "10D - " & question_10_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "10G - " & question_10_monthly_earnings
-			script_run_lowdown = script_run_lowdown & vbCr & "10I - " & question_10_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "11A - " & question_11_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "11N - " & question_11_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "11V - " & question_11_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "11D - " & question_11_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "11I - " & question_11_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "PWE - " & pwe_selection & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - RS - " & question_12_rsdi_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - RS - " & question_12_rsdi_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - SS - " & question_12_ssi_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - SS - " & question_12_ssi_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - VA - " & question_12_va_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - VA - " & question_12_va_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - UI - " & question_12_ui_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - UI - " & question_12_ui_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - WC - " & question_12_wc_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - WC - " & question_12_wc_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - RT - " & question_12_ret_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - RT - " & question_12_ret_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - TP - " & question_12_trib_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - TP - " & question_12_trib_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - CS - " & question_12_cs_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - CS - " & question_12_cs_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - OT - " & question_12_other_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12$ - OT - " & question_12_other_amt
-			script_run_lowdown = script_run_lowdown & vbCr & "12A - " & q_12_answered
-			script_run_lowdown = script_run_lowdown & vbCr & "12N - " & question_12_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "12V - " & question_12_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "12D - " & question_12_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "12I - " & question_12_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "13A - " & question_13_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "13N - " & question_13_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "13V - " & question_13_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "13D - " & question_13_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "13I - " & question_13_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - RT - " &  question_14_rent_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - SB - " &  question_14_subsidy_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - MT - " &  question_14_mortgage_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - AS - " &  question_14_association_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - IN - " &  question_14_insurance_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - RM - " &  question_14_room_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - TX - " &  question_14_taxes_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14A - " & q_14_answered
-			script_run_lowdown = script_run_lowdown & vbCr & "14N - " & question_14_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "14V - " & question_14_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "14D - " & question_14_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "14I - " & question_14_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - PP - " & all_persons_paying
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - HA - " & question_15_heat_ac_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - EL - " & question_15_electricity_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - CF - " & question_15_cooking_fuel_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - WS - " & question_15_water_and_sewer_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - GR - " & question_15_garbage_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - PN - " & question_15_phone_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - LP - " & question_15_liheap_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15A - " & q_15_answered
-			script_run_lowdown = script_run_lowdown & vbCr & "15N - " & question_15_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "15V - " & question_15_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "15D - " & question_15_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "15I - " & question_15_interview_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "15PD - " & question_15_phone_details & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "16A - " & question_16_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "16N - " & question_16_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "16V - " & question_16_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "16D - " & question_16_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "16I - " & question_16_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "17A - " & question_17_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "17N - " & question_17_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "17V - " & question_17_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "17D - " & question_17_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "17I - " & question_17_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "18A - " & question_18_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "18N - " & question_18_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "18V - " & question_18_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "18D - " & question_18_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "18I - " & question_18_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "19A - " & question_19_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "19N - " & question_19_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "19V - " & question_19_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "19D - " & question_19_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "19I - " & question_19_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "20A - CA - " & question_20_cash_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "20A - AC - " & question_20_acct_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "20A - SE - " & question_20_secu_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "20A - CR - " & question_20_cars_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "20A - " & q_20_answered
-			script_run_lowdown = script_run_lowdown & vbCr & "20N - " & question_20_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "20V - " & question_20_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "20D - " & question_20_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "20I - " & question_20_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "21A - " & question_21_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "21N - " & question_21_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "21V - " & question_21_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "21D - " & question_21_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "21I - " & question_21_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "22A - " & question_22_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "22N - " & question_22_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "22V - " & question_22_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "22D - " & question_22_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "22I - " & question_22_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "23A - " & question_23_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "23N - " & question_23_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "23V - " & question_23_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "23D - " & question_23_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "23I - " & question_23_interview_notes & vbCr & vbCr
-
-			script_run_lowdown = script_run_lowdown & vbCr & "24A - RP - " & question_24_rep_payee_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "24A - GF - " & question_24_guardian_fees_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "24A - SD - " & question_24_special_diet_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "24A - HH - " & question_24_high_housing_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "24A - " & q_24_answered
-			script_run_lowdown = script_run_lowdown & vbCr & "24N - " & question_24_notes
-			script_run_lowdown = script_run_lowdown & vbCr & "24V - " & question_24_verif_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "24D - " & question_24_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "24I - " & question_24_interview_notes & vbCr & vbCr
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				Call FORM_QUESTION_ARRAY(quest).add_to_SRL()
+			Next
 
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ1A - " & qual_question_one
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ1M - " & qual_memb_one
@@ -3910,34 +3728,6 @@ function review_for_discrepancies()
 		disc_homeless_confirmation = ""
 	End If
 
-	'PHONE NUMBER BUT NO PHONE EXPENSE
-	disc_yes_phone_no_expense_confirmation = trim(disc_yes_phone_no_expense_confirmation)
-	disc_no_phone_yes_expense_confirmation = trim(disc_no_phone_yes_expense_confirmation)
-	question_15_phone_details = trim(question_15_phone_details)
-	disc_yes_phone_no_expense = "N/A"
-	disc_no_phone_yes_expense = "N/A"
-
-	If phone_one_number <> "" OR phone_two_number <> "" OR phone_three_number <> "" Then
-		If question_15_phone_yn <> "Yes" Then disc_yes_phone_no_expense = "EXISTS"
-		If caf_exp_pay_phone_checkbox = unchecked Then disc_yes_phone_no_expense = "EXISTS"
-	End If
-	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then
-		If question_15_phone_yn = "Yes" Then disc_no_phone_yes_expense = "EXISTS"
-		If caf_exp_pay_phone_checkbox = checked Then disc_no_phone_yes_expense = "EXISTS"
-	End If
-
-	If disc_yes_phone_no_expense <> "N/A" Then
-		If question_15_phone_details <> "" AND question_15_phone_details <> "Select or Type" Then disc_yes_phone_no_expense_confirmation = question_15_phone_details
-		If disc_yes_phone_no_expense_confirmation <> "" and disc_yes_phone_no_expense_confirmation <> "Select or Type" Then disc_yes_phone_no_expense = "RESOLVED"
-	Else
-		disc_yes_phone_no_expense_confirmation = ""
-	End If
-	If disc_no_phone_yes_expense <> "N/A" Then
-		If disc_no_phone_yes_expense_confirmation <> "" and disc_no_phone_yes_expense_confirmation <> "Select or Type" Then disc_no_phone_yes_expense = "RESOLVED"
-	Else
-		disc_no_phone_yes_expense_confirmation = ""
-	End If
-
 	'OUT OF COUNTY
 	If left(resi_addr_county, 2) <> "27" Then disc_out_of_county = "EXISTS"
 	If left(resi_addr_county, 2) = "27" Then disc_out_of_county = "N/A"
@@ -3969,41 +3759,90 @@ function review_for_discrepancies()
 		Verbal_rent_indicated = False
 	End If
 
-	Q14_rent_indicated = False
-	question_14_summary = ""
-	If question_14_rent_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Rent"
-	End If
-	If question_14_subsidy_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Subsidy"
-	End If
-	If question_14_mortgage_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Mortgage"
-	End If
-	If question_14_association_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Association Fees"
-	End If
-	If question_14_insurance_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Home Insurance"
-	End If
-	If question_14_room_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Room or Board"
-	End If
-	If question_14_taxes_yn = "Yes" Then
-		Q14_rent_indicated = True
-		question_14_summary = question_14_summary & "/Real Estate Taxes"
-	End If
-	If left(question_14_summary, 1) = "/" Then question_14_summary = right(question_14_summary, len(question_14_summary) - 1)
-	If question_14_summary = "" Then question_14_summary = "None Indicated"
+	'PHONE NUMBER BUT NO PHONE EXPENSE
+	disc_yes_phone_no_expense_confirmation = trim(disc_yes_phone_no_expense_confirmation)
+	disc_no_phone_yes_expense_confirmation = trim(disc_no_phone_yes_expense_confirmation)
+	phone_details = trim(phone_details)
+	disc_yes_phone_no_expense = "N/A"
+	disc_no_phone_yes_expense = "N/A"
 
-	If CAF1_rent_indicated <> Q14_rent_indicated Then disc_rent_amounts = "EXISTS"
-	If CAF1_rent_indicated = Q14_rent_indicated Then disc_rent_amounts = "N/A"
+	phone_number_entered = True
+	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then phone_number_entered = False
+
+	If caf_exp_pay_phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+	If caf_exp_pay_phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+
+	rent_indicated = False
+	rent_summary = ""
+	utility_summary = ""
+	disc_utility_amounts = "N/A"
+
+	For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
+		If FORM_QUESTION_ARRAY(each_question).detail_source = "shel-hest" Then
+			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_heat_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_ac_checkbox = checked 			Then disc_utility_amounts = "EXISTS"
+			If FORM_QUESTION_ARRAY(each_question).electric_checkbox = unchecked AND caf_exp_pay_electricity_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked 	AND caf_exp_pay_phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+			If caf_exp_pay_none_checkbox = checked Then
+				If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+				If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+				If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+			End If
+			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+			If trim(FORM_QUESTION_ARRAY(each_question).housing_payment) <> "" Then
+				rent_summary = rent_summary & "/Housing Payment: " &FORM_QUESTION_ARRAY(each_question).housing_payment
+				rent_indicated = True
+			End If
+		End If
+
+		If FORM_QUESTION_ARRAY(each_question).info_type = "housing" Then
+			If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+				For each_shel = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+					If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_shel) = "Yes" Then
+						rent_indicated = True
+						rent_summary = rent_summary & "/" & FORM_QUESTION_ARRAY(each_question).item_info_list(each_shel)
+					End If
+				Next
+			End If
+		End If
+
+		If FORM_QUESTION_ARRAY(each_question).info_type = "utilities" Then
+			If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
+				For each_util = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
+					If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_util) = "Yes" Then
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+					Else
+						If caf_exp_pay_heat_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
+						If caf_exp_pay_ac_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
+						If caf_exp_pay_electricity_checkbox = checked AND 	FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then disc_utility_amounts = "EXISTS"
+						If caf_exp_pay_phone_checkbox = checked AND 		FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 	Then disc_utility_amounts = "EXISTS"
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+					End If
+				Next
+			End If
+		End If
+	Next
+
+	If disc_yes_phone_no_expense <> "N/A" Then
+		If disc_yes_phone_no_expense_confirmation <> "" and disc_yes_phone_no_expense_confirmation <> "Select or Type" Then disc_yes_phone_no_expense = "RESOLVED"
+	Else
+		disc_yes_phone_no_expense_confirmation = ""
+	End If
+	If disc_no_phone_yes_expense <> "N/A" Then
+		If disc_no_phone_yes_expense_confirmation <> "" and disc_no_phone_yes_expense_confirmation <> "Select or Type" Then disc_no_phone_yes_expense = "RESOLVED"
+	Else
+		disc_no_phone_yes_expense_confirmation = ""
+	End If
+
+	If left(rent_summary, 1) = "/" Then rent_summary = right(rent_summary, len(rent_summary) - 1)
+	If rent_summary = "" Then rent_summary = "None Indicated"
+
+	If CAF1_rent_indicated <> rent_indicated Then disc_rent_amounts = "EXISTS"
+	If CAF1_rent_indicated = rent_indicated Then disc_rent_amounts = "N/A"
 
 	If disc_rent_amounts <> "N/A" Then
 		If disc_rent_amounts_confirmation <> "" and disc_rent_amounts_confirmation <> "Select or Type" Then disc_rent_amounts = "RESOLVED"
@@ -4011,17 +3850,6 @@ function review_for_discrepancies()
 		disc_rent_amounts_confirmation = ""
 	End If
 
-	'UTILITY AMOUNTS
-	disc_utility_amounts = "N/A"
-	If caf_exp_pay_heat_checkbox = checked AND question_15_heat_ac_yn <> "Yes" Then disc_utility_amounts = "EXISTS"
-	If caf_exp_pay_ac_checkbox = checked AND question_15_heat_ac_yn <> "Yes" Then disc_utility_amounts = "EXISTS"
-	If caf_exp_pay_electricity_checkbox = checked AND question_15_electricity_yn <> "Yes" Then disc_utility_amounts = "EXISTS"
-	If caf_exp_pay_phone_checkbox = checked AND question_15_phone_yn <> "Yes" Then disc_utility_amounts = "EXISTS"
-	If caf_exp_pay_none_checkbox = checked Then
-		If question_15_heat_ac_yn = "Yes" Then disc_utility_amounts = "EXISTS"
-		If question_15_electricity_yn = "Yes" Then disc_utility_amounts = "EXISTS"
-		If question_15_phone_yn = "Yes" Then disc_utility_amounts = "EXISTS"
-	End If
 	disc_utility_caf_1_summary = ""
 	If caf_exp_pay_heat_checkbox = checked Then disc_utility_caf_1_summary = disc_utility_caf_1_summary & ", Heat"
 	If caf_exp_pay_ac_checkbox = checked Then disc_utility_caf_1_summary = disc_utility_caf_1_summary & ", AC"
@@ -4029,13 +3857,6 @@ function review_for_discrepancies()
 	If caf_exp_pay_phone_checkbox = checked Then disc_utility_caf_1_summary = disc_utility_caf_1_summary & ", Phone"
 	If caf_exp_pay_none_checkbox = checked Then disc_utility_caf_1_summary = disc_utility_caf_1_summary & ", NONE"
 	If left(disc_utility_caf_1_summary, 1) = "," Then disc_utility_caf_1_summary = right(disc_utility_caf_1_summary, len(disc_utility_caf_1_summary) - 2)
-
-	disc_utility_q_15_summary = ""
-	If question_15_heat_ac_yn = "Yes" Then disc_utility_q_15_summary = disc_utility_q_15_summary & ", Heat/AC"
-	If question_15_electricity_yn = "Yes" Then disc_utility_q_15_summary = disc_utility_q_15_summary & ", Electricity"
-	If question_15_phone_yn = "Yes" Then disc_utility_q_15_summary = disc_utility_q_15_summary & ", Phone"
-	If left(disc_utility_q_15_summary, 1) = "," Then disc_utility_q_15_summary = right(disc_utility_q_15_summary, len(disc_utility_q_15_summary) - 2)
-	If disc_utility_q_15_summary = "" Then disc_utility_q_15_summary = "None Indicated"
 
 	If disc_utility_amounts <> "N/A" Then
 		If disc_utility_amounts_confirmation <> "" and disc_utility_amounts_confirmation <> "Select or Type" Then disc_utility_amounts = "RESOLVED"
@@ -6357,7 +6178,7 @@ Dim resident_emergency_yn, emergency_type, emergency_discussion, emergency_amoun
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
 Dim pwe_selection
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
-Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
+Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
 Dim qual_numb, exp_num, last_num, emer_numb, discrep_num
 
 'R&R
@@ -6400,7 +6221,7 @@ show_pg_memb_list			= 3
 show_qual					= 10
 show_pg_last				= 11
 discrepancy_questions		= 12
-show_arep_page				= 13
+show_arep_page				= 20
 expedited_determination		= 14
 emergency_questions 		= 15
 
@@ -6635,7 +6456,10 @@ If vars_filled = True Then
 				Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 
 				call FORM_QUESTION_ARRAY(question_num).restore_info(node)
-
+				FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+				FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+				If FORM_QUESTION_ARRAY(question_num).prefil_btn <> "" Then FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
+				If FORM_QUESTION_ARRAY(question_num).add_to_array_btn <> "" Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
 				question_num = question_num + 1
 			next
 			set xmlDoc = nothing
@@ -7335,6 +7159,7 @@ fill_button					= 907
 calculate_btn				= 908
 update_btn					= 909
 add_verif_button			= 910
+next_memb_btn				= 911
 
 msg_mfip_orientation_btn		= 930
 cm_05_12_12_06_btn				= 931
@@ -7508,8 +7333,6 @@ Do
 	Do
 		Do
 			Do
-				' MsgBox "OUT" & vbCr & vbCr & "page_display - " & page_display & vbCr & "show_qual - " & show_qual & vbCr & "discrepancy_questions - " & discrepancy_questions
-				' MsgBox update_arep & " - before define dlg"
 				Dialog1 = Empty
 				call define_main_dialog
 
@@ -7517,26 +7340,23 @@ Do
 
 				prev_page = page_display
 				previous_button_pressed = ButtonPressed
-				' MsgBox update_arep & " - before display dlg"
-				' MsgBox "BEFORE" & vbCr & vbCr & "page_display - " & page_display & vbCr & "ButtonPressed - " & ButtonPressed
 
 				dialog Dialog1
-				' MsgBox "AFTER" & vbCr & vbCr & "page_display - " & page_display & vbCr & "ButtonPressed - " & ButtonPressed
+
 				save_your_work
 				cancel_confirmation
-				' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
+
 				Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
 				Call review_for_discrepancies
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
-				' If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
-                If ButtonPressed = interpreter_servicves_btn Then
+
+				If ButtonPressed = interpreter_servicves_btn Then
                     run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
                 Else
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
                 End If
-				' If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
 
 				If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 
@@ -9795,13 +9615,13 @@ If discrepancies_exist = True Then
 	If disc_rent_amounts = "RESOLVED" Then
 		objSelection.TypeText "The Housing Expense information on CAF Page 1 and CAF Question 14 do not appear to Match" & vbCr
 		objSelection.TypeText "  - CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month & vbCr
-		objSelection.TypeText "  - Question 14 Housing Expense: " & question_14_summary & vbCr
+		objSelection.TypeText "  - Question on Housing Expense: " & rent_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_rent_amounts_confirmation & vbCr
 	End If
 	If disc_utility_amounts = "RESOLVED" Then
 		objSelection.TypeText "The Utility Expense information on CAF Page 1 and CAF Question 15 do not appear to Match" & vbCr
 		objSelection.TypeText "  - CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary & vbCr
-		objSelection.TypeText "  - Question 15 Utility Expense: " & disc_utility_q_15_summary & vbCr
+		objSelection.TypeText "  - Question on Utility Expense: " & utility_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_utility_amounts_confirmation & vbCr
 	End If
 	objSelection.TypeText vbCr
