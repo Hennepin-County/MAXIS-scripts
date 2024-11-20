@@ -409,7 +409,7 @@ end function
 
 function define_main_dialog()
 
-	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
+	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions   ---   Questions from " & CAF_form
 
 		Text 485, 5, 75, 10, "---   DIALOGS   ---"
 		Text 485, 17, 10, 10, "1"
@@ -1445,11 +1445,16 @@ function dialog_movement()
 	If ButtonPressed = exp_income_guidance_btn Then
 		call guide_through_app_month_income
 	End If
+
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
 		page_display = page_display + 1
+		If page_display > show_pg_last Then
+			page_display = show_pg_last
+			ButtonPressed = finish_interview_btn
+		End If
 		If page_display = discrepancy_questions and discrepancies_exist = False Then page_display = page_display + 1
-		If page_display = expedited_questions and expedited_determination_needed = False Then page_display = page_display + 1
+		If page_display = expedited_determination and expedited_determination_needed = False Then page_display = page_display + 1
 	End If
 
 	If ButtonPressed = caf_page_one_btn Then
@@ -1505,38 +1510,6 @@ function dialog_movement()
 		ButtonPressed = save_button
 	End If
 
-	If ButtonPressed = q_12_all_no_btn Then
-		question_12_rsdi_yn = "No"
-		question_12_rsdi_amt = ""
-		question_12_ssi_yn = "No"
-		question_12_ssi_amt = ""
-		question_12_va_yn = "No"
-		question_12_va_amt = ""
-		question_12_ui_yn = "No"
-		question_12_ui_amt = ""
-		question_12_wc_yn = "No"
-		question_12_wc_amt = ""
-		question_12_ret_yn = "No"
-		question_12_ret_amt = ""
-		question_12_trib_yn = "No"
-		question_12_trib_amt = ""
-		question_12_cs_yn = "No"
-		question_12_cs_amt = ""
-		question_12_other_yn = "No"
-		question_12_other_amt = ""
-
-	End If
-
-	If ButtonPressed = q_14_all_no_btn Then
-		question_14_rent_yn = "No"
-		question_14_subsidy_yn = "No"
-		question_14_mortgage_yn = "No"
-		question_14_association_yn = "No"
-		question_14_insurance_yn = "No"
-		question_14_room_yn = "No"
-		question_14_taxes_yn = "No"
-	End If
-
 end function
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
@@ -1545,10 +1518,14 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
         If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
         err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
 
+		end_interview = False
+		If ButtonPressed = finish_interview_btn Then end_interview = True
+		If page_display = show_pg_last AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then end_interview = True
+
         error_message = ""                              'blanking out variables
         msg_header = ""
         for each message in err_array                   'going through each error message to order them and add headers'
-			If show_err_msg_during_movement = False OR ButtonPressed = finish_interview_btn Then
+			If show_err_msg_during_movement = False OR end_interview = True Then
 	            current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing = trim(current_listing)
 	            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
@@ -1628,7 +1605,10 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
         'This is the display of all of the messages.
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
-		If page_display = show_pg_last AND ButtonPressed <> finish_interview_btn Then show_msg = False
+		If page_display = show_pg_last Then
+			show_msg = False
+			If ButtonPressed = finish_interview_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+		End If
 		' If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
 
 		' for i = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -1645,10 +1625,10 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed >= 500 AND ButtonPressed < 1200 Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
 		' If show_err_msg_during_movement = True AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
+		If page_display = emergency_questions and (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = finish_interview_btn Then show_msg = True
 
-		If page_display = emergency_questions and (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
 		' If discrepancies_exist = True AND expedited_determination_needed = False Then
 		' 	' MsgBox "1"
 		' 	If page_display = discrepancy_questions Then
@@ -3293,7 +3273,7 @@ function restore_your_work(vars_filled)
 
 		If .FileExists(save_your_work_path) = True then
 
-			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
+			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "THE FORM SELECTION CANNOT BE CHANGED." & vbCr & "The script will load the form selected in the original run. If the form needs to be changed select NO to restoring details from the previous run." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
 
 			If pull_variables = vbYes Then
 				'Setting the object to open the text file for reading the data already in the file
@@ -7538,8 +7518,10 @@ Do
 				prev_page = page_display
 				previous_button_pressed = ButtonPressed
 				' MsgBox update_arep & " - before display dlg"
+				' MsgBox "BEFORE" & vbCr & vbCr & "page_display - " & page_display & vbCr & "ButtonPressed - " & ButtonPressed
 
 				dialog Dialog1
+				' MsgBox "AFTER" & vbCr & vbCr & "page_display - " & page_display & vbCr & "ButtonPressed - " & ButtonPressed
 				save_your_work
 				cancel_confirmation
 				' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
