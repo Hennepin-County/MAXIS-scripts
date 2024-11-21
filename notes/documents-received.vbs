@@ -1,5 +1,5 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "NOTES - DOCUMENTS RECEIVED TESTING.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
+name_of_script = "NOTES - DOCUMENTS RECEIVED.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
 start_time = timer
 STATS_counter = 0               'sets the stats counter at one
 STATS_manualtime = 90            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the an actual manualtime based on time study
