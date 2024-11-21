@@ -193,7 +193,7 @@ Do
 Loop until err_msg = ""
 interview_script_reported = False
 caf_script_reported = False
-earned_income_budgeting_script_reported = False 
+earned_income_budgeting_script_reported = False
 
 If report_type = "Error Occurred on the NOTES - Interview script" Then
 	report_type = "Something went wrong with a script run (Bug or Error Report)"
@@ -672,11 +672,24 @@ End Select
 attachment_here = ""
 If interview_script_reported = True Then
 	local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	local_interview_xml_path = user_myDocs_folder & "interview_questions_" & MAXIS_case_number & ".xml"
+	save_work_here = ""
+	xml_here = ""
 	With objFSO
 		If .FileExists(local_interview_save_work_path) = True then
-			attachment_here = local_interview_save_work_path
+			save_work_here = local_interview_save_work_path
+		End if
+		If .FileExists(local_interview_xml_path) = True then
+			xml_here = local_interview_xml_path
 		End if
 	End With
+	If save_work_here <> "" and xml_here <> "" Then
+		attachment_here = save_work_here & ", " & xml_here
+	ElseIf save_work_here <> "" Then
+		attachment_here = save_work_here
+	ElseIf xml_here <> "" Then
+		attachment_here = xml_here
+	End If
 End If
 If caf_script_reported = True Then
 	local_CAF_save_work_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
