@@ -13075,11 +13075,24 @@ function script_end_procedure_with_error_report(closing_message)
 			End If
 			If name_of_script = "ACTIONS - INTERVIEW.vbs" Then
 				local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+				local_interview_xml_path = user_myDocs_folder & "interview_questions_" & MAXIS_case_number & ".xml"
+				save_work_here = ""
+				xml_here = ""
 				With objFSO
 					If .FileExists(local_interview_save_work_path) = True then
-						attachment_here = local_interview_save_work_path
+						save_work_here = local_interview_save_work_path
+					End if
+					If .FileExists(local_interview_xml_path) = True then
+						xml_here = local_interview_xml_path
 					End if
 				End With
+				If save_work_here <> "" and xml_here <> "" Then
+					attachment_here = save_work_here & ", " & xml_here
+				ElseIf save_work_here <> "" Then
+					attachment_here = save_work_here
+				ElseIf xml_here <> "" Then
+					attachment_here = xml_here
+				End If
 			End If
 			If name_of_script = "ACTIONS - EARNED INCOME BUDGETING.vbs" Then
 				local_earned_income_save_work_path = user_myDocs_folder & "earned-income-detail-" & MAXIS_case_number & "-info.txt"
