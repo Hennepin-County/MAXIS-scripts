@@ -474,11 +474,16 @@ For Each objFile in colFiles																'looping through each file
 	this_file_created_date = objFile.DateCreated											'Reading the date created
 	this_file_path = objFile.Path															'Grabing the path for the file
 
-	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True			'We want to delete files that say 'caf-answers-' as this is how the NOTES - CAF script creates the save your work doc
-	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
-	If InStr(this_file_name, "earned-income-detail-") <> 0 Then delete_this_file = True		'We want to delete files that say 'earned-income-detail-' as this is how the ACTIONS - Earned Income Budgeting script creates the save your work doc
-	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
-	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
+	If InStr(this_file_name, "caf-variables-") <> 0 			Then delete_this_file = True		'We want to delete files that say 'caf-answers-' as this is how the NOTES - CAF script creates the save your work doc
+	If InStr(this_file_name, "interview-answers-") <> 0 		Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If InStr(this_file_name, "interview-summary-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If InStr(this_file_name, "interview_questions_") <> 0 		Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If InStr(this_file_name, "earned-income-detail-") <> 0 		Then delete_this_file = True		'We want to delete files that say 'earned-income-detail-' as this is how the ACTIONS - Earned Income Budgeting script creates the save your work doc
+	correct_file_type = False
+	If this_file_type = "Text Document" 	Then correct_file_type = True
+	If this_file_type = "XML Source File" 	Then correct_file_type = True
+	If correct_file_type = False 								Then delete_this_file = False		'We do NOT want to delete files that are NOT TXT file types
+	If DateDiff("d", this_file_created_date, date) < 8 			Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
 
 	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
 Next
@@ -829,7 +834,7 @@ Function ABAWD_FSET_exemption_finder()
     const potential_exempt_const    = 4
     const verified_wreg_const       = 5
     const verified_abawd_const      = 6
-    
+
     entry_record = 0
     case_based_exemptions = ""
     eats_HH_count = 0
@@ -849,8 +854,8 @@ Function ABAWD_FSET_exemption_finder()
             EMReadScreen eats_pers, 2, eats_row, 3
             eats_pers = replace(eats_pers, " ", "")
             IF trim(eats_pers) = "" THEN
-                Exit do 
-            Else 
+                Exit do
+            Else
                 eats_group_members = eats_group_members & eats_pers & ","
 				eats_HH_count = eats_HH_count  + 1
                 eats_row = eats_row + 1
@@ -883,24 +888,24 @@ Function ABAWD_FSET_exemption_finder()
         LOOP UNTIL eats_group = "__"
     END IF
 
-    'sets up array for the exemption and potential exemption checks. 
+    'sets up array for the exemption and potential exemption checks.
     eats_group_members = trim(eats_group_members)
     eats_group_members = split(eats_group_members, ",")
-    For each memb in eats_group_members 
-        If trim(memb) <> "" then    
+    For each memb in eats_group_members
+        If trim(memb) <> "" then
     	    ReDim Preserve eats_group_array(verified_abawd_const, entry_record)	'This resizes the array based on the number of members
             eats_group_array(memb_number_const, entry_record) = memb
     	    entry_record = entry_record + 1			'This increments to the next entry in the array'
     	    stats_counter = stats_counter + 1
-        End if 
-    Next 
+        End if
+    Next
 
     'Case-based determination
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-	
+
     '----------------------------------------------------------------------------------------------------17 – Receiving RCA
-	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
-	row = 1                                            
+	'Case-based determination -- Looking for RCA information while still on CASE/CURR
+	row = 1
     col = 1
     EMSearch "RCA:", row, col
     If row <> 0 Then
@@ -911,41 +916,41 @@ Function ABAWD_FSET_exemption_finder()
             rca_case = TRUE
 			verified_wreg = verified_wreg & "17" & "|"
         End If
-	End if 
+	End if
 
-     For items = 0 to UBound(eats_group_array, 2)    
+     For items = 0 to UBound(eats_group_array, 2)
         '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
-        If mfip_case = True then 
+        If mfip_case = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
-        End if 
+        End if
         '----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
-        If DWP_case = True then 
+        If DWP_case = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "20" & "|"
-        End if 
+        End if
         '----------------------------------------------------------------------------------------------------17 - Receiving RCA
-        If rca_case = TRUE = True then 
+        If rca_case = TRUE = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
-        End if 
-    Next 
+        End if
+    Next
 
 	''<<<<<<<<<<PROG for Foster care
     CALL navigate_to_MAXIS_screen("STAT", "PROG")
-	EmReadScreen IV-E_prog, 8, 11, 33 
+	EmReadScreen IV-E_prog, 8, 11, 33
 	EMReadScreen IV-E_status, 4, 11, 74
-	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then 
-		foster_care = False 
-	else 
-		If Trim(IV-E_status) <> "DENY" then 
+	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then
+		foster_care = False
+	else
+		If Trim(IV-E_status) <> "DENY" then
 			foster_care = True
-		else 
-			foster_care = False 
-		End if 
+		else
+			foster_care = False
+		End if
 	End if
 
-	Call HCRE_panel_bypass	'making sure we don't get stuck 
+	Call HCRE_panel_bypass	'making sure we don't get stuck
 
     child_under_six = False 	'defaulting to False
 	child_under_18 = False		'defaulting to False
@@ -954,8 +959,8 @@ Function ABAWD_FSET_exemption_finder()
     'person-based determination (age-based exemptions): STAT/MEMB
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
-    For items = 0 to UBound(eats_group_array, 2) 
-        cl_age = ""   
+    For items = 0 to UBound(eats_group_array, 2)
+        cl_age = ""
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen first_name, 12, 6, 63
         first_name = replace(first_name, "_", "")
@@ -968,7 +973,7 @@ Function ABAWD_FSET_exemption_finder()
         cl_age = cl_age * 1
         eats_group_array(memb_age_const, items) = cl_age
 
-        'case-based exemption 
+        'case-based exemption
 		If cl_age < 6 then child_under_six = True
         IF cl_age =< 17 THEN
 			child_under_18 = True
@@ -978,32 +983,32 @@ Function ABAWD_FSET_exemption_finder()
     NEXT
 
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
-    For items = 0 to UBound(eats_group_array, 2)   
-        If child_under_18 = True then 
+    For items = 0 to UBound(eats_group_array, 2)
+        If child_under_18 = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
-        End if 
+        End if
         '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
         If child_under_6 = True then
             If adult_HH_count = 1 then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
-            Else     
-                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. " 
-            End if 
-        End if 
+            Else
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. "
+            End if
+        End if
         '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
         If eats_group_array(memb_age_const, items) = 16 or eats_group_array(memb_age_const, items) = 17 then
 			EMReadScreen age_verif_code, 2, 8, 68
 			If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17. "  
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "07" & "|"
 			End if
 		End if
 		'----------------------------------------------------------------------------------------------------06 – Under age 16
         If eats_group_array(memb_age_const, items) < 16 then
 		    If age_verif_code <> "NO" then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16. " 
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
 		    End if
 		End if
@@ -1011,7 +1016,7 @@ Function ABAWD_FSET_exemption_finder()
         If eats_group_array(memb_age_const, items) => 55 then
 		    If eats_group_array(memb_age_const, items) < 60 then
 		    	If age_verif_code <> "NO" then
-                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59. " 
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 55-59. "
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
 		    	End if
 		    End if
@@ -1024,16 +1029,16 @@ Function ABAWD_FSET_exemption_finder()
 			End if
 		End if
 
-        '----------------------------------------------------------------------------------------------------'Foster care on 18th birthday for < 24 YO's 
-		If eats_group_array(memb_age_const, items) < 24 then 
+        '----------------------------------------------------------------------------------------------------'Foster care on 18th birthday for < 24 YO's
+		If eats_group_array(memb_age_const, items) < 24 then
 			If foster_care = True then eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Under age 24 & may have been in foster case on 18th birthday. Review for exemption. "
-		End if 
-    Next 
+		End if
+    Next
 
-    'Person based evaluation: STAT/DISA 
-    disabled_eats_member = False 
+    'Person based evaluation: STAT/DISA
+    disabled_eats_member = False
     Call navigate_to_MAXIS_screen("STAT", "DISA")
-    For items = 0 to UBound(eats_group_array, 2)    
+    For items = 0 to UBound(eats_group_array, 2)
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
 		verified_disa = False
 		disa_status = False
@@ -1079,27 +1084,27 @@ Function ABAWD_FSET_exemption_finder()
                 End if
                 row = row + 1
             Loop until row = 14
-            If verified_disa = True then  
+            If verified_disa = True then
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
-                disabled_eats_member = True 
-            End if 
+                disabled_eats_member = True
+            End if
 		End if
-    Next 
+    Next
 
-    'determines if members meet disa exemption for themselves or potential exemption based on HH's. 
-    If disabled_eats_member = True then 
-        For items = 0 to UBound(eats_group_array, 2)   
-            If instr(eats_group_array(verified_wreg_const, items), "03") then 
+    'determines if members meet disa exemption for themselves or potential exemption based on HH's.
+    If disabled_eats_member = True then
+        For items = 0 to UBound(eats_group_array, 2)
+            If instr(eats_group_array(verified_wreg_const, items), "03") then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Disabled. "
-            Else 
+            Else
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Care of disabled HH member. "
-            End if 
-        Next 
-    End if 
+            End if
+        Next
+    End if
 
     'Person-based determination for Earned Income
-    '----------------------------------------------------------------------------------------------------09 - Employed 30 hours/week or Earning = to Fed Min Wage x 30 hours/week 
-    For items = 0 to UBound(eats_group_array, 2)   
+    '----------------------------------------------------------------------------------------------------09 - Employed 30 hours/week or Earning = to Fed Min Wage x 30 hours/week
+    For items = 0 to UBound(eats_group_array, 2)
         prosp_inc = 0
         prosp_hrs = 0
         prospective_hours = 0
@@ -1204,7 +1209,7 @@ Function ABAWD_FSET_exemption_finder()
         	LOOP UNTIL enter_a_valid = "ENTER A VALID"
         END IF
 
-        
+
 		'Person based since very unlikely to be case based at this point.
         EMWriteScreen "RBIC", 20, 71
         CALL write_value_and_transmit(member_number, 20, 76)
@@ -1225,13 +1230,13 @@ Function ABAWD_FSET_exemption_finder()
 				End if
 			End if
         END IF
-    Next 
+    Next
 
     'Person-based determination: UNEA
     '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
     '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
     CALL navigate_to_MAXIS_screen("STAT", "UNEA")
-    For items = 0 to UBound(eats_group_array, 2) 
+    For items = 0 to UBound(eats_group_array, 2)
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen num_of_UNEA, 1, 2, 78
         IF num_of_UNEA <> "0" THEN
@@ -1244,7 +1249,7 @@ Function ABAWD_FSET_exemption_finder()
         				IF unea_type = "11" then
         					EmReadScreen VA_verif_code, 1, 5, 65
         					If VA_verif_code <> "N" then
-                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability. "  
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "VA Disability. "
                                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
         						Exit do
         					Else
@@ -1253,25 +1258,25 @@ Function ABAWD_FSET_exemption_finder()
         				Elseif unea_type = "14" then
 		    				EmReadScreen UC_verif_code, 1, 5, 65
 		    				If UC_verif_code <> "N" then
-                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "  
+                                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "
 		    					eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
 		    					Exit do
 		    				Else
                                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Appears to have active unemployment benefits. "
 		    				End if
-                        End if 
+                        End if
         			END IF
         		END IF
         		transmit
         		EMReadScreen enter_a_valid, 13, 24, 2
         	LOOP UNTIL enter_a_valid = "ENTER A VALID"
         END IF
-    Next 
+    Next
 
 	'Person-based determination: PBEN
     '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
     CALL navigate_to_MAXIS_screen("STAT", "PBEN")
-    For items = 0 to UBound(eats_group_array, 2) 
+    For items = 0 to UBound(eats_group_array, 2)
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
 		EMReadScreen num_of_PBEN, 1, 2, 78
         IF num_of_PBEN <> "0" THEN
@@ -1282,10 +1287,10 @@ Function ABAWD_FSET_exemption_finder()
         	    IF pben_type = "12" THEN		'UI pending'
         			EMReadScreen pben_disp, 1, pben_row, 77
         			IF pben_disp = "A" OR pben_disp = "P" THEN
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. " 
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
 						EXIT DO
-                    elseif pben_disp = "E" then                         
+                    elseif pben_disp = "E" then
                         eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Unemployment. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "11" & "|"
                         Exit do
@@ -1298,12 +1303,12 @@ Function ABAWD_FSET_exemption_finder()
         		END IF
         	LOOP UNTIL pben_row = 12
 		End if
-    Next 
+    Next
 
     'Person-based determination: PREG
 	'----------------------------------------------------------------------------------------------------23 – Pregnant
     CALL navigate_to_MAXIS_screen("STAT", "PREG")
-    For items = 0 to UBound(eats_group_array, 2) 
+    For items = 0 to UBound(eats_group_array, 2)
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
 		EMReadScreen num_of_PREG, 1, 2, 78
         IF num_of_PREG <> "0" THEN
@@ -1314,61 +1319,61 @@ Function ABAWD_FSET_exemption_finder()
 				EMReadscreen preg_verif, 1, 6, 75
                 If DateDiff("d", date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
 					If preg_verif <> "_" then
-                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant. " 
+                        eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "23" & "|"
 					End if
 				End If
 			End if
         End If
-    Next 
-		
+    Next
+
     'Person-based determination: MEMI
     '----------------------------------------------------------------------------------------------------30/09 - Military Servive
     CALL navigate_to_MAXIS_screen("STAT", "MEMI")
-    For items = 0 to UBound(eats_group_array, 2) 
+    For items = 0 to UBound(eats_group_array, 2)
         CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen military_service_code, 1, 12, 78
-        If military_service_code = "Y" then 
+        If military_service_code = "Y" then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Military Service. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "30" & "|"
-        End if 
-    Next 
+        End if
+    Next
 
     'Case based determination: ADDR
 	'----------------------------------------------------------------------------------------------------03 - Homeless
 	homeless_exemption = False
-    possible_homeless = False 
+    possible_homeless = False
     CALL navigate_to_MAXIS_screen("STAT", "ADDR")
     EMReadScreen homeless_code, 1, 10, 43
 	EMReadScreen living_situation, 2, 11, 43
     EmReadscreen addr_line_01, 16, 6, 43
     IF homeless_code = "Y" then
 		If living_situation = "02" or _
-			living_situation = "06" or _							
+			living_situation = "06" or _
 			living_situation = "07" or _
-			living_situation = "08" then 
-			homeless_exemption = True 
+			living_situation = "08" then
+			homeless_exemption = True
 		Else
-            possible_homeless = True 
-		End if 
+            possible_homeless = True
+		End if
     End if
 
-    If homeless_exemption = True or possible_homeless = True then 
+    If homeless_exemption = True or possible_homeless = True then
         For items = 0 to UBound(eats_group_array, 2)
-            If homeless_exemption = True then 
+            If homeless_exemption = True then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Homeless. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "03" & "|"
-            Elseif possible_homeless = True then 
-                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Case's ADDR is coded Y for homeless but living situation doesn't match. "  
-            End if 
-        Next 
-    End if 
-    
-    'Person-based determination: SCHL 
-    '----------------------------------------------------------------------------------------------------12 - School 
+            Elseif possible_homeless = True then
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Case's ADDR is coded Y for homeless but living situation doesn't match. "
+            End if
+        Next
+    End if
+
+    'Person-based determination: SCHL
+    '----------------------------------------------------------------------------------------------------12 - School
     CALL navigate_to_MAXIS_screen("STAT", "SCHL")
-    For items = 0 to UBound(eats_group_array, 2) 
-        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)    
+    For items = 0 to UBound(eats_group_array, 2)
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
         EMReadScreen num_of_SCHL, 1, 2, 78
         IF num_of_SCHL = "1" THEN
         	EMReadScreen school_status, 1, 6, 40
@@ -1390,15 +1395,15 @@ Function ABAWD_FSET_exemption_finder()
                 End if
             End if
 		End if
-    Next 
+    Next
 
     exemption_message = ""
-    For items = 0 to UBound(eats_group_array, 2) 
+    For items = 0 to UBound(eats_group_array, 2)
         If trim(eats_group_array(verified_exemption_const, items)) = "" then eats_group_array(verified_exemption_const, items) = "N/A"
         If trim(eats_group_array(potential_exempt_const, items)) = "" then eats_group_array(potential_exempt_const, items) = "N/A"
-        exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _ 
+        exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _
         "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr
-    Next 
+    Next
 
     MsgBox exemption_message, vbInformation + vbSystemModal, "Exemptions for EATS Household members with MEMB 01"
     STATS_counter = STATS_counter - 1		'Removing one instance from the STATS Counter as it started with one at the beginning
@@ -1767,20 +1772,20 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			addr_less = FALSE
 			day_different = FALSE
 
-			'Determining correct month to update ADDR panel 
+			'Determining correct month to update ADDR panel
 			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 			If addr_eff_date > footer_month_as_date Then	'If addr_eff provided in the dialog is greater than the footer month date, we need to change the footer month to align with addr_eff month
-				addr_greater = TRUE 
+				addr_greater = TRUE
 				orig_footer_month = MAXIS_footer_month
 				orig_footer_year = MAXIS_footer_year
 				CALL convert_date_into_MAXIS_footer_month(addr_eff_date, MAXIS_footer_month, MAXIS_footer_year)
 			End If
-			
-			If addr_eff_date < footer_month_as_date Then 	'If addr_eff provided in the dialog is less than the footer month date, we need to change the footer month to the MAXIS footer month 
+
+			If addr_eff_date < footer_month_as_date Then 	'If addr_eff provided in the dialog is less than the footer month date, we need to change the footer month to the MAXIS footer month
 				addr_less = TRUE
 				orig_addr_eff_date = addr_eff_date
 				addr_eff_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-			End If	
+			End If
 
 			Call navigate_to_MAXIS_screen("STAT", "ADDR")							'going to ADDR
 			EMReadScreen panel_addr_eff_date, 2, 4, 43								'reading addr effective date because we will need to compare it to the one provided in the dialog
@@ -2030,7 +2035,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				EMSendKey "<eraseEOF>"
 				EMWriteScreen addr_email, 19, 31
 			End If
-	        
+
 	        save_attempt = 1
 	        Do
 	            transmit
@@ -2058,13 +2063,13 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        Loop until save_attempt = 20
 			'Resetting variables changed due to addr_eff date vs footer month
 			If addr_greater = TRUE Then
-				MAXIS_footer_month = orig_footer_month 
-				MAXIS_footer_year = orig_footer_year 
-			End If 
-			If addr_less = TRUE Then 
+				MAXIS_footer_month = orig_footer_month
+				MAXIS_footer_year = orig_footer_year
+			End If
+			If addr_less = TRUE Then
 				addr_eff_date = orig_addr_eff_date
 			End If
-			If day_different = TRUE Then 
+			If day_different = TRUE Then
 				addr_eff_date = og_addr_eff
             End If
 		End IF
@@ -2208,42 +2213,42 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 
 			If IsDate(choice_date) = True Then Call create_mainframe_friendly_date(choice_date, 7, 40, "YY")
 	        EMWriteScreen actual_initial_exp, 8, 61
-			
+
 			If retro_heat_ac_yn = "" Then retro_heat_ac_yn = " "
 			EMWriteScreen retro_heat_ac_yn, 13, 34
-	        If retro_heat_ac_yn = "Y" Then 
+	        If retro_heat_ac_yn = "Y" Then
 				EMWriteScreen "01", 13, 42
-			Else 
+			Else
 				EMWriteScreen "  ", 13, 42
 			End If
 
 			If retro_electric_yn = "" Then retro_electric_yn = " "
 	        EMWriteScreen retro_electric_yn, 14, 34
-	        If retro_electric_yn = "Y" Then 
+	        If retro_electric_yn = "Y" Then
 				EMWriteScreen "01", 14, 42
-			Else 
+			Else
 				EMWriteScreen "  ", 14, 42
 			End If
 
 			If retro_phone_yn = "" Then retro_phone_yn = " "
 	        EMWriteScreen retro_phone_yn, 15, 34
-	        If retro_phone_yn = "Y" Then 
+	        If retro_phone_yn = "Y" Then
 				EMWriteScreen "01", 15, 42
-			Else 
+			Else
 				EMWriteScreen "  ", 15, 42
 			End If
 
 			If prosp_heat_ac_yn = "" Then prosp_heat_ac_yn = " "
 	        EMWriteScreen prosp_heat_ac_yn, 13, 60
-	        If prosp_heat_ac_yn = "Y" Then 
+	        If prosp_heat_ac_yn = "Y" Then
 				EMWriteScreen "01", 13, 68
-			Else 
+			Else
 				EMWriteScreen "  ", 13, 68
 			End If
 
 			If prosp_electric_yn = "" Then prosp_electric_yn = " "
 	        EMWriteScreen prosp_electric_yn, 14, 60
-	        If prosp_electric_yn = "Y" Then 
+	        If prosp_electric_yn = "Y" Then
 				EMWriteScreen "01", 14, 68
 			Else
 				EMWriteScreen "  ", 14, 68
@@ -2251,7 +2256,7 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 
 			If prosp_phone_yn = "" Then prosp_phone_yn = " "
 	        EMWriteScreen prosp_phone_yn, 15, 60
-	        If prosp_phone_yn = "Y" Then 
+	        If prosp_phone_yn = "Y" Then
 				EMWriteScreen "01", 15, 68
 			Else
 				EMWriteScreen "  ", 15, 68
@@ -13291,19 +13296,19 @@ function start_a_blank_CASE_NOTE()
 			'Check MAXIS mode
 			row = 1
 			col = 1
-			EMSearch "Mode: ", row, col   
+			EMSearch "Mode: ", row, col
 			If row <> 0 and col <> 0 then EMReadScreen mode_error_check, 1, row, col + 6
 
 			'Check PW or User
 			row = 1
 			col = 1
 			EMSearch "PW: ", row, col
-			If row = 0 and col = 0 then 
+			If row = 0 and col = 0 then
 				row = 1
 				col = 1
 				EMSearch "User: ", row, col
 				EMReadScreen PW_error_check, 7, row, col + 6
-			ElseIf row <> 0 and col <> 0 then 
+			ElseIf row <> 0 and col <> 0 then
 				EMReadScreen PW_error_check, 7, row, col + 4
 			End If
 
@@ -13317,7 +13322,7 @@ function start_a_blank_CASE_NOTE()
 			'Check panel
 			EmReadScreen panel_error_check, 50, 2, 20
 			panel_error_check = trim(panel_error_check)
-			
+
 			'Check error message
 			EMReadScreen error_message_check, 79, 24, 2
 			error_message_check = trim(error_message_check)
