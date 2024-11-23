@@ -780,20 +780,21 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		
-        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "   
+        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
+        If (age_53_54 = True and best_wreg_code = "16") then report_notes = report_notes & next_SNAP_revw & " - 53-54 YO becomes TLR. "   
 
         'Checking/managing 53-54 yo's who don't start counting until their next review. 
-        If (age_53_54 = True and best_wreg_code = "16") then 
-            Call navigate_to_MAXIS_screen("REPT", "ACTV")
-            EMReadScreen actv_case_number, 8, 7, 12
-            actv_case_number = trim(actv_case_number)
-            
-            If instr(MAXIS_case_number, actv_case_number) then 
-                EMReadScreen next_revw_date, 8, 7, 42
-                next_revw_date = replace(next_revw_date, " ", "/")
-                report_notes = report_notes & next_revw_date & " - 53-54 YO becomes TLR. "
-            End if 
-        End If   
+        'If (age_53_54 = True and best_wreg_code = "16") then 
+        '    Call navigate_to_MAXIS_screen("REPT", "ACTV")
+        '    EMReadScreen actv_case_number, 8, 7, 12
+        '    actv_case_number = trim(actv_case_number)
+        '    
+        '    If instr(MAXIS_case_number, actv_case_number) then 
+        '        EMReadScreen next_revw_date, 8, 7, 42
+        '        next_revw_date = replace(next_revw_date, " ", "/")
+        '        report_notes = report_notes & next_revw_date & " - 53-54 YO becomes TLR. "
+        '    End if 
+        'End If   
 
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
         updates_needed = True
