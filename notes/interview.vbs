@@ -1240,6 +1240,8 @@ function define_main_dialog()
 		End If
 
 		If page_display <> show_pg_last 				Then PushButton 495, btn_pos, 55, 13, "CAF Last Page", caf_last_page_btn
+		PushButton 485, btn_pos+25, 66, 13, "Prog Request", program_requests_btn
+
 
 		PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
 		PushButton 140, 365, 130, 15, "View Verifications", verif_button
@@ -1384,7 +1386,7 @@ function dialog_movement()
 	Next
 
 
-
+	If ButtonPressed = program_requests_btn Then Call verbal_requests
 	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Case-Transfers.aspx"
 
 	If arep_name <> "" Then arep_exists = True
@@ -2305,7 +2307,7 @@ function program_process_selection()
 	If emer_request = True Then dlg_len = dlg_len + 20
 	If grh_request = True Then dlg_len = dlg_len + 20
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+	BeginDialog Dialog1, 0, 0, 210, dlg_len, "CAF Process"
 		Text 10, 10, 205, 20, "Interviews are completed on cases when programs are initially requested and at annual renewal for SNAP and MFIP."
 		Text 10, 35, 210, 20, "To correctly identify the information needed, each program needs to be associated with an Application or Renewal process."
 
@@ -2376,6 +2378,11 @@ function program_process_selection()
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	Call check_for_MAXIS(False)
+
+	If snap_request = True AND the_process_for_snap = "Application" Then expedited_determination_needed = True
+	If snap_status = "PENDING" Then expedited_determination_needed = True
+	If type_of_cash = "Adult" Then family_cash_case_yn = "No"
+	If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
@@ -2612,6 +2619,9 @@ function save_your_work()
 
 			objTextStream.WriteLine "EMER - TYPE - " & type_of_emer
 			objTextStream.WriteLine "PROC - EMER - " & the_process_for_emer
+
+			objTextStream.WriteLine "PROG - NOTE - " & program_request_notes
+			objTextStream.WriteLine "VERB - NOTE - " & verbal_request_notes
 
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
@@ -2913,7 +2923,6 @@ function save_your_work()
 			objTextStream.WriteLine "FORM - 17 - " & confirm_recap_read
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
-				' objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
 				race_a_info = ""
 				race_b_info = ""
 				race_n_info = ""
@@ -3262,7 +3271,6 @@ function save_your_work()
 
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
-				' objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
 				race_a_info = ""
 				race_b_info = ""
 				race_n_info = ""
@@ -3379,6 +3387,9 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 11) = "EMER - TYPE" Then type_of_emer = Mid(text_line, 15)
 					If left(text_line, 11) = "PROC - EMER" Then the_process_for_emer = Mid(text_line, 15)
+
+					If left(text_line, 11) = "PROG - NOTE" Then program_request_notes = Mid(text_line, 15)
+					If left(text_line, 11) = "VERB - NOTE" Then verbal_request_notes = Mid(text_line, 15)
 
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - HOW" Then how_are_we_completing_the_interview = Mid(text_line, 13)
@@ -4596,17 +4607,28 @@ function write_interview_CASE_NOTE()
 	If cash_request = True Then
 		If the_process_for_cash = "Application" Then CALL write_variable_in_CASE_NOTE(" - CASH at Application. App Date: " & CAF_datestamp & ". " & type_of_cash & " Cash.")
 		If the_process_for_cash = "Renewal" Then CALL write_variable_in_CASE_NOTE(" - CASH at Renewal. Renewal Month: " & next_cash_revw_mo & "/" & next_cash_revw_yr & ". " & type_of_cash & " Cash.")
-		If cash_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & cash_other_req_detail)
+		If cash_verbal_request = "Yes" Then CALL write_variable_in_CASE_NOTE("   -CASH requested verbally during the interview")
+		If cash_verbal_withdraw = "Yes" Then CALL write_variable_in_CASE_NOTE("   -VERBAL WITHDRAW OF CASH REQUEST")
+	End If
+	If grh_request = True Then
+		If the_process_for_grh = "Application" Then CALL write_variable_in_CASE_NOTE(" - HS/GRH at Application. App Date: " & CAF_datestamp & ".")
+		If the_process_for_grh = "Renewal" Then CALL write_variable_in_CASE_NOTE(" - HS/GRH at Renewal. Renewal Month: " & next_grh_revw_mo & "/" & next_grh_revw_yr & ".")
+		If grh_verbal_request = "Yes" 		Then CALL write_variable_in_CASE_NOTE("   -HS/GRH requested verbally during the interview")
+		If grh_verbal_withdraw = "Yes" Then CALL write_variable_in_CASE_NOTE("   -VERBAL WITHDRAW OF HS/GRH REQUEST")
 	End If
 	If snap_request = True Then
 		If the_process_for_snap = "Application" Then CALL write_variable_in_CASE_NOTE(" - SNAP at Application. App Date: " & CAF_datestamp & ".")
 		If the_process_for_snap = "Renewal" Then CALL write_variable_in_CASE_NOTE(" - SNAP at Renewal. Renewal Month: " & next_snap_revw_mo & "/" & next_snap_revw_yr & ".")
-		If snap_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & snap_other_req_detail)
+		If snap_verbal_request = "Yes" Then CALL write_variable_in_CASE_NOTE("   -SNAP requested verbally during the interview")
+		If snap_verbal_withdraw = "Yes" Then CALL write_variable_in_CASE_NOTE("   -VERBAL WITHDRAW OF SNAP REQUEST")
 	End If
 	If emer_request = True Then
 		CALL write_variable_in_CASE_NOTE(" - EMERGENCY Request at Application. App Date: " & CAF_datestamp & ". EMER is " & type_of_emer)
-		If emer_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & emer_other_req_detail)
+		If emer_verbal_request = "Yes" Then CALL write_variable_in_CASE_NOTE("   -Emergency requested verbally during the interview")
+		If emer_verbal_withdraw = "Yes" Then CALL write_variable_in_CASE_NOTE("   -VERBAL WITHDRAW OF EMERGENCY REQUEST")
 	End If
+	Call write_bullet_and_variable_in_CASE_NOTE("Program Request Notes", program_request_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Verbal Request Notes", verbal_request_notes)
 
 	CALL write_variable_in_CASE_NOTE("Household Members:")
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -6281,16 +6303,6 @@ end function
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const jobs_employee_name 			= 0
-const jobs_hourly_wage 				= 1
-const jobs_gross_monthly_earnings	= 2
-const jobs_employer_name 			= 3
-const jobs_edit_btn					= 4
-const jobs_intv_notes				= 5
-const verif_yn						= 6
-const verif_details					= 7
-const jobs_notes 					= 8
-
 Const end_of_doc = 6			'This is for word document ennumeration
 
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
@@ -6929,8 +6941,8 @@ Do
 		If program_requested = False Then err_msg = err_msg & vbCr & "* Select which program was requested on the form." & vbCr & "** If there were no programs were marked on the form, the 'Verbal Requests' details can be added using the button."
 
 		If ButtonPressed = program_requests_btn Then
-			err_msg = "LOOP"
 			Call verbal_requests
+			err_msg = "LOOP"
 		End If
 
 		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -6963,6 +6975,11 @@ Do
 	End If
 
 	If run_process_selection = True Then call program_process_selection
+
+	If snap_request = True AND the_process_for_snap = "Application" Then expedited_determination_needed = True
+	If snap_status = "PENDING" Then expedited_determination_needed = True
+	If type_of_cash = "Adult" Then family_cash_case_yn = "No"
+	If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -7007,10 +7024,6 @@ Do
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
-If snap_request = True AND the_process_for_snap = "Application" Then expedited_determination_needed = True
-If snap_status = "PENDING" Then expedited_determination_needed = True
-If type_of_cash = "Adult" Then family_cash_case_yn = "No"
-If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
 Call convert_date_into_MAXIS_footer_month(CAF_datestamp, MAXIS_footer_month, MAXIS_footer_year)
@@ -9073,15 +9086,21 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 objSelection.TypeText vbCr
 'Program CAF Information
 caf_progs = ""
-for the_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
-    If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-        If HH_MEMB_ARRAY(snap_req_checkbox, the_memb) = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
-    	If HH_MEMB_ARRAY(cash_req_checkbox, the_memb) = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
-    	If HH_MEMB_ARRAY(emer_req_checkbox, the_memb) = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
-    End If
-Next
+If CASH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", Cash"
+If GRH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", HS/GRH"
+If SNAP_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", SNAP"
+If EMER_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", EMER"
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
 objSelection.TypeText "PROGRAMS REQUESTED ON CAF: " & caf_progs & vbCr
+
+progs_verbal_request = ""
+If cash_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", Cash"
+If grh_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", HS/GRH"
+If snap_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", SNAP"
+If emer_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", EMER"
+If left(progs_verbal_request, 2) = ", " Then progs_verbal_request = right(progs_verbal_request, len(progs_verbal_request)-2)
+If progs_verbal_request <> "" Then objSelection.TypeText "PROGRAMS REQUESTED VERBALLY IN INTERVIEW: " & progs_verbal_request & vbCr
+
 objSelection.Font.Size = "11"
 
 
