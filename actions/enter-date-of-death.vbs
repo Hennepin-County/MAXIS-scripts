@@ -120,7 +120,9 @@ Do
     cancel_without_confirmation()
     If household_member_that_died = "Select One ..." THEN err_msg = err_msg & vbCr & "* Please select the household member that has died."
     If len(date_of_death) <> 10 or IsDate(date_of_death) = False THEN err_msg = err_msg & vbCr & "* Please enter the date of death in the format MM/DD/YYYY."
-    If DateDiff("D", date_of_death, date) < 0 Then err_msg = err_msg & vbCr & "* The date of death cannot be in the future."
+    If IsDate(date_of_death) Then
+      If DateDiff("D", date_of_death, date) < 0 Then err_msg = err_msg & vbCr & "* The date of death cannot be in the future."
+    End If
     IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
   Loop until err_msg = ""
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -152,20 +154,18 @@ Loop
 'Determine what programs apply to HH Memb
 If (stat_type_cash = "Y" OR stat_type_snap = "Y") and stat_type_hc <> "Y" Then
   'If CASH or SNAP case, but not HC case
-  msgbox "cash_snap_only = true"
   cash_snap_only = true
 ElseIf stat_type_hc = "Y" Then
   'If HC case, doesn't matter if CASH or SNAP is active because steps are the same
   hc_case = True
-  msgbox "hc_case " & hc_case
 Else
-  msgbox "No CASH, SNAP, or HC??"
+  'To do - handling needed here?
 End If
 
 
 'Navigate to STAT/MEMB to determine if: 
-'->DOD entered already
-'->DOD and DOB are the same
+  '->DOD entered already
+  '->DOD and DOB are the same
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 'Navigate to HH Memb that died
 EMWriteScreen left(household_member_that_died, 2), 20, 76
@@ -175,10 +175,18 @@ EMReadScreen DOB_memb_panel, 10, 8, 42
 DOB_memb_panel = replace(DOB_memb_panel, " ", "/")
 If DOB_memb_panel = date_of_death then death_same_day_as_birth = True
 EMReadScreen DOD_memb_panel, 10, 19, 42
+'Convert DOD to MM/DD/YYYY format
+DOD_memb_panel = replace(DOD_memb_panel, " ", "/")
 If DOD_memb_panel = "__ __ ____" Then 
-  DOD_memb_panel_blank = True
+  DOD_memb_panel_blank = True   
 Else
+  'If the panel is not blank, need to determine if DOD on panel matches DOD entered in dialog
   DOD_memb_panel_blank = False
+  If DOD_memb_panel = date_of_death Then
+    DOD_memb_matches = True
+  Else
+    DOD_memb_matches = False
+  End If
 End If
 
 'Navigate to STAT/REMO to determine if HH Memb removed already
@@ -186,11 +194,18 @@ End If
 If left(household_member_that_died, 2) <> "01" Then
   Call navigate_to_MAXIS_screen("STAT", "REMO")
   EMReadScreen DOD_remo_panel, 8, 8, 53
+  'Convert DOD_remo_panel to MM/DD/YYYY
+  DOD_remo_panel = left(replace(DOD_remo_panel, " ", "/"), 6) & "20" & right(DOD_remo_panel, 2)
   EMReadScreen reason_code_remo_panel, 2, 8, 71
   If DOD_remo_panel = "__ __ __" then 
     DOD_remo_panel_blank = True 
   Else
     DOD_remo_panel_blank = False
+    If DOD_remo_panel = date_of_death Then
+      DOD_remo_matches = True
+    Else
+      DOD_remo_matches = False
+    End If
   End If
   If reason_code_remo_panel = "01" Then 
     DOD_remo_reason_01 = True 
@@ -201,31 +216,139 @@ End If
 
 If cash_snap_only = true Then
   'Cash and/or SNAP only case
-  If left(household_member_that_died, 2) <> "01" and DOD_memb_panel_blank = True and DOD_remo_panel_blank = True and DOD_remo_reason_01 = False Then
+  If left(household_member_that_died, 2) <> "01" Then
     'If HH Memb other than 01 has died, STAT/MEMB and STAT/REMO have not been updated
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member - SNAP and/or CASH"
       ButtonGroup ButtonPressed
         OkButton 170, 65, 45, 15
         CancelButton 215, 65, 45, 15
-      Text 5, 5, 255, 30, "The script will update STAT/MEMB and STAT/REMO if not yet updated. Review the status of STAT/MEMB and STAT/REMO with the entered date of death. It will approve a version of ineligiblity for the month after the date of death."
+      Text 5, 5, 255, 35, "The script will update STAT/MEMB and STAT/REMO with the entered date of death. If the date of death has been entered on a panel, it will overwrite the previously entered date. The script will approve a version of ineligiblity for the month after the date of death."
       ButtonGroup ButtonPressed
         PushButton 5, 65, 65, 15, "TE02.08.008", poli_temp_btn
       Text 5, 45, 75, 10, "Click 'OK' to proceed."
     EndDialog
 
-      Do
-        Dialog Dialog1
+    Do
+      Dialog Dialog1
 
-        If ButtonPressed = poli_temp_btn Then
-          run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
-        End If 
+      If ButtonPressed = poli_temp_btn Then
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+      End If 
 
-        cancel_without_confirmation()
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-      Loop until are_we_passworded_out = false					'loops until user passwords back in
+      cancel_without_confirmation()
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    'Navigate to SELF to update footer month to match the month of death
+    back_to_SELF
+    MAXIS_footer_month = left(date_of_death_maxis_format, 2)
+    MAXIS_footer_year = right(date_of_death_maxis_format, 2)
+    EMWriteScreen left(date_of_death_maxis_format, 2), 20, 43
+    EMWriteScreen right(date_of_death_maxis_format, 2), 20, 46
+
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    'Navigate to HH Memb that died and put the panel in edit mode
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    transmit
+    PF9   'Put panel in edit mode
+    EMWriteScreen left(date_of_death_maxis_format, 2), 19, 42
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 19, 45
+    EMWriteScreen right(date_of_death_maxis_format, 4), 19, 48
+    transmit  'Save update
+    transmit  'Bypass warning message
+    
+    'Navigate to STAT/REMO to update with death info
+    Call navigate_to_MAXIS_screen("STAT", "REMO")
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    EMWriteScreen "NN", 20, 79
+    transmit
+    PF9   'Put panel in edit mode
+    'Write date of death to panel and enter reason code '01'
+    EMWriteScreen left(date_of_death_maxis_format, 2), 8, 53
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 8, 56
+    EMWriteScreen right(date_of_death_maxis_format, 2), 8, 59
+    EMWriteScreen "01", 8, 71
+    transmit
+
+    'To do - add handling to approve ineligibility results for next month
+
+  ElseIf left(household_member_that_died, 2) = "01" Then
+    'If HH Memb other than 01 has died, STAT/MEMB has not been updated, STAT/REMO not evaluated since Memb 01 died
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member - SNAP and/or CASH"
+      ButtonGroup ButtonPressed
+        OkButton 170, 65, 45, 15
+        CancelButton 215, 65, 45, 15
+      Text 5, 5, 255, 35, "The script will update STAT/MEMB with the entered date of death. If the date of death has been entered on a panel, it will overwrite the previously entered date. The script will approve a version of ineligiblity for the month after the date of death."
+      ButtonGroup ButtonPressed
+        PushButton 5, 65, 65, 15, "TE02.08.008", poli_temp_btn
+      Text 5, 45, 75, 10, "Click 'OK' to proceed."
+    EndDialog
+
+    Do
+      Dialog Dialog1
+
+      If ButtonPressed = poli_temp_btn Then
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+      End If 
+
+      cancel_without_confirmation()
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    'Navigate to SELF to update footer month to match the month of death
+    back_to_SELF
+    MAXIS_footer_month = left(date_of_death_maxis_format, 2)
+    MAXIS_footer_year = right(date_of_death_maxis_format, 2)
+    EMWriteScreen left(date_of_death_maxis_format, 2), 20, 43
+    EMWriteScreen right(date_of_death_maxis_format, 2), 20, 46
+
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    'Navigate to HH Memb that died and put the panel in edit mode
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    transmit
+    PF9   'Put panel in edit mode
+    EMWriteScreen left(date_of_death_maxis_format, 2), 19, 42
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 19, 45
+    EMWriteScreen right(date_of_death_maxis_format, 4), 19, 48
+    transmit  'Save update
+    transmit  'Bypass warning message
+
+    'To do - add handling to approve ineligibility results for next month
+    
   End If
-  
+End If
+
+If hc_case = True Then
+  'Healthcare case
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 75, "Enter Date of Death for HH Member - Healthcare Case"
+      DropListBox 100, 5, 160, 15, "Select One..."+chr(9)+"MDH Minnesota Death Search"+chr(9)+"Social Security Administration record (SOLQ-I)"+chr(9)+"Authorized Representative"+chr(9)+"Power of Attorney"+chr(9)+"Other Adult Family Member", death_verification
+      EditBox 100, 25, 160, 15, who_reported_death
+      ButtonGroup ButtonPressed
+        PushButton 5, 55, 65, 15, "TE02.08.008", poli_temp_btn
+        OkButton 170, 50, 45, 15
+        CancelButton 215, 50, 45, 15
+      Text 5, 10, 95, 10, "How was the death verified?"
+      Text 5, 30, 85, 10, "Who reported the death?"
+    EndDialog
+
+  Do 
+    Do
+      err_msg = ""
+      Dialog Dialog1
+      cancel_without_confirmation()
+      If ButtonPressed = poli_temp_btn Then
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+      End If 
+      If trim(death_verification) = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate how you verified the death."
+      If trim(who_reported_death) = "" Then err_msg = err_msg & vbCr & "* Please indicate who reported the death."
+      IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
 
   'Navigate to SELF to update footer month to match the month of death
   back_to_SELF
@@ -234,152 +357,132 @@ If cash_snap_only = true Then
   EMWriteScreen left(date_of_death_maxis_format, 2), 20, 43
   EMWriteScreen right(date_of_death_maxis_format, 2), 20, 46
 
-  Call navigate_to_MAXIS_screen("STAT", "MEMB")
-  'Navigate to HH Memb that died and put the panel in edit mode
-  EMWriteScreen left(household_member_that_died, 2), 20, 76
-  transmit
-  PF9   'Put panel in edit mode
-  EMWriteScreen left(date_of_death_maxis_format, 2), 19, 42
-  EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 19, 45
-  EMWriteScreen right(date_of_death_maxis_format, 4), 19, 48
-  transmit  'Save update
-  transmit  'Bypass warning message
-  
-  'Navigate to STAT/REMO to update with death info
-  Call navigate_to_MAXIS_screen("STAT", "REMO")
-  EMWriteScreen left(household_member_that_died, 2), 20, 76
-  EMWriteScreen "NN", 20, 79
-  transmit
-  PF9   'Put panel in edit mode
-  'Write date of death to panel and enter reason code '01'
-  EMWriteScreen left(date_of_death_maxis_format, 2), 8, 53
-  EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 8, 56
-  EMWriteScreen right(date_of_death_maxis_format, 2), 8, 59
-  EMWriteScreen "01", 8, 71
-  transmit
+  Call navigate_to_MAXIS_screen("CASE", "NOTE")
 
-End If
+  'Now it navigates to a blank case note
+  Call start_a_blank_case_note
 
-'Dialog 
-'Dialog will update based on situation
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 255, 90, "Enter Date of Death for Household Member"
-  ButtonGroup ButtonPressed
-    OkButton 155, 70, 45, 15
-    CancelButton 205, 70, 45, 15
-  Text 5, 5, 180, 10, "The script reviewed STAT/MEMB and STAT/REMO."
-  If DOD_memb_panel_blank = True Then Text 15, 20, 135, 10, "- STAT/MEMB has not been updated."
-  If DOD_memb_panel_blank = False Then Text 15, 20, 135, 10, "- STAT/MEMB has been updated already."
-  If DOD_remo_panel_blank = True Then Text 15, 35, 135, 10, "- STAT/REMO has not been updated."
-  If DOD_remo_panel_blank = False Then Text 15, 35, 135, 10, "- STAT/REMO has been updated already."
-  Text 5, 50, 245, 10, "The script will update STAT/MEMB and STAT/REMO with the date of death."
-  'Text will change depending on situation
-  If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-  If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-  If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
-EndDialog
+  '...and enters a title (replace variables with your own content)...
+  CALL write_variable_in_case_note("*** Date of Death Verified - HH Memb " & left(household_member_that_died, 2) & "***")
 
-Do
-  Dialog Dialog1
-  cancel_without_confirmation()
-  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+  '...some editboxes or droplistboxes (replace variables with your own content)...
+  CALL write_bullet_and_variable_in_case_note( "Death verified by", death_verification)
+  CALL write_bullet_and_variable_in_case_note( "Death reported by", who_reported_death)
 
-'If CASH or SNAP only, then Create a dialog that confirms whether updates have been made already
-If cash_snap_only = true Then
-  'If HH Memb 01 died, only updates STAT/MEMB
-  If left(household_member_that_died, 2) = "01" Then
-    If DOD_memb_panel_blank = True Then
-      'STAT/MEMB has not been updated and should be updated
+  '...and a worker signature.
+  CALL write_variable_in_case_note("---")
+  CALL write_variable_in_case_note(worker_signature)
 
-      'Placeholder
-      'Call cash_snap_only dialog
+  'Save CASE/NOTE and navigate to SELF
+  back_to_SELF
 
-      'Navigate to SELF to update footer month to month of death
-      back_to_SELF
-      EmWriteScreen left(date_of_death,2), 20, 43
-      Call navigate_to_MAXIS_screen("STAT", "MEMB")
-      'Navigate to HH Memb that died
-      EMWriteScreen left(household_member_that_died, 2), 20, 76
-      transmit
-      'Put panel in edit mode and enter date of death
-      PF9
-      EMWriteScreen replace(date_of_death, "/", " "), 19, 42
+  If left(household_member_that_died, 2) <> "01" Then
+    'If HH Memb other than 01 has died, STAT/MEMB and STAT/REMO have not been updated
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member - SNAP and/or CASH"
+      ButtonGroup ButtonPressed
+        OkButton 170, 65, 45, 15
+        CancelButton 215, 65, 45, 15
+      Text 5, 5, 255, 35, "The script will update STAT/MEMB and STAT/REMO with the entered date of death. If the date of death has been entered on a panel, it will overwrite the previously entered date. The script will approve a version of ineligiblity for the month after the date of death."
+      ButtonGroup ButtonPressed
+        PushButton 5, 65, 65, 15, "TE02.08.008", poli_temp_btn
+      Text 5, 45, 75, 10, "Click 'OK' to proceed."
+    EndDialog
 
-    Else
+    Do
+      Dialog Dialog1
 
-      'STAT/MEMB has already been updated, the script will end
-      script_end_procedure("It appears that the date of death has already been updated on STAT/MEMB. The script will now end.")
+      If ButtonPressed = poli_temp_btn Then
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+      End If 
 
-    End If
-  Else
-    If DOD_memb_panel_blank = True and DOD_remo_panel_blank = True Then
+      cancel_without_confirmation()
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-      'Placeholder
-      'Call cash_snap_only dialog
+    'Navigate to SELF to update footer month to match the month of death
+    back_to_SELF
+    MAXIS_footer_month = left(date_of_death_maxis_format, 2)
+    MAXIS_footer_year = right(date_of_death_maxis_format, 2)
+    EMWriteScreen left(date_of_death_maxis_format, 2), 20, 43
+    EMWriteScreen right(date_of_death_maxis_format, 2), 20, 46
 
-      'STAT/MEMB has not been updated and should be updated
-      Call navigate_to_MAXIS_screen("STAT", "MEMB")
-      'Navigate to HH Memb that died
-      EMWriteScreen left(household_member_that_died, 2), 20, 76
-      transmit
-      'Put panel in edit mode and enter date of death
-      PF9
-      EMWriteScreen replace(date_of_death, "/", " "), 19, 42
-    Else
-      'STAT/MEMB has already been updated, the script will end
-      script_end_procedure("It appears that the date of death has already been updated on STAT/MEMB and/or STAT/REMO. The script will now end.")
-    End If
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    'Navigate to HH Memb that died and put the panel in edit mode
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    transmit
+    PF9   'Put panel in edit mode
+    EMWriteScreen left(date_of_death_maxis_format, 2), 19, 42
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 19, 45
+    EMWriteScreen right(date_of_death_maxis_format, 4), 19, 48
+    transmit  'Save update
+    transmit  'Bypass warning message
+    
+    'Navigate to STAT/REMO to update with death info
+    Call navigate_to_MAXIS_screen("STAT", "REMO")
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    EMWriteScreen "NN", 20, 79
+    transmit
+    PF9   'Put panel in edit mode
+    'Write date of death to panel and enter reason code '01'
+    EMWriteScreen left(date_of_death_maxis_format, 2), 8, 53
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 8, 56
+    EMWriteScreen right(date_of_death_maxis_format, 2), 8, 59
+    EMWriteScreen "01", 8, 71
+    transmit
+
+    'To do - add handling to approve ineligibility results for next month
+
+  ElseIf left(household_member_that_died, 2) = "01" Then
+    'If HH Memb other than 01 has died, STAT/MEMB has not been updated, STAT/REMO not evaluated since Memb 01 died
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member - SNAP and/or CASH"
+      ButtonGroup ButtonPressed
+        OkButton 170, 65, 45, 15
+        CancelButton 215, 65, 45, 15
+      Text 5, 5, 255, 35, "The script will update STAT/MEMB with the entered date of death. If the date of death has been entered on a panel, it will overwrite the previously entered date. The script will approve a version of ineligiblity for the month after the date of death."
+      ButtonGroup ButtonPressed
+        PushButton 5, 65, 65, 15, "TE02.08.008", poli_temp_btn
+      Text 5, 45, 75, 10, "Click 'OK' to proceed."
+    EndDialog
+
+    Do
+      Dialog Dialog1
+
+      If ButtonPressed = poli_temp_btn Then
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+      End If 
+
+      cancel_without_confirmation()
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    'Navigate to SELF to update footer month to match the month of death
+    back_to_SELF
+    MAXIS_footer_month = left(date_of_death_maxis_format, 2)
+    MAXIS_footer_year = right(date_of_death_maxis_format, 2)
+    EMWriteScreen left(date_of_death_maxis_format, 2), 20, 43
+    EMWriteScreen right(date_of_death_maxis_format, 2), 20, 46
+
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    'Navigate to HH Memb that died and put the panel in edit mode
+    EMWriteScreen left(household_member_that_died, 2), 20, 76
+    transmit
+    PF9   'Put panel in edit mode
+    EMWriteScreen left(date_of_death_maxis_format, 2), 19, 42
+    EMWriteScreen mid(date_of_death_maxis_format, 4, 2), 19, 45
+    EMWriteScreen right(date_of_death_maxis_format, 4), 19, 48
+    transmit  'Save update
+    transmit  'Bypass warning message
+
+    'To do - add handling to approve ineligibility results for next month
+    
   End If
-ElseIf hc_case = True Then
-  'If HC case steps
-
-  BeginDialog Dialog1, 0, 0, 256, 80, "Enter Date of Death for Household Member"
-    ButtonGroup ButtonPressed
-      OkButton 155, 60, 45, 15
-      CancelButton 205, 60, 45, 15
-    Text 10, 10, 240, 25, "This is a HC Case. Therefore, the death must be confirmed with a first party or trusted electronic data source before acting on the information. See EPM 1.3.2.1.1."
-    CheckBox 10, 45, 240, 10, "Death confirmed with first part or trusted electronic data source", Check1
-  EndDialog
-
-Else
-  msgbox "Not HC, CASH, or SNAP"
 End If
-
-'Checks to see if in MAXIS
-Call check_for_MAXIS(False)
-
-'Do you need to check for PRIV status
-
-'Do you need to check to see if case is out of county? Add Out-of-County handling here:
-'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
-
-Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
-
-'Do you need to set a TIKL?
-Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-
-'Now it navigates to a blank case note
-Call start_a_blank_case_note
-
-'...and enters a title (replace variables with your own content)...
-CALL write_variable_in_case_note("*** CASE NOTE HEADER ***")
-
-'...some editboxes or droplistboxes (replace variables with your own content)...
-CALL write_bullet_and_variable_in_case_note( "Here's the first bullet",  a_variable_from_your_dialog        )
-CALL write_bullet_and_variable_in_case_note( "Here's another bullet",    another_variable_from_your_dialog  )
-
-'...checkbox responses (replace variables with your own content)...
-If some_checkbox_from_your_dialog = checked     then CALL write_variable_in_case_note( "* The checkbox was checked."     )
-If some_checkbox_from_your_dialog = unchecked   then CALL write_variable_in_case_note( "* The checkbox was not checked." )
-
-'...and a worker signature.
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-'leave the case note open and in edit mode unless you have a business reason not to (BULK scripts, multiple case notes, etc.)
 
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("")
+script_end_procedure("The script has updated the date of death for the selected HH member.")
 
 'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
 
