@@ -256,7 +256,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    'person-based determination
 			age_50 = False
             age_53_54 = False 
-            age_53_54_counted = False 'temporary coding to support. Effective 10/1/24 53-54 YO's starting being TLR's after their next renewal
             
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
@@ -734,7 +733,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             next
 	    End if
         'Use this determination for 53-54 YO's
-        If age_53_54 = True then 
+        If age_50 = True or age_53_54 = True then 
             If len(verified_wreg) > 2 then
                 wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","16","30")  'Code 16 moved to be a lower exemption 
                 for each code in wreg_hierarchy
@@ -779,17 +778,19 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-		
-        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
-        If (age_53_54 = True and best_wreg_code = "16") then report_notes = report_notes & next_SNAP_revw & " - 53-54 YO becomes TLR. "   
+		If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
+        
+	    If best_wreg_code = "30" or age_50 = True or age_53_54 = True then 
+            Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
+            If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure. "
+        End if 
 
-	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
-        updates_needed = True
+        updates_needed = True   'default set
     
 		'----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
 		age_50_workaround = False
         manual_code = "F"  'manual code for exemption cases  
-        If age_50 = True then
+        If age_50 = True or age_53_54 = True then
 			'changing codes per temp policy 
 			best_wreg_code = "16"
 			best_abawd_code = "03"
@@ -843,11 +844,13 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 	    'case note workaround
         If age_50_workaround = True then 
+            If age_50 = True then TLR_text = "10/23, 50-52"
+            If age_53_54 = True then TLR_text = "10/24, 53-54"
 	        start_a_blank_CASE_NOTE
             Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
 		    Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
 	        Call write_variable_in_CASE_NOTE("---")
-	        Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
+	        Call write_variable_in_CASE_NOTE("* Effective " & TLR_text & " year olds are no longer exempt from SNAP time limits due solely to age.")
 	        Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
             Call write_variable_in_CASE_NOTE("---")
             Call write_variable_in_CASE_NOTE(Worker_Signature)
