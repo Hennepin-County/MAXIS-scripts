@@ -2297,6 +2297,87 @@ function guide_through_app_month_income()
 
 end function
 
+function program_process_selection()
+	dlg_len = 100
+	y_pos = 75
+	If cash_request = True Then dlg_len = dlg_len + 20
+	If snap_request = True Then dlg_len = dlg_len + 20
+	If emer_request = True Then dlg_len = dlg_len + 20
+	If grh_request = True Then dlg_len = dlg_len + 20
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+		Text 10, 10, 205, 20, "Interviews are completed on cases when programs are initially requested and at annual renewal for SNAP and MFIP."
+		Text 10, 35, 210, 20, "To correctly identify the information needed, each program needs to be associated with an Application or Renewal process."
+
+		Text 10, 60, 35, 10, "Program"
+		Text 80, 60, 50, 10, "CAF Process"
+		Text 155, 60, 50, 10, "Recert MM/YY"
+		If cash_request = True Then
+			Text 10, y_pos + 5, 20, 10, "Cash"
+			DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"Family"+chr(9)+"Adult", type_of_cash
+			DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_cash
+			EditBox 155, y_pos, 20, 15, next_cash_revw_mo
+			EditBox 180, y_pos, 20, 15, next_cash_revw_yr
+			y_pos = y_pos + 20
+		End If
+		If snap_request = True Then
+			Text 10, y_pos + 5, 20, 10, "SNAP"
+			DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_snap
+			EditBox 155, y_pos, 20, 15, next_snap_revw_mo
+			EditBox 180, y_pos, 20, 15, next_snap_revw_yr
+			y_pos = y_pos + 20
+		End If
+		If emer_request = True Then
+			Text 10, y_pos + 5, 20, 10, "EMER"
+			DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
+			DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application", the_process_for_emer
+			y_pos = y_pos + 20
+		End If
+		If grh_request = True Then
+			Text 10, y_pos + 5, 20, 10, "GRH"
+			DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_grh
+			EditBox 155, y_pos, 20, 15, next_grh_revw_mo
+			EditBox 180, y_pos, 20, 15, next_grh_revw_yr
+			y_pos = y_pos + 20
+		End If
+		y_pos = y_pos + 5
+		Text 10, y_pos+5, 125, 10, "(The programs do not need to match.)"
+		ButtonGroup ButtonPressed
+			OkButton 150, y_pos, 50, 15
+	EndDialog
+
+	Do
+		DO
+			err_msg = ""
+			Dialog Dialog1
+			cancel_confirmation
+
+			If len(next_cash_revw_yr) = 4 AND left(next_cash_revw_yr, 2) = "20" Then next_cash_revw_yr = right(next_cash_revw_yr, 2)
+			If len(next_snap_revw_yr) = 4 AND left(next_snap_revw_yr, 2) = "20" Then next_snap_revw_yr = right(next_snap_revw_yr, 2)
+			If cash_request = True Then
+				If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or renewal."
+				If the_process_for_cash = "Renewal" AND (len(next_cash_revw_mo) <> 2 or len(next_cash_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at renewal, enter the footer month and year the of the renewal."
+			End If
+			If snap_request = True Then
+				If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or renewal."
+				If the_process_for_snap = "Renewal" AND (len(next_snap_revw_mo) <> 2 or len(next_snap_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at renewal, enter the footer month and year the of the renewal."
+			End If
+			If emer_request = True Then
+				If type_of_emer = "?" Then r_msg = err_msg & vbNewLine & "*Indicate if EMER request in EA or EGA"
+			End If
+			If grh_request = True Then
+				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the GRH program is at application or renewal."
+				If the_process_for_grh = "Renewal" AND (len(next_grh_revw_mo) <> 2 or len(next_grh_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For GRH at renewal, enter the footer month and year the of the renewal."
+			End If
+
+
+			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
+end function
+
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
     phone_variable = trim(phone_variable)
@@ -2334,6 +2415,140 @@ function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bul
     End If
 end function
 
+function verbal_requests()
+	program_marked_on_CAF = False
+	all_programs_marked_on_CAF = True
+	If CASH_on_CAF_checkbox = checked Then program_marked_on_CAF = True
+	If SNAP_on_CAF_checkbox = checked Then program_marked_on_CAF = True
+	If EMER_on_CAF_checkbox = checked Then program_marked_on_CAF = True
+	If GRH_on_CAF_checkbox = checked Then program_marked_on_CAF = True
+
+	If CASH_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
+	If SNAP_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
+	If EMER_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
+	If GRH_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 316, 225, "Programs to Interview For"
+		GroupBox 10, 10, 295, 60, "Form Details:"
+		Text 20, 25, 155, 10, CAF_form_name
+		Text 20, 40, 125, 10, "CAF Date: " & CAF_datestamp
+		Text 190, 15, 95, 10, "Programs Marked on Form:"
+		prog_y_pos = 25
+		If CASH_on_CAF_checkbox = checked Then
+			Text 195, prog_y_pos, 50, 10, "- CASH"
+			prog_y_pos = prog_y_pos + 10
+		End If
+		If SNAP_on_CAF_checkbox = checked Then
+			Text 195, prog_y_pos, 50, 10, "- SNAP"
+			prog_y_pos = prog_y_pos + 10
+		End If
+		If EMER_on_CAF_checkbox = checked Then
+			Text 195, prog_y_pos, 70, 10, "- EMERGENCY"
+			prog_y_pos = prog_y_pos + 10
+		End If
+		If GRH_on_CAF_checkbox = checked Then
+			Text 195, prog_y_pos, 100, 10, "- HOUSING SUPPORT / GRH"
+			prog_y_pos = prog_y_pos + 10
+		End If
+		If prog_y_pos = 25 Then Text 195, prog_y_pos, 100, 10, "NONE"
+
+		If all_programs_marked_on_CAF = False Then
+			req_y_pos = 100
+			If CASH_on_CAF_checkbox = unchecked Then
+				Text 65, req_y_pos, 25, 10, " Cash:"
+				DropListBox 90, req_y_pos-5, 60, 45, "No"+chr(9)+"Yes", cash_verbal_request
+				req_y_pos = req_y_pos + 15
+			End If
+			If SNAP_on_CAF_checkbox = unchecked Then
+				Text 65, req_y_pos, 25, 10, "SNAP:"
+				DropListBox 90, req_y_pos-5, 60, 45, "No"+chr(9)+"Yes", snap_verbal_request
+				req_y_pos = req_y_pos + 15
+			End If
+			If EMER_on_CAF_checkbox = unchecked Then
+				Text 40, req_y_pos, 50, 10, "EMERGENCY:"
+				DropListBox 90, req_y_pos-5, 60, 45, "No"+chr(9)+"Yes", emer_verbal_request
+				req_y_pos = req_y_pos + 15
+			End If
+			If GRH_on_CAF_checkbox = unchecked Then
+				Text 15, req_y_pos, 75, 10, " HOUSING SUPPORT:"
+				DropListBox 90, req_y_pos-5, 60, 45, "No"+chr(9)+"Yes", grh_verbal_request
+				req_y_pos = req_y_pos + 15
+			End If
+			GroupBox 10, 80, 145, req_y_pos-80, "VERBAL PROGRAM REQUESTS "
+		End If
+		If program_marked_on_CAF = True Then
+			wthdrw_y_pos = 100
+			If CASH_on_CAF_checkbox = checked Then
+				Text 215, wthdrw_y_pos, 25, 10, " Cash:"
+				DropListBox 240, wthdrw_y_pos-5, 60, 45, "No"+chr(9)+"Yes", cash_verbal_withdraw
+				wthdrw_y_pos = wthdrw_y_pos + 15
+			End If
+			If SNAP_on_CAF_checkbox = checked Then
+				Text 215, wthdrw_y_pos, 25, 10, "SNAP:"
+				DropListBox 240, wthdrw_y_pos-5, 60, 45, "No"+chr(9)+"Yes", snap_verbal_withdraw
+				wthdrw_y_pos = wthdrw_y_pos + 15
+			End If
+			If EMER_on_CAF_checkbox = checked Then
+				Text 190, wthdrw_y_pos, 50, 10, "EMERGENCY:"
+				DropListBox 240, wthdrw_y_pos-5, 60, 45, "No"+chr(9)+"Yes", emer_verbal_withdraw
+				wthdrw_y_pos = wthdrw_y_pos + 15
+			End If
+			If GRH_on_CAF_checkbox = checked Then
+				Text 165, wthdrw_y_pos, 75, 10, " HOUSING SUPPORT:"
+				DropListBox 240, wthdrw_y_pos-5, 60, 45, "No"+chr(9)+"Yes", grh_verbal_withdraw
+				wthdrw_y_pos = wthdrw_y_pos + 15
+			End If
+			GroupBox 160, 80, 145, wthdrw_y_pos-80, "VERBAL PROGRAM WITHDRAWALS"
+		End If
+
+		Text 10, 170, 220, 10, "Additional Notes about Verbal Program Requests or Withdrawals"
+		EditBox 10, 180, 295, 15, verbal_request_notes
+		ButtonGroup ButtonPressed
+			' OkButton 195, 200, 50, 15
+			' CancelButton 255, 200, 50, 15
+			PushButton 255, 200, 50, 15, "Return", return_btn
+	EndDialog
+
+	Do
+		dialog Dialog1
+		cancel_confirmation
+
+		verbal_request_notes = trim(verbal_request_notes)
+
+	Loop until ButtonPressed = return_btn
+	ButtonPressed = ""
+
+	cash_request = False
+	snap_request = False
+	emer_request = False
+	grh_request = False
+	If CASH_on_CAF_checkbox = checked OR cash_verbal_request = "Yes" Then cash_request = True
+	If SNAP_on_CAF_checkbox = checked OR snap_verbal_request = "Yes" Then snap_request = True
+	If EMER_on_CAF_checkbox = checked OR emer_verbal_request = "Yes" Then emer_request = True
+	If GRH_on_CAF_checkbox = checked OR grh_verbal_request = "Yes" Then grh_request = True
+
+	run_process_selection = False
+	If cash_request = True Then
+		If type_of_cash = "?" or type_of_cash = "" Then run_process_selection = True
+		If the_process_for_cash = "Select One..." or the_process_for_cash = "" Then run_process_selection = True
+	End If
+	If snap_request = True Then
+		If the_process_for_snap = "Select One..." or the_process_for_snap = "" Then run_process_selection = True
+	End If
+	If emer_request = True Then
+		If type_of_emer = "?" or type_of_emer = "" Then run_process_selection = True
+		If the_process_for_emer = "Select One..." or the_process_for_emer = "" Then run_process_selection = True
+	End If
+	If grh_request = True Then
+		If the_process_for_grh = "Select One..." or the_process_for_grh = "" Then run_process_selection = True
+	End If
+
+	If run_process_selection = True Then call program_process_selection
+
+	ButtonPressed = ""
+end function
+
 function save_your_work()
 'This function records the variables into a txt file so that it can be retrieved by the script if run later.
 	Call save_form_details(FORM_QUESTION_ARRAY)
@@ -2368,10 +2583,17 @@ function save_your_work()
             objTextStream.WriteLine "MFIP - DWP - " & family_cash_program
             objTextStream.WriteLine "FMCA - 01 - " & famliy_cash_notes
 
-			objTextStream.WriteLine "PROG - CASH - " & cash_other_req_detail
-			objTextStream.WriteLine "PROG - SNAP - " & snap_other_req_detail
-			objTextStream.WriteLine "PROG - EMER - " & emer_other_req_detail
+			objTextStream.WriteLine "VERB - CASH - " & cash_verbal_request
+			objTextStream.WriteLine "VERB - GRHS - " & grh_verbal_request
+			objTextStream.WriteLine "VERB - SNAP - " & snap_verbal_request
+			objTextStream.WriteLine "VERB - EMER - " & emer_verbal_request
+			objTextStream.WriteLine "WTDR - CASH - " & cash_verbal_withdraw
+			objTextStream.WriteLine "WTDR - GRHS - " & grh_verbal_withdraw
+			objTextStream.WriteLine "WTDR - SNAP - " & snap_verbal_withdraw
+			objTextStream.WriteLine "WTDR - EMER - " & emer_verbal_withdraw
+
 			If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH PROG CHECKED"
+			If GRH_on_CAF_checkbox = checked Then objTextStream.WriteLine "GRHS PROG CHECKED"
 			If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP PROG CHECKED"
 			If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER PROG CHECKED"
 
@@ -2383,6 +2605,10 @@ function save_your_work()
 			objTextStream.WriteLine "PROC - SNAP - " & the_process_for_snap
 			objTextStream.WriteLine "SNAP - RVMO - " & next_snap_revw_mo
 			objTextStream.WriteLine "SNAP - RVYR - " & next_snap_revw_yr
+
+			objTextStream.WriteLine "PROC - GRHS - " & the_process_for_grh
+			objTextStream.WriteLine "GRHS - RVMO - " & next_grh_revw_mo
+			objTextStream.WriteLine "GRHS - RVYR - " & next_grh_revw_yr
 
 			objTextStream.WriteLine "EMER - TYPE - " & type_of_emer
 			objTextStream.WriteLine "PROC - EMER - " & the_process_for_emer
@@ -3125,10 +3351,16 @@ function restore_your_work(vars_filled)
                     If left(text_line, 10) = "MFIP - DWP" Then family_cash_program = Mid(text_line, 14)
                     If left(text_line, 9) = "FMCA - 01" Then famliy_cash_notes = Mid(text_line, 13)
 
-					If left(text_line, 11) = "PROG - CASH" Then cash_other_req_detail = Mid(text_line, 15)
-					If left(text_line, 11) = "PROG - SNAP" Then snap_other_req_detail = Mid(text_line, 15)
-					If left(text_line, 11) = "PROG - EMER" Then emer_other_req_detail = Mid(text_line, 15)
+					If left(text_line, 11) = "VERB - CASH" Then cash_verbal_request = Mid(text_line, 15)
+					If left(text_line, 11) = "VERB - GRHS" Then grh_verbal_request = Mid(text_line, 15)
+					If left(text_line, 11) = "VERB - SNAP" Then snap_verbal_request = Mid(text_line, 15)
+					If left(text_line, 11) = "VERB - EMER" Then emer_verbal_request = Mid(text_line, 15)
+					If left(text_line, 11) = "WTDR - CASH" Then cash_verbal_withdraw = Mid(text_line, 15)
+					If left(text_line, 11) = "WTDR - GRHS" Then grh_verbal_withdraw = Mid(text_line, 15)
+					If left(text_line, 11) = "WTDR - SNAP" Then snap_verbal_withdraw = Mid(text_line, 15)
+					If left(text_line, 11) = "WTDR - EMER" Then emer_verbal_withdraw = Mid(text_line, 15)
 					If left(text_line, 17) = "CASH PROG CHECKED" Then CASH_on_CAF_checkbox = checked
+					If left(text_line, 17) = "GRHS PROG CHECKED" Then GRH_on_CAF_checkbox = checked
 					If left(text_line, 17) = "SNAP PROG CHECKED" Then SNAP_on_CAF_checkbox = checked
 					If left(text_line, 17) = "EMER PROG CHECKED" Then EMER_on_CAF_checkbox = checked
 
@@ -3140,6 +3372,10 @@ function restore_your_work(vars_filled)
 					If left(text_line, 11) = "PROC - SNAP" Then the_process_for_snap = Mid(text_line, 15)
 					If left(text_line, 11) = "SNAP - RVMO" Then next_snap_revw_mo = Mid(text_line, 15)
 					If left(text_line, 11) = "SNAP - RVYR" Then next_snap_revw_yr = Mid(text_line, 15)
+
+					If left(text_line, 11) = "PROC - GRHS" Then the_process_for_grh = Mid(text_line, 15)
+					If left(text_line, 11) = "GRHS - RVMO" Then next_grh_revw_mo = Mid(text_line, 15)
+					If left(text_line, 11) = "GRHS - RVYR" Then next_grh_revw_yr = Mid(text_line, 15)
 
 					If left(text_line, 11) = "EMER - TYPE" Then type_of_emer = Mid(text_line, 15)
 					If left(text_line, 11) = "PROC - EMER" Then the_process_for_emer = Mid(text_line, 15)
@@ -6185,13 +6421,15 @@ Dim qual_numb, exp_num, last_num, emer_numb, discrep_num
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
 Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
 Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read
-
+Dim cash_request, snap_request, emer_request, grh_request
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination, emergency_questions
-Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
+Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, GRH_on_CAF_checkbox, verbal_request_notes, program_request_notes
+Dim cash_verbal_request, snap_verbal_request, emer_verbal_request, grh_verbal_request, cash_verbal_withdraw, snap_verbal_withdraw, emer_verbal_withdraw, grh_verbal_withdraw
 Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
 Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
-Dim type_of_emer, the_process_for_emer, q_12_totally_blank, q_14_totally_blank, q_15_totally_blank, q_20_totally_blank, q_24_totally_blank
+Dim the_process_for_grh, next_grh_revw_mo, next_grh_revw_yr
+Dim type_of_emer, the_process_for_emer
 
 
 'EXPEDITED DETERMINATION VARIABLES'
@@ -6557,6 +6795,7 @@ If vars_filled = False Then
 		If msa_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If mfip_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If dwp_status = "PENDING" Then CASH_on_CAF_checkbox = checked
+		If grh_status = "PENDING" Then GRH_on_CAF_checkbox = checked
 		If snap_status = "PENDING" Then SNAP_on_CAF_checkbox = checked
 		If emer_status = "PENDING" Then EMER_on_CAF_checkbox = checked
 
@@ -6613,39 +6852,60 @@ If vars_filled = False Then
 		End If
 		If CAF_datestamp = "__/__/__" Then CAF_datestamp = ""
 	End If
-	If cash_revw = True Then CASH_on_CAF_checkbox = checked
+	If cash_revw = True Then
+		If ga_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
+		If msa_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
+		If mfip_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
+		If dwp_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
+		If grh_status = "ACTIVE" Then GRH_on_CAF_checkbox = checked
+	End If
 	If snap_revw = True Then SNAP_on_CAF_checkbox = checked
+
+	If unknown_cash_pending = True Then the_process_for_cash ="Application"
+	If ga_status = "PENDING" Then the_process_for_cash = "Application"
+	If msa_status = "PENDING" Then the_process_for_cash = "Application"
+	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
+	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
+	If snap_status = "PENDING" Then the_process_for_snap = "Application"
+	the_process_for_emer = "Application"
 End If
 
-BeginDialog Dialog1, 0, 0, 311, 245, "Programs to Interview For"
-  EditBox 55, 40, 80, 15, CAF_datestamp
-  CheckBox 185, 40, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 225, 40, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 265, 40, 35, 10, "EMER", EMER_on_CAF_checkbox
-  EditBox 40, 135, 260, 15, cash_other_req_detail
-  EditBox 40, 155, 260, 15, snap_other_req_detail
-  EditBox 40, 175, 260, 15, emer_other_req_detail
-  ButtonGroup ButtonPressed
-    OkButton 200, 225, 50, 15
-    CancelButton 255, 225, 50, 15
-  Text 10, 10, 265, 10, "We are going to start the interview based on the information listed on the form:"
-  Text 20, 25, 155, 10, CAF_form_name
-  Text 20, 45, 35, 10, "CAF Date:"
-  GroupBox 180, 25, 125, 30, "Programs marked on CAF"
-  Text 15, 60, 295, 10, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
-  Text 15, 75, 210, 10, "Confirm with the resident which programs should be assessed:"
-  Text 25, 85, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
-  Text 25, 95, 200, 10, "-Add any verbal request information in the boxes below."
-  GroupBox 5, 110, 300, 85, "OTHER Program Requests (not marked on CAF)"
-  Text 40, 125, 130, 10, "Explain how the program was requested."
-  Text 15, 140, 20, 10, "Cash:"
-  Text 15, 160, 20, 10, "SNAP:"
-  Text 15, 180, 25, 10, "EMER:"
-  Text 10, 200, 295, 25, "We need to know what programs we are assessing in the interview. Take time with the resident to ensure they understand the requests and we complete all information necesssary to complete the interview."
-EndDialog
 
 Do
 	DO
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 326, 310, "Programs to Interview For"
+			Text 10, 10, 300, 20, "Record details from the form here for " & CAF_form_name & " being used for this interview:"
+			Text 15, 35, 125, 10, "Date form was received in the county:"
+			EditBox 140, 30, 45, 15, CAF_datestamp
+			Text 200, 35, 110, 10, CAF_form_name
+			Text 25, 45, 260, 10, "Active Programs: " & list_active_programs
+			Text 25, 55, 260, 10, "Pending Programs: " & list_pending_programs
+			GroupBox 10, 75, 265, 30, "Check All Programs Marked on the Form"
+			CheckBox 15, 90, 30, 10, "CASH", CASH_on_CAF_checkbox
+			CheckBox 55, 90, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+			CheckBox 95, 90, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
+			CheckBox 160, 90, 100, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
+			Text 15, 110, 180, 10, "About the different programs:"
+			Text 20, 120, 245, 10, "- CASH is a monthly cash benefit."
+			Text 20, 130, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
+			Text 20, 140, 245, 10, "- EMERGENCY is a one-time payment to resolve an emergency situation."
+			Text 25, 150, 245, 10, "An example of emergency situation is eviction or utility disconnect."
+			Text 20, 160, 265, 10, "- HOUSING SUPPORT is monthly benefit for people working with an organization"
+			Text 25, 170, 125, 10, "or facility for housing supports."
+			Text 15, 185, 200, 10, "Confirm with the resident these were the programs selected."
+			Text 15, 195, 245, 10, "Explain to the resident they can verbally request additional programs to be"
+			Text 30, 205, 125, 10, "assessed while their case is pending. "
+			Text 15, 215, 270, 10, "Explain additionally to the resident they can withdraw their requests at any time."
+			Text 15, 245, 85, 10, "Program Request Notes:"
+			EditBox 15, 255, 300, 15, program_request_notes
+			Text 115, 270, 205, 10, "(Do not document verbal program request or withdrawls here.)"
+			ButtonGroup ButtonPressed
+				PushButton 150, 225, 130, 15, "Press Here to Add Verbal Requests", program_requests_btn
+				OkButton 210, 285, 50, 15
+				CancelButton 265, 285, 50, 15
+		EndDialog
+
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
@@ -6656,19 +6916,57 @@ Do
 
 		program_requested = False
 		If CASH_on_CAF_checkbox = checked Then program_requested = True
+		If GRH_on_CAF_checkbox = checked Then program_requested = True
 		If SNAP_on_CAF_checkbox = checked Then program_requested = True
 		If EMER_on_CAF_checkbox = checked Then program_requested = True
-		If cash_other_req_detail <> "" Then program_requested = True
-		If snap_other_req_detail <> "" Then program_requested = True
-		If emer_other_req_detail <> "" Then program_requested = True
+
+		If cash_verbal_request = "Yes" Then program_requested = True
+		If snap_verbal_request = "Yes" Then program_requested = True
+		If emer_verbal_request = "Yes" Then program_requested = True
+		If grh_verbal_request = "Yes" Then program_requested = True
 
 		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
-		If program_requested = False Then err_msg = err_msg & vbCr & "* We must indicate a program being requested on the form or verbally. Review the request details with the resident."
+		If program_requested = False Then err_msg = err_msg & vbCr & "* Select which program was requested on the form." & vbCr & "** If there were no programs were marked on the form, the 'Verbal Requests' details can be added using the button."
 
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		If ButtonPressed = program_requests_btn Then
+			err_msg = "LOOP"
+			Call verbal_requests
+		End If
+
+		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
+
+	cash_request = False
+	snap_request = False
+	emer_request = False
+	grh_request = False
+
+	If CASH_on_CAF_checkbox = checked OR cash_verbal_request = "Yes" Then cash_request = True
+	If SNAP_on_CAF_checkbox = checked OR snap_verbal_request = "Yes" Then snap_request = True
+	If EMER_on_CAF_checkbox = checked OR emer_verbal_request = "Yes" Then emer_request = True
+	If GRH_on_CAF_checkbox = checked OR grh_verbal_request = "Yes" Then grh_request = True
+
+	run_process_selection = False
+	If cash_request = True Then
+		If type_of_cash = "?" or type_of_cash = "" Then run_process_selection = True
+		If the_process_for_cash = "Select One..." or the_process_for_cash = "" Then run_process_selection = True
+	End If
+	If snap_request = True Then
+		If the_process_for_snap = "Select One..." or the_process_for_snap = "" Then run_process_selection = True
+	End If
+	If emer_request = True Then
+		If type_of_emer = "?" or type_of_emer = "" Then run_process_selection = True
+		If the_process_for_emer = "Select One..." or the_process_for_emer = "" Then run_process_selection = True
+	End If
+	If grh_request = True Then
+		If the_process_for_grh = "Select One..." or the_process_for_grh = "" Then run_process_selection = True
+	End If
+
+	If run_process_selection = True Then call program_process_selection
+
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
 save_your_work
 Call check_for_MAXIS(False)
 
@@ -6709,90 +7007,7 @@ Do
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
-cash_request = False
-snap_request = False
-emer_request = False
-If CASH_on_CAF_checkbox = checked OR cash_other_req_detail <> "" Then cash_request = True
-If SNAP_on_CAF_checkbox = checked OR snap_other_req_detail <> "" Then snap_request = True
-If EMER_on_CAF_checkbox = checked OR emer_other_req_detail <> "" Then emer_request = True
-
-If vars_filled = False Then
-	If cash_revw = True AND cash_request = True Then the_process_for_cash = "Renewal"
-	If snap_revw = True AND snap_request = True Then the_process_for_snap = "Renewal"
-
-	If unknown_cash_pending = True Then the_process_for_cash ="Application"
-	If ga_status = "PENDING" Then the_process_for_cash = "Application"
-	If msa_status = "PENDING" Then the_process_for_cash = "Application"
-	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
-	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
-	If snap_status = "PENDING" Then the_process_for_snap = "Application"
-	the_process_for_emer = "Application"
-End If
-
-dlg_len = 50
-y_pos = 25
-If cash_request = True Then dlg_len = dlg_len + 20
-If snap_request = True Then dlg_len = dlg_len + 20
-If emer_request = True Then dlg_len = dlg_len + 20
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
-  Text 10, 10, 35, 10, "Program"
-  Text 80, 10, 50, 10, "CAF Process"
-  Text 155, 10, 50, 10, "Recert MM/YY"
-  If cash_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "Cash"
-	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"Family"+chr(9)+"Adult", type_of_cash
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_cash
-	  EditBox 155, y_pos, 20, 15, next_cash_revw_mo
-	  EditBox 180, y_pos, 20, 15, next_cash_revw_yr
-	  y_pos = y_pos + 20
-  End If
-  If snap_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "SNAP"
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_snap
-	  EditBox 155, y_pos, 20, 15, next_snap_revw_mo
-	  EditBox 180, y_pos, 20, 15, next_snap_revw_yr
-	  y_pos = y_pos + 20
-  End If
-  If emer_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "EMER"
-	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application", the_process_for_emer
-	  y_pos = y_pos + 20
-  End If
-  y_pos = y_pos + 5
-  ButtonGroup ButtonPressed
-	OkButton 150, y_pos, 50, 15
-EndDialog
-
-Do
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-
-		If len(next_cash_revw_yr) = 4 AND left(next_cash_revw_yr, 2) = "20" Then next_cash_revw_yr = right(next_cash_revw_yr, 2)
-		If len(next_snap_revw_yr) = 4 AND left(next_snap_revw_yr, 2) = "20" Then next_snap_revw_yr = right(next_snap_revw_yr, 2)
-		If cash_request = True Then
-			If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or renewal."
-			If the_process_for_cash = "Renewal" AND (len(next_cash_revw_mo) <> 2 or len(next_cash_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at renewal, enter the footer month and year the of the renewal."
-		End If
-		If snap_request = True Then
-			If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or renewal."
-			If the_process_for_snap = "Renewal" AND (len(next_snap_revw_mo) <> 2 or len(next_snap_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at renewal, enter the footer month and year the of the renewal."
-		End If
-		If emer_request = True Then
-			If type_of_emer = "?" Then r_msg = err_msg & vbNewLine & "*Indicate if EMER request in EA or EGA"
-		End If
-
-
-		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-Call check_for_MAXIS(False)
-
-If the_process_for_snap = "Application" Then expedited_determination_needed = True
+If snap_request = True AND the_process_for_snap = "Application" Then expedited_determination_needed = True
 If snap_status = "PENDING" Then expedited_determination_needed = True
 If type_of_cash = "Adult" Then family_cash_case_yn = "No"
 If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
@@ -7160,6 +7375,7 @@ calculate_btn				= 908
 update_btn					= 909
 add_verif_button			= 910
 next_memb_btn				= 911
+program_requests_btn 		= 912
 
 msg_mfip_orientation_btn		= 930
 cm_05_12_12_06_btn				= 931
