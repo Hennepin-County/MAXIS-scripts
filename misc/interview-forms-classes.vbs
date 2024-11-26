@@ -1773,6 +1773,9 @@ class form_questions
 		If Not subNode Is Nothing Then verif_status = subNode.Text
 		Set subNode = node.SelectSingleNode("verifNotes")
 		If Not subNode Is Nothing Then verif_notes = subNode.Text
+		Set subNode = node.SelectSingleNode("verifVerbiage")
+		If Not subNode Is Nothing Then verif_verbiage = subNode.Text
+
 		Set subNode = node.SelectSingleNode("guideBtn")
 		If Not subNode Is Nothing Then
 			guide_btn = subNode.Text
@@ -2163,6 +2166,11 @@ class form_questions
 		quest.appendChild XML_verif_notes
 		Set info_number = xmlDoc.createTextNode(verif_notes)
 		XML_verif_notes.appendChild info_number
+
+		Set XML_verif_verb = xmlDoc.createElement("verifVerbiage")
+		quest.appendChild XML_verif_verb
+		Set info_number = xmlDoc.createTextNode(verif_verbiage)
+		XML_verif_verb.appendChild info_number
 
 		Set XML_guide_btn = xmlDoc.createElement("guideBtn")
 		quest.appendChild XML_guide_btn
@@ -4363,7 +4371,7 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "Combined AR for Certain Pops (DHS-3727)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For MA-LTC, did you or your spouse: - Buy, sell, trade, or give away assets - or refuse income or assets? - Purchase an annuity, life estate, promissory note, loan, mortgage, or create a trust?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For MA-LTC, did anyone: have a change in assets, income, financing, or estate?"
 			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q4. Did you buy, sell, or trade assets or income? (MA-LTC)"
 			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 4. For MA-LTC, did you buy, sell, or trade assets or income? (For MA-LTC)"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
