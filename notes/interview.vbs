@@ -2383,6 +2383,7 @@ function program_process_selection()
 	If snap_status = "PENDING" Then expedited_determination_needed = True
 	If type_of_cash = "Adult" Then family_cash_case_yn = "No"
 	If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
+	ButtonPressed = return_btn
 end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
@@ -2553,7 +2554,7 @@ function verbal_requests()
 
 	If run_process_selection = True Then call program_process_selection
 
-	ButtonPressed = ""
+	ButtonPressed = return_btn
 end function
 
 function save_your_work()
@@ -2966,6 +2967,7 @@ function save_your_work()
             script_run_lowdown = script_run_lowdown & vbCr & "MFIP - ORNT - " & MFIP_orientation_assessed_and_completed & vbCr & vbCr
             script_run_lowdown = script_run_lowdown & vbCr & "MFIP - DWP - " & family_cash_program
             script_run_lowdown = script_run_lowdown & vbCr & "FMCA - 01 - " & famliy_cash_notes & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "RUN BY INTERVIEW TEAM" & run_by_interview_team & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
@@ -4585,6 +4587,10 @@ function write_interview_CASE_NOTE()
 	Else
 		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
 	End If
+	If run_by_interview_team = True Then
+		CALL write_variable_in_CASE_NOTE("--Interview completed and no processing work done.")
+		CALL write_variable_in_CASE_NOTE("--Processing to be completed by a follow up worker.")
+	End If
     Call write_bullet_and_variable_in_CASE_NOTE("Case Information", case_summary)
     If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
         Call write_variable_in_CASE_NOTE("Family Cash Program Selection Details")
@@ -4777,6 +4783,67 @@ function write_interview_CASE_NOTE()
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
+
+	If run_by_interview_team = True Then
+		phone_number_selection = "612-555-1234"
+		leave_a_message = "Yes"
+		PF3
+		Call start_a_blank_CASE_NOTE
+		Call write_variable_in_CASE_NOTE("Processing Needed: follow up notes from Interview")
+		Call write_variable_in_CASE_NOTE("Interview completed on " & interview_date & " with " & who_are_we_completing_the_interview_with & ".")
+		If is_elig_XFS = True Then
+			Call write_variable_in_CASE_NOTE("*** SNAP APPEARS TO NEED EXPEDITED PROCESSING ***")
+			Call write_variable_in_case_note("  Based on: Income:  $ " & right("        " & determined_income, 8) & ", Assets:    $ " & right("        " & determined_assets, 8)   & ", Totaling: $ " & right("        " & calculated_resources, 8))
+			Call write_variable_in_case_note("            Shelter: $ " & right("        " & determined_shel, 8)   & ", Utilities: $ " & right("        " & determined_utilities, 8) & ", Totaling: $ " & right("        " & calculated_expenses, 8))
+		End If
+		Call write_variable_in_CASE_NOTE("---")
+
+		caf_progs = ""
+		If CASH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", Cash"
+		If GRH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", HS/GRH"
+		If SNAP_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", SNAP"
+		If EMER_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", EMER"
+		If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
+		If caf_progs <> "" Then CALL write_variable_in_CASE_NOTE("Programs Requested on CAF: " & caf_progs)
+
+		progs_verbal_request = ""
+		If cash_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", Cash"
+		If grh_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", HS/GRH"
+		If snap_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", SNAP"
+		If emer_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", EMER"
+		If left(progs_verbal_request, 2) = ", " Then progs_verbal_request = right(progs_verbal_request, len(progs_verbal_request)-2)
+		If progs_verbal_request <> "" Then CALL write_variable_in_CASE_NOTE("Programs Requested Verbally: " & progs_verbal_request)
+
+		progs_withdraw_request = ""
+		If cash_verbal_withdraw = "Yes" Then progs_withdraw_request = progs_withdraw_request & ", Cash"
+		If grh_verbal_withdraw = "Yes" Then progs_withdraw_request = progs_withdraw_request & ", HS/GRH"
+		If snap_verbal_withdraw = "Yes" Then progs_withdraw_request = progs_withdraw_request & ", SNAP"
+		If emer_verbal_withdraw = "Yes" Then progs_withdraw_request = progs_withdraw_request & ", EMER"
+		If left(progs_withdraw_request, 2) = ", " Then progs_withdraw_request = right(progs_withdraw_request, len(progs_withdraw_request)-2)
+		If progs_withdraw_request <> "" Then
+			Call write_variable_in_CASE_NOTE("* * * Resident Requested Withdraw of Programs * * *")
+			CALL write_variable_in_CASE_NOTE("Programs Requested Withdraw: " & progs_withdraw_request)
+		End If
+		Call write_bullet_and_variable_in_CASE_NOTE("Program Request Notes", program_request_notes)
+		Call write_bullet_and_variable_in_CASE_NOTE("Verbal Request Notes", verbal_request_notes)
+		Call write_variable_in_CASE_NOTE("---")
+
+		Call write_variable_in_CASE_NOTE("For follow up questions or information, resident can be reached at:")
+		Call write_variable_in_CASE_NOTE("  --- " & phone_number_selection)
+		Call write_variable_in_CASE_NOTE("  --- Leave a detailed message at this number: " & leave_a_message)
+		If resident_questions <> "" Then
+			Call write_variable_in_CASE_NOTE("Questions/Requests from the Resident:")
+			Call write_variable_in_CASE_NOTE("- " & resident_questions)
+			Call write_variable_in_CASE_NOTE("---")
+		End If
+		If case_summary <> "" Then
+			Call write_variable_in_CASE_NOTE("Notes from the interviewer:")
+			Call write_variable_in_CASE_NOTE("- " & case_summary)
+			Call write_variable_in_CASE_NOTE("---")
+		End If
+		Call write_variable_in_CASE_NOTE(worker_signature)
+		PF3
+	End If
 
 end function
 
@@ -6534,6 +6601,36 @@ If MX_region = "INQUIRY DB" Then
 End If
 If MX_region = "TRAINING" Then developer_mode = True
 
+If NOT IsArray(interviewer_array) Then
+	Dim tester_array()
+	ReDim tester_array(0)
+	Dim interviewer_array()
+	ReDim interviewer_array(0)
+	tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+
+	Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
+'look to see if the worker is listed as one of the interviewer workers
+run_by_interview_team = False										'Default the interview team option to false
+For each worker in interviewer_array 								'loop through all of the workers listed in the interviewer_array
+	If user_ID_for_validation = worker.interviewer_id_number Then		'if the worker county logon ID that is running the script matches one of the interviewer_array workers
+		run_by_interview_team = True 								'the script will run the interview only option
+	End If
+Next
+
+'Looking for BZ Script writers to allow them to select the option.
+For each tester in tester_array                         													'looping through all of the testers
+	If user_ID_for_validation = tester.tester_id_number and tester.tester_population = "BZ" Then            'If the person who is running the script is a tester
+		continue_with_testing_file = MsgBox("The Interview Script has two run options."  & vbCr & vbCr & "Do you want to run the Interview Team - INTERVIEW ONLY - Option?", vbQuestion + vbYesNo, "Use Interview Team Option")
+		If continue_with_testing_file = vbYes Then run_by_interview_team = True
+	End If
+Next
+
 interview_started_time = time
 MFIP_orientation_assessed_and_completed = False
 
@@ -6592,6 +6689,7 @@ Do
 			Text 25, 115, 315, 10, "Start this script at the beginning of the interview and use it to record the interview as it happens."
 			Text 10, 130, 205, 10, "* Capture info from the form AND info from the conversation."
 			Text 10, 150, 315, 10, "If the interview is already over, we have a temporary option to record the interview information:"
+			If run_by_interview_team = True Then Text 240, 165, 120, 10, "Interview Team Functionality Started"
 			GroupBox 5, 190, 360, 95, "Script Functionality"
 			Text 10, 205, 185, 10, "This script SAVES the information you enter as it runs!"
 			Text 10, 215, 345, 10, "IF the script errors, fails, is cancelled, the network goes down. YOU CAN GET YOUR WORK BACK!!!"
