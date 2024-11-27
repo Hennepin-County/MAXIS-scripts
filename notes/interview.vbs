@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/27/2024", "Update to the process for documenting verbal program requests and documenting verbal program request withdrawals.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "BIG NEWS ! ##~## ##~## The Interview Script now supports different questions for different form selections!!!!##~## ##~##As this is brand new AND a very large change there may be some unexpected results or bugs. Please alert the script team to any bugs, questions, or thoughts you have on the updates.##~## ##~##We are very excited to be able to get this functionality out.", "Casey Love, Hennepin County")
 call changelog_update("10/23/2024", "Added emergency questions.", "Mark Riegel, Hennepin County")
 call changelog_update("09/30/2023", "Revised rights and responsibilities dialogs.", "Megan Geissler, Hennepin County")
