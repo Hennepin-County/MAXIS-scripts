@@ -215,24 +215,6 @@ function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_c
 
 end function
 
-function add_new_HH_MEMB()
-
-
-
-end function
-' show_pg_one_memb01_and_exp
-' show_pg_one_address
-' show_pg_memb_list
-' show_q_1_6
-' show_q_7_11
-' show_q_14_15
-' show_q_21_24
-' show_qual
-' show_pg_last
-'
-' update_addr
-' update_pers
-
 function assess_caf_1_expedited_questions(expedited_screening)
 	If IsNumeric(exp_q_1_income_this_month) = False Then exp_q_1_income_this_month = 0
 	If IsNumeric(exp_q_2_assets_this_month) = False Then exp_q_2_assets_this_month = 0
@@ -335,7 +317,19 @@ function check_for_errors(interview_questions_clear)
 	End If
 
 	If expedited_determination_needed = True Then
-		If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & exp_num & "^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
+		If run_by_interview_team = False AND expedited_determination_completed = False Then err_msg = err_msg & "~!~" & exp_num & "^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
+		If run_by_interview_team = True Then
+			If trim(exp_det_income) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the amount of income in the application month for the Expedited Determination. If there is no income expected or received, enter a '0'"
+			If trim(exp_det_assets) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the amount of assets in the application month for the Expedited Determination. If there are no assets, enter a '0'"
+			If trim(exp_det_housing) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the expense for housing in the application month for the Expedited Determination. If there is no housing expense, enter a '0'"
+			utility_checked = false
+			If heat_exp_checkbox = checked then utility_checked = true
+			If ac_exp_checkbox = checked then utility_checked = true
+			If electric_exp_checkbox = checked then utility_checked = true
+			If phone_exp_checkbox = checked then utility_checked = true
+			If utility_checked = true and none_exp_checkbox = checked Then err_msg = err_msg & "~!~" & exp_num & "^* A utility expense has been checked and also, NONE has been checked, review utilities for Expedited Determination."
+			If utility_checked = false and none_exp_checkbox = unchecked Then err_msg = err_msg & "~!~" & exp_num & "^* No utility information was indicated for the Expedited Determination. If there are no utility expenses, check NONE."
+		End If
 	End If
 
 	If err_msg = "" Then interview_questions_clear = TRUE
@@ -530,30 +524,7 @@ function define_main_dialog()
 		    Text 310, 320, 25, 10, "What?"
 		    Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
 		    Text 225, 340, 45, 10, "If yes, who?"
-			' GroupBox 5, 200, 475, 160, "Expedited Determination"
-		    ' Text 15, 210, 190, 10, "Confirm the Income received in the application month. "
-		    ' Text 20, 220, 230, 10, "What is the total of the income recevied in the month of application?"
-		    ' EditBox 250, 215, 55, 15, intv_app_month_income
-		    ' PushButton 320, 215, 145, 15, "Resident is unsure of App Month Income", exp_income_guidance_btn
-		    ' Text 15, 240, 115, 10, "Confirm the Assets the resident has."
-		    ' Text 20, 250, 245, 10, "Use the best detail of assets the resident has available. Liquid Asset amount?"
-		    ' EditBox 270, 245, 50, 15, intv_app_month_asset
-		    ' Text 15, 270, 195, 10, "Confirm Expenses the resident has in the application month."
-		    ' Text 20, 280, 180, 10, "What is the housing expense? (Rent, Mortgage, ectc.)"
-		    ' EditBox 210, 275, 50, 15, intv_app_month_housing_expense
-		    ' Text 20, 295, 115, 10, "What utilities expenses exist?"
-		    ' CheckBox 130, 295, 30, 10, "Heat", intv_exp_pay_heat_checkbox
-		    ' CheckBox 165, 295, 65, 10, "Air Conditioning", intv_exp_pay_ac_checkbox
-		    ' CheckBox 235, 295, 45, 10, "Electricity", intv_exp_pay_electricity_checkbox
-		    ' CheckBox 285, 295, 35, 10, "Phone", intv_exp_pay_phone_checkbox
-		    ' CheckBox 330, 295, 35, 10, "None", intv_exp_pay_none_checkbox
-		    ' Text 15, 315, 105, 10, "Do we have an ID verification?"
-		    ' DropListBox 125, 310, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", id_verif_on_file
-		    ' Text 195, 315, 165, 10, "Check ECF, SOL-Q, and check in with the resident."
-		    ' Text 15, 330, 240, 10, "Is the household active SNAP in another state for the application month?"
-		    ' DropListBox 255, 325, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", snap_active_in_other_state
-		    ' Text 15, 345, 270, 10, "Was the last SNAP benefit for this case 'Expedited' with postponed verifications?"
-		    ' DropListBox 285, 340, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", last_snap_was_exp
+
 		ElseIf page_display = show_pg_one_address Then
 			Text 504, 32, 60, 10, "CAF ADDR"
 			If update_addr = FALSE Then
@@ -682,21 +653,6 @@ function define_main_dialog()
 					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
 				End If
 
-						' CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
-						' CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
-						' CheckBox 330, 185, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
-						' CheckBox 330, 195, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
-						' CheckBox 330, 205, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
-						' CheckBox 70, 200, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
-						' CheckBox 125, 200, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
-						' CheckBox 195, 200, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
-						' CheckBox 280, 200, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
-						' DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
-						' EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
-						' DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
-						' DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
-						' EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
-						' EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 				PushButton 385, 225, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_pers = TRUE Then
@@ -885,8 +841,192 @@ function define_main_dialog()
 			End If
 
 		ElseIf page_display = expedited_determination Then
+			If expedited_viewed = False Then Call set_initial_exp_simplified
+			expedited_viewed = True
+			expedited_determination_completed = True
+
 			Text 505, exp_pos, 60, 10, "EXPEDITED"
 
+			GroupBox 5, 10, 475, 325, "Expedited Detail"
+			Text 15, 25, 450, 20, "SNAP benefits can be issued quickly in certain circumstances. Discuss income, assets, and expenses with resident to document the correct amounts for the month of application. These do not have to be exact but should be the most reasonable estimate."
+
+			Text 15, 50, 290, 10, "How much income was received (or will be received) in the application month (MM/YY)?"
+			EditBox 310, 45, 50, 15, exp_det_income
+			y_pos = 65
+
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				If InStr(FORM_QUESTION_ARRAY(quest).dialog_phrasing, "self-employed") <> 0 AND FORM_QUESTION_ARRAY(quest).info_type = "single-detail" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					Text 30, y_pos+10, 450, 10, "CAF Answer: " & FORM_QUESTION_ARRAY(quest).caf_answer
+					Text 30, y_pos+20, 450, 10, FORM_QUESTION_ARRAY(quest).sub_phrase & ": " & FORM_QUESTION_ARRAY(quest).sub_answer
+					y_pos = y_pos + 30
+					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
+						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
+						y_pos = y_pos + 10
+					End If
+					If FORM_QUESTION_ARRAY(quest).interview_notes <> "" Then
+						Text 30, y_pos, 450, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
+						y_pos = y_pos + 10
+					End If
+				End If
+				If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+
+						If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
+							Text 25, y_pos, 450, 10, "Employer: " & FORM_QUESTION_ARRAY(quest).detail_business(each_item) & "  - Employee: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)
+							y_pos = y_pos + 10
+							If trim(FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)) <> "" OR trim(FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)) <> "" Then
+								Text 30, y_pos, 450, 10, "Hourly Wage: " & FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item) & " - Hours per Week: " & FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)
+								y_pos = y_pos + 10
+							End If
+						ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then
+							Text 25, y_pos, 450, 10, "Name: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "   - Start Date: $ " & FORM_QUESTION_ARRAY(quest).detail_date(each_item) & "   - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "   - Freq.: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
+							y_pos = y_pos + 10
+						End If
+					next
+				End If
+				If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
+						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes" & " - " & FORM_QUESTION_ARRAY(quest).item_detail_list(each_caf_unea)
+								y_pos = y_pos + 10
+							End If
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
+						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
+						y_pos = y_pos + 10
+					End If
+					If FORM_QUESTION_ARRAY(quest).interview_notes <> "" Then
+						Text 30, y_pos, 450, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
+
+			y_pos = y_pos + 10
+
+			Text 15, y_pos, 330, 10, "How much does the household have in assets (accounts and cash) in the application month (MM/YY)?"
+			EditBox 350, y_pos-5, 50, 15, exp_det_assets
+			y_pos = y_pos + 15
+
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				If FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
+						for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+							Text 25, y_pos, 450, 10, "Owner: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Value: $ " & FORM_QUESTION_ARRAY(quest).detail_value(each_item)
+							y_pos = y_pos + 10
+						next
+					End If
+				End If
+				If FORM_QUESTION_ARRAY(quest).info_type = "asset" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
+						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
+								y_pos = y_pos + 10
+							End If
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
+						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
+						y_pos = y_pos + 10
+					End If
+					If FORM_QUESTION_ARRAY(quest).interview_notes <> "" Then
+						Text 30, y_pos, 450, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
+						y_pos = y_pos + 10
+					End If
+				End If
+
+			Next
+			y_pos = y_pos + 10
+
+			Text 15, y_pos, 305, 10, "How much does the household pay in housing expenses in the application month (MM/YY)?"
+			EditBox 320, y_pos-5, 50, 15, exp_det_housing
+			y_pos = y_pos + 15
+
+			Text 15, y_pos, 315, 10, "Which type of utilities is the household responsible to pay in the application month (MM/YY)?"
+			y_pos = y_pos + 15
+			CheckBox 25, y_pos, 45, 10, "Heat", heat_exp_checkbox
+			CheckBox 90, y_pos, 70, 10, "Air Conditioning", ac_exp_checkbox
+			CheckBox 175, y_pos, 45, 10, "Electric", electric_exp_checkbox
+			CheckBox 240, y_pos, 55, 10, "Telephone", phone_exp_checkbox
+			CheckBox 300, y_pos, 55, 10, "NONE", none_exp_checkbox
+			y_pos = y_pos + 15
+
+			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+				If FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
+						for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+							Text 15, y_pos, 395, 10, "Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "  - Frequency: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
+							y_pos = y_pos + 10
+						next
+					End If
+				End If
+				If FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then
+					housing_info_txt = "Housing Payment: $ " & FORM_QUESTION_ARRAY(quest).housing_payment
+					If FORM_QUESTION_ARRAY(quest).heat_air_checkbox = unchecked Then housing_info_txt = housing_info_txt & "  -   [ ] Heat/AC "
+					If FORM_QUESTION_ARRAY(quest).heat_air_checkbox = checked Then housing_info_txt = housing_info_txt & "  -   [X] Heat/AC "
+					If FORM_QUESTION_ARRAY(quest).electric_checkbox = unchecked Then housing_info_txt = housing_info_txt & "   [ ] Electric "
+					If FORM_QUESTION_ARRAY(quest).electric_checkbox = checked Then housing_info_txt = housing_info_txt & "   [X] Electric "
+					If FORM_QUESTION_ARRAY(quest).phone_checkbox = unchecked Then housing_info_txt = housing_info_txt & "   [ ] Phone "
+					If FORM_QUESTION_ARRAY(quest).phone_checkbox = checked Then housing_info_txt = housing_info_txt & "   [X] Phone "
+
+					subsidy_info_tx = "Subsidy: " & FORM_QUESTION_ARRAY(quest).subsidy_yn & "    Subsidy Amount: $ " & FORM_QUESTION_ARRAY(quest).subsidy_amount
+
+					Text 25, y_pos, 450, 10, housing_info_txt
+					Text 25, y_pos+10, 450, 10, subsidy_info_tx
+					y_pos = y_pos + 20
+				End If
+
+				If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
+						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
+								y_pos = y_pos + 10
+							End If
+						Next
+					End If
+					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
+						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
+						y_pos = y_pos + 10
+					End If
+					If FORM_QUESTION_ARRAY(quest).interview_notes <> "" Then
+						Text 30, y_pos, 450, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
+						y_pos = y_pos + 10
+					End If
+				End If
+
+				If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
+					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+					y_pos = y_pos + 10
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
+						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
+								y_pos = y_pos + 10
+							End If
+						Next
+					End If
+				End If
+			Next
+
+			Text 15, y_pos, 305, 10, "Add notes or other details in making the expedited determination:"
+			EditBox 15, y_pos+10, 450, 15, exp_det_notes
 		ElseIf page_display = emergency_questions Then
 
 			Text 505, emer_pos, 60, 10, "EMER Q"
@@ -974,51 +1114,24 @@ function define_main_dialog()
 					Text 15, y_pos, 450, 10, case_assesment_text
 					y_pos = y_pos + 10
 
-					Text 20, y_pos, 450, 20, next_steps_one
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_two
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_three
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_four
-					y_pos = y_pos + 20
+					If next_steps_one <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_one
+						y_pos = y_pos + 20
+					End If
+					If next_steps_two <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_two
+						y_pos = y_pos + 20
+					End If
+					If next_steps_three <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_three
+						y_pos = y_pos + 20
+					End If
+					If next_steps_four <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_four
+						y_pos = y_pos + 20
+					End If
 				End If
 			End If
-			' If snap_status = "ACTIVE" Then
-			' 	Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
-			' 	y_pos = y_pos + 15
-			' Else
-			' 	If case_is_expedited = True Then Text 15, y_pos, 325, 10, "Case appears to meet Expedited Criteria and needs to be processed using Expedited Standards."
-			' 	If case_is_expedited = False Then Text 15, y_pos, 325, 10, "Case does not appear to be expedited, if that seems incorrect - review EXP Quesitons."
-			' 	Text 350, y_pos, 120, 10, "CAF Date: " & CAF_datestamp
-			' 	y_pos = y_pos + 10
-			'
-			' 	Text 25, y_pos, 120, 10, "App Month - Income: $" & intv_app_month_income
-			' 	Text 150, y_pos, 75, 10, "Assets: $" & intv_app_month_asset
-			' 	Text 225, y_pos, 75, 10, "Expenses: $" & app_month_expenses
-			' 	y_pos = y_pos + 20
-			'
-			' 	If snap_status = "PENDING" Then
-			' 		Text 20, y_pos, 65, 10, "EXP Approval Date:"
-			' 		EditBox 90, y_pos - 5, 35, 15, exp_snap_approval_date
-			' 		Text 135, y_pos, 55, 10, "Explain Delays:"
-			' 		EditBox 190, y_pos - 5, 275, 15, exp_snap_delays
-			' 		y_pos = y_pos + 20
-			' 		Text 20, y_pos, 75, 10, "SNAP Denial Date:"
-			' 		EditBox 90, y_pos - 5, 35, 15, snap_denial_date
-			' 		Text 135, y_pos, 55, 10, "Explain denial:"
-			' 		EditBox 190, y_pos - 5, 275, 15, snap_denial_explain
-			' 		y_pos = y_pos + 20
-			'
-			' 	ElseIf snap_status = "INACTIVE" Then
-			' 		Text 25, y_pos, 90, 10, "Review case, should SNAP be pended?"
-			' 		DropListBox 115, y_pos - 5, 75, 45, "?"+chr(9)+"Yes"+chr(9)+"No", pend_snap_on_case
-			' 		y_pos = y_pos + 20
-			'
-			' 	End If
-			' 	Text 15, y_pos, 400, 10, "(Income, Assets, and Expenses are determined on the 'Expedited' page of this dialog.)"
-			' 	y_pos = y_pos + 15
-			' End If
 
 			IF family_cash_case = True OR adult_cash_case = True OR unknown_cash_pending = True Then
 				Text 15, y_pos, 100, 10, "Is this a Family Cash case?"
@@ -1037,33 +1150,6 @@ function define_main_dialog()
 				End If
 
 			End If
-			' expedited_info_does_not_match
-			' mismatch_explanation
-
-			' Call determine_program_and_case_status_from_CASE_CURR(
-			' case_active
-			' case_pending
-			' case_rein
-			' family_cash_case
-			' mfip_case
-			' dwp_case
-			' adult_cash_case
-			' ga_case
-			' msa_case
-			' grh_case
-			' snap_case
-			' ma_case
-			' msp_case
-			' unknown_cash_pending
-			' unknown_hc_pending
-			' ga_status
-			' msa_status
-			' mfip_status
-			' dwp_status
-			' grh_status
-			' snap_status
-			' ma_status
-			' msp_status
 
 	    ElseIf page_display = show_arep_page Then
 			If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
@@ -1193,10 +1279,6 @@ function define_main_dialog()
 						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_MSA_ARRAY)
 						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_STWK_ARRAY)
 					End If
-					' y_pos = y_pos + FORM_QUESTION_ARRAY(quest).dialog_height
-					' MsgBox "y_pos - " & y_pos
-					' 	display_count = display_count + 1
-					' End If
 				End If
 			Next
 			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 62, 55, 10, pg_4_label
@@ -1489,9 +1571,11 @@ function dialog_movement()
 	End If
 	If ButtonPressed = expedited_determination_btn OR page_display = expedited_determination Then
 		'TODO - update here when we have a different expedtied determination path for the interview team
-		' page_display = expedited_determination
-		STATS_manualtime = STATS_manualtime + 150
-		call display_expedited_dialog
+		If run_by_interview_team = True Then page_display = expedited_determination
+		If run_by_interview_team = False Then
+			STATS_manualtime = STATS_manualtime + 150
+			call display_expedited_dialog
+		End If
 	End If
 	If ButtonPressed = emer_questions_btn Then
 		page_display = emergency_questions
@@ -1519,7 +1603,7 @@ end function
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 	' MsgBox "the_err_msg" & vbCr & the_err_msg
     If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
-        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
+		If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
         err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
 
 		end_interview = False
@@ -1529,6 +1613,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
         error_message = ""                              'blanking out variables
         msg_header = ""
         for each message in err_array                   'going through each error message to order them and add headers'
+
 			If show_err_msg_during_movement = False OR end_interview = True Then
 	            current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing = trim(current_listing)
@@ -1560,24 +1645,17 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
 	            error_message = error_message & vbNewLine & right(message, len(message) - 3)        'Adding the error information to the message list.
 			ElseIf show_err_msg_during_movement = TRUE Then
-				' If page_display = show_pg_one_memb01_and_exp Then page_to_review = "1"
-				' If page_display = show_pg_one_address 	Then page_to_review = "2"
-				' If page_display = show_pg_memb_list 	Then page_to_review = "3"
-				' If page_display = show_q_1_6 			Then page_to_review = "4"
-				' If page_display = show_q_7_11 			Then page_to_review = "5"
-				' If page_display = show_q_12_13 			Then page_to_review = "6"
-				' If page_display = show_q_14_15 			Then page_to_review = "7"
-				' If page_display = show_q_16_20 			Then page_to_review = "8"
-				' If page_display = show_q_21_24 			Then page_to_review = "9"
-				' If page_display = show_qual 			Then page_to_review = "10"
-				' If page_display = show_pg_last			Then page_to_review = "11"
-				' If page_display = discrepancy_questions Then page_to_review = "12"
-				' If page_display = emergency_questions	Then page_to_review = "14"
 				page_to_review = page_display & ""
+				If page_display = show_qual Then page_to_review = qual_numb
+				If page_display = emergency_questions Then page_to_review = emer_numb
+				If page_display = discrepancy_questions Then page_to_review = discrep_num
+				If page_display = expedited_determination Then page_to_review = exp_num
+				If page_display = show_pg_last Then page_to_review = last_num
+				page_to_review = trim(page_to_review) & ""
 
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
-				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
+
 				If current_listing = page_to_review Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
 	                If current_listing = "1"  Then tagline = ": Interview"        'Adding a specific tagline to the header for the errors
 	                If current_listing = "2"  Then tagline = ": CAF ADDR"
@@ -1600,12 +1678,12 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
 
 					error_message = error_message & vbNewLine & right(message, len(message) - 3)        'Adding the error information to the message list.
+					' MsgBox "error_message - " & error_message & vbCr & "page_to_review - " & page_to_review & vbCr & "current_listing - " & current_listing
 				End If
 			End If
         Next
-		' MsgBox "SECOND - error_message" & vbCr & error_message
 		If error_message = "" then the_err_msg = ""
-		' MsgBox error_message
+
         'This is the display of all of the messages.
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
@@ -1613,14 +1691,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 			show_msg = False
 			If ButtonPressed = finish_interview_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 		End If
-		' If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
 
-		' for i = 0 to UBound(HH_MEMB_ARRAY, 2)
-		' 	If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then show_msg = False
-		' next
-		' If ButtonPressed = update_information_btn Then show_msg = False
-		' If ButtonPressed = save_information_btn Then show_msg = False
-		' If ButtonPressed = add_person_btn Then show_msg = False
 		If page_display = discrepancy_questions Then show_msg = False
 		If ButtonPressed = exp_income_guidance_btn Then show_msg = False
 		If ButtonPressed = incomplete_interview_btn Then show_msg = False
@@ -1628,50 +1699,42 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed = open_hsr_manual_transfer_page_btn Then show_msg = False
 		If ButtonPressed >= 500 AND ButtonPressed < 1200 Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
-		' If show_err_msg_during_movement = True AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
+
 		If page_display = emergency_questions and (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
 		If error_message = "" Then show_msg = False
+
 		If ButtonPressed = finish_interview_btn Then show_msg = True
 
-		' If discrepancies_exist = True AND expedited_determination_needed = False Then
-		' 	' MsgBox "1"
-		' 	If page_display = discrepancy_questions Then
-		' 		' MsgBox "2"
-		' 		If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-		' 	End If
-		' ElseIf expedited_determination_needed = True Then
-		' 	' MsgBox "3" & vbCr & "Page Display - ~" & page_display & "~" & vbCr & "LAST Page - ~" & show_pg_last & "~" & vbCr & "exp complete - ~" & expedited_determination_completed& "~"
-		' 	If expedited_determination_completed = True AND page_display = show_pg_last Then
-		' 		' MsgBox "4"
-		' 		If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-		' 	End If
-		' ElseIf page_display = show_pg_last Then
-		' 	' MsgBox "5"
-		' 	If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
-		' End If
 
-		' MsgBox "Page Display - " & page_display & vbCr & "disc - " & discrepancies_exist & vbCr & "exp det - " & expedited_determination_needed & vbCr & "exp complete - " & expedited_determination_completed & vbCR & "ButtonPressed - " & ButtonPressed & vbCr & "SHOW MSG - " & show_msg
-		' MsgBox "Button - " & ButtonPressed & vbCr & "Show? " & show_msg & vbCr & vbCr & "Errors: " & err_msg
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 		If show_msg = False then the_err_msg = ""
+
         'The function can be operated without moving to a different dialog or not. The only time this will be activated is at the end of dialog 8.
         If execute_nav = TRUE AND show_err_msg_during_movement = False Then
-            If back_to_dialog = "1"  Then ButtonPressed = caf_page_one_btn         'This calls another function to go to the first dialog that had an error
-            If back_to_dialog = "2"  Then ButtonPressed = caf_addr_btn
-            If back_to_dialog = "3"  Then ButtonPressed = caf_membs_btn
-            If back_to_dialog = "4"  Then ButtonPressed = caf_q_1_6_btn
-            If back_to_dialog = "5"  Then ButtonPressed = caf_q_7_11_btn
-            If back_to_dialog = "6"  Then ButtonPressed = caf_q_12_13_btn
-            If back_to_dialog = "7"  Then ButtonPressed = caf_q_14_15_btn
-            If back_to_dialog = "8"  Then ButtonPressed = caf_q_16_20_btn
-			If back_to_dialog = "9"  Then ButtonPressed = caf_q_21_24_btn
-            If back_to_dialog = "10" Then ButtonPressed = caf_qual_q_btn
-            If back_to_dialog = "11" Then ButtonPressed = caf_last_page_btn
-            If back_to_dialog = "12" Then ButtonPressed = discrepancy_questions_btn
-			If back_to_dialog = "13" Then ButtonPressed = expedited_determination_btn
-			If back_to_dialog = "14" Then ButtonPressed = emer_questions_btn
+            If IsNumeric(back_to_dialog) = true Then
+				'This calls another function to go to the first dialog that had an error
+				back_to_dialog = back_to_dialog * 1
+				If back_to_dialog >= 4 and back_to_dialog <= last_page_of_questions Then
+					If back_to_dialog = 4 Then ButtonPressed = caf_q_pg_4_btn
+					If back_to_dialog = 5 Then ButtonPressed =  caf_q_pg_5_btn
+					If back_to_dialog = 6 Then ButtonPressed =  caf_q_pg_6_btn
+					If back_to_dialog = 7 Then ButtonPressed =  caf_q_pg_7_btn
+					If back_to_dialog = 8 Then ButtonPressed =  caf_q_pg_8_btn
+					If back_to_dialog = 9 Then ButtonPressed =  caf_q_pg_9_btn
+					If back_to_dialog = 10 Then ButtonPressed =  caf_q_pg_10_btn
+					If back_to_dialog = 11 Then ButtonPressed =  caf_q_pg_11_btn
+				End If
+				If back_to_dialog = show_pg_one_memb01_and_exp	Then ButtonPressed = caf_page_one_btn
+				If back_to_dialog = show_pg_one_address			Then ButtonPressed = caf_addr_btn
+				If back_to_dialog = show_pg_memb_list			Then ButtonPressed = caf_membs_btn
+				If back_to_dialog = show_qual					Then ButtonPressed = caf_qual_q_btn
+				If back_to_dialog = show_pg_last				Then ButtonPressed = caf_last_page_btn
+				If back_to_dialog = discrepancy_questions		Then ButtonPressed = discrepancy_questions_btn
+				If back_to_dialog = expedited_determination		Then ButtonPressed = expedited_determination_btn
+				If back_to_dialog = emergency_questions 		Then ButtonPressed = emer_questions_btn
 
-            Call dialog_movement          'this is where the navigation happens
+				Call dialog_movement          'this is where the navigation happens
+			End If
         End If
     End If
 End Function
@@ -2359,13 +2422,14 @@ function program_process_selection()
 			If cash_request = True Then
 				If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or renewal."
 				If the_process_for_cash = "Renewal" AND (len(next_cash_revw_mo) <> 2 or len(next_cash_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at renewal, enter the footer month and year the of the renewal."
+				If type_of_cash = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if Cash request in for a Family or Adult program."
 			End If
 			If snap_request = True Then
 				If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or renewal."
 				If the_process_for_snap = "Renewal" AND (len(next_snap_revw_mo) <> 2 or len(next_snap_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at renewal, enter the footer month and year the of the renewal."
 			End If
 			If emer_request = True Then
-				If type_of_emer = "?" Then r_msg = err_msg & vbNewLine & "*Indicate if EMER request in EA or EGA"
+				If type_of_emer = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if EMER request in EA or EGA"
 			End If
 			If grh_request = True Then
 				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the GRH program is at application or renewal."
@@ -2384,6 +2448,97 @@ function program_process_selection()
 	If type_of_cash = "Adult" Then family_cash_case_yn = "No"
 	If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 	ButtonPressed = return_btn
+end function
+
+function set_initial_exp_simplified()
+	exp_det_income = 0
+	exp_det_assets = 0
+	exp_det_housing = 0
+	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+		If InStr(FORM_QUESTION_ARRAY(quest).dialog_phrasing, "self-employed") <> 0 AND FORM_QUESTION_ARRAY(quest).info_type = "single-detail" Then
+			If IsNumeric(FORM_QUESTION_ARRAY(quest).sub_answer) = true Then exp_det_income = exp_det_income + FORM_QUESTION_ARRAY(quest).sub_answer
+		End If
+		If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
+			for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+
+				If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
+					If IsNumeric(FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)) = true Then
+						exp_det_income = exp_det_income + FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)
+					ElseIf IsNumeric(FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)) = true AND IsNumeric(FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)) = true Then
+						exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)*FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)*4.3)
+					End If
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then
+					If IsNumeric(FORM_QUESTION_ARRAY(quest).detail_value(each_item)) = True Then exp_det_assets = exp_det_assets + FORM_QUESTION_ARRAY(quest).detail_value(each_item)
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then
+					If IsNumeric(FORM_QUESTION_ARRAY(quest).detail_amount(each_item)) = true Then
+						If FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) = "Weekly" Then
+							exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_amount(each_item)*4.3)
+						ElseIf FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) = "Bi-weekly" Then
+							exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_amount(each_item)*2.15)
+						ElseIf FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) = "Semi-monthly" Then
+							exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_amount(each_item)*2)
+						ElseIf FORM_QUESTION_ARRAY(quest).detail_frequency(each_item) = "Once a month" Then
+							exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_amount(each_item))
+						Else
+							exp_det_income = exp_det_income + (FORM_QUESTION_ARRAY(quest).detail_amount(each_item))
+						End If
+					End If
+				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then
+					exp_det_housing = FORM_QUESTION_ARRAY(quest).housing_payment
+					heat_exp_checkbox = FORM_QUESTION_ARRAY(quest).heat_air_checkbox
+					ac_exp_checkbox = FORM_QUESTION_ARRAY(quest).heat_air_checkbox
+					electric_exp_checkbox = FORM_QUESTION_ARRAY(quest).electric_checkbox
+					phone_exp_checkbox = FORM_QUESTION_ARRAY(quest).phone_checkbox
+				End If
+			next
+		End If
+		If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
+			If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
+				For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+					If FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) <> "" and FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+						If IsNumeric(FORM_QUESTION_ARRAY(quest).item_detail_list(each_caf_unea)) = true Then exp_det_income = exp_det_income + FORM_QUESTION_ARRAY(quest).item_detail_list(each_caf_unea)
+					End If
+				Next
+			End If
+		End If
+		If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
+			If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
+				For each_shel = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+					If FORM_QUESTION_ARRAY(quest).item_ans_list(each_shel) = "Yes" Then
+						exp_det_housing = exp_q_3_rent_this_month
+					End If
+				Next
+			End If
+		End If
+
+		If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
+			If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
+				For each_util = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
+					If FORM_QUESTION_ARRAY(quest).item_ans_list(each_util) = "Yes" Then
+						If FORM_QUESTION_ARRAY(quest).item_note_info_list(each_util) = "Heat/AC" Then
+							heat_exp_checkbox = checked
+							ac_exp_checkbox = checked
+						End If
+						If FORM_QUESTION_ARRAY(quest).item_note_info_list(each_util) = "Electric" 	Then electric_exp_checkbox = checked
+						If FORM_QUESTION_ARRAY(quest).item_note_info_list(each_util) = "Phone" 		Then phone_exp_checkbox = checked
+					End If
+				Next
+			End If
+		End If
+	Next
+	exp_det_income = FormatNumber(exp_det_income, 2, -1, 0, -1) & ""
+	If exp_det_income = "0.00" Then exp_det_income = ""
+	exp_det_assets = FormatNumber(exp_det_assets, 2, -1, 0, -1) & ""
+	If exp_det_assets = "0.00" Then exp_det_assets = ""
+	exp_det_housing = FormatNumber(exp_det_housing, 2, -1, 0, -1) & ""
+	If exp_det_housing = "0.00" Then exp_det_housing = ""
+
+	If heat_exp_checkbox = checked OR ac_exp_checkbox = checked Then
+		exp_det_utilities = exp_det_utilities + heat_AC_amt
+	Else
+		If electric_exp_checkbox = checked Then exp_det_utilities = exp_det_utilities + electric_amt
+		If phone_exp_checkbox = checked Then exp_det_utilities = exp_det_utilities + phone_amt
+	End If
 end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
@@ -2780,6 +2935,20 @@ function save_your_work()
 			objTextStream.WriteLine "CLAR - UTIL$ - 01 - " & disc_utility_amounts
 			objTextStream.WriteLine "CLAR - UTIL$ - 02 - " & disc_utility_amounts_confirmation
 
+			objTextStream.WriteLine "SIMP EXPDET - 01 - " & exp_det_income
+			objTextStream.WriteLine "SIMP EXPDET - 02 - " & exp_det_assets
+			objTextStream.WriteLine "SIMP EXPDET - 03 - " & exp_det_housing
+			objTextStream.WriteLine "SIMP EXPDET - 04 - " & exp_det_utilities
+			objTextStream.WriteLine "SIMP EXPDET - 05 - " & exp_det_notes
+			objTextStream.WriteLine "SIMP EXPDET - 06 - " & expedited_viewed
+
+            If verif_snap_checkbox = checked then objTextStream.WriteLine "verif_snap_checkbox"
+			If heat_exp_checkbox = checked then objTextStream.WriteLine "heat_exp_checkbox"
+			If ac_exp_checkbox = checked then objTextStream.WriteLine "ac_exp_checkbox"
+			If electric_exp_checkbox = checked then objTextStream.WriteLine "electric_exp_checkbox"
+			If phone_exp_checkbox = checked then objTextStream.WriteLine "phone_exp_checkbox"
+			If none_exp_checkbox = checked then objTextStream.WriteLine "none_exp_checkbox"
+
 			objTextStream.WriteLine "EXPDET - 01 - " & expedited_determination_completed
 			objTextStream.WriteLine "EXPDET - 02 - " & expedited_screening
 			objTextStream.WriteLine "EXPDET - 03 - " & calculated_low_income_asset_test
@@ -3125,6 +3294,19 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - HOUS$ - 02 - " & disc_rent_amounts_confirmation
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - UTIL$ - 01 - " & disc_utility_amounts
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - UTIL$ - 02 - " & disc_utility_amounts_confirmation & vbCr & vbCr
+
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 01 - " & exp_det_income
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 02 - " & exp_det_assets
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 03 - " & exp_det_housing
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 04 - " & exp_det_utilities
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 05 - " & exp_det_notes
+			script_run_lowdown = script_run_lowdown & vbCr & "SIMP EXPDET - 06 - " & expedited_viewed
+            If verif_snap_checkbox = checked 	then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox - CHECKED"
+			If heat_exp_checkbox = checked 		then script_run_lowdown = script_run_lowdown & vbCr & "heat_exp_checkbox - CHECKED"
+			If ac_exp_checkbox = checked 		then script_run_lowdown = script_run_lowdown & vbCr & "ac_exp_checkbox - CHECKED"
+			If electric_exp_checkbox = checked 	then script_run_lowdown = script_run_lowdown & vbCr & "electric_exp_checkbox - CHECKED"
+			If phone_exp_checkbox = checked 	then script_run_lowdown = script_run_lowdown & vbCr & "phone_exp_checkbox - CHECKED"
+			If none_exp_checkbox = checked 		then script_run_lowdown = script_run_lowdown & vbCr & "none_exp_checkbox - CHECKED" & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 01 - " & expedited_determination_completed
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 02 - " & expedited_screening
@@ -3553,6 +3735,21 @@ function restore_your_work(vars_filled)
 					If left(text_line, 17) = "CLAR - UTIL$ - 01" Then disc_utility_amounts = Mid(text_line, 21)
 					If left(text_line, 17) = "CLAR - UTIL$ - 02" Then disc_utility_amounts_confirmation = Mid(text_line, 21)
 
+					If left(text_line, 16) = "SIMP EXPDET - 01" Then exp_det_income = Mid(text_line, 20)
+					If left(text_line, 16) = "SIMP EXPDET - 02" Then exp_det_assets = Mid(text_line, 20)
+					If left(text_line, 16) = "SIMP EXPDET - 03" Then exp_det_housing = Mid(text_line, 20)
+					If left(text_line, 16) = "SIMP EXPDET - 04" Then exp_det_utilities = Mid(text_line, 20)
+					If left(text_line, 16) = "SIMP EXPDET - 05" Then exp_det_notes = Mid(text_line, 20)
+					If left(text_line, 16) = "SIMP EXPDET - 06" Then read_exp_view = Mid(text_line, 20)
+					If Ucase(read_exp_view) = "TRUE" Then expedited_viewed = True
+					If UCase(read_exp_view) = "FALSE" Then expedited_viewed = False
+
+					If text_line = "verif_snap_checkbox" Then verif_snap_checkbox = checked
+					If text_line = "heat_exp_checkbox" Then heat_exp_checkbox = checked
+					If text_line = "ac_exp_checkbox" Then ac_exp_checkbox = checked
+					If text_line = "electric_exp_checkbox" Then electric_exp_checkbox = checked
+					If text_line = "phone_exp_checkbox" Then phone_exp_checkbox = checked
+					If text_line = "none_exp_checkbox" Then none_exp_checkbox = checked
 
 					If left(text_line, 11) = "EXPDET - 01" Then expedited_determination_completed = Mid(text_line, 15)
 					If UCASE(expedited_determination_completed) = "TRUE" Then expedited_determination_completed = True
@@ -5864,6 +6061,16 @@ function determine_calculations(determined_income, determined_assets, determined
 	If determined_shel = "" Then determined_shel = 0
 	determined_shel = determined_shel * 1
 
+	If run_by_interview_team = True Then
+		determined_utilities = 0
+		If heat_exp_checkbox = checked OR ac_exp_checkbox = checked Then
+			determined_utilities = determined_utilities + heat_AC_amt
+		Else
+			If electric_exp_checkbox = checked Then determined_utilities = determined_utilities + electric_amt
+			If phone_exp_checkbox = checked Then determined_utilities = determined_utilities + phone_amt
+		End If
+	End If
+
 	determined_utilities = trim(determined_utilities)
 	If determined_utilities = "" Then determined_utilities = 0
 	determined_utilities = determined_utilities * 1
@@ -5884,6 +6091,13 @@ function determine_calculations(determined_income, determined_assets, determined
 	determined_assets = determined_assets & ""
 	determined_shel = determined_shel & ""
 	determined_utilities = determined_utilities & ""
+
+	If run_by_interview_team = True Then
+		If is_elig_XFS = True Then case_assesment_text = "Case IS EXPEDITED"
+		If is_elig_XFS = False Then case_assesment_text = "Case is NOT EXPEDITED"
+		next_steps_one = "Income - $ " & determined_income & ", Assets - $ " & determined_assets & ", Housing - $ " & determined_shel & ", Utilities - $ " & determined_utilities
+	End If
+
 end function
 
 function snap_in_another_state_detail(CAF_datestamp, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
@@ -6510,6 +6724,7 @@ Dim type_of_emer, the_process_for_emer
 
 
 'EXPEDITED DETERMINATION VARIABLES'
+Dim exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, heat_exp_checkbox, ac_exp_checkbox, electric_exp_checkbox, phone_exp_checkbox, none_exp_checkbox, exp_det_notes
 Dim expedited_determination_completed, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources
 Dim jobs_income_yn, busi_income_yn, unea_income_yn, cash_amount_yn, bank_account_yn, all_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, expedited_screening
 Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, caf_1_resources, caf_1_expenses
@@ -6556,6 +6771,7 @@ school_age_children_in_hh = False
 expedited_determination_needed = False
 expedited_determination_completed = False
 first_time_in_exp_det = True
+expedited_viewed = False
 
 intv_exp_pay_heat_checkbox = unchecked
 intv_exp_pay_ac_checkbox = unchecked
@@ -7673,6 +7889,7 @@ Do
 
 				Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
+				If run_by_interview_team = True and page_display = expedited_determination Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 				Call review_for_discrepancies
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
@@ -7701,6 +7918,13 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+If run_by_interview_team = True Then
+	determined_income = exp_det_income
+	determined_assets = exp_det_assets
+	determined_shel = exp_det_housing
+	determined_utilities = exp_det_utilities
+End if
 
 Call check_for_MAXIS(False)
 
@@ -10375,8 +10599,8 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 			' Call write_variable_in_case_note ("*   UTILITY Details:")
 			If all_utilities <> "" Then Call write_variable_in_case_note ("  - HEST: " & all_utilities)
 			' app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
-
 		End If
+		Call write_bullet_and_variable_in_CASE_NOTE("Notes", exp_det_notes)
 
 		If note_case_situation_details = True Then
 			Call write_variable_in_case_note ("---")
