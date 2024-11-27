@@ -317,23 +317,21 @@ If cash_snap_only = true Then
     transmit  'Bypass warning message
 
     'To do - add handling to approve ineligibility results for next month
-    
   End If
-End If
 
-If hc_case = True Then
+ElseIf hc_case = True Then
   'Healthcare case
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 266, 75, "Enter Date of Death for HH Member - Healthcare Case"
-      DropListBox 100, 5, 160, 15, "Select One..."+chr(9)+"MDH Minnesota Death Search"+chr(9)+"Social Security Administration record (SOLQ-I)"+chr(9)+"Authorized Representative"+chr(9)+"Power of Attorney"+chr(9)+"Other Adult Family Member", death_verification
-      EditBox 100, 25, 160, 15, who_reported_death
-      ButtonGroup ButtonPressed
-        PushButton 5, 55, 65, 15, "TE02.08.008", poli_temp_btn
-        OkButton 170, 50, 45, 15
-        CancelButton 215, 50, 45, 15
-      Text 5, 10, 95, 10, "How was the death verified?"
-      Text 5, 30, 85, 10, "Who reported the death?"
-    EndDialog
+  Dialog1 = ""
+  BeginDialog Dialog1, 0, 0, 266, 75, "Enter Date of Death for HH Member - Healthcare Case"
+    DropListBox 100, 5, 160, 15, "Select One..."+chr(9)+"MDH Minnesota Death Search"+chr(9)+"Social Security Administration record (SOLQ-I)"+chr(9)+"Authorized Representative"+chr(9)+"Power of Attorney"+chr(9)+"Other Adult Family Member", death_verification
+    EditBox 100, 25, 160, 15, who_reported_death
+    ButtonGroup ButtonPressed
+      PushButton 5, 55, 65, 15, "TE02.08.008", poli_temp_btn
+      OkButton 170, 50, 45, 15
+      CancelButton 215, 50, 45, 15
+    Text 5, 10, 95, 10, "How was the death verified?"
+    Text 5, 30, 85, 10, "Who reported the death?"
+  EndDialog
 
   Do 
     Do
@@ -363,7 +361,7 @@ If hc_case = True Then
   Call start_a_blank_case_note
 
   '...and enters a title (replace variables with your own content)...
-  CALL write_variable_in_case_note("*** Date of Death Verified - HH Memb " & left(household_member_that_died, 2) & "***")
+  CALL write_variable_in_case_note("*** Date of Death Verified - HH Memb " & left(household_member_that_died, 2) & " ***")
 
   '...some editboxes or droplistboxes (replace variables with your own content)...
   CALL write_bullet_and_variable_in_case_note( "Death verified by", death_verification)
@@ -483,8 +481,6 @@ End If
 
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
 script_end_procedure("The script has updated the date of death for the selected HH member.")
-
-'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
