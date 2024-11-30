@@ -830,31 +830,38 @@ If row = 0 then script_end_procedure("Member number not found. You may have ente
 'Opening the eligibility span of the client
 EMWriteScreen "X", row, 26
 transmit
+'Read to find out which version of BSUM we have for line positioning.
+EMReadScreen name_or_date, 1, 5, 19
+If name_or_date = " " Then 
+    base_row = 0 'This is the old version of BSUM
+Else    
+    base_row = -1
+End If 
 
 'Reading the elig type of all the months. They should be DP because that is MA-EPD
-EMReadScreen elig_type_check_first_month, 2, 12, 17
-EMReadScreen elig_type_check_second_month, 2, 12, 28
-EMReadScreen elig_type_check_third_month, 2, 12, 39
-EMReadScreen elig_type_check_fourth_month, 2, 12, 50
-EMReadScreen elig_type_check_fifth_month, 2, 12, 61
-EMReadScreen elig_type_check_sixth_month, 2, 12, 72
+EMReadScreen elig_type_check_first_month, 2, base_row + 12, 17
+EMReadScreen elig_type_check_second_month, 2, base_row + 12, 28
+EMReadScreen elig_type_check_third_month, 2, base_row + 12, 39
+EMReadScreen elig_type_check_fourth_month, 2, base_row + 12, 50
+EMReadScreen elig_type_check_fifth_month, 2, base_row + 12, 61
+EMReadScreen elig_type_check_sixth_month, 2, base_row + 12, 72
 
 'There needs to be at least 1 month of MA-EPD Elig Results - the script will check each month and if all are NOT DP - the script will end.
 If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("None of the months of this case are MA-EPD. Process manually.")
 
 'This is determining the first month that MA-EPD is coded in the budget.
 If elig_type_check_first_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 19
+	EMReadScreen first_month_and_year, 5, base_row + 6, 19
 ElseIf elig_type_check_second_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 30
+	EMReadScreen first_month_and_year, 5, base_row + 6, 30
 ElseIf elig_type_check_third_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 41
+	EMReadScreen first_month_and_year, 5, base_row + 6, 41
 ElseIf elig_type_check_fourth_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 52
+	EMReadScreen first_month_and_year, 5, base_row + 6, 52
 ElseIf elig_type_check_fifth_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 63
+	EMReadScreen first_month_and_year, 5, base_row + 6, 63
 ElseIf elig_type_check_sixth_month = "DP" then
-	EMReadScreen first_month_and_year, 5, 6, 74
+	EMReadScreen first_month_and_year, 5, base_row + 6, 74
 End If
 'Worker should have indicated the first month of MA - EPD here. If that was not accurate, the STAT information already gathered may be incorrect
 'the script will end if the entered month and found month do not match
@@ -864,7 +871,7 @@ If start_month_and_year <> first_month_and_year Then
 End If
 
 'Looking for the first month to FIAT
-row = 6
+row = base_row + 6
 col = 1
 EMSearch first_month_and_year, row, col
 
@@ -874,9 +881,9 @@ If col = 0 Then script_end_procedure(end_msg)
 'Now looking at each month in ELIG
 number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2	'ensuring the month is MA-EPD elig type'
+	EMReadScreen elig_type_check, 2, base_row + 12, col-2	'ensuring the month is MA-EPD elig type'
 	If elig_type_check = "DP" Then
-	    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
+	    EMWriteScreen "X", base_row + 9, col + 2       'opening the Budget for the month
 	    transmit
 	    EMWriteScreen "X", 13, 03           'opening the earned income pop-up
 	    transmit
@@ -1074,7 +1081,7 @@ If row = 0 then script_end_procedure("Member number not found. You may have ente
 EMWriteScreen "X", row, 26
 transmit
 
-row = 6
+row = base_row + 6
 col = 1
 EMSearch first_month_and_year, row, col 'finding the right month to start with
 
@@ -1093,7 +1100,7 @@ Do
 	EMReadScreen elig_type_check, 2, 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
 	If elig_type_check = "DP" Then
 		STATS_counter = STATS_counter + 1	'we count each month that is FIATed for statistics
-	    EMWriteScreen "X", 9, col + 2       'opening the budget
+	    EMWriteScreen "X", base_row + 9, col + 2       'opening the budget
 	    transmit
 	    EMWriteScreen "X", 13, 03           'opening the Earned Income line
 	    transmit
