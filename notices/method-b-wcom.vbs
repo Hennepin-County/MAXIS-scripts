@@ -112,17 +112,44 @@ medi_part_b = (Medicare_B)
 call navigate_to_MAXIS_screen("ELIG", "HC")
 EMSendKey "x"
 transmit
-EMReadScreen method_type, 1, 13, 21
+
+footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year 'defining footer month/year as date 
+new_elig_hc_panel_date = "01/01/25"                   'defining date ELIG/HC panel format/positions changed
+
+new_elig_panel = FALSE 
+If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN new_elig_panel = TRUE 
+
+If new_elig_panel = FALSE Then  'Panel prior to 1/1/25
+  EMReadScreen method_type, 1, 13, 21
+End If
+
+If new_elig_panel = TRUE THEN 'Panel on/after 1/1/25  
+  EMReadScreen method_type, 1, 12, 21
+End If
+method_type = "B"
 If method_type <> "B" then script_end_procedure("Your case is not a Method B budget case. The script will now end.")
 
 'finding the correct income, SD and and income standard for footer month selected'
 footer_info = MAXIS_footer_month & "/" & MAXIS_footer_year  'turnes footer year and footer month into string'
-row = 6
-col = 1                'establishes the row to start searching'
-EMSearch footer_info, row, col    'searches for footer_info'
-EMReadScreen MA_income_standard, 7, row + 10, col
-EMReadScreen Income, 7, row + 9, col
-EMReadScreen spenddown, 7, row + 11, col
+
+If new_elig_panel = FALSE Then  'Panel prior to 1/1/25
+  row = 6
+  col = 1                'establishes the row to start searching'
+  EMSearch footer_info, row, col    'searches for footer_info'
+  EMReadScreen MA_income_standard, 7, row + 10, col
+  EMReadScreen Income, 7, row + 9, col
+  EMReadScreen spenddown, 7, row + 11, col
+End If
+
+If new_elig_panel = TRUE THEN 'Panel on/after 1/1/25  (added 1 to each row since everything above total net income is shifted up by 1)
+  row = 5
+  col = 1                'establishes the row to start searching'
+  EMSearch footer_info, row, col    'searches for footer_info'
+  EMReadScreen MA_income_standard, 7, row + 11, col
+  EMReadScreen Income, 7, row + 10, col
+  EMReadScreen spenddown, 7, row + 12, col
+End If
+
 spenddown = Ltrim(spenddown)
 If spenddown = "" then script_end_procedure("Your case does not have a spenddown amount. The script will now end.")
 
