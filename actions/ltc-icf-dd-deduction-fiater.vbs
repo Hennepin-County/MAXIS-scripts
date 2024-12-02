@@ -251,8 +251,19 @@ If FIAT_check = "FIAT" then
 End IF
 
 'Defining the variables for the following search
-ELIG_HC_row = 6
-ELIG_HC_col = 1
+footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year 'defining footer month/year as date 
+new_elig_hc_panel_date = "01/01/25"                                     'defining date ELIG/HC panel format/positions changed
+
+If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) < 0 Then    'Panel prior to 1/1/25
+    ELIG_HC_row = 6
+    ELIG_HC_col = 1
+End If
+
+'Defining the variables for the following search
+If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN   'Panel on/after 1/1/25
+    ELIG_HC_row = 5
+    ELIG_HC_col = 1
+End If
 
 'Determining the col variable based on the indicated footer month/year
 EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, ELIG_HC_row, ELIG_HC_col
@@ -264,11 +275,24 @@ budget_months = 0
 
 'Fills all budget months with "x's", so that the script will go into each one in succession.
 Do
-  EMReadScreen budget_check, 1, 12, col
-  If budget_check = "/" then
-    budget_months = budget_months + 1
-    EMWriteScreen "x", 9, col + 1
-  End if
+	If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) < 0 Then  'Panel prior to 1/1/25
+    	EMReadScreen budget_check, 1, 12, col
+ 	End If
+
+	If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN 'Panel on/after 1/1/25
+		EMReadScreen budget_check, 1, 11, col
+	End If 
+
+	If budget_check = "/" then
+		budget_months = budget_months + 1
+		If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) < 0 Then    'Panel prior to 1/1/25
+			EMWriteScreen "x", 9, col + 1
+		End If
+
+		If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN   'Panel on/after 1/1/25
+			EMWriteScreen "x", 8, col + 1
+		End If
+	End If
   col = col + 11
 Loop until col > 75
 'Jumps into the budget screen LBUD
