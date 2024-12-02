@@ -1097,7 +1097,7 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
+	EMReadScreen elig_type_check, 2, base_row + 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
 	If elig_type_check = "DP" Then
 		STATS_counter = STATS_counter + 1	'we count each month that is FIATed for statistics
 	    EMWriteScreen "X", base_row + 9, col + 2       'opening the budget
