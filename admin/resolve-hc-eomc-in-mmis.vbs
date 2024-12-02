@@ -482,30 +482,65 @@ If restart_checkbox <> checked Then
 						transmit
 
 						If prog = "MA" or prog = "IMD" or prog = "EMA" Then                 'for the programs MA or IMD the information is in a certain place
-							If left(EOMC_CLIENT_ARRAY (clt_name, hc_clt), 5) = "XXXXX" Then   'If the name was not on the BOBI and is just listed on X's then we read the actual name here
-								EMReadScreen the_name, 30, 5, 20
-								the_name = trim(the_name)
-								EOMC_CLIENT_ARRAY (clt_name, hc_clt) = the_name
-							End If
-							mo_col = 19                                     'setting the column for reading the month and year of the HC information for the client
-							yr_col = 22
-							Do                                              'we will look through each of the 6 months in the budget to find the current month and year
-								EMReadScreen bsum_mo, 2, 6, mo_col          'reading the month and year
-								EMReadScreen bsum_yr, 2, 6, yr_col
+							footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year  'defining footer month/year as date 
+                            new_elig_hc_panel_date = "01/01/25"                                     'defining date ELIG/HC panel format/positions changed
 
-								If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do        'if it is this month and year, we found the right month and year
-								mo_col = mo_col + 11                        'if it doesn't match, then we go to the next - which is 11 over
-								yr_col = yr_col + 11
-								'MsgBox "Loop 3 - month col: " & mo_col
-							Loop until mo_col = 74                          'this is the last month
+							new_elig_panel = FALSE 
+							If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN new_elig_panel = TRUE
 
-							EMReadScreen reference, 2, 5, 16                'this is the reference number
+                            If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
+                                If left(EOMC_CLIENT_ARRAY (clt_name, hc_clt), 5) = "XXXXX" Then   'If the name was not on the BOBI and is just listed on X's then we read the actual name here
+                                    EMReadScreen the_name, 30, 5, 20
+                                    the_name = trim(the_name)
+                                    EOMC_CLIENT_ARRAY (clt_name, hc_clt) = the_name
+                                End If
+                                mo_col = 19                                     'setting the column for reading the month and year of the HC information for the client
+                                yr_col = 22
+                                Do                                              'we will look through each of the 6 months in the budget to find the current month and year
+                                    EMReadScreen bsum_mo, 2, 6, mo_col          'reading the month and year
+                                    EMReadScreen bsum_yr, 2, 6, yr_col
 
-							EMReadScreen prog, 4, 11, mo_col                'reading all of the detail in this month of BSUM
-							EMReadScreen pers_type, 2, 12, mo_col-2
-							EMReadScreen pers_std, 1, 12, yr_col
-							EMReadScreen pers_mthd, 1, 13, yr_col-1
-							EMReadScreen pers_waiv, 1, 14, yr_col-1
+                                    If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do        'if it is this month and year, we found the right month and year
+                                    mo_col = mo_col + 11                        'if it doesn't match, then we go to the next - which is 11 over
+                                    yr_col = yr_col + 11
+                                    'MsgBox "Loop 3 - month col: " & mo_col
+                                Loop until mo_col = 74                          'this is the last month
+
+                                EMReadScreen reference, 2, 5, 16                'this is the reference number
+
+                                EMReadScreen prog, 4, 11, mo_col                'reading all of the detail in this month of BSUM
+                                EMReadScreen pers_type, 2, 12, mo_col-2
+                                EMReadScreen pers_std, 1, 12, yr_col
+                                EMReadScreen pers_mthd, 1, 13, yr_col-1
+                                EMReadScreen pers_waiv, 1, 14, yr_col-1
+                            End If
+
+                            If new_elig_panel = TRUE THEN   'Panel on/after 1/1/25
+                                If left(EOMC_CLIENT_ARRAY (clt_name, hc_clt), 5) = "XXXXX" Then   'If the name was not on the BOBI and is just listed on X's then we read the actual name here
+                                    EMReadScreen the_name, 30, 4, 20
+                                    the_name = trim(the_name)
+                                    EOMC_CLIENT_ARRAY (clt_name, hc_clt) = the_name
+                                End If
+                                mo_col = 19                                     'setting the column for reading the month and year of the HC information for the client
+                                yr_col = 22
+                                Do                                              'we will look through each of the 6 months in the budget to find the current month and year
+                                    EMReadScreen bsum_mo, 2, 5, mo_col          'reading the month and year
+                                    EMReadScreen bsum_yr, 2, 5, yr_col
+
+                                    If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do        'if it is this month and year, we found the right month and year
+                                    mo_col = mo_col + 11                        'if it doesn't match, then we go to the next - which is 11 over
+                                    yr_col = yr_col + 11
+                                    'MsgBox "Loop 3 - month col: " & mo_col
+                                Loop until mo_col = 74                          'this is the last month
+
+                                EMReadScreen reference, 2, 4, 16                'this is the reference number
+
+                                EMReadScreen prog, 4, 10, mo_col                'reading all of the detail in this month of BSUM
+                                EMReadScreen pers_type, 2, 11, mo_col-2
+                                EMReadScreen pers_std, 1, 11, yr_col
+                                EMReadScreen pers_mthd, 1, 12, yr_col-1
+                                EMReadScreen pers_waiv, 1, 13, yr_col-1
+                            End If
 
 							'sometimes the month is not correctly found because of old budgets, this sets error information here because the case needs to be looked at manually
 							If prog = "    " Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ HC ELIG Budget may need approval or budget needs to be aligned."
