@@ -290,11 +290,11 @@ Do
 	If budget_check = "/" then
 		budget_months = budget_months + 1
 		If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
-			EMWriteScreen "x", 9, col + 1
+			EMWriteScreen "X", 9, col + 1
 		End If
 
 		If new_elig_panel = TRUE THEN   'Panel on/after 1/1/25
-			EMWriteScreen "x", 8, col + 1
+			EMWriteScreen "X", 8, col + 1
 		End If
 	End If
   col = col + 11
