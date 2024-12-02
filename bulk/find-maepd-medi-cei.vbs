@@ -246,9 +246,25 @@ DO
                 If trim(approval_code) = "UNAPP" then Call write_value_and_transmit("D", hhmm_row, 26)
 
                 Call write_value_and_transmit("X", hhmm_row, 26)
-	    		'start looking for current month budget results
-                row = 6
-                col = 19
+
+				footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year 'defining footer month/year as date 
+                new_elig_hc_panel_date = "01/01/25"                                     'defining date ELIG/HC panel format/positions changed
+
+				new_elig_panel = FALSE 
+				If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN new_elig_panel = TRUE 
+				
+                If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
+                    'start looking for current month budget results
+                    row = 6
+                    col = 19
+                End If
+
+                If new_elig_panel = TRUE THEN   'Panel on/after 1/1/25
+                    'start looking for current month budget results
+                    row = 5
+                    col = 19
+                End If
+
                 EMSearch current_month, row, col
                 If row = 0 then
                     'For cases without current HC elig
@@ -257,9 +273,17 @@ DO
                         objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                     Next
                 else
-                     'Checking for MA-EPD results in the current month
-	    		    EMReadScreen elig_type, 2, 12, col - 2
-	    		    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
+					If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
+                        'Checking for MA-EPD results in the current month
+                        EMReadScreen elig_type, 2, 12, col - 2
+                    End If 
+
+                    If new_elig_panel = TRUE THEN   'Panel on/after 1/1/25
+                        'Checking for MA-EPD results in the current month
+                        EMReadScreen elig_type, 2, 11, col - 2
+                    End If
+
+					IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
                         'For cases without current MA-EPD
                         objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")
 
@@ -271,15 +295,26 @@ DO
                     End if
 
                     If MaEPD_found = True then
-                        'Heading into the budget
-                        EmReadscreen x_budget, 1, 13, col + 2       'Added supports for X budget cases as they cannot enter the budget on line 250
+						If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
+                            'Heading into the budget
+                            EmReadscreen x_budget, 1, 13, col + 2       'Added supports for X budget cases as they cannot enter the budget on line 250
+                        End If
+                        
+                        If new_elig_panel = TRUE THEN   'Panel on/after 1/1/25
+                            'Heading into the budget
+                            EmReadscreen x_budget, 1, 12, col + 2       'Added supports for X budget cases as they cannot enter the budget on line 250
+                        End If
+
                         If x_budget = "X" then
                             objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " has X budget. Review eligibility.")  'writing eligibility status in spreadsheet
                             For col = 1 to 13
                                 objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                             Next
                         Else
-                            Call write_value_and_transmit("X", 9, col + 2)
+                            If new_elig_panel = FALSE Then Call write_value_and_transmit("X", 9, col + 2)
+
+                            If new_elig_panel = TRUE THEN Call write_value_and_transmit("X", 8, col + 2)
+
                             'Reading Budget Information 
 
                             EMReadScreen gross_unea_income, 11, 9, 31
