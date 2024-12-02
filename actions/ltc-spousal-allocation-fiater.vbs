@@ -522,9 +522,24 @@ If FIAT_check <> "FIAT" then
   transmit
 End if
 
-'Defining the variables for the following search
-ELIG_HC_row = 6
-ELIG_HC_col = 1
+footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year 'defining footer month/year as date 
+new_elig_hc_panel_date = "01/01/25"                   'defining date ELIG/HC panel format/positions changed
+
+new_elig_panel = FALSE 
+If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 Then new_elig_panel = TRUE
+
+If new_elig_panel = FALSE  Then  'Panel prior to 1/1/25
+  'Defining the variables for the following search
+  ELIG_HC_row = 6
+  ELIG_HC_col = 1
+End If
+
+If new_elig_panel = TRUE THEN 'Panel on/after 1/1/25
+  'Defining the variables for the following search
+  ELIG_HC_row = 5
+  ELIG_HC_col = 1
+End If
+
 
 'Determining the col variable based on the indicated footer month/year
 EMSearch spousal_allocation_footer_month & "/" & spousal_allocation_footer_year, ELIG_HC_row, ELIG_HC_col
@@ -536,10 +551,23 @@ budget_months = 0
 
 'Fills all budget months with "x's", so that the script will go into each one in succession.
 Do
-  EMReadScreen budget_check, 1, 12, col
+  If new_elig_panel = FALSE  Then  'Panel prior to 1/1/25
+    EMReadScreen budget_check, 1, 12, col
+  End If 
+
+  If new_elig_panel = TRUE THEN 'Panel on/after 1/1/25
+    EMReadScreen budget_check, 1, 11, col
+  End If
+
   If budget_check = "/" then
     budget_months = budget_months + 1
-    EMWriteScreen "x", 9, col + 1
+    If new_elig_panel = FALSE  Then  'Panel prior to 1/1/25
+      EMWriteScreen "x", 9, col + 1
+    End If
+
+    If new_elig_panel = TRUE THEN 'Panel on/after 1/1/25
+      EMWriteScreen "x", 8, col + 1
+    End If
   End if
   col = col + 11
 Loop until col > 75
