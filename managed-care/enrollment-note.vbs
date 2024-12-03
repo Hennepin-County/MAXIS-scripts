@@ -333,7 +333,7 @@ BeginDialog Dialog1, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
     CheckBox 5, (x * 20) + y_pos, 25, 10, "Yes", MMIS_clients_array(case_note_checkbox, person)
   	Text 40, (x * 20) + y_pos, 95, 10, MMIS_clients_array(client_name, person)
   	Text 135, (x * 20) + y_pos, 35, 10, MMIS_clients_array(client_pmi, person)
-    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare"", MMIS_clients_array(current_plan, person)
+    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", MMIS_clients_array(current_plan, person)
   	DropListBox 295, (x * 20) + y_pos - 5, 40, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"MA 37", MMIS_clients_array(contr_code, person)
 	DropListBox 365, (x * 20) + y_pos - 5, 105, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
 	x = x + 1
