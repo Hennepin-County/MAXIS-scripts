@@ -853,7 +853,7 @@ function define_main_dialog()
 
 			Text 15, 50, 290, 10, "How much income was received (or will be received) in the application month (MM/YY)?"
 			EditBox 310, 45, 50, 15, exp_det_income
-			y_pos = 65
+			y_pos = 60
 
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If InStr(FORM_QUESTION_ARRAY(quest).dialog_phrasing, "self-employed") <> 0 AND FORM_QUESTION_ARRAY(quest).info_type = "single-detail" Then
@@ -874,17 +874,20 @@ function define_main_dialog()
 					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
 					y_pos = y_pos + 10
 					for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
-
 						If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
-							Text 25, y_pos, 450, 10, "Employer: " & FORM_QUESTION_ARRAY(quest).detail_business(each_item) & "  - Employee: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)
-							y_pos = y_pos + 10
-							If trim(FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)) <> "" OR trim(FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)) <> "" Then
-								Text 30, y_pos, 450, 10, "Hourly Wage: " & FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item) & " - Hours per Week: " & FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)
+							If FORM_QUESTION_ARRAY(quest).detail_business(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then
+								Text 25, y_pos, 450, 10, "Employer: " & FORM_QUESTION_ARRAY(quest).detail_business(each_item) & "  - Employee: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)
 								y_pos = y_pos + 10
+								If trim(FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)) <> "" OR trim(FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)) <> "" Then
+									Text 30, y_pos, 450, 10, "Hourly Wage: " & FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item) & " - Hours per Week: " & FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)
+									y_pos = y_pos + 10
+								End If
 							End If
 						ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then
-							Text 25, y_pos, 450, 10, "Name: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "   - Start Date: $ " & FORM_QUESTION_ARRAY(quest).detail_date(each_item) & "   - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "   - Freq.: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
-							y_pos = y_pos + 10
+							If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then
+								Text 25, y_pos, 450, 10, "Name: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "   - Start Date: $ " & FORM_QUESTION_ARRAY(quest).detail_date(each_item) & "   - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "   - Freq.: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
+								y_pos = y_pos + 10
+							End If
 						End If
 					next
 				End If
@@ -909,12 +912,11 @@ function define_main_dialog()
 					End If
 				End If
 			Next
-
-			y_pos = y_pos + 10
+			y_pos = y_pos + 5
 
 			Text 15, y_pos, 330, 10, "How much does the household have in assets (accounts and cash) in the application month (MM/YY)?"
 			EditBox 350, y_pos-5, 50, 15, exp_det_assets
-			y_pos = y_pos + 15
+			y_pos = y_pos + 10
 
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then
@@ -922,8 +924,10 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
 						for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
-							Text 25, y_pos, 450, 10, "Owner: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Value: $ " & FORM_QUESTION_ARRAY(quest).detail_value(each_item)
-							y_pos = y_pos + 10
+							If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then
+								Text 25, y_pos, 450, 10, "Owner: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Value: $ " & FORM_QUESTION_ARRAY(quest).detail_value(each_item)
+								y_pos = y_pos + 10
+							End If
 						next
 					End If
 				End If
@@ -947,16 +951,15 @@ function define_main_dialog()
 						y_pos = y_pos + 10
 					End If
 				End If
-
 			Next
-			y_pos = y_pos + 10
+			y_pos = y_pos + 5
 
 			Text 15, y_pos, 305, 10, "How much does the household pay in housing expenses in the application month (MM/YY)?"
 			EditBox 320, y_pos-5, 50, 15, exp_det_housing
 			y_pos = y_pos + 15
 
 			Text 15, y_pos, 315, 10, "Which type of utilities is the household responsible to pay in the application month (MM/YY)?"
-			y_pos = y_pos + 15
+			y_pos = y_pos + 10
 			CheckBox 25, y_pos, 45, 10, "Heat", heat_exp_checkbox
 			CheckBox 90, y_pos, 70, 10, "Air Conditioning", ac_exp_checkbox
 			CheckBox 175, y_pos, 45, 10, "Electric", electric_exp_checkbox
@@ -970,8 +973,10 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
 						for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
-							Text 15, y_pos, 395, 10, "Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "  - Frequency: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
-							y_pos = y_pos + 10
+							If FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then
+								Text 25, y_pos, 395, 10, "Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "  - Frequency: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
+								y_pos = y_pos + 10
+							End If
 						next
 					End If
 				End If
@@ -986,8 +991,8 @@ function define_main_dialog()
 
 					subsidy_info_tx = "Subsidy: " & FORM_QUESTION_ARRAY(quest).subsidy_yn & "    Subsidy Amount: $ " & FORM_QUESTION_ARRAY(quest).subsidy_amount
 
-					Text 25, y_pos, 450, 10, housing_info_txt
-					Text 25, y_pos+10, 450, 10, subsidy_info_tx
+					Text 30, y_pos, 450, 10, housing_info_txt
+					Text 30, y_pos+10, 450, 10, subsidy_info_tx
 					y_pos = y_pos + 20
 				End If
 
@@ -1025,6 +1030,7 @@ function define_main_dialog()
 					End If
 				End If
 			Next
+			y_pos = y_pos + 5
 
 			Text 15, y_pos, 305, 10, "Add notes or other details in making the expedited determination:"
 			EditBox 15, y_pos+10, 450, 15, exp_det_notes
@@ -2455,6 +2461,7 @@ function set_initial_exp_simplified()
 	exp_det_income = 0
 	exp_det_assets = 0
 	exp_det_housing = 0
+	exp_det_utilities = 0
 	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 		If InStr(FORM_QUESTION_ARRAY(quest).dialog_phrasing, "self-employed") <> 0 AND FORM_QUESTION_ARRAY(quest).info_type = "single-detail" Then
 			If IsNumeric(FORM_QUESTION_ARRAY(quest).sub_answer) = true Then exp_det_income = exp_det_income + FORM_QUESTION_ARRAY(quest).sub_answer
@@ -2485,7 +2492,7 @@ function set_initial_exp_simplified()
 						End If
 					End If
 				ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "shel-hest" Then
-					exp_det_housing = FORM_QUESTION_ARRAY(quest).housing_payment
+					If IsNumeric(FORM_QUESTION_ARRAY(quest).housing_payment) = True Then exp_det_housing = FORM_QUESTION_ARRAY(quest).housing_payment
 					heat_exp_checkbox = FORM_QUESTION_ARRAY(quest).heat_air_checkbox
 					ac_exp_checkbox = FORM_QUESTION_ARRAY(quest).heat_air_checkbox
 					electric_exp_checkbox = FORM_QUESTION_ARRAY(quest).electric_checkbox
@@ -2506,7 +2513,7 @@ function set_initial_exp_simplified()
 			If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
 				For each_shel = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
 					If FORM_QUESTION_ARRAY(quest).item_ans_list(each_shel) = "Yes" Then
-						exp_det_housing = exp_q_3_rent_this_month
+						If exp_det_housing = 0 and IsNumeric(exp_q_3_rent_this_month) = True Then exp_det_housing = exp_q_3_rent_this_month
 					End If
 				Next
 			End If
@@ -8775,7 +8782,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 					PushButton 15, y_pos, 100, 15, "Update Verifications", verif_button
 					y_pos = y_pos + 20
 				End If
-				Text 15, y_pos, 505, 10, "Your address and phone number are our best way to contact you, let us know of these changes so you do not miss any notices or requests."
+				Text 15, y_pos, 505, 10, "Your address and phone number are our best way to contact you, let us know if these change so you do not miss any notices or requests."
 				y_pos = y_pos + 10
 				Text 20, y_pos, 505, 10, "Our mail does not forward and missing notices can cause your benefits to end."
 				y_pos = y_pos + 20
