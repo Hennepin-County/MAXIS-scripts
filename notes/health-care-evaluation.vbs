@@ -6511,7 +6511,8 @@ hc_status_code_past_4_months = False
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
-MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/1/")
+MAXIS_footer_month_year_date_format = DateAdd("d", 0, MAXIS_footer_month_year_date_format)
 
 'Navigating to STAT/REVW for CM + 1
 Call navigate_to_MAXIS_screen("STAT", "REVW")
@@ -6524,9 +6525,9 @@ If HC_status_code <> "_" Then
     hc_status_code_past_4_months = True
 Else
     'Since starting at CM + 1, looking back 6 months from this footer month/year. Set date that is 6 months before CM (which is CM + 1) in footer month format ("04 23"), this is where script should stop as it iterates backward
-    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2)
+    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year_date_format)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year_date_format)), 2)
 
-    Do
+	Do
         'Head back to SELF panel
         Call back_to_SELF
 
@@ -6534,7 +6535,8 @@ Else
         MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
         MAXIS_footer_year = right(DatePart("yyyy", DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
         MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
-        MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+        MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/1/")
+		MAXIS_footer_month_year_date_format = DateAdd("d", 0, MAXIS_footer_month_year_date_format)
 
         'Perform check to determine if it matches CM - 5 or "07 23"
         If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then
