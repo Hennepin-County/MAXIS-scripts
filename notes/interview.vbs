@@ -7221,7 +7221,7 @@ Do
 			CheckBox 15, 90, 30, 10, "CASH", CASH_on_CAF_checkbox
 			CheckBox 55, 90, 35, 10, "SNAP", SNAP_on_CAF_checkbox
 			CheckBox 95, 90, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
-			CheckBox 160, 90, 100, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
+			CheckBox 160, 90, 105, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
 			Text 15, 110, 180, 10, "About the different programs:"
 			Text 20, 120, 245, 10, "- CASH is a monthly cash benefit."
 			Text 20, 130, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
