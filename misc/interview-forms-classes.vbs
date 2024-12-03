@@ -2756,8 +2756,8 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
@@ -2782,7 +2782,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 100
 			question_num = question_num + 1
 
@@ -2806,7 +2806,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 75
 			question_num = question_num + 1
 
@@ -2842,7 +2842,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 40
 			question_num = question_num + 1
 
@@ -2864,8 +2864,8 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
@@ -2884,8 +2884,8 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 5
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
@@ -2912,7 +2912,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 130
 			question_num = question_num + 1
 
@@ -2933,7 +2933,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
