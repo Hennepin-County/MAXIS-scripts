@@ -6840,8 +6840,12 @@ End If
 'look to see if the worker is listed as one of the interviewer workers
 run_by_interview_team = False										'Default the interview team option to false
 For each worker in interviewer_array 								'loop through all of the workers listed in the interviewer_array
-	If user_ID_for_validation = worker.interviewer_id_number Then		'if the worker county logon ID that is running the script matches one of the interviewer_array workers
-		run_by_interview_team = True 								'the script will run the interview only option
+	If user_ID_for_validation = worker.interviewer_id_number Then					'if the worker county logon ID that is running the script matches one of the interviewer_array workers
+		run_interview_team_msg = ""
+		If worker.interview_trainer = True Then
+			run_interview_team_msg = MsgBox("The Interview Script has two run options." & vbCr & vbCr & "- One is for a standard worker that has full policy and processing knowledge/training." & vbCr & "- The other is for the team of workers that complete interviews only and no processing." & vbCr & vbCr & "Do you want to run the Interview Team - INTERVIEW ONLY NO PROCESSING - Option?", vbQuestion + vbYesNo, "Use Interview Team Option")
+		End If
+		If worker.interview_trainer = False or run_interview_team_msg = vbYes Then run_by_interview_team = True 		'the script will run the interview only option
 	End If
 Next
 
