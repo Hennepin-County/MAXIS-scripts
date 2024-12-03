@@ -119,6 +119,7 @@ button_placeholder 			    = 24601
 'Displays the dialog
 Do
 	'Creates the dialog
+	Dialog1 = ""
 	call declare_main_menu_dialog("IV-E")
 
 	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
