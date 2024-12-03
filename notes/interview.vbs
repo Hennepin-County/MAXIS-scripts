@@ -871,11 +871,15 @@ function define_main_dialog()
 					End If
 				End If
 				If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
-					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
-					y_pos = y_pos + 10
+					first_array = True
 					for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
 						If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
 							If FORM_QUESTION_ARRAY(quest).detail_business(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" Then
+								If first_array = True Then
+									Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+									y_pos = y_pos + 10
+									first_array = False
+								End If
 								Text 25, y_pos, 450, 10, "Employer: " & FORM_QUESTION_ARRAY(quest).detail_business(each_item) & "  - Employee: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & FORM_QUESTION_ARRAY(quest).detail_monthly_amount(each_item)
 								y_pos = y_pos + 10
 								If trim(FORM_QUESTION_ARRAY(quest).detail_hourly_wage(each_item)) <> "" OR trim(FORM_QUESTION_ARRAY(quest).detail_hours_per_week(each_item)) <> "" Then
@@ -885,6 +889,11 @@ function define_main_dialog()
 							End If
 						ElseIf FORM_QUESTION_ARRAY(quest).detail_source = "unea" Then
 							If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then
+								If first_array = True Then
+									Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+									y_pos = y_pos + 10
+									first_array = False
+								End If
 								Text 25, y_pos, 450, 10, "Name: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "   - Start Date: $ " & FORM_QUESTION_ARRAY(quest).detail_date(each_item) & "   - Amount: $ " & FORM_QUESTION_ARRAY(quest).detail_amount(each_item) & "   - Freq.: " & FORM_QUESTION_ARRAY(quest).detail_frequency(each_item)
 								y_pos = y_pos + 10
 							End If
@@ -912,19 +921,25 @@ function define_main_dialog()
 					End If
 				End If
 			Next
+			If y_pos = 60 Then y_pos = y_pos + 5
 			y_pos = y_pos + 5
 
 			Text 15, y_pos, 330, 10, "How much does the household have in assets (accounts and cash) in the application month (MM/YY)?"
 			EditBox 350, y_pos-5, 50, 15, exp_det_assets
 			y_pos = y_pos + 10
+			orig_y_pos = y_pos
 
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).detail_source = "assets" Then
-					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
-					y_pos = y_pos + 10
+					first_array = True
 					If FORM_QUESTION_ARRAY(quest).detail_array_exists = true Then
 						for each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
 							If FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) <> "" or FORM_QUESTION_ARRAY(quest).detail_type(each_item) <> "" Then
+								If first_array = True Then
+									Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+									y_pos = y_pos + 10
+									first_array = False
+								End If
 								Text 25, y_pos, 450, 10, "Owner: " & FORM_QUESTION_ARRAY(quest).detail_resident_name(each_item) & "  - Type: " & FORM_QUESTION_ARRAY(quest).detail_type(each_item) & "  - Value: $ " & FORM_QUESTION_ARRAY(quest).detail_value(each_item)
 								y_pos = y_pos + 10
 							End If
@@ -952,6 +967,7 @@ function define_main_dialog()
 					End If
 				End If
 			Next
+			If y_pos = orig_y_pos Then y_pos = y_pos + 5
 			y_pos = y_pos + 5
 
 			Text 15, y_pos, 305, 10, "How much does the household pay in housing expenses in the application month (MM/YY)?"
@@ -1018,11 +1034,15 @@ function define_main_dialog()
 				End If
 
 				If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
-					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
-					y_pos = y_pos + 10
+					first_array = True
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
 						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
 							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
+								If first_array = True Then
+									Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
+									y_pos = y_pos + 10
+									first_array = False
+								End If
 								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
 								y_pos = y_pos + 10
 							End If
