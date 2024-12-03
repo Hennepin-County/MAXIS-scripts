@@ -6899,7 +6899,7 @@ Do
 				PushButton 235, 50, 125, 15, "SIR - SNAP Phone Interview Guide", sir_snap_interview
 				PushButton 235, 65, 60, 15, "Script Overview", msg_what_script_does_btn
 				PushButton 295, 65, 65, 15, "Script How to Use", msg_script_interaction_btn
-				PushButton 10, 160, 120, 15, "Interview Summary", run_interview_summary_btn
+				If run_by_interview_team = False Then PushButton 10, 160, 120, 15, "Interview Summary", run_interview_summary_btn
 				PushButton 240, 200, 120, 15, "More about 'SAVE YOUR WORK'", msg_save_your_work_btn
 				PushButton 240, 235, 120, 15, "Details on Dialog Correction", msg_script_messaging_btn
 				PushButton 10, 295, 50, 15, "Instructions", msg_show_instructions_btn
@@ -6914,8 +6914,8 @@ Do
 			Text 10, 105, 240, 10, "* * * THIS  SCRIPT  SHOULD  BE  RUN  DURING  THE  INTERVIEW * * *"
 			Text 25, 115, 315, 10, "Start this script at the beginning of the interview and use it to record the interview as it happens."
 			Text 10, 130, 205, 10, "* Capture info from the form AND info from the conversation."
-			Text 10, 150, 315, 10, "If the interview is already over, we have a temporary option to record the interview information:"
-			If run_by_interview_team = True Then Text 240, 165, 120, 10, "Interview Team Functionality Started"
+			If run_by_interview_team = False Then Text 10, 150, 315, 10, "If the interview is already over, we have a temporary option to record the interview information:"
+			If run_by_interview_team = True Then Text 10, 165, 120, 10, "Interview Team Functionality Started"
 			GroupBox 5, 190, 360, 95, "Script Functionality"
 			Text 10, 205, 185, 10, "This script SAVES the information you enter as it runs!"
 			Text 10, 215, 345, 10, "IF the script errors, fails, is cancelled, the network goes down. YOU CAN GET YOUR WORK BACK!!!"
