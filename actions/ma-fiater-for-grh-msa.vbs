@@ -938,6 +938,13 @@ End If
 
 CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that client's MA
 
+'Read to find out which version of BSUM we have for line positioning.
+EMReadScreen name_or_date, 1, 5, 19
+If name_or_date = " " Then 
+    base_row = 0 'This is the old version of BSUM
+Else    
+    base_row = -1
+End If 
 PF9													' }
 'checking if FIAT already...						' }
 EMReadScreen cannot_fiat, 20, 24, 2					' }
@@ -947,7 +954,7 @@ IF cannot_fiat <> "PF9 IS NOT PERMITTED" THEN 		' }
 END IF												' }
 
 'FIAT Millecento the Assets
-CALL write_value_and_transmit("X", 7, 17)			' } gets to MAPT
+CALL write_value_and_transmit("X", base_row + 7, 17)			' } gets to MAPT
 CALL write_value_and_transmit("X", 7, 3)			' } gets to ASSETS popup
 
 
@@ -1269,8 +1276,16 @@ IF ma_case <> "_ MA" THEN msgbox "error"				' } looking to see that the client h
 
 CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that client's MA
 
+'Read to find out which version of BSUM we have for line positioning.
+EMReadScreen name_or_date, 1, 5, 19
+If name_or_date = " " Then 
+    base_row = 0 'This is the old version of BSUM
+Else    
+    base_row = -1
+End If 
+
 'Make sure this is the correct type of case'
-EMReadScreen method_check, 55, 13, 21
+EMReadScreen method_check, 55, base_row + 13, 21
 method_check = replace(method_check, " ", "")
 'IF method_check <> "XXXXXX" THEN script_end_procedure("This is not an auto-ma case for the entire budget period, please process manually.  The script will now stop.")
 
@@ -1285,13 +1300,13 @@ END IF												' }
 'This willenter the income standard and method.
 
 FOR i = 0 to 5
-	EMWriteScreen "B", 13, (21 + (i * 11))
-	EMWriteScreen "E", 12, (22 + (i * 11))
+	EMWriteScreen "B", base_row + 13, (21 + (i * 11))
+	EMWriteScreen "E", base_row + 12, (22 + (i * 11))
 NEXT
 
 ' going through and updating the budget with income and assets
 FOR i = 0 TO 5
-	EMWriteScreen "X", 9, (21 + (i * 11))			' pooting the X on the BUDGET field for that month in the benefit period
+	EMWriteScreen "X", base_row + 9, (21 + (i * 11))			' pooting the X on the BUDGET field for that month in the benefit period
 NEXT
 
 
@@ -1412,7 +1427,7 @@ NEXT 'closing out the chicken loop'
 
 'FIAT Millecento the Assets
 For i = 1 to 6 'mark the person tests'
-EMWriteScreen "X", 7, (i*11) + 6
+EMWriteScreen "X", base_row + 7, (i*11) + 6
 Next
 transmit
 
