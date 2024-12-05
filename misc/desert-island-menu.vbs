@@ -107,11 +107,8 @@ Do
               PushButton 10, 260, 115, 15, "Interview", interview_btn
             Text 135, 265, 445, 10, "Workflow for a quality interview."
             ButtonGroup ButtonPressed
-              PushButton 10, 275, 115, 15, "SNAP Waived Interview", waived_btn
-            Text 135, 280, 445, 10, "Support for temporary SNAP Interview Waiver. "
-            ButtonGroup ButtonPressed
-              PushButton 10, 290, 115, 15, "Verifications Needed", verifications_needed_btn
-            Text 135, 295, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
+              PushButton 10, 275, 115, 15, "Verifications Needed", verifications_needed_btn
+            Text 135, 280, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
             ButtonGroup ButtonPressed
             CancelButton 530, 325, 50, 15
     EndDialog
@@ -192,9 +189,7 @@ Do
         Case hrf_btn
             call run_another_script(desert_island_repository & "hrf.vbs")
 		Case interview_btn
-            call run_another_script(desert_island_repository & "interview.vbs")
-        Case waived_btn
-            call run_another_script(desert_island_repository & "snap-waived-interview.vbs")    
+            call run_another_script(desert_island_repository & "interview.vbs")  
         Case verifications_needed_btn
             call run_another_script(desert_island_repository & "verifications-needed.vbs")
         Case add_wcom_btn
