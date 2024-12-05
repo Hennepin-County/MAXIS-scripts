@@ -10904,7 +10904,311 @@ With (CreateObject("Scripting.FileSystemObject"))
 	.DeleteFile(intvw_done_msg_file)
 End With
 
+If run_by_interview_team = True and developer_mode = False Then
+	'creates an XML File with details of the the interview
+	Set xmlTracDoc = CreateObject("Microsoft.XMLDOM")
+	xmlTracPath = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Assignments\Script Testing Logs\Interview Team Usage\interview_details_" & MAXIS_case_number & "_at_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".xml"
 
+	xmlTracDoc.async = False
+
+	Set root = xmlTracDoc.createElement("interview")
+	xmlTracDoc.appendChild root
+
+	Set element = xmlTracDoc.createElement("ScriptRunDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ScriptRunTime")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(time)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("WorkerName")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(worker_name)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CaseNumber")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(MAXIS_case_number)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CaseBasket")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(case_pw)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("DHSFormNumber")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(CAF_form_number)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("DHSFormName")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(CAF_form_name)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(interview_date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CaseActive")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(case_active)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CasePending")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(case_pending)
+	element.appendChild info
+
+	If case_pending = True Then
+		Set element = xmlTracDoc.createElement("DaysPendingAtInterview")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(item)
+		element.appendChild info
+	End If
+
+	Set element = xmlTracDoc.createElement("InterviewPerson")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(who_are_we_completing_the_interview_with)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewMethod")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(how_are_we_completing_the_interview)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewLength")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(length_of_interview)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewInterpreter")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(interpreter_information)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewLanguage")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(interpreter_language)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("FormInfo")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(CAF_form)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CAFDateStamp")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(CAF_datestamp)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("MFIPStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(mfip_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("DWPStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(dwp_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GAStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(ga_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("MSAStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(msa_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("EMERStatus")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(emer_status)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("UnspecifiedCASHPending")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(unknown_cash_pending)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash_request)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_request)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("EMERRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(emer_request)
+	element.appendChild info
+
+	If cash_request = True Then
+		Set element = xmlTracDoc.createElement("CASHProcess")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(the_process_for_cash)
+		element.appendChild info
+
+		Set element = xmlTracDoc.createElement("TypeOfCASH")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(type_of_cash)
+		element.appendChild info
+
+		If the_process_for_cash = "Renewal" Then
+			Set element = xmlTracDoc.createElement("CASHRenewalMonth")
+			root.appendChild element
+			Set info = xmlTracDoc.createTextNode(next_cash_revw_mo & "/" & next_cash_revw_yr)
+			element.appendChild info
+		End If
+	End If
+
+	If snap_request = True Then
+		Set element = xmlTracDoc.createElement("SNAPProcess")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(the_process_for_snap)
+		element.appendChild info
+		If the_process_for_snap = "Renewal" Then
+			Set element = xmlTracDoc.createElement("CASHRenewalMonth")
+			root.appendChild element
+			Set info = xmlTracDoc.createTextNode(next_snap_revw_mo & "/" & next_snap_revw_yr)
+			element.appendChild info
+		End If
+	End If
+
+	If emer_request = True Then
+		Set element = xmlTracDoc.createElement("EMERProcess")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(the_process_for_emer)
+		element.appendChild info
+	End If
+
+	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
+		Set element = xmlTracDoc.createElement("member")
+		root.appendChild element
+
+		Set element = xmlTracDoc.createElement("ReferenceNumber")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(ref_number, the_members))
+		element.appendChild info
+
+		Set element = xmlTracDoc.createElement("LastName")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(last_name_const, the_members))
+		element.appendChild info
+
+		Set element = xmlTracDoc.createElement("FirstName")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(first_name_const, the_members))
+		element.appendChild info
+
+		Set element = xmlTracDoc.createElement("Age")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(age, the_members))
+		element.appendChild info
+
+		Set element = xmlTracDoc.createElement("RelationshipToApplicant")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(rel_to_applcnt, the_members))
+		element.appendChild info
+
+		If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True Then
+			Set element = xmlTracDoc.createElement("MFIPOrientation")
+			root.appendChild element
+			If HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
+				Set info = xmlTracDoc.createTextNode("Incomplete")
+				element.appendChild info
+			ElseIf  HH_MEMB_ARRAY(orientation_needed_const, caregiver) = False Then
+				Set info = xmlTracDoc.createTextNode("Not Needed")
+				element.appendChild info
+			ElseIf HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = True Then
+				Set info = xmlTracDoc.createTextNode("Completed")
+				element.appendChild info
+			ElseIf HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = True Then
+				Set info = xmlTracDoc.createTextNode("Exempt")
+				element.appendChild info
+			End If
+		End If
+	Next
+
+	Set element = xmlTracDoc.createElement("eDRSMatchFound")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(edrs_match_found)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpeditedScreening")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(expedited_screening)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpeditedDetermination")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(is_elig_XFS)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpDetIncome")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(exp_det_income)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpDetAssets")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(exp_det_assets)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpDetShelter")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(exp_det_housing)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpDetUtilities")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(exp_det_utilities)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpDetNotes")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(exp_det_notes)
+	element.appendChild info
+
+	xmlTracDoc.save(xmlTracPath)
+
+	Set xml = CreateObject("Msxml2.DOMDocument")
+	Set xsl = CreateObject("Msxml2.DOMDocument")
+
+	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+	txt = Replace(fso.OpenTextFile(xmlTracPath).ReadAll, "><", ">" & vbCrLf & "<")
+	stylesheet = "<xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">" & _
+	"<xsl:output method=""xml"" indent=""yes""/>" & _
+	"<xsl:template match=""/"">" & _
+	"<xsl:copy-of select="".""/>" & _
+	"</xsl:template>" & _
+	"</xsl:stylesheet>"
+
+	xsl.loadXML stylesheet
+	xml.loadXML txt
+
+	xml.transformNode xsl
+
+	xml.Save xmlTracPath
+End If
 
 STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
 Call script_end_procedure_with_error_report(end_msg)
