@@ -43,7 +43,7 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-CALL changelog_update("11/20/24", "Initial version.", "Mark Riegel, Hennepin County")
+CALL changelog_update("12/05/24", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -63,20 +63,20 @@ active_pending_case = False
 
 'Initial Case Number Dialog 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 110, "Enter Date of Death for Household Member"
-  EditBox 75, 5, 50, 15, MAXIS_case_number
-  EditBox 75, 25, 20, 15, MAXIS_footer_month
-  EditBox 105, 25, 20, 15, MAXIS_footer_year
-  EditBox 75, 45, 140, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 221, 115, "Enter Date of Death for Household Member"
+  EditBox 75, 30, 50, 15, MAXIS_case_number
+  EditBox 75, 50, 20, 15, MAXIS_footer_month
+  EditBox 105, 50, 20, 15, MAXIS_footer_year
+  EditBox 75, 70, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 125, 90, 45, 15
-    CancelButton 170, 90, 45, 15
-    PushButton 150, 5, 65, 15, "Script Instructions", msg_show_instructions_btn
-    PushButton 150, 25, 65, 15, "TE02.08.008", poli_temp_btn
-  Text 20, 10, 50, 10, "Case Number:"
-  Text 20, 30, 45, 10, "Footer month:"
-  Text 10, 50, 60, 10, "Worker Signature:"
-  Text 10, 65, 200, 20, "Script Purpose: Updates case based on date of death for household member in accordance with POLI/TEMP 02.08.008."
+    OkButton 125, 95, 45, 15
+    CancelButton 170, 95, 45, 15
+    PushButton 150, 30, 65, 15, "Script Instructions", msg_show_instructions_btn
+    PushButton 150, 50, 65, 15, "TE02.08.008", poli_temp_btn
+  Text 20, 35, 50, 10, "Case Number:"
+  Text 20, 55, 45, 10, "Footer Month:"
+  Text 10, 75, 60, 10, "Worker Signature:"
+  Text 10, 5, 200, 20, "Script Purpose: Updates case based on date of death for household member in accordance with POLI/TEMP 02.08.008."
 EndDialog
 
 Do 
@@ -141,6 +141,7 @@ Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending,
 'Determine if case is active, if it is active then evaluate what programs are active or pending
 If case_active = True or case_pending = True Then
   active_pending_case = True
+  'Determine if any CASH programs are active or pending
   If instr(list_active_programs, "SNAP") OR _
     instr(list_active_programs, "MSA") OR _
     instr(list_active_programs, "MFIP") OR _
@@ -159,20 +160,20 @@ If case_active = True or case_pending = True Then
     instr(list_pending_programs, "SNAP") OR _
     instr(list_pending_programs, "EA") Then
       active_pending_CASH_SNAP = True
-  ElseIf instr(list_active_programs, "HC") OR instr(list_pending_programs, "HC") Then
+  End If
+  
+  'Determine if HC is active or pending
+  If instr(list_active_programs, "HC") OR instr(list_pending_programs, "HC") Then
     active_pending_HC = True
-  Else
-    active_pending_case = False
   End If
 Else
   active_pending_case = False
 End If
 
-'If case is not active or pending, then script will end
+'If case is not active or pending and there are no SNAP, CASH, or HC programs, then script will end
 If active_pending_case = False Then script_end_procedure("The case is not active and no programs are pending. The script will now end.")
 
 If active_pending_HC = True Then
-  'Healthcare case
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 266, 75, "Enter Date of Death for HH Member - Healthcare Case"
     DropListBox 100, 5, 160, 15, "Select One..."+chr(9)+"MDH Minnesota Death Search"+chr(9)+"Social Security Administration record (SOLQ-I)"+chr(9)+"Authorized Representative"+chr(9)+"Power of Attorney"+chr(9)+"Other Adult Family Member", death_verification
@@ -358,15 +359,15 @@ script_end_procedure("Success! The script has updated the date of death for the 
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------12/05/2024
 '--comment Code-----------------------------------------------------------------12/05/2024
-'--Update Changelog for release/update------------------------------------------
+'--Update Changelog for release/update------------------------------------------12/05/2024
 '--Remove testing message boxes-------------------------------------------------12/05/2024
 '--Remove testing code/unnecessary code-----------------------------------------12/05/2024
 '--Review/update SharePoint instructions----------------------------------------12/05/2024
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------12/05/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------12/05/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------12/05/2024
+'--Complete misc. documentation (if applicable)---------------------------------12/05/2024
+'--Update project team/issue contact (if applicable)----------------------------12/05/2024
 
