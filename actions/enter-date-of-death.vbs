@@ -1,9 +1,9 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "TYPE - NEW SCRIPT TEMPLATE.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
+name_of_script = "ACTIONS - ENTER DATE OF DEATH.vbs"
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the anctual manualtime based on time study
-STATS_denomination = "C"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation appliable to your script.
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 150                	'manual run time in seconds
+STATS_denomination = "C"       		      'C is for each CASE
 'END OF stats block==========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -43,8 +43,7 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-CALL changelog_update("11/20/24", "Initial version.", "Mark Riegel, Hennepin County") 
+CALL changelog_update("11/20/24", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -71,14 +70,13 @@ BeginDialog Dialog1, 0, 0, 221, 110, "Enter Date of Death for Household Member"
   EditBox 75, 45, 140, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 125, 90, 45, 15
-    PushButton 150, 5, 65, 15, "Script Instructions", msg_show_instructions_btn
     CancelButton 170, 90, 45, 15
+    PushButton 150, 5, 65, 15, "Script Instructions", msg_show_instructions_btn
+    PushButton 150, 25, 65, 15, "TE02.08.008", poli_temp_btn
   Text 20, 10, 50, 10, "Case Number:"
   Text 20, 30, 45, 10, "Footer month:"
   Text 10, 50, 60, 10, "Worker Signature:"
   Text 10, 65, 200, 20, "Script Purpose: Updates case based on date of death for household member in accordance with POLI/TEMP 02.08.008."
-  ButtonGroup ButtonPressed
-    PushButton 150, 25, 65, 15, "TE02.08.008", poli_temp_btn
 EndDialog
 
 Do 
@@ -139,7 +137,6 @@ date_of_death_maxis_format = replace(date_of_death, "/", " ")
 
 'Determine which programs are active or pending
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-'Programs - SNAP, GRH, MSA, GA, DWP, MFIP, IV-E, CCAP, HC, EGA, EA, CASH
 
 'Determine if case is active, if it is active then evaluate what programs are active or pending
 If case_active = True or case_pending = True Then
@@ -181,9 +178,9 @@ If active_pending_HC = True Then
     DropListBox 100, 5, 160, 15, "Select One..."+chr(9)+"MDH Minnesota Death Search"+chr(9)+"Social Security Administration record (SOLQ-I)"+chr(9)+"Authorized Representative"+chr(9)+"Power of Attorney"+chr(9)+"Other Adult Family Member", death_verification
     EditBox 100, 25, 160, 15, who_reported_death
     ButtonGroup ButtonPressed
-      PushButton 5, 55, 65, 15, "TE02.08.008", poli_temp_btn
       OkButton 170, 50, 45, 15
       CancelButton 215, 50, 45, 15
+      PushButton 5, 55, 65, 15, "TE02.08.008", poli_temp_btn
     Text 5, 10, 95, 10, "How was the death verified?"
     Text 5, 30, 85, 10, "Who reported the death?"
   EndDialog
@@ -227,7 +224,7 @@ If active_pending_HC = True Then
 End If
 
 If left(household_member_that_died, 2) <> "01" Then
-  'If HH Memb other than 01 has died, STAT/MEMB and STAT/REMO have not been updated
+  'If HH Memb other than 01 has died, STAT/MEMB and STAT/REMO need to be updated
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member"
     ButtonGroup ButtonPressed
@@ -282,7 +279,7 @@ If left(household_member_that_died, 2) <> "01" Then
   transmit
 
 ElseIf left(household_member_that_died, 2) = "01" Then
-  'If HH Memb other than 01 has died, STAT/MEMB has not been updated, STAT/REMO not evaluated since Memb 01 died
+  'If HH Memb 01 has died, STAT/MEMB only needs to be updated
 
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 266, 85, "Enter Date of Death for HH Member"
@@ -326,48 +323,47 @@ ElseIf left(household_member_that_died, 2) = "01" Then
 
 End If
 
-'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("The script has updated the date of death for the selected HH member. Please review the case and approve eligibility results if appropriate.")
+script_end_procedure("Success! The script has updated the date of death for the selected HH member. Please review the case and approve eligibility results if appropriate.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------12/05/2024
+'--Tab orders reviewed & confirmed----------------------------------------------12/05/2024
+'--Mandatory fields all present & Reviewed--------------------------------------12/05/2024
+'--All variables in dialog match mandatory fields-------------------------------12/05/2024
+'Review dialog names for content and content fit in dialog----------------------12/05/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------12/05/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------12/05/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------12/05/2024
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----12/05/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------12/05/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/05/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------12/05/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------12/05/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------12/05/2024
+'--Denomination reviewed -------------------------------------------------------12/05/2024
+'--Script name reviewed---------------------------------------------------------12/05/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
+'--comment Code-----------------------------------------------------------------12/05/2024
 '--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
+'--Remove testing message boxes-------------------------------------------------12/05/2024
+'--Remove testing code/unnecessary code-----------------------------------------12/05/2024
+'--Review/update SharePoint instructions----------------------------------------12/05/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------
