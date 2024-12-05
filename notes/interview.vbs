@@ -270,7 +270,7 @@ function check_for_errors(interview_questions_clear)
             HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
     		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
     		If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
         End If
 	Next
 
@@ -485,7 +485,7 @@ function define_main_dialog()
 			ComboBox 120, 90, 205, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian"+chr(9)+"Oromo"+chr(9)+"Vietnamese"+chr(9)+interpreter_language, interpreter_language
             PushButton 330, 90, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
             EditBox 120, 110, 340, 15, arep_interview_id_information
-			EditBox 10, 155, 450, 15, non_applicant_interview_info
+			EditBox 10, 160, 450, 15, non_applicant_interview_info
 
 		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
 		    EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
@@ -509,8 +509,9 @@ function define_main_dialog()
 			Text 30, 75, 85, 10, "Was an Interpreter Used?"
 			Text 75, 95, 35, 10, "Language"
 			Text 10, 115, 110, 10, "Detail AREP Identity Document"
-			Text 120, 130, 300, 10, "(Identity of AREP is required if the interview is being completed with the AREP.)"
-			Text 10, 145, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
+			Text 120, 125, 300, 10, "- AREP ID is required if AREP applies on behalf of the resident."
+			Text 120, 135, 300, 10, "- If no ID is required, this can be detailed here."
+			Text 10, 150, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
 
 		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
 			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
@@ -541,9 +542,9 @@ function define_main_dialog()
 				Else
 					Text 245, 115, 130, 45, living_situation
 				End If
-				Text 350, 135, 15, 10, meal_provided
+				DropListBox 175, 130, 30, 15, ""+chr(9)+"No"+chr(9)+"Yes", licensed_facility
+				DropListBox 350, 130, 30, 15, ""+chr(9)+"No"+chr(9)+"Yes", meal_provided
   				Text 150, 155, 210, 10, residence_name_phone
-				Text 175, 135, 25, 10, licensed_facility
 				Text 70, 205, 305, 15, mail_addr_street_full
 				Text 70, 225, 105, 15, mail_addr_city
 				Text 205, 225, 110, 45, mail_addr_state
@@ -648,7 +649,7 @@ function define_main_dialog()
 				Text 140, 135, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
 				Text 140, 165, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
 				Text 330, 145, 40, 45, HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
-				If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then
+				If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
 					DropListBox 70, 185, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
 				Else
 					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
@@ -4995,9 +4996,9 @@ function write_interview_CASE_NOTE()
 
 	If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 
-	If run_by_interview_team = True Then		
+	If run_by_interview_team = True Then
 		Call write_variable_in_CASE_NOTE("Read Rights and Responsibilites to resident.")
-		If snap_case = True Then 
+		If snap_case = True Then
 			Call write_variable_in_CASE_NOTE("SNAP E&T Assistance:")
 			Call write_bullet_and_variable_in_CASE_NOTE("Q1: Anyone interested in E&T assistance now?", interested_in_job_assistance_now)
 			Call write_bullet_and_variable_in_CASE_NOTE("         HH Memb Interested: ", interested_names_now)
@@ -7541,7 +7542,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "DR" Then HH_MEMB_ARRAY(id_verif, clt_count) = "DR - Doctor Stmt"
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "PV" Then HH_MEMB_ARRAY(id_verif, clt_count) = "PV - Passport/Visa"
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "OT" Then HH_MEMB_ARRAY(id_verif, clt_count) = "OT - Other Document"
-			If HH_MEMB_ARRAY(id_verif, clt_count) = "NO" Then HH_MEMB_ARRAY(id_verif, clt_count) = "NO - No Veer Prvd"
+			If HH_MEMB_ARRAY(id_verif, clt_count) = "NO" Then HH_MEMB_ARRAY(id_verif, clt_count) = "NO - No Ver Prvd"
 
 			If HH_MEMB_ARRAY(age, clt_count) > 18 then
 				HH_MEMB_ARRAY(cash_minor, clt_count) = FALSE
@@ -8240,7 +8241,7 @@ End If
 MFIP_orientation_assessed_and_completed = True
 save_your_work
 
-If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only 
+If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only
 	Do
 		Do
 			err_msg = ""
@@ -8252,8 +8253,8 @@ If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only
 				Text 25, 65, 500, 35, "For SNAP 6-month reporting, only report if income exceeds 130% FPG or if Time Limited Recipient and work hours drop below 20 hrs/week. Change reporters must report changes in source of income, change of over $125/month in gross earned income or unearned income, unit composition, residence, housing expense, child support, and if Time Limited Recipient and work hours drop below 20 hrs/week. For Monthly reporting, submit the Household Report Form every month with income and change verifications attached."
 				Text 25, 110, 500, 30, "Providing false or incomplete information can lead to loss of benefits/criminal charges. Agencies may verify your information, requiring your consent. Using your benefits acknowledges that you've reported any changes. For child care, you may need to pay a co-payment, additional costs, or provide children's immigration/citizenship documentation; failure to pay or cooperate may end your assistance."
 				Text 25, 145, 500, 30, "You have the right to privacy of your information, reapply anytime, receive a copy of your application, know why applications are delayed, know program rules, live where/with whom you choose, and report expenses. For SNAP appeals, you have 90 days to appeal. For Cash/Child Care appeals, appeal within 30 days of receiving notice. Free legal services are available. Discrimination is illegal; if mistreated by a human service agency, file a complaint."
-				
-				If snap_case = True Then 
+
+				If snap_case = True Then
 					Text 25, 185, 500, 20, "SNAP Applicants Only: SNAP E&T helps you find work or increase earnings, offers opportunities to train for a new career for free and provides support services while working towards your goal. "
 					Text 45, 210, 345, 10, "1. Is anyone in the household interested in learning about education, training, or job search assistance?"
 					DropListBox 75, 220, 30, 15, ""+chr(9)+"No"+chr(9)+"Yes", interested_in_job_assistance_now
@@ -8270,8 +8271,8 @@ If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only
 
 			dialog Dialog1
 			cancel_confirmation
-			
-			If snap_case = True Then 
+
+			If snap_case = True Then
 				If interested_in_job_assistance_now = "" Then err_msg = err_msg & vbNewLine & "* Complete Question 1: Is anyone in the household interested in learning about education, training, or job search assistance?"
 				If interested_in_job_assistance_now = "Yes" AND trim(interested_names_now) = "" Then  err_msg = err_msg & vbNewLine & "* For question 1, enter HH Member names."
 				If interested_in_job_assistance_future = "" Then err_msg = err_msg & vbNewLine & "* Complete Question 2: If not, do you think anyone in your household may be interested in the future?"
@@ -8916,8 +8917,8 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 				If run_by_interview_team = False Then Text 15, y_pos, 270, 10, "Summarize what is happening with this case:"
 				y_pos = y_pos + 10
 				EditBox 15, y_pos, 520, 15, case_summary
-				Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-				DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
+				Text 10, 370, 220, 10, "Confirm you have reviewed Hennepin County Information Information:"
+				DropListBox 230, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
 				ButtonGroup ButtonPressed
 					PushButton 465, 365, 80, 15, "Interview Completed", continue_btn
 			EndDialog
@@ -10896,11 +10897,14 @@ Else
 	end_msg = "Something has gone wrong - the CAF information has NOT been saved correctly to be processed." & vbCr & vbCr & "You can either save the Word Document that has opened as a PDF in the Assignment folder OR Close that document without saving and RERUN the script. Your details have been saved and the script can reopen them and attampt to create the files again. When the script is running, it is best to not interrupt the process."
 End If
 
+end_msg = end_msg & vbCr & vbCr & "Form received: " & CAF_form_name
 end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
 With (CreateObject("Scripting.FileSystemObject"))
 	.DeleteFile(intvw_done_msg_file)
 End With
+
+
 
 STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
 Call script_end_procedure_with_error_report(end_msg)
