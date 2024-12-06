@@ -60,23 +60,25 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 active_pending_CASH_SNAP = False
 active_pending_HC = False
 active_pending_case = False
+DOD_before_arrival_date = False
 
 'Initial Case Number Dialog 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 115, "Enter Date of Death for Household Member"
-  EditBox 75, 30, 50, 15, MAXIS_case_number
-  EditBox 75, 50, 20, 15, MAXIS_footer_month
-  EditBox 105, 50, 20, 15, MAXIS_footer_year
-  EditBox 75, 70, 140, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 221, 120, "Enter Date of Death for Household Member"
+  EditBox 75, 25, 50, 15, MAXIS_case_number
+  EditBox 75, 45, 20, 15, MAXIS_footer_month
+  EditBox 105, 45, 20, 15, MAXIS_footer_year
+  EditBox 75, 75, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 125, 95, 45, 15
-    CancelButton 170, 95, 45, 15
-    PushButton 150, 30, 65, 15, "Script Instructions", msg_show_instructions_btn
-    PushButton 150, 50, 65, 15, "TE02.08.008", poli_temp_btn
-  Text 20, 35, 50, 10, "Case Number:"
-  Text 20, 55, 45, 10, "Footer Month:"
-  Text 10, 75, 60, 10, "Worker Signature:"
+    OkButton 125, 100, 45, 15
+    CancelButton 170, 100, 45, 15
+    PushButton 150, 25, 65, 15, "Script Instructions", msg_show_instructions_btn
+    PushButton 150, 40, 65, 15, "TE02.08.008", poli_temp_btn
+    PushButton 150, 55, 65, 15, "HSR Manual", hsr_manual_btn
   Text 10, 5, 200, 20, "Script Purpose: Updates case based on date of death for household member in accordance with POLI/TEMP 02.08.008."
+  Text 20, 30, 50, 10, "Case Number:"
+  Text 20, 50, 45, 10, "Footer Month:"
+  Text 10, 80, 60, 10, "Worker Signature:"
 EndDialog
 
 Do 
@@ -90,11 +92,13 @@ Do
     
     If ButtonPressed = msg_show_instructions_btn Then 
       err_msg = "LOOP"
-      'Add in link to instructions once created
       run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
-    End If
-    If ButtonPressed = poli_temp_btn Then
-      run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
+    ElseIf ButtonPressed = poli_temp_btn Then
+      err_msg = "LOOP"
+      run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+    ElseIf ButtonPressed = hsr_manual_btn Then
+      err_msg = "LOOP"
+      run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Death-of-a-Resident.aspx"
     End If 
     IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
   Loop until err_msg = ""
@@ -173,6 +177,44 @@ End If
 'If case is not active or pending and there are no SNAP, CASH, or HC programs, then script will end
 If active_pending_case = False Then script_end_procedure("The case is not active and no programs are pending. The script will now end.")
 
+'Determine if date of death is prior to arrival date for HH Membs other than 01
+If left(household_member_that_died, 2) <> "01" Then
+  Call navigate_to_MAXIS_screen("STAT", "MEMB")
+  'Navigate to HH Memb that died
+  EMWriteScreen left(household_member_that_died, 2), 20, 76
+  transmit
+  EMReadScreen arrival_date_memb_panel, 8, 4, 73
+  'Convert arrival date to MM/DD/YYYY format
+  arrival_date_memb_panel = Left(replace(arrival_date_memb_panel, " ", "/"), 6) & "20" & right(arrival_date_memb_panel, 2)
+  If DateDiff("D", date_of_death, arrival_date_memb_panel) > 0 Then
+    DOD_before_arrival_date = True
+    'Date of death is before arrival date for HH Memb 
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 70, "Enter Date of Death for HH Member"
+      ButtonGroup ButtonPressed
+        OkButton 170, 45, 45, 15
+        CancelButton 215, 45, 45, 15
+        PushButton 5, 50, 65, 15, "TE02.08.008", poli_temp_btn
+      Text 5, 5, 255, 20, "The entered date of death is PRIOR to the arrival date listed on the MEMB panel for the indicated HH Memb."
+      Text 5, 30, 160, 10, "Click 'OK' to proceed or 'Cancel' to end the script."
+    EndDialog
+
+    Do 
+      Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_without_confirmation()
+        If ButtonPressed = poli_temp_btn Then
+          err_msg = "LOOP"
+          run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+        End If 
+        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+      Loop until err_msg = ""
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+  End If
+End If
+
 If active_pending_HC = True Then
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 266, 75, "Enter Date of Death for HH Member - Healthcare Case"
@@ -191,11 +233,12 @@ If active_pending_HC = True Then
       err_msg = ""
       Dialog Dialog1
       cancel_without_confirmation()
-      If ButtonPressed = poli_temp_btn Then
-        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
-      End If 
       If trim(death_verification) = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate how you verified the death."
       If trim(who_reported_death) = "" Then err_msg = err_msg & vbCr & "* Please indicate who reported the death."
+      If ButtonPressed = poli_temp_btn Then
+        err_msg = "LOOP"
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+      End If 
       IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -237,14 +280,17 @@ If left(household_member_that_died, 2) <> "01" Then
     Text 5, 45, 75, 10, "Click 'OK' to proceed."
   EndDialog
 
-  Do
-    Dialog Dialog1
-
-    If ButtonPressed = poli_temp_btn Then
-      run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
-    End If 
-
-    cancel_without_confirmation()
+  Do 
+    Do
+      err_msg = ""
+      Dialog Dialog1
+      cancel_without_confirmation()
+      If ButtonPressed = poli_temp_btn Then
+        err_msg = "LOOP"
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+      End If 
+      IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -278,6 +324,7 @@ If left(household_member_that_died, 2) <> "01" Then
   EMWriteScreen right(date_of_death_maxis_format, 2), 8, 59
   EMWriteScreen "01", 8, 71
   transmit
+  If DOD_before_arrival_date = True then transmit
 
 ElseIf left(household_member_that_died, 2) = "01" Then
   'If HH Memb 01 has died, STAT/MEMB only needs to be updated
@@ -293,14 +340,17 @@ ElseIf left(household_member_that_died, 2) = "01" Then
     Text 5, 45, 75, 10, "Click 'OK' to proceed."
   EndDialog
 
-  Do
-    Dialog Dialog1
-
-    If ButtonPressed = poli_temp_btn Then
-      run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%203/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203%2FTE%2002%2E08%2E008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%203"
-    End If 
-
-    cancel_without_confirmation()
+  Do 
+    Do
+      err_msg = ""
+      Dialog Dialog1
+      cancel_without_confirmation()
+      If ButtonPressed = poli_temp_btn Then
+        err_msg = "LOOP"
+        run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+      End If 
+      IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
