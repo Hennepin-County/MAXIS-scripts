@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/05/2024", "Updated Shelter dialog to include additional fields.", "Megan Geissler, Hennepin County")
 call changelog_update("10/01/2024", "Restructured the dialog to be form-based instead of free-text based, unique document date for each form, and added additional forms", "Megan Geissler, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/14/2022", "Added a review of PROG for an interview date for the MTAF option selection.", "Casey Love, Hennepin County")
@@ -1969,32 +1970,40 @@ end function
 Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_tikl_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()
-   EditBox 395, 0, 45, 15, sf_date_received
-  ComboBox 85, 45, 170, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
-  EditBox 85, 65, 120, 15, sf_tenant_name
+ EditBox 395, 0, 45, 15, sf_date_received
+  ComboBox 85, 45, 220, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
+  EditBox 85, 65, 220, 15, sf_tenant_name
   EditBox 85, 85, 45, 15, sf_total_rent
   EditBox 85, 105, 45, 15, sf_subsidy
   EditBox 85, 125, 25, 15, sf_adults
   EditBox 85, 145, 20, 15, sf_children
-  EditBox 85, 165, 230, 15, sf_comments
+  EditBox 260, 85, 45, 15, sf_lot_rent
+  EditBox 260, 105, 45, 15, sf_mortgage
+  EditBox 260, 125, 45, 15, sf_insurance
+  EditBox 260, 145, 45, 15, sf_taxes
+  EditBox 85, 170, 220, 15, sf_comments
   ButtonGroup ButtonPressed
-    PushButton 25, 205, 60, 15, "Update ADDR", sf_update_addr_btn
-    PushButton 90, 205, 60, 15, "Update SHEL", sf_update_shel_btn
-    PushButton 155, 205, 60, 15, "Update HEST", sf_update_hest_btn
-  CheckBox 25, 230, 130, 10, "Check here to navigate to set a TIKL", sf_tikl_nav_check
-  Text 30, 70, 45, 10, "Tenant Name"
-  Text 30, 90, 40, 10, "Total Rent"
-  Text 30, 130, 45, 10, "Adults in Unit"
-  Text 30, 150, 55, 10, "Children in Unit"
-  Text 30, 170, 35, 10, "Comments"
-  Text 30, 110, 45, 10, "Subsidy Amt"
-  Text 30, 50, 40, 10, "Form Name"
+    PushButton 30, 205, 60, 15, "Update ADDR", sf_update_addr_btn
+    PushButton 95, 205, 60, 15, "Update SHEL", sf_update_shel_btn
+    PushButton 160, 205, 60, 15, "Update HEST", sf_update_hest_btn
+  CheckBox 30, 230, 130, 10, "Check here to set a TIKL", sf_tikl_nav_check
   Text 5, 5, 220, 10, sf_form_name
   Text 340, 5, 55, 10, "Document Date:"
-  GroupBox 10, 35, 350, 160, "Form Information"
-  GroupBox 10, 190, 350, 55, "Actions"
+  GroupBox 10, 35, 320, 160, "Form Information"
+  Text 30, 50, 40, 10, "Form Name"
+  Text 30, 70, 45, 10, "Tenant Name"
+  Text 30, 90, 40, 10, "Total Rent"
+  Text 30, 110, 45, 10, "Subsidy Amt"
+  Text 30, 130, 45, 10, "Adults in Unit"
+  Text 30, 150, 55, 10, "Children in Unit"
+  Text 225, 90, 30, 10, "Lot Rent"
+  Text 225, 110, 30, 10, "Mortgage"
+  Text 225, 130, 35, 10, "Insurance"
+  Text 225, 150, 35, 10, "Taxes"
+  Text 30, 175, 35, 10, "Comments"
+  GroupBox 10, 190, 320, 55, "Actions"
 end function
-Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check
+Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check, sf_lot_rent, sf_mortgage, sf_insurance, sf_taxes
 
 function addr_shel_hest_panel_dialog()
 	If err_msg = "" Then
@@ -5213,6 +5222,10 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Tenant Name", sf_tenant_name)
 		CALL write_bullet_and_variable_in_case_note("Total Rent", sf_total_rent)
 		CALL write_bullet_and_variable_in_case_note("Subsidy Amt", sf_subsidy)
+		CALL write_bullet_and_variable_in_case_note("Lot Rent", sf_lot_rent)
+		CALL write_bullet_and_variable_in_case_note("Mortgage", sf_mortgage)
+		CALL write_bullet_and_variable_in_case_note("Insurance", sf_insurance)
+		CALL write_bullet_and_variable_in_case_note("Taxes", sf_taxes)
 		If sf_adults <> "" or sf_children <> "" Then CALL write_variable_in_case_note("* Person(s) in Unit")
 		CALL write_bullet_and_variable_in_case_note("  Adults", sf_adults)
 		CALL write_bullet_and_variable_in_CASE_NOTE ("  Children", sf_children)
