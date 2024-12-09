@@ -14650,13 +14650,12 @@ class grh_eligibility_detail
 		If approved_version_found = True Then
 			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
-			If DateDiff("d", #11/23/2024#, elig_version_date) = 0 Then approved_today = True
-			' If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If allow_late_note = True Then
 				one_week_ago = DateAdd("d", -7, date)
 				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
 			End If
-			' If developer_mode = True Then approved_today = True			'TESTING OPTION'
+			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			appears_supportive_housing_disregard_case = True
