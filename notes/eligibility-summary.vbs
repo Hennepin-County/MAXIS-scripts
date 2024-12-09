@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/11/2024", "Additional handling for GRH cases: ##~## - Review of Supportive Housing Disregard Errors##~## - Allow for a single past month approval.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/04/2024", "Updates to policy and functionality in three areas:##~## ##~## - MFIP Special Diets to better separate MSA and MFIP information and identify benefit month.##~## ##~## - Update to Remedial Care HC Deduction policy from clarification provided.##~## ##~## - Added support for GRHs budgets to include the Supportive Housing Disregard information.##~## ##~##As with any new functionality, these may not work exactly as expected and we rely on reports to identify errors in the functionality. Please reach out with any questions or issues.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/12/2024", "Enhanced handling for MFIP Special Diets to allow for better reading of the case scenario and to handle for more than one member receiving the benefit.", "Casey Love, Hennepin County")
 call changelog_update("07/24/2024", "BUG FIX for Health Care Cases with Retro Months prior to the date of application.", "Casey Love, Hennepin County")
