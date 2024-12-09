@@ -187,6 +187,40 @@ function determine_mfip_counted_amount(gross_amount, counted_amount)
 	' MsgBox "gross_amount - " & gross_amount & vbCr & "counted_amount - " & counted_amount
 end function
 
+function supportive_housing_disregard_error(supportive_housing_applies)
+	Dialog1 = ""
+	dlg_len = 160
+	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one <> "" and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two <> "" Then dlg_len = 185
+	BeginDialog Dialog1, 0, 0, 276, 160, "GRH/HS Supportive Housing Disregard Appears in Error"
+
+		If supportive_housing_applies = True Then Text 65, 5, 160, 20, "It appears this case should have a supportive housing disregard applied."
+		If supportive_housing_applies = False Then Text 65, 5, 160, 20, "This case appears to have the supportive housing disregard applied when it should not.."
+		Text 20, 35, 165, 10, "GHR/HS Budget Type: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_elig_type_info
+		Text 45, 45, 105, 10, " RSDI Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_RSDI_income
+		Text 25, 55, 100, 10, "Other UNEA Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_other_unearned_income
+		Text 20, 65, 165, 10, "Supportive Housing Disregard: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard
+		If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one <> "" Then
+			Text 25, 85, 160, 10, "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
+			Text 35, 95, 130, 10, "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
+			y_pos = 115
+		End If
+		If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two <> "" Then
+			Text 25, 110, 160, 10, "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
+			Text 35, 120, 130, 10, "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
+			y_pos = 140
+		End If
+		Text 10, y_pos, 90, 10, "The script will now end."
+		Text 10, y_pos+10, 260, 10, "Please resolve the eligibility, then reapprove before running the script again."
+		ButtonGroup ButtonPressed
+			OkButton 220, y_pos+25, 50, 15
+	EndDialog
+
+	dialog Dialog1
+
+	testing_run = True
+	call script_end_procedure("Script run ended due to an apparant error in the GRH approval for supportive housing.")
+end function
+
 function write_long_variable_in_DENY_note(variable)
 	spaces_58 = "                                                          "
 	spaces_78 = "                                                                              "
@@ -14386,6 +14420,7 @@ class grh_eligibility_detail
 	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
+	public appears_supportive_housing_disregard_case
 
 	public grh_elig_memb_ref_numb
 	public grh_elig_memb_full_name
@@ -14623,6 +14658,7 @@ class grh_eligibility_detail
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
+			appears_supportive_housing_disregard_case = True
 			EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
 			EMReadScreen grh_elig_memb_full_name, 15, 6, 7
 			EMReadScreen grh_elig_memb_code, 1, 6, 24
@@ -14638,6 +14674,9 @@ class grh_eligibility_detail
 			If grh_elig_memb_elig_type_code = "07" Then  grh_elig_memb_elig_type_info = "None"
 			If grh_elig_memb_elig_type_code = "08" Then  grh_elig_memb_elig_type_info = "Residential Treatment"
 			' MsgBox "grh_elig_memb_elig_type_info - " & grh_elig_memb_elig_type_info & vbCr & "grh_elig_memb_elig_type_code - " & grh_elig_memb_elig_type_code
+			If grh_elig_memb_elig_type_info = "MFIP" Then appears_supportive_housing_disregard_case = False
+			If grh_elig_memb_elig_type_info = "Residential Treatment" Then appears_supportive_housing_disregard_case = False
+
 			EMReadScreen grh_elig_memb_begin_date, 8, 6, 68
 
 			grh_elig_memb_full_name = trim(grh_elig_memb_full_name)
@@ -14873,6 +14912,8 @@ class grh_eligibility_detail
 					If grh_elig_budg_RSDI_income = "" Then grh_elig_budg_RSDI_income = "0.00"
 					If grh_elig_budg_other_unearned_income = "" Then grh_elig_budg_other_unearned_income = "0.00"
 					If grh_elig_budg_earned_income = "" Then grh_elig_budg_earned_income = "0.00"
+
+					If grh_elig_budg_RSDI_income = "0.00" and grh_elig_budg_other_unearned_income = "0.00" Then appears_supportive_housing_disregard_case = False
 
 					grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
 					grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
@@ -15195,6 +15236,7 @@ class grh_eligibility_detail
 			call back_to_SELF
 
 			Call navigate_to_MAXIS_screen("MONY", "VNDS")
+			supportive_housing_vendor = False
 
 			If grh_elig_budg_vendor_number_one <> "" Then
 				Call write_value_and_transmit(grh_elig_budg_vendor_number_one, 4, 59)
@@ -15347,7 +15389,10 @@ class grh_eligibility_detail
 				If grh_vendor_one_health_dept_license_1_code = "07" Then grh_vendor_one_health_dept_license_1_info = "Tribal License"
 				If grh_vendor_one_health_dept_license_1_code = "08" Then grh_vendor_one_health_dept_license_1_info = "Metro Demo"
 				If grh_vendor_one_health_dept_license_1_code = "09" Then grh_vendor_one_health_dept_license_1_info = "Housing with Services"
-				If grh_vendor_one_health_dept_license_1_code = "10" Then grh_vendor_one_health_dept_license_1_info = "Supportive Housing"
+				If grh_vendor_one_health_dept_license_1_code = "10" Then
+					grh_vendor_one_health_dept_license_1_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 				EMReadScreen grh_vendor_one_health_dept_license_2_code, 2, 10, 72
 				If grh_vendor_one_health_dept_license_2_code = "__" Then grh_vendor_one_health_dept_license_2_info = ""
 				If grh_vendor_one_health_dept_license_2_code = "01" Then grh_vendor_one_health_dept_license_2_info = "Nursing Home"
@@ -15359,7 +15404,10 @@ class grh_eligibility_detail
 				If grh_vendor_one_health_dept_license_2_code = "07" Then grh_vendor_one_health_dept_license_2_info = "Tribal License"
 				If grh_vendor_one_health_dept_license_2_code = "08" Then grh_vendor_one_health_dept_license_2_info = "Metro Demo"
 				If grh_vendor_one_health_dept_license_2_code = "09" Then grh_vendor_one_health_dept_license_2_info = "Housing with Services"
-				If grh_vendor_one_health_dept_license_2_code = "10" Then grh_vendor_one_health_dept_license_2_info = "Supportive Housing"
+				If grh_vendor_one_health_dept_license_2_code = "10" Then
+					grh_vendor_one_health_dept_license_2_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 				EMReadScreen grh_vendor_one_health_dept_license_3_code, 2, 10, 75
 				If grh_vendor_one_health_dept_license_3_code = "__" Then grh_vendor_one_health_dept_license_3_info = ""
 				If grh_vendor_one_health_dept_license_3_code = "01" Then grh_vendor_one_health_dept_license_3_info = "Nursing Home"
@@ -15371,7 +15419,10 @@ class grh_eligibility_detail
 				If grh_vendor_one_health_dept_license_3_code = "07" Then grh_vendor_one_health_dept_license_3_info = "Tribal License"
 				If grh_vendor_one_health_dept_license_3_code = "08" Then grh_vendor_one_health_dept_license_3_info = "Metro Demo"
 				If grh_vendor_one_health_dept_license_3_code = "09" Then grh_vendor_one_health_dept_license_3_info = "Housing with Services"
-				If grh_vendor_one_health_dept_license_3_code = "10" Then grh_vendor_one_health_dept_license_3_info = "Supportive Housing"
+				If grh_vendor_one_health_dept_license_3_code = "10" Then
+					grh_vendor_one_health_dept_license_3_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 
 				EMReadScreen grh_vendor_one_number_of_licesned_beds, 4, 11, 24
 				EMReadScreen grh_vendor_one_total_GRH_agreement_beds, 4, 11, 69
@@ -15589,7 +15640,10 @@ class grh_eligibility_detail
 				If grh_vendor_two_health_dept_license_1_code = "07" Then grh_vendor_two_health_dept_license_1_info = "Tribal License"
 				If grh_vendor_two_health_dept_license_1_code = "08" Then grh_vendor_two_health_dept_license_1_info = "Metro Demo"
 				If grh_vendor_two_health_dept_license_1_code = "09" Then grh_vendor_two_health_dept_license_1_info = "Housing with Services"
-				If grh_vendor_two_health_dept_license_1_code = "10" Then grh_vendor_two_health_dept_license_1_info = "Supportive Housing"
+				If grh_vendor_two_health_dept_license_1_code = "10" Then
+					grh_vendor_two_health_dept_license_1_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 				EMReadScreen grh_vendor_two_health_dept_license_2_code, 2, 10, 72
 				If grh_vendor_two_health_dept_license_2_code = "__" Then grh_vendor_two_health_dept_license_2_info = ""
 				If grh_vendor_two_health_dept_license_2_code = "01" Then grh_vendor_two_health_dept_license_2_info = "Nursing Home"
@@ -15601,7 +15655,10 @@ class grh_eligibility_detail
 				If grh_vendor_two_health_dept_license_2_code = "07" Then grh_vendor_two_health_dept_license_2_info = "Tribal License"
 				If grh_vendor_two_health_dept_license_2_code = "08" Then grh_vendor_two_health_dept_license_2_info = "Metro Demo"
 				If grh_vendor_two_health_dept_license_2_code = "09" Then grh_vendor_two_health_dept_license_2_info = "Housing with Services"
-				If grh_vendor_two_health_dept_license_2_code = "10" Then grh_vendor_two_health_dept_license_2_info = "Supportive Housing"
+				If grh_vendor_two_health_dept_license_2_code = "10" Then
+					grh_vendor_two_health_dept_license_2_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 				EMReadScreen grh_vendor_two_health_dept_license_3_code, 2, 10, 75
 				If grh_vendor_two_health_dept_license_3_code = "__" Then grh_vendor_two_health_dept_license_3_info = ""
 				If grh_vendor_two_health_dept_license_3_code = "01" Then grh_vendor_two_health_dept_license_3_info = "Nursing Home"
@@ -15613,7 +15670,10 @@ class grh_eligibility_detail
 				If grh_vendor_two_health_dept_license_3_code = "07" Then grh_vendor_two_health_dept_license_3_info = "Tribal License"
 				If grh_vendor_two_health_dept_license_3_code = "08" Then grh_vendor_two_health_dept_license_3_info = "Metro Demo"
 				If grh_vendor_two_health_dept_license_3_code = "09" Then grh_vendor_two_health_dept_license_3_info = "Housing with Services"
-				If grh_vendor_two_health_dept_license_3_code = "10" Then grh_vendor_two_health_dept_license_3_info = "Supportive Housing"
+				If grh_vendor_two_health_dept_license_3_code = "10" Then
+					grh_vendor_two_health_dept_license_3_info = "Supportive Housing"
+					supportive_housing_vendor = True
+				End If
 
 				EMReadScreen grh_vendor_two_number_of_licesned_beds, 4, 11, 24
 				EMReadScreen grh_vendor_two_total_GRH_agreement_beds, 4, 11, 69
@@ -15679,6 +15739,8 @@ class grh_eligibility_detail
 
 				PF3
 			End If
+			If supportive_housing_vendor = False Then appears_supportive_housing_disregard_case = False
+
 		End if
 
 		Call back_to_SELF
@@ -17676,8 +17738,8 @@ class hc_eligibility_detail
 			EMWriteScreen elig_footer_year, 19, 57
 			transmit
 			' approval_date 'TODO - figure out how to read approval date
-		'===================================THIS IS THE BREAK - IF WE NEED TO BE DATE CONDITIONAL, DATE LOGIC GOES HERE
-		'Read footer month and create the conditional off the actual footer we enter maxis with
+			'===================================THIS IS THE BREAK - IF WE NEED TO BE DATE CONDITIONAL, DATE LOGIC GOES HERE
+			'Read footer month and create the conditional off the actual footer we enter maxis with
 
 			hc_row = 8
 			hc_prog_count = 0
@@ -17942,7 +18004,7 @@ class hc_eligibility_detail
 					End if
 
 					If the_row = 0 Then
-						'We are now on BSUM 
+						'We are now on BSUM
 						'
 						EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
 						hc_prog_elig_process_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_process_date(hc_prog_count))
@@ -18021,7 +18083,7 @@ class hc_eligibility_detail
 
 								PF3
 								'Now on BSUM
-								
+
 								If hc_prog_elig_approved_today(hc_prog_count) = True Then
 									'Read to find out which version of BSUM we have for line positioning.
 									EMReadScreen name_or_date, 1, 5, 19
@@ -19477,7 +19539,7 @@ class hc_eligibility_detail
 											hc_col = hc_col + 11
 											If hc_col = 83 Then hc_prog_elig_appd(hc_prog_count) = False
 										Loop until hc_col = 83
-									End If	'End of If/Else for two versions of BSUM								
+									End If	'End of If/Else for two versions of BSUM
 								End If
 							End If
 
@@ -25828,9 +25890,9 @@ For each footer_month in MONTHS_ARRAY
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
 
-	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
-
-    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+	' Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+	HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = False
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
 		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
 
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
@@ -26491,6 +26553,9 @@ For each footer_month in MONTHS_ARRAY
 
 			REPORTING_COMPLETE_ARRAY(grh_next_revw_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_elig_review_date
 			REPORTING_COMPLETE_ARRAY(grh_elig_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
+
+			If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = True and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard = "" Then call supportive_housing_disregard_error(True)
+			If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = False and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard <> "" Then call supportive_housing_disregard_error(False)
 
 			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 				If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_ref_numb <> STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
