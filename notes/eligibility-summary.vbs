@@ -25884,106 +25884,106 @@ For each footer_month in MONTHS_ARRAY
 	End if
 
 	'TODO - add back in for HC functionality'
-	' reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
+	reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
 
-	' Set HC_ELIG_APPROVALS(hc_elig_months_count) = new hc_eligibility_detail
+	Set HC_ELIG_APPROVALS(hc_elig_months_count) = new hc_eligibility_detail
 
-	' HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
-	' HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
 
-	' Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
 
-	' If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
-	' 	SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
 
-   	' 	If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
-	' 	If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-	' 		number_of_rows = 0
-	' 		On Error Resume Next
-	' 		SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
+   		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+			number_of_rows = 0
+			On Error Resume Next
+			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
 
-	' 		objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_review_date & "' and [SelectExParte] = '1'"
+			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_review_date & "' and [SelectExParte] = '1'"
 
-	' 		'Creating objects for Access
-	' 		Set objConnection = CreateObject("ADODB.Connection")
-	' 		Set objRecordSet = CreateObject("ADODB.Recordset")
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	' 		'This is the file path for the statistics Access database.
-	' 		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	' 		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	' 		objRecordSet.Open objSQL, objConnection
-	' 		number_of_rows = objRecordSet(0).value
-	' 		number_of_rows = number_of_rows*1
+			'This is the file path for the statistics Access database.
+			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+			number_of_rows = objRecordSet(0).value
+			number_of_rows = number_of_rows*1
 
-	' 		objRecordSet.Close
-	' 		objConnection.Close
-	' 		Set objRecordSet=nothing
-	' 		Set objConnection=nothing
+			objRecordSet.Close
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
 
-	' 		On Error Goto 0
-	' 		If number_of_rows = 1 Then
-	' 			for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
-	' 				If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then
-	' 					ex_parte_approval = True
-	' 					if InStr(ex_parte_members, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then ex_parte_members = ex_parte_members & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
-	' 				End If
-	' 				If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then complete_ex_parte_as_closed = True
-	' 			next
-	' 		End If
-	' 	End If
-   	' 	approval_found_for_this_month = True
-	' 	for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
-	' 		If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then ineligible_approval_exists = True
-	' 	next
+			On Error Goto 0
+			If number_of_rows = 1 Then
+				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then
+						ex_parte_approval = True
+						if InStr(ex_parte_members, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then ex_parte_members = ex_parte_members & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
+					End If
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then complete_ex_parte_as_closed = True
+				next
+			End If
+		End If
+   		approval_found_for_this_month = True
+		for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+			If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then ineligible_approval_exists = True
+		next
 
-	' 	'This is to determine if the Notice was missed for Ex Part
-	' 	If ex_parte_approval = True Then
-	' 		ex_parte_members = trim(ex_parte_members)
-	' 		Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-	' 		EMWriteScreen CM_plus_1_mo, 3, 46
-	' 		EMWriteScreen CM_plus_1_yr, 3, 51
-	' 		transmit
+		'This is to determine if the Notice was missed for Ex Part
+		If ex_parte_approval = True Then
+			ex_parte_members = trim(ex_parte_members)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen CM_plus_1_mo, 3, 46
+			EMWriteScreen CM_plus_1_yr, 3, 51
+			transmit
 
-	' 		wcom_waiting = "-"
-	' 		wcom_printed = "-"
-	' 		wcom_exception = "-"
-	' 		wcom_row = 7
-	' 		Do
-	' 			EMReadScreen wcom_prog, 2, wcom_row, 26
-	' 			EMReadScreen wcom_status, 9, wcom_row, 71
-	' 			EMReadScreen wcom_ref_numb, 2, wcom_row, 62
-	' 			wcom_status = trim(wcom_status)
+			wcom_waiting = "-"
+			wcom_printed = "-"
+			wcom_exception = "-"
+			wcom_row = 7
+			Do
+				EMReadScreen wcom_prog, 2, wcom_row, 26
+				EMReadScreen wcom_status, 9, wcom_row, 71
+				EMReadScreen wcom_ref_numb, 2, wcom_row, 62
+				wcom_status = trim(wcom_status)
 
-	' 			If wcom_prog = "HC" Then
-	' 				If wcom_status = "Waiting" Then wcom_waiting = wcom_waiting & " " & wcom_ref_numb
-	' 				If wcom_status = "Printed" Then wcom_printed = wcom_printed & " " & wcom_ref_numb
-	' 				If wcom_status = "XP Except" Then wcom_exception = wcom_exception & " " & wcom_ref_numb
-	' 			End IF
-	' 			wcom_row = wcom_row + 1
-	' 		Loop until wcom_prog = "  " and wcom_status = ""
+				If wcom_prog = "HC" Then
+					If wcom_status = "Waiting" Then wcom_waiting = wcom_waiting & " " & wcom_ref_numb
+					If wcom_status = "Printed" Then wcom_printed = wcom_printed & " " & wcom_ref_numb
+					If wcom_status = "XP Except" Then wcom_exception = wcom_exception & " " & wcom_ref_numb
+				End IF
+				wcom_row = wcom_row + 1
+			Loop until wcom_prog = "  " and wcom_status = ""
 
-	' 		wcom_waiting = wcom_waiting & "-"
-	' 		wcom_printed = wcom_printed & "-"
-	' 		wcom_exception = wcom_exception & "-"
+			wcom_waiting = wcom_waiting & "-"
+			wcom_printed = wcom_printed & "-"
+			wcom_exception = wcom_exception & "-"
 
-	' 		'Currently we are alerting workers that the notice was missed and NOT automating the notice just yet.
-	' 		If wcom_exception <> "--" Then
-	' 			notice_exception_message = "*  *  *  *  *  *  * NOTICE EXEPTION *  *  *  *  *  *  *"
-	' 			notice_exception_message = notice_exception_message & vbCr & "There is an Ex Parte Notice Exeption for this case."
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "This means the notice did not generate correctly for some reason."
-	' 			notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "THE SCRIPT WILL ATTEMPT TO SEND A MEMO FOR THIS CASE."
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "If a SPEC/MEMO is not created, please report to the BlueZone Script Team for functionality review."
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
-	' 			notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
-	' 			notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
-	' 			notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
+			'Currently we are alerting workers that the notice was missed and NOT automating the notice just yet.
+			If wcom_exception <> "--" Then
+				notice_exception_message = "*  *  *  *  *  *  * NOTICE EXEPTION *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & "There is an Ex Parte Notice Exeption for this case."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "This means the notice did not generate correctly for some reason."
+				notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "THE SCRIPT WILL ATTEMPT TO SEND A MEMO FOR THIS CASE."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "If a SPEC/MEMO is not created, please report to the BlueZone Script Team for functionality review."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
+				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
+				notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
 
-	' 			MsgBox notice_exception_message
-	' 		End If
-	' 	End If
-   	' End If
+				MsgBox notice_exception_message
+			End If
+		End If
+   	End If
 
 	ReDim preserve STAT_INFORMATION(month_count)
 
@@ -26710,34 +26710,34 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	'TODO turn back on for HC functionality'
-	' If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
-	' 	HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
-	' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
 
-	' 	If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 
-	' 		REPORTING_COMPLETE_ARRAY(hc_revw_completed_const, month_count) = True
-	' 		REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-	' 		REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(hc_revw_completed_const, month_count) = True
+			REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 
-	' 		If IsDate(STAT_INFORMATION(month_count).stat_last_hc_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_hc_revw_date)
-	' 		If IsDate(STAT_INFORMATION(month_count).stat_next_hc_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_hc_revw_date)
+			If IsDate(STAT_INFORMATION(month_count).stat_last_hc_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_hc_revw_date)
+			If IsDate(STAT_INFORMATION(month_count).stat_next_hc_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_hc_revw_date)
 
-	' 		If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_hc_revw_process = "SR" Then
-	' 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "ER"
-	' 			REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
-	' 			REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
-	' 		ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
-	' 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
-	' 			REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
-	' 			REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
-	' 		End If
-	' 	End If
-	' End If
+			If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_hc_revw_process = "SR" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "ER"
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
+			ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
+				REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
+			End If
+		End If
+	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
 	month_count = month_count + 1					'This is way down here because I want to be able to reference the information in the current month for this class.
