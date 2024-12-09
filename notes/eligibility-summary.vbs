@@ -25890,8 +25890,8 @@ For each footer_month in MONTHS_ARRAY
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
 
-	' Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
-	HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = False
+	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+
 	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
 		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
 
