@@ -1049,12 +1049,12 @@ Function ABAWD_FSET_exemption_finder()
         	EMReadScreen cert_end_dt, 10, 7, 69
         	cert_end_dt = replace(cert_end_dt, " ", "/")
         	IF IsDate(disa_end_dt) = True THEN
-        		IF DateDiff("D", date, disa_end_dt) > 0 THEN disa_status = True
+        		IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN disa_status = True
         	ELSE
         		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
         	END IF
         	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-        		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = True
+        		IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN disa_status = True
 			ELSE
         		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
         			EMReadScreen cert_begin_dt, 8, 7, 47
@@ -1140,8 +1140,8 @@ Function ABAWD_FSET_exemption_finder()
         			prospective_hours = prospective_hours + prosp_hrs
         		ELSE
         			jobs_end_dt = replace(jobs_end_dt, " ", "/")
-        			IF DateDiff("D", date, jobs_end_dt) > 0 THEN
-        				'Going into the PIC for a job with an end date in the future
+        			IF DateDiff("D", ABAWD_eval_date, jobs_end_dt) > 0 THEN
+        				'Going into the PIC for a job with an end ABAWD_eval_date in the future
         				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
         				EMReadScreen prosp_monthly, 8, 18, 56
         				prosp_monthly = trim(prosp_monthly)
@@ -1182,7 +1182,7 @@ Function ABAWD_FSET_exemption_finder()
 					Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
 					EMReadScreen busi_verif_code, 1, 11, 73
 					PF3 'to exit pop up
-        			IF DateDiff("D", date, busi_end_dt) > 0 THEN
+        			IF DateDiff("D", ABAWD_eval_date, busi_end_dt) > 0 THEN
         				EMReadScreen busi_inc, 8, 10, 69
         				busi_inc = trim(busi_inc)
         				EMReadScreen busi_hrs, 3, 13, 74
@@ -1245,7 +1245,7 @@ Function ABAWD_FSET_exemption_finder()
         		EMReadScreen unea_end_dt, 8, 7, 68
         		unea_end_dt = replace(unea_end_dt, " ", "/")
         		IF IsDate(unea_end_dt) = True THEN
-        			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+        			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
         				IF unea_type = "11" then
         					EmReadScreen VA_verif_code, 1, 5, 65
         					If VA_verif_code <> "N" then
@@ -1317,7 +1317,7 @@ Function ABAWD_FSET_exemption_finder()
         	EMReadScreen preg_end_dt, 8, 12, 53
             If preg_due_dt <> "__/__/__" Then
 				EMReadscreen preg_verif, 1, 6, 75
-                If DateDiff("d", date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
+                If DateDiff("d", ABAWD_eval_date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
 					If preg_verif <> "_" then
                         eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Pregnant. "
                         eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "23" & "|"
