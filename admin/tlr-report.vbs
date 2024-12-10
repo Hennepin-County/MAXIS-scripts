@@ -798,8 +798,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
                     best_wreg_code = "30"
                     best_abawd_code = "13"
                     manual_code = "C"
-                    report_notes = report_notes & "Assess TLR for closure for next month. "
                 End if 
+                If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
             End if 
         End if
     
@@ -875,13 +875,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    End if
 
 	    If homeless_exemption = True then
-	        start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
-	    	Call write_variable_in_CASE_NOTE("---")
-	    	Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
-			Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
-            Call write_variable_in_CASE_NOTE("---")
-            Call write_variable_in_CASE_NOTE(Worker_Signature)
+            Call navigate_to_MAXIS_screen("CASE", "NOTE")
+            EMReadScreen first_case_note, 40, 5, 25
+            If first_case_note <> "--SNAP Time Limited Exempt: Homelessness" then 
+	            start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
+	    	    Call write_variable_in_CASE_NOTE("---")
+	    	    Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
+			    Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(Worker_Signature)
+            End if 
 	    	PF3
 	    End if
     End if 
@@ -891,8 +895,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
         If snap_status = "ACTIVE" then
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
-	    			updates_needed = False
-                    report_notes = report_notes & "No Updates Needed. "
+                    If instr(report_notes, "Assess TLR for closure for next month.") then 
+                        updates_needed = true
+                    Else 
+	    			    updates_needed = False
+                        report_notes = report_notes & "No Updates Needed. "
+                    End if 
                 End if
                 If (data_abawd = "06" and best_abawd_code = "01") then
                     updates_needed = False
@@ -918,7 +926,6 @@ EMConnect ""
 worker_county_code = "X127"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
 file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
 
@@ -970,6 +977,8 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
+
+ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
 back_to_SELF
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
