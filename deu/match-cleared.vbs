@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2024", "Added claim entry for CC-Overpayment", "Megan Geissler, Hennepin County")
 call changelog_update("07/17/2024", "Reverted language for BO-Other selection to pre-pandemic language.", "Mark Riegel, Hennepin County")
 Call changelog_update("05/23/2024", "Updated messaging for matches where the county name is missing. The MAXIS system will not allow county workers to enter those matches.", "Ilse Ferris, Hennepin County")
 Call changelog_update("03/29/2024", "Removed Overpayment functionality from the script. Please use more comprehensive functionality in the NOTES - OVERPAYMENT script.", "Ilse Ferris, Hennepin County")
@@ -441,6 +442,32 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 		IF IULB_method_dropdown = "One Time Only" THEN IULB_method = "O"
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
+
+	If resolution_status = "CC-Overpayment Only" Then 
+		BeginDialog Dialog1, 0, 0, 196, 90, "Claim Number Dialog"
+			EditBox 50, 25, 60, 15, Claim_number
+			EditBox 50, 45, 60, 15, Claim_number_II
+			EditBox 50, 65, 60, 15, claim_number_III
+			ButtonGroup ButtonPressed
+				OkButton 135, 25, 50, 15
+				CancelButton 135, 45, 50, 15
+			Text 5, 5, 85, 10, "Enter claim number(s)"
+			Text 15, 30, 30, 10, "Claim #1"
+			Text 15, 50, 30, 10, "Claim #2"
+			Text 15, 70, 30, 10, "Claim #3"
+		EndDialog
+		DO
+			err_msg = ""
+			DIALOG Dialog1
+			cancel_confirmation
+			If len(trim(Claim_number)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #1 must be 9 characters or less"
+			If len(trim(Claim_number_II)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #2 must be 9 characters or less"
+			If len(trim(claim_number_III)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #3 must be 9 characters or less"
+			IF trim(Claim_number) = "" AND trim(Claim_number_II) = "" AND trim(claim_number_III) = "" THEN err_msg = err_msg & vbNewLine & "Please enter at least one claim number to proceed"
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	End If
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMReadScreen panel_name, 4, 02, 52
