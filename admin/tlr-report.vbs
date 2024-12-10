@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2024", "Final removal of Banked Months support and permanent supports for TLR's 53-54 years old.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -89,6 +90,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         	If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
         	If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
         	If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+
             abawd_counted_months_string = counted_date_month & "/" & counted_date_year
     
         	'reading to see if a month is counted month or not
@@ -103,7 +105,6 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         		bene_yr_row = bene_yr_row - 1
         		bene_mo_col = 63
         	END IF
-        			
 	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members. 
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
         PF3	' to exit tracking record 
@@ -256,7 +257,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    'person-based determination
 			age_50 = False
             age_53_54 = False 
-            age_53_54_counted = False 'temporary coding to support. Effective 10/1/24 53-54 YO's starting being TLR's after their next renewal
             
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
@@ -281,7 +281,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    	End if
 		    End if
 		    '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
-		    If cl_age => 53 then
+		    If cl_age => 55 then
 		    	If cl_age < 60 then
 		    		If age_verif_code <> "NO" then
 		    			verified_wreg = verified_wreg & "16" & "|"
@@ -723,7 +723,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
 	    	End if
 	    Elseif len(verified_wreg) = 3 then
-	    	best_wreg_code = replace(verified_wreg, "|", "")
+            best_wreg_code = left(verified_wreg,2) 'resetting variable 
         Else 
             wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
             for each code in wreg_hierarchy
@@ -733,20 +733,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 End if
             next
 	    End if
-        'Use this determination for 53-54 YO's
-        If age_53_54 = True then 
-            If len(verified_wreg) > 2 then
-                wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","16","30")  'Code 16 moved to be a lower exemption 
-                for each code in wreg_hierarchy
-                    If instr(verified_wreg, code) then
-                        best_wreg_code = code
-                        exit for
-                    End if
-                next
-            Elseif len(verified_wreg) = 3 then
-	    	    best_wreg_code = replace(verified_wreg, "|", "")    
-            End if         
-        End if 
     
 	    If trim(best_abawd_code) = "" then 
             If best_wreg_code = "03" or _
@@ -779,36 +765,26 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		EMReadScreen next_revw_yr, 2, 9, 63
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
-		
-        If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "   
+		If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
 
-        'Checking/managing 53-54 yo's who don't start counting until their next review. 
-        If (age_53_54 = True and best_wreg_code = "16") then 
-            Call navigate_to_MAXIS_screen("REPT", "ACTV")
-            EMReadScreen actv_case_number, 8, 7, 12
-            actv_case_number = trim(actv_case_number)
+        manual_code = "F"  'manual code for exemption cases  
+        age_50_workaround = False
+        
+	    If best_abawd_code = "10" then manual_code = "M"
             
-            If instr(MAXIS_case_number, actv_case_number) then 
-                EMReadScreen next_revw_date, 8, 7, 42
-                next_revw_date = replace(next_revw_date, " ", "/")
-                report_notes = report_notes & next_revw_date & " - 53-54 YO becomes TLR. "
+        If (age_50 = True or age_53_54 = True) then
+            If (best_wreg_code = "30" and best_abawd_code = "10") then         
+		        'changing codes per temp policy 
+		        best_wreg_code = "16"
+		        best_abawd_code = "03"
+                age_50_workaround = True 
+                manual_code = "M" 
             End if 
-        End If   
-
-	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
-        updates_needed = True
+        End if
+    
+        updates_needed = True   'default set
     
 		'----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
-		age_50_workaround = False
-        manual_code = "F"  'manual code for exemption cases  
-        If age_50 = True then
-			'changing codes per temp policy 
-			best_wreg_code = "16"
-			best_abawd_code = "03"
-            age_50_workaround = True 
-            manual_code = "M" 
-        End if  
-
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
         PF9
@@ -832,7 +808,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 If ATR_code = "E" or ATR_code = "F" then
                     exit for 'F and E are exmept
                 Else 
-                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)    
                 End if 
             ELSEIF manual_code = "M" then 
                 If ATR_code = "X" or ATR_code = "M" then 
@@ -840,14 +816,15 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 Else 
                     Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
                 End if 
-            Else 
-                Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
             End if 
            PF3 'to go back to WREG/Panel
         Next
+        
+        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+        If (best_abawd_code = "10" or age_50_workaround = True) then 
+            If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
+        End if 
 
-        'Count all the ABAWD months
-        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 
 	    transmit ' to save 
 		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
 		If orientation_warning = "WARNING" then transmit 
@@ -855,26 +832,36 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 	    'case note workaround
         If age_50_workaround = True then 
-	        start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
-		    Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
-	        Call write_variable_in_CASE_NOTE("---")
-	        Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
-	        Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
-            Call write_variable_in_CASE_NOTE("---")
-            Call write_variable_in_CASE_NOTE(Worker_Signature)
-	        PF3
+            Call navigate_to_MAXIS_screen("CASE", "NOTE")
+            EMReadScreen first_case_note, 34, 5, 25
+            If first_case_note <> "--SNAP Time Limited Recipient: Age" then  
+                If age_50 = True then TLR_text = "10/23, 50-52"
+                If age_53_54 = True then TLR_text = "10/24, 53-54"
+	            start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
+		        Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
+	            Call write_variable_in_CASE_NOTE("---")
+	            Call write_variable_in_CASE_NOTE("* Effective " & TLR_text & " year olds are no longer exempt from SNAP time limits due solely to age.")
+	            Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(Worker_Signature)
+	            PF3
+            End if 
 		    report_notes = report_notes & cl_age & " year old! "
 	    End if
 
 	    If homeless_exemption = True then
-	        start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
-	    	Call write_variable_in_CASE_NOTE("---")
-	    	Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
-			Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
-            Call write_variable_in_CASE_NOTE("---")
-            Call write_variable_in_CASE_NOTE(Worker_Signature)
+            Call navigate_to_MAXIS_screen("CASE", "NOTE")
+            EMReadScreen first_case_note, 40, 5, 25
+            If first_case_note <> "--SNAP Time Limited Exempt: Homelessness" then 
+	            start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
+	    	    Call write_variable_in_CASE_NOTE("---")
+	    	    Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
+			    Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(Worker_Signature)
+            End if 
 	    	PF3
 	    End if
     End if 
@@ -884,9 +871,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
         If snap_status = "ACTIVE" then
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
-	    			updates_needed = False
-                    report_notes = report_notes & "No Updates Needed. "
+                    If instr(report_notes, "Assess TLR for closure for next month.") then 
+                        updates_needed = true
+                    Else 
+	    			    updates_needed = False
+                        report_notes = report_notes & "No Updates Needed. "
+                    End if 
                 End if
+                If (data_abawd = "06" and best_abawd_code = "01") then
+                    updates_needed = False
+                    report_notes = report_notes & "No Updates Needed. " 
+                End if 
             End if
 	    Else 
             report_notes = report_notes & "SNAP is " & snap_status & ". "
@@ -907,7 +902,6 @@ EMConnect ""
 worker_county_code = "X127"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
 file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
 
@@ -959,6 +953,8 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
+
+ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
 back_to_SELF
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -1014,7 +1010,7 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
-                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign - Inactive. "
+                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign. "
             End if
         End if
     End if
@@ -1027,6 +1023,8 @@ Loop until ObjExcel.Cells(excel_row, 1).Value = ""
 FOR i = 1 to 15		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
+
+Call back_to_self
 
 STATS_counter = STATS_counter - 1 'since we start with 1
 script_end_procedure("Success! Please review the TLR list.")
