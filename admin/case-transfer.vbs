@@ -829,7 +829,14 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 						STATS_counter = STATS_counter + 1
 						EMWriteScreen "x", 8, 26
 						transmit
-						EMReadScreen Elig_type, 2, 12, 72
+						row = 1 
+						col = 1
+						EMSearch "Elig Typ/St:", row, col
+						If row = "0" and col = "0" then 
+							Elig_type = ""
+						Else
+							EMReadScreen Elig_type, 2, row, col + 70
+						End If
 						If Elig_type = "BT" OR Elig_type = "DT" then
 							Specialty_HC = "TEFRA"
 						ElseIF Elig_type = "09" OR Elig_type = "10" OR Elig_type = "25" then
@@ -857,7 +864,14 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 				STATS_counter = STATS_counter + 1
 				EMWriteScreen "x", 8, 26
 				transmit
-				EMReadScreen hc_method, 1, 13, 76
+				row = 1 
+				col = 1
+				EMSearch "Method:", row, col	
+				If row = "0" and col = "0" then 
+					hc_method = ""
+				Else	
+					EMReadScreen hc_method, 1, row, col + 69
+				End If
 				If hc_method = "L" then
 					LTC_MA = TRUE
 				Else
@@ -872,7 +886,14 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 				STATS_counter = STATS_counter + 1
 				EMWriteScreen "x", 8, 26
 				transmit
-				EMReadScreen waiver_type, 1, 14, 76
+				row = 1 
+				col = 1
+				EMSearch "Waiver Type:", row, col		
+				If row = "0" and col = "0" then 
+					waiver_type = ""
+				Else
+					EMReadScreen waiver_type, 1, row, col + 74
+				End If
 				If waiver_type = "F" OR waiver_type = "G" OR waiver_type = "H" OR waiver_type = "I" OR waiver_type = "J" OR waiver_type = "K" OR waiver_type = "L" OR waiver_type = "M" OR waiver_type = "P" OR waiver_type = "Q" OR waiver_type = "R" OR waiver_type = "S" OR waiver_type = "Y" then
 					Waiver_MA = TRUE
 				Else
