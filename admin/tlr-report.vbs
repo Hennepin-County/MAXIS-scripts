@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2024", "Final removal of Banked Months support and permanent supports for TLR's 53-54 years old.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -722,7 +723,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
 	    	End if
 	    Elseif len(verified_wreg) = 3 then
-	    	'verified_wreg = left(verified_wreg, 2)
             best_wreg_code = left(verified_wreg,2) 'resetting variable 
         Else 
             wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
@@ -770,36 +770,15 @@ Function BULK_ABAWD_FSET_exemption_finder()
         manual_code = "F"  'manual code for exemption cases  
         age_50_workaround = False
         
-	    If best_abawd_code = "10" then 
-            Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
-            If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
-            If abawd_counted_months > 3 then
-                best_wreg_code = "30"
-                best_abawd_code = "13"
-                manual_code = "C"
-            Else 
-                best_wreg_code = "30"
-                best_abawd_code = "10"
-                manual_code = "M"
-            End If 
-        End If 
-
+	    If best_abawd_code = "10" then manual_code = "M"
+            
         If (age_50 = True or age_53_54 = True) then
-            Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
-            If (best_wreg_code = "30" and best_abawd_code = "10") then 
-                If abawd_counted_months < 3 then
-                    'REMOVE LINE ABOVE AFTER BM processing. 
-		            'changing codes per temp policy 
-		            best_wreg_code = "16"
-		            best_abawd_code = "03"
-                    age_50_workaround = True 
-                    manual_code = "M" 
-                Elseif abawd_counted_months > 3 then 
-                    best_wreg_code = "30"
-                    best_abawd_code = "13"
-                    manual_code = "C"
-                End if 
-                If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
+            If (best_wreg_code = "30" and best_abawd_code = "10") then         
+		        'changing codes per temp policy 
+		        best_wreg_code = "16"
+		        best_abawd_code = "03"
+                age_50_workaround = True 
+                manual_code = "M" 
             End if 
         End if
     
@@ -837,17 +816,14 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 Else 
                     Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
                 End if 
-            ELSEIF manual_code = "C" then 
-                If ATR_code = "B" or ATR_code = "C" then 
-                    exit for 'X and M are counted months
-                Else 
-                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                End if 
             End if 
            PF3 'to go back to WREG/Panel
         Next
-        'Count all the ABAWD months
-        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 
+        
+        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+        If (best_abawd_code = "10" or age_50_workaround = True) then 
+            If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
+        End if 
 
 	    transmit ' to save 
 		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
@@ -1034,7 +1010,7 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
-                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign - Inactive. "
+                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign. "
             End if
         End if
     End if
