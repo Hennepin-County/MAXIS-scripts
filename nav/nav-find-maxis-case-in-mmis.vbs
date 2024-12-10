@@ -55,10 +55,7 @@ changelog_display
 EMConnect ""
 
 'First checks to make sure you're in MAXIS.
-EMReadScreen MAXIS_check, 5, 1, 39
-If MAXIS_check <> "MAXIS" then EMReadScreen approval_confirmation_check, 21, 3, 30
-If approval_confirmation_check = "Approval Confirmation" then MAXIS_check = "MAXIS" 'Simplifies the next move
-If MAXIS_check <> "MAXIS" then script_end_procedure("You aren't in MAXIS! This script works by starting in MAXIS on a case.")
+check_for_MAXIS(False)
 
 'Reading the case number, then removing spaces and underscores, and adding the leading zeroes for MMIS.
 Call MAXIS_case_number_finder(maxis_case_number)
@@ -68,6 +65,12 @@ MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
 EMReadScreen HC_app_check, 16, 3, 33
 If HC_app_check = "Approval Package" then script_end_procedure("The script needs to be on the previous or next screen to process this.")
 
+'Navigate to SELF to determine if we are in training, inquiry, or production
+back_to_SELF
+EMReadScreen MAXIS_region_check, 10, 22, 48
+MAXIS_region_check = trim(MAXIS_region_check)
+
+'To do - update navigate_to_MMIS_region function to work with training region 
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
@@ -79,10 +82,10 @@ If RKEY_check = "RKEY" then script_end_procedure("A correct case number was not 
 
 'Now it gets to RELG for member 01 of this case.
 Call write_value_and_transmit("RCIN", 1, 8)
-EMWriteScreen "x", 11, 2                            'selecting MEMB 01 on the case 
+EMWriteScreen "X", 11, 2                            'selecting MEMB 01 on the case 
 Call write_value_and_transmit("RELG", 1, 8)
 
-script_end_procedure("")
+script_end_procedure("Success!")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
