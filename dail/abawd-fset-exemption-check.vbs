@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2024", "Fixed bug in date-based ABAWD evaluation to work dynamically by footer month/year of the DAIL message.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/07/2018", "Updated universal ABWAWD function.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/25/2018", "Updated SCHL exemption coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/17/2018", "Enhanced to check cases coded for homelessness for the 'Unfit for Employment' expansion. Also removed code that checked for SSI applying/appealing as this is no longer an exemption reason.", "Ilse Ferris, Hennepin County")
@@ -55,8 +56,10 @@ changelog_display
 
 'The script========
 EMConnect""
-'Writing "S" on the DAIL message
-CALL write_value_and_transmit("S", 6, 3)
+EMReadScreen MAXIS_footer_month, 2, 6, 11
+EMReadScreen MAXIS_footer_year, 2, 6, 14
+ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
+CALL write_value_and_transmit("S", 6, 3) 'Writing "S" on the DAIL message
 Call ABAWD_FSET_exemption_finder
 script_end_procedure("")
