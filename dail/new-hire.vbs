@@ -47,6 +47,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2024", "Added additional details from SDNH New Hire message to TIKL (hire date and HH Memb #).", "Mark Riegel, Hennepin County")
+call changelog_update("04/06/2024", "Removed workaround fix for WAGE match scrubber since the DHS interface with SSN is now repaired.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/08/2023", "Fixed bug when entering a job that starting the same month as the HIRE message was generated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
@@ -76,15 +79,6 @@ transmit
 
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
-
-'determining if the old message with the SSN functionality will be needed or not.
-EMReadScreen HIRE_check, 11, 6, 24
-If HIRE_check = "JOB DETAILS" then
-    SSN_present = True
-Else
-    EmReadscreen state_match, 4, 6, 20
-    If left(state_match, 4) = "SDNH" then SSN_present = False
-End if
 
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "X"
@@ -119,12 +113,7 @@ End if
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
 employer = TRIM(employer)
-If SSN_present = True then
-    EMReadScreen new_HIRE_SSN, 11, 9, 30
-    new_HIRE_SSN = replace(new_HIRE_SSN, "-", "")
-Else
-    EmReadScreen HH_memb, 2, 9, 35
-End if
+EmReadScreen HH_memb, 2, 9, 35
 PF3
 
 If HH_memb = "00" then script_end_procedure_with_error_report("MEMB 00 message do not need to be acted on as they are system errors. Please delete the DAIL. No CASE/NOTE is required.")
@@ -134,27 +123,12 @@ Call write_value_and_transmit("S", 6, 3)
 EMReadScreen stat_check, 4, 20, 21
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
 'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
 Call write_value_and_transmit("MEMB", 20, 71)
-
-If SSN_present = True then
-    Do
-    	EMReadScreen MEMB_current, 1, 2, 73
-    	EMReadScreen MEMB_total, 1, 2, 78
-    	EMReadScreen MEMB_SSN, 11, 7, 42
-    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-            exit do
-        Else
-    		transmit
-        End if
-    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-    EMReadScreen HH_memb, 2, 4, 33
-Else
-    Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
-End if
+Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
 
 EMReadScreen memb_age, 2, 8, 76
 If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
@@ -233,7 +207,7 @@ If create_JOBS_checkbox = checked then
     Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
     IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-        Call create_MAXIS_friendly_date(date_hired, 0, 12, 57) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+        Call create_MAXIS_friendly_date(date_hired, 0, 12, 54) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
     ELSE
         EmWriteScreen MAXIS_footer_month, 12, 54
         EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
@@ -266,7 +240,7 @@ If create_JOBS_checkbox = checked then
 END IF
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
+Call create_TIKL("Verification of " & employer & " job (hire date: " & date_hired & ") via NEW HIRE for HH Memb " & HH_memb & " should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
 reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 If Outlook_reminder_checkbox = CHECKED THEN
@@ -275,7 +249,7 @@ If Outlook_reminder_checkbox = CHECKED THEN
 End if
 
 Call navigate_to_MAXIS_screen("DAIL", "DAIL")
-'-----------------------------------------------------------------------------------------CASENOTE
+'-----------------------------------------------------------------------------------------CASE/NOTE
 Call write_value_and_transmit("N", 6, 3)
 PF9
 CALL write_variable_in_case_note("-SDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
@@ -284,7 +258,7 @@ CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
 CALL write_variable_in_case_note(new_hire_fourth_line)
 CALL write_variable_in_case_note("---")
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) to resident.")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent Verification and Employment verification forms.")
 IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
 IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
 IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")

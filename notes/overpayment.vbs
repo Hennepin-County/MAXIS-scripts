@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("04/24/2023", "Enhanced claim number to ensure entries are numeric and updated AR email.", "Megan Geissler, Hennpin County")
 call changelog_update("01/29/2023", "Enhanced claim information to ensure that decimal points are added to claim amounts, and not added to claim #'s.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Updated bug in script where claim # and claim amt were transposed.", "Ilse Ferris, Hennepin County")
@@ -368,8 +369,8 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     			End If
     		End If
     	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-    	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-    	CALL create_outlook_email("HSPH.FAA.Unit.Tin@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+    	'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+    	Call create_outlook_email("", "HSPH.FAA.Unit.Tin@hennepin.us", "", "", "Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, 1, False, "", "", False, "", "CASE NOTE" & vbcr & message_array, False, "", False)
     END IF
 
     '---------------------------------------------------------------writing the CCOL case note'
@@ -600,8 +601,8 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CASE_NOTE("----- ----- -----")
 	CALL write_variable_in_CCOL_note(worker_signature)
 	PF3
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FAA.Unit.Tin@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+	Call create_outlook_email("", "HSPH.FAA.Unit.Tin@hennepin.us", "", "", "Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, 1, False, "", "", False, "", "CASE NOTE" & vbcr & message_array, False, "", False)
 END IF
 
 script_end_procedure_with_error_report(closing_message)

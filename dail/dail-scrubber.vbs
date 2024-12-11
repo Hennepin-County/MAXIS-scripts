@@ -1,5 +1,5 @@
 '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'    HOW THE DAIL SCRUBER WORKS:
+'    HOW THE DAIL SCRUBBER WORKS:
 '
 '    This script opens up other script files, using a custom function (run_DAIL_scrubber_script), followed by the path to the script file. It's done this
 '      way because there could be hundreds of DAIL messages, and to work all of the combinations into one script would be incredibly tedious and long.
@@ -50,6 +50,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+Call changelog_update("06/06/2023", "Added DAIL Scrubber support for additional ABAWD/WREG message: 'POTENTIAL ABAWD MEMBER, REVIEW WREG PANEL, UPDATE AND APPROV'.", "Ilse Ferris, Hennepin County")
 Call changelog_update("1/12/2023", "Added functionality to stop the DAIL scrubber script if it appears you are in INQUIRY and the specific DAIL being processed requires the ability to take some kind of action in MAXIS. The DAIL Scrubber may stop if it appears you are in inquiry and the DAIL requires the ability to take action of some kind.", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2022", "Added DAIL Scrubber support for additional ABAWD/WREG messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("05/23/2022", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
@@ -70,13 +72,13 @@ changelog_display
 function go_to_top_of_dail()
 	Do
 		PF7							'scroll up'
-		first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
+		EMReadScreen first_page, 19, 24, 10		'read for message at the bottom of the panel indicating we are at the top
 	Loop until first_page = "ONLY SCROLL FORWARD"		'once the messages is displayed, the function is done.
 end function
 
 'funcction to find the message the script was started on and bring it to the top of the DAILs.
 function bring_correct_message_to_top()
-'The commparison varibales are read at the beginning of the DAIL scrubber and should not be redenined:
+'The comparison variables are read at the beginning of the DAIL scrubber and should not be redefined:
 	'dail_pers_indicator
 	'dail_case_indicator
 	'find_msg_details
@@ -84,14 +86,14 @@ function bring_correct_message_to_top()
 		EMReadscreen dail_check, 4, 2, 48			'making sure we are at the DAIL
 		If dail_check <> "DAIL" then PF3			''backing out to get to the DAIL
 
-		EMReadScreen self_check, 4, 2, 50			'If wew go to far and are at SELF - we are going to navvigate back to DAIL
+		EMReadScreen self_check, 4, 2, 50			'If wew go to far and are at SELF - we are going to navigate back to DAIL
 		If self_check = "SELF" Then
 			Call navigate_to_MAXIS_screen("DAIL", "DAIL")
 			Exit Do
 		End If
 	Loop until dail_check = "DAIL"
 
-	'Here we look for the right header but person informmmation and case information
+	'Here we look for the right header but person information and case information
 	header_row = 4
 	Do
 		header_row = header_row + 1
@@ -101,12 +103,12 @@ function bring_correct_message_to_top()
 			PF8
 			EMReadScreen last_page, 9, 24, 14
 			If last_page = "LAST PAGE" Then call go_to_top_of_dail
-			header_row = 5
+			header_row = 4
 		End If
 	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
 
 	msg_found = False															'setting the boolean to be able to identify if the correct DAIL is found'
-	dail_row = header_row + 1													'the dail mmessages start one row below the header
+	dail_row = header_row + 1													'the dail messages start one row below the header
 	Do
 		EMReadScreen read_each_dail, 76, dail_row, 5								'read the whole DAIL line
 		If read_each_dail = find_msg_details and hire_msg = False Then msg_found = True
@@ -144,8 +146,8 @@ EMGetCursor dail_row, dail_col
 EMReadScreen find_msg_details, 76, dail_row, 5		'this is the WHOLE line - with type and footer month - we will use this to get back to it if needed
 If left(find_msg_details, 5) = " HIRE" Then			'if this a HIRE message, we need to read the hire information to be able to identify a unique match
 	hire_msg = True																'setting in the script if this is a HIRE match or not
-	Call write_value_and_transmit("X", dail_row, 3)								'opening the DAIL mmessage
-	hire_row = 1																'finding the 'DATE HIRED' informmation as it is not in a consitent place
+	Call write_value_and_transmit("X", dail_row, 3)								'opening the DAIL message
+	hire_row = 1																'finding the 'DATE HIRED' information as it is not in a consistent place
 	hire_col = 1
 	EMSearch "DATE HIRED", hire_row, hire_col
 	EMReadScreen hire_msg_details, 80-hire_col, hire_row, hire_col				'reading the message from within the HIRE pop-up'
@@ -160,7 +162,7 @@ Do While header_in_row_above <> "-->"
 	header_row = header_row -1
 	EMReadScreen header_in_row_above, 3, header_row, 59
 Loop
-EMReadScreen dail_pers_indicator, 55, header_row, 5								'this is the information of the case name AND inidivvidual name if it is indicated in ()'
+EMReadScreen dail_pers_indicator, 55, header_row, 5								'this is the information of the case name AND individual name if it is indicated in ()'
 EMReadScreen dail_case_indicator, 18, header_row, 63							'this is the header with case number, including the CASE NUMBER words
 'here we are removing the trailing '-' from the person header information
 Do
@@ -169,7 +171,7 @@ Loop until right(dail_pers_indicator, 1) <> "-"
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 Call write_value_and_transmit("T", dail_row, 3)
-EMReadScreen MAXIS_check, 5, 1, 39												'checking to mmake sure wew are not passworded out.'
+EMReadScreen MAXIS_check, 5, 1, 39												'checking to make sure wew are not passworded out.'
 If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
 	call script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
 End If
@@ -180,10 +182,10 @@ full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-'This functionalitty will identify if the script is being run in INQUIRY
+'This functionality will identify if the script is being run in INQUIRY
 'Cannot tell if Production or Training, but that is less important
 running_in_INQUIRY = False							'default to false'
-EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
+EMSendKey "W"										'attempt to navigate to DAIL/WRIT - which requires write access
 TRANSMIT
 EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
 If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
@@ -197,11 +199,11 @@ call bring_correct_message_to_top
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
-'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
-'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affilated case look up
+'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONED XFS VERIFICATIONS)
+'Both of these messages start with 'FS' on the DAIL, so they need to be nested, or it never gets passed the affiliated case look up
 EMReadScreen stat_check, 4, 6, 6
 If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then
-	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
+	'now it checks if you are actually running from a XFS Auto-closed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
 	EMReadScreen xfs_check, 49, 6, 20
 	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then
 		If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
@@ -246,10 +248,16 @@ If InStr(full_message, "PERSON DOES NOT HAVE AN APPROVED HEALTH CARE BUDGET") <>
 If InStr(full_message, "PERSON HAS MAINTENANCE NEEDS ALLOWANCE - REVIEW MEDICAL") <> 0 Then review_and_approve_from_COLA = TRUE
 If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") <> 0 Then review_and_approve_from_COLA = TRUE
 If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "COLA DISREGARD AMOUNT NOT UPDATED") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW SVES RESPONSE") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW CLAIM NUMBER") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "NOT AUTO-APPROVED") <> 0 Then review_and_approve_from_COLA = TRUE
+' If InStr(full_message, ) <> 0 Then review_and_approve_from_COLA = TRUE
+' If InStr(full_message, ) <> 0 Then review_and_approve_from_COLA = TRUE
 
 If review_and_approve_from_COLA = TRUE Then
-	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
-    Call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
+	'NO CURRENT SUPPORT FOR COLA REVIEW AND APPROVE. WILL ADD COLA SUMMARY FOR NEXT COLA PROCESSING
+    call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
 End If
 
 'COLA SVES RESPONSE
@@ -319,7 +327,7 @@ If MEDI_check = "MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE" then
     call run_from_GitHub(script_repository & "dail/medi-check.vbs")
 END IF
 
-'Sends NOMI is DAIL generated by the REVS scrubber (loads SEND NOMI)
+'Paperless IR scrubber
 EMReadScreen paperless_check, 8, 6, 20
 If paperless_check = "%^% SENT" then
 	run_from_DAIL = TRUE
@@ -332,6 +340,11 @@ If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
 
+'SDX match (provides reference information for properly processing message)
+If instr(full_message, "SDX MATCH - SSI PENDING - MAXIS CREATED PBEN - IAA NEEDED") or instr(full_message, "SDX MATCH - SSI PENDING - IAA NEEDED") then
+	call run_from_GitHub(script_repository & "dail/sdx-match.vbs")
+END IF
+
 'SSA info received by agency (loads TPQY RESPONSE)
 If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message, "COVERED QTRS RESPONSE RECEIVED FROM SSA") then
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
@@ -339,6 +352,7 @@ END IF
 
 'ABAWD Exemption DAIL Messages
 If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _
+   instr(full_message, "POTENTIAL ABAWD MEMBER, REVIEW WREG PANEL, UPDATE AND APPROV") or _
    instr(full_message, "SNAP ABAWD ELIGIBILITY HAS EXPIR") or _
    instr(full_message, "SNAP MEMBERS AGE IS 50 OR OLDER-REVIEW FOR ABAWD EXEMPTION") or _
    instr(full_message, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") or _
@@ -356,6 +370,11 @@ END IF
 'WAGE MATCH Scrubber
 EMReadScreen DAIL_type, 4, 6, 6
 IF DAIL_type = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
+'DEU - PARIS MATCH 
+If DAIL_type = "PARI" then 
+    If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
+    run_from_GitHub(script_repository & "deu/paris-match-cleared.vbs")
+End if 
 
 'ALL other DAIL messages
 IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN

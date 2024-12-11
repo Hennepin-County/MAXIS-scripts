@@ -51,6 +51,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/24/2024", "Added an option for Interviews that do not have Aligned dates to indicate the case does not have to be reviewed for a week. This is intending to reduce the number of cases on the list to review on a daily basis.", "Casey Love, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("12/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -99,6 +101,7 @@ assigned_closed_recently_resolve = ""
 assigned_out_of_county = ""
 assigned_out_of_county_resolve = ""
 assigned_tracking_notes = ""
+assigned_case_is_priv = ""
 case_review_notes = ""
 case_on_hold = False
 case_in_progress = False
@@ -177,47 +180,6 @@ const last_const        = 10
 
 Dim CASES_ON_HOLD_ARRAY()
 ReDim CASES_ON_HOLD_ARRAY(last_const, 0)
-
-const case_number_const                             = 00
-const assigned_worker_const                         = 01
-const assigned_date_const                           = 02
-const assigned_start_time_const                     = 03
-const assigned_end_time_const                       = 04
-const assigned_hold_1_start_time_const              = 05
-const assigned_hold_1_end_time_const                = 06
-const assigned_hold_2_start_time_const              = 07
-const assigned_hold_2_end_time_const                = 08
-const assigned_hold_3_start_time_const              = 09
-const assigned_hold_3_end_time_const                = 10
-const assigned_case_name_const                      = 11
-const assigned_application_date_const               = 12
-const assigned_interview_date_const                 = 13
-const assigned_day_30_const                         = 14
-const assigned_days_pending_const                   = 15
-const assigned_snap_status_const                    = 16
-const assigned_cash_status_const                    = 17
-const assigned_2nd_application_date_const           = 18
-const assigned_rept_pnd2_days_const                 = 19
-const assigned_questionable_interview_const         = 20
-const assigned_questionable_interview_resolve_const = 21
-const assigned_appt_notice_date_const               = 22
-const assigned_appt_date_const                      = 23
-const assigned_appt_notc_confirmation_const         = 24
-const assigned_nomi_date_const                      = 25
-const assigned_nomi_confirmation_const              = 26
-const assigned_denial_needed_const                  = 27
-const assigned_next_action_needed_const             = 28
-const assigned_added_to_work_list_const             = 29
-const assigned_2nd_application_date_resolve_const   = 30
-const assigned_closed_recently_const                = 31
-const assigned_closed_recently_resolve_const        = 32
-const assigned_out_of_county_const                  = 33
-const assigned_out_of_county_resolve_const          = 34
-const case_review_notes_const                       = 35
-const final_const                                   = 50
-
-Dim COMPLETED_REVIEWS_ARRAY()
-ReDim COMPLETED_REVIEWS_ARRAY(final_const, 0)
 
 const wrkr_id_const         = 0
 const wrkr_name_const       = 1
@@ -426,6 +388,7 @@ function assign_a_case()
         case_review_notes                 = "TrackingNotes"
     End If
     end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number		'saving and formatting the information
+	case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
     assigned_tracking_notes = "STS-IP-"&user_ID_for_validation & " " & case_review_notes
 
 	'if not a demo case, the updated information should be saved to SQL
@@ -656,7 +619,8 @@ function complete_admin_functions()
                                 case_tracking_notes = replace(case_tracking_notes, "STS-HD-"&worker_number_to_resolve, "")
                                 case_tracking_notes = replace(case_tracking_notes, "STS-RC-"&worker_number_to_resolve, "")
                                 case_tracking_notes = replace(case_tracking_notes, "STS-RC", "")
-                                case_tracking_notescase_tracking_notescase_tracking_notes = trim(case_tracking_notes)
+                                case_tracking_notes = trim(case_tracking_notes)
+								case_tracking_notes = replace(case_tracking_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
                                 case_tracking_notes = "STS-NR " & case_tracking_notes
                                 case_tracking_notes = trim(case_tracking_notes)
                                 Exit Do
@@ -726,6 +690,24 @@ end function
 
 'this function will log the completed reviews for a specific worker as a part of the Finish Day process
 function create_assignment_report()
+    cases_completed_by_me = 0
+
+	'opening task log
+    file_url = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
+    Call excel_open(file_url, False, False, ObjExcel, objWorkbook)
+
+	ObjExcel.worksheets("QI Review Work").Activate
+
+	''finding the first empty row in the log
+    excel_row = 2
+	assigned_date = date
+    Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
+		If ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker and ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date Then
+			cases_completed_by_me = cases_completed_by_me + 1
+		End If
+		excel_row = excel_row + 1
+	Loop
+
     'Access the SQL Table
     'declare the SQL statement that will query the database
     objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
@@ -739,41 +721,103 @@ function create_assignment_report()
     objRecordSet.Open objSQL, objConnection
 
 	'we are going to add each case on the TABLE that was completed by the worker running the script and adding the information to the array
-    cases_completed_by_me = 0
     Do While NOT objRecordSet.Eof
         case_tracking_notes = objRecordSet("TrackingNotes")
 
         If Instr(case_tracking_notes, "STS-RC-"&user_ID_for_validation) <> 0 Then
+       		txt_file_name = ""
+			od_revw_tracking_file_path = ""
 
-            ReDim Preserve COMPLETED_REVIEWS_ARRAY(final_const, cases_completed_by_me)
+			assigned_date  = ""
+			assigned_start_time  = ""
+			assigned_end_time  = ""
+			assigned_hold_1_start_time  = ""
+			assigned_hold_1_end_time  = ""
+			assigned_hold_2_start_time  = ""
+			assigned_hold_2_end_time  = ""
+			assigned_hold_3_start_time  = ""
+			assigned_hold_3_end_time  = ""
 
-            COMPLETED_REVIEWS_ARRAY(case_number_const, cases_completed_by_me)                             = objRecordSet("CaseNumber")
-            COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, cases_completed_by_me)                      = objRecordSet("CaseName")
-            COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, cases_completed_by_me)               = objRecordSet("ApplDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, cases_completed_by_me)                 = objRecordSet("InterviewDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, cases_completed_by_me)                         = objRecordSet("Day_30")
-            COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, cases_completed_by_me)                   = objRecordSet("DaysPending")
-            COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, cases_completed_by_me)                    = objRecordSet("SnapStatus")
-            COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, cases_completed_by_me)                    = objRecordSet("CashStatus")
-            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, cases_completed_by_me)           = objRecordSet("SecondApplicationDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, cases_completed_by_me)                 = objRecordSet("REPT_PND2Days")
-            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, cases_completed_by_me)         = objRecordSet("QuestionableInterview")
-            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, cases_completed_by_me) = objRecordSet("Resolved")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, cases_completed_by_me)               = objRecordSet("ApptNoticeDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, cases_completed_by_me)                      = objRecordSet("ApptDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, cases_completed_by_me)         = objRecordSet("Confirmation")
-            COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, cases_completed_by_me)                      = objRecordSet("NOMIDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, cases_completed_by_me)              = objRecordSet("Confirmation2")
-            COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, cases_completed_by_me)                  = objRecordSet("DenialNeeded")
-            COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, cases_completed_by_me)             = objRecordSet("NextActionNeeded")
-            COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, cases_completed_by_me)             = objRecordSet("AddedtoWorkList")
-            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, cases_completed_by_me)   = objRecordSet("SecondApplicationDateNotes")
-            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, cases_completed_by_me)                = objRecordSet("ClosedInPast30Days")
-            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, cases_completed_by_me)        = objRecordSet("ClosedInPast30DaysNotes")
-            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, cases_completed_by_me)                  = objRecordSet("StartedOutOfCounty")
-            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, cases_completed_by_me)          = objRecordSet("StartedOutOfCountyNotes")
-            COMPLETED_REVIEWS_ARRAY(case_review_notes_const, cases_completed_by_me)                       = objRecordSet("TrackingNotes")
+	        MAXIS_case_number = objRecordSet("CaseNumber")
 
+			txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+			od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+
+			Call read_tracking_cookie			'read details from the tracking cookie to save it to the log
+			If assigned_date = "" Then assigned_date = date
+
+			'removing the status tracking information from the notes since the review is now done and logged
+			case_review_notes = objRecordSet("TrackingNotes")
+			case_review_notes = replace(case_review_notes, "STS-IP-"&user_ID_for_validation, "")
+			case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
+			case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
+			case_review_notes = replace(case_review_notes, "STS-RC", "")
+			case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
+			case_review_notes = trim(case_review_notes)
+
+			ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker
+			ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date
+			ObjExcel.Cells(excel_row, CaseNumber_col).value = objRecordSet("CaseNumber")
+			ObjExcel.Cells(excel_row, CaseName_col).value =  objRecordSet("CaseName")
+			ObjExcel.Cells(excel_row, ApplDate_col).value =  DateAdd("d", 0, objRecordSet("ApplDate"))
+			ObjExcel.Cells(excel_row, InterviewDate_col).value =  DateAdd("d", 0, objRecordSet("InterviewDate"))
+			ObjExcel.Cells(excel_row, Day_30_dash_col).value =  DateAdd("d", 0, objRecordSet("Day_30"))
+			ObjExcel.Cells(excel_row, DaysPending_col).value =  objRecordSet("DaysPending")
+			ObjExcel.Cells(excel_row, SnapStatus_col).value =  objRecordSet("SnapStatus")
+			ObjExcel.Cells(excel_row, CashStatus_col).value =  objRecordSet("CashStatus")
+			ObjExcel.Cells(excel_row, SecondApplicationDate_col).value =  DateAdd("d", 0, objRecordSet("SecondApplicationDate"))
+			ObjExcel.Cells(excel_row, REPT_PND2Days_col).value =  objRecordSet("REPT_PND2Days")
+			ObjExcel.Cells(excel_row, QuestionableInterview_col).value =  objRecordSet("QuestionableInterview")
+			ObjExcel.Cells(excel_row, Resolved_col).value =  objRecordSet("Resolved")
+			ObjExcel.Cells(excel_row, ApptNoticeDate_col).value =  DateAdd("d", 0, objRecordSet("ApptNoticeDate"))
+			ObjExcel.Cells(excel_row, ApptDate_col).value =  DateAdd("d", 0, objRecordSet("ApptDate"))
+			ObjExcel.Cells(excel_row, Confirmation_col).value =  objRecordSet("Confirmation")
+			ObjExcel.Cells(excel_row, NOMIDate_col).value =  DateAdd("d", 0, objRecordSet("NOMIDate"))
+			ObjExcel.Cells(excel_row, Confirmation2_col).value =  objRecordSet("Confirmation2")
+			ObjExcel.Cells(excel_row, DenialNeeded_col).value =  objRecordSet("DenialNeeded")
+			ObjExcel.Cells(excel_row, NextActionNeeded_col).value =  objRecordSet("NextActionNeeded")
+			ObjExcel.Cells(excel_row, AddedtoWorkList_col).value =  DateAdd("d", 0, objRecordSet("AddedtoWorkList"))
+			ObjExcel.Cells(excel_row, SecondApplicationDateNotes_col).value =  objRecordSet("SecondApplicationDateNotes")
+			ObjExcel.Cells(excel_row, ClosedInPast30Days_col).value =  objRecordSet("ClosedInPast30Days")
+			ObjExcel.Cells(excel_row, ClosedInPast30DaysNotes_col).value =  objRecordSet("ClosedInPast30DaysNotes")
+			ObjExcel.Cells(excel_row, StartedOutOfCounty_col).value =  objRecordSet("StartedOutOfCounty")
+			ObjExcel.Cells(excel_row, StartedOutOfCountyNotes_col).value =  objRecordSet("StartedOutOfCountyNotes")
+			ObjExcel.Cells(excel_row, TrackingNotes_col).value = case_review_notes
+			ObjExcel.Cells(excel_row, CaseSelectedTime_col).value = assigned_start_time
+			ObjExcel.Cells(excel_row, Hold1Start_col).value = assigned_hold_1_start_time
+			ObjExcel.Cells(excel_row, Hold1End_col).value = assigned_hold_1_end_time
+			ObjExcel.Cells(excel_row, Hold2Start_col).value = assigned_hold_2_start_time
+			ObjExcel.Cells(excel_row, Hold2End_col).value = assigned_hold_2_end_time
+			ObjExcel.Cells(excel_row, Hold3Start_col).value = assigned_hold_3_start_time
+			ObjExcel.Cells(excel_row, Hold3End_col).value = assigned_hold_3_end_time
+			ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = assigned_end_time
+
+			'update the information on SQL table with the notes updates
+			If local_demo = False Then
+				'Creating objects for Access
+				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+				'This is the BZST connection to SQL Database'
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+				'delete a record if the case number matches
+				objUpdateRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objUpdateConnection
+
+				'close the connection and recordset objects to free up resources
+				objUpdateConnection.Close
+				Set objUpdateRecordSet=nothing
+				Set objUpdateConnection=nothing
+			End If
+
+			'removing the tracking cookie
+			With objFSO
+				If .FileExists(od_revw_tracking_file_path) = True then
+					.DeleteFile(od_revw_tracking_file_path)
+				End If
+			End With
+
+            excel_row = excel_row + 1
             cases_completed_by_me = cases_completed_by_me + 1
         End If
         objRecordSet.MoveNext
@@ -784,108 +828,6 @@ function create_assignment_report()
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
-
-	'opening task log
-    file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
-    Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
-	' MsgBox "Script has gathered cases from the TABLE and saved them to an array." & vbCr & "Total Count:" & cases_completed_by_me & vbCr & vbCr & "NOW an excel file should have opened. If one did NOT open, contact Casey right away." & vbCr & "Excel file url: " & file_url
-	''finding the first empty row in the log
-    excel_row = 2
-    Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
-	    excel_row = excel_row + 1
-    Loop
-
-	'loop through the array of all of the cases completed and add them to the excel log
-    For review = 0 to UBound(COMPLETED_REVIEWS_ARRAY, 2)
-        MAXIS_case_number = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
-        assigned_date  = ""
-        assigned_start_time  = ""
-        assigned_end_time  = ""
-        assigned_hold_1_start_time  = ""
-        assigned_hold_1_end_time  = ""
-        assigned_hold_2_start_time  = ""
-        assigned_hold_2_end_time  = ""
-        assigned_hold_3_start_time  = ""
-        assigned_hold_3_end_time  = ""
-        od_revw_tracking_file_path = ""
-
-        txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-        od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-
-        Call read_tracking_cookie			'read details from the tracking cookie to save it to the log
-
-		'removing the status tracking information from the notes since the review is now done and logged
-        case_review_notes = COMPLETED_REVIEWS_ARRAY(case_review_notes_const, review)
-        case_review_notes = replace(case_review_notes, "STS-IP-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-RC", "")
-        case_review_notes = trim(case_review_notes)
-
-        ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker
-        ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date
-        ObjExcel.Cells(excel_row, CaseNumber_col).value = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
-        ObjExcel.Cells(excel_row, CaseName_col).value = COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, review)
-        ObjExcel.Cells(excel_row, ApplDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, review)
-        ObjExcel.Cells(excel_row, InterviewDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, review)
-        ObjExcel.Cells(excel_row, Day_30_dash_col).value = COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, review)
-        ObjExcel.Cells(excel_row, DaysPending_col).value = COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, review)
-        ObjExcel.Cells(excel_row, SnapStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, review)
-        ObjExcel.Cells(excel_row, CashStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, review)
-        ObjExcel.Cells(excel_row, SecondApplicationDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, review)
-        ObjExcel.Cells(excel_row, REPT_PND2Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, review)
-        ObjExcel.Cells(excel_row, QuestionableInterview_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, review)
-        ObjExcel.Cells(excel_row, Resolved_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, review)
-        ObjExcel.Cells(excel_row, ApptNoticeDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, review)
-        ObjExcel.Cells(excel_row, ApptDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, review)
-        ObjExcel.Cells(excel_row, Confirmation_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, review)
-        ObjExcel.Cells(excel_row, NOMIDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, review)
-        ObjExcel.Cells(excel_row, Confirmation2_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, review)
-        ObjExcel.Cells(excel_row, DenialNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, review)
-        ObjExcel.Cells(excel_row, NextActionNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, review)
-        ObjExcel.Cells(excel_row, AddedtoWorkList_col).value = COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, review)
-        ObjExcel.Cells(excel_row, SecondApplicationDateNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, review)
-        ObjExcel.Cells(excel_row, ClosedInPast30Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, review)
-        ObjExcel.Cells(excel_row, ClosedInPast30DaysNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, review)
-        ObjExcel.Cells(excel_row, StartedOutOfCounty_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, review)
-        ObjExcel.Cells(excel_row, StartedOutOfCountyNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, review)
-        ObjExcel.Cells(excel_row, TrackingNotes_col).value = case_review_notes
-        ObjExcel.Cells(excel_row, CaseSelectedTime_col).value = assigned_start_time
-        ObjExcel.Cells(excel_row, Hold1Start_col).value = assigned_hold_1_start_time
-        ObjExcel.Cells(excel_row, Hold1End_col).value = assigned_hold_1_end_time
-        ObjExcel.Cells(excel_row, Hold2Start_col).value = assigned_hold_2_start_time
-        ObjExcel.Cells(excel_row, Hold2End_col).value = assigned_hold_2_end_time
-        ObjExcel.Cells(excel_row, Hold3Start_col).value = assigned_hold_3_start_time
-        ObjExcel.Cells(excel_row, Hold3End_col).value = assigned_hold_3_end_time
-        ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = assigned_end_time
-
-        excel_row = excel_row + 1
-
-		'update the information on SQL table with the notes updates
-        If local_demo = False Then
-            'Creating objects for Access
-            Set objConnection = CreateObject("ADODB.Connection")
-            Set objRecordSet = CreateObject("ADODB.Recordset")
-
-            'This is the BZST connection to SQL Database'
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-            'delete a record if the case number matches
-            objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-            'close the connection and recordset objects to free up resources
-            objConnection.Close
-            Set objRecordSet=nothing
-            Set objConnection=nothing
-        End If
-
-		'removing the tracking cookie
-        With objFSO
-            If .FileExists(od_revw_tracking_file_path) = True then
-                .DeleteFile(od_revw_tracking_file_path)
-            End If
-        End With
-    Next
 
     objWorkbook.Save()		'saving the excel
     ObjExcel.ActiveWorkbook.Close
@@ -899,7 +841,7 @@ function create_assignment_report()
 
     main_email_body = "The On Demand Appplication Reviews have been completed for " & date & "."
     main_email_body = main_email_body & vbCr & "Completed by: " & assigned_worker
-    main_email_body = main_email_body & vbCr & vbCr & "Number of cases reviewed: " & UBound(COMPLETED_REVIEWS_ARRAY, 2)+1
+    main_email_body = main_email_body & vbCr & vbCr & "Number of cases reviewed: " & cases_completed_by_me
     main_email_body = main_email_body & vbCr & "On Demand Case Reviews completed for the day."
     main_email_body = main_email_body & vbCr & vbCr & "Details of the reviews are logged here:"
     main_email_body = main_email_body & vbCr & "<" & file_url & ">"
@@ -935,7 +877,7 @@ function create_assignment_report()
 	cc_email = qi_worker_email
 
 	''sending the email
-    CALL create_outlook_email(qi_worker_supervisor_email, cc_email, main_email_subject, main_email_body, "", TRUE)
+    Call create_outlook_email("", qi_worker_supervisor_email, cc_email, "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
 
 	' MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
@@ -1119,6 +1061,7 @@ function set_variables_from_SQL()
     assigned_out_of_county                  = objRecordSet("StartedOutOfCounty")
     assigned_out_of_county_resolve          = objRecordSet("StartedOutOfCountyNotes")
     assigned_tracking_notes                 = objRecordSet("TrackingNotes")
+	assigned_case_is_priv					= False
 
     case_review_notes = replace(assigned_tracking_notes, "STS-NR", "")
     case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
@@ -1127,6 +1070,23 @@ function set_variables_from_SQL()
     case_review_notes = replace(case_review_notes, "STS-RC", "")
     case_review_notes = replace(case_review_notes, "STS-NL", "")
     case_review_notes = trim(case_review_notes)
+
+	If InStr(case_review_notes, "%$#@") Then
+		beg_of_intv_revw = InStr(case_review_notes, "@#$%")
+		beg_of_intv_revw = beg_of_intv_revw+17
+		end_of_intv_revw = InStr(case_review_notes, "@%$#@")
+		If beg_of_intv_revw = end_of_intv_revw Then
+			note_align_intv_revw_dt = False
+			case_review_notes = replace(case_review_notes, "@#$%REVIEWED ON: @%$#@", "")
+		Else
+			note_align_intv_revw_dt = Mid(case_review_notes, beg_of_intv_revw, end_of_intv_revw-beg_of_intv_revw)
+			case_review_notes = replace(case_review_notes, "@#$%REVIEWED ON: " & note_align_intv_revw_dt & "@%$#@", "")
+		End If
+	End If
+	If Instr(case_review_notes,"PRIVILEGED CASE.") <> 0 Then
+		' case_review_notes = replace(case_review_notes, "PRIVILEGED CASE.", "")
+		assigned_case_is_priv = True
+	End If
 
     date_zero =  #1/1/1900#
     If IsDate(table_application_date) = True Then
@@ -1226,7 +1186,7 @@ function test_sql_access()
     email_body = email_body & "first_item_date - " & first_item_date & vbCr
     email_body = email_body & "This test is complete and this worker has read access."
 
-    Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", email_subject, email_body, "", True)
+    Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
     end_msg = "The test is complete an an email has been sent to the BlueZone Script Team regarding access to the tables for the new On Demand functionality."
     Call script_end_procedure(end_msg)
@@ -1293,12 +1253,13 @@ function update_tracking_cookie(update_reason)
 end function
 
 'END FUNCTIONS =============================================================================================================
+Dim align_interview_selection
 
 EMConnect ""                'connecting to MAXIS
 Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
 
 'If a BZST worker is running this script, there is functionality for running a cleanup or running in DEMMO mode
-If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
+If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "MEGE001" OR user_ID_for_validation = "MARI001" OR user_ID_for_validation = "DACO003" Then
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"                     'dialog to select demo or clean up options
         ButtonGroup ButtonPressed
@@ -1943,6 +1904,7 @@ If worker_on_task = True Then
 	          Text 185, 10, 60, 10, "Case in Review"
 	          GroupBox 10, 20, 230, 75, "Case Information"
 	          Text 20, 35, 85, 10, " Case Number: " & MAXIS_case_number
+			  If assigned_case_is_priv = True Then Text 20, 105, 85, 10, "CASE IS PRIVILEGED"
 	          Text 30, 45, 210, 10, "Case Name: " & assigned_case_name
 	          Text 15, 60, 120, 10, "Application Date: " & assigned_application_date
 	          Text 20, 70, 75, 10, " Days Pending: " & assigned_rept_pnd2_days
@@ -1958,6 +1920,8 @@ If worker_on_task = True Then
 	        	  Text 20, 130, 180, 10, "*** Interview Dates on PROG need to be ALIGNED ***"
 	        	  Text 20, 145, 40, 10, "Resolution: "
 	        	  EditBox 60, 140, 170, 15, align_interview_dates_resolution
+				  Text 20, 160, 150, 20, "Are the Interview Alignment Dates Incorrect due to SNAP Waived Interview?"
+				  DropListBox 20, 180, 200, 15, "No - Case Needed Update"+chr(9)+"Waived Interview Applies but case was Mishandled"+chr(9)+"Yes - Interview dates are Correct", align_interview_selection
 	          End If
 	          If assigned_next_action_needed = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then
 	        	  Text 20, 165, 180, 10, "*** Questionable Interview Date Found: " & assigned_questionable_interview & " ***"
@@ -2045,6 +2009,7 @@ If worker_on_task = True Then
         case_review_notes = trim(case_review_notes)
         case_review_notes = "STS-RC-"&user_ID_for_validation & " " & case_review_notes
         If follow_up_tomorrow_checkbox = checked Then case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
+		If align_interview_selection = "Yes - Interview dates are Correct" Then case_review_notes = case_review_notes & "@#$%REVIEWED ON: " & date & "@%$#@"
         end_msg = end_msg & vbCr & vbCr & "The review for Case # " & MAXIS_case_number & " has been completed."
 
         assigned_end_time = time
@@ -2071,6 +2036,7 @@ If worker_on_task = True Then
         case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
         case_review_notes = replace(case_review_notes, "STS-RC", "")
         case_review_notes = trim(case_review_notes)
+		case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
         case_review_notes = "STS-HD-"&user_ID_for_validation & " " & case_review_notes
         Call update_tracking_cookie("HOLD")
 	End If

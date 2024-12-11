@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/06/2024", "Removed workaround fix for WAGE match scrubber since the DHS interface with SSN is now repaired.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2022", "Updated handling for non-disclosure agreement.", "MiKayla Handley") '#493
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -57,41 +58,12 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""   'Connects to BlueZone
 
-'determining if the old message with the SSN functionality will be needed or not.
-EMReadScreen MEMB_check, 7, 6, 20
-If left(MEMB_check, 4) = "MEMB" then
-    member_number = right(MEMB_check, 2)
-    SSN_present = False
-Else
-    SSN_present = True
-End if
-
-If SSN_present = True then
-    EMSendKey "I"   'Navigates to INFC
-    transmit
-    Call write_value_and_transmit("SVES", 20, 71)    'Navigates to SVES
-    Call write_value_and_transmit("TPQY", 20, 70)    'Navigates to TPQY
-	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
-	EMReadScreen agreement_check, 9, 2, 24
-	IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
-
-Else
-    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-    If is_this_priv = True then script_end_procedure("This is a privileged case. Cannot access. The script will now end.")
-
-    Call write_value_and_transmit(member_number, 20, 76)
-    EmReadscreen client_SSN, 11, 7, 42
-    client_SSN = replace(client_SSN, " ", "")
-
-    'Going to the SVES Response
-    Call navigate_to_MAXIS_screen("INFC", "SVES")
-    EmWriteScreen client_SSN, 4, 68
-    Call write_value_and_transmit("TPQY", 20, 70)
-
-	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
-	EMReadScreen agreement_check, 9, 2, 24
-	IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
-End if
+Call write_value_and_transmit ("I", 6, 3)   'Navigates to INFC
+Call write_value_and_transmit("SVES", 20, 71)    'Navigates to SVES
+Call write_value_and_transmit("TPQY", 20, 70)    'Navigates to TPQY
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
 script_end_procedure("")
 

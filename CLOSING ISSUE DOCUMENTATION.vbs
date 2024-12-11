@@ -1,4 +1,4 @@
-'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -7,6 +7,9 @@
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
 'Review dialog names for content and content fit in dialog----------------------
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------
+'--Create a button to reference instructions------------------------------------
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------

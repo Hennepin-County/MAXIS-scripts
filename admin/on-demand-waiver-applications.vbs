@@ -50,6 +50,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2024", "This script still captures some actions and information in Excel files for reporting and any data issue investigation. Updated the script to hide these Excel files so they are not accidentally changed or closed.", "Casey Love, Hennepin County")
+call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Added checkbox option in the main dialog to select if user wants Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/01/2022", "Added Excel output warning message.", "Ilse Ferris, Hennepin County")
@@ -99,7 +102,7 @@ If number_of_rows = 0 Then
 	script_info_for_email = script_info_for_email & vbCr & "The BlueZone Script Team will need to connect with the BI Team to review the data issues and will provide additional information as it becomes available."
 	script_info_for_email = script_info_for_email & vbCr & vbCr & "There is no workaround for this issue and was not caused by any individual, it was caused by a data upload/connection issue that is scheduled to happen automatically and failed for some reason. The BlueZone Script Team will provide addtional information once we have it from the BI Team."
 	script_info_for_email = script_info_for_email & vbCr & vbCR & "EMAIL AUTOMATED BY THE ON DEMAND DASHBOARD SCRIPT"
-	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "URGENT - On Demand Pending Table Empty", script_info_for_email, "", True)
+	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "", "URGENT - On Demand Pending Table Empty", 1, False, "", "", False, "", script_info_for_email, False, "", True)
 	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Tanya and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
 End if
 
@@ -229,8 +232,9 @@ const out_of_co_resolve		= 54
 const closed_in_30_resolve	= 55
 const subsqt_appl_resolve	= 56
 const deleted_today 		= 57
+const align_intv_revw_dt	= 58
 
-const error_notes 			= 58
+const error_notes 			= 59
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -371,6 +375,24 @@ For tester = 0 to UBound(tester_array)                         'looping through 
 	End If
 Next
 
+'This block ensures that a folder exists for the current month so that when daily action data is saved at the end of the script - there is aplace for it to go
+current_daily_case_list_folder_name = right("0" & DatePart("m", date), 2) & "-" & DatePart("yyyy", date)
+current_daily_case_list_folder_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & current_daily_case_list_folder_name
+Set fso = CreateObject("Scripting.FileSystemObject")
+If NOT (fso.FolderExists(current_daily_case_list_folder_path)) Then
+	fso.CreateFolder current_daily_case_list_folder_path
+End If
+
+'This block ensures any folder from two months prior is moved to the archive to ensure the folder is clean
+archive_month = DateAdd("m", -2, date)
+archive_daily_case_list_folder_name = right("0" & DatePart("m", archive_month), 2) & "-" & DatePart("yyyy", archive_month)
+archive_daily_case_list_folder_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & archive_daily_case_list_folder_name
+archive_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/Archive/" & archive_daily_case_list_folder_name
+If fso.FolderExists(archive_daily_case_list_folder_path) = True Then
+	set folder = fso.GetFolder(archive_daily_case_list_folder_path)
+	folder.Move archive_path
+End If
+
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 160, "Select the source file"
@@ -471,7 +493,7 @@ If first_item_date <> date Then
 				TODAYS_CASES_ARRAY(worker_ID, case_entry) = objRecordSet("WorkerID")
 				TODAYS_CASES_ARRAY(case_number, case_entry) = objRecordSet("CaseNumber")
 				Do
-					If left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) = "0" Then TODAYS_CASES_ARRAY(case_number, case_entry) = right(TODAYS_CASES_ARRAY(case_number, case_entry), len(TODAYS_CASES_ARRAY(case_number, case_entry)-1))
+					If left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) = "0" Then TODAYS_CASES_ARRAY(case_number, case_entry) = right(TODAYS_CASES_ARRAY(case_number, case_entry), len(TODAYS_CASES_ARRAY(case_number, case_entry))-1)
 				Loop until left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) <> "0"
 				' TODAYS_CASES_ARRAY(excel_row, case_entry) = row
 				TODAYS_CASES_ARRAY(client_name, case_entry) = objRecordSet("CaseName")
@@ -895,6 +917,7 @@ If first_item_date <> date Then
 				If Instr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "PRIVILEGED CASE") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "PRIVILEGED CASE. " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
 			Elseif county_check <> "27" Then
 				ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
+				ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "OUT OF COUNTY - " & county_check
 			ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER" Then
 				ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CASE HAS BEEN DELETED"
 			Else
@@ -1161,7 +1184,7 @@ If first_item_date <> date Then
 	'Opening the Excel file, (now that the dialog is done)
 	'creating a new file to create the 'Daily List'
 	Set objExcel = CreateObject("Excel.Application")
-	objExcel.Visible = True
+	objExcel.Visible = False
 	Set objWorkbook = objExcel.Workbooks.Add()
 	objExcel.DisplayAlerts = True
 
@@ -1426,73 +1449,86 @@ Do While NOT objWorkRecordSet.Eof
 	case_number_to_assess = objWorkRecordSet("CaseNumber")  			'getting the case number in the Working Excel sheet
 	' case_name_to_assess = objWorkRecordSet("CaseName")
 	' found_case_on_todays_list = FALSE                               	'this Boolean is used to determine if the case number is on the BOBI run today
-	If InStr(list_of_all_cases, "*" & case_number_to_assess & "*") = 0 Then 		'making sure we don't have repeat case numbers
-    If case_number_to_assess = "2555502" then
-            msgbox "Found and skipping Case #2555502"
-        Else
-		    list_of_all_cases = list_of_all_cases & case_number_to_assess & "*"
-  		    ReDim Preserve WORKING_LIST_CASES_ARRAY(error_notes, case_entry)     'resizing the WORKING CASES ARRAY
+	If InStr(list_of_all_cases, "*" & case_number_to_assess & "*") = 0 and case_number_to_assess <> "2536665" Then 		'making sure we don't have repeat case numbers
 
-            ' WORKING_LIST_CASES_ARRAY(worker_ID, case_entry) 				= TODAYS_CASES_ARRAY(worker_ID, each_case)
-            WORKING_LIST_CASES_ARRAY(case_number, case_entry) 			= objWorkRecordSet("CaseNumber")
-            ' WORKING_LIST_CASES_ARRAY(excel_row, case_entry) = row
-            WORKING_LIST_CASES_ARRAY(client_name, case_entry) 			= objWorkRecordSet("CaseName") 'ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
-            WORKING_LIST_CASES_ARRAY(application_date, case_entry) 		= objWorkRecordSet("ApplDate")	'TODAYS_CASES_ARRAY(application_date, each_case)
-		    WORKING_LIST_CASES_ARRAY(data_day_30, case_entry) 			= objWorkRecordSet("Day_30")
-            WORKING_LIST_CASES_ARRAY(interview_date, case_entry) 		= objWorkRecordSet("InterviewDate") 		'ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
-            WORKING_LIST_CASES_ARRAY(CASH_status, case_entry) 			= objWorkRecordSet("CashStatus") 			'ObjWorkExcel.Cells(row, cash_stat_col)
-            WORKING_LIST_CASES_ARRAY(SNAP_status, case_entry) 			= objWorkRecordSet("SnapStatus") 			'ObjWorkExcel.Cells(row, snap_stat_col)
+		list_of_all_cases = list_of_all_cases & case_number_to_assess & "*"
+		ReDim Preserve WORKING_LIST_CASES_ARRAY(error_notes, case_entry)     'resizing the WORKING CASES ARRAY
 
-            WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) 		= objWorkRecordSet("ApptNoticeDate") 		'ObjWorkExcel.Cells(row, appt_notc_date_col)
-            WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) 		= objWorkRecordSet("Confirmation") 			'ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
-            WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) 		= objWorkRecordSet("ApptDate") 				'ObjWorkExcel.Cells(row, appt_date_col)
-		    WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) 	= objWorkRecordSet("SecondApplicationDate") 'ObjWorkExcel.Cells(row, second_app_date_col).Value
-		    WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) 	= objWorkRecordSet("REPT_PND2Days") 		'ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
-		    WORKING_LIST_CASES_ARRAY(data_days_pend, case_entry) 		= objWorkRecordSet("DaysPending") 		'TODAYS_CASES_ARRAY(data_days_pend, each_case)
-            WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) 				= objWorkRecordSet("NOMIDate") 				'ObjWorkExcel.Cells(row, nomi_date_col)
-            WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) 			= objWorkRecordSet("Confirmation2") 		'ObjWorkExcel.Cells(row, nomi_confirm_col)
-            WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) 	= objWorkRecordSet("NextActionNeeded") 			'ObjWorkExcel.Cells(row, next_action_col)
-		    WORKING_LIST_CASES_ARRAY(subsqt_appl_resolve, case_entry)	= objWorkRecordSet("SecondApplicationDateNotes")
-		    WORKING_LIST_CASES_ARRAY(case_closed_in_30, case_entry)		= objWorkRecordSet("ClosedInPast30Days")
-		    WORKING_LIST_CASES_ARRAY(closed_in_30_resolve, case_entry)	= objWorkRecordSet("ClosedInPast30DaysNotes")
-		    WORKING_LIST_CASES_ARRAY(case_in_other_co, case_entry)		= objWorkRecordSet("StartedOutOfCounty")
-		    WORKING_LIST_CASES_ARRAY(out_of_co_resolve, case_entry)		= objWorkRecordSet("StartedOutOfCountyNotes")
-		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)		= objWorkRecordSet("TrackingNotes")
+		' WORKING_LIST_CASES_ARRAY(worker_ID, case_entry) 				= TODAYS_CASES_ARRAY(worker_ID, each_case)
+		WORKING_LIST_CASES_ARRAY(case_number, case_entry) 			= objWorkRecordSet("CaseNumber")
+		' WORKING_LIST_CASES_ARRAY(excel_row, case_entry) = row
+		WORKING_LIST_CASES_ARRAY(client_name, case_entry) 			= objWorkRecordSet("CaseName") 'ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
+		WORKING_LIST_CASES_ARRAY(application_date, case_entry) 		= objWorkRecordSet("ApplDate")	'TODAYS_CASES_ARRAY(application_date, each_case)
+		WORKING_LIST_CASES_ARRAY(data_day_30, case_entry) 			= objWorkRecordSet("Day_30")
+		WORKING_LIST_CASES_ARRAY(interview_date, case_entry) 		= objWorkRecordSet("InterviewDate") 		'ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
+		WORKING_LIST_CASES_ARRAY(CASH_status, case_entry) 			= objWorkRecordSet("CashStatus") 			'ObjWorkExcel.Cells(row, cash_stat_col)
+		WORKING_LIST_CASES_ARRAY(SNAP_status, case_entry) 			= objWorkRecordSet("SnapStatus") 			'ObjWorkExcel.Cells(row, snap_stat_col)
 
-            WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) 		= objWorkRecordSet("QuestionableInterview") 'ObjWorkExcel.Cells(row, quest_intvw_date_col)
-		    WORKING_LIST_CASES_ARRAY(intvw_quest_resolve, case_entry)	= objWorkRecordSet("Resolved")
-		    WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) 			= objWorkRecordSet("AddedtoWorkList")
-		    change_date_time = objWorkRecordSet("AuditChangeDate")
-		    change_date_time_array = split(change_date_time, " ")
-		    change_date = change_date_time_array(0)
-		    WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
+		WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) 		= objWorkRecordSet("ApptNoticeDate") 		'ObjWorkExcel.Cells(row, appt_notc_date_col)
+		WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) 		= objWorkRecordSet("Confirmation") 			'ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
+		WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) 		= objWorkRecordSet("ApptDate") 				'ObjWorkExcel.Cells(row, appt_date_col)
+		WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) 	= objWorkRecordSet("SecondApplicationDate") 'ObjWorkExcel.Cells(row, second_app_date_col).Value
+		WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) 	= objWorkRecordSet("REPT_PND2Days") 		'ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
+		WORKING_LIST_CASES_ARRAY(data_days_pend, case_entry) 		= objWorkRecordSet("DaysPending") 		'TODAYS_CASES_ARRAY(data_days_pend, each_case)
+		WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) 				= objWorkRecordSet("NOMIDate") 				'ObjWorkExcel.Cells(row, nomi_date_col)
+		WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) 			= objWorkRecordSet("Confirmation2") 		'ObjWorkExcel.Cells(row, nomi_confirm_col)
+		WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) 	= objWorkRecordSet("NextActionNeeded") 			'ObjWorkExcel.Cells(row, next_action_col)
+		WORKING_LIST_CASES_ARRAY(subsqt_appl_resolve, case_entry)	= objWorkRecordSet("SecondApplicationDateNotes")
+		WORKING_LIST_CASES_ARRAY(case_closed_in_30, case_entry)		= objWorkRecordSet("ClosedInPast30Days")
+		WORKING_LIST_CASES_ARRAY(closed_in_30_resolve, case_entry)	= objWorkRecordSet("ClosedInPast30DaysNotes")
+		WORKING_LIST_CASES_ARRAY(case_in_other_co, case_entry)		= objWorkRecordSet("StartedOutOfCounty")
+		WORKING_LIST_CASES_ARRAY(out_of_co_resolve, case_entry)		= objWorkRecordSet("StartedOutOfCountyNotes")
+		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)		= objWorkRecordSet("TrackingNotes")
 
-			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
-			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
+		WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) 		= objWorkRecordSet("QuestionableInterview") 'ObjWorkExcel.Cells(row, quest_intvw_date_col)
+		WORKING_LIST_CASES_ARRAY(intvw_quest_resolve, case_entry)	= objWorkRecordSet("Resolved")
+		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) 			= objWorkRecordSet("AddedtoWorkList")
+		change_date_time = objWorkRecordSet("AuditChangeDate")
+		change_date_time_array = split(change_date_time, " ")
+		change_date = change_date_time_array(0)
+		WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
 
-			case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
-			If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> NULL Then
-				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
-				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
+		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
+		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
+
+		case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
+		edit_notes = false
+		If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> NULL Then edit_notes = True
+		If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> "" Then edit_notes = True
+		If edit_notes = True Then
+			WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
+			WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
+
+			If InStr(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "%$#@") Then
+				beg_of_intv_revw = InStr(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "@#$%")
+				beg_of_intv_revw = beg_of_intv_revw+17
+				end_of_intv_revw = InStr(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "@%$#@")
+				If beg_of_intv_revw = end_of_intv_revw Then
+					WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = False
+					WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "@#$%REVIEWED ON: @%$#@", "")
+				Else
+					WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = Mid(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), beg_of_intv_revw, end_of_intv_revw-beg_of_intv_revw)
+					WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "@#$%REVIEWED ON: " & WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) & "@%$#@", "")
+				End If
+				WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = trim(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry))
 			End If
-			' "DenialNeeded"
-		    ' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
-		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
-		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
+		End If
+		' "DenialNeeded"
+		' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
+		' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
+		' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
 
-            'Defaulting this values at this time as we will determine them to be different as the script proceeds.
-            WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE
-		    WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
+		'Defaulting this values at this time as we will determine them to be different as the script proceeds.
+		WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE
+		WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 
-		    For case_info = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
-		    	If ALL_PENDING_CASES_ARRAY(case_number, case_info) = WORKING_LIST_CASES_ARRAY(case_number, case_entry) Then
-		    		WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_info)
-		    	End If
-		    Next
+		For case_info = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+			If ALL_PENDING_CASES_ARRAY(case_number, case_info) = WORKING_LIST_CASES_ARRAY(case_number, case_entry) Then
+				WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_info)
+			End If
+		Next
 
-
-            case_entry = case_entry + 1     'increasing the count for '
-        End if
+		case_entry = case_entry + 1     'increasing the count for '
 	End If
 
 	objWorkRecordSet.MoveNext
@@ -2034,32 +2070,8 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 				Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
 				IF memo_started = True THEN
 					'TODO - add languages in when we can'
-					Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & "")
-					Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & need_intv_date & ". **")
-					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-					Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
-					Call write_variable_in_SPEC_MEMO(" ")
-					CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-					CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-					CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-					CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-					CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-					CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-					CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-					CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-					Call write_variable_in_SPEC_MEMO(" ")
-					CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+					Call create_appointment_letter_notice_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), need_intv_date, last_contact_day)
 
-					PF4
 				ELSE
 					WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) = "N" 'Setting this as N if the MEMO failed
 				END IF
@@ -2124,33 +2136,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 					Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
 					IF memo_started = True THEN
 						'TODO - add languages in when we can'
-
-						Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & ".")
-						Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) & ".")
-						Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & nomi_last_contact_day & " **")
-						Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-						Call write_variable_in_SPEC_MEMO(" ")
-						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-						CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-						CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-						CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-						CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-						CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-						CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-						CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-
-						PF4
+						CALL create_NOMI_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), WORKING_LIST_CASES_ARRAY(appointment_date, case_entry), nomi_last_contact_day)
 					Else
 						WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
 					End If
@@ -2231,13 +2217,19 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" THEN WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW OTHER COUNTY CASE"	Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "RESOLVE SUBSEQUENT APPLICATION DATE" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "ALIGN INTERVIEW DATES" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "ALIGN INTERVIEW DATES" Then
+		prev_add_to_list = WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry)
+		WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+		If IsDate(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry)) = True Then
+			If DateDiff("d", WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry), date) < 7 Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = prev_add_to_list
+		End If
+	End If
 	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW RECENT CLOSURE/DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW NOTICE ACTIONS" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 
 	'TESTING FUNCTIONALITY - removing 'PREP FOR DENIAL' cases from the worklist
 	' IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+	' If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True				'This is where we add cases that are pending more than 30 days to the list for review. Currently this is not on.
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - No Appt Notc" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - No NOMI" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - NOMI after Day 30" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
@@ -2250,13 +2242,18 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		cases_to_alert_BZST = cases_to_alert_BZST & ", " & MAXIS_case_number
 	End If
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = True Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
-
+	If Instr(WORKING_LIST_CASES_ARRAY(error_notes, case_entry),"PRIVILEGED CASE") <> 0 and Instr(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry),"PRIVILEGED CASE") = 0 Then WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) & "PRIVILEGED CASE."
 
 	If WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then
 		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date
 		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = "STS-NR " & WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)
 		count_cases_on_wl = count_cases_on_wl + 1
 	End If
+
+	If IsDate(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry)) = True Then
+		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) & "@#$%REVIEWED ON: " & WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) & "@%$#@"
+	End If
+
 	' objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed WHERE CaseNumber = '" & case_number_to_review & "'", objWorkConnection
 	' ' objWorkRecordSet.Close
 	' ' objWorkConnection.Close
@@ -2317,7 +2314,7 @@ Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
 objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
+working_list_count = UBound(WORKING_LIST_CASES_ARRAY, 2)+1
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	' If WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) <> date and WORKING_LIST_CASES_ARRAY(priv_case, case_entry) = False Then
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = False Then
@@ -2477,7 +2474,7 @@ this_year = DatePart("yyyy", date)
 this_month = MonthName(Month(date))
 
 statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\" & this_year & " Statistics Tracking.xlsx"
-call excel_open(statistics_excel_file_path, True,  True, ObjStatsExcel, objStatsWorkbook)
+call excel_open(statistics_excel_file_path, False,  True, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
 'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated for future dates and tracking
@@ -2541,7 +2538,7 @@ file_date = replace(current_date, "/", "-")   'Changing the format of the date t
 daily_case_list_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
 file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & daily_case_list_folder & "/" & file_date & ".xlsx" 'single assignment file
 
-call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+call excel_open(file_selection_path, False, True, ObjExcel, objWorkbook)
 
 
 
@@ -2641,7 +2638,7 @@ email_body = email_body & "The cases to review are now available to access on th
 email_body = email_body & "Please contact Tanya if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
-Call create_outlook_email(qi_member_email, cc_email, email_subject, email_body, "", True)
+Call create_outlook_email("", qi_member_email, cc_email, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 If list_of_baskets_at_display_limit <> "" Then
 	If left(list_of_baskets_at_display_limit, 1) = "," Then list_of_baskets_at_display_limit = right(list_of_baskets_at_display_limit, len(list_of_baskets_at_display_limit)-1)
@@ -2653,16 +2650,16 @@ If list_of_baskets_at_display_limit <> "" Then
 	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
 	' basket_email_body = basket_email_body & "" & vbCr
 	basket_email_body = basket_email_body & "Thank you!" & vbCr
-	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", basket_email_subject, basket_email_body, "", True)
+	Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", "", basket_email_subject, 1, False, "", "", False, "", basket_email_body, False, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
 	If left(cases_to_alert_BZST, 1) = "," Then cases_to_alert_BZST = right(cases_to_alert_BZST, len(cases_to_alert_BZST)-1)
 	cases_to_alert_BZST = trim(cases_to_alert_BZST)
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
+	Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", "ON DEMAND Could not determine next action needed", 1, False, "", "", False, "", "These cases have an unknown issue... " & cases_to_alert_BZST, False, "", True)
 End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
 
-end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases."
+end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases." & vbCr & vbCr & "The script has reviewed " & working_list_count & " cases."
 script_end_procedure_with_error_report(end_msg)  'WE'RE DONE!

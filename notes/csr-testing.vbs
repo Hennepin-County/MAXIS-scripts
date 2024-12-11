@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("09/30/2020", "Changed the 'Details Blank' checkbox to being embeded in the droplist.", "Casey Love, Hennepin County")
 call changelog_update("09/09/2020", "Added a new dialog between the form completion and the MAXIS Detail and Information entry to make the process clearer.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2020", "Removed the first dialog of questions and incorporated them into the detail entry dialogs.", "Casey Love, Hennepin County")
@@ -235,6 +236,7 @@ function access_BUSI_panel(access_type, busi_member, busi_type, income_start_dat
         If type_of_income = "07" Then busi_type = "07 - In Home Daycare"
         If type_of_income = "08" Then busi_type = "08 - Rental Income"
         If type_of_income = "09" Then busi_type = "09 - Other"
+        If type_of_income = "10" Then busi_type = "10 - Lived Experience"
 
         income_start_date = replace(income_start_date, " ", "/")
         income_end_date = replace(income_end_date, " ", "/")
@@ -5104,7 +5106,7 @@ If functionality_wrong_checkbox = checked Then
     email_msg = email_msg & "Notes: " & functionality_issue_notes & vbCr & vbCR
     email_msg = email_msg & worker_signature & vbCr
 
-    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "NOTES - CSR Completion Functionality Issues", email_msg, "", TRUE)
+    Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "NOTES - CSR Completion Functionality Issues", 1, False, "", "", False, "", email_msg, False, "", True)
 
     If form_completion_status = "Complete" Then form_questions_complete = TRUE
     If form_completion_status = "Incomplete" Then form_questions_complete = FALSE

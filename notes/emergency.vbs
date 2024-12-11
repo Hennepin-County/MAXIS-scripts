@@ -130,6 +130,7 @@ Call HCRE_panel_bypass
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
     STATS_counter = STATS_counter + 1               'Adding stats counter for EGA screening as well
+	ega_screening_appears_elig = True
     'EGA screening dialog
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening #" & MAXIS_case_number
@@ -266,17 +267,8 @@ If EGA_screening_check = 1 then
 	    Loop until left(household_size, 1) <> "0"
     End if
 
-    'determining  200% FPG per HH member---handles up to 20 members. Changes April 1 every year. CM0016.18.01 - 200 Percent of FPG
-    'state statute listed here: 'https://www.revisor.mn.gov/statutes/cite/256D.06
-    If DateDiff("d", application_date, #4/1/2023#) < 0 Then
-        'April 2022 Amounts
-        If household_size = 1 Then monthly_standard = 2265
-        If household_size = 2 Then monthly_standard = 3052
-    Else
-        'April 2021 Amounts
-        If household_size = 1 Then monthly_standard = 2147
-	    If household_size = 2 Then monthly_standard = 2903
-    End if
+    'determining 200% FPG per HH member. Info source for EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801
+    Call determine_200_percent_of_FPG("EGA", application_date, household_size, monthly_standard)
 
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
@@ -284,7 +276,8 @@ If EGA_screening_check = 1 then
     If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
         ega_results_dlg_len = 220
 	Else
-        screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
+		screening_determination = ""
+		ega_screening_appears_elig = False
         ega_results_dlg_len = 220
         'if client is not elig, reason(s) for not being elig will be listed in the msgbox
         If crisis = "no crisis given" then ega_results_dlg_len = ega_results_dlg_len + 10
@@ -328,26 +321,32 @@ If EGA_screening_check = 1 then
             Text 20, y_pos, 250, 10, "NOT eligible for EGA for the following reasons:"
             y_pos = y_pos + 10
             If crisis = "no crisis given" then
+				screening_determination = screening_determination & "  - No crisis meeting program requirements.;"
                 Text 25, y_pos, 250, 10, "* No crisis meeting program requirements."
                 y_pos = y_pos + 10
             End If
             If abs(seventy_percent_income) < abs(shelter_costs) then
+				screening_determination = screening_determination & "  - The HH's shelter costs are more than 70% of the HH's net income.;"
                 Text 25, y_pos, 250, 10, "* The HH's shelter costs are more than 70% of the HH's net income."
                 y_pos = y_pos + 10
             End If
             IF meets_residency = "No" then
+				screening_determination = screening_determination & "  - No one in the household has met 30 day residency requirements.;"
                 Text 25, y_pos, 250, 10, "* No one in the household has met 30 day residency requirements."
                 y_pos = y_pos + 10
             End If
             If abs(net_income) > abs(monthly_standard) then
+				screening_determination = screening_determination & "  - Net income exceeds program guidelines.;"
                 Text 25, y_pos, 250, 10, "* Net income exceeds program guidelines."
                 y_pos = y_pos + 10
             End If
             IF net_income = "0" then
+				screening_determination = screening_determination & "  - Household does not have current/ongoing income.;"
                 Text 25, y_pos, 250, 10, "* Household does not have current/ongoing income."
                 y_pos = y_pos + 10
             End If
             If EMER_last_used_dates <> "n/a" then
+				screening_determination = screening_determination & "  - Emergency funds were used within the last year from the eligibility period.;"
                 Text 25, y_pos, 250, 10, "* Emergency funds were used within the last year from the eligibility period."
                 y_pos = y_pos + 10
             End If
@@ -368,8 +367,12 @@ If EGA_screening_check = 1 then
         	Call write_bullet_and_variable_in_CASE_NOTE("Does any member of the HH meet 30 day residency requirements", meets_residency)
         	Call write_bullet_and_variable_in_CASE_NOTE("Shelter cost for HH", shelter_costs)
     		Call write_bullet_and_variable_in_CASE_NOTE("Net income for HH", net_income)
-        	IF screening_determination = "NOT eligible for EGA for the following reasons:" then
-                Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
+			If ega_screening_appears_elig = False Then
+                Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs:")
+				reason_array = split(screening_determination, ";")
+				for each screening_reason in reason_array
+					Call write_variable_in_CASE_NOTE(screening_reason)
+				next
             Else
                 Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
         	END IF

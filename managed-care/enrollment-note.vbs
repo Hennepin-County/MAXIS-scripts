@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2024", "Updates made for the 2025 AHPS.##~## ##~##- Enrollment dates updated for 2025.##~##- Removed United HealthCare from a selection option for enrollment.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
 call changelog_update("04/24/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -67,31 +68,31 @@ this_month = monthname(month(date))
 this_year = year(date)
 Select Case this_month
 	Case "January"
-		cut_off_date = #01/20/2023#
+		cut_off_date = #01/22/2025#
 	Case "February"
-		cut_off_date = #02/16/2023#
+		cut_off_date = #02/19/2025#
 	Case "March"
-		cut_off_date = #03/22/2023#
+		cut_off_date = #03/20/2025#
 	Case "April"
-		cut_off_date = #04/19/2023#
+		cut_off_date = #04/21/2025#
 	Case "May"
-		cut_off_date = #05/19/2023#
+		cut_off_date = #05/20/2025#
 	Case "June"
-		cut_off_date = #06/21/2023#
+		cut_off_date = #06/18/2025#
 	Case "July"
-		cut_off_date = #07/20/2023#
+		cut_off_date = #07/22/2025#
 	Case "August"
-		cut_off_date = #08/22/2023#
+		cut_off_date = #08/20/2025#
 	Case "September"
-		cut_off_date = #09/20/2023#
+		cut_off_date = #09/19/2025#
 	Case "October"
-		cut_off_date = #10/20/2023#
+		cut_off_date = #10/22/2025#
 	Case "November"
-		if this_year = 2022 Then cut_off_date = #11/17/2022#
-		if this_year = 2023 Then cut_off_date = #11/17/2023#
+		if this_year = 2024 Then cut_off_date = #11/18/2024#
+		if this_year = 2025 Then cut_off_date = #11/17/2025#
 	Case "December"
-		if this_year = 2022 Then cut_off_date = #12/20/2022#
-		if this_year = 2023 Then cut_off_date = #12/19/2023#
+		if this_year = 2024 Then cut_off_date = #12/19/2024#
+		if this_year = 2025 Then cut_off_date = #12/19/2025#
 End Select
 'MsgBox cut_off_date
 If cut_off_date <> "" Then
@@ -332,7 +333,7 @@ BeginDialog Dialog1, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
     CheckBox 5, (x * 20) + y_pos, 25, 10, "Yes", MMIS_clients_array(case_note_checkbox, person)
   	Text 40, (x * 20) + y_pos, 95, 10, MMIS_clients_array(client_name, person)
   	Text 135, (x * 20) + y_pos, 35, 10, MMIS_clients_array(client_pmi, person)
-    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(current_plan, person)
+    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", MMIS_clients_array(current_plan, person)
   	DropListBox 295, (x * 20) + y_pos - 5, 40, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"MA 37", MMIS_clients_array(contr_code, person)
 	DropListBox 365, (x * 20) + y_pos - 5, 105, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
 	x = x + 1

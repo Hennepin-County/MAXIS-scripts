@@ -450,6 +450,7 @@ class mx_hh_member
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			last_name = "UNABLE TO FIND"
 			first_name = "Access Denied"
 			mid_initial = ""
@@ -2029,6 +2030,7 @@ class client_income
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			last_name = "UNABLE TO FIND"
 			first_name = "Access Denied"
 			access_denied = TRUE
@@ -2137,7 +2139,7 @@ class client_income
 		If income_type = "44" Then income_type = "44 - MSA - Excess Income for SSI"
 		If income_type = "45" Then income_type = "45 - County 88 Child Support"
 		If income_type = "46" Then income_type = "46 - County 88 Gaming"
-		If income_type = "47" Then income_type = "47 - Counted Tribal Income"
+		If income_type = "47" Then income_type = "47 - Tribal Income"
 		If income_type = "48" Then income_type = "48 - Trust Income"
 		If income_type = "49" Then income_type = "49 - Non-Recurring > $60/qtr"
 
@@ -2438,6 +2440,7 @@ class client_assets
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			last_name = "UNABLE TO FIND"
 			first_name = "Access Denied"
 			access_denied = TRUE
@@ -6193,6 +6196,7 @@ function read_all_the_MEMBs()
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 		End If
 		If client_array <> "" Then client_array = client_array & "|" & ref_nbr
 		If client_array = "" Then client_array = client_array & ref_nbr

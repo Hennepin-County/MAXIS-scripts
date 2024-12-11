@@ -44,6 +44,10 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/17/2024", "Reverted language for BO-Other selection to pre-pandemic language.", "Mark Riegel, Hennepin County")
+Call changelog_update("05/23/2024", "Updated messaging for matches where the county name is missing. The MAXIS system will not allow county workers to enter those matches.", "Ilse Ferris, Hennepin County")
+Call changelog_update("03/29/2024", "Removed Overpayment functionality from the script. Please use more comprehensive functionality in the NOTES - OVERPAYMENT script.", "Ilse Ferris, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/28/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -86,11 +90,11 @@ If MAXIS_case_number <> "" Then 		'If a case number is found the script will get
 End If
 'Running the initial dialog to confirm what type match is being cleared and the specifics about the case
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
+
 DO
 	DO
 	   err_msg = ""
-       Dialog1 = ""
+       Dialog1 = "" 'Blanking out previous dialog detail
        BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
          EditBox 55, 5, 45, 15, MAXIS_case_number
          DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
@@ -105,19 +109,18 @@ DO
        EndDialog
 
 	    Dialog Dialog1
-	    cancel_confirmation
+	    Cancel_without_confirmation
 	    Call validate_MAXIS_case_number(err_msg, "*")
 	    IF ButtonPressed = search_button Then 'this will check for if the worker is on the DAIL and the script cant find a case number'
-	    	IF MAXIS_case_number = "" Then
+	    	IF trim(MAXIS_case_number) = "" Then
 	    		MsgBox "Cannot search without a case number, please try again."
 	    	Else
 	    		HH_Memb_DropDown = ""
 	    		Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-	    		err_msg = err_msg & "Start Over"
 	    	End If
 	    End If
-		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
-		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Select a resident to update."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -127,17 +130,9 @@ CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 
 'redefine ref_numb'
-MEMB_number = left(clt_to_update, 2)	'Settin the reference number
-EMWriteScreen MEMB_number, 20, 76
-TRANSMIT
-EMReadScreen client_first_name, 12, 6, 63
-client_first_name = replace(client_first_name, "_", "")
-client_first_name = trim(client_first_name)
-EMReadScreen client_last_name, 25, 6, 30
-client_last_name = replace(client_last_name, "_", "")
-client_last_name = trim(client_last_name)
-EMReadscreen client_mid_initial, 1, 6, 79
-EMReadScreen client_DOB, 10, 8, 42
+MEMB_number = left(clt_to_update, 2)	'Setting the reference number
+Call write_value_and_transmit(MEMB_number, 20, 76)
+'Reading and cleaning up SSN for INFC
 EMReadscreen client_SSN, 11, 7, 42
 client_SSN = replace(client_SSN, " ", "")
 
@@ -145,11 +140,12 @@ client_SSN = replace(client_SSN, " ", "")
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(client_SSN, 3, 63)
+
 'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 EMReadScreen panel_check, 4, 2, 52
-IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the client has a duplicate PMI number. Review for a PF11 to be submitted.")
+IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the resident has a duplicate PMI number. Review for a PF11 to be submitted.")
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -157,12 +153,13 @@ DO
 	EMReadScreen IEVS_period, 11, row, 47
 	EMReadScreen number_IEVS_type, 3, row, 41
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
-	BeginDialog Dialog1, 0, 0, 171, 95, "CASE NUMBER: "  & MAXIS_case_number
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 171, 95, "Case Number: "  & MAXIS_case_number
   	 Text 5, 10, 100, 10, "Navigate to the correct match:"
   	 Text 5, 25, 150, 10, "Match Type: " & number_IEVS_type
   	 Text 5, 40, 150, 10, "Match Period: "  & IEVS_period
   	 ButtonGroup ButtonPressed
-     PushButton 5, 60, 50, 15, "Confirm Match", match_confimation
+     PushButton 5, 60, 50, 15, "Confirm Match", match_confirmation
      PushButton 60, 60, 50, 15, "Next Match", next_match
      PushButton 115, 60, 50, 15, "Next Page", next_page
     CancelButton 60, 80, 50, 15
@@ -185,18 +182,23 @@ DO
 				row = 7
 				EMReadScreen IEVS_period, 11, row, 47
 			END IF
-			IF ButtonPressed = match_confimation THEN EXIT DO
+			IF ButtonPressed = match_confirmation THEN EXIT DO
 	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	       LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
-LOOP UNTIL ButtonPressed = match_confimation
+LOOP UNTIL ButtonPressed = match_confirmation
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
-	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
+    EMReadScreen no_worker, 25, 7, 5
+    If trim(no_worker) = "" then 
+        script_end_procedure_with_error_report("The worker name is blank, and the MAXIS system will not allow you to enter the match. Please call the MAXIS Help Desk to resolve.")
+    Else 
+	    script_end_procedure_with_error_report("Out-of-county case. The script will now end.")
+    End if 
 ELSE
     EMReadScreen number_IEVS_type, 3, 7, 12 'read the match type'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
@@ -222,9 +224,9 @@ ELSE
 	END IF
 END IF
 
-'--------------------------------------------------------------------Client name
+'--------------------------------------------------------------------Resident name
 EMReadScreen panel_name, 4, 02, 52
-IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
+IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA panel. The script will now end.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -258,7 +260,7 @@ IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 'trims excess spaces of programs
 programs = trim(programs)
-'takes the last comma off of programs when autofilled into dialog
+'takes the last comma off of programs when auto-filled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 IF match_type = "UBEN" THEN income_source = "Unemployment"
@@ -276,6 +278,7 @@ IF match_type = "WAGE" THEN
         income_source = Left(income_source, position)  'establishes employer as being before the deliminator
 	END IF
 END IF
+
 IF match_type = "BEER" THEN
     EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of employer and the left of amount
 	income_source = trim(income_source)
@@ -300,8 +303,8 @@ EMReadScreen clear_code, 2, 12, 58
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 IF notice_sent = "N" THEN
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
-	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", difference_notice_action_dropdown
+	BeginDialog Dialog1, 0, 0, 271, 185, "Difference Notice Not Sent For: " & MAXIS_case_number
+	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", difference_notice_action_dropdown
 	  CheckBox 175, 15, 70, 10, "Difference Notice", diff_notice_checkbox
 	  CheckBox 175, 25, 90, 10, "Authorization to Release", ATR_verf_checkbox
 	  CheckBox 175, 35, 90, 10, "Employment Verification", EVF_checkbox
@@ -311,8 +314,8 @@ IF notice_sent = "N" THEN
 	  CheckBox 10, 170, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
 	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
 	  EditBox 50, 145, 215, 15, other_notes
-	  Text 5, 10, 165, 10, "Client name: "   & client_name
-	  Text 5, 55, 160, 10, "Active Programs: "  & programs
+	  Text 5, 10, 165, 10, "Resident name: " & client_name
+	  Text 5, 55, 160, 10, "Active Programs: " & programs
 	  Text 5, 70, 165, 15, "Income source:   " & income_source
 	  ButtonGroup ButtonPressed
 	    OkButton 180, 165, 40, 15
@@ -335,10 +338,10 @@ IF notice_sent = "N" THEN
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a trasnmit due to navigation in IUL screens'
+	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a transmit due to navigation in IUL screens'
 END IF
 
-IF difference_notice_action_dropdown =  "YES" THEN '--------------------------------------------------------------------sending the notice in IULA
+IF difference_notice_action_dropdown =  "Yes" THEN '--------------------------------------------------------------------sending the notice in IULA
     EMwritescreen "005", 12, 46 'writing the resolve time to read for later
     EMwritescreen "Y", 14, 37 'send Notice
 	TRANSMIT 'goes into IULA
@@ -346,10 +349,10 @@ IF difference_notice_action_dropdown =  "YES" THEN '----------------------------
 	TRANSMIT'exiting IULA, helps prevent errors when going to the case note
     '-----------------------------------------------------------------------------------Claim Referral Tracking
     action_date = date & ""
-ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or clear_code <> "__" '
+ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or clear_code <> "__" '
 	'-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 326, 170, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
+    BeginDialog Dialog1, 0, 0, 326, 170, "Match Cleared - Case Number: "  & MAXIS_case_number
       EditBox 175, 5, 15, 15, resolve_time
       DropListBox 75, 35, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BO-Other"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"NC-Non Cooperation", resolution_status
       DropListBox 120, 50, 70, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
@@ -390,135 +393,15 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
-		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
+		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the resident respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
-		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
+		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date received must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
-
-	IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
-	    discovery_date = date
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    BeginDialog Dialog1, 0, 0, 361, 260, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
-		  Text 5, 5, 245, 15, "Income source: " & income_source
-		  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	      EditBox 65, 25, 40, 15, discovery_date
-	      DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
-	      EditBox 130, 65, 30, 15, OP_from
-	      EditBox 180, 65, 30, 15, OP_to
-	      EditBox 245, 65, 35, 15, Claim_number
-	      EditBox 305, 65, 45, 15, Claim_amount
-	      DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
-	      EditBox 130, 85, 30, 15, OP_from_II
-	      EditBox 180, 85, 30, 15, OP_to_II
-	      EditBox 245, 85, 35, 15, Claim_number_II
-	      EditBox 305, 85, 45, 15, Claim_amount_II
-	      DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
-	      EditBox 130, 105, 30, 15, OP_from_III
-	      EditBox 180, 105, 30, 15, OP_to_III
-	      EditBox 245, 105, 35, 15, claim_number_III
-	      EditBox 305, 105, 45, 15, Claim_amount_III
-	      DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
-	      EditBox 130, 125, 30, 15, OP_from_IV
-	      EditBox 180, 125, 30, 15, OP_to_IV
-	      EditBox 245, 125, 35, 15, claim_number_IV
-	      EditBox 305, 125, 45, 15, Claim_amount_IV
-		  EditBox 130, 155, 30, 15, HC_from
-		  EditBox 180, 155, 30, 15, HC_to
-		  EditBox 245, 155, 35, 15, HC_claim_number
-		  EditBox 305, 155, 45, 15, HC_claim_amount
-		  EditBox 80, 155, 20, 15, HC_resp_memb
-		  EditBox 305, 175, 45, 15, Fed_HC_AMT
-	      CheckBox 235, 205, 120, 10, "Earned income disregard allowed", EI_checkbox
-	      EditBox 70, 200, 160, 15, EVF_used
-	      EditBox 200, 25, 45, 15, income_rcvd_date
-	      EditBox 70, 220, 285, 15, Reason_OP
-		  EditBox 330, 25, 20, 15, OT_resp_memb
-		  CheckBox 70, 240, 105, 10, "EVF/ATR is still needed", ATR_needed_checkbox
-		  ButtonGroup ButtonPressed
-		    OkButton 260, 240, 45, 15
-		    CancelButton 310, 240, 45, 15
-		  Text 265, 30, 60, 10, "OT resp. Memb #:"
-		  Text 260, 10, 50, 10, "Fraud referral:"
-		  Text 5, 30, 55, 10, "Discovery date: "
-		  Text 5, 205, 65, 10, "Income verif used:"
-		  Text 10, 160, 70, 10, "OT resp. Memb(s) #:"
-		  Text 230, 180, 75, 10, "Total federal HC AMT:"
-		  Text 5, 225, 60, 10, "Reason for Claim:"
-		  Text 140, 30, 60, 10, "Date income rcvd: "
-		  Text 285, 160, 20, 10, "AMT:"
-		  Text 105, 160, 20, 10, "From:"
-		  Text 215, 160, 25, 10, "Claim #"
-		  Text 165, 160, 10, 10, "To:"
-		  GroupBox 5, 145, 350, 50, "HC Programs Only"
-		  Text 15, 70, 30, 10, "Program:"
-		  Text 165, 70, 10, 10, "To:"
-		  GroupBox 5, 45, 350, 100, "Overpayment Information"
-		  Text 130, 55, 30, 10, "(MM/YY)"
-	      Text 180, 55, 30, 10, "(MM/YY)"
-		  Text 15, 70, 30, 10, "Program:"
-	      Text 15, 110, 30, 10, "Program:"
-	      Text 15, 90, 30, 10, "Program:"
-		  Text 15, 130, 30, 10, "Program:"
-		  Text 105, 70, 20, 10, "From:"
-		  Text 105, 90, 20, 10, "From:"
-		  Text 105, 110, 20, 10, "From:"
-	      Text 105, 130, 20, 10, "From:"
-		  Text 165, 70, 10, 10, "To:"
-		  Text 165, 90, 10, 10, "To:"
-		  Text 165, 110, 10, 10, "To:"
-	      Text 165, 130, 10, 10, "To:"
-		  Text 215, 70, 25, 10, "Claim #"
-		  Text 215, 90, 25, 10, "Claim #"
-		  Text 215, 110, 25, 10, "Claim #"
-	      Text 215, 130, 25, 10, "Claim #"
-		  Text 285, 70, 20, 10, "AMT:"
-		  Text 285, 90, 20, 10, "AMT:"
-		  Text 285, 110, 20, 10, "AMT:"
-	      Text 285, 130, 20, 10, "AMT:"
-		EndDialog
-	    Do
-	        Do
-	        	err_msg = ""
-	        	DIALOG Dialog1
-	        	cancel_confirmation
-	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-				If OP_program = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the overpayment program for the first claim."
-				IF OP_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
-				IF Claim_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-				IF Claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	           	IF OP_program_II <> "Select:" THEN
-	    			IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
-	        		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	        		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	        	END IF
-	    		IF OP_program_III <> "Select:" THEN
-	    			IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
-	    			IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	    			IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	    		END IF
-	    		IF OP_program_IV <> "Select:" THEN
-	    			IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
-	    			IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	    			IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	    		END IF
-	        	IF HC_claim_number <> "" THEN
-	        		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
-	        		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
-	        		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	        	END IF
-	        	IF EVF_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	        LOOP UNTIL err_msg = ""
-	        CALL check_for_password_without_transmit(are_we_passworded_out)
-	    Loop until are_we_passworded_out = false
-	END IF
 
 	IF resolution_status = "CF-Future Save" THEN
 	    Dialog1 = "" 'Blanking out previous dialog detail
@@ -573,42 +456,17 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	End If
 
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
-    IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULA_res_status = "CB"
-    IF resolution_status = "CC-Overpayment Only" THEN IULA_res_status = "CC" 'Claim Entered" CC cannot be used - ACTION ODE FOR ACTH OR ACTM IS INVALID
-    IF resolution_status = "CF-Future Save" THEN IULA_res_status = "CF"
-    IF resolution_status = "CA-Excess Assets" THEN IULA_res_status = "CA"
-    IF resolution_status = "CI-Benefit Increase" THEN IULA_res_status = "CI"
-    IF resolution_status = "CP-Applicant Only Savings" THEN IULA_res_status = "CP"
-    IF resolution_status = "BC-Case Closed" THEN IULA_res_status = "BC"
-    IF resolution_status = "BE-Child" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-No Change" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-Overpayment Entered" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-NC-Non-collectible" THEN IULA_res_status = "BE"
-    IF resolution_status = "BI-Interface Prob" THEN IULA_res_status = "BI"
-    IF resolution_status = "BN-Already Known-No Savings" THEN IULA_res_status = "BN"
-    IF resolution_status = "BP-Wrong Person" THEN IULA_res_status = "BP"
-    IF resolution_status = "BU-Unable To Verify" THEN IULA_res_status = "BU"
-    IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
-    IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
-    'checked these all to programS'
+    '----------------------------------------------------------------------------------------------------Adding resolution status for single or multiple programs on match.
+    col = 57 'start col
 
-    EMwritescreen IULA_res_status, 12, 58
-    IF IULA_res_status = "CC" THEN
-        col = 57
-        Do
-        	EMReadscreen action_header, 4, 11, col
-        	If action_header <> "    " Then
-        		If action_header = "ACTH" Then
-        			EMWriteScreen "BE", 12, col+1
-				Else
-        			EMWriteScreen "CC", 12, col+1
-				End If
-        	End If
-        	col = col + 6
-        Loop until action_header = "    "
-    END IF
+    Do 	
+        EMReadScreen cleared_header, 4, 11, col 
+        If trim(cleared_header) = "" then exit do 
+        EMWriteScreen left(resolution_status, 2), 12, col + 1
+        col = col + 6
+    Loop 
 
-    IF change_response = "YES" THEN
+    IF change_response = "Yes" THEN
     	EMwritescreen "Y", 15, 37
     ELSE
     	EMwritescreen "N", 15, 37
@@ -618,7 +476,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     '----------------------------------------------------------------------------------------writing the note on IULB
 	other_notes = trim(other_notes)
 	EMReadScreen panel_name, 4, 02, 52
-    IF panel_name = "IULB" and (difference_notice_action_dropdown = "NO" OR notice_sent = "Y") THEN
+    IF panel_name = "IULB" and (difference_notice_action_dropdown = "No" OR notice_sent = "Y") THEN
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
@@ -657,9 +515,9 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			IF resolution_status = "BE-NC-Non-collectible" THEN IULB_notes = "Non-Coop remains, but claim is non-collectible. " & other_notes
 			IF resolution_status = "BI-Interface Prob" THEN IULB_notes = "Interface Problem. " & other_notes
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
-			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
+			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Resident name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
-			IF resolution_status = "BO-Other" THEN IULB_notes = "No review due during the match period. " & other_notes
+			IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in case file, " & other_notes
 
 			iulb_row = 8
@@ -677,7 +535,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     	    TRANSMIT
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
-    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Do you want to transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
+    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Do you want to transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
     			IF next_steps_message_box = vbYes THEN
     				TRANSMIT
     				EMReadScreen panel_name, 4, 02, 52
@@ -694,60 +552,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
     END IF
-END IF 'end of match when difference_notice_action_dropdown =  "YES" '
-
-script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
-script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
-script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
-script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
-script_run_lowdown = script_run_lowdown & vbCr & "Client Name: " & client_name
-script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
-script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
-script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
-script_run_lowdown = script_run_lowdown & vbCr & "IEVS Period: " & IEVS_period
-script_run_lowdown = script_run_lowdown & vbCr & "Resolve Time: " & resolve_time
-script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolution_status
-script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
-script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
-script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
-script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
-script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
-script_run_lowdown = script_run_lowdown & vbCr & "Fraud referral: " & fraud_referral
-script_run_lowdown = script_run_lowdown & vbCr & "Discovery Date: " & discovery_date & vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM I" & vbCR & "OP Program: " & OP_program
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM II" & vbCR & "OP Program: " & OP_program_II
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_II
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_II
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number_II
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_II& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM III" & vbCR & "OP Program: " & OP_program_III
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_III
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_III
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_III
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_III& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM IV" & vbCR & "OP Program: " & OP_program_IV
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_IV
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_IV
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_IV
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_IV& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "HC CLAIM" & vbCR & "OP from: " & HC_from
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & HC_to
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & HC_claim_number
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & HC_claim_amount
-script_run_lowdown = script_run_lowdown & vbCr & "HC Resp member: " & HC_resp_memb
-script_run_lowdown = script_run_lowdown & vbCr & "FED HC Amount: " & Fed_HC_AMT
-script_run_lowdown = script_run_lowdown & vbCr & "" & EI_checkbox
-If EI_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Earned income disregard allowed"
-script_run_lowdown = script_run_lowdown & vbCr & "EVF Used: " & EVF_used
-script_run_lowdown = script_run_lowdown & vbCr & "Income Received Date: " & income_rcvd_date
-script_run_lowdown = script_run_lowdown & vbCr & "OP Reason: " & Reason_OP
-script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_resp_memb
-If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
+END IF
 
 '-------------------------------------------------------------------The case note & case note related code
 verification_needed = ""
@@ -760,6 +565,7 @@ IF other_checkbox = CHECKED THEN verification_needed = verification_needed & "Ot
 
 verification_needed = trim(verification_needed) 	'takes the last comma off of verification_needed when autofilled into dialog if more more than one app date is found and additional app is selected
 IF right(verification_needed, 1) = "," THEN verification_needed = left(verification_needed, len(verification_needed) - 1)
+
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
 IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     'Going to the MISC panel to add claim referral tracking information
@@ -786,7 +592,6 @@ Do
 	EMReadScreen MISC_description, 25, row, 30
 	MISC_description = replace(MISC_description, "_", "")
 	If trim(MISC_description) = "" THEN
-		'PF9
 		EXIT DO
 	Else
 		row = row + 1
@@ -794,8 +599,7 @@ Do
 Loop Until row = 17
 If row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 
-'writing in the action taken and date to the MISC panel
-PF9
+PF9 'writing in the action taken and date to the MISC panel
 '_________________________ 25 characters to write on MISC
 IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
 IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
@@ -805,19 +609,17 @@ EMWriteScreen MISC_action_taken, Row, 30
 EMWriteScreen date, Row, 66
 TRANSMIT
 '------------------------------------------setting up case note header'
-IF ATR_needed_checkbox = CHECKED THEN
-	header_note = "ATR/EVF STILL REQUIRED"
-ELSEIF difference_notice_action_dropdown = "YES" THEN
+IF difference_notice_action_dropdown = "Yes" THEN
 	cleared_header = "DIFF NOTICE SENT"
 	sent_date = date
-ELSEIF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
+ELSEIF resolution_status = "CC-Overpayment Only" THEN
 	cleared_header = "CLEARED CLAIM ENTERED "
 ELSEIF resolution_status = "NC-Non Cooperation" THEN
 		cleared_header = "NON-COOPERATION "
 ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
-	cleared_header = "CLEARED " & IULA_res_status
+	cleared_header = "CLEARED " & left(resolution_status, 2)
 ELSEIF resolution_status = "BE-NC-Non-collectible" THEN
-	cleared_header = "CLEARED " & IULA_res_status & "Non-Collectible"
+	cleared_header = "CLEARED " & left(resolution_status, 2) & " Non-Collectible"
 END IF
 
 IF match_type = "BEER" THEN match_type_letter = "B"
@@ -834,9 +636,12 @@ END IF
 IEVS_period = trim(IEVS_period)
 IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
-Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
-'-------------------------------------------------------------------------------------------------The case note
+Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+
+'-------------------------------------------------------------------------------------------------The case notes
 IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     start_a_blank_case_note
     IF claim_referral_tracking_dropdown =  "Initial" THEN
@@ -860,17 +665,14 @@ IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year
 IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
-CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-IF  difference_notice_action_dropdown = "YES" THEN
+IF  difference_notice_action_dropdown = "Yes" THEN
 	CALL write_bullet_and_variable_in_case_note("Verifications Requested", verification_needed)
-	CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
-ELSE
-	CALL write_bullet_and_variable_in_case_note("Verifications Received", verification_needed)
+	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications")
 END IF
 IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
@@ -887,147 +689,84 @@ IF resolution_status = "BE-Child" THEN
 END IF
 IF resolution_status = "BE-No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
 IF resolution_status = "BE-Overpayment Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
-IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
+IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Resident is still non-coop.")
 IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
-IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
-IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
+IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Resident reported income. Correct income is in JOBS/BUSI and budgeted.")
+IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different. Resident's SSN has been verified. No overpayment or savings related to this match.")
+IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify.")
+IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
 IF resolution_status = "NC-Non Cooperation" THEN
-	CALL write_variable_in_case_note("* Client failed to cooperate with wage match.")
+	CALL write_variable_in_case_note("* Resident failed to cooperate with wage match.")
 	CALL write_variable_in_case_note("* Case approved to close.")
-	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
-END IF
-IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
-    CALL write_variable_in_case_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" THEN CALL write_variable_in_case_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim #" & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" THEN CALL write_variable_in_case_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim #" & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" THEN CALL write_variable_in_case_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim #" & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    IF HC_claim_number <> "" THEN
-    	CALL write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	CALL write_bullet_and_variable_in_case_note("Health Care responsible members", HC_resp_memb)
-    	CALL write_bullet_and_variable_in_case_note("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_variable_in_case_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+	CALL write_variable_in_case_note("* Resident needs to provide: ATR, Income Verification, Difference Notice.")
 END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
-PF3 ' to ensure we clear the case note for the next action'
 
-IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
-    IF HC_claim_number <> "" THEN
-    	EMWriteScreen "x", 5, 3
-    	TRANSMIT
-    	note_row = 4			'Beginning of the case notes
-    	Do 						'Read each line
-    		EMReadScreen note_line, 76, note_row, 3
-    		note_line = trim(note_line)
-    		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
-    		message_array = message_array & note_line & vbcr		'putting the lines together
-    		note_row = note_row + 1
-    		If note_row = 18 THEN 									'End of a single page of the case note
-    			EMReadScreen next_page, 7, note_row, 3
-    			If next_page = "More: +" Then 						'This indicates there is another page of the case note
-    				PF8												'goes to the next line and resets the row to read'\
-    				note_row = 4
-    			End If
-    		End If
-    	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-    	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-    	CALL create_outlook_email("HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
-    END IF
-	'-----------------------------------------------------------------writing the CCOL case note'
-    CALL navigate_to_MAXIS_screen("CCOL", "CLSM")
-    EMWriteScreen Claim_number, 4, 9
-    TRANSMIT
-    PF4
-    EMReadScreen existing_case_note, 1, 5, 6
-    IF existing_case_note = "" THEN
-    	PF4
-    ELSE
-    	PF9
-    END IF
+'----------------------------------------------------------------------------------------------------------------Script Run Lowdown variables 
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
+script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
+script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Resident Name: " & client_name
+script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
+script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
+script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
+script_run_lowdown = script_run_lowdown & vbCr & "IEVS Period: " & IEVS_period
+script_run_lowdown = script_run_lowdown & vbCr & "Resolve Time: " & resolve_time
+script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolution_status
+script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
+script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
+script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & left(resolution_status, 2)
+script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
+script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
 
-    IF match_type = "WAGE" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF match_type = "UBEN" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-    CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim #" & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim #" & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim #" & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    IF HC_claim_number <> "" THEN
-    	CALL write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Health Care responsible members", HC_resp_memb)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-	CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
-	CALL write_variable_in_ccol_note(worker_signature)
-	PF3 ' to ensure we leave the CCOL case note'
-	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
-	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
-END IF
+script_end_procedure_with_error_report("Match has been acted on. Please take any additional actions needed for your case.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------06/24/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/29/2024
 '--Tab orders reviewed & confirmed----------------------------------------------06/24/2022
-'--Mandatory fields all present & Reviewed--------------------------------------06/24/2022
-'--All variables in dialog match mandatory fields-------------------------------06/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------03/29/2024
+'--All variables in dialog match mandatory fields-------------------------------03/29/2024
+'Review dialog names for content and content fit in dialog----------------------03/29/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------06/24/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------06/24/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/24/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------03/29/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/29/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/29/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-03/29/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/24/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------06/24/2022
-'--PRIV Case handling reviewed -------------------------------------------------06/24/2022
-'--Out-of-County handling reviewed----------------------------------------------06/24/2022
-'--script_end_procedures (w/ or w/o error messaging)----------------------------06/24/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/24/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/29/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/29/2024----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/29/2024
+'--Out-of-County handling reviewed----------------------------------------------03/29/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/29/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------03/29/2024----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/29/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------06/24/2022------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------------------------N/A
-'--Denomination reviewed -------------------------------------------------------06/24/2022
-'--Script name reviewed---------------------------------------------------------06/24/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------06/24/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------03/29/2024----------------N/A
+'--Denomination reviewed -------------------------------------------------------03/29/2024
+'--Script name reviewed---------------------------------------------------------03/29/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/29/2024----------------N/A
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
+'--Confirm all GitHub tasks are complete----------------------------------------03/29/2024
 '--comment Code-----------------------------------------------------------------06/24/2022
-'--Update Changelog for release/update------------------------------------------06/24/2022
+'--Update Changelog for release/update------------------------------------------03/29/2024
 '--Remove testing message boxes-------------------------------------------------06/24/2022
-'--Remove testing code/unnecessary code-----------------------------------------06/24/2022
-'--Review/update SharePoint instructions----------------------------------------06/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------03/29/2024
+'--Review/update SharePoint instructions----------------------------------------03/29/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/29/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/29/2024 --Will add in separate commmit.
 '--Complete misc. documentation (if applicable)---------------------------------06/24/2022
 '--Update project team/issue contact (if applicable)----------------------------06/24/2022
 'TODO I need error proofing in multiple places on this script in and out of IULA and IULB ensuring the case and on CCOL'
-'need to check about adding for multiple claims'

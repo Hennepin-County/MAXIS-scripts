@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("07/13/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -69,7 +70,7 @@ function script_search(name_of_the_scripts)
 		For the_script = 0 to UBound(script_array, 1)
 			' script_array(the_script).script_checkbox_one = checked
 			script_array(the_script).show_script = FALSE
-			If search_category <> "" AND search_category <> "Select One..." AND search_category <> "SPECIALITY" Then
+			If search_category <> "" AND search_category <> "Select One..." AND search_category <> "SPECIALTY" Then
 				If script_array(the_script).category = search_category OR (search_category = "NOTICES" AND script_array(the_script).category = "" ) Then
 					If search_words <> "" Then
 						For each the_word in search_words_array
@@ -93,7 +94,7 @@ function script_search(name_of_the_scripts)
 						End If
 					End If
 				End If
-			ElseIf search_category = "SPECIALITY" Then
+			ElseIf search_category = "SPECIALTY" Then
 
 			ElseIf search_words <> "" Then
 				For each the_word in search_words_array
@@ -143,6 +144,7 @@ function script_search(name_of_the_scripts)
 				name_of_the_scripts = name_of_the_scripts & ", " & script_array(the_script).category & " - " & script_array(the_script).script_name
 				If script_array(the_script).category = "NOTES" AND script_array(the_script).script_name = "CAF" Then caf_script_reported = True
 				If script_array(the_script).category = "NOTES" AND script_array(the_script).script_name = "Interview" Then interview_script_reported = True
+                If script_array(the_script).category = "ACTIONS" AND script_array(the_script).script_name = "Earned Income Budgeting" Then earned_income_budgeting_script_reported = True
 			End If
 		Next
 
@@ -163,7 +165,7 @@ Do
     err_msg = ""
 
 	BeginDialog Dialog1, 0, 0, 436, 300, "What Type of Report Do you Have"
-	  DropListBox 10, 100, 420, 45, "Select One..."+chr(9)+"Something went wrong with a script run (Bug or Error Report)"+chr(9)+"Error Occured on the NOTES - Interview script"+chr(9)+"Error Occured on the NOTES - CAF script"+chr(9)+"Idea for improving a current script (Enhancement Request)"+chr(9)+"Idea for a New Script"+chr(9)+"There is a process that needs automation"+chr(9)+"Data or Lists needed"+chr(9)+"Script Instructions or Documentation Needed"+chr(9)+"Unsure", report_type
+	  DropListBox 10, 100, 420, 45, "Select One..."+chr(9)+"Something went wrong with a script run (Bug or Error Report)"+chr(9)+"Error Occurred on the ACTIONS - Earned Income Budgeting"+chr(9)+"Error Occurred on the NOTES - Interview script"+chr(9)+"Error Occurred on the NOTES - CAF script"+chr(9)+"Idea for improving a current script (Enhancement Request)"+chr(9)+"Idea for a New Script"+chr(9)+"There is a process that needs automation"+chr(9)+"Data or Lists needed"+chr(9)+"Script Instructions or Documentation Needed"+chr(9)+"Unsure", report_type
 	  ButtonGroup ButtonPressed
 	    OkButton 325, 280, 50, 15
 	    CancelButton 380, 280, 50, 15
@@ -181,8 +183,6 @@ Do
 	  Text 20, 255, 405, 20, "Script Instructions or Documentation Needed  --  You are looking for some information about scripts or a specific script, either how it works or what it does."
 	EndDialog
 
-
-
     dialog Dialog1
     cancel_without_confirmation
 
@@ -193,16 +193,24 @@ Do
 Loop until err_msg = ""
 interview_script_reported = False
 caf_script_reported = False
-If report_type = "Error Occured on the NOTES - Interview script" Then
+earned_income_budgeting_script_reported = False
+
+If report_type = "Error Occurred on the NOTES - Interview script" Then
 	report_type = "Something went wrong with a script run (Bug or Error Report)"
 	error_script_name = "NOTES - Interview"
 	interview_script_reported = True
 End If
 
-If report_type = "Error Occured on the NOTES - CAF script" Then
+If report_type = "Error Occurred on the NOTES - CAF script" Then
 	report_type = "Something went wrong with a script run (Bug or Error Report)"
 	error_script_name = "NOTES - CAF"
 	caf_script_reported = True
+End If
+
+If report_type = "Error Occurred on the ACTIONS - Earned Income Budgeting" Then
+	report_type = "Something went wrong with a script run (Bug or Error Report)"
+	error_script_name = "ACTIONS - Earned Income Budgeting"
+	earned_income_budgeting_script_reported = True
 End If
 
 If report_type = "Unsure" Then
@@ -322,7 +330,7 @@ Select Case report_type
 			Do
 				email_body = ""
 
-				BeginDialog Dialog1, 0, 0, 426, 290, "Enhancment Idea"
+				BeginDialog Dialog1, 0, 0, 426, 290, "Enhancement Idea"
 				  EditBox 115, 50, 140, 15, MAXIS_case_number
 				  EditBox 115, 70, 250, 15, enhancement_script_name
 				  ButtonGroup ButtonPressed
@@ -344,7 +352,7 @@ Select Case report_type
 				  Text 40, 75, 70, 10, "The script to update:"
 				  Text 120, 90, 300, 10, "Format: CATEGORY - Name if possible, or use the 'SEARCH' button to find the correct script."
 				  Text 45, 110, 65, 10, "Enhancement type:"
-				  Text 10, 125, 175, 10, "Enhancment Idea details (be as specific as possible):"
+				  Text 10, 125, 175, 10, "Enhancement Idea details (be as specific as possible):"
 				  Text 10, 155, 185, 10, "Policy or Procedure References to support this update:"
 				  Text 15, 180, 355, 10, "This is very important if changes are based on policy or procedure, enter web links or manual references."
 				  Text 10, 195, 80, 10, "Other notes/comments:"
@@ -383,7 +391,7 @@ Select Case report_type
 				email_body = email_body & "~~ NO SCRIPT NAME PROVIDED ~~" & vbCr
 			End If
 			If enhancement_info <> "" AND enhancement_info <> "Type or Select" Then email_body = email_body & "General Enhancement Info: " & enhancement_info & vbCr & vbCr
-			If enhancement_details <> "" Then email_body = email_body & "Details about Enhacement Needed: " & enhancement_details & vbCr & vbCr
+			If enhancement_details <> "" Then email_body = email_body & "Details about Enhancement Needed: " & enhancement_details & vbCr & vbCr
 			If enhancement_policy <> "" Then email_body = email_body & "Policy to support this enhancement: " & enhancement_policy & vbCr & vbCr
 			If enhancement_notes <> "" Then email_body = email_body & "Additional Notes: " & enhancement_notes & vbCr & vbCr
 			If enhancement_effective_date <> "" Then email_body = email_body & "Change happened: " & enhancement_effective_date & vbCr & vbCr
@@ -402,7 +410,7 @@ Select Case report_type
 				BeginDialog Dialog1, 0, 0, 426, 240, "New Script Idea"
 				  EditBox 160, 50, 95, 15, MAXIS_case_number
 				  DropListBox 375, 50, 45, 45, "No"+chr(9)+"Yes", new_script_urgent
-				  ComboBox 160, 70, 260, 45, "Type or Select"+chr(9)+"CASE:NOTE to Enter"+chr(9)+"FIAT to Complete"+chr(9)+"MEMO or WCOM to Send"+chr(9)+"DAIL to Support"+chr(9)+"Tool or Utilitiy"+chr(9)+"Screening"+chr(9)+"Update a STAT Panel"+chr(9)+new_script_info, new_script_info
+				  ComboBox 160, 70, 260, 45, "Type or Select"+chr(9)+"CASE:NOTE to Enter"+chr(9)+"FIAT to Complete"+chr(9)+"MEMO or WCOM to Send"+chr(9)+"DAIL to Support"+chr(9)+"Tool or Utility"+chr(9)+"Screening"+chr(9)+"Update a STAT Panel"+chr(9)+new_script_info, new_script_info
 				  EditBox 10, 100, 410, 15, new_script_details
 				  EditBox 10, 135, 410, 15, new_script_policy
 				  EditBox 10, 175, 410, 15, new_script_notes
@@ -652,7 +660,7 @@ Select Case report_type
 			If documentation_details <> "" Then email_body = email_body & "Details about Documentation Needed: " & documentation_details & vbCr & vbCr
 			If documentation_existing <> "" Then email_body = email_body & "Current Documentation: " & documentation_existing & vbCr & vbCr
 			If documentation_notes <> "" Then email_body = email_body & "Additional Notes: " & documentation_notes & vbCr & vbCr
-			If documentation_effective_date <> "" Then email_body = email_body & "Documentation Update Neeeded based on Change Eff: " & documentation_effective_date & vbCr & vbCr
+			If documentation_effective_date <> "" Then email_body = email_body & "Documentation Update Needed based on Change Eff: " & documentation_effective_date & vbCr & vbCr
 
 
 			email_body = email_body & "---" & vbCr
@@ -664,11 +672,24 @@ End Select
 attachment_here = ""
 If interview_script_reported = True Then
 	local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	local_interview_xml_path = user_myDocs_folder & "interview_questions_" & MAXIS_case_number & ".xml"
+	save_work_here = ""
+	xml_here = ""
 	With objFSO
 		If .FileExists(local_interview_save_work_path) = True then
-			attachment_here = local_interview_save_work_path
+			save_work_here = local_interview_save_work_path
+		End if
+		If .FileExists(local_interview_xml_path) = True then
+			xml_here = local_interview_xml_path
 		End if
 	End With
+	If save_work_here <> "" and xml_here <> "" Then
+		attachment_here = save_work_here & ", " & xml_here
+	ElseIf save_work_here <> "" Then
+		attachment_here = save_work_here
+	ElseIf xml_here <> "" Then
+		attachment_here = xml_here
+	End If
 End If
 If caf_script_reported = True Then
 	local_CAF_save_work_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
@@ -678,9 +699,17 @@ If caf_script_reported = True Then
 		End if
 	End With
 End If
+If earned_income_budgeting_script_reported = True Then
+	local_earned_income_save_work_path = user_myDocs_folder & "earned-income-detail-" & MAXIS_case_number & "-info.txt"
+	With objFSO
+		If .FileExists(local_earned_income_save_work_path) = True then
+			attachment_here = local_earned_income_save_work_path
+		End if
+	End With
+End If
 
 email_body = "~~This email is generated from completion of the 'Report to the BZST' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, attachment_here, TRUE)
+Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, True, attachment_here, True)
 
 STATS_manualtime = (timer-start_time) + 90
 end_msg = "Thank you!" & vbCr & "The Script to Report to BZST is Complete." & vbCr & vbCr & "Your Report has been submitted to the BlueZone Script Team. We will respond within a week. This response may not a resolution as some requests take longer for the team to discuss, plan and schedule."

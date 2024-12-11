@@ -58,6 +58,7 @@ function custom_HH_member_custom_dialog(HH_member_array)
         'MsgBox access_denied_check
         If access_denied_check = "ACCESS DENIED" Then
             PF10
+            EMWaitReady 0, 0
             last_name = "UNABLE TO FIND"
             first_name = " - Access Denied"
             mid_initial = ""
@@ -122,6 +123,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/29/2023", "Improved handling for HH member dialog, updated dialog options to be more consistent", "Mark Riegel, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("06/23/2022", "Update to uncheck all HH members ", "MiKayla Handley, Hennepin County") '#882
 call changelog_update("05/19/2022", "Update to send all UC verification requests to DEED email at: HSPH.ES.DEED@Hennepin.us", "Ilse Ferris, Hennepin County") '#847
 call changelog_update("11/24/2021", "Updates to the dialog as most teams are now using ES support staff for UC verification request.", "MiKayla Handley") '#644'
@@ -140,7 +143,7 @@ initial_help_text = "*** Unemployment Compensation ***" & vbNewLine & vbNewLine 
 
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 301, 95, "Request for Unemployment Insurance"
+BeginDialog Dialog1, 0, 0, 301, 95, "Verification Request for Unemployment Compensation"
   EditBox 85, 5, 50, 15, MAXIS_case_number
   CheckBox 10, 55, 25, 10, "CCA", cca_checkbox
   CheckBox 45, 55, 85, 10, "Other (please specify):", other_checkbox
@@ -149,7 +152,7 @@ BeginDialog Dialog1, 0, 0, 301, 95, "Request for Unemployment Insurance"
     OkButton 195, 75, 45, 15
     CancelButton 245, 75, 45, 15
     PushButton 165, 5, 15, 15, "!", initial_help_button
-    PushButton 185, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
+    PushButton 185, 5, 105, 15, "Unemployment Compensation", HSR_manual_button
   Text 35, 10, 50, 10, "Case Number:"
   GroupBox 5, 40, 290, 30, "Department (if outside ES)"
   Text 5, 25, 295, 10, "FYI: Overpaypayment, tax, child/spousal support deductions will be reviewed for this case."
@@ -165,7 +168,8 @@ DO
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx") 'HSR manual policy page
         LOOP until ButtonPressed = -1
         Call validate_MAXIS_case_number(err_msg, "*")
-        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
+        IF cca_checkbox + other_checkbox = 2 Then err_msg = err_msg & vbCr & "* You cannot check both the 'CCA' and 'Other' boxes. Check only one option if selecting a department outside of ES."
+        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* You must fill out the field to specify which department you are in."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
@@ -191,6 +195,9 @@ DO
     CALL custom_HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
+
+'Navigate back to STAT/MEMB in case user has navigated away
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 'Establishing array
@@ -305,8 +312,9 @@ email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #"
 vbcr & vbcr & "Member Info: " & member_info & _
 vbcr & vbcr & "Submitted By: " & the_person_running_the_script
 
-'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment,send_email)
-IF send_email = TRUE THEN Call create_outlook_email("HSPH.ES.DEED@Hennepin.us", "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+IF send_email = TRUE THEN Call create_outlook_email("", "HSPH.ES.DEED@Hennepin.us", "", "", "UC Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
+'will create email, will send.
 
 IF MX_region = "TRAINING" then msgbox email_information
 

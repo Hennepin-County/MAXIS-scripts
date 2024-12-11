@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
+call changelog_update("06/26/2023", "Resolved issue with exit functionality when a case load doesn't have a specific DAIL message type.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/04/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -88,6 +90,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
+Call check_MAXIS_environment("PRODUCTION", false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -216,12 +219,16 @@ For each worker in worker_array
                 dail_row = dail_row + 1
             End if
 
+			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			If message_error = "NO MESSAGES" then exit do
+
 			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
 				PF8
 				EMReadScreen last_page_check, 21, 24, 2
-				If last_page_check = "THIS IS THE LAST PAGE" then
+                'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+                If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
 					all_done = true
 					exit do
 				Else
@@ -250,11 +257,7 @@ For item = 0 to Ubound(DAIL_array, 2)
 
         Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your team to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
 		CALL write_variable_in_SPEC_MEMO("")
-		CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-		CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-		CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-		CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
-		CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
+		CALL digital_experience
         Call write_variable_in_SPEC_MEMO("************************************************************")
 
         PF4

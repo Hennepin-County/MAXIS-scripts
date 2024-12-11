@@ -99,8 +99,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 				  EditBox 70, 300, 275, 15, medical_expenses
 				  EditBox 50, 320, 295, 15, veterans_info
 				  EditBox 50, 340, 295, 15, other_proofs
-				  CheckBox 5, 360, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
-				  CheckBox 5, 375, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
+				  CheckBox 5, 360, 240, 10, "Check here if you sent form DHS-2919 (Verification Request Form).", verif_request
 				  CheckBox 5, 390, 165, 10, "Sent form to AREP?", sent_arep_checkbox
 				  CheckBox 5, 405, 95, 10, "Signature page needed?", signature_page_needed_check
 				  CheckBox 5, 420, 130, 10, "Check here to TIKL out for this case.", TIKL_check
@@ -162,8 +161,7 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 				  EditBox 30, 195, 315, 15, SHEL
 				  EditBox 30, 215, 315, 15, INSA
 				  EditBox 50, 235, 295, 15, other_proofs
-				  CheckBox 5, 260, 240, 10, "Check here if you sent form DHS-2919A (Verification Request Form - A).", verif_A_check
-				  CheckBox 5, 275, 240, 10, "Check here if you sent form DHS-2919B (Verification Request Form - B).", verif_B_check
+				  CheckBox 5, 260, 240, 10, "Check here if you sent form DHS-2919 (Verification Request Form).", verif_request
 				  CheckBox 5, 290, 240, 15, "Check here if these are postponed verifications for expedited SNAP.  ", postponed_check
 				  CheckBox 5, 310, 175, 10, "Sent form to AREP?", sent_arep_checkbox
 				  CheckBox 5, 325, 95, 10, "Signature page needed?", signature_page_needed_check
@@ -240,8 +238,7 @@ call write_bullet_and_variable_in_case_note("INSA", INSA)
 call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
 call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
 call write_bullet_and_variable_in_case_note("Other proofs", other_proofs)
-IF verif_A_check = checked THEN write_variable_in_CASE_NOTE("* Verification request form A sent.")
-IF verif_B_check = checked THEN write_variable_in_CASE_NOTE("* Verification request form B sent.")
+IF verif_request = checked THEN write_variable_in_CASE_NOTE("* Verification request form sent.")
 IF sent_arep_checkbox = checked THEN write_variable_in_CASE_NOTE("* Forms sent to AREP.")
 IF signature_page_needed_check = checked THEN write_variable_in_CASE_NOTE("* Signature page needed.")
 Call write_variable_in_case_note("---")

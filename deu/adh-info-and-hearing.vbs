@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/30/2019", "Removed FSS Data Team from automated emails per request.", "Ilse Ferris, Hennepin County")
@@ -177,8 +178,8 @@ IF ADH_option = "ADH waiver signed" THEN
     CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 	CALL write_variable_in_case_note("----- ----- ----- ----- -----")
     CALL write_variable_in_CASE_NOTE(worker_signature)
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
+	'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+	Call create_outlook_email("", "Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "", "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, 1, False, "", "", False, "", "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", False, "", False)
 END IF
 
 IF ADH_option = "Hearing Held" THEN
@@ -263,7 +264,7 @@ IF ADH_option = "Hearing Held" THEN
 	 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
      CALL write_variable_in_CASE_NOTE(worker_signature)
 	 'Drafting an email. Does not send the email!!!!
-	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
+	 'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+	 Call create_outlook_email("", "Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "", "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, 1, False, "", "", False, "", "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", False, "", False)
 END IF
 script_end_procedure_with_error_report("Please select the applicable team in the drafted email, any additional notes required and send the email regarding ADH information.")

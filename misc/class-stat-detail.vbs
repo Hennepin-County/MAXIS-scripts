@@ -4017,6 +4017,7 @@ class stat_detail
 				If stat_busi_one_type(each_memb) = "07" Then stat_busi_one_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_one_type(each_memb) = "08" Then stat_busi_one_type_info(each_memb) = "Rental Income"
 				If stat_busi_one_type(each_memb) = "09" Then stat_busi_one_type_info(each_memb) = "Other"
+				If stat_busi_one_type(each_memb) = "10" Then stat_busi_one_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_one_inc_start_date(each_memb) = replace(stat_busi_one_inc_start_date(each_memb), " ", "/")
 				stat_busi_one_inc_end_date(each_memb) = replace(stat_busi_one_inc_end_date(each_memb), " ", "/")
@@ -4161,6 +4162,7 @@ class stat_detail
 				If stat_busi_two_type(each_memb) = "07" Then stat_busi_two_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_two_type(each_memb) = "08" Then stat_busi_two_type_info(each_memb) = "Rental Income"
 				If stat_busi_two_type(each_memb) = "09" Then stat_busi_two_type_info(each_memb) = "Other"
+				If stat_busi_two_type(each_memb) = "10" Then stat_busi_two_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_two_inc_start_date(each_memb) = replace(stat_busi_two_inc_start_date(each_memb), " ", "/")
 				stat_busi_two_inc_end_date(each_memb) = replace(stat_busi_two_inc_end_date(each_memb), " ", "/")
@@ -4276,6 +4278,7 @@ class stat_detail
 				If stat_busi_three_type(each_memb) = "07" Then stat_busi_three_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_three_type(each_memb) = "08" Then stat_busi_three_type_info(each_memb) = "Rental Income"
 				If stat_busi_three_type(each_memb) = "09" Then stat_busi_three_type_info(each_memb) = "Other"
+				If stat_busi_three_type(each_memb) = "10" Then stat_busi_three_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_three_inc_start_date(each_memb) = replace(stat_busi_three_inc_start_date(each_memb), " ", "/")
 				stat_busi_three_inc_end_date(each_memb) = replace(stat_busi_three_inc_end_date(each_memb), " ", "/")
@@ -4416,7 +4419,7 @@ class stat_detail
 				If stat_unea_one_type_code(each_memb) = "44" Then stat_unea_one_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_one_type_code(each_memb) = "45" Then stat_unea_one_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_one_type_code(each_memb) = "46" Then stat_unea_one_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Tribal Income"
 				If stat_unea_one_type_code(each_memb) = "48" Then stat_unea_one_type_info(each_memb) = "Trust income"
 				If stat_unea_one_type_code(each_memb) = "49" Then stat_unea_one_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_one_verif_code(each_memb), 1, 5, 65
@@ -4519,7 +4522,7 @@ class stat_detail
 				If stat_unea_two_type_code(each_memb) = "44" Then stat_unea_two_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_two_type_code(each_memb) = "45" Then stat_unea_two_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_two_type_code(each_memb) = "46" Then stat_unea_two_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Tribal Income"
 				If stat_unea_two_type_code(each_memb) = "48" Then stat_unea_two_type_info(each_memb) = "Trust income"
 				If stat_unea_two_type_code(each_memb) = "49" Then stat_unea_two_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_two_verif_code(each_memb), 1, 5, 65
@@ -4622,7 +4625,7 @@ class stat_detail
 				If stat_unea_three_type_code(each_memb) = "44" Then stat_unea_three_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_three_type_code(each_memb) = "45" Then stat_unea_three_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_three_type_code(each_memb) = "46" Then stat_unea_three_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Tribal Income"
 				If stat_unea_three_type_code(each_memb) = "48" Then stat_unea_three_type_info(each_memb) = "Trust income"
 				If stat_unea_three_type_code(each_memb) = "49" Then stat_unea_three_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_three_verif_code(each_memb), 1, 5, 65
@@ -4726,7 +4729,7 @@ class stat_detail
 				If stat_unea_four_type_code(each_memb) = "44" Then stat_unea_four_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_four_type_code(each_memb) = "45" Then stat_unea_four_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_four_type_code(each_memb) = "46" Then stat_unea_four_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Tribal Income"
 				If stat_unea_four_type_code(each_memb) = "48" Then stat_unea_four_type_info(each_memb) = "Trust income"
 				If stat_unea_four_type_code(each_memb) = "49" Then stat_unea_four_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_four_verif_code(each_memb), 1, 5, 65
@@ -4829,7 +4832,7 @@ class stat_detail
 				If stat_unea_five_type_code(each_memb) = "44" Then stat_unea_five_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_five_type_code(each_memb) = "45" Then stat_unea_five_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_five_type_code(each_memb) = "46" Then stat_unea_five_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Tribal Income"
 				If stat_unea_five_type_code(each_memb) = "48" Then stat_unea_five_type_info(each_memb) = "Trust income"
 				If stat_unea_five_type_code(each_memb) = "49" Then stat_unea_five_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_five_verif_code(each_memb), 1, 5, 65

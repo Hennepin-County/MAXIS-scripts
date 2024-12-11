@@ -40,6 +40,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/22/2024", "Activated links to SharePoint script instructions.", "Mark Riegel, Hennepin County")
+call changelog_update("03/27/2024", "Retired script ATR Received. Please use NOTES - DOCUMENTS RECEIVED. Also retired PARIS MATCH CC CLAIM ENTERED script. Please use NOTES - OVERPAYMENT and DEU - PARIS MATCH CLEARED. PARIS MATCH CLEARED also updated to work from the DAIL as well.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/24/2023", "MENU format has been updated to align with the menu displays for the primary categories.", "Casey Love, Hennepin County")
 call changelog_update("02/28/2023", "Removed APPEALS button. This was a redirect to the NOTES - APPEALS script. Please use the APPEALS script from the NOTES Main Menu. Thank you!", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2023", "Retired script EBT OUT OF STATE due to state correction action plan. A new automation tool may be created in the future based on DHS and FNS/USDA guidance.", "Ilse Ferris, Hennepin County")
@@ -77,6 +79,7 @@ Function declare_main_menu_dialog(script_category)
 			' MsgBox script_array(current_script).script_name & vbCr & "see_the_button - " & see_the_button & vbCr & "Show_sript - " & script_array(current_script).show_script
         End if
     next
+    dlg_len = dlg_len * 1
 
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
@@ -98,7 +101,7 @@ Function declare_main_menu_dialog(script_category)
 
 				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-				' PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
 				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
 				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
 				'----------
@@ -122,6 +125,8 @@ End function
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
 button_placeholder 			    = 24601
+dlg_len = ""
+Dialog1 = ""
 
 'Displays the dialog
 Do
@@ -153,6 +158,7 @@ Do
 	Next
 
     ' MsgBox script_to_run
+	Dialog1 = ""
 Loop until ready_to_exit_loop = true
 
 call run_from_GitHub(script_to_run)

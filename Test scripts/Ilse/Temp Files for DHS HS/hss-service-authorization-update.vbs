@@ -43,7 +43,7 @@ Dim objFSO
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
-Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number		'Declares this for Option Explicit users
+Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number, item		'Declares this for Option Explicit users
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
@@ -185,13 +185,22 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
-Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 '--- This function creates a an outlook appointment
-'~~~~~ (email_recip): email address for recipeint - seperated by semicolon
-'~~~~~ (email_recip_CC): email address for recipeints to cc - seperated by semicolon
+'~~~~~ (email_from): email address for sender
+'~~~~~ (email_recip): email address for recipient - separated by semicolon
+'~~~~~ (email_recip_CC): email address for recipients to cc - separated by semicolon
+'~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
-'~~~~~ (email_body): body of email in quotations or a variable
-'~~~~~ (email_attachment): set as "" if no email or file location
+'~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or 2 (high)
+'~~~~~ (include_flag): indicate whether to include follow-up flag on email - true or false
+'~~~~~ (email_flag_text): set the text of the follow-up flag, if no follow-up flag needed then use ""
+'~~~~~ (email_flag_days): set the number of days from today that the flag is due
+'~~~~~ (email_flag_reminder): set whether a flag reminder should be set - true or false
+'~~~~~ (email_flag_reminder_days): set the number of days from today that a reminder for the flag should be set
+'~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
+'~~~~~ (include_email_attachment): indicate if any (1 or more) attachments should be included - indicate true to include attachments or false to not include attachments
+'~~~~~ (email_attachment_array): if including 1 or more attachments, then enter the array name here to add these attachments to the email or enter the list of attachment file paths within a single string with each file path separated by a comma
 '~~~~~ (send_email): set as TRUE or FALSE
 '===== Keywords: MAXIS, PRISM, create, outlook, email
 
@@ -201,11 +210,45 @@ Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_
     If send_email = False then objMail.Display      'To display message only if the script is NOT sending the email for the user.
 
     'Adds the information to the email
+    objMail.SentOnBehalfOfName = email_from         'email sender
     objMail.to = email_recip                        'email recipient
     objMail.cc = email_recip_CC                     'cc recipient
+    objMail.Bcc = email_recip_bcc                   'bcc recipient
     objMail.Subject = email_subject                 'email subject
-    objMail.Body = email_body                       'email body
-    If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachement (can only support one for now)
+    objMail.Importance = email_importance           'email importance - 0 (low), 1 (normal), or high (2)
+
+    'Set email follow-up flag
+    If include_flag = True Then
+        objMail.FlagRequest = email_flag_text
+        objMail.FlagDueBy = DateAdd("d", email_flag_days, Date())
+        objMail.ReminderSet = email_flag_reminder
+        objMail.ReminderTime = DateAdd("d", email_flag_reminder_days, Date()) & " 12:00:00 PM"
+    End If
+    objMail.Body = email_body                       'Default email body
+    'Determines if HTML body is needed based on email_body content
+    If instr(email_body, "<p>") OR _
+        instr(email_body, "<br>") OR _
+        instr(email_body, "<i>") OR _
+        instr(email_body, "&emsp") OR _
+        instr(email_body, "&ensp") OR _
+        instr(email_body, "href") Then 
+            objMail.HTMLBody = email_body
+    End If
+
+    'Iterates through array or list of email attachments if indicated
+    If include_email_attachment = True Then
+      If TypeName(email_attachment_array) = "String" Then
+        email_attachment_array = Split(email_attachment_array, ",")
+        For Each attachment In email_attachment_array
+          objMail.Attachments.Add(trim(attachment))
+      Next
+        Else
+          For Each attachment In email_attachment_array
+          objMail.Attachments.Add(attachment)
+      Next
+      End If
+    End If
+
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
     Set objMail =   Nothing
@@ -894,7 +937,7 @@ function script_end_procedure_with_error_report(closing_message)
 
             If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
 
-            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+            Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, False, "", True)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
         Else
@@ -1198,6 +1241,14 @@ Do
     SA_number = ""  'Blanking out variables for next loop
 Loop
 
+'----------------------------------------------------------------------------------------------------Notes on updates
+'Rates prior to 2024 should use the following rates:
+'    •  Full Rate: $15.87
+'    •  Reduced Rate: $7.94
+'Anything 01/01/2024 - ongoing should use the following rates: 
+'    •  Full Rate: $16.27
+'    •  Reduced Rate: $8.14
+
 '----------------------------------------------------------------------------------------------------determine which rows of information are going to have a rate reduction or not.
 For item = 0 to Ubound(adjustment_array, 2)
     'Determining which date to use to end/start the agreements. Initial conversion date is 07/01/21. We cannot use a date earlier than this. If a date is earlier than this, the date is 07/01/21.
@@ -1237,18 +1288,18 @@ For item = 0 to Ubound(adjustment_array, 2)
     'Row’s that are not identified as an Impacted Vendor (“Yes”)
     'Open-ended facility spans or recipients that have faci panels that close after the HSS start date.
     'Rows that may already be done.
-    'Rate costs that are not 15.87
+    'Rate costs that are not 16.27
     If (adjustment_array(case_status_const, item) = "" and _
         adjustment_array(rate_reduction_notes_const, item) = "" and _
         adjustment_array(HS_status_const, item) <> "" and _
         adjustment_array(impacted_vendor_const, item) = "Yes" and _
-        adjustment_array(rate_amt_const, item) = "15.87" and _
+        adjustment_array(rate_amt_const, item) = "16.27" and _
         active_facility = True) then
         adjustment_array(passed_case_tests_const, item) = True
     Else
     'Failure Reasons
         If adjustment_array(HS_status_const, item) = "" then rate_reduction_status = rate_reduction_status & "No HS Status in MAXIS Case. "
-        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "15.87" then rate_reduction_status = rate_reduction_status & "Rate is not 15.87, review manually. "
+        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "16.27" then rate_reduction_status = rate_reduction_status & "Rate is not 16.27, review manually. "
         If adjustment_array(impacted_vendor_const, item) <> "Yes" then rate_reduction_status = rate_reduction_status & "Not an impacted vendor. "
         If active_facility = False then rate_reduction_status = rate_reduction_status & "Not an active facility. "
         If adjustment_array(case_status_const, item) <> "" then rate_reduction_status = rate_reduction_status & adjustment_array(case_status_const, item)
@@ -1309,8 +1360,8 @@ For item = 0 to Ubound(adjustment_array, 2)
                 Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
 
                 EmReadscreen line_1_rate, 5, 9, 24
-                If trim(line_1_rate) = "7.94" then
-                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 7.94."
+                If trim(line_1_rate) = "8.14" then
+                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 8.14."
                     PF6 'cancel
                     transmit 'to re-enter ASA1
                     EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
@@ -1327,8 +1378,8 @@ For item = 0 to Ubound(adjustment_array, 2)
                         PF3
                         adjustment_array(reduce_rate_const, item) = False
                         'creating status message if reduce is already in exisitance.
-                        If line_2_rate = "7.94" then
-                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 7.94."
+                        If line_2_rate = "8.14" then
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 8.14."
                         Else
                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement already exists in Line 2. Review Manually."
                         End if

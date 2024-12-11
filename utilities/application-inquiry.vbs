@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("03/31/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -209,7 +210,7 @@ If case_pending = TRUE Then email_body = email_body & vbCr & "~~The case has bee
 If case_pending = FALSE Then email_body = email_body & vbCr & "~~This case is not pending and has not been APPL'd.~~" & vbCr
 
 email_body = email_body & vbCr & "Thank you, " & vbCr & worker_name
-Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)		'Send the Email
+Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)		'Send the Email
 
 'Add a message with the email information for display
 end_msg = "Success!" & vbNewLine & vbNewLine

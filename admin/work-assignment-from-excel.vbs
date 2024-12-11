@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("07/11/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1101,10 +1102,10 @@ If send_email_checkbox = checked Then
 		email_body = email_body & vbCr & "Thank You"
 		email_body = email_body & vbCr & the_person_running_the_script
 
-		' Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		' Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 		send_email = True
 		If ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, each_assignment) = "" Then send_email = False
-		Call create_outlook_email(ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, each_assignment), "", "Assignment List in Excel", email_body, "", send_email)
+		Call create_outlook_email("", ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, each_assignment), "", "", "Assignment List in Excel", 1, False, "", "", False, "", email_body, False, "", send_email)
 
 	Next
 End If

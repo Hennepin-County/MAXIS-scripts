@@ -68,7 +68,7 @@ ReDim VENDOR_INFO_ARRAY(vnds_amount, 0)
 'The script ----------------------------------------------------------------------------------------------------
 EMConnect ""                    'Connect to MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)            'Pulling the case number from MAXIS if it can be found
-
+Call Check_for_MAXIS(false)
 Do
     Do
         err_msg = ""
@@ -100,10 +100,9 @@ Do
 		    		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 					IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		    	LOOP UNTIL err_msg = ""
-                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-            Loop until are_we_passworded_out = false					'loops until user passwords back in
-		CALL check_for_MAXIS(False)
+		    LOOP UNTIL err_msg = ""
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        Loop until are_we_passworded_out = false					'loops until user passwords back in
 
                 'If the search button is pressed, the functionality for searching vendors here will start
         If ButtonPressed = vendor_search_button Then
@@ -112,28 +111,28 @@ Do
             vendor_search_status = "Any"
             vendor_search_name = ""
 
-            'this is the search dialog
-            BeginDialog Dialog1, 0, 0, 266, 85, "Vendor Search Criteria"
-              EditBox 70, 25, 190, 15, vendor_search_name
-              DropListBox 70, 45, 70, 45, "Any"+chr(9)+"Active"+chr(9)+"Merged"+chr(9)+"Pending"+chr(9)+"Terminated", vendor_search_status
-              DropListBox 70, 65, 80, 45, "Any"+chr(9)+county_list, vendor_search_county
-              ButtonGroup ButtonPressed
-                PushButton 220, 65, 40, 15, "SEARCH", execute_search
-              Text 10, 10, 160, 10, "Enter vendor information you wish to search by:"
-              Text 15, 30, 50, 10, "Vendor Name:"
-              Text 15, 50, 55, 10, "Vendor Status:"
-              Text 15, 70, 50, 10, "Vendor County:"
-            EndDialog
-
 			DO
-				DO
-					err_msg = ""
+				'this is the search dialog
+                BeginDialog Dialog1, 0, 0, 266, 85, "Vendor Search Criteria"
+                  EditBox 70, 25, 190, 15, vendor_search_name
+                  DropListBox 70, 45, 70, 45, "Any"+chr(9)+"Active"+chr(9)+"Merged"+chr(9)+"Pending"+chr(9)+"Terminated", vendor_search_status
+                  DropListBox 70, 65, 80, 45, "Any"+chr(9)+county_list, vendor_search_county
+                  ButtonGroup ButtonPressed
+                    PushButton 220, 65, 40, 15, "SEARCH", execute_search
+                  Text 10, 10, 160, 10, "Enter vendor information you wish to search by:"
+                  Text 15, 30, 50, 10, "Vendor Name:"
+                  Text 15, 50, 55, 10, "Vendor Status:"
+                  Text 15, 70, 50, 10, "Vendor County:"
+                EndDialog
+                DO
+					search_err_msg = "" 'using a different variable here because teh dialogs are in nested loops
 					DIALOG Dialog1
-						cancel_without_confirmation
-						IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-					LOOP UNTIL err_msg = ""
-                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-                Loop until are_we_passworded_out = false					'loops until user passwords back in
+					cancel_without_confirmation
+                    IF vendor_search_name = "" THEN search_err_msg = search_err_msg & vbCr & "You must enter the vendor name you wish to search for."
+					IF search_err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & search_err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+				LOOP UNTIL search_err_msg = ""
+                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+            Loop until are_we_passworded_out = false					'loops until user passwords back in
 			CALL check_for_MAXIS(False)
 
             Call navigate_to_MAXIS_screen("MONY", "VNDS")           'going to vendor search in MAXIS
@@ -155,7 +154,7 @@ If InStr(vendor_number_list, ",") = 0 Then              'making the list of vend
 Else
     vendor_array = split(vendor_number_list, ",")
 End If
-
+Call check_for_MAXIS(false) ' Need a check for maxis here before jumping into read vendors
 vendor_counter = 0      'setting the incrementer for the large array
 For each vendor_number in vendor_array                  'cycling through the array of numbers to gather information and fill the large array
     vendor_number = trim(vendor_number)                 'getting rid of spaces

@@ -61,7 +61,7 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
 EMConnect ""
-
+Call check_for_MAXIS(True) 'Make sure we're in maxis
 'Finding case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -78,11 +78,12 @@ EndDialog
 'Ask for case number, validate that it's numeric.
 Do
 	Do
+		err_msg = ""
 		Dialog Dialog1	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
 		cancel_confirmation
-		Call check_for_MAXIS(True)
-		If isnumeric(MAXIS_case_number) = False then MsgBox "Enter a valid MAXIS case number."
-	Loop until isnumeric(MAXIS_case_number) = True
+		Call validate_MAXIS_case_number(err_msg, "*")               'case number mandatory
+		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 

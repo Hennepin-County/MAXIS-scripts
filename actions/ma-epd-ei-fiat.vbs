@@ -189,13 +189,11 @@ Do
         err_msg = ""
 
         Dialog Dialog1
-        Cancel_confirmation
+        cancel_without_confirmation
 
-        If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
-        If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Case number appears to be invalid. Check the case number and fix."
+		call validate_MAXIS_case_number(err_msg, "*")
         If memb_number = "" Then                                                   err_msg = err_msg & vbNewLine & "* Enter a reference number for the member on MA-EPD."
         If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if approval is update or initial."
-        'If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then                  err_msg = err_msg & vbNewLine & "* Enter the MAXIS footer month and year that has the best income information in it."
 
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
@@ -327,6 +325,12 @@ MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
 script_run_lowdown = script_run_lowdown & vbCr & "Footer Month - " & MAXIS_footer_month & vbCr & "Footer Year - " & MAXIS_footer_year
 Original_MAXIS_footer_month = MAXIS_footer_month
 Original_MAXIS_footer_year = MAXIS_footer_year
+
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = True then call script_end_procedure("Case appears to be privileged and this script cannot update or access the case information. The script will now end.")
+Call write_value_and_transmit(memb_number, 20, 76)
+EMReadScreen memb_last_name, 2, 6, 30
+memb_search = memb_number & "  " & memb_last_name
 
 Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
 EMWriteScreen memb_number, 20, 76
@@ -820,37 +824,44 @@ Call navigate_to_MAXIS_screen("ELIG", "HC__")       'Going to ELIG/HC
 'Finding the member in the list of all members on ELIG/HC
 row = 1
 col = 1
-EMSearch memb_number & " ", row, col 'finding the member number
+EMSearch memb_search, row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 'Opening the eligibility span of the client
 EMWriteScreen "X", row, 26
 transmit
+'Read to find out which version of BSUM we have for line positioning.
+EMReadScreen name_or_date, 1, 5, 19
+If name_or_date = " " Then 
+    base_row = 0 'This is the old version of BSUM
+Else    
+    base_row = -1
+End If 
 
 'Reading the elig type of all the months. They should be DP because that is MA-EPD
-EMReadScreen elig_type_check_first_month, 2, 12, 17
-EMReadScreen elig_type_check_second_month, 2, 12, 28
-EMReadScreen elig_type_check_third_month, 2, 12, 39
-EMReadScreen elig_type_check_fourth_month, 2, 12, 50
-EMReadScreen elig_type_check_fifth_month, 2, 12, 61
-EMReadScreen elig_type_check_sixth_month, 2, 12, 72
+EMReadScreen elig_type_check_first_month, 2, base_row + 12, 17
+EMReadScreen elig_type_check_second_month, 2, base_row + 12, 28
+EMReadScreen elig_type_check_third_month, 2, base_row + 12, 39
+EMReadScreen elig_type_check_fourth_month, 2, base_row + 12, 50
+EMReadScreen elig_type_check_fifth_month, 2, base_row + 12, 61
+EMReadScreen elig_type_check_sixth_month, 2, base_row + 12, 72
 
 'There needs to be at least 1 month of MA-EPD Elig Results - the script will check each month and if all are NOT DP - the script will end.
 If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("None of the months of this case are MA-EPD. Process manually.")
 
 'This is determining the first month that MA-EPD is coded in the budget.
 If elig_type_check_first_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 19
+	EMReadScreen first_month_and_year, 5, base_row + 6, 19
 ElseIf elig_type_check_second_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 30
+	EMReadScreen first_month_and_year, 5, base_row + 6, 30
 ElseIf elig_type_check_third_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 41
+	EMReadScreen first_month_and_year, 5, base_row + 6, 41
 ElseIf elig_type_check_fourth_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 52
+	EMReadScreen first_month_and_year, 5, base_row + 6, 52
 ElseIf elig_type_check_fifth_month = "DP" Then
-	EMReadScreen first_month_and_year, 5, 6, 63
+	EMReadScreen first_month_and_year, 5, base_row + 6, 63
 ElseIf elig_type_check_sixth_month = "DP" then
-	EMReadScreen first_month_and_year, 5, 6, 74
+	EMReadScreen first_month_and_year, 5, base_row + 6, 74
 End If
 'Worker should have indicated the first month of MA - EPD here. If that was not accurate, the STAT information already gathered may be incorrect
 'the script will end if the entered month and found month do not match
@@ -860,7 +871,7 @@ If start_month_and_year <> first_month_and_year Then
 End If
 
 'Looking for the first month to FIAT
-row = 6
+row = base_row + 6
 col = 1
 EMSearch first_month_and_year, row, col
 
@@ -870,9 +881,9 @@ If col = 0 Then script_end_procedure(end_msg)
 'Now looking at each month in ELIG
 number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2	'ensuring the month is MA-EPD elig type'
+	EMReadScreen elig_type_check, 2, base_row + 12, col-2	'ensuring the month is MA-EPD elig type'
 	If elig_type_check = "DP" Then
-	    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
+	    EMWriteScreen "X", base_row + 9, col + 2       'opening the Budget for the month
 	    transmit
 	    EMWriteScreen "X", 13, 03           'opening the earned income pop-up
 	    transmit
@@ -1002,7 +1013,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
       Text 20, y_pos, 300, 10, "No JOBS found."
       y_pos = y_pos + 20
   End If
-  Text 10, y_pos, 125, 10, "The script found the following unemployment income:"
+  Text 10, y_pos, 200, 10, "The script found the following unemployment income:"
   y_pos = y_pos + 15
   If UNEA_ARRAY(unea_type, 0) <> "" Then
       For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
@@ -1019,7 +1030,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
         y_pos = y_pos + 20
       Next
   Else
-      Text 20, y_pos, 300, 10, "No UNEA found."
+      Text 20, y_pos, 300, 10, "No unemployment income found."
       y_pos = y_pos + 20
   End If
   ButtonGroup ButtonPressed
@@ -1064,13 +1075,13 @@ Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 row = 1
 col = 1
-EMSearch memb_number & " ", row, col 'finding the member number
+EMSearch memb_search, row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 EMWriteScreen "X", row, 26
 transmit
 
-row = 6
+row = base_row + 6
 col = 1
 EMSearch first_month_and_year, row, col 'finding the right month to start with
 
@@ -1086,10 +1097,10 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
+	EMReadScreen elig_type_check, 2, base_row + 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
 	If elig_type_check = "DP" Then
 		STATS_counter = STATS_counter + 1	'we count each month that is FIATed for statistics
-	    EMWriteScreen "X", 9, col + 2       'opening the budget
+	    EMWriteScreen "X", base_row + 9, col + 2       'opening the budget
 	    transmit
 	    EMWriteScreen "X", 13, 03           'opening the Earned Income line
 	    transmit

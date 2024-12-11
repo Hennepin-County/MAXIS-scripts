@@ -102,7 +102,7 @@ HH_memb_row = 5 'This helps the navigation buttons work!
 'Shows and defines the main dialog.
 BeginDialog , 0, 0, 291, 300, "New job reported dialog"
   EditBox 80, 5, 25, 15, HH_memb
-  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIOA"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income"+chr(9)+"T Training Program"+chr(9)+"P Service Program"+chr(9)+"R Rehab Program", income_type_dropdown
+  DropListBox 55, 25, 110, 15, "W Wages (Incl Tips)"+chr(9)+"J WIOA"+chr(9)+"E EITC"+chr(9)+"G Experience Works"+chr(9)+"F Federal Work Study"+chr(9)+"S State Work Study"+chr(9)+"O Other"+chr(9)+"I Infrequent < 30 N/Recur"+chr(9)+"M Infreq <= 10 MSA Exclusion"+chr(9)+"C Contract Income"+chr(9)+"T Training Program"+chr(9)+"P Service Program"+chr(9)+"R Rehab Program"+chr(9)+"N Census Income", income_type_dropdown
   DropListBox 135, 45, 150, 15, "not applicable"+chr(9)+"01 Subsidized Public Sector Employer"+chr(9)+"02 Subsidized Private Sector Employer"+chr(9)+"03 On-the-Job-Training"+chr(9)+"04 AmeriCorps (VISTA/State/National/NCCC)", subsidized_income_type_dropdown
   EditBox 45, 65, 240, 15, employer
   EditBox 125, 85, 55, 15, income_start_date

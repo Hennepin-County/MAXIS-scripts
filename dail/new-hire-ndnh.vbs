@@ -46,6 +46,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2024", "Added additional details from NDNH New Hire message to TIKL (hire date and HH Memb #).", "Mark Riegel, Hennepin County")
+call changelog_update("04/06/2024", "Removed workaround fix for WAGE match scrubber since the DHS interface with SSN is now repaired.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/08/2023", "Fixed bug when entering a job that starting the same month as the HIRE message was generated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
@@ -74,20 +77,77 @@ EMConnect ""
 EMSendKey "T"   'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
 
+'New function that will make sure we are at DAIL, then enter the code to navigate directly from the dail. This can help us keep the tie to the DAIL
+function nav_in_DAIL(dail_nav_letter)
+    EMReadScreen on_dail_check, 27, 2, 26						'Checking if we are on DAIL - so we can get there
+    Do while on_dail_check <> "WORKERS DAILY REPORT (DAIL)"
+        PF3														'back up one level
+        EMReadScreen SELF_check, 4, 2, 50						'see if we are on SELF
+        If SELF_check = "SELF" Then Call navigate_to_MAXIS_screen ("DAIL", "DAIL")	'if we are on SELF - navigate to DAIL/DAIL
+        EMReadScreen on_dail_check, 27, 2, 26					'read to see if we made it to DAIL
+    Loop
+
+    'To reduce navigation through DAIL, writing case name and number to move quickly
+    EMWriteScreen MAXIS_case_number, 20, 38
+    EMWriteScreen case_and_person_name, 21, 25
+    transmit
+
+    'now we need to find the message that we started with
+    dail_row = 6
+    Do
+        
+        'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+        EMReadScreen new_case, 8, dail_row, 63
+        new_case = trim(new_case)
+        IF new_case <> "CASE NBR" THEN 
+            'If there is NOT a new case number, the script will top the message
+            Call write_value_and_transmit("T", dail_row, 3)
+        ELSEIF new_case = "CASE NBR" THEN
+            'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+            Call write_value_and_transmit("T", dail_row + 1, 3)
+        End if
+        
+        'reset the dail_row to 6 so it can navigate through messages in DAIL
+        dail_row = 6
+
+        EMReadScreen line_message, 60, dail_row, 20				'read the top message for this case
+        line_message = trim(line_message)						'trim the message
+        If line_message = full_message Then						'If the message matches the message from the start of the dail scrubber run, then we can enter the info
+            Call write_value_and_transmit("X", dail_row, 3)
+            EMReadScreen hire_line_1, 60, 9, 5
+            EMReadScreen hire_line_2, 60, 10, 5
+            EMReadScreen hire_line_3, 60, 11, 5
+            EMReadScreen hire_line_4, 60, 12, 5
+            full_hire_dail_message_check = hire_line_1 & hire_line_2 & hire_line_3 & hire_line_4
+            transmit
+
+            If full_hire_dail_message_check = full_hire_dail_message Then
+                EMWriteScreen dail_nav_letter, dail_row, 3
+                transmit
+                Exit Do
+            End If
+        End If
+        dail_row = dail_row + 1
+    Loop
+end function
+
+'Resets the DAIL row since the message has now been topped
+dail_row = 6  
+
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-'determining if the old message with the SSN functionality will be needed or not.
-EMReadScreen HIRE_check, 11, 6, 37
-If HIRE_check = "JOB DETAILS" then
-    SSN_present = True
-Else
-    EmReadscreen fed_match, 4, 6, 20
-    If left(fed_match, 4) = "NDNH" then SSN_present = False
-    SSN_present = False
-    EMReadScreen full_message, 60, 6, 20
-    full_message = trim(full_message)
-End if
+'Read the case name to navigate back again
+EMReadScreen case_and_person_name, 8, 5, 5
+
+'Open and read the entire HIRE message to ensure script can find exact match in DAIL again. It then transmits back to same DAIL message
+Call write_value_and_transmit("X", 6, 3)
+EMReadScreen hire_line_1, 60, 9, 5
+EMReadScreen hire_line_2, 60, 10, 5
+EMReadScreen hire_line_3, 60, 11, 5
+EMReadScreen hire_line_4, 60, 12, 5
+full_hire_dail_message = hire_line_1 & hire_line_2 & hire_line_3 & hire_line_4
+transmit
 
 If right(full_message, 2) = "00" then
     clear_DAIL = msgbox ("MEMB 00 message are system errors, and only need to be cleared in INFC. Would you like the script to clear this match in INFC?", vbQuestion, vbYesNo, "Non-Actionable DAIL found:")
@@ -149,54 +209,23 @@ End if
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
 employer = TRIM(employer)
-If SSN_present = True then
-    EMReadScreen new_HIRE_SSN, 9, 9, 5
-Else
-    EmReadScreen HH_memb, 2, 9, 15
-End if
+EmReadScreen HH_memb, 2, 9, 15
 PF3 ' to exit pop-up
-
-'If the SSN is present and we are just clearing the INFC portion, we don't need to go to STAT. This applies to old NDNH messages that we clearing in INFC.
-go_to_STAT = True
-If SSN_present = True then
-    If match_answer_droplist = "YES-INFC clear match" then
-        go_to_STAT = False
-    End if
-End if
-
-'----------------------------------------------------------------------------------------------------STAT Information
-If go_to_STAT = True then
-    Call write_value_and_transmit("S", 6, 3)
-    'PRIV Handling
-    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-    EMReadScreen stat_check, 4, 20, 21
-    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-    Call write_value_and_transmit("MEMB", 20, 71)
-
-    If SSN_present = True then
-        Do
-        	EMReadScreen MEMB_current, 1, 2, 73
-        	EMReadScreen MEMB_total, 1, 2, 78
-        	EMReadScreen MEMB_SSN, 11, 7, 42
-        	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-                exit do
-            Else
-        		transmit
-            End if
-        LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-        EMReadScreen HH_memb, 2, 4, 33
-    Else
-        Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
-        EmReadscreen MEMB_SSN, 11, 7, 42    'gathering the SSN
-        MEMB_SSN = replace(MEMB_SSN, " ", "")
-        If match_answer_droplist = "YES-INFC clear match" then PF3 'back to DAIL
-    End if
-End if
 
 '----------------------------------------------------------------------------------------------------NEW HIRE PORTION
 IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
+    Call write_value_and_transmit("S", 6, 3)
+    
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
+    EMReadScreen stat_check, 4, 20, 21
+    
+    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+    
+    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+    Call write_value_and_transmit("MEMB", 20, 71)
+    Call write_value_and_transmit(HH_memb, 20, 76)
     EMReadScreen memb_age, 2, 8, 76
     If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
 
@@ -248,6 +277,10 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+    'Ensure we are at JOBS panel, if not it will navigate back to DAIL to find matching 
+    EmReadScreen jobs_panel_check, 17, 2, 33
+    If jobs_panel_check <> "Job Income (JOBS)" Then Call nav_in_DAIL("S")
+
     EMWriteScreen "JOBS", 20, 71    'Ensuring we're on JOBS for the right member still post dialog
 	Call write_value_and_transmit(HH_memb, 20, 76)
 
@@ -273,7 +306,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
         Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
       	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-            Call create_MAXIS_friendly_date(date_hired, 0, 12, 57) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+            Call create_MAXIS_friendly_date(date_hired, 0, 12, 54) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
       	ELSE
             EmWriteScreen MAXIS_footer_month, 12, 54
       		EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
@@ -306,13 +339,13 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
 	END IF
 
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
+    Call create_TIKL("Verification of " & employer & " job (hire date: " & date_hired & ") via NEW HIRE for HH Memb " & HH_memb & " should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
     reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
     If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
     Call navigate_to_MAXIS_screen("DAIL", "DAIL")
-    '-----------------------------------------------------------------------------------------CASENOTE
+    '-----------------------------------------------------------------------------------------CASE/NOTE
     Call write_value_and_transmit("N", 6, 3)
     PF9
 	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
@@ -321,7 +354,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     CALL write_variable_in_case_note(new_hire_third_line)
     CALL write_variable_in_case_note(new_hire_fourth_line)
     CALL write_variable_in_case_note("---")
-    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B).")
+    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent Verification and Employment verification forms.")
     IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
     IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
     IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
@@ -342,7 +375,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	transmit
     'PRIV Handling
     EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
     If SSN_present = False then EmWriteScreen MEMB_SSN, 3, 63
     Call write_value_and_transmit("HIRE", 20, 71)
 
@@ -368,7 +401,6 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     				IF info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
     				IF info_confirmation = vbYes THEN
                         hire_match = TRUE
-                        match_row = row
                         EXIT DO
                     END IF
     			END IF
@@ -385,39 +417,41 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found for: " & employer & "." & vbcr & "Please review case for potential manual updates.")
 
     If clear_DAIL = vbYes then
-        'entering the INFC/HIRE match '
+        'entering the INFC/HIRE match - This is ONLY for MEMB 00 cases
         Call write_value_and_transmit("U", match_row, 3)
         EMReadscreen panel_check, 4, 2, 49
-        IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
+        IF panel_check <> "NHMD" THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
         EMWriteScreen "N", 16, 54
         EMWriteScreen "NA", 17, 54
         TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
         TRANSMIT 'this confirms the cleared status'
         PF3
         EMReadscreen cleared_confirmation, 1, match_row, 61
-        IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+        IF cleared_confirmation = " " THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
         PF3' this takes us back to DAIL/DAIL
     Else
         'This is a dialog asking if the job is known to the agency.
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
-          CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
-          DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
-          DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
-          EditBox 220, 75, 45, 15, cost_savings
-          EditBox 55, 95, 210, 15, other_notes
-          CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-	      CheckBox 10, 150, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
-          ButtonGroup ButtonPressed
-            OkButton 170, 170, 50, 15
-            CancelButton 225, 170, 50, 15
-          GroupBox 5, 5, 270, 25, "ECF review"
-          Text 10, 40, 145, 10, "Was this employment known to the agency?"
-          Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
-          Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
-          Text 10, 100, 40, 10, "Other notes:"
-          GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
-          GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
+        BeginDialog Dialog1, 0, 0, 281, 205, "NDNH Match Resolution Information"
+        CheckBox 10, 30, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+        DropListBox 170, 50, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
+        DropListBox 170, 70, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
+        EditBox 220, 90, 45, 15, cost_savings
+        EditBox 55, 110, 210, 15, other_notes
+        CheckBox 10, 140, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+        CheckBox 10, 165, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
+        ButtonGroup ButtonPressed
+            OkButton 170, 185, 50, 15
+            CancelButton 225, 185, 50, 15
+        GroupBox 5, 20, 270, 25, "ECF review"
+        Text 10, 55, 145, 10, "Was this employment known to the agency?"
+        Text 10, 75, 155, 10, "If unknown: what action was taken by agency?"
+        Text 10, 95, 155, 10, "First month cost savings (enter only numbers):"
+        Text 10, 115, 40, 10, "Other notes:"
+        GroupBox 5, 130, 270, 25, "10 day cutoff for closure"
+        GroupBox 5, 155, 270, 25, "Claim Referral Tracking"
+        Text 10, 5, 35, 10, "Employer:"
+        Text 45, 5, 100, 10, employer
         EndDialog
 	    DO
 	    	DO
@@ -434,16 +468,14 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-	    'entering the INFC/HIRE match '
-	    EMWriteScreen "U", match_row, 3
-	    transmit
+	    
+        'entering the INFC/HIRE match '
+	    Call write_value_and_transmit("U", row, 3)
 	    EMReadscreen panel_check, 4, 2, 49
-	    IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
-	    IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
-	    IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
-	    IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
-	    IF Action_taken_droplist = "BR-Benefits Reduced" THEN EMWriteScreen "BR", 17, 54
-	    IF Action_taken_droplist = "CC-Case Closed" THEN EMWriteScreen "CC", 17, 54
+	    IF panel_check <> "NHMD" THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
+        EMWriteScreen left(Emp_known_droplist, 1), 16, 54
+        If Action_taken_droplist <> "Select One:" then EMWriteScreen left(Action_taken_droplist, 2), 17, 54
+	
 	    IF cost_savings <> "" THEN
 	    	cost_savings = round(cost_savings)
 	    	EMWriteScreen cost_savings, 18, 54
@@ -452,7 +484,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    TRANSMIT 'this confirms the cleared status'
 	    PF3
 	    EMReadscreen cleared_confirmation, 1, match_row, 61
-	    IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+        IF cleared_confirmation = " " THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
 	    PF3' this takes us back to DAIL/DAIL
 
 	    IF claim_referral_tracking_checkbox = CHECKED Then
@@ -478,7 +510,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	        	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 	        End if
 	    	'writing in the action taken and date to the MISC panel
-	     	IF Action_taken_droplist = "CC-Case Closed" or  Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+	     	IF Action_taken_droplist = "CC-Case Closed" or Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken = "Determination-OP Entered" '"Claim Determination 25 character available
 	    	IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
 	    	IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
 	        EMWriteScreen MISC_action_taken, Row, 30
@@ -513,7 +545,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	CALL write_variable_in_case_note(new_hire_fourth_line)
 	    	CALL write_variable_in_case_note("---")
 	    	CALL write_variable_in_case_note("* Reviewed case file for requested verifications updated INFC/HIRE accordingly")
-	    	IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
+	    	IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No further action taken on this match at this time")
 	    	IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
 	    	IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
 	    	IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)

@@ -53,6 +53,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/28/2024", "Subsequent application will not default to not transferring this case. There is still the option to transfer to a Caseload, but typically we do not need a transfer when updating a case with a subsequent application.", "Casey Love, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 CALL changelog_update("01/30/2023", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -79,40 +81,12 @@ function determine_expedited_screening()
     IF rent   = "" THEN rent   = 0
 
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
-        If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
-        If population_of_case = "Adults" Then
-            'making sure that Adults EXP baskets are not at limit
-
-
-            If (EX1_basket_available = True and EX2_basket_available = False) then
-                transfer_to_worker = "EX1"
-            ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
-                transfer_to_worker = "EX2"
-            Else
-                'Do all the randomization here
-                Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
-                random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
-                If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
-                If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
-            End if
-        End If
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
-        no_transfer_checkbox = unchecked
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN
         expedited_status = "Client Does Not Appear Expedited"
-        no_transfer_checkbox = checked
-        transfer_to_worker = ""
     End If
 
-    'families cases that have cash pending need to to to these specific baskets
-    If population_of_case = "Families" and InStr(new_programs_pended, "CASH") <> 0 Then transfer_to_worker = "EY9"
-
-    'The familiy cash basket has a backup if it has hit the display limit.
-    If transfer_to_worker = "EY9" Then
-        no_transfer_checkbox = unchecked
-        If EY9_basket_available = False Then transfer_to_worker = "EY8"
-    End If
 end function
 
 function update_programs_pending_detail(previously_pended_progs, new_programs_pended)
@@ -216,7 +190,8 @@ If skip_start_of_subsequent_apps <> True Then
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-          	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+
+			Call validate_MAXIS_case_number(err_msg, "*")
             If ButtonPressed = script_instructions_btn Then             'Pulling up the instructions if the instruction button was pressed.
                 run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20SUBSEQUENT%20APPLICATION.docx"
                 err_msg = "LOOP"
@@ -264,11 +239,45 @@ If skip_start_of_subsequent_apps <> True Then
     If row <> 24 and row <> 0 Then pnd2_row = row
     EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
     application_date = replace(application_date, " ", "/")
-    EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
-    If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
-        multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 
-        EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
+	'This section checks to see if the case has multiple application dates
+	'it will ignore any dates that are for CCAP only as those are not pertinent to our work.
+    EMReadScreen additional_application_check_one, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+	EMReadScreen additional_app_one_hc, 1, pnd2_row + 1, 65
+	EMReadScreen additional_app_one_ccap, 27, pnd2_row + 1, 54
+	If additional_application_check_one = "ADDITIONAL APP" Then
+		EMReadScreen additional_application_check_two, 14, pnd2_row + 2, 17                 'looking to see if this case has a third application date entered
+		EMReadScreen additional_app_two_hc, 1, pnd2_row + 2, 65
+		EMReadScreen additional_app_two_ccap, 27, pnd2_row + 2, 54
+	End If
+
+	'Once we have read the lines of REPT/PND2, we need to determine if the additional application should be considered
+	additional_es_application = False
+	additional_app_row = ""
+	If additional_application_check_one = "ADDITIONAL APP" Then
+		If additional_app_one_hc = "P" Then											'secondary application is for HC - we count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+		ElseIf additional_app_one_ccap <> "_       _     _   _       P" Then		'secondary application is for CCAP only - we do NOT count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+		End If
+		If additional_application_check_two = "ADDITIONAL APP" Then
+			If additional_app_two_hc = "P" Then										'third application is for HC - we count it
+				additional_es_application = True
+				additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+			ElseIf additional_app_two_ccap <> "_       _     _   _       P" Then	'third application is for CCAP only - we do NOT count it
+				additional_es_application = True
+				additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+			End If
+		End If
+	End If
+
+	If additional_es_application = True THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+
+		multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+
+        EMReadScreen additional_application_date, 8, additional_app_row, 38               'reading the app date from the other application line
         additional_application_date = replace(additional_application_date, " ", "/")
 
         'There is a specific dialog that will display if there is more than one application date so we can select the right one for this script run
@@ -460,15 +469,7 @@ LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 Call hest_standards(heat_AC_amt, electric_amt, phone_amt, application_date) 'function to determine the hest standards depending on the application date.
 no_transfer_checkbox = checked
-
-'families cases that have cash pending need to to to these specific baskets
-If population_of_case = "Families" and InStr(new_programs_pended, "CASH") <> 0 Then transfer_to_worker = "EY9"
-
-'The familiy cash basket has a backup if it has hit the display limit.
-If transfer_to_worker = "EY9" Then
-    no_transfer_checkbox = unchecked
-    If EY9_basket_available = False Then transfer_to_worker = "EY8"
-End If
+transfer_to_worker = ""
 
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
@@ -703,8 +704,8 @@ IF how_application_rcvd = "Request to APPL Form" Then
 	IF send_appt_ltr = TRUE THEN email_body = email_body & vbCr & vbCr & "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
 	email_body = email_body & vbCr & vbCr & "Case is ready to be processed."
 
-	CALL create_outlook_email(send_email_to, cc_email_to, email_subject, email_body, "", FALSE)
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+    Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", FALSE)
+    'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 End If
 
 'Expedited Screening CNOTE for cases where SNAP is pending
@@ -775,34 +776,9 @@ IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN        'If we are suppo
 
 	'Navigating to SPEC/MEMO and opening a new MEMO
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
-    Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
-    Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
-    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-    Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-    Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-    Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-    CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-    CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-    CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-    CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-    CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-    CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-    CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-    CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-    CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-    Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+    Call create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
 
-	PF4
-
-    'now we are going to read if a MEMO was created.
+	'now we are going to read if a MEMO was created.
     spec_row = 7
     memo_found = False
     Do
@@ -822,135 +798,6 @@ IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN        'If we are suppo
     	PF3
     End If
 END IF
-
-revw_pending_table = False                                           'Determining if we should be adding this case to the CasesPending SQL Table
-If unknown_cash_pending = True Then revw_pending_table = True       'case should be pending cash or snap and NOT have SNAP active
-If ga_status = "PENDING" Then revw_pending_table = True
-If msa_status = "PENDING" Then revw_pending_table = True
-If mfip_status = "PENDING" Then revw_pending_table = True
-If dwp_status = "PENDING" Then revw_pending_table = True
-If grh_status = "PENDING" Then revw_pending_table = True
-If snap_status = "PENDING" Then revw_pending_table = True
-If snap_status = "ACTIVE" Then revw_pending_table = False
-If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
-
-If revw_pending_table = True Then
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
-
-    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
-
-    If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
-    If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
-    If ma_status = "REIN" Then hc_stat_code = "R"
-    If ma_status = "PENDING" Then hc_stat_code = "P"
-    If msp_status = "INACTIVE" Or msp_status = "APP CLOSE" Then hc_stat_code = "I"
-    If msp_status = "ACTIVE" Or msp_status = "APP OPEN" Then hc_stat_code = "A"
-    If msp_status = "REIN" Then hc_stat_code = "R"
-    If msp_status = "PENDING" Then hc_stat_code = "P"
-    If unknown_hc_pending = True Then hc_stat_code = "P"
-
-    If ga_status = "PENDING" Then ga_stat_code = "P"
-    If ga_status = "REIN" Then ga_stat_code = "R"
-    If ga_status = "ACTIVE" Or ga_status = "APP OPEN" Then ga_stat_code = "A"
-    If ga_status = "INACTIVE" Or ga_status = "APP CLOSE" Then ga_stat_code = "I"
-
-    If grh_status = "PENDING" Then grh_stat_code = "P"
-    If grh_status = "REIN" Then grh_stat_code = "R"
-    If grh_status = "ACTIVE" Or grh_status = "APP OPEN" Then grh_stat_code = "A"
-    If grh_status = "INACTIVE" Or grh_status = "APP CLOSE" Then grh_stat_code = "I"
-
-    If emer_status = "PENDING" Then emer_stat_code = "P"
-    If emer_status = "REIN" Then emer_stat_code = "R"
-    If emer_status = "ACTIVE" Or emer_status = "APP OPEN" Then emer_stat_code = "A"
-    If emer_status = "INACTIVE" Or emer_status = "APP CLOSE" Then emer_stat_code = "I"
-
-    If mfip_status = "PENDING" Then mfip_stat_code = "P"
-    If mfip_status = "REIN" Then mfip_stat_code = "R"
-    If mfip_status = "ACTIVE" Or mfip_status = "APP OPEN" Then mfip_stat_code = "A"
-    If mfip_status = "INACTIVE" Or mfip_status = "APP CLOSE" Then mfip_stat_code = "I"
-
-    If snap_status = "PENDING" Then snap_stat_code = "P"
-    If snap_status = "REIN" Then snap_stat_code = "R"
-    If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
-    If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
-
-    If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
-    If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
-    If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
-
-    'Setting constants
-    Const adOpenStatic = 3
-    Const adLockOptimistic = 3
-
-	case_number_found_in_SQL = False
-	'Read the whole table to see if this case number exists on the list
-	objSQL = "SELECT * FROM ES.ES_CasesPending"
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path for the statistics Access database.
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open objSQL, objConnection
-
-	Do While NOT objRecordSet.Eof
-		sql_case_number = case_info_notes = objRecordSet("CaseNumber")
-		If eight_digit_case_number = sql_case_number Then
-			case_number_found_in_SQL = True
-			Exit Do
-		End If
-		objRecordSet.MoveNext
-	Loop
-	'close the connection and recordset objects to free up resources
-	objRecordSet.Close
-	objConnection.Close
-	Set objRecordSet=nothing
-	Set objConnection=nothing
-
-	If case_number_found_in_SQL = True Then
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
-
-		'This is the BZST connection to SQL Database'
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-		objRecordSet.Open "SELECT * FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-		current_exp_code = objRecordSet("IsExpSnap")
-		If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
-
-		'close the connection and recordset objects to free up resources
-		objConnection.Close
-
-		'This is the BZST connection to SQL Database'
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-		'delete a record if the case number matches
-		objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-	Else
-		current_exp_code = 1
-
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
-
-		'This is the BZST connection to SQL Database'
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	End If
-
-    'delete a record if the case number matches
-    ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_nuMEMO_foundmber & "'", objConnection
-    'Add a new record with this case information'
-    objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & current_exp_code & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
-
-    'close the connection and recordset objects to free up resources
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-End If
-
 
 'Now we create some messaging to explain what happened in the script run.
 end_msg = "Subsequent Application Received has been noted."

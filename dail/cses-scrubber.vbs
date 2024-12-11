@@ -1411,7 +1411,7 @@ If developer_mode <> TRUE Then
         	objExcel.quit
         	objExcel.DisplayAlerts = True
         End If
-        script_end_procedure_with_error_report("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+		start_a_blank_CASE_NOTE
     End If
 
 	If REVW_due = TRUE Then

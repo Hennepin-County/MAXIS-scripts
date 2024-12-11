@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/17/2024", "Updated IMIG nationalities", "Megan Geissler, Hennepin County")
+Call changelog_update("11/14/2023", "Bug Fix - Resolved bug on STAT/ABPS when more than 3 children on case.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/22/2020", "Removed the default date for the addendum date as the functionality was pulling incorrect data and there is not a reliable way to know which date is accurate. Since this is a form date, it should be manually entered.", "Casey Love, Hennepin County")
 Call changelog_update("12/21/2019", "Added 'NB' to the list of former states.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - Verifs Needed was creating possible multiple case notes and noting when nothing was added. Also a typo in the case note wording.", "Casey Love, Hennepin County")
@@ -475,22 +477,31 @@ For the_member = 1 to how_many_new_members
                 If us_entry_date = "__/__/____" Then us_entry_date = ""
                 If nationality = "AF" Then nationality = "Afghanistan"
                 If nationality = "BK" Then nationality = "Bosnia"
+                If nationality = "CA" Then nationality = "Canada"
                 If nationality = "CB" Then nationality = "Cambodia"
                 If nationality = "CH" Then nationality = "China, Mainland"
                 If nationality = "CU" Then nationality = "Cuba"
+                If nationality = "DC" Then nationality = "DR Congo"
+                If nationality = "EC" Then nationality = "Ecuador"
                 If nationality = "ES" Then nationality = "El Salvador"
                 If nationality = "ER" Then nationality = "Eritrea"
                 If nationality = "ET" Then nationality = "Ethiopia"
                 If nationality = "GT" Then nationality = "Guatemala"
                 If nationality = "HA" Then nationality = "Haiti"
                 If nationality = "HO" Then nationality = "Honduras"
+                If nationality = "IN" Then nationality = "India"
                 If nationality = "IR" Then nationality = "Iran"
                 If nationality = "IZ" Then nationality = "Iraq"
+                If nationality = "KE" Then nationality = "Kenya"
                 If nationality = "LI" Then nationality = "Liberia"
                 If nationality = "MC" Then nationality = "Micronesia"
                 If nationality = "MI" Then nationality = "Marshall Islands"
                 If nationality = "MX" Then nationality = "Mexico"
+                If nationality = "MY" Then nationality = "Myanmar (Burma)"
+                If nationality = "NI" Then nationality = "Nicaragua"
+                If nationality = "NG" Then nationality = "Nigeria"
                 If nationality = "WA" Then nationality = "Namibia"
+                If nationality = "PA" Then nationality = "Palau"
                 If nationality = "PK" Then nationality = "Pakistan"
                 If nationality = "RP" Then nationality = "Philippines"
                 If nationality = "PL" Then nationality = "Poland"
@@ -498,15 +509,24 @@ For the_member = 1 to how_many_new_members
                 If nationality = "RS" Then nationality = "Russia"
                 If nationality = "SO" Then nationality = "Somalia"
                 If nationality = "SF" Then nationality = "South Africa"
+                If nationality = "SS" Then nationality = "South Sudan"
+                If nationality = "SU" Then nationality = "Sudan"
+                If nationality = "SY" Then nationality = "Syria"
                 If nationality = "TH" Then nationality = "Thailand"
+                If nationality = "UK" Then nationality = "Ukraine"
+                If nationality = "VE" Then nationality = "Venezuela"
                 If nationality = "VM" Then nationality = "Vietnam"
                 If nationality = "OT" Then nationality = ""
                 If nationality = "AA" Then nationality = "Amerasian"
                 If nationality = "EH" Then nationality = "Ethnic Chinese"
                 If nationality = "EL" Then nationality = "Ethnic Lao"
                 If nationality = "HG" Then nationality = "Hmong"
+                If nationality = "KA" Then nationality = "Karen"
                 If nationality = "KD" Then nationality = "Kurd"
+                If nationality = "OR" Then nationality = "Oromo"
+                If nationality = "PL" Then nationality = "Palestinian"
                 If nationality = "SJ" Then nationality = "Soviet Jew"
+                If nationality = "TI" Then nationality = "Tibetan"
                 If nationality = "TT" Then nationality = "Tinh"
                 immig_status_dropdown = trim(immig_status_dropdown)
             End If
@@ -615,6 +635,12 @@ For the_member = 1 to how_many_new_members
                             End If
                         End If
                         abps_row = abps_row + 1
+                        If abps_row = 18 then 
+                            PF20
+                            EMReadScreen last_page_check, 21, 24, 2
+                            If last_page_check = "THIS IS THE LAST PAGE" Then Exit Do
+                            abps_row = 15
+                        End if 
                     Loop until child_ref_numb = "__"
 
                     transmit
@@ -872,6 +898,7 @@ For the_member = 1 to how_many_new_members
                     If busi_pnl_type = "07" Then busi_pnl_type = "In-Home Daycare"
                     If busi_pnl_type = "08" Then busi_pnl_type = "Rental Income"
                     If busi_pnl_type = "09" Then busi_pnl_type = ""
+                    If busi_pnl_type = "10" Then busi_pnl_type = "Lived Experience"
                     busi_pnl_hrs = busi_pnl_hrs/4.3
                     busi_pnl_hrs = int(busi_pnl_hrs)
                     busi_pnl_hrs = busi_pnl_hrs & ""

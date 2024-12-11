@@ -93,7 +93,7 @@ function gather_SMRT_request_info()
     If IsNumeric(memb_number) = true Then
 		SMRT_member_name = right(SMRT_member, len(SMRT_member)-5)
 		Call Navigate_to_MAXIS_screen("STAT", "MEMB")
-		Call write_value_and_transmit(memb_number, 27, 76)
+		Call write_value_and_transmit(memb_number, 20, 76)
 		EMReadScreen memb_age, 3, 8, 76
 		memb_age = trim(memb_age)
 		If memb_age = "" Then memb_age = 0
