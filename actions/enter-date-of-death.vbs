@@ -179,39 +179,41 @@ If active_pending_case = False Then script_end_procedure("The case is not active
 
 'Determine if date of death is prior to arrival date for HH Membs other than 01
 If left(household_member_that_died, 2) <> "01" Then
-  Call navigate_to_MAXIS_screen("STAT", "MEMB")
+  Call navigate_to_MAXIS_screen("STAT", "MEMB") 
   'Navigate to HH Memb that died
   EMWriteScreen left(household_member_that_died, 2), 20, 76
   transmit
   EMReadScreen arrival_date_memb_panel, 8, 4, 73
-  'Convert arrival date to MM/DD/YYYY format
-  arrival_date_memb_panel = Left(replace(arrival_date_memb_panel, " ", "/"), 6) & "20" & right(arrival_date_memb_panel, 2)
-  If DateDiff("D", date_of_death, arrival_date_memb_panel) > 0 Then
-    DOD_before_arrival_date = True
-    'Date of death is before arrival date for HH Memb 
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 266, 70, "Enter Date of Death for HH Member"
-      ButtonGroup ButtonPressed
-        OkButton 170, 45, 45, 15
-        CancelButton 215, 45, 45, 15
-        PushButton 5, 50, 65, 15, "TE02.08.008", poli_temp_btn
-      Text 5, 5, 255, 20, "The entered date of death is PRIOR to the arrival date listed on the MEMB panel for the indicated HH Memb."
-      Text 5, 30, 160, 10, "Click 'OK' to proceed or 'Cancel' to end the script."
-    EndDialog
+  If trim(arrival_date_memb_panel) <> "" Then
+    'Convert arrival date to MM/DD/YYYY format
+    arrival_date_memb_panel = Left(replace(arrival_date_memb_panel, " ", "/"), 6) & "20" & right(arrival_date_memb_panel, 2)
+    If DateDiff("D", date_of_death, arrival_date_memb_panel) > 0 Then
+      DOD_before_arrival_date = True
+      'Date of death is before arrival date for HH Memb 
+      Dialog1 = ""
+      BeginDialog Dialog1, 0, 0, 266, 70, "Enter Date of Death for HH Member"
+        ButtonGroup ButtonPressed
+          OkButton 170, 45, 45, 15
+          CancelButton 215, 45, 45, 15
+          PushButton 5, 50, 65, 15, "TE02.08.008", poli_temp_btn
+        Text 5, 5, 255, 20, "The entered date of death is PRIOR to the arrival date listed on the MEMB panel for the indicated HH Memb."
+        Text 5, 30, 160, 10, "Click 'OK' to proceed or 'Cancel' to end the script."
+      EndDialog
 
-    Do 
-      Do
-        err_msg = ""
-        Dialog Dialog1
-        cancel_without_confirmation()
-        If ButtonPressed = poli_temp_btn Then
-          err_msg = "LOOP"
-          run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
-        End If 
-        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-      Loop until err_msg = ""
-      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
+      Do 
+        Do
+          err_msg = ""
+          Dialog Dialog1
+          cancel_without_confirmation()
+          If ButtonPressed = poli_temp_btn Then
+            err_msg = "LOOP"
+            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.008%20CLOSING%20MAXIS%20AND%20MMIS%20DUE%20TO%20DEATH.pdf?csf=1&web=1&e=0auFUe" 
+          End If 
+          IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+      Loop until are_we_passworded_out = false					'loops until user passwords back in
+    End If
   End If
 End If
 
