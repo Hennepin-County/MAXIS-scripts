@@ -96,28 +96,13 @@ Call navigate_to_MAXIS_screen("PERS", "    ")
 EmWriteScreen PMI_number, 15, 36
 transmit
 EMReadScreen MTCH_check, 4, 2, 51
-If MTCH_check <> "MTCH" then script_end_procedure("Unable to navigate to MTCH panel. Script will now end.")
-EMWriteScreen "X", 8, 5
-transmit
-Do
-  row = 1
-  col = 1
-  EMSearch "  Y    ", row, col
-  If row = 0 then
-    PF8
-  end if
-  EMReadScreen page_check, 21, 24, 2
-  If page_check = "THIS IS THE ONLY PAGE" or page_check = "THIS IS THE LAST PAGE" then script_end_procedure("A case could not be found for this PMI. They could be a spouse or other member on an existing case.")
-Loop until row <> 0
-EMWriteScreen "X", row, 4
-transmit
-
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-
-script_end_procedure("Success!")
-
+If MTCH_check <> "MTCH" then 
+	script_end_procedure("Unable to navigate to MTCH panel. Script will now end.")
+Else
+	EMWriteScreen "X", 8, 5
+	transmit
+	script_end_procedure("Success! Script has navigated to MAXIS.")
+End If
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
