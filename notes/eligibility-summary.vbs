@@ -14603,6 +14603,9 @@ class grh_eligibility_detail
 	public grh_vendor_one_merge_vendor_number
 	public grh_vendor_one_acct_number_required_yn
 	public grh_vendor_one_blocked_county_numbers_list
+	public grh_vendor_one_health_dept_license_1_code
+	public grh_vendor_one_health_dept_license_2_code
+	public grh_vendor_one_health_dept_license_3_code
 
 	public grh_vendor_two_name
 	public grh_vendor_two_c_o
@@ -14634,6 +14637,9 @@ class grh_eligibility_detail
 	public grh_vendor_two_merge_vendor_number
 	public grh_vendor_two_acct_number_required_yn
 	public grh_vendor_two_blocked_county_numbers_list
+	public grh_vendor_two_health_dept_license_1_code
+	public grh_vendor_two_health_dept_license_2_code
+	public grh_vendor_two_health_dept_license_3_code
 
 	public sub read_elig()
 		approved_today = False
