@@ -81,7 +81,7 @@ Call write_value_and_transmit("RCIN", 1, 8)
 EMWriteScreen "X", 11, 2                            'selecting MEMB 01 on the case 
 Call write_value_and_transmit("RELG", 1, 8)
 
-script_end_procedure("Success!")
+script_end_procedure("Success! Script has navigated to MMIS.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
