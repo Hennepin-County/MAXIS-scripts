@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2024", "Fixed bug in date-based ABAWD evaluation to work dynamically by footer month/year selected.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/07/2024", "Added Age-Based exemption from 53-59 to 55-59 based on 10/2024 policy.", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/27/2024", "Added update handling for residents who meet military service ABAWD/TLR exemptions.", "Ilse Ferris, Hennepin County")
 Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -93,6 +94,8 @@ Do
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
 Call MAXIS_footer_month_confirmation	'making sure we're getting to current month/year
 Call MAXIS_background_check
@@ -149,10 +152,10 @@ If panel_exists = "1" then
         If bene_mo_col = "59" then counted_date_month = "11"
         If bene_mo_col = "63" then counted_date_month = "12"
         'counted date year: this is found on rows 7-10. Row 11 is current year plus one, so this will be exclude this list.
-        If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
-        If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
-        If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
-        If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+        If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", ABAWD_eval_date), 2)
+        If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, ABAWD_eval_date)), 2)
+        If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, ABAWD_eval_date)), 2)
+        If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, ABAWD_eval_date)), 2)
         
         'reading to see if a month is counted month or not
         EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
