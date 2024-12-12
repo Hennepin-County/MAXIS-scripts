@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BZS-FuncLib Documentation</title>
+
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
+    />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Google fonts -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Oxygen:300,400,700|Source+Sans+Pro:400,700|Source+Code+Pro:400,700"
+      rel="stylesheet"
+    />
+
+    <!--Hit our custom CSS-->
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/png" href="img/BlueZoneScripts.png" />
+
+    <!--Hit our custom JavaScript-->
+    <script src="js/docstring-reader.js" charset="utf-8"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button
+            type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#bs-example-navbar-collapse-1"
+            aria-expanded="false"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">BZS-FuncLib</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active">
+              <a href="aboutfunclib.html">About FuncLib</a>
+            </li>
+            <li class="dropdown">
+              <a
+                href="#"
+                class="dropdown-toggle"
+                data-toggle="dropdown"
+                role="button"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Functions by tags <span class="caret"></span
+              ></a>
+              <ul class="dropdown-menu" id="functionTags">
+                <!-- This will create itself -->
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+            <li>
+              <a
+                href="https://mn-script-team.github.io/bzs-config-utility/"
+                target="_blank"
+                >Get scripts!</a
+              >
+            </li>
+          </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>About FuncLib</h1>
+          <p>
+            The <em>FuncLib</em>, or <em>Functions Library</em>, is a library of
+            common functions used by BlueZone Scripts throughout the MAXIS and
+            PRISM projects. The functions are written in VBScript and include
+            human services enhancements customized for Minnesota. If you are not
+            a human services employee in Minnesota, in all likelihood you will
+            not find these to be particularly useful.
+          </p>
+          <h3>Source code</h3>
+          <p>
+            These functions are open source. The source code for the functions
+            library can be
+            <a
+              href="https://github.com/MN-Script-Team/BZS-FuncLib"
+              target="_blank"
+              >found on GitHub</a
+            >.
+          </p>
+          <h3>How to use FuncLib</h3>
+          <p>
+            To use the functions library in your project, simply include the
+            following code near the top of your VBScript BlueZone script file.
+            Then, consult the <a href="index.html">list of scripts</a> for all
+            of the things this functions library can do.
+          </p>
+
+          <!-- FuncLib block (only shows on large screens) -->
+          <pre
+            class="hidden-xs hidden-sm hidden-md"
+          ><code style="font-size: 14px;">'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY ===============================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN                    'Shouldn't load FuncLib if it already loaded once
+    IF run_locally = FALSE or run_locally = "" THEN    'If the scripts are set to run locally, it skips this and uses an FSO
+        IF use_master_branch = TRUE THEN               'Defined in global variables, defaults to RELEASE if not defined
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
+        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
+        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
+        req.send                                                    'Sends request
+        IF req.Status = 200 THEN                                    '200 means great success
+            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
+            Execute req.responseText                                'Executes the script code
+        ELSE                                                        'Error message
+            critical_error_msgbox = MsgBox ("Something has gone wrong. Could not connect to FuncLib code stored on GitHub." &_
+                                            vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL &_
+                                            vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection." &_
+                                            vbNewLine & vbNewLine &_
+                                            "Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
+        END IF
+    ELSE
+        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    END IF
+END IF
+'END FUNCTIONS LIBRARY BLOCK ====================================================================================================</code></pre>
+
+          <!-- FuncLib block (only shows on medium screens) -->
+          <pre
+            class="hidden-xs hidden-sm hidden-lg"
+          ><code style="font-size: 11.5px;">'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY ===============================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN                    'Shouldn't load FuncLib if it already loaded once
+    IF run_locally = FALSE or run_locally = "" THEN    'If the scripts are set to run locally, it skips this and uses an FSO
+        IF use_master_branch = TRUE THEN               'Defined in global variables, defaults to RELEASE if not defined
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
+        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
+        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
+        req.send                                                    'Sends request
+        IF req.Status = 200 THEN                                    '200 means great success
+            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
+            Execute req.responseText                                'Executes the script code
+        ELSE                                                        'Error message
+            critical_error_msgbox = MsgBox ("Something has gone wrong. Could not connect to FuncLib code stored on GitHub." &_
+                                            vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL &_
+                                            vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection." &_
+                                            vbNewLine & vbNewLine &_
+                                            "Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
+        END IF
+    ELSE
+        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    END IF
+END IF
+'END FUNCTIONS LIBRARY BLOCK ====================================================================================================</code></pre>
+
+          <!-- FuncLib block (only shows on small screens) -->
+          <pre
+            class="hidden-xs hidden-md hidden-lg"
+          ><code style="font-size: 9px;">'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY ===============================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN                    'Shouldn't load FuncLib if it already loaded once
+    IF run_locally = FALSE or run_locally = "" THEN    'If the scripts are set to run locally, it skips this and uses an FSO
+        IF use_master_branch = TRUE THEN               'Defined in global variables, defaults to RELEASE if not defined
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
+        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
+        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
+        req.send                                                    'Sends request
+        IF req.Status = 200 THEN                                    '200 means great success
+            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
+            Execute req.responseText                                'Executes the script code
+        ELSE                                                        'Error message
+            critical_error_msgbox = MsgBox ("Something has gone wrong. Could not connect to FuncLib code stored on GitHub." &_
+                                            vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL &_
+                                            vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection." &_
+                                            vbNewLine & vbNewLine &_
+                                            "Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
+        END IF
+    ELSE
+        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    END IF
+END IF
+'END FUNCTIONS LIBRARY BLOCK ====================================================================================================</code></pre>
+
+          <!-- FuncLib block (only shows on extra small screens) -->
+          <pre
+            class="hidden-sm hidden-md hidden-lg"
+          ><code style="font-size: 6px;">'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY ===============================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN                    'Shouldn't load FuncLib if it already loaded once
+    IF run_locally = FALSE or run_locally = "" THEN    'If the scripts are set to run locally, it skips this and uses an FSO
+        IF use_master_branch = TRUE THEN               'Defined in global variables, defaults to RELEASE if not defined
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else
+            FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
+        SET req = CreateObject("Msxml2.XMLHttp.6.0")                'Creates an object to get a FuncLib_URL
+        req.open "GET", FuncLib_URL, FALSE                          'Attempts to open the FuncLib_URL
+        req.send                                                    'Sends request
+        IF req.Status = 200 THEN                                    '200 means great success
+            Set fso = CreateObject("Scripting.FileSystemObject")    'Creates an FSO
+            Execute req.responseText                                'Executes the script code
+        ELSE                                                        'Error message
+            critical_error_msgbox = MsgBox ("Something has gone wrong. Could not connect to FuncLib code stored on GitHub." &_
+                                            vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL &_
+                                            vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection." &_
+                                            vbNewLine & vbNewLine &_
+                                            "Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
+        END IF
+    ELSE
+        FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    END IF
+END IF
+'END FUNCTIONS LIBRARY BLOCK ====================================================================================================</code></pre>
+
+          <!-- end all of the functions blocks -->
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <!-- Run our custom JavaScript function to modify the findlibContents span with actual stuff -->
+    <script type="text/javascript">
+      displayFuncLibInfo();
+    </script>
+
+    <!-- Run our custom JavaScript function to find the amount of time each function was executed in our project span with actual stuff -->
+    <script type="text/javascript">
+      //displayFuncLibStats("check_for_prism", "listOfScripts");
+    </script>
+  </body>
+</html>

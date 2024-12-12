@@ -1,0 +1,147 @@
+/* Custom Navbar coloring courtesy of http://work.smarchal.com/twbscolor/css/e74c3cc0392becf0f1ffbbbc0 */
+
+.navbar-default {
+  background-color: #257e24;
+  border-color: #f3fff3;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #b4b397;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #b4b397;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #b4b397;
+  background-color: #f3fff3;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #b4b397;
+  background-color: #f3fff3;
+}
+.navbar-default .navbar-toggle {
+  border-color: #f3fff3;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #f3fff3;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #b4b397;
+}
+.jumbotron {
+  background-color: #257e24;
+  color: #fff;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #b4b397;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #b4b397;
+    background-color: #f3fff3;
+  }
+}
+
+/* End custom navbar coloring */
+
+/* Updating color of buttons */
+
+.btn-primary {
+  background-color: #257e24;
+  border-color: #257e24;
+}
+
+.btn-primary:hover {
+  background-color: #123c11;
+  border-color: #123c11;
+}
+
+/* Updating font and placement */
+
+body {
+  margin-top: 50px;
+}
+
+code {
+  font-family: "Source Code Pro", monospace;
+}
+
+h1 {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 700;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 300;
+}
+
+p,
+li {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 14px;
+}
+
+nav {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+.navbar-brand {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.tag-buttons {
+  font-family: "Oxygen", sans-serif;
+  font-weight: bold;
+}
+
+/* Updating color of panels */
+
+.panel-default > .panel-heading {
+  background-color: #f3fff3;
+}
+
+/* Creating buttons for tags */
+.tag-buttons {
+  margin-right: 5px;
+}

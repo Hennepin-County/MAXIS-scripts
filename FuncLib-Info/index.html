@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BZS-FuncLib Documentation</title>
+
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
+    />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Google fonts -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Oxygen:300,400,700|Source+Sans+Pro:400,700|Source+Code+Pro:400,700"
+      rel="stylesheet"
+    />
+
+    <!--Hit our custom CSS-->
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/png" href="img/BlueZoneScripts.png" />
+
+    <!--Hit our custom JavaScript-->
+    <script src="js/docstring-reader.js" charset="utf-8"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button
+            type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#bs-example-navbar-collapse-1"
+            aria-expanded="false"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">BZS-FuncLib</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="aboutfunclib.html">About FuncLib</a></li>
+            <li class="dropdown">
+              <a
+                href="#"
+                class="dropdown-toggle"
+                data-toggle="dropdown"
+                role="button"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Functions by tags <span class="caret"></span
+              ></a>
+              <ul class="dropdown-menu" id="functionTags">
+                <!-- This will create itself -->
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+            <li>
+              <a
+                href="https://mn-script-team.github.io/bzs-config-utility/"
+                target="_blank"
+                >Get scripts!</a
+              >
+            </li>
+          </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+      </div>
+    </nav>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>BZS-FuncLib</h1>
+        <p>List of functions</p>
+      </div>
+
+      <div class="alert alert-warning" role="alert">
+        <span
+          class="glyphicon glyphicon-warning-sign"
+          aria-hidden="true"
+        ></span>
+        Please note that this list and the utilities behind it are both very
+        much under construction.
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>About this page</h3>
+          <p>
+            This is a dynamic list of functions currently used by the Minnesota
+            Department of Human Services' BlueZone Scripts project. It works by
+            scanning the functions library and returning each function, along
+            with parameter lists and tags.
+          </p>
+          <p>
+            These functions are open source. The source code for the functions
+            library can be
+            <a
+              href="https://github.com/MN-Script-Team/BZS-FuncLib"
+              target="_blank"
+              >found on GitHub</a
+            >.
+          </p>
+        </div>
+      </div>
+      <hr />
+
+      <!-- temporary -->
+      <span id="listOfScripts">
+        <p>Scripts which use this function:</p>
+      </span>
+
+      <span id="funclibContents">
+        <!--This is an alert to be provided in case FuncLib is unreachable or the JS is broken or something.-->
+        <div class="alert alert-danger" role="alert">
+          <p>
+            If you can see this, then something is wrong, and
+            <a href="mailto:veronica.cary@state.mn.us">Veronica Cary</a> should
+            probably be notified.
+          </p>
+        </div>
+      </span>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <!-- Run our custom JavaScript function to modify the findlibContents span with actual stuff -->
+    <script type="text/javascript">
+      displayFuncLibInfo();
+    </script>
+
+    <!-- Run our custom JavaScript function to find the amount of time each function was executed in our project span with actual stuff -->
+    <script type="text/javascript">
+      //displayFuncLibStats("check_for_prism", "listOfScripts");
+    </script>
+  </body>
+</html>
