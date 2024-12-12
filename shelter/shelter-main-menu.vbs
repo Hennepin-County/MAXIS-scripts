@@ -177,6 +177,7 @@ subcategory_selected = "# - L"
 ButtonPressed = menu_0_to_L_button
 Do
 	'Creates the dialog
+	Dialog1 = ""
 	call declare_main_menu_dialog("SHELTER")
 
 	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
