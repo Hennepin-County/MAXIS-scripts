@@ -522,7 +522,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			IF resolution_status = "CF-Future Save" THEN
 				other_notes = "Future Savings. " & other_notes
 				EMwritescreen active_programs, 12, 37
-				EMwritescreen IULB_results, 12, 42
+				EMwritescreen IULB_result, 12, 42
 				EMwritescreen IULB_method, 12, 49
 				EMwritescreen IULB_savings_amount, 12, 54
 				EMwritescreen IULB_start_month, 12, 65
