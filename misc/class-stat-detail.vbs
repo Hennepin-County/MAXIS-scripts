@@ -3,7 +3,14 @@ class stat_detail
 	public footer_year
 	public LIMIT_MEMBS
 	public included_members
+	public no_stat_data
 	public children_on_case
+	public panels_not_verif_string
+
+	public stat_addr_homeless_yn
+	public stat_addr_residence_county
+	public stat_addr_living_situation
+
 	public stat_prog_cash_I_appl_date
 	public stat_prog_cash_I_elig_begin_date
 	public stat_prog_cash_I_interview_date
@@ -107,6 +114,7 @@ class stat_detail
 	Public stat_acci_notes
 	Public stat_insa_notes
 	Public stat_faci_notes
+	Public stat_bils_remedial_care_entered
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -121,10 +129,13 @@ class stat_detail
 	public stat_memb_id_verif_info()
 	public stat_memb_rel_to_applct_code()
 	public stat_memb_rel_to_applct_info()
+	public stat_memb_date_of_death()
 	public stat_memi_spouse_ref_numb()
+	public stat_memi_military_service_yn()
 	public stat_memi_citizenship_yn()
 	public stat_memi_citizenship_verif_code()
 	public stat_memi_citizenship_verif_info()
+	public stat_hcmi_spdwn_option()
 	public stat_jobs_one_exists()
 	public stat_jobs_one_job_ended()
 	public stat_jobs_one_job_counted_for_snap()
@@ -587,7 +598,6 @@ class stat_detail
 	Public stat_unea_five_notes()
 
 	Public stat_cash_asset_panel_exists()
-
 	Public stat_cash_exists()
 	Public stat_cash_balance()
 
@@ -601,7 +611,9 @@ class stat_detail
 	Public stat_acct_one_verif_code()
 	Public stat_acct_one_verif_info()
 	Public stat_acct_one_count_hc_yn()
-
+	public stat_acct_one_info()
+	public stat_acct_one_count_cash_yn()
+	public stat_acct_one_verif()
 	public stat_acct_two_exists()
 	public stat_acct_two_type()
 	public stat_acct_two_balance()
@@ -612,7 +624,9 @@ class stat_detail
 	Public stat_acct_two_verif_code()
 	Public stat_acct_two_verif_info()
 	Public stat_acct_two_count_hc_yn()
-
+	public stat_acct_two_info()
+	public stat_acct_two_count_cash_yn()
+	public stat_acct_two_verif()
 	public stat_acct_three_exists()
 	public stat_acct_three_type()
 	public stat_acct_three_balance()
@@ -623,7 +637,9 @@ class stat_detail
 	Public stat_acct_three_verif_code()
 	Public stat_acct_three_verif_info()
 	Public stat_acct_three_count_hc_yn()
-
+	public stat_acct_three_info()
+	public stat_acct_three_count_cash_yn()
+	public stat_acct_three_verif()
 	public stat_acct_four_exists()
 	public stat_acct_four_type()
 	public stat_acct_four_balance()
@@ -634,7 +650,9 @@ class stat_detail
 	Public stat_acct_four_verif_code()
 	Public stat_acct_four_verif_info()
 	Public stat_acct_four_count_hc_yn()
-
+	public stat_acct_four_info()
+	public stat_acct_four_count_cash_yn()
+	public stat_acct_four_verif()
 	public stat_acct_five_exists()
 	public stat_acct_five_type()
 	public stat_acct_five_balance()
@@ -645,6 +663,9 @@ class stat_detail
 	Public stat_acct_five_verif_code()
 	Public stat_acct_five_verif_info()
 	Public stat_acct_five_count_hc_yn()
+	public stat_acct_five_info()
+	public stat_acct_five_count_cash_yn()
+	public stat_acct_five_verif()
 
 	public stat_secu_one_exists()
 	public stat_secu_one_type()
@@ -800,7 +821,6 @@ class stat_detail
 	Public stat_rest_three_value_verif_info()
 	Public stat_rest_three_owed_verif_info()
 	Public stat_rest_three_property_status_info()
-
 	' Public stat_rest_notes()
 	Public stat_rest_exists_for_member()
 
@@ -860,6 +880,7 @@ class stat_detail
 	public stat_disq_one_exists()
 	public stat_disq_one_program()
 	public stat_disq_one_type_code()
+	public stat_disq_one_non_coop_note_text()
 	public stat_disq_one_type_info()
 	public stat_disq_one_begin_date()
 	public stat_disq_one_end_date()
@@ -877,6 +898,7 @@ class stat_detail
 	public stat_disq_two_exists()
 	public stat_disq_two_program()
 	public stat_disq_two_type_code()
+	public stat_disq_two_non_coop_note_text()
 	public stat_disq_two_type_info()
 	public stat_disq_two_begin_date()
 	public stat_disq_two_end_date()
@@ -894,6 +916,7 @@ class stat_detail
 	public stat_disq_three_exists()
 	public stat_disq_three_program()
 	public stat_disq_three_type_code()
+	public stat_disq_three_non_coop_note_text()
 	public stat_disq_three_type_info()
 	public stat_disq_three_begin_date()
 	public stat_disq_three_end_date()
@@ -911,6 +934,7 @@ class stat_detail
 	public stat_disq_four_exists()
 	public stat_disq_four_program()
 	public stat_disq_four_type_code()
+	public stat_disq_four_non_coop_note_text()
 	public stat_disq_four_type_info()
 	public stat_disq_four_begin_date()
 	public stat_disq_four_end_date()
@@ -928,6 +952,7 @@ class stat_detail
 	public stat_disq_five_exists()
 	public stat_disq_five_program()
 	public stat_disq_five_type_code()
+	public stat_disq_five_non_coop_note_text()
 	public stat_disq_five_type_info()
 	public stat_disq_five_begin_date()
 	public stat_disq_five_end_date()
@@ -1074,6 +1099,7 @@ class stat_detail
 
 	Public stat_faci_exists()
 	Public stat_faci_currently_in_facility()
+	Public stat_faci_is_grh()
 	Public stat_faci_name()
 	Public stat_faci_vendor()
 	Public stat_faci_date_in()
@@ -1090,7 +1116,6 @@ class stat_detail
 	Public stat_faci_LTC_begin_date()
 	Public stat_faci_county_approval_placement_yn()
 	Public stat_faci_approval_county()
-
 	Public stat_pben_exists()
 	Public stat_pben_type_code_one()
 	Public stat_pben_type_info_one()
@@ -1161,15 +1186,45 @@ class stat_detail
 	Public stat_insa_drug_cov_end_date()
 	Public stat_insa_covered_pers_list()
 
+	public stat_diet_exists()
+	public stat_mfip_diet_exists()
+	public stat_diet_mf_type_code_one()
+	public stat_diet_mf_type_info_one()
+	public stat_diet_mf_verif_one()
+	public stat_diet_mf_amount_one()
+	public stat_diet_mf_type_code_two()
+	public stat_diet_mf_type_info_two()
+	public stat_diet_mf_verif_two()
+	public stat_diet_mf_amount_two()
 
+	public stat_wreg_exists()
+	public stat_wreg_fset_status_code()
+	public stat_wreg_fset_status_info()
+	public stat_wreg_abawd_status_code()
+	public stat_wreg_abawd_status_info()
 
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
 		MAXIS_footer_year = footer_year
 
+		Call navigate_to_MAXIS_screen("STAT", "ADDR")
+		EMReadScreen stat_addr_homeless_yn, 1, 10, 43
+		EMReadScreen stat_addr_residence_county, 2, 9, 66
+		EMReadScreen stat_addr_living_situation, 2, 11, 43
+		EMReadScreen addr_verif, 2, 9, 74
+		If addr_verif = "NO" Then panels_not_verif_string = panels_not_verif_string & "Residence not verified.; "
+
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
+		EMReadScreen warning_msg, 50, 24, 2
+		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
+			EMWriteScreen hc_app_mo, 20, 43
+			EMWriteScreen hc_app_yr, 20, 46
+			MAXIS_footer_month = hc_app_mo
+			MAXIS_footer_year = hc_app_yr
+			transmit
+		End If
 
 		EMReadScreen stat_prog_cash_I_appl_date, 		8, 6, 33
 		EMReadScreen stat_prog_cash_I_elig_begin_date, 	8, 6, 44
@@ -1304,10 +1359,13 @@ class stat_detail
 		ReDim stat_memb_id_verif_info(0)
 		ReDim stat_memb_rel_to_applct_code(0)
 		ReDim stat_memb_rel_to_applct_info(0)
+		ReDim stat_memb_date_of_death(0)
 		ReDim stat_memi_spouse_ref_numb(0)
+		ReDim stat_memi_military_service_yn(0)
 		ReDim stat_memi_citizenship_yn(0)
 		ReDim stat_memi_citizenship_verif_code(0)
 		ReDim stat_memi_citizenship_verif_info(0)
+		ReDim stat_hcmi_spdwn_option(0)
 		ReDim stat_jobs_one_exists(0)
 		ReDim stat_jobs_one_job_ended(0)
 		ReDim stat_jobs_one_job_counted_for_snap(0)
@@ -1769,10 +1827,8 @@ class stat_detail
 		ReDim stat_unea_five_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_five_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_cash_asset_panel_exists(0)
-
 		ReDim stat_cash_exists(0)
 		ReDim stat_cash_balance(0)
-
 		ReDim stat_acct_one_exists(0)
 		ReDim stat_acct_one_type(0)
 		ReDim stat_acct_one_balance(0)
@@ -1783,7 +1839,9 @@ class stat_detail
 		ReDim stat_acct_one_verif_code(0)
 		ReDim stat_acct_one_verif_info(0)
 		ReDim stat_acct_one_count_hc_yn(0)
-
+		ReDim stat_acct_one_info(0)
+		ReDim stat_acct_one_count_cash_yn(0)
+		ReDim stat_acct_one_verif(0)
 		ReDim stat_acct_two_exists(0)
 		ReDim stat_acct_two_type(0)
 		ReDim stat_acct_two_balance(0)
@@ -1794,7 +1852,9 @@ class stat_detail
 		ReDim stat_acct_two_verif_code(0)
 		ReDim stat_acct_two_verif_info(0)
 		ReDim stat_acct_two_count_hc_yn(0)
-
+		ReDim stat_acct_two_info(0)
+		ReDim stat_acct_two_count_cash_yn(0)
+		ReDim stat_acct_two_verif(0)
 		ReDim stat_acct_three_exists(0)
 		ReDim stat_acct_three_type(0)
 		ReDim stat_acct_three_balance(0)
@@ -1805,7 +1865,9 @@ class stat_detail
 		ReDim stat_acct_three_verif_code(0)
 		ReDim stat_acct_three_verif_info(0)
 		ReDim stat_acct_three_count_hc_yn(0)
-
+		ReDim stat_acct_three_info(0)
+		ReDim stat_acct_three_count_cash_yn(0)
+		ReDim stat_acct_three_verif(0)
 		ReDim stat_acct_four_exists(0)
 		ReDim stat_acct_four_type(0)
 		ReDim stat_acct_four_balance(0)
@@ -1816,11 +1878,16 @@ class stat_detail
 		ReDim stat_acct_four_verif_code(0)
 		ReDim stat_acct_four_verif_info(0)
 		ReDim stat_acct_four_count_hc_yn(0)
-
+		ReDim stat_acct_four_info(0)
+		ReDim stat_acct_four_count_cash_yn(0)
+		ReDim stat_acct_four_verif(0)
 		ReDim stat_acct_five_exists(0)
 		ReDim stat_acct_five_type(0)
 		ReDim stat_acct_five_balance(0)
 		ReDim stat_acct_five_count_snap_yn(0)
+		ReDim stat_acct_five_info(0)
+		ReDim stat_acct_five_count_cash_yn(0)
+		ReDim stat_acct_five_verif(0)
 		ReDim stat_acct_five_type_detail(0)
 		ReDim stat_acct_five_location(0)
 		ReDim stat_acct_five_as_of_date(0)
@@ -1983,7 +2050,6 @@ class stat_detail
 		ReDim stat_rest_three_value_verif_info(0)
 		ReDim stat_rest_three_owed_verif_info(0)
 		ReDim stat_rest_three_property_status_info(0)
-
 		' ReDim stat_rest_notes(0)
 		ReDim stat_rest_exists_for_member(0)
 
@@ -2043,6 +2109,7 @@ class stat_detail
 		ReDim stat_disq_one_exists(0)
 		ReDim stat_disq_one_program(0)
 		ReDim stat_disq_one_type_code(0)
+		ReDim stat_disq_one_non_coop_note_text(0)
 		ReDim stat_disq_one_type_info(0)
 		ReDim stat_disq_one_begin_date(0)
 		ReDim stat_disq_one_end_date(0)
@@ -2060,6 +2127,7 @@ class stat_detail
 		ReDim stat_disq_two_exists(0)
 		ReDim stat_disq_two_program(0)
 		ReDim stat_disq_two_type_code(0)
+		ReDim stat_disq_two_non_coop_note_text(0)
 		ReDim stat_disq_two_type_info(0)
 		ReDim stat_disq_two_begin_date(0)
 		ReDim stat_disq_two_end_date(0)
@@ -2077,6 +2145,7 @@ class stat_detail
 		ReDim stat_disq_three_exists(0)
 		ReDim stat_disq_three_program(0)
 		ReDim stat_disq_three_type_code(0)
+		ReDim stat_disq_three_non_coop_note_text(0)
 		ReDim stat_disq_three_type_info(0)
 		ReDim stat_disq_three_begin_date(0)
 		ReDim stat_disq_three_end_date(0)
@@ -2094,6 +2163,7 @@ class stat_detail
 		ReDim stat_disq_four_exists(0)
 		ReDim stat_disq_four_program(0)
 		ReDim stat_disq_four_type_code(0)
+		ReDim stat_disq_four_non_coop_note_text(0)
 		ReDim stat_disq_four_type_info(0)
 		ReDim stat_disq_four_begin_date(0)
 		ReDim stat_disq_four_end_date(0)
@@ -2111,6 +2181,7 @@ class stat_detail
 		ReDim stat_disq_five_exists(0)
 		ReDim stat_disq_five_program(0)
 		ReDim stat_disq_five_type_code(0)
+		ReDim stat_disq_five_non_coop_note_text(0)
 		ReDim stat_disq_five_type_info(0)
 		ReDim stat_disq_five_begin_date(0)
 		ReDim stat_disq_five_end_date(0)
@@ -2154,6 +2225,7 @@ class stat_detail
 		ReDim stat_emma_verif_info(0)
 		ReDim stat_emma_begin_date(0)
 		ReDim stat_emma_end_date(0)
+
 		ReDim stat_emma_notes(0)
 
 		ReDim stat_pded_exists(0)
@@ -2257,6 +2329,7 @@ class stat_detail
 
 		ReDim stat_faci_exists(0)
 		ReDim stat_faci_currently_in_facility(0)
+		ReDim stat_faci_is_grh(0)
 		ReDim stat_faci_name(0)
 		ReDim stat_faci_vendor(0)
 		ReDim stat_faci_date_in(0)
@@ -2273,7 +2346,6 @@ class stat_detail
 		ReDim stat_faci_LTC_begin_date(0)
 		ReDim stat_faci_county_approval_placement_yn(0)
 		ReDim stat_faci_approval_county(0)
-
 		ReDim stat_pben_exists(0)
 		ReDim stat_pben_type_code_one(0)
 		ReDim stat_pben_type_info_one(0)
@@ -2344,16 +2416,35 @@ class stat_detail
 		ReDim stat_insa_drug_cov_end_date(0)
 		ReDim stat_insa_covered_pers_list(0)
 
+		ReDim stat_diet_exists(0)
+		ReDim stat_mfip_diet_exists(0)
+		ReDim stat_diet_mf_type_code_one(0)
+		ReDim stat_diet_mf_type_info_one(0)
+		ReDim stat_diet_mf_verif_one(0)
+		ReDim stat_diet_mf_amount_one(0)
+		ReDim stat_diet_mf_type_code_two(0)
+		ReDim stat_diet_mf_type_info_two(0)
+		ReDim stat_diet_mf_verif_two(0)
+		ReDim stat_diet_mf_amount_two(0)
+
+		ReDim stat_wreg_exists(0)
+		ReDim stat_wreg_fset_status_code(0)
+		ReDim stat_wreg_fset_status_info(0)
+		ReDim stat_wreg_abawd_status_code(0)
+		ReDim stat_wreg_abawd_status_info(0)
+
 		stat_shel_prosp_all_total = 0
 		children_on_case = False
 		list_of_membs_read = " "
 
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")
-		memb_count = 0
+		memb_count = -1
 		Do
 			EMReadScreen curr_ref_numb, 2, 4, 33
 			If Instr(included_members, curr_ref_numb) <> 0 OR LIMIT_MEMBS = False Then
 				list_of_membs_read = list_of_membs_read & curr_ref_numb & " "
+				memb_count = memb_count + 1
+
 				ReDim preserve stat_memb_ref_numb(memb_count)
 				ReDim preserve stat_memb_first_name(memb_count)
 				ReDim preserve stat_memb_last_name(memb_count)
@@ -2367,10 +2458,13 @@ class stat_detail
 				ReDim preserve stat_memb_id_verif_info(memb_count)
 				ReDim preserve stat_memb_rel_to_applct_code(memb_count)
 				ReDim preserve stat_memb_rel_to_applct_info(memb_count)
+				ReDim preserve stat_memb_date_of_death(memb_count)
 				ReDim preserve stat_memi_spouse_ref_numb(memb_count)
+				ReDim preserve stat_memi_military_service_yn(memb_count)
 				ReDim preserve stat_memi_citizenship_yn(memb_count)
 				ReDim preserve stat_memi_citizenship_verif_code(memb_count)
 				ReDim preserve stat_memi_citizenship_verif_info(memb_count)
+				ReDim preserve stat_hcmi_spdwn_option(memb_count)
 				ReDim preserve stat_jobs_one_exists(memb_count)
 				ReDim preserve stat_jobs_one_job_ended(memb_count)
 				ReDim preserve stat_jobs_one_job_counted_for_snap(memb_count)
@@ -2834,7 +2928,6 @@ class stat_detail
 				ReDim preserve stat_cash_asset_panel_exists(memb_count)
 				ReDim preserve stat_cash_exists(memb_count)
 				ReDim preserve stat_cash_balance(memb_count)
-
 				ReDim preserve stat_acct_one_exists(memb_count)
 				ReDim preserve stat_acct_one_type(memb_count)
 				ReDim preserve stat_acct_one_balance(memb_count)
@@ -2845,7 +2938,9 @@ class stat_detail
 				ReDim preserve stat_acct_one_verif_code(memb_count)
 				ReDim preserve stat_acct_one_verif_info(memb_count)
 				ReDim preserve stat_acct_one_count_hc_yn(memb_count)
-
+				ReDim preserve stat_acct_one_info(memb_count)
+				ReDim preserve stat_acct_one_count_cash_yn(memb_count)
+				ReDim preserve stat_acct_one_verif(memb_count)
 				ReDim preserve stat_acct_two_exists(memb_count)
 				ReDim preserve stat_acct_two_type(memb_count)
 				ReDim preserve stat_acct_two_balance(memb_count)
@@ -2856,7 +2951,9 @@ class stat_detail
 				ReDim preserve stat_acct_two_verif_code(memb_count)
 				ReDim preserve stat_acct_two_verif_info(memb_count)
 				ReDim preserve stat_acct_two_count_hc_yn(memb_count)
-
+				ReDim preserve stat_acct_two_info(memb_count)
+				ReDim preserve stat_acct_two_count_cash_yn(memb_count)
+				ReDim preserve stat_acct_two_verif(memb_count)
 				ReDim preserve stat_acct_three_exists(memb_count)
 				ReDim preserve stat_acct_three_type(memb_count)
 				ReDim preserve stat_acct_three_balance(memb_count)
@@ -2867,7 +2964,9 @@ class stat_detail
 				ReDim preserve stat_acct_three_verif_code(memb_count)
 				ReDim preserve stat_acct_three_verif_info(memb_count)
 				ReDim preserve stat_acct_three_count_hc_yn(memb_count)
-
+				ReDim preserve stat_acct_three_info(memb_count)
+				ReDim preserve stat_acct_three_count_cash_yn(memb_count)
+				ReDim preserve stat_acct_three_verif(memb_count)
 				ReDim preserve stat_acct_four_exists(memb_count)
 				ReDim preserve stat_acct_four_type(memb_count)
 				ReDim preserve stat_acct_four_balance(memb_count)
@@ -2878,11 +2977,16 @@ class stat_detail
 				ReDim preserve stat_acct_four_verif_code(memb_count)
 				ReDim preserve stat_acct_four_verif_info(memb_count)
 				ReDim preserve stat_acct_four_count_hc_yn(memb_count)
-
+				ReDim preserve stat_acct_four_info(memb_count)
+				ReDim preserve stat_acct_four_count_cash_yn(memb_count)
+				ReDim preserve stat_acct_four_verif(memb_count)
 				ReDim preserve stat_acct_five_exists(memb_count)
 				ReDim preserve stat_acct_five_type(memb_count)
 				ReDim preserve stat_acct_five_balance(memb_count)
 				ReDim preserve stat_acct_five_count_snap_yn(memb_count)
+				ReDim preserve stat_acct_five_info(memb_count)
+				ReDim preserve stat_acct_five_count_cash_yn(memb_count)
+				ReDim preserve stat_acct_five_verif(memb_count)
 				ReDim preserve stat_acct_five_type_detail(memb_count)
 				ReDim preserve stat_acct_five_location(memb_count)
 				ReDim preserve stat_acct_five_as_of_date(memb_count)
@@ -3044,10 +3148,8 @@ class stat_detail
 				ReDim preserve stat_rest_three_value_verif_info(memb_count)
 				ReDim preserve stat_rest_three_owed_verif_info(memb_count)
 				ReDim preserve stat_rest_three_property_status_info(memb_count)
-
 				' ReDim preserve stat_rest_notes(memb_count)
 				ReDim preserve stat_rest_exists_for_member(memb_count)
-
 
 				ReDim preserve stat_shel_exists(memb_count)
 				ReDim preserve stat_shel_subsidized_yn(memb_count)
@@ -3105,6 +3207,7 @@ class stat_detail
 				ReDim preserve stat_disq_one_exists(memb_count)
 				ReDim preserve stat_disq_one_program(memb_count)
 				ReDim preserve stat_disq_one_type_code(memb_count)
+				ReDim preserve stat_disq_one_non_coop_note_text(memb_count)
 				ReDim preserve stat_disq_one_type_info(memb_count)
 				ReDim preserve stat_disq_one_begin_date(memb_count)
 				ReDim preserve stat_disq_one_end_date(memb_count)
@@ -3123,6 +3226,7 @@ class stat_detail
 				ReDim preserve stat_disq_two_exists(memb_count)
 				ReDim preserve stat_disq_two_program(memb_count)
 				ReDim preserve stat_disq_two_type_code(memb_count)
+				ReDim preserve stat_disq_two_non_coop_note_text(memb_count)
 				ReDim preserve stat_disq_two_type_info(memb_count)
 				ReDim preserve stat_disq_two_begin_date(memb_count)
 				ReDim preserve stat_disq_two_end_date(memb_count)
@@ -3140,6 +3244,7 @@ class stat_detail
 				ReDim preserve stat_disq_three_exists(memb_count)
 				ReDim preserve stat_disq_three_program(memb_count)
 				ReDim preserve stat_disq_three_type_code(memb_count)
+				ReDim preserve stat_disq_three_non_coop_note_text(memb_count)
 				ReDim preserve stat_disq_three_type_info(memb_count)
 				ReDim preserve stat_disq_three_begin_date(memb_count)
 				ReDim preserve stat_disq_three_end_date(memb_count)
@@ -3157,6 +3262,7 @@ class stat_detail
 				ReDim preserve stat_disq_four_exists(memb_count)
 				ReDim preserve stat_disq_four_program(memb_count)
 				ReDim preserve stat_disq_four_type_code(memb_count)
+				ReDim preserve stat_disq_four_non_coop_note_text(memb_count)
 				ReDim preserve stat_disq_four_type_info(memb_count)
 				ReDim preserve stat_disq_four_begin_date(memb_count)
 				ReDim preserve stat_disq_four_end_date(memb_count)
@@ -3174,6 +3280,7 @@ class stat_detail
 				ReDim preserve stat_disq_five_exists(memb_count)
 				ReDim preserve stat_disq_five_program(memb_count)
 				ReDim preserve stat_disq_five_type_code(memb_count)
+				ReDim preserve stat_disq_five_non_coop_note_text(memb_count)
 				ReDim preserve stat_disq_five_type_info(memb_count)
 				ReDim preserve stat_disq_five_begin_date(memb_count)
 				ReDim preserve stat_disq_five_end_date(memb_count)
@@ -3320,6 +3427,7 @@ class stat_detail
 
 				ReDim preserve stat_faci_exists(memb_count)
 				ReDim preserve stat_faci_currently_in_facility(memb_count)
+				ReDim preserve stat_faci_is_grh(memb_count)
 				ReDim preserve stat_faci_name(memb_count)
 				ReDim preserve stat_faci_vendor(memb_count)
 				ReDim preserve stat_faci_date_in(memb_count)
@@ -3336,7 +3444,6 @@ class stat_detail
 				ReDim preserve stat_faci_LTC_begin_date(memb_count)
 				ReDim preserve stat_faci_county_approval_placement_yn(memb_count)
 				ReDim preserve stat_faci_approval_county(memb_count)
-
 				ReDim preserve stat_pben_exists(memb_count)
 				ReDim preserve stat_pben_type_code_one(memb_count)
 				ReDim preserve stat_pben_type_info_one(memb_count)
@@ -3394,6 +3501,23 @@ class stat_detail
 				ReDim preserve stat_pben_disp_info_six(memb_count)
 				ReDim preserve stat_pben_notes(memb_count)
 
+				ReDim preserve stat_diet_exists(memb_count)
+				ReDim preserve stat_mfip_diet_exists(memb_count)
+				ReDim preserve stat_diet_mf_type_code_one(memb_count)
+				ReDim preserve stat_diet_mf_type_info_one(memb_count)
+				ReDim preserve stat_diet_mf_verif_one(memb_count)
+				ReDim preserve stat_diet_mf_amount_one(memb_count)
+				ReDim preserve stat_diet_mf_type_code_two(memb_count)
+				ReDim preserve stat_diet_mf_type_info_two(memb_count)
+				ReDim preserve stat_diet_mf_verif_two(memb_count)
+				ReDim preserve stat_diet_mf_amount_two(memb_count)
+
+				ReDim preserve stat_wreg_exists(memb_count)
+				ReDim preserve stat_wreg_fset_status_code(memb_count)
+				ReDim preserve stat_wreg_fset_status_info(memb_count)
+				ReDim preserve stat_wreg_abawd_status_code(memb_count)
+				ReDim preserve stat_wreg_abawd_status_info(memb_count)
+
 				EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 				EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
 				EMReadScreen stat_memb_first_name(memb_count), 12, 6, 63
@@ -3412,11 +3536,14 @@ class stat_detail
 				EMReadScreen stat_memb_age(memb_count), 3, 8, 76
 				EMReadScreen stat_memb_id_verif_code(memb_count), 2, 9, 68
 				EMReadScreen stat_memb_rel_to_applct_code(memb_count), 2, 10, 42
+				EMReadScreen ssn_prov, 1, 7, 68
+				If ssn_prov = "N" Then panels_not_verif_string = panels_not_verif_string & "Social Sec Number of Memb " & stat_memb_ref_numb(memb_count) & " not provided.; "
 
 				stat_memb_age(memb_count) = trim(stat_memb_age(memb_count))
 				If stat_memb_age(memb_count) = "" Then stat_memb_age(memb_count) = 0
 				stat_memb_age(memb_count) = stat_memb_age(memb_count)*1
 				If stat_memb_age(memb_count) < 18 Then children_on_case = True
+				If stat_memb_id_verif_code(memb_count) = "NO" and stat_memb_age(memb_count) >= 18 Then panels_not_verif_string = panels_not_verif_string & "Identity of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 
 				If stat_memb_id_verif_code(memb_count) = "BC" Then stat_memb_id_verif_info(memb_count) = "Birth Certificate"
 				If stat_memb_id_verif_code(memb_count) = "RE" Then stat_memb_id_verif_info(memb_count) = "Religious Record"
@@ -3450,13 +3577,16 @@ class stat_detail
 				If stat_memb_rel_to_applct_code(memb_count) = "25" Then stat_memb_rel_to_applct_info(memb_count) = "Live-In Attendant"
 				If stat_memb_rel_to_applct_code(memb_count) = "27" Then stat_memb_rel_to_applct_info(memb_count) = "Unknown"
 
-				memb_count = memb_count + 1
+				EMReadScreen stat_memb_date_of_death(memb_count), 10, 19, 42
+				If stat_memb_date_of_death(memb_count) <> "__ __ ____" Then
+					stat_memb_date_of_death(memb_count) = replace(stat_memb_date_of_death(memb_count), " ", "/")
+				End If
 			End If
 			transmit
 			EMReadScreen last_memb_page, 13, 24, 2
 
 			trim_list_of_membs_read = trim(list_of_membs_read)
-			If trim_list_of_membs_read = included_members Then Exit Do
+			If trim_list_of_membs_read = included_members and LIMIT_MEMBS = True Then Exit Do
 		Loop until last_memb_page = "ENTER A VALID"
 
 		Call navigate_to_MAXIS_screen("STAT", "MEMI")
@@ -3465,6 +3595,7 @@ class stat_detail
 
 			EMReadScreen stat_memi_citizenship_yn(each_memb), 1, 11, 49
 			EMReadScreen stat_memi_citizenship_verif_code(each_memb), 2, 11, 78
+			EMReadScreen stat_memi_military_service_yn(memb_count), 1, 12, 78
 
 			If stat_memi_citizenship_verif_code(each_memb) = "BC" Then stat_memi_citizenship_verif_info(each_memb) = "Birth Certificate"
 			If stat_memi_citizenship_verif_code(each_memb) = "RE" Then stat_memi_citizenship_verif_info(each_memb) = "Religious Record"
@@ -3473,6 +3604,19 @@ class stat_detail
 			If stat_memi_citizenship_verif_code(each_memb) = "PV" Then stat_memi_citizenship_verif_info(each_memb) = "Passport/Visa"
 			If stat_memi_citizenship_verif_code(each_memb) = "OT" Then stat_memi_citizenship_verif_info(each_memb) = "Other Document"
 			If stat_memi_citizenship_verif_code(each_memb) = "NO" Then stat_memi_citizenship_verif_info(each_memb) = "No Verif Provided"
+			' If stat_memi_citizenship_verif_code(each_memb) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Proof of Citizenship of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+		Next
+
+		Call navigate_to_MAXIS_screen("STAT", "HCMI")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			stat_hcmi_spdwn_option(each_memb) = ""
+
+			Call write_value_and_transmit(stat_memb_ref_numb(each_memb), 20, 76)
+			EMReadScreen version_exists, 1, 2, 78
+			If version_exists = "1" Then
+				EMReadScreen spdwn_opt, 2, 10, 57
+				If spdwn_opt <> "__" Then stat_hcmi_spdwn_option(each_memb) = spdwn_opt
+			End If
 		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "PREG")
@@ -3481,7 +3625,9 @@ class stat_detail
 			EMReadScreen version_exists, 1, 2, 78
 			If version_exists = "1" Then
 				EMReadScreen end_date, 8, 12, 53
+				EMReadScreen preg_verf, 1, 6, 75
 				If end_date = "__ __ __" Then children_on_case = True
+				If preg_verf = "N" Then panels_not_verif_string = panels_not_verif_string & "Pregnancy of Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 		Next
 
@@ -3586,6 +3732,8 @@ class stat_detail
 				EMReadScreen stat_jobs_one_health_care_income_pay_day(each_memb), 10, 11, 62
 				stat_jobs_one_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_one_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_one_health_care_income_pay_day(each_memb) = "" Then stat_jobs_one_health_care_income_pay_day(each_memb) = "0.00"
+
+				If stat_jobs_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_one_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -3672,6 +3820,7 @@ class stat_detail
 				EMReadScreen stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
 				EMReadScreen stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
+				If stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
 				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
 				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "BiWeekly"
@@ -3686,6 +3835,8 @@ class stat_detail
 				EMReadScreen stat_jobs_two_health_care_income_pay_day(each_memb), 10, 11, 62
 				stat_jobs_two_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_two_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_two_health_care_income_pay_day(each_memb) = "" Then stat_jobs_two_health_care_income_pay_day(each_memb) = "0.00"
+
+				If stat_jobs_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_two_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -3786,6 +3937,7 @@ class stat_detail
 				EMReadScreen stat_jobs_three_health_care_income_pay_day(each_memb), 10, 11, 62
 				stat_jobs_three_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_three_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_three_health_care_income_pay_day(each_memb) = "" Then stat_jobs_three_health_care_income_pay_day(each_memb) = "0.00"
+				If stat_jobs_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_three_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -3886,6 +4038,7 @@ class stat_detail
 				EMReadScreen stat_jobs_four_health_care_income_pay_day(each_memb), 10, 11, 62
 				stat_jobs_four_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_four_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_four_health_care_income_pay_day(each_memb) = "" Then stat_jobs_four_health_care_income_pay_day(each_memb) = "0.00"
+				If stat_jobs_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_four_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -3986,6 +4139,7 @@ class stat_detail
 				EMReadScreen stat_jobs_five_health_care_income_pay_day(each_memb), 10, 11, 62
 				stat_jobs_five_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_five_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_five_health_care_income_pay_day(each_memb) = "" Then stat_jobs_five_health_care_income_pay_day(each_memb) = "0.00"
+				If stat_jobs_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_five_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 		Next
@@ -4135,6 +4289,7 @@ class stat_detail
 				If stat_busi_one_hc_b_expense_verif_code(each_memb) = "6" Then stat_busi_one_hc_b_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_one_hc_b_expense_verif_code(each_memb) = "N" Then stat_busi_one_hc_b_expense_verif_info(each_memb) = "No Verif Provided"
 
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4209,6 +4364,7 @@ class stat_detail
 				EMReadScreen stat_busi_two_cash_income_verif_code(each_memb), 1, 9, 73
 				EMReadScreen stat_busi_two_cash_expense_verif_code(each_memb), 1, 15, 73
 
+				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_two_snap_retro_gross_inc(each_memb), 8, 11, 43
 				EMReadScreen stat_busi_two_snap_retro_expenses(each_memb), 8, 17, 43
 				EMReadScreen stat_busi_two_snap_prosp_gross_inc(each_memb), 8, 11, 59
@@ -4251,6 +4407,10 @@ class stat_detail
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "4" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "6" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then stat_busi_two_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(each_memb)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
+				End If
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4325,6 +4485,7 @@ class stat_detail
 				EMReadScreen stat_busi_three_cash_income_verif_code(each_memb), 1, 9, 73
 				EMReadScreen stat_busi_three_cash_expense_verif_code(each_memb), 1, 15, 73
 
+				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_three_snap_retro_gross_inc(each_memb), 8, 11, 43
 				EMReadScreen stat_busi_three_snap_retro_expenses(each_memb), 8, 17, 43
 				EMReadScreen stat_busi_three_snap_prosp_gross_inc(each_memb), 8, 11, 59
@@ -4367,6 +4528,10 @@ class stat_detail
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "4" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "6" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then stat_busi_three_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(each_memb)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
+				End If
 			End If
 
 		Next
@@ -4474,6 +4639,7 @@ class stat_detail
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4577,6 +4743,7 @@ class stat_detail
 				stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4681,6 +4848,7 @@ class stat_detail
 				stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4784,6 +4952,7 @@ class stat_detail
 				stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4887,6 +5056,7 @@ class stat_detail
 				stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 		Next
@@ -4958,6 +5128,31 @@ class stat_detail
 				If stat_acct_one_verif_code(each_memb) = "5" Then stat_acct_one_verif_info(each_memb) = "Other Document"
 				If stat_acct_one_verif_code(each_memb) = "6" Then stat_acct_one_verif_info(each_memb) = "Personal Statement"
 				If stat_acct_one_verif_code(each_memb) = "N" Then stat_acct_one_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_acct_one_type(each_memb) = "__" Then stat_acct_one_info(each_memb) = ""
+				If stat_acct_one_type(each_memb) = "SV" Then stat_acct_one_info(each_memb) = "Savings Account"
+				If stat_acct_one_type(each_memb) = "CK" Then stat_acct_one_info(each_memb) = "Checking Account"
+				If stat_acct_one_type(each_memb) = "CE" Then stat_acct_one_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_one_type(each_memb) = "MM" Then stat_acct_one_info(each_memb) = "Money Market"
+				If stat_acct_one_type(each_memb) = "DC" Then stat_acct_one_info(each_memb) = "Debit Card"
+				If stat_acct_one_type(each_memb) = "KO" Then stat_acct_one_info(each_memb) = "Keogh Account"
+				If stat_acct_one_type(each_memb) = "FT" Then stat_acct_one_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_one_type(each_memb) = "SL" Then stat_acct_one_info(each_memb) = "Government Retirement"
+				If stat_acct_one_type(each_memb) = "RA" Then stat_acct_one_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_one_type(each_memb) = "NP" Then stat_acct_one_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_one_type(each_memb) = "IR" Then stat_acct_one_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_one_type(each_memb) = "RH" Then stat_acct_one_info(each_memb) = "Roth IRA"
+				If stat_acct_one_type(each_memb) = "FR" Then stat_acct_one_info(each_memb) = "Governement Retirement"
+				If stat_acct_one_type(each_memb) = "CT" Then stat_acct_one_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_one_type(each_memb) = "RT" Then stat_acct_one_info(each_memb) = "Retirement Fund"
+				If stat_acct_one_type(each_memb) = "QT" Then stat_acct_one_info(each_memb) = "Qualified Tuition"
+				If stat_acct_one_type(each_memb) = "CA" Then stat_acct_one_info(each_memb) = "Coverdell Savings"
+				If stat_acct_one_type(each_memb) = "OE" Then stat_acct_one_info(each_memb) = "Other Educational"
+				If stat_acct_one_type(each_memb) = "OT" Then stat_acct_one_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_one_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_one_verif(each_memb), 1, 10, 64
+				If stat_acct_one_verif(each_memb) = "N" and stat_acct_one_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_one_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -5008,6 +5203,31 @@ class stat_detail
 				If stat_acct_two_verif_code(each_memb) = "5" Then stat_acct_two_verif_info(each_memb) = "Other Document"
 				If stat_acct_two_verif_code(each_memb) = "6" Then stat_acct_two_verif_info(each_memb) = "Personal Statement"
 				If stat_acct_two_verif_code(each_memb) = "N" Then stat_acct_two_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_acct_two_type(each_memb) = "__" Then stat_acct_two_info(each_memb) = ""
+				If stat_acct_two_type(each_memb) = "SV" Then stat_acct_two_info(each_memb) = "Savings Account"
+				If stat_acct_two_type(each_memb) = "CK" Then stat_acct_two_info(each_memb) = "Checking Account"
+				If stat_acct_two_type(each_memb) = "CE" Then stat_acct_two_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_two_type(each_memb) = "MM" Then stat_acct_two_info(each_memb) = "Money Market"
+				If stat_acct_two_type(each_memb) = "DC" Then stat_acct_two_info(each_memb) = "Debit Card"
+				If stat_acct_two_type(each_memb) = "KO" Then stat_acct_two_info(each_memb) = "Keogh Account"
+				If stat_acct_two_type(each_memb) = "FT" Then stat_acct_two_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_two_type(each_memb) = "SL" Then stat_acct_two_info(each_memb) = "Government Retirement"
+				If stat_acct_two_type(each_memb) = "RA" Then stat_acct_two_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_two_type(each_memb) = "NP" Then stat_acct_two_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_two_type(each_memb) = "IR" Then stat_acct_two_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_two_type(each_memb) = "RH" Then stat_acct_two_info(each_memb) = "Roth IRA"
+				If stat_acct_two_type(each_memb) = "FR" Then stat_acct_two_info(each_memb) = "Governement Retirement"
+				If stat_acct_two_type(each_memb) = "CT" Then stat_acct_two_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_two_type(each_memb) = "RT" Then stat_acct_two_info(each_memb) = "Retirement Fund"
+				If stat_acct_two_type(each_memb) = "QT" Then stat_acct_two_info(each_memb) = "Qualified Tuition"
+				If stat_acct_two_type(each_memb) = "CA" Then stat_acct_two_info(each_memb) = "Coverdell Savings"
+				If stat_acct_two_type(each_memb) = "OE" Then stat_acct_two_info(each_memb) = "Other Educational"
+				If stat_acct_two_type(each_memb) = "OT" Then stat_acct_two_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_two_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_two_verif(each_memb), 1, 10, 64
+				If stat_acct_two_verif(each_memb) = "N" and stat_acct_two_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_two_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -5058,6 +5278,31 @@ class stat_detail
 				If stat_acct_three_verif_code(each_memb) = "5" Then stat_acct_three_verif_info(each_memb) = "Other Document"
 				If stat_acct_three_verif_code(each_memb) = "6" Then stat_acct_three_verif_info(each_memb) = "Personal Statement"
 				If stat_acct_three_verif_code(each_memb) = "N" Then stat_acct_three_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_acct_three_type(each_memb) = "__" Then stat_acct_three_info(each_memb) = ""
+				If stat_acct_three_type(each_memb) = "SV" Then stat_acct_three_info(each_memb) = "Savings Account"
+				If stat_acct_three_type(each_memb) = "CK" Then stat_acct_three_info(each_memb) = "Checking Account"
+				If stat_acct_three_type(each_memb) = "CE" Then stat_acct_three_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_three_type(each_memb) = "MM" Then stat_acct_three_info(each_memb) = "Money Market"
+				If stat_acct_three_type(each_memb) = "DC" Then stat_acct_three_info(each_memb) = "Debit Card"
+				If stat_acct_three_type(each_memb) = "KO" Then stat_acct_three_info(each_memb) = "Keogh Account"
+				If stat_acct_three_type(each_memb) = "FT" Then stat_acct_three_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_three_type(each_memb) = "SL" Then stat_acct_three_info(each_memb) = "Government Retirement"
+				If stat_acct_three_type(each_memb) = "RA" Then stat_acct_three_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_three_type(each_memb) = "NP" Then stat_acct_three_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_three_type(each_memb) = "IR" Then stat_acct_three_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_three_type(each_memb) = "RH" Then stat_acct_three_info(each_memb) = "Roth IRA"
+				If stat_acct_three_type(each_memb) = "FR" Then stat_acct_three_info(each_memb) = "Governement Retirement"
+				If stat_acct_three_type(each_memb) = "CT" Then stat_acct_three_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_three_type(each_memb) = "RT" Then stat_acct_three_info(each_memb) = "Retirement Fund"
+				If stat_acct_three_type(each_memb) = "QT" Then stat_acct_three_info(each_memb) = "Qualified Tuition"
+				If stat_acct_three_type(each_memb) = "CA" Then stat_acct_three_info(each_memb) = "Coverdell Savings"
+				If stat_acct_three_type(each_memb) = "OE" Then stat_acct_three_info(each_memb) = "Other Educational"
+				If stat_acct_three_type(each_memb) = "OT" Then stat_acct_three_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_three_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_three_verif(each_memb), 1, 10, 64
+				If stat_acct_three_verif(each_memb) = "N" and stat_acct_three_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_three_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -5108,6 +5353,31 @@ class stat_detail
 				If stat_acct_four_verif_code(each_memb) = "5" Then stat_acct_four_verif_info(each_memb) = "Other Document"
 				If stat_acct_four_verif_code(each_memb) = "6" Then stat_acct_four_verif_info(each_memb) = "Personal Statement"
 				If stat_acct_four_verif_code(each_memb) = "N" Then stat_acct_four_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_acct_four_type(each_memb) = "__" Then stat_acct_four_info(each_memb) = ""
+				If stat_acct_four_type(each_memb) = "SV" Then stat_acct_four_info(each_memb) = "Savings Account"
+				If stat_acct_four_type(each_memb) = "CK" Then stat_acct_four_info(each_memb) = "Checking Account"
+				If stat_acct_four_type(each_memb) = "CE" Then stat_acct_four_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_four_type(each_memb) = "MM" Then stat_acct_four_info(each_memb) = "Money Market"
+				If stat_acct_four_type(each_memb) = "DC" Then stat_acct_four_info(each_memb) = "Debit Card"
+				If stat_acct_four_type(each_memb) = "KO" Then stat_acct_four_info(each_memb) = "Keogh Account"
+				If stat_acct_four_type(each_memb) = "FT" Then stat_acct_four_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_four_type(each_memb) = "SL" Then stat_acct_four_info(each_memb) = "Government Retirement"
+				If stat_acct_four_type(each_memb) = "RA" Then stat_acct_four_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_four_type(each_memb) = "NP" Then stat_acct_four_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_four_type(each_memb) = "IR" Then stat_acct_four_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_four_type(each_memb) = "RH" Then stat_acct_four_info(each_memb) = "Roth IRA"
+				If stat_acct_four_type(each_memb) = "FR" Then stat_acct_four_info(each_memb) = "Governement Retirement"
+				If stat_acct_four_type(each_memb) = "CT" Then stat_acct_four_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_four_type(each_memb) = "RT" Then stat_acct_four_info(each_memb) = "Retirement Fund"
+				If stat_acct_four_type(each_memb) = "QT" Then stat_acct_four_info(each_memb) = "Qualified Tuition"
+				If stat_acct_four_type(each_memb) = "CA" Then stat_acct_four_info(each_memb) = "Coverdell Savings"
+				If stat_acct_four_type(each_memb) = "OE" Then stat_acct_four_info(each_memb) = "Other Educational"
+				If stat_acct_four_type(each_memb) = "OT" Then stat_acct_four_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_four_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_four_verif(each_memb), 1, 10, 64
+				If stat_acct_four_verif(each_memb) = "N" and stat_acct_four_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_four_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -5158,6 +5428,31 @@ class stat_detail
 				If stat_acct_five_verif_code(each_memb) = "5" Then stat_acct_five_verif_info(each_memb) = "Other Document"
 				If stat_acct_five_verif_code(each_memb) = "6" Then stat_acct_five_verif_info(each_memb) = "Personal Statement"
 				If stat_acct_five_verif_code(each_memb) = "N" Then stat_acct_five_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_acct_five_type(each_memb) = "__" Then stat_acct_five_info(each_memb) = ""
+				If stat_acct_five_type(each_memb) = "SV" Then stat_acct_five_info(each_memb) = "Savings Account"
+				If stat_acct_five_type(each_memb) = "CK" Then stat_acct_five_info(each_memb) = "Checking Account"
+				If stat_acct_five_type(each_memb) = "CE" Then stat_acct_five_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_five_type(each_memb) = "MM" Then stat_acct_five_info(each_memb) = "Money Market"
+				If stat_acct_five_type(each_memb) = "DC" Then stat_acct_five_info(each_memb) = "Debit Card"
+				If stat_acct_five_type(each_memb) = "KO" Then stat_acct_five_info(each_memb) = "Keogh Account"
+				If stat_acct_five_type(each_memb) = "FT" Then stat_acct_five_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_five_type(each_memb) = "SL" Then stat_acct_five_info(each_memb) = "Government Retirement"
+				If stat_acct_five_type(each_memb) = "RA" Then stat_acct_five_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_five_type(each_memb) = "NP" Then stat_acct_five_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_five_type(each_memb) = "IR" Then stat_acct_five_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_five_type(each_memb) = "RH" Then stat_acct_five_info(each_memb) = "Roth IRA"
+				If stat_acct_five_type(each_memb) = "FR" Then stat_acct_five_info(each_memb) = "Governement Retirement"
+				If stat_acct_five_type(each_memb) = "CT" Then stat_acct_five_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_five_type(each_memb) = "RT" Then stat_acct_five_info(each_memb) = "Retirement Fund"
+				If stat_acct_five_type(each_memb) = "QT" Then stat_acct_five_info(each_memb) = "Qualified Tuition"
+				If stat_acct_five_type(each_memb) = "CA" Then stat_acct_five_info(each_memb) = "Coverdell Savings"
+				If stat_acct_five_type(each_memb) = "OE" Then stat_acct_five_info(each_memb) = "Other Educational"
+				If stat_acct_five_type(each_memb) = "OT" Then stat_acct_five_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_five_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_five_verif(each_memb), 1, 10, 64
+				If stat_acct_five_verif(each_memb) = "N" and stat_acct_five_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_five_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 		Next
 
@@ -5889,30 +6184,37 @@ class stat_detail
 
 				stat_shel_prosp_rent_amount(each_memb) = trim(stat_shel_prosp_rent_amount(each_memb))
 				If stat_shel_prosp_rent_amount(each_memb) = "________" Then stat_shel_prosp_rent_amount(each_memb) = 0
+				If stat_shel_prosp_rent_amount(each_memb) = "?_______" Then stat_shel_prosp_rent_amount(each_memb) = 0
 				stat_shel_prosp_rent_amount(each_memb) = stat_shel_prosp_rent_amount(each_memb)*1
 
 				stat_shel_prosp_lot_rent_amount(each_memb) = trim(stat_shel_prosp_lot_rent_amount(each_memb))
 				If stat_shel_prosp_lot_rent_amount(each_memb) = "________" Then stat_shel_prosp_lot_rent_amount(each_memb) = 0
+				If stat_shel_prosp_lot_rent_amount(each_memb) = "?_______" Then stat_shel_prosp_lot_rent_amount(each_memb) = 0
 				stat_shel_prosp_lot_rent_amount(each_memb) = stat_shel_prosp_lot_rent_amount(each_memb)*1
 
 				stat_shel_prosp_mortgage_amount(each_memb) = trim(stat_shel_prosp_mortgage_amount(each_memb))
 				If stat_shel_prosp_mortgage_amount(each_memb) = "________" Then stat_shel_prosp_mortgage_amount(each_memb) = 0
+				If stat_shel_prosp_mortgage_amount(each_memb) = "?_______" Then stat_shel_prosp_mortgage_amount(each_memb) = 0
 				stat_shel_prosp_mortgage_amount(each_memb) = stat_shel_prosp_mortgage_amount(each_memb)*1
 
 				stat_shel_prosp_insurance_amount(each_memb) = trim(stat_shel_prosp_insurance_amount(each_memb))
 				If stat_shel_prosp_insurance_amount(each_memb) = "________" Then stat_shel_prosp_insurance_amount(each_memb) = 0
+				If stat_shel_prosp_insurance_amount(each_memb) = "?_______" Then stat_shel_prosp_insurance_amount(each_memb) = 0
 				stat_shel_prosp_insurance_amount(each_memb) = stat_shel_prosp_insurance_amount(each_memb)*1
 
 				stat_shel_prosp_taxes_amount(each_memb) = trim(stat_shel_prosp_taxes_amount(each_memb))
 				If stat_shel_prosp_taxes_amount(each_memb) = "________" Then stat_shel_prosp_taxes_amount(each_memb) = 0
+				If stat_shel_prosp_taxes_amount(each_memb) = "?_______" Then stat_shel_prosp_taxes_amount(each_memb) = 0
 				stat_shel_prosp_taxes_amount(each_memb) = stat_shel_prosp_taxes_amount(each_memb)*1
 
 				stat_shel_prosp_room_amount(each_memb) = trim(stat_shel_prosp_room_amount(each_memb))
 				If stat_shel_prosp_room_amount(each_memb) = "________" Then stat_shel_prosp_room_amount(each_memb) = 0
+				If stat_shel_prosp_room_amount(each_memb) = "?_______" Then stat_shel_prosp_room_amount(each_memb) = 0
 				stat_shel_prosp_room_amount(each_memb) = stat_shel_prosp_room_amount(each_memb)*1
 
 				stat_shel_prosp_garage_amount(each_memb) = trim(stat_shel_prosp_garage_amount(each_memb))
 				If stat_shel_prosp_garage_amount(each_memb) = "________" Then stat_shel_prosp_garage_amount(each_memb) = 0
+				If stat_shel_prosp_garage_amount(each_memb) = "?_______" Then stat_shel_prosp_garage_amount(each_memb) = 0
 				stat_shel_prosp_garage_amount(each_memb) = stat_shel_prosp_garage_amount(each_memb)*1
 
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_rent_amount(each_memb)
@@ -5922,12 +6224,8 @@ class stat_detail
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_taxes_amount(each_memb)
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_room_amount(each_memb)
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_garage_amount(each_memb)
-
-
-
 			End If
 		Next
-
 
 		call navigate_to_MAXIS_screen("STAT", "DISQ")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
@@ -5935,8 +6233,8 @@ class stat_detail
 			EMWriteScreen "01", 20, 79
 			transmit
 			EMReadScreen existance_check, 14, 24, 13
-			stat_disq_two_exists(each_memb) = True
-			If existance_check = "DOES NOT EXIST" Then stat_disq_two_exists(each_memb) = False
+			stat_disq_one_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_one_exists(each_memb) = False
 
 			If stat_disq_one_exists(each_memb) = True Then
 				EMReadScreen stat_disq_one_program(each_memb), 2, 6, 54
@@ -6033,6 +6331,14 @@ class stat_detail
 				If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_source(each_memb) = "NON-COOP"
 				If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_source(each_memb) = "NON-COOP"
 				If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_source(each_memb) = "NON-COOP" Then
+					If stat_disq_one_type_code(each_memb) = "06" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_one_type_code(each_memb) = "07" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_one_type_code(each_memb) = "08" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_one_type_code(each_memb) = "12" Then stat_disq_one_source(each_memb) = "TRANSFER"
 				If stat_disq_one_type_code(each_memb) = "20" Then stat_disq_one_source(each_memb) = "TRANSFER"
@@ -6147,6 +6453,14 @@ class stat_detail
 				If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_source(each_memb) = "NON-COOP"
 				If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_source(each_memb) = "NON-COOP"
 				If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_source(each_memb) = "NON-COOP" Then
+					If stat_disq_two_type_code(each_memb) = "06" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_two_type_code(each_memb) = "07" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_two_type_code(each_memb) = "08" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_two_type_code(each_memb) = "12" Then stat_disq_two_source(each_memb) = "TRANSFER"
 				If stat_disq_two_type_code(each_memb) = "20" Then stat_disq_two_source(each_memb) = "TRANSFER"
@@ -6261,6 +6575,14 @@ class stat_detail
 				If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_source(each_memb) = "NON-COOP"
 				If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_source(each_memb) = "NON-COOP"
 				If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_source(each_memb) = "NON-COOP" Then
+					If stat_disq_three_type_code(each_memb) = "06" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_three_type_code(each_memb) = "07" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_three_type_code(each_memb) = "08" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_three_type_code(each_memb) = "12" Then stat_disq_three_source(each_memb) = "TRANSFER"
 				If stat_disq_three_type_code(each_memb) = "20" Then stat_disq_three_source(each_memb) = "TRANSFER"
@@ -6375,6 +6697,14 @@ class stat_detail
 				If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_source(each_memb) = "NON-COOP"
 				If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_source(each_memb) = "NON-COOP"
 				If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_source(each_memb) = "NON-COOP" Then
+					If stat_disq_four_type_code(each_memb) = "06" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_four_type_code(each_memb) = "07" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_four_type_code(each_memb) = "08" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_four_type_code(each_memb) = "12" Then stat_disq_four_source(each_memb) = "TRANSFER"
 				If stat_disq_four_type_code(each_memb) = "20" Then stat_disq_four_source(each_memb) = "TRANSFER"
@@ -6489,6 +6819,14 @@ class stat_detail
 				If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_source(each_memb) = "NON-COOP"
 				If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_source(each_memb) = "NON-COOP"
 				If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_source(each_memb) = "NON-COOP" Then
+					If stat_disq_five_type_code(each_memb) = "06" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_five_type_code(each_memb) = "07" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_five_type_code(each_memb) = "08" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_five_type_code(each_memb) = "12" Then stat_disq_five_source(each_memb) = "TRANSFER"
 				If stat_disq_five_type_code(each_memb) = "20" Then stat_disq_five_source(each_memb) = "TRANSFER"
@@ -7165,6 +7503,7 @@ class stat_detail
 				stat_faci_currently_in_facility(each_memb) = currently_in_FACI
 
 				If currently_in_FACI = True then
+					stat_faci_is_grh(each_memb) = False
 					EMReadScreen stat_faci_name(each_memb), 30, 6, 43
 					EMReadScreen stat_faci_type_code(each_memb), 2, 7, 43
 					EmReadscreen stat_faci_vendor(each_memb), 8, 5, 43
@@ -7190,6 +7529,11 @@ class stat_detail
 					IF stat_faci_type_code(each_memb) = "67" then stat_faci_type_info(each_memb) = "Family Violence Shelter"
 					IF stat_faci_type_code(each_memb) = "68" then stat_faci_type_info(each_memb) = "County Correctional Facility"
 					IF stat_faci_type_code(each_memb) = "69" then stat_faci_type_info(each_memb) = "Non-Cty Adult Correctional"
+
+					IF stat_faci_type_code(each_memb) = "52" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "55" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "56" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "57" then stat_faci_is_grh(each_memb) = True
 
 					stat_faci_name(each_memb) = trim(replace(stat_faci_name(each_memb), "_", ""))
 					stat_faci_vendor(each_memb) = trim(replace(stat_faci_vendor(each_memb), "_", ""))
@@ -7227,7 +7571,6 @@ class stat_detail
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "_" Then stat_faci_LTC_inelig_reason_info(each_memb) = ""
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "L" Then stat_faci_LTC_inelig_reason_info(each_memb) = "This Level of Care Not Required"
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "N" Then stat_faci_LTC_inelig_reason_info(each_memb) = "Not pre-Screened"
-
 				End if
 			End If
 		Next
@@ -7628,6 +7971,156 @@ class stat_detail
 			Loop until no_more_panels_check = "ENTER A"
 		End If
 
+		Call navigate_to_MAXIS_screen("STAT", "WREG")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_wreg_exists(each_memb) = True
+			If existance_check = "0" Then stat_wreg_exists(each_memb) = False
+
+			If stat_wreg_exists(each_memb) = True Then
+				EMReadScreen stat_wreg_fset_status_code(each_memb), 2, 8, 50
+				If stat_wreg_fset_status_code(each_memb) = "03" Then stat_wreg_fset_status_info(each_memb) = "Unfit For Employment"
+				If stat_wreg_fset_status_code(each_memb) = "04" Then stat_wreg_fset_status_info(each_memb) = "Responsible For Care Of Incapacitated Person"
+				If stat_wreg_fset_status_code(each_memb) = "05" Then stat_wreg_fset_status_info(each_memb) = "Age 60 Or Older"
+				If stat_wreg_fset_status_code(each_memb) = "06" Then stat_wreg_fset_status_info(each_memb) = "Under Age 16"
+				If stat_wreg_fset_status_code(each_memb) = "07" Then stat_wreg_fset_status_info(each_memb) = "Age 16-17, Living W/Pare/Crgvr"
+				If stat_wreg_fset_status_code(each_memb) = "08" Then stat_wreg_fset_status_info(each_memb) = "Responsible For Care Of Child < 6 Years Old"
+				If stat_wreg_fset_status_code(each_memb) = "09" Then stat_wreg_fset_status_info(each_memb) = "Empl 30 Hrs/Wk Or Earnings At Least = To Min Wage X 30 Hrs/Wk"
+				If stat_wreg_fset_status_code(each_memb) = "10" Then stat_wreg_fset_status_info(each_memb) = "Matching Grant Participant"
+				If stat_wreg_fset_status_code(each_memb) = "11" Then stat_wreg_fset_status_info(each_memb) = "Rcvg UI or Work Compliant While UI Pending"
+				If stat_wreg_fset_status_code(each_memb) = "12" Then stat_wreg_fset_status_info(each_memb) = "Enrolled In School, Training Prog Or Higher Ed At Least ½ Time"
+				If stat_wreg_fset_status_code(each_memb) = "13" Then stat_wreg_fset_status_info(each_memb) = "Participating In CD Program"
+				If stat_wreg_fset_status_code(each_memb) = "14" Then stat_wreg_fset_status_info(each_memb) = "ES Compliant While Receiving MFIP"
+				If stat_wreg_fset_status_code(each_memb) = "20" Then stat_wreg_fset_status_info(each_memb) = "ES Compliant While Pending/Receiving DWP"
+				If stat_wreg_fset_status_code(each_memb) = "15" Then stat_wreg_fset_status_info(each_memb) = "Age 16-17 Not Lvg W/Pare/Crgvr"
+				If stat_wreg_fset_status_code(each_memb) = "16" Then stat_wreg_fset_status_info(each_memb) = "50-59 Years Old"
+				If stat_wreg_fset_status_code(each_memb) = "21" Then stat_wreg_fset_status_info(each_memb) = "Child < 18 Living in SNAP Unit"
+				If stat_wreg_fset_status_code(each_memb) = "17" Then stat_wreg_fset_status_info(each_memb) = "Receiving RCA"
+				If stat_wreg_fset_status_code(each_memb) = "23" Then stat_wreg_fset_status_info(each_memb) = "Pregnant"
+				If stat_wreg_fset_status_code(each_memb) = "30" Then stat_wreg_fset_status_info(each_memb) = "Mandatory FSET Participant"
+				If stat_wreg_fset_status_code(each_memb) = "02" Then stat_wreg_fset_status_info(each_memb) = "Fail To Cooperate With FSET"
+				If stat_wreg_fset_status_code(each_memb) = "33" Then stat_wreg_fset_status_info(each_memb) = "Non-Coop Being Referred"
+
+				EMReadScreen stat_wreg_abawd_status_code(each_memb), 2, 13, 50
+				If stat_wreg_abawd_status_code(each_memb) = "01" Then stat_wreg_abawd_status_info(each_memb) = "Work Reg Exmpt"
+				If stat_wreg_abawd_status_code(each_memb) = "02" Then stat_wreg_abawd_status_info(each_memb) = "Under Age 18"
+				If stat_wreg_abawd_status_code(each_memb) = "03" Then stat_wreg_abawd_status_info(each_memb) = "Age 50 Or Over"
+				If stat_wreg_abawd_status_code(each_memb) = "04" Then stat_wreg_abawd_status_info(each_memb) = "Minor Child in SNAP Unit"
+				If stat_wreg_abawd_status_code(each_memb) = "05" Then stat_wreg_abawd_status_info(each_memb) = "Pregnant"
+				If stat_wreg_abawd_status_code(each_memb) = "06" Then stat_wreg_abawd_status_info(each_memb) = "Employed, in-kind or Volunteer Avg of 20 Hrs/Wk"
+				If stat_wreg_abawd_status_code(each_memb) = "07" Then stat_wreg_abawd_status_info(each_memb) = "Wrk Experience Participant"
+				If stat_wreg_abawd_status_code(each_memb) = "08" Then stat_wreg_abawd_status_info(each_memb) = "Other E & T Services"
+				If stat_wreg_abawd_status_code(each_memb) = "09" Then stat_wreg_abawd_status_info(each_memb) = "Resides In A Waivered Area"
+				If stat_wreg_abawd_status_code(each_memb) = "10" Then stat_wreg_abawd_status_info(each_memb) = "ABAWD Counted Month"
+				If stat_wreg_abawd_status_code(each_memb) = "11" Then stat_wreg_abawd_status_info(each_memb) = "2nd-3rd Month Period Of Elig"
+				If stat_wreg_abawd_status_code(each_memb) = "12" Then stat_wreg_abawd_status_info(each_memb) = "RCA"
+				If stat_wreg_abawd_status_code(each_memb) = "13" Then stat_wreg_abawd_status_info(each_memb) = "ABAWD Banked Months"
+			End If
+		Next
+
+
+		Call navigate_to_MAXIS_screen("STAT", "DIET")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_diet_exists(each_memb) = True
+			stat_mfip_diet_exists(each_memb) = False
+			If existance_check = "0" Then stat_diet_exists(each_memb) = False
+
+			If stat_diet_exists(each_memb) = True Then
+				Call determine_thrifty_food_plan(footer_month, footer_year, 1, thrifty_food_plan_for_diet)
+
+				EMReadScreen stat_diet_mf_type_code_one(each_memb), 2, 8, 40
+				EMReadScreen stat_diet_mf_verif_one(each_memb), 	1, 8, 51
+				If stat_diet_mf_type_code_one(each_memb) = "__" Then stat_diet_mf_type_code_one(each_memb) = ""
+				If stat_diet_mf_type_code_one(each_memb) = "01" Then stat_diet_mf_type_info_one(each_memb) = "High Protein > 79 Grams/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "02" Then stat_diet_mf_type_info_one(each_memb) = "Cntrl Protein 40-60 Gr/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "03" Then stat_diet_mf_type_info_one(each_memb) = "Cntrl Protein < 40 Grams/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "04" Then stat_diet_mf_type_info_one(each_memb) = "Low Cholesterol"
+				If stat_diet_mf_type_code_one(each_memb) = "05" Then stat_diet_mf_type_info_one(each_memb) = "High Residue"
+				If stat_diet_mf_type_code_one(each_memb) = "06" Then stat_diet_mf_type_info_one(each_memb) = "Pregnancy And Lactation"
+				If stat_diet_mf_type_code_one(each_memb) = "07" Then stat_diet_mf_type_info_one(each_memb) = "Gluten Free"
+				If stat_diet_mf_type_code_one(each_memb) = "08" Then stat_diet_mf_type_info_one(each_memb) = "Lactose Free"
+				If stat_diet_mf_type_code_one(each_memb) = "09" Then stat_diet_mf_type_info_one(each_memb) = "Anti-Dumping"
+				If stat_diet_mf_type_code_one(each_memb) = "10" Then stat_diet_mf_type_info_one(each_memb) = "Hypoglycemic"
+				If stat_diet_mf_type_code_one(each_memb) = "11" Then stat_diet_mf_type_info_one(each_memb) = "Ketogenic"
+
+				stat_diet_mf_amount_one(each_memb) = 0
+				If stat_diet_mf_type_code_one(each_memb) = "02" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet
+				If stat_diet_mf_type_code_one(each_memb) = "03" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*1.25
+				If stat_diet_mf_type_code_one(each_memb) = "06" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.35
+				If stat_diet_mf_type_code_one(each_memb) = "07" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "01" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "11" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "08" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "04" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "05" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.20
+				If stat_diet_mf_type_code_one(each_memb) = "10" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.15
+				IF stat_diet_mf_type_code_one(each_memb) = "09" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.15
+
+				EMReadScreen stat_diet_mf_type_code_two(each_memb), 2, 9, 40
+				EMReadScreen stat_diet_mf_verif_two(each_memb), 	1, 9, 51
+				If stat_diet_mf_type_code_two(each_memb) = "__" Then stat_diet_mf_type_code_two(each_memb) = ""
+				If stat_diet_mf_type_code_two(each_memb) = "01" Then stat_diet_mf_type_info_two(each_memb) = "High Protein > 79 Grams/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "02" Then stat_diet_mf_type_info_two(each_memb) = "Cntrl Protein 40-60 Gr/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "03" Then stat_diet_mf_type_info_two(each_memb) = "Cntrl Protein < 40 Grams/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "04" Then stat_diet_mf_type_info_two(each_memb) = "Low Cholesterol"
+				If stat_diet_mf_type_code_two(each_memb) = "05" Then stat_diet_mf_type_info_two(each_memb) = "High Residue"
+				If stat_diet_mf_type_code_two(each_memb) = "06" Then stat_diet_mf_type_info_two(each_memb) = "Pregnancy And Lactation"
+				If stat_diet_mf_type_code_two(each_memb) = "07" Then stat_diet_mf_type_info_two(each_memb) = "Gluten Free"
+				If stat_diet_mf_type_code_two(each_memb) = "08" Then stat_diet_mf_type_info_two(each_memb) = "Lactose Free"
+				If stat_diet_mf_type_code_two(each_memb) = "09" Then stat_diet_mf_type_info_two(each_memb) = "Anti-Dumping"
+				If stat_diet_mf_type_code_two(each_memb) = "10" Then stat_diet_mf_type_info_two(each_memb) = "Hypoglycemic"
+				If stat_diet_mf_type_code_two(each_memb) = "11" Then stat_diet_mf_type_info_two(each_memb) = "Ketogenic"
+
+				stat_diet_mf_amount_two(each_memb) = 0
+				If stat_diet_mf_type_code_two(each_memb) = "02" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet
+				If stat_diet_mf_type_code_two(each_memb) = "03" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*1.25
+				If stat_diet_mf_type_code_two(each_memb) = "06" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.35
+				If stat_diet_mf_type_code_two(each_memb) = "07" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "01" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "11" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "08" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "04" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "05" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.20
+				If stat_diet_mf_type_code_two(each_memb) = "10" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
+				If stat_diet_mf_type_code_two(each_memb) = "09" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
+
+				If stat_diet_mf_type_code_one(each_memb) <> "" Then stat_mfip_diet_exists(each_memb) = True
+				If stat_diet_mf_type_code_two(each_memb) <> "" Then stat_mfip_diet_exists(each_memb) = True
+			End If
+		Next
+
+		Call navigate_to_MAXIS_screen("STAT", "BILS")
+		stat_bils_remedial_care_entered = False
+
+		bils_row = 6												'start at the first row
+		Do
+			bils_month = ""
+			bils_year = ""
+			bil_serv_code = ""
+
+			EMReadScreen bils_month, 2, bils_row, 30
+			EMReadScreen bils_year, 2, bils_row, 36
+			EMReadScreen bil_serv_code, 2, bils_row, 40
+			If bils_month = footer_month and bils_year = footer_year and bil_serv_code = "27" Then
+				stat_bils_remedial_care_entered	= True
+				Exit Do
+			End If
+			bils_count = bils_count + 1			'incrementing
+			bils_row = bils_row + 1
+			If bils_row = 18 Then
+				PF20
+				EMReadScreen end_of_list, 9, 24, 14
+				If end_of_list = "LAST PAGE" Then Exit Do
+				bils_row = 6
+			End If
+			EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
+		Loop until next_bils_ref_numb = "__"
+
 		Call navigate_to_MAXIS_screen("STAT", "HEST")
 
 		EMReadScreen hest_version, 1, 2, 73
@@ -7762,7 +8255,6 @@ class stat_detail
 		stat_revw_interview_date = replace(stat_revw_interview_date, " ", "/")
 		If stat_revw_interview_date = "__/__/__" Then stat_revw_interview_date = ""
 
-
 		Call navigate_to_MAXIS_screen("STAT", "MONT")
 
 		EMReadScreen stat_mont_cash_status, 1, 11, 43
@@ -7778,5 +8270,8 @@ class stat_detail
 		If stat_mont_form_recvd_date = "__/__/__" Then stat_mont_form_recvd_date = ""
 
 		Call back_to_SELF
+
+		panels_not_verif_string = trim(panels_not_verif_string)
+		If right(panels_not_verif_string, 1) = ";" Then panels_not_verif_string = left(panels_not_verif_string, len(panels_not_verif_string)-1)
 	end sub
 end class
