@@ -11284,29 +11284,47 @@ function navigate_to_MMIS_region(group_security_selection)
 		If MAI_check <> "MAI" then EMWaitReady 1, 1
 	Loop until MAI_check = "MAI"
 
-	EMReadScreen mmis_check, 7, 15, 15
-	IF mmis_check = "RUNNING" THEN
-		EMWriteScreen "10", 2, 15
-		transmit
-	ELSE
+	EMReadScreen mmis_production_check, 7, 15, 15
+	EMReadScreen mmis_training_check, 7, 16, 15
+	If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+		script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
+	ElseIf mmis_production_check <> "RUNNING" and mmis_training_check <> "RUNNING" Then
 		EMConnect"A"
 		attn
-		EMReadScreen mmis_check, 7, 15, 15
-		IF mmis_check = "RUNNING" THEN
-			EMWriteScreen "10", 2, 15
-			transmit
-		ELSE
+		EMReadScreen mmis_production_check, 7, 15, 15
+		EMReadScreen mmis_training_check, 7, 16, 15
+		If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+			script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
+		ElseIf mmis_production_check <> "RUNNING" and mmis_training_check <> "RUNNING" Then
 			EMConnect"B"
 			attn
-			EMReadScreen mmis_b_check, 7, 15, 15
-			IF mmis_b_check <> "RUNNING" THEN
-				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
-			ELSE
+			EMReadScreen mmis_production_check, 7, 15, 15
+			EMReadScreen mmis_training_check, 7, 16, 15
+			If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+				script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
+			ElseIf mmis_production_check = "RUNNING" Then
 				EMWriteScreen "10", 2, 15
 				transmit
+			ElseIf mmis_training_check = "RUNNING" Then
+				EMWriteScreen "11", 2, 15
+				transmit
+			Else
+				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
 			END IF
-		END IF
-	END IF
+		ElseIf mmis_production_check = "RUNNING" Then
+			EMWriteScreen "10", 2, 15
+			transmit
+		ElseIf mmis_training_check = "RUNNING" Then
+			EMWriteScreen "11", 2, 15
+			transmit	
+		End If
+	ElseIf mmis_production_check = "RUNNING" Then
+		EMWriteScreen "10", 2, 15
+		transmit
+	ElseIf mmis_training_check = "RUNNING" Then
+		EMWriteScreen "11", 2, 15
+		transmit	
+	End If
 
 	DO
 		PF6
