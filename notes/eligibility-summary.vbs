@@ -192,7 +192,7 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 	Dialog1 = ""
 	dlg_len = 160
 	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one <> "" and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two <> "" Then dlg_len = 185
-	BeginDialog Dialog1, 0, 0, 276, 160, "GRH/HS Supportive Housing Disregard Appears in Error"
+	BeginDialog Dialog1, 0, 0, 276, 200, "GRH/HS Supportive Housing Disregard Appears in Error"
 
 		If supportive_housing_applies = True Then Text 65, 5, 160, 20, "It appears this case should have a supportive housing disregard applied."
 		If supportive_housing_applies = False Then Text 65, 5, 160, 20, "This case appears to have the supportive housing disregard applied when it should not.."
@@ -212,14 +212,56 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 		End If
 		Text 10, y_pos, 90, 10, "The script will now end."
 		Text 10, y_pos+10, 260, 10, "Please resolve the eligibility, then reapprove before running the script again."
+		Text 10, y_pos+25, 260, 10, "The script will send a report to the script writers that this error triggered."
+		Text 10, y_pos+35, 260, 10, "Enter any details to report to the script writers (not required):"
+		EditBox 10, y_pos+45, 260, 15, error_details_from_worker
 		ButtonGroup ButtonPressed
-			OkButton 220, y_pos+25, 50, 15
+			OkButton 220, y_pos+65, 50, 15
 	EndDialog
 
 	dialog Dialog1
 
-	testing_run = True
-	call script_end_procedure("Script run ended due to an apparant error in the GRH approval for supportive housing.")
+	error_details_from_worker = trim(error_details_from_worker)
+	script_run_lowdown = script_run_lowdown & vbCr & "INFORMATION FROM WORKER: " & error_details_from_worker & vbCr
+
+	script_run_lowdown = script_run_lowdown & vbCr & "GHR/HS Budget Type: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_elig_type_info
+	script_run_lowdown = script_run_lowdown & vbCr & "RSDI Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_RSDI_income
+	script_run_lowdown = script_run_lowdown & vbCr & "Other UNEA Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_other_unearned_income
+	script_run_lowdown = script_run_lowdown & vbCr & "Supportive Housing Disregard: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard
+	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one <> "" Then
+		script_run_lowdown = script_run_lowdown & vbCr & "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
+		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
+	End If
+	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two <> "" Then
+		script_run_lowdown = script_run_lowdown & vbCr & "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
+		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
+	End If
+	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+	subject_of_email = "ELIG SUMM -- Ended for GRH Supportive Housing Error - Case " & MAXIS_case_number & " (Automated Report)"
+    full_text = "Script Run occurred on " & date & " at " & time
+
+	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_active_programs
+	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_pending_programs & vbCr
+
+	full_text = full_text & vbCr & "numb_DWP_versions - " & numb_DWP_versions
+	full_text = full_text & vbCr & "numb_MFIP_versions - " & numb_MFIP_versions
+	full_text = full_text & vbCr & "numb_MSA_versions - " & numb_MSA_versions
+	full_text = full_text & vbCr & "numb_GA_versions - " & numb_GA_versions
+	full_text = full_text & vbCr & "numb_CASH_denial_versions - " & numb_CASH_denial_versions
+	full_text = full_text & vbCr & "numb_GRH_versions - " & numb_GRH_versions
+	full_text = full_text & vbCr & "numb_SNAP_versions - " & numb_SNAP_versions
+
+	full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+	If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
+	attachment_here = ""
+
+	Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
+
+	close_msg = "Script run ended due to an apparent error in the GRH approval for supportive housing."
+	close_msg = close_msg & vbCr & "Script cannot continue with this error."
+	close_msg = close_msg & vbCr & vbCr & "An email has been sent to the script writers at HSPH.EWS.BlueZoneScripts@hennepin.us that this error was hit. If you have additional questions or concerns about this functionality, connect with the script writers at this email."
+	call script_end_procedure(close_msg)
 end function
 
 function write_long_variable_in_DENY_note(variable)
@@ -20157,7 +20199,7 @@ developer_mode = False
 allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
-' developer_mode = True
+' developer_mode = False
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 ' If MAXIS_case_number = "493723" Then allow_late_note = True
