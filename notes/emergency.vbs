@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/16/2024", "Updated 12-month eligibility determination so that it is based on the issuance date, rather than the first day of the month when the benefits were issued.", "Mark Riegel, Hennepin County")
 call changelog_update("04/06/2023", "Updated 200% FPG for April 2023 updates to reflect previous year's FPG results based on the date of application. Small updates to enhance user experience.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "The display of the EGA Screening result has been updated to repeat the information provided and have buttons to indicate what next action the script should take.", "Casey Love, Hennepin County")
 call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~####~##EGA screening was not correctly identifying if EGA was available/had already been used in the past 12 months.##~##", "Casey Love, Hennepin County")
@@ -217,10 +218,9 @@ If EGA_screening_check = 1 then
     		EMReadScreen emer_issued, 1, row, 16		'searching for EMER programs as they start with E
     		IF emer_issued = "E" then
     			'reading the EMER information for EMER issuance
+    			EMReadScreen EMER_issuance_date, 8, row, 7
     			EMReadScreen EMER_type, 2, row, 16
     			EMReadScreen EMER_amt_issued, 7, row, 39
-    			EMReadScreen EMER_elig_start_date, 8, row, 62
-    			EMReadScreen EMER_elig_end_date, 8, row, 73
     			exit do
     		ELSE
     			row = row + 1
@@ -229,21 +229,21 @@ If EGA_screening_check = 1 then
     	PF8
     	EMReadScreen last_page_check, 21, 24, 2
     	If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
-    LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+    LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE" 
 
     'creating variables and conditions for EMER screening
-    New_EMER_year = dateadd("YYYY", 1, EMER_elig_start_date)
-    EMER_available_date = dateadd("d", 1, New_EMER_year)	'creating emer available date that is 1 day & 1 year past the EMER_elig_end_date
-    EMER_last_used_dates = EMER_elig_start_date & " - " & EMER_elig_end_date	'combining dates into new variable
+    New_EMER_year = dateadd("YYYY", 1, EMER_issuance_date)
+    EMER_available_date = dateadd("d", 1, New_EMER_year)	'creating emer available date that is 1 day & 1 year past the emer_issuance_date
+    EMER_last_used_dates = EMER_issuance_date & " - " & dateadd("YYYY", 1, EMER_issuance_date)	'combining dates into new variable
 
     If emer_issued <> "E" then	'creating variables for cases that have not had EMER issued in current 13 months
      	EMER_last_used_dates = "n/a"
     	EMER_available_date = "Currently available"
-        emer_availble = True
+        emer_available = True
     Elseif datediff("D", EMER_available_date, date) > 0 then
-        emer_availble = True        'If emer was used but the elig end date has passed
+        emer_available = True        'If emer was used but the elig end date has passed
     Else
-        emer_availble = False       'not eligible
+        emer_available = False       'not eligible
     End if
 
 	crisis = ""
@@ -273,10 +273,10 @@ If EGA_screening_check = 1 then
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
     'determining if client is potentially elig for EMER or not'
-    If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
+    If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_available = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
         ega_results_dlg_len = 220
 	Else
-		screening_determination = ""
+        screening_determination = ""
 		ega_screening_appears_elig = False
         ega_results_dlg_len = 220
         'if client is not elig, reason(s) for not being elig will be listed in the msgbox
@@ -285,7 +285,7 @@ If EGA_screening_check = 1 then
 	    IF meets_residency = "No" then ega_results_dlg_len = ega_results_dlg_len + 10'"* No one in the household has met 30 day residency requirements."
         If abs(net_income) > abs(monthly_standard) then ega_results_dlg_len = ega_results_dlg_len + 10'"* Net income exceeds program guidelines."
         IF net_income = "0" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Household does not have current/ongoing income."
-        If EMER_last_used_dates <> "n/a" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Emergency funds were used within the last year from the eligibility period."
+        If emer_available = False then ega_results_dlg_len = ega_results_dlg_len + 10'"* Emergency funds were used within the last year from the eligibility period."
     End if
 
     ega_screening_note_made = False
@@ -311,10 +311,10 @@ If EGA_screening_check = 1 then
           Text 25, 60, 75, 10, "  # of HH Members: " & Household_size
           Text 130, 60, 115, 10, "EGA Monthly Standard: $ " & monthly_standard
           Text 30, 70, 120, 10, " State Residency: " & meets_residency
-          Text 35, 90, 130, 10, "  EMER Last Used: " & EMER_last_used_dates
+          Text 20, 90, 260, 10, "  EMER Last Used: " & EMER_last_used_dates
           Text 25, 100, 130, 10, "EMER Available Date: " & EMER_available_date
           Text 10, 130, 75, 10, "Case " & MAXIS_case_number & " is:"
-          If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
+          If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_available = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
             Text 20, 140, 125, 10, "POTENTIALLY ELIGIBLE FOR EGA"
           Else
             y_pos = 140
@@ -345,7 +345,7 @@ If EGA_screening_check = 1 then
                 Text 25, y_pos, 250, 10, "* Household does not have current/ongoing income."
                 y_pos = y_pos + 10
             End If
-            If EMER_last_used_dates <> "n/a" then
+            If emer_available = False then
 				screening_determination = screening_determination & "  - Emergency funds were used within the last year from the eligibility period.;"
                 Text 25, y_pos, 250, 10, "* Emergency funds were used within the last year from the eligibility period."
                 y_pos = y_pos + 10
