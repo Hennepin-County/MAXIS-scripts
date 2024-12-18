@@ -451,7 +451,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			ButtonGroup ButtonPressed
 				OkButton 135, 25, 50, 15
 				CancelButton 135, 45, 50, 15
-			Text 5, 5, 85, 10, "Enter claim number(s)"
+			Text 5, 5, 180, 17, "Enter claim number(s). Note: Only claim #1 will be entered into IULB, the remaining will be casenoted."
 			Text 15, 30, 30, 10, "Claim #1"
 			Text 15, 50, 30, 10, "Claim #2"
 			Text 15, 70, 30, 10, "Claim #3"
@@ -463,7 +463,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			If len(trim(Claim_number)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #1 must be 9 characters or less"
 			If len(trim(Claim_number_II)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #2 must be 9 characters or less"
 			If len(trim(claim_number_III)) > 9 THEN err_msg = err_msg & vbNewLine & "Claim #3 must be 9 characters or less"
-			IF trim(Claim_number) = "" AND trim(Claim_number_II) = "" AND trim(claim_number_III) = "" THEN err_msg = err_msg & vbNewLine & "Please enter at least one claim number to proceed"
+			IF trim(Claim_number) = "" THEN err_msg = err_msg & vbNewLine & "Please enter claim #1 to proceed"
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -516,8 +516,8 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 				CALL clear_line_of_text(17, 9)
 			END IF
 			EMWriteScreen Claim_number, 17, 9
-			EMWriteScreen Claim_number_II, 18, 9
-			EMWriteScreen claim_number_III, 19, 9
+			'EMWriteScreen Claim_number_II, 18, 9		'MAXIS doesn't allow for more than one claim number in IULB
+			'EMWriteScreen claim_number_III, 19, 9		'MAXIS doesn't allow for more than one claim number in IULB
 
 			IF resolution_status = "CF-Future Save" THEN
 				other_notes = "Future Savings. " & other_notes
