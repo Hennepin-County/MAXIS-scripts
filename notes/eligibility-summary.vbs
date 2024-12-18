@@ -223,7 +223,7 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 
 	error_details_from_worker = trim(error_details_from_worker)
 	script_run_lowdown = script_run_lowdown & vbCr & "INFORMATION FROM WORKER: " & error_details_from_worker & vbCr
-
+	script_run_lowdown = script_run_lowdown & vbCr & "supportive_housing_applies - " & supportive_housing_applies
 	script_run_lowdown = script_run_lowdown & vbCr & "GHR/HS Budget Type: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_elig_type_info
 	script_run_lowdown = script_run_lowdown & vbCr & "RSDI Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_RSDI_income
 	script_run_lowdown = script_run_lowdown & vbCr & "Other UNEA Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_other_unearned_income
@@ -14724,6 +14724,7 @@ class grh_eligibility_detail
 			If grh_elig_memb_elig_type_code = "08" Then  grh_elig_memb_elig_type_info = "Residential Treatment"
 			' MsgBox "grh_elig_memb_elig_type_info - " & grh_elig_memb_elig_type_info & vbCr & "grh_elig_memb_elig_type_code - " & grh_elig_memb_elig_type_code
 			If grh_elig_memb_elig_type_info = "MFIP" Then appears_supportive_housing_disregard_case = False
+			If grh_elig_memb_elig_type_info = "None" Then appears_supportive_housing_disregard_case = False
 			If grh_elig_memb_elig_type_info = "Residential Treatment" Then appears_supportive_housing_disregard_case = False
 
 			EMReadScreen grh_elig_memb_begin_date, 8, 6, 68
