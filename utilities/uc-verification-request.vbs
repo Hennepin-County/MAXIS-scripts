@@ -135,6 +135,13 @@ changelog_display
 
 'Grabs the case number
 EMConnect ""
+EMReadScreen mx_row_1, 79, 1, 1
+EMReadScreen mx_row_2, 79, 2, 1
+EMReadScreen mx_row_3, 79, 3, 1
+EMReadScreen mx_row_4, 79, 4, 1
+script_run_lowdown = "START OF SCRIPT" & vbCr & mx_row_1 & vbCr & mx_row_2 & vbCr & mx_row_3 & vbCr & mx_row_4
+script_run_lowdown = script_run_lowdown & vbCr & "=============================================================" & vbCr & vbCr
+
 CALL check_for_MAXIS(False)
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 closing_message = "Request for Unemployment Insurance Verification email has been sent." 'setting up closing_message UCriable for possible additions later based on conditions
@@ -197,6 +204,7 @@ DO
 LOOP UNTIL uBound(HH_member_array) <> -1
 
 'Navigate back to STAT/MEMB in case user has navigated away
+Call back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
@@ -218,18 +226,24 @@ const client_alia_name_const	    = 8 '=  ALIA Name
 const client_alia_ssn_const		    = 9 '=  ALIA SSN
 
 FOR EACH person IN HH_member_array
-    CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the uc_members_array yet
-    EMReadscreen ref_nbr, 3, 4, 33
-    EMReadscreen last_name, 25, 6, 30
-    EMReadscreen first_name, 12, 6, 63
-    EMReadscreen MEMB_number, 3, 4, 33
+	CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the uc_members_array yet
+
+	script_run_lowdown = script_run_lowdown & vbCr & "STAT-MEMB  --  person: " & person
+	for memb_row = 1 to 24
+		EMReadScreen mx_line, 79, memb_row, 1
+		script_run_lowdown = script_run_lowdown & vbCr & mx_line
+	next
+	script_run_lowdown = script_run_lowdown & vbCr & "=============================================================" & vbCr & vbCr
+
+	EMReadscreen ref_nbr, 3, 4, 33
     EMReadscreen last_name, 25, 6, 30
     EMReadscreen first_name, 12, 6, 63
     EMReadscreen mid_initial, 1, 6, 79
     EMReadScreen client_DOB, 10, 8, 42
     EMReadscreen client_SSN, 11, 7, 42
     If client_ssn = "___ __ ____" THEN client_ssn = ""
-    last_name = trim(replace(last_name, "_", "")) & " "
+
+	last_name = trim(replace(last_name, "_", "")) & " "
     first_name = trim(replace(first_name, "_", "")) & " "
     mid_initial = replace(mid_initial, "_", "")
     EMReadScreen client_age, 2, 8, 76
@@ -295,7 +309,9 @@ FOR uc_membs = 0 to uBound(uc_members_array, 2)
     alia_client_SSN_II = ""
 NEXT
 
+email_bzst = False
 FOR uc_membs = 0 to Ubound(uc_members_array, 2) 'start at the zero person and go to each of the selected people '
+	If mid(uc_members_array(client_ssn_const,  uc_membs), 5, 1) = " " Then email_bzst = True
     member_info = member_info & "-------------"  & vbNewLine  & "Name of Resident: " & uc_members_array(client_first_name_const, uc_membs) & " " & uc_members_array(client_mid_name_const, uc_membs) & " " & uc_members_array(client_last_name_const, uc_membs)  &  vbCr & "DOB: " & uc_members_array(client_DOB_const,  uc_membs) &  vbcr & "SSN of Resident: " & uc_members_array(client_ssn_const,  uc_membs)
     IF trim(uc_members_array(client_alia_name_const, uc_membs)) <> "" THEN member_info = member_info & vbNewLine &  "ALIA Name: " & uc_members_array(client_alia_name_const, uc_membs)
     If trim(uc_members_array(client_alia_ssn_const,  uc_membs)) <> "" THEN member_info = member_info & vbNewLine & "ALIA SSN: " & uc_members_array(client_alia_ssn_const,  uc_membs)
@@ -306,6 +322,19 @@ IF cca_checkbox = CHECKED THEN member_info = "CCA Request" & vbNewLine & member_
 IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Other Request: " & other_check_editbox & vbNewLine & member_info
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
+
+If email_bzst = True Then
+	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+	subject_of_email = "UC Verif Numbers reversed?! Case " & MAXIS_case_number & " (Automated Report)"
+	full_text = "Case Number: " & MAXIS_case_number
+	full_text = full_text & vbCr & "Script Run occurred on " & date & " at " & time & vbCr
+
+	full_text = full_text & vbCr & "Member INFO:" & vbCr & member_info
+	full_text = full_text & vbCr & vbCr & "Script Run Lowdown:" & vbCr & script_run_lowdown
+	full_text = full_text & vbCr & "Submitted By: " & the_person_running_the_script
+	attachment_here = ""
+	Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
+End If
 
 'Creates message box with email information if using the training region.
 email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #" & MAXIS_case_number & _
