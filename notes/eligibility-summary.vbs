@@ -14747,6 +14747,7 @@ class grh_eligibility_detail
 			EMReadScreen grh_elig_case_test_income, 				6, 11, 45
 			EMReadScreen grh_elig_case_test_setting, 				6, 12, 45
 			EMReadScreen grh_elig_case_test_verif, 					6, 13, 45
+			If grh_elig_memb_elig_status = "INELIGIBLE" and grh_elig_case_test_income = "PASSED" Then appears_supportive_housing_disregard_case = False
 
 			grh_elig_case_test_application_withdrawn = trim(grh_elig_case_test_application_withdrawn)
 			grh_elig_case_test_pben_coop = trim(grh_elig_case_test_pben_coop)
