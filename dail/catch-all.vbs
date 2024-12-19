@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/19/2024", "Improved script functionality and details included in CASE/NOTE.", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/01/2019", "BUG FIX - resolved error where script was missing the case notes. Script should now case note every time the script is run to completion.", "Casey Love, Hennepin County")
@@ -64,44 +65,70 @@ DAIL_type = trim(DAIL_type)
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
+'Enters “X” on DAIL message to open full message. 
+Call write_value_and_transmit("X", 6, 3)
+
+'Read full message, including if message needs to be opened
+EMReadScreen full_message_check, 36, 24, 2
+If InStr(full_message_check, "THE ENTIRE MESSAGE TEXT") Then
+    EMReadScreen full_message, 61, 6, 20
+    full_message = trim(full_message)
+    
+    'Remove X from dail message
+    EMWriteScreen " ", 6, 3
+Else
+    ' Script reads the full DAIL message so that it can process, or not process, as needed.
+    EMReadScreen full_dail_msg_line_1, 60, 9, 5
+    EMReadScreen full_dail_msg_line_2, 60, 10, 5
+    EMReadScreen full_dail_msg_line_3, 60, 11, 5
+    EMReadScreen full_dail_msg_line_4, 60, 12, 5
+
+    If trim(full_dail_msg_line_2) = "" Then full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+
+    full_message = trim(full_dail_msg_line_1 & full_dail_msg_line_2 & full_dail_msg_line_3 & full_dail_msg_line_4)
+
+    'Transmit back to DAIL message
+    transmit
+
+End If
+
 EMWriteScreen "S", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 281, 150, DAIL_type &  " MESSAGE PROCESSED"
-  EditBox 65, 35, 20, 15, memb_number
-  EditBox 225, 35, 50, 15, docs_rcvd_date
-  EditBox 65, 55, 210, 15, actions_taken
-  EditBox 65, 75, 210, 15, verifs_needed
-  EditBox 65, 95, 210, 15, other_notes
-  CheckBox 5, 115, 90, 10, "ECF has been reviewed ", ECF_reviewed
-  CheckBox 165, 115, 110, 10, "Check here if you want to TIKL", TIKL_checkbox
-  EditBox 65, 130, 95, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 281, 225, "DAIL_type &   MESSAGE PROCESSED"
+  GroupBox 5, 5, 270, 55, "DAIL for case #  &  MAXIS_case_number"
+  Text 10, 20, 260, 35, full_message
+  Text 10, 65, 45, 15, "Date Doc(s) Received:"
+  EditBox 70, 65, 40, 15, docs_rcvd_date
+  Text 115, 70, 50, 10, "(if applicable)"
+  Text 10, 90, 55, 10, "MEMB Number:"
+  EditBox 70, 85, 20, 15, memb_number
+  Text 10, 110, 50, 10, "Actions taken:"
+  EditBox 70, 105, 205, 15, actions_taken
+  Text 10, 130, 50, 10, "Verifs needed:"
+  EditBox 70, 125, 205, 15, verifs_needed
+  Text 10, 150, 45, 10, "Other notes:"
+  EditBox 70, 145, 205, 15, other_notes
+  CheckBox 10, 165, 110, 10, "Check here if you want to TIKL", TIKL_checkbox
+  CheckBox 10, 180, 90, 10, "ECF has been reviewed ", ECF_reviewed
+  Text 5, 210, 60, 10, "Worker signature:"
+  EditBox 65, 205, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 130, 45, 15
-    CancelButton 230, 130, 45, 15
-  Text 10, 15, 260, 10, full_message
-  Text 5, 60, 50, 10, "Actions taken:"
-  Text 5, 80, 50, 10, "Verifs needed:"
-  Text 5, 100, 45, 10, "Other notes:"
-  Text 5, 135, 60, 10, "Worker signature:"
-  Text 120, 40, 100, 10, "If applicable - date doc(s) rcvd:"
-  GroupBox 5, 5, 270, 25, "DAIL for case #"  &  MAXIS_case_number
-  Text 5, 40, 55, 10, "MEMB Number:"
+    OkButton 180, 205, 45, 15
+    CancelButton 230, 205, 45, 15
 EndDialog
-
-when_contact_was_made = date & ", " & time
-'updates the "when contact was made" variable to show the current date & time
 
 Do
     Do
         err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-        'If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
-		IF elig_date <> "" THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Please Enter a valid date that forms were received."
+		If trim(docs_rcvd_date) <> "" THEN 
+            If isdate(docs_rcvd_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid date that the forms were received."
+        End If
 		If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
     	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -129,21 +156,14 @@ ElseIf are_we_at_dail <> "DAIL" Then
     Call navigate_to_MAXIS_screen("DAIL", "DAIL")
 End If
 
-'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 IF TIKL_checkbox = 1 then Call create_TIKL("Review case for requested verifications or actions needed: " & verifs_needed & ".", 10, date, False, TIKL_note_text)
 
 Call start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED FOR M" & memb_number & " ===")
-IF first_line = "" THEN CALL write_variable_in_case_note("* " & full_message)
-CALL write_variable_in_case_note(first_line)
-CALL write_variable_in_case_note(second_line)
-CALL write_variable_in_case_note(third_line)
-CALL write_variable_in_case_note(fourth_line)
-CALL write_variable_in_case_note(fifth_line)
+CALL write_variable_in_CASE_NOTE("-" & DAIL_type & " PROCESSED - " & full_message & "-")
 CALL write_variable_in_case_note("---")
 IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* Case file has been reviewed.")
+If trim(docs_rcvd_date) <> "" Then CALL write_bullet_and_variable_in_case_note("Date Doc(s) Received", docs_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note(TIKL_date_text)
@@ -151,3 +171,51 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report(DAIL_type & vbcr & full_message & vbcr & " DAIL has been case noted")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------
+'--Tab orders reviewed & confirmed----------------------------------------------
+'--Mandatory fields all present & Reviewed--------------------------------------
+'--All variables in dialog match mandatory fields-------------------------------
+'Review dialog names for content and content fit in dialog----------------------
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------
+'--Create a button to reference instructions------------------------------------
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------
+'--CASE:NOTE Header doesn't look funky------------------------------------------
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
+'--MAXIS_background_check reviewed (if applicable)------------------------------
+'--PRIV Case handling reviewed -------------------------------------------------
+'--Out-of-County handling reviewed----------------------------------------------
+'--script_end_procedures (w/ or w/o error messaging)----------------------------
+'--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
