@@ -62,8 +62,11 @@ EMConnect ""
 
 EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
 DAIL_type = trim(DAIL_type)
+If DAIL_type = "TIKL" Then EmReadScreen tikl_date, 8, 6, 11
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
+EMReadScreen full_case_name_and_number_line, 76, 5, 5 
+EMReadScreen full_dail_msg_line, 75, 6, 6
 
 'Enters “X” on DAIL message to open full message. 
 Call write_value_and_transmit("X", 6, 3)
@@ -89,6 +92,194 @@ Else
 
     'Transmit back to DAIL message
     transmit
+
+End If
+
+If instr(full_message, "VERIFICATIONS REQUESTED FOR THIS CASE. PLEASE REVIEW CASE") Then
+
+    EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
+    TRANSMIT
+
+    'Search CASE/NOTEs to determine if there is a VERIFICATIONS REQUESTED CASE/NOTE
+
+    'Using TIKL date to set too old date, no need to read for dates prior to 30 days before TIKL date
+    too_old_date = DateAdd("D", -30, date)
+
+    note_row = 5
+    Do
+        EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+        EMReadScreen note_title, 55, note_row, 25               'reading the note header
+        note_title = trim(note_title)
+
+        'VERIFICATIONS NOTES
+        If left(note_title, 29) = ">>>Verifications Requested<<<" Then
+            EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
+            transmit
+
+            EMReadScreen in_correct_note, 29, 4, 3                  'making sure we are in the right note
+            EMReadScreen note_list_header, 23, 4, 25
+
+            'Here we find the right row to start reading
+            If in_correct_note = ">>>Verifications Requested<<<" Then                     'making sure we're in the right note
+                'Verify the due date created by the verifications needed script to confirm we have found the correct CASE NOTE. It should only be found on the first page
+                row = 1
+                col = 1
+                EMSearch "* Verif due date:", row, col
+                If row <> 0 and col <> 0 Then
+                    EMReadScreen verif_due_date, 10, row, col + 18
+                    verif_due_date = TRIM(verif_due_date)
+
+                    verif_due_date_month = datepart("m", dateadd("d", 0, verif_due_date))
+                    If len(var_month) = 1 then var_month = "0" & var_month
+                    verif_due_date_day = datepart("d", dateadd("d", 0, verif_due_date))
+                    If len(var_day) = 1 then var_day = "0" & var_day
+                    verif_due_date_year = datepart("yyyy", dateadd("d", 0, verif_due_date))
+                    verif_due_date = verif_due_date_month & verif_due_date_day & verif_due_date_year
+                    
+                    tikl_date_formatted = tikl_date
+                    tikl_date_formatted_month = datepart("m", dateadd("d", 0, tikl_date_formatted))
+                    If len(var_month) = 1 then var_month = "0" & var_month
+                    tikl_date_formatted_day = datepart("d", dateadd("d", 0, tikl_date_formatted))
+                    If len(var_day) = 1 then var_day = "0" & var_day
+                    tikl_date_formatted_year = datepart("yyyy", dateadd("d", 0, tikl_date_formatted))
+                    tikl_date_formatted = tikl_date_formatted_month & tikl_date_formatted_day & tikl_date_formatted_year
+                    
+                    If verif_due_date = tikl_date_formatted Then 
+                        verifications_requested_case_note_found = True
+                        Exit Do
+                    Else
+                        PF3     'If it is not a match, then it will PF3 out of this CASE/NOTE
+                    End if
+                Else
+                    PF3         'If it is not a match, then it will PF3 out of this CASE/NOTE
+                End If
+            Else
+                PF3           'this backs us out of the note if we ended up in the wrong note.
+            End If
+        End If
+
+        'This is how we move through the notes and leave when we are done
+		IF note_date = "        " then Exit Do
+		note_row = note_row + 1
+		IF note_row = 19 THEN
+			PF8
+			note_row = 5
+		END IF
+		EMReadScreen next_note_date, 8, note_row, 6
+		IF next_note_date = "        " then Exit Do
+
+    Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
+
+    If verifications_requested_case_note_found = True Then
+    
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 281, 85, "Verifications Received Validation"
+            Text 5, 5, 270, 10, "Please review the verifications requested as noted in the CASE/NOTE."
+            Text 10, 25, 125, 10, "Have all verifications been received?"
+            DropListBox 10, 35, 255, 15, "Select one..."+chr(9)+"Yes, delete TIKL and redirect to NOTES - DOCS RECEIVED"+chr(9)+"No, run case through background", verifications_status
+            Text 5, 65, 60, 10, "Worker signature:"
+            EditBox 65, 60, 95, 15, worker_signature
+            ButtonGroup ButtonPressed
+            OkButton 180, 60, 45, 15
+            CancelButton 230, 60, 45, 15
+        EndDialog
+
+        Do
+            Do
+                err_msg = ""
+                Dialog Dialog1
+                cancel_confirmation
+                If verifications_status = "Select one..." then err_msg = err_msg & vbcr & "* Please indicate whether the verifications have been received."
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+            LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+        If verifications_status = "Yes, delete TIKL and redirect to NOTES - DOCS RECEIVED" Then
+            PF3     'back out of CASE/NOTE
+            PF3     'back to DAIL
+
+            'Reset TIKL effective date
+            tikl_date_reset = replace(tikl_date, "/", " ")
+            EmWriteScreen left(tikl_date_reset, 2), 4, 67
+            EmWriteScreen left(right(tikl_date_reset, 5), 2), 4, 70
+            EmWriteScreen right(tikl_date_reset, 2), 4, 73
+            transmit
+
+            dail_row = 6
+            Do
+                EMReadScreen check_full_case_name_and_number_line, 76, dail_row - 1, 5 
+                EMReadScreen check_full_dail_msg_line, 75, dail_row, 6
+
+                If check_full_case_name_and_number_line = full_case_name_and_number_line and check_full_dail_msg_line = full_dail_msg_line Then
+                    'Delete the message, match found
+                    Call write_value_and_transmit("D", dail_row, 3)
+
+                    'Handling for deleting message under someone else's x number
+                    EMReadScreen other_worker_error, 25, 24, 2
+                    other_worker_error = trim(other_worker_error)
+
+                    If other_worker_error = "ALL MESSAGES WERE DELETED" or other_worker_error = "" Then
+                        'Script deleted the final message in the DAIL
+
+                        'Navigate back to SELF and add the case number
+                        back_to_SELF
+                        EMWriteScreen MAXIS_case_number, 18, 43
+
+                        CALL run_from_GitHub(script_repository & "notes/documents-received.vbs")
+
+                    ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+                        'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
+                        transmit
+
+                        'Navigate back to SELF and add the case number
+                        back_to_SELF
+                        EMWriteScreen MAXIS_case_number, 18, 43
+
+                        CALL run_from_GitHub(script_repository & "notes/documents-received.vbs")
+
+                    End If
+                End If
+                    
+                dail_row = dail_row + 1
+
+                'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+                EMReadScreen new_case, 8, dail_row, 63
+                new_case = trim(new_case)
+                IF new_case <> "CASE NBR" THEN 
+                    'If there is NOT a new case number, the script will top the message
+                    Call write_value_and_transmit("T", dail_row, 3)
+                ELSEIF new_case = "CASE NBR" THEN
+                    'If the script does find that there is a new case number (indicated by "CASE NBR"), it will end as it was unable to find the matching TIKL
+                    script_end_procedure_with_error_report("The script was unable to return to the correct TIKL message. Please delete manually.")
+                    Call write_value_and_transmit("T", dail_row + 1, 3)
+                End if
+
+                'Resets the DAIL row since the message has now been topped
+                dail_row = 6  
+            Loop
+
+        ElseIf verifications_status = "No, run case through background" Then
+            PF3     'back out of CASE/NOTE
+            PF3     'back to DAIL
+
+            'Navigate to STAT
+            Call write_value_and_transmit("S", 6, 3)
+
+            'Run case through background
+            Call write_value_and_transmit("BGTX", 20, 71)
+
+            'Transmit past STAT/WRAP
+            Transmit
+            
+            script_end_procedure_with_error_report("Success! The case has been run through background. Please review the case again.")
+            
+        End If
+        
+    Else
+        script_end_procedure_with_error_report("Unable to find the corresponding 'Verifications Requested' CASE/NOTE. The script will now end.")
+    End If        
 
 End If
 
