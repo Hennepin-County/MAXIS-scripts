@@ -283,6 +283,56 @@ If instr(full_message, "VERIFICATIONS REQUESTED FOR THIS CASE. PLEASE REVIEW CAS
 
 End If
 
+If instr(full_message, "SSN HAS NOT BEEN VERIFIED IN OVER 60 DAYS") Then
+
+    'Dialog with links to policy references
+    Dialog1 = "" 'blanking out dialog name
+    BeginDialog Dialog1, 0, 0, 311, 155, "DAIL - SSN HAS NOT BEEN VERIFIED"
+    ButtonGroup ButtonPressed
+        PushButton 5, 45, 65, 15, "CM 0012.03", combined_manual_btn
+        PushButton 5, 65, 65, 15, "TE 02.12.14", poli_temp_btn
+        PushButton 5, 85, 65, 15, "HSR Manual", hsr_manual_btn
+        PushButton 5, 105, 65, 15, "Script Instructions", script_instructions_btn
+        OkButton 205, 135, 50, 15
+        CancelButton 255, 135, 50, 15
+    Text 5, 5, 55, 10, "DAIL Message - "
+    Text 60, 5, 245, 10, full_message
+    Text 5, 20, 300, 20, "This DAIL message is not currently supported by scripts. Please see the following policies/ procedures for information on how to process:"
+    Text 75, 50, 95, 10, "Link to Combined Manual"
+    Text 75, 70, 75, 10, "Link to POLI/TEMP"
+    Text 75, 90, 85, 10, "Link to HSR Manual"
+    Text 75, 110, 85, 10, "Link to Script Instructions"
+    EndDialog
+
+    DO
+        Do
+            err_msg = ""    'This is the error message handling
+            Dialog Dialog1
+            cancel_without_confirmation
+            If ButtonPressed = combined_manual_btn Then
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001203"
+                err_msg = "LOOP"
+            End If
+            If ButtonPressed = poli_temp_btn Then
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.081%20DAIL%20MESSAGE%20%20%20SSN%20NOT%20VERIFIED.pdf"
+                err_msg = "LOOP"
+            End If
+            If ButtonPressed = hsr_manual_btn Then 
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/PEPR.aspx#ssn-has-not-been-verified-in-over-60-days"
+                err_msg = "LOOP"
+            End If
+            If ButtonPressed = script_instructions_btn Then 
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/DAIL%20-%20CATCH%20ALL.docx"
+                err_msg = "LOOP"
+            End If
+        Loop until err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+    'End the script.
+    script_end_procedure("Please follow the instructions provided in the Combined Manual, POLI/TEMP, and/or HSR Manual. The script will now end.")
+End If
+
 EMWriteScreen "S", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 
