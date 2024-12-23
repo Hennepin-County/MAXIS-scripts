@@ -338,21 +338,24 @@ If instr(full_message, "GA HAS BEEN ACTV FOR 2 YEARS - REFER TO SSA IF APPROPRIA
     'Dialog with links to policy references
     Dialog1 = "" 'blanking out dialog name
     BeginDialog Dialog1, 0, 0, 311, 155, "DAIL - GA HAS BEEN ACTV FOR 2 YEARS - REFER TO SSA IF APPROPRIATE"
+        Text 5, 5, 55, 10, "DAIL Message - "
+        Text 60, 5, 245, 10, "full_message"
+        Text 5, 20, 300, 20, "This DAIL message is not currently supported by scripts. Please see the following policies/ procedures for information on how to process:"
         ButtonGroup ButtonPressed
         PushButton 5, 45, 65, 15, "CM 12.0012.12", combined_manual_btn
-        PushButton 5, 65, 65, 15, "HSR Manual", hsr_manual_btn
-        PushButton 5, 85, 65, 15, "Script Instructions", script_instructions_btn
-        OkButton 205, 135, 50, 15
-        CancelButton 255, 135, 50, 15
-        Text 5, 5, 55, 10, "DAIL Message - "
-        Text 60, 5, 245, 10, full_message
-        Text 5, 20, 300, 20, "This DAIL message is not currently supported by scripts. Please see the following policies/ procedures for information on how to process:"
         Text 75, 50, 95, 10, "Link to Combined Manual"
+        ButtonGroup ButtonPressed
+        PushButton 5, 65, 65, 15, "HSR Manual", hsr_manual_btn
         Text 75, 70, 85, 10, "Link to HSR Manual"
+        ButtonGroup ButtonPressed
+        PushButton 5, 85, 65, 15, "Script Instructions", script_instructions_btn
         Text 75, 90, 85, 10, "Link to Script Instructions"
         ButtonGroup ButtonPressed
         PushButton 5, 105, 210, 15, "Redirect to NOTES - OTHER MAINTENANCE BENEFITS script", redirect_notes_other_maint_benefits_btn
+        OkButton 205, 135, 50, 15
+        CancelButton 255, 135, 50, 15
     EndDialog
+  
 
     DO
         Do
@@ -511,46 +514,46 @@ script_end_procedure_with_error_report(DAIL_type & vbcr & full_message & vbcr & 
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
-'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
-'--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------12/23/2024
+'--Tab orders reviewed & confirmed----------------------------------------------12/23/2024
+'--Mandatory fields all present & Reviewed--------------------------------------12/23/2024
+'--All variables in dialog match mandatory fields-------------------------------12/23/2024
+'Review dialog names for content and content fit in dialog----------------------12/23/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------N/A 
+'--Include script category and name somewhere on first dialog-------------------N/A
+'--Create a button to reference instructions------------------------------------12/23/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------12/23/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------12/23/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------12/23/2024
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------12/23/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------12/23/2024
+'--PRIV Case handling reviewed -------------------------------------------------12/23/2024
+'--Out-of-County handling reviewed----------------------------------------------12/23/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/23/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------12/23/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------12/23/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------12/23/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------12/23/2024
+'--Denomination reviewed -------------------------------------------------------12/23/2024
+'--Script name reviewed---------------------------------------------------------12/23/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------12/23/2024
+'--comment Code-----------------------------------------------------------------12/23/2024
+'--Update Changelog for release/update------------------------------------------12/23/2024
+'--Remove testing message boxes-------------------------------------------------12/23/2024
+'--Remove testing code/unnecessary code-----------------------------------------12/23/2024
+'--Review/update SharePoint instructions----------------------------------------12/23/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------12/23/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------12/23/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------12/23/2024
+'--Complete misc. documentation (if applicable)---------------------------------12/23/2024
+'--Update project team/issue contact (if applicable)----------------------------12/23/2024
