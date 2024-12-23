@@ -379,6 +379,10 @@ End If
 
 If instr(full_message, "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG") Then
 
+    'Navigate to STAT/DISA
+    Call write_value_and_transmit("S", 6, 3)
+    Call write_value_and_transmit("DISA", 20, 71)
+
     'Dialog with links to policy references
     Dialog1 = "" 'blanking out dialog name
     BeginDialog Dialog1, 0, 0, 311, 155, "DAIL - DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG"
