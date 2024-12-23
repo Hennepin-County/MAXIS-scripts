@@ -350,6 +350,8 @@ If instr(full_message, "GA HAS BEEN ACTV FOR 2 YEARS - REFER TO SSA IF APPROPRIA
         Text 75, 50, 95, 10, "Link to Combined Manual"
         Text 75, 70, 85, 10, "Link to HSR Manual"
         Text 75, 90, 85, 10, "Link to Script Instructions"
+        ButtonGroup ButtonPressed
+        PushButton 5, 105, 210, 15, "Redirect to NOTES - OTHER MAINTENANCE BENEFITS script", redirect_notes_other_maint_benefits_btn
     EndDialog
 
     DO
@@ -368,6 +370,12 @@ If instr(full_message, "GA HAS BEEN ACTV FOR 2 YEARS - REFER TO SSA IF APPROPRIA
             If ButtonPressed = script_instructions_btn Then 
                 run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/DAIL%20-%20CATCH%20ALL.docx"
                 err_msg = "LOOP"
+            End If
+            If ButtonPressed = redirect_notes_other_maint_benefits_btn Then 
+                'Navigate back to SELF and add the case number
+                back_to_SELF
+                EMWriteScreen MAXIS_case_number, 18, 43 
+                CALL run_from_GitHub(script_repository & "notes/other-benefits-referral.vbs")
             End If
         Loop until err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
