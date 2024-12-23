@@ -3046,7 +3046,8 @@ case_number_array = split(case_number_array, "|")
 'Ends here if the user selected to just APPL all cases
 If approve_case_dropdown = "no, just APPL all cases" then
 	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
-	script_end_procedure("Success! Cases made and appl'd, per your request.")
+	end_msg = "Success! Cases made and appl'd, per your request." & vbCr & vbCr & "Case Numbers:" & vbCr & join(case_number_array, ", ")
+	script_end_procedure(end_msg)
 End if
 '========================================================================PND1 PANELS========================================================================
 
@@ -3190,7 +3191,8 @@ Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
 'Ends here if the user selected to just do TYPE/PROG/REVW for all cases
 If approve_case_dropdown = "no, but do TYPE/PROG/REVW" then
 	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
-	script_end_procedure("Success! Cases made and appl'd, and TYPE/PROG/REVW updated, per your request.")
+	end_msg = "Success! Cases made and appl'd, and TYPE/PROG/REVW updated, per your request." & vbCr & vbCr & "Case Numbers:" & vbCr & join(case_number_array, ", ")
+	script_end_procedure(end_msg)
 End if
 '========================================================================PND2 PANELS========================================================================
 
@@ -4567,7 +4569,8 @@ Next
 'Ends here if the user selected to leave cases in PND2 status
 If approve_case_dropdown = "no, but enter all STAT panels needed to approve" then
 	If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
-	script_end_procedure("Success! Cases made, STAT panels added, and left in PND2 status, per your request.")
+	end_msg = "Success! Cases made, STAT panels added, and left in PND2 status, per your request." & vbCr & vbCr & "Case Numbers:" & vbCr & join(case_number_array, ", ")
+	script_end_procedure(end_msg)
 End if
 
 '========================================================================APPROVAL========================================================================
@@ -5690,4 +5693,6 @@ NEXT
 
 STATS_counter = STATS_counter - 1 'removing extra counted case as it starts at 1.
 If XFER_check = checked then call transfer_cases(workers_to_XFER_cases_to, case_number_array)
-script_end_procedure("Success! Cases made and approved, per your request.")
+end_msg = "Success! Cases made and approved, per your request." & vbCr & vbCr & "Case Numbers:" & vbCr & join(case_number_array, ", ")
+script_end_procedure(end_msg)
+
