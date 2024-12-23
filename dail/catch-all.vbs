@@ -103,7 +103,7 @@ If instr(full_message, "VERIFICATIONS REQUESTED FOR THIS CASE. PLEASE REVIEW CAS
     'Search CASE/NOTEs to determine if there is a VERIFICATIONS REQUESTED CASE/NOTE
 
     'Using TIKL date to set too old date, no need to read for dates prior to 30 days before TIKL date
-    too_old_date = DateAdd("D", -30, date)
+    too_old_date = DateAdd("D", -120, date)
 
     note_row = 5
     Do
@@ -289,7 +289,7 @@ If instr(full_message, "SSN HAS NOT BEEN VERIFIED IN OVER 60 DAYS") Then
     Dialog1 = "" 'blanking out dialog name
     BeginDialog Dialog1, 0, 0, 311, 155, "DAIL - SSN HAS NOT BEEN VERIFIED"
     ButtonGroup ButtonPressed
-        PushButton 5, 45, 65, 15, "CM 0012.03", combined_manual_btn
+        PushButton 5, 45, 65, 15, "CM 12.0012.03", combined_manual_btn
         PushButton 5, 65, 65, 15, "TE 02.12.14", poli_temp_btn
         PushButton 5, 85, 65, 15, "HSR Manual", hsr_manual_btn
         PushButton 5, 105, 65, 15, "Script Instructions", script_instructions_btn
@@ -375,6 +375,44 @@ If instr(full_message, "GA HAS BEEN ACTV FOR 2 YEARS - REFER TO SSA IF APPROPRIA
 
     'End the script.
     script_end_procedure("Please follow the instructions provided in the Combined Manual and/or HSR Manual. The script will now end.")
+End If
+
+If instr(full_message, "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG") Then
+
+    'Dialog with links to policy references
+    Dialog1 = "" 'blanking out dialog name
+    BeginDialog Dialog1, 0, 0, 311, 155, "DAIL - DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG"
+        ButtonGroup ButtonPressed
+        PushButton 5, 45, 65, 15, "CM 12.0012.15", combined_manual_btn
+        PushButton 5, 65, 65, 15, "Script Instructions", script_instructions_btn
+        OkButton 205, 135, 50, 15
+        CancelButton 255, 135, 50, 15
+        Text 5, 5, 55, 10, "DAIL Message - "
+        Text 60, 5, 245, 10, "full_message"
+        Text 5, 20, 300, 20, "This DAIL message is not currently supported by scripts. Please see the following policies/ procedures for information on how to process:"
+        Text 75, 50, 95, 10, "Link to Combined Manual"
+        Text 75, 70, 85, 10, "Link to Script Instructions"
+    EndDialog
+
+    DO
+        Do
+            err_msg = ""    'This is the error message handling
+            Dialog Dialog1
+            cancel_without_confirmation
+            If ButtonPressed = combined_manual_btn Then
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_001215"
+                err_msg = "LOOP"
+            End If
+            If ButtonPressed = script_instructions_btn Then 
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/DAIL%20-%20CATCH%20ALL.docx"
+                err_msg = "LOOP"
+            End If
+        Loop until err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+    'End the script.
+    script_end_procedure("Please follow the instructions provided in the Combined Manual, POLI/TEMP, and/or HSR Manual. The script will now end.")
 End If
 
 EMWriteScreen "S", 6, 3         'Goes to Case Note - maintains tie with DAIL
