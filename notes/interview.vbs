@@ -784,7 +784,7 @@ function define_main_dialog()
 			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
 				GroupBox 10, y_pos, 455, 35, "No Phone Number, Review Phone Contact"
 				Text 20, y_pos + 20, 165, 10, "Confirm with the resident about phone contact."
-				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+"Resident uses free phone via internet program and pays no phone or internet bill"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
+				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
 				y_pos = y_pos + 40
 			End If
 			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
