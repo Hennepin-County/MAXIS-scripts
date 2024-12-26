@@ -165,7 +165,7 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 						If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
 						If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
 						If revw_form_date <> "" Then Call write_variable_in_CASE_NOTE("Renewal Form Received on " & revw_form_date)
-						' If revw_intvw_date <> "" Then Call write_variable_in_CASE_NOTE("Interview Completed on " & revw_intvw_date )				'Taking this out during the Interview Waiver time.
+						If revw_intvw_date <> "" Then Call write_variable_in_CASE_NOTE("Interview Completed on " & revw_intvw_date )
 						Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
 						If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
 						Call write_variable_in_CASE_NOTE("---")
