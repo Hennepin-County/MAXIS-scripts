@@ -69,24 +69,30 @@ families_checkbox = 1
 adults_checkbox = 1
 
 'Creating 10-day/10-day variable to determine which dates to create list of DAILs to capture 
-IF CM_mo = "04" AND CM_yr = "24" THEN
-    ten_day_10_day = #04/08/2024#
-ELSEIF CM_mo = "05" AND CM_yr = "24" THEN
-    ten_day_10_day = #05/11/2024#
-ELSEIF CM_mo = "06" AND CM_yr = "24" THEN
-    ten_day_10_day = #06/10/2024#
-ELSEIF CM_mo = "07" AND CM_yr = "24" THEN
-    ten_day_10_day = #07/09/2024#
-ELSEIF CM_mo = "08" AND CM_yr = "24" THEN
-    ten_day_10_day = #08/11/2024#
-ELSEIF CM_mo = "09" AND CM_yr = "24" THEN
-    ten_day_10_day = #09/09/2024#
-ELSEIF CM_mo = "10" AND CM_yr = "24" THEN
-    ten_day_10_day = #10/11/2024#
-ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
-    ten_day_10_day = #11/09/2024#
-ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
-    ten_day_10_day = #12/09/2024#
+IF CM_mo = "01" AND CM_yr = "25" THEN
+    ten_day_10_day = #01/21/2025#
+ELSEIF CM_mo = "02" AND CM_yr = "25" THEN
+    ten_day_10_day = #02/18/2025#
+ELSEIF CM_mo = "03" AND CM_yr = "25" THEN
+    ten_day_10_day = #03/20/2025#
+ELSEIF CM_mo = "04" AND CM_yr = "25" THEN
+    ten_day_10_day = #04/18/2025#
+ELSEIF CM_mo = "05" AND CM_yr = "25" THEN
+    ten_day_10_day = #05/21/2025#
+ELSEIF CM_mo = "06" AND CM_yr = "25" THEN
+    ten_day_10_day = #06/18/2025#
+ELSEIF CM_mo = "07" AND CM_yr = "25" THEN
+    ten_day_10_day = #07/21/2025#
+ELSEIF CM_mo = "08" AND CM_yr = "25" THEN
+    ten_day_10_day = #08/21/2025#
+ELSEIF CM_mo = "09" AND CM_yr = "25" THEN
+    ten_day_10_day = #09/18/2025#
+ELSEIF CM_mo = "10" AND CM_yr = "25" THEN
+    ten_day_10_day = #10/21/2025#
+ELSEIF CM_mo = "11" AND CM_yr = "25" THEN
+    ten_day_10_day = #11/18/2025#
+ELSEIF CM_mo = "12" AND CM_yr = "25" THEN
+    ten_day_10_day = #12/19/2025#
 END IF 
 
 'last day of the month logic 
