@@ -972,7 +972,7 @@ Function ABAWD_FSET_exemption_finder()
         IF cl_age = "" THEN cl_age = 0
         cl_age = cl_age * 1
         eats_group_array(memb_age_const, items) = cl_age
-
+        
         'case-based exemption
 		If cl_age < 6 then child_under_six = True
         IF cl_age =< 17 THEN
@@ -981,18 +981,22 @@ Function ABAWD_FSET_exemption_finder()
 			adult_HH_count = adult_HH_count + 1
 		End if
     NEXT
-
+    
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
     For items = 0 to UBound(eats_group_array, 2)
         If child_under_18 = True then
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
-            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+            If eats_group_array(memb_age_const, items) > 17 then 
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+            End if 
         End if
         '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
-        If child_under_6 = True then
+        If child_under_six = True then
             If adult_HH_count = 1 then
-                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
-                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
+                If eats_group_array(memb_age_const, items) > 17 then 
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
+                End if 
             Else
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. "
             End if
