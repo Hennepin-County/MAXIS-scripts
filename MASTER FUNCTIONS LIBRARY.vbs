@@ -12514,6 +12514,610 @@ function read_inqb_for_all_issuances(months_to_go_back, beginning_footer_month, 
 	Call Back_to_SELF
 end function
 
+function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active, QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active, CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active, QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active, CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed, QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed, CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed, QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array)
+
+	'--- This function navigates to the Program History from CASE/CURR and reads all of the case history and adds it to an array
+	'~~~~~ PROGRAM_ever_active: TRUE or FALSE indicating whether program was ever active
+	'~~~~~ PROGRAM_currently_active: TRUE or FALSE indicating whether program is currently active
+	'~~~~~ PROGRAM_date_closed: Most recent date of closure for program
+	'~~~~~ PROGRAM_reason_closed: Reason for most recent closure of program
+	'~~~~~ active_spans_array: Creates an array of active programs - program, APPL date, open date, close date
+
+    'Set variables to FALSE
+    CASH_ever_active = FALSE
+    MSA_ever_active = FALSE
+    FS_ever_active = FALSE
+    MA_ever_active = FALSE
+    EMER_ever_active = FALSE 
+    GRH_ever_active = FALSE
+    GA_ever_active = FALSE 
+    MFIP_ever_active = FALSE
+    DWP_ever_active = FALSE 
+    QMB_ever_active = FALSE
+    SLMB_ever_active = FALSE
+    CCAP_ever_active = FALSE
+    QI1_ever_active = FALSE
+    RCA_ever_active = FALSE
+    IV_E_ever_active = FALSE
+    IMD_ever_active = FALSE
+
+    CASH_currently_active = FALSE
+    MSA_currently_active = FALSE 
+    FS_currently_active = FALSE 
+    MA_currently_active = FALSE 
+    EMER_currently_active = FALSE 
+    GRH_currently_active = FALSE 
+    GA_currently_active = FALSE 
+    MFIP_currently_active = FALSE 
+    DWP_currently_active = FALSE 
+    QMB_currently_active = FALSE 
+    SLMB_currently_active = FALSE 
+    CCAP_currently_active = FALSE 
+    QI1_currently_active = FALSE 
+    RCA_currently_active = FALSE 
+    IV_E_currently_active = FALSE 
+    IMD_currently_active = False
+
+    CASH_date_closed = ""  
+    MSA_date_closed = ""  
+    FS_date_closed = ""  
+    MA_date_closed = ""  
+    EMER_date_closed = ""  
+    GRH_date_closed = ""  
+    GA_date_closed = ""  
+    MFIP_date_closed = ""  
+    DWP_date_closed = ""  
+    QMB_date_closed = ""  
+    SLMB_date_closed = ""  
+    CCAP_date_closed = ""  
+    QI1_date_closed = ""  
+    RCA_date_closed = ""  
+    IV_E_date_closed = ""  
+    IMD_date_closed = ""
+
+    CASH_reason_closed = ""  
+    MSA_reason_closed = ""  
+    FS_reason_closed = ""  
+    MA_reason_closed = ""  
+    EMER_reason_closed = ""  
+    GRH_reason_closed = ""  
+    GA_reason_closed = ""  
+    MFIP_reason_closed = ""  
+    DWP_reason_closed = ""  
+    QMB_reason_closed = ""  
+    SLMB_reason_closed = ""  
+    CCAP_reason_closed = ""  
+    QI1_reason_closed = ""  
+    RCA_reason_closed = ""  
+    IV_E_reason_closed = ""  
+    IMD_reason_closed = ""
+
+    'constants for active_spans_array
+    const prog_const           	= 0
+    const appl_dt_const         = 1
+    const eff_inact_dt_const	= 2
+
+    number_of_programs_const 	= 0
+
+    ReDim active_spans_array(2, number_of_programs_const)
+
+    prog_history_row = 8
+    all_programs_encountered = "*"
+
+    DO
+        'Check if end found
+
+        If prog_history_row > 17 Then
+            PF8
+            EMReadScreen last_page_check, 21, 24, 2
+            If last_page_check = "THIS IS THE LAST PAGE" Then
+                Exit Do		'End of history found
+            Else
+                prog_history_row = 8
+            End If
+        End If
+
+        EMReadScreen prog, 5, prog_history_row, 3
+        prog = trim(prog)
+        
+        'Handling to determine if end of history found
+        If prog = "" Then
+            prog_history_row = prog_history_row + 1
+            EMReadScreen prog, 5, prog_history_row, 3
+            prog = trim(prog)
+            
+            If prog = "" or prog = "More:" Then
+                PF8
+                EMReadScreen last_page_check, 21, 24, 2
+                If last_page_check = "THIS IS THE LAST PAGE" Then
+                    Exit Do		'End of history found
+                Else
+                    prog_history_row = 7
+                End If
+            End If
+        End If
+
+        If instr(all_programs_encountered, prog) = FALSE Then
+            'Add the new program to the list of programs encountered
+            all_programs_encountered = all_programs_encountered & prog & "*"
+
+            'Handling depending on the program
+
+            EMReadScreen appl_dt, 8, prog_history_row, 9
+            appl_dt = trim(appl_dt)
+
+            EMReadScreen eff_inact_dt, 8, prog_history_row,  18
+            eff_inact_dt = trim(eff_inact_dt)
+
+            EMReadScreen reason, 21, prog_history_row, 60
+            reason = trim(reason)
+            
+            If prog = "CASH" Then
+
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    CASH_ever_active = True
+                    CASH_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    CASH_date_closed = eff_inact_dt
+
+                    CASH_reason_closed = reason
+
+                End If
+            
+            ElseIf prog = "MSA" Then 
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    MSA_ever_active = True
+                    MSA_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    MSA_date_closed = eff_inact_dt
+
+                    MSA_reason_closed = reason
+
+                End If
+                
+            ElseIf prog = "FS" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    FS_ever_active = True
+                    FS_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    FS_date_closed = eff_inact_dt
+
+                    FS_reason_closed = reason
+
+                End If
+            ElseIf prog = "MA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    MA_ever_active = True
+                    MA_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    MA_date_closed = eff_inact_dt
+
+                    MA_reason_closed = reason
+
+                End If
+            ElseIf prog = "EMER" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    EMER_ever_active = True
+                    EMER_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    EMER_date_closed = eff_inact_dt
+
+                    EMER_reason_closed = reason
+
+                End If
+            ElseIf prog = "GRH" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    GRH_ever_active = True
+                    GRH_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    GRH_date_closed = eff_inact_dt
+
+                    GRH_reason_closed = reason
+
+                End If
+            ElseIf prog = "GA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    GA_ever_active = True
+                    GA_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    GA_date_closed = eff_inact_dt
+                    GA_reason_closed = reason
+
+                End If
+            ElseIf prog = "MFIP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    MFIP_ever_active = True
+                    MFIP_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    MFIP_date_closed = eff_inact_dt
+
+                    MFIP_reason_closed = reason
+
+                End If
+            ElseIf prog = "DWP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    DWP_ever_active = True
+                    DWP_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    DWP_date_closed = eff_inact_dt
+
+                    DWP_reason_closed = reason
+
+                End If
+            ElseIf prog = "QMB" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    QMB_ever_active = True
+                    QMB_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    QMB_date_closed = eff_inact_dt
+
+                    QMB_reason_closed = reason
+
+                End If
+            ElseIf prog = "SLMB" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+
+                    'Capture active status and add to active_spans_array
+                    SLMB_ever_active = True
+                    SLMB_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    SLMB_date_closed = eff_inact_dt
+
+                    SLMB_reason_closed = reason
+
+                End If
+            ElseIf prog = "CCAP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    CCAP_ever_active = True
+                    CCAP_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    CCAP_date_closed = eff_inact_dt
+
+                    CCAP_reason_closed = reason
+
+                End If
+            ElseIf prog = "QI1" Then 
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    QI1_ever_active = True
+                    QI1_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    QI1_date_closed = eff_inact_dt
+
+                    QI1_reason_closed = reason
+
+                End If
+            ElseIf prog = "RCA" Then 
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    RCA_ever_active = True
+                    RCA_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    RCA_date_closed = eff_inact_dt
+
+                    RCA_reason_closed = reason
+
+                End If
+            ElseIf prog = "IV-E" Then 
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    IV_E_ever_active = True
+                    IV_E_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    IV_E_date_closed = eff_inact_dt
+
+                    IV_E_reason_closed = reason
+
+                End If
+            ElseIf prog = "IMD" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    'Capture active status and add to active_spans_array
+                    IMD_ever_active = True
+                    IMD_currently_active = True
+
+                    active_spans_array(prog_const, number_of_programs_const) = prog
+                    active_spans_array(appl_dt_const, number_of_programs_const) = appl_dt
+                    active_spans_array(eff_inact_dt_const, number_of_programs_const) = eff_inact_dt
+
+                    number_of_programs_const = number_of_programs_const + 1
+
+                    Redim Preserve active_spans_array(2, number_of_programs_const)
+
+                Else
+                    IMD_date_closed = eff_inact_dt
+
+                    IMD_reason_closed = reason
+
+                End If
+            End If
+        Else
+            'Check if program was ever active
+            If prog = "CASH" Then
+
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    CASH_ever_active = True
+                End If
+            ElseIf prog = "MSA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    MSA_ever_active = True
+                End If
+                
+            ElseIf prog = "FS" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    FS_ever_active = True
+                End If
+
+            ElseIf prog = "MA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    MA_ever_active = True
+                End If
+
+            ElseIf prog = "EMER" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    EMER_ever_active = True
+                End If
+            ElseIf prog = "GRH" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    GRH_ever_active = True
+                End If
+            ElseIf prog = "GA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    GA_ever_active = True
+                End If
+            ElseIf prog = "MFIP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    MFIP_ever_active = True
+                End If
+            ElseIf prog = "DWP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    DWP_ever_active = True
+                End If
+            ElseIf prog = "QMB" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    QMB_ever_active = True
+                End If
+            ElseIf prog = "SLMB" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    SLMB_ever_active = True
+                End If
+            ElseIf prog = "CCAP" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    CCAP_ever_active = True
+                End If
+            ElseIf prog = "QI1" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    QI1_ever_active = True
+                End If 
+            ElseIf prog = "RCA" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    RCA_ever_active = True
+                End If 
+            ElseIf prog = "IV-E" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    IV_E_ever_active = True
+                End If 
+            ElseIf prog = "IMD" Then
+                EMReadScreen status, 21, prog_history_row, 38
+                status = trim(status)
+                If status = "ACTIVE" Then
+                    IMD_ever_active = True
+                End If
+            End If
+        End If
+        
+        'Move to next row
+        prog_history_row = prog_history_row + 1
+    Loop
+End Function
+
 function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, total_shelter_expense, original_information)
 '--- Function to read all of the SHEL panels and total everything listed on each panel to a final total.
 '~~~~~ ref_numbers_with_panel: string of all member reference numbers that have a SHEL panel existing - seperated by "~"
