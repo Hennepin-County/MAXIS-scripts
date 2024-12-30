@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/30/2024", "Fixed bug in incremental dail_row.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2024", "Added GA Mass Change message evaluation as part of the DAIL CCD process.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/13/2024", "Added COLA message evaluation as part of the DAIL CCD process.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
@@ -235,9 +236,9 @@ For each worker in worker_array
 				EMReadScreen other_worker_error, 13, 24, 2
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
-			End if
-
-            dail_row = dail_row + 1
+            Else 
+                dail_row = dail_row + 1
+            End if 
             'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
 			EMReadScreen next_dail_check, 7, dail_row, 3
 			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
