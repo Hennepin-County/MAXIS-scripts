@@ -985,8 +985,10 @@ Function ABAWD_FSET_exemption_finder()
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
     For items = 0 to UBound(eats_group_array, 2)
         If child_under_18 = True then
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
-            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+            If eats_group_array(memb_age_const, items) > 17 then 
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+            End if 
         End if
         '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
         If child_under_six = True then
