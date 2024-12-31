@@ -210,10 +210,8 @@ Call clear_line_of_text(9, 48)  'Clearing Client Option Number
 Call clear_line_of_text(9, 69)  'Clearing Case Type
 
 For i = 0 to UBound(case_array, 2)
-    Client_PMI = case_array(clt_PMI_const, i)
-
     get_to_RKEY
-    Call write_value_and_transmit (Client_PMI, 4, 19)
+    Call write_value_and_transmit (case_array(clt_PMI_const, i), 4, 19)
     EmReadscreen RKEY_panel_check, 4, 1, 52
     If RKEY_panel_check = "RKEY" then
         EmReadscreen RKEY_error, 78, 24, 2
@@ -249,9 +247,6 @@ Next
 
 '----------------------------------------------------------------------------------------------------Health Care Information Report
 For i = 0 to UBound(case_array, 2)
-    Client_SSN = case_array(client_SSN_const, i)
-    Client_PMI = case_array(clt_PMI_const, i)
-
     If case_array(case_status, i) = "RECIPIENT ID COULD NOT BE FOUND" then
         objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, i)
         objExcel.Cells(excel_row, 23).Value = case_array(case_status, i)
@@ -261,10 +256,10 @@ For i = 0 to UBound(case_array, 2)
         Call clear_line_of_text(4, 19)  'Clearing PMI
         Call clear_line_of_text(5, 19)  'Clearing SSN
 
-        If trim(Client_SSN) = "" then
-            EMWriteScreen Client_PMI, 4, 19
+        If trim(case_array(client_SSN_const, i)) = "" then
+            EMWriteScreen case_array(clt_PMI_const, i), 4, 19
         Else
-            EMWriteScreen Client_SSN, 5, 19
+            EMWriteScreen case_array(client_SSN_const, i), 5, 19
         End if
 
         Call write_value_and_transmit("I", 2, 19)   'transmitting to next screen. Could be RSEL or RSUM. If SSN is searched and more than one record is found, the RSEL screen will appear.
@@ -274,7 +269,7 @@ For i = 0 to UBound(case_array, 2)
             EmReadscreen panel_check, 4, 1, 51
             If RSEL_panel_check = "RSEL" then
                 EmReadscreen RSEL_SSN, 9, RSEL_row, 48
-                If RSEL_SSN = Client_SSN then
+                If RSEL_SSN = case_array(client_SSN_const, i) then
                     duplicate_entry = True
                     Call write_value_and_transmit("X", RSEL_row, 2)
                     '---------------------------------------This bit is for the rare case where you cannot select the SSN on RSEL. Those will be on the error list
