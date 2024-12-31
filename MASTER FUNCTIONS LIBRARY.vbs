@@ -12516,14 +12516,14 @@ end function
 
 function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active, QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active, CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active, QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active, CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed, QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed, CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed, QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array)
 
-	'--- This function navigates to the Program History from CASE/CURR and reads all of the case history and adds it to an array
+	'--- This function navigates to the Program History from CASE/CURR and reads all of the program history. It also creates an array of all active programs
 	'~~~~~ PROGRAM_ever_active: TRUE or FALSE indicating whether program was ever active
 	'~~~~~ PROGRAM_currently_active: TRUE or FALSE indicating whether program is currently active
-	'~~~~~ PROGRAM_date_closed: Most recent date of closure for program
+	'~~~~~ PROGRAM_date_closed: Most recent date of closure (Eff/Inact Date) for program
 	'~~~~~ PROGRAM_reason_closed: Reason for most recent closure of program
-	'~~~~~ active_spans_array: Creates an array of active programs - program, APPL date, open date, close date
+	'~~~~~ active_spans_array: Creates an array of all currently active programs - program name, APPL date, Eff/Inact Date
 
-    'Set variables to FALSE
+    'Set variables to FALSE/empty
     CASH_ever_active = FALSE
     MSA_ever_active = FALSE
     FS_ever_active = FALSE
@@ -12592,7 +12592,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
     IV_E_reason_closed = ""  
     IMD_reason_closed = ""
 
-    'constants for active_spans_array
+    'Constants for active_spans_array
     const prog_const           	= 0
     const appl_dt_const         = 1
     const eff_inact_dt_const	= 2
@@ -12601,8 +12601,14 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
 
     ReDim active_spans_array(2, number_of_programs_const)
 
+	'Program history info starts at row 8
     prog_history_row = 8
     all_programs_encountered = "*"
+
+	'Navigate to CASE/CURR and then open the program history
+    call maxis_case_number_finder(MAXIS_case_number)
+	Call navigate_to_MAXIS_screen("CASE", "CURR")
+	Call write_value_and_transmit("X", 4, 9)		
 
     DO
         'Check if end found
