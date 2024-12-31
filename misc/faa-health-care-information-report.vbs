@@ -60,6 +60,7 @@ changelog_display
 'CONNECTS TO BlueZone
 EMConnect ""
 Call check_for_MMIS(False) 'ensuring we're in MMIS
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\Manual name search PMI 2024.10.23.xlsx" 'test code
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
@@ -107,21 +108,23 @@ const gender_const              = 5
 const first_case_number_const   = 6
 const first_type_const 	        = 7
 const first_elig_const 	        = 8
-const second_case_number_const 	= 9
-const second_type_const 	    = 10
-const second_elig_const 	    = 11
-const third_case_number_const 	= 12
-const third_type_const      	= 13
-const third_elig_const      	= 14
-const medi_A_begin              = 15
-const medi_A_end                = 16
-const medi_B_begin              = 17
-const medi_B_end                = 18
-const rsum_PMI_const            = 19
-const pmap_begin_const          = 20
-const pmap_end_const            = 21
-const pmap_name_const           = 22
-const case_status               = 23
+const reason_code_const         = 9
+const reason_def_const          = 10
+const second_case_number_const 	= 11
+const second_type_const 	    = 12
+const second_elig_const 	    = 13
+const third_case_number_const 	= 14
+const third_type_const      	= 15
+const third_elig_const      	= 16
+const medi_A_begin              = 17
+const medi_A_end                = 18
+const medi_B_begin              = 19
+const medi_B_end                = 20
+const rsum_PMI_const            = 21
+const pmap_begin_const          = 22
+const pmap_end_const            = 23
+const pmap_name_const           = 24      
+const case_status               = 25 
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -169,22 +172,24 @@ ObjExcel.Cells(1,  6).Value = "Gender"
 ObjExcel.Cells(1,  7).Value = "1st Case"
 ObjExcel.Cells(1,  8).Value = "1st Type/Prog"
 ObjExcel.Cells(1,  9).Value = "1st Elig Dates"
-ObjExcel.Cells(1, 10).Value = "2nd Case"
-ObjExcel.Cells(1, 11).Value = "2nd Type/Prog"
-ObjExcel.Cells(1, 12).Value = "2nd Elig Dates"
-ObjExcel.Cells(1, 13).Value = "3rd Case"
-ObjExcel.Cells(1, 14).Value = "3rd Type/Prog"
-ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
-ObjExcel.Cells(1, 16).Value = "PMAP Start"
-ObjExcel.Cells(1, 17).Value = "PMAP End"
-ObjExcel.Cells(1, 18).Value = "PMAP Name"
-ObjExcel.Cells(1, 19).Value = "Medi A Begin"
-ObjExcel.Cells(1, 20).Value = "Med A End"
-ObjExcel.Cells(1, 21).Value = "Medi B Begin"
-ObjExcel.Cells(1, 22).Value = "Med B End"
-ObjExcel.Cells(1, 23).Value = "Status"
+ObjExcel.Cells(1, 10).Value = "Reason Code"
+ObjExcel.Cells(1, 11).Value = "Reason Description"
+ObjExcel.Cells(1, 12).Value = "2nd Case"
+ObjExcel.Cells(1, 13).Value = "2nd Type/Prog"
+ObjExcel.Cells(1, 14).Value = "2nd Elig Dates"
+ObjExcel.Cells(1, 15).Value = "3rd Case"
+ObjExcel.Cells(1, 16).Value = "3rd Type/Prog"
+ObjExcel.Cells(1, 17).Value = "3rd Elig Dates"
+ObjExcel.Cells(1, 18).Value = "PMAP Start"
+ObjExcel.Cells(1, 19).Value = "PMAP End"
+ObjExcel.Cells(1, 20).Value = "PMAP Name"
+ObjExcel.Cells(1, 21).Value = "Medi A Begin"
+ObjExcel.Cells(1, 22).Value = "Med A End"
+ObjExcel.Cells(1, 23).Value = "Medi B Begin"
+ObjExcel.Cells(1, 24).Value = "Med B End"
+ObjExcel.Cells(1, 25).Value = "Status"
 
-FOR i = 1 to 23 	'formatting the cells'
+FOR i = 1 to 25	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -291,6 +296,7 @@ For i = 0 to UBound(case_array, 2)
                 End if
             End if
 
+            first_elig_blank = True 'default
             If panel_check = "RSUM" then
                 '1st case type/prog/elig/case number
                 EmReadscreen RSUM_PMI, 8, 2, 2
@@ -304,12 +310,14 @@ For i = 0 to UBound(case_array, 2)
                 EmReadscreen first_program, 2, 6, 13
                 EmReadscreen first_type, 2, 6, 35
                 If trim(first_program) <> "" then
+                    first_elig_blank = False 
                     first_elig_type = first_program & "-" & first_type
                     case_array(first_type_const, i) = first_elig_type
                     '1st elig dates
                     EmReadscreen first_elig_start, 8, 7, 35
                     EmReadscreen first_elig_end, 8, 7, 54
                     first_elig_dates = first_elig_start &  " - " & first_elig_end
+                    If (first_elig_end <> "99/99/99" or trim(first_elig_end) <> "") then end_date = True 
                     case_array(first_elig_const, i) = first_elig_dates
                 End if
 
@@ -379,6 +387,126 @@ For i = 0 to UBound(case_array, 2)
                 If hp_code = "A965713400" then case_array(pmap_name_const, i) = "Hennepin Health SNBC"
             End if
 
+            'All conditions need to be met in order to read/output the denial code/descrption
+            If first_elig_blank = False then 
+                If end_date = True then 
+                    Call write_value_and_transmit("RELG", 1, 8)
+                    EMReadScreen reason_code, 2, 7, 73
+                    
+                    If reason_code = "AH" then reason_def =  "HMCP APPROVED NEW APPL"
+                    If reason_code = "CB" then reason_def =  "HMCP CLOSED NOW MCRE ELIG"
+                    If reason_code = "CC" then reason_def =  "HMCP UNUSED 4 MONTH PENALTY"
+                    If reason_code = "CD" then reason_def =  "HMCP CLOSED DECEASED"
+                    If reason_code = "CG" then reason_def =  "HMCP CLOSED NO MA APPL"
+                    If reason_code = "CH" then reason_def =  "HMCP CLOSED NOT IN HOUSEHOLD"
+                    If reason_code = "CI" then reason_def =  "HMCP CLOSED OVER INCOME"
+                    If reason_code = "CJ" then reason_def =  "HMCP CLOSED INCARCERATION"
+                    If reason_code = "CL" then reason_def =  "HMCP CLOSED NOT RESIDENT"
+                    If reason_code = "CM" then reason_def =  "HMCP CLOSED MA COVERAGE"
+                    If reason_code = "CN" then reason_def =  "HMCP CLOSED IMIG NOT VERIFIED"
+                    If reason_code = "CO" then reason_def =  "HMCP CLOSED OTHER HEALTH INS"
+                    If reason_code = "CQ" then reason_def =  "HMCP CLOSED NO QC COOPERATION"
+                    If reason_code = "CR" then reason_def =  "HMCP CLOSED NO RENEWAL"
+                    If reason_code = "CS" then reason_def =  "HMCP CLOSED ESI"
+                    If reason_code = "CT" then reason_def =  "HMCP CLOSED NON COOP BR"
+                    If reason_code = "CU" then reason_def =  "HMCP CLOSED INFO NOT RECD"
+                    If reason_code = "CV" then reason_def =  "HMCP CLOSED ENROLLEE REQUEST"
+                    If reason_code = "CX" then reason_def =  "HMCP CLOSED ABOVE ASSETS"
+                    If reason_code = "CZ" then reason_def =  "HMCP CLOSED CITIZEN REQUIRED"
+                    If reason_code = "DB" then reason_def =  "HMCP DENY ELIG FOR MCRE"
+                    If reason_code = "DF" then reason_def =  "HMCP DENY NO ENROLLMENT"
+                    If reason_code = "DI" then reason_def =  "HMCP DENY OVER INCOME"
+                    If reason_code = "DP" then reason_def =  "HMCP DENY PENALTY PERIOD"
+                    If reason_code = "00" then reason_def =  "ONGOING"
+                    If reason_code = "05" then reason_def =  "CURRENTLY HOSPITALIZED"
+                    If reason_code = "07" then reason_def =  "CLOSE INCOME REFER HMC"
+                    If reason_code = "08" then reason_def =  "NO CHILDREN IN FAMILY"
+                    If reason_code = "09" then reason_def =  "NOT A FULLTIME STUDENT *"
+                    If reason_code = "10" then reason_def =  "OVER INCOME LIMIT"
+                    If reason_code = "11" then reason_def =  "INITIAL PREMIUM NOT PAID"
+                    If reason_code = "12" then reason_def =  "CURRENT MA COVERAGE"
+                    If reason_code = "13" then reason_def =  "CURRENT OTHER HEALTH COVERAGE"
+                    If reason_code = "14" then reason_def =  "OTHER HEALTH CVRG LAST 4 MOS"
+                    If reason_code = "15" then reason_def =  "CURR EMPLOYER SUBSIDIZED INS"
+                    If reason_code = "16" then reason_def =  "EMPLOYER SUBSIDIZED INS 18 MOS"
+                    If reason_code = "17" then reason_def =  "NOT MINNESOTA RESIDENT"
+                    If reason_code = "18" then reason_def =  "NON COOP WITH QC"
+                    If reason_code = "19" then reason_def =  "COMBINED ROLL-OVER"
+                    If reason_code = "20" then reason_def =  "DECEASED"
+                    If reason_code = "21" then reason_def =  "REFERRED TO MA *"
+                    If reason_code = "22" then reason_def =  "PREMIUM NON-PAYMENT (CANCEL)"
+                    If reason_code = "23" then reason_def =  "PREMIUM NON-PAYMENT (DENIAL)"
+                    If reason_code = "25" then reason_def =  "OTHER"
+                    If reason_code = "26" then reason_def =  "CURRENT CHP COVERAGE *"
+                    If reason_code = "27" then reason_def =  "PARENT OF CHILD REFERRED TO M*"
+                    If reason_code = "28" then reason_def =  "CLOSE OR DENY CLIENT REQUEST *"
+                    If reason_code = "29" then reason_def =  "PERSON LEFT HOUSEHOLD"
+                    If reason_code = "30" then reason_def =  "INCOMPLETE APPLICATION"
+                    If reason_code = "31" then reason_def =  "FAILURE TO RENEW"
+                    If reason_code = "32" then reason_def =  "RETRO CVRG INCOMPLETE VERIF"
+                    If reason_code = "33" then reason_def =  "RETRO CVRG AWAITING PAYMENT"
+                    If reason_code = "34" then reason_def =  "COST SHARE SATISFACTION"
+                    If reason_code = "35" then reason_def =  "RETRO CVRG DENIED APPLY 2 LATE"
+                    If reason_code = "36" then reason_def =  "EXHAUSTED BENEFIT LIMIT *"
+                    If reason_code = "37" then reason_def =  "LOST INSURANCE COVERAGE *"
+                    If reason_code = "38" then reason_def =  "NOT MEDICALLY ELIGIBLE *"
+                    If reason_code = "39" then reason_def =  "NOT USING SERVICE *"
+                    If reason_code = "40" then reason_def =  "OVER THE AGE LIMIT *"
+                    If reason_code = "41" then reason_def =  "AWAITING PREMIUM PAYMENT"
+                    If reason_code = "42" then reason_def =  "PENALTY PERIOD"
+                    If reason_code = "43" then reason_def =  "ELIGIBLE--SYSTEM CHANGES TO 41"
+                    If reason_code = "44" then reason_def =  "REQUESTED INFO NOT RECEIVED"
+                    If reason_code = "45" then reason_def =  "FAILURE TO REAPPLY"
+                    If reason_code = "46" then reason_def =  "DOES NOT WANT MCRE COVERAGE"
+                    If reason_code = "47" then reason_def =  "VOLUNTARY TERMINATION"
+                    If reason_code = "48" then reason_def =  "INCOMPLETE RENEWAL"
+                    If reason_code = "50" then reason_def =  "MA NONCOMPLIANCE *"
+                    If reason_code = "51" then reason_def =  "NEW MAJOR PGM--TURNED 21"
+                    If reason_code = "52" then reason_def =  "NEW ELIG TYPE--TURNED 2"
+                    If reason_code = "53" then reason_def =  "DENIED BY RETRO MA/N ELIG"
+                    If reason_code = "54" then reason_def =  "CLOSURE DUE TO MA/N ELIG"
+                    If reason_code = "56" then reason_def =  "PREGNANCY ENDED"
+                    If reason_code = "57" then reason_def =  "CLOSED MA/MCRE L SPAN OPEN"
+                    If reason_code = "59" then reason_def =  "CSE REQUESTED INFO NOT RECVD *"
+                    If reason_code = "60" then reason_def =  "NON-COMPLIANCE WITH CSE"
+                    If reason_code = "61" then reason_def =  "MILITARY EXEMPTION"
+                    If reason_code = "62" then reason_def =  "MUST APPLY FOR MA"
+                    If reason_code = "63" then reason_def =  "IN JAIL"
+                    If reason_code = "64" then reason_def =  "IMIG STATUS DOCUMENT NEEDED"
+                    If reason_code = "66" then reason_def =  "INFO TO CONTINUE ELIG NOT RECD"
+                    If reason_code = "67" then reason_def =  "REQUESTED INFO NOT RECEIVED  *"
+                    If reason_code = "68" then reason_def =  "NON-COOP WITH BRS"
+                    If reason_code = "70" then reason_def =  "NEED ASSET INFO/FAILED ASSETS"
+                    If reason_code = "71" then reason_def =  "FAIL MEET CITIZEN REQUIREMENTS"
+                    If reason_code = "73" then reason_def =  "PREGNANCY"
+                    If reason_code = "74" then reason_def =  "LT 15 GR 50 FAILS AGE REQUIRE"
+                    If reason_code = "75" then reason_def =  "FAILS AGE REQ TURNED 50"
+                    If reason_code = "76" then reason_def =  "INSTITUTIONALIZED INDIVIDUAL"
+                    If reason_code = "77" then reason_def =  "EP AND EZ CODES ONLY NO NOTICE"
+                    If reason_code = "78" then reason_def =  "OVER 21-INELIG ON PARENTS CASE"
+                    If reason_code = "79" then reason_def =  "DID NOT VERIFY INCOME"
+                    If reason_code = "80" then reason_def =  "ADDITIONAL REASONS"
+                    If reason_code = "82" then reason_def =  "CITIZENSHIP VERIF NOT RECEIVED"
+                    If reason_code = "83" then reason_def =  "RETURN OF VOLUNTEER STATUS"
+                    If reason_code = "84" then reason_def =  "NOT QUALIFIED"
+                    If reason_code = "85" then reason_def =  "PDM CLOSURE"
+                    If reason_code = "86" then reason_def =  "ROP CLOSURE"
+                    If reason_code = "88" then reason_def =  "HOLD CLOSED MA"
+                    If reason_code = "89" then reason_def =  "12/98,12/00 & 10/01 CONV MP/ET"
+                    If reason_code = "90" then reason_def =  "MFPP OTHER"
+                    If reason_code = "91" then reason_def =  "MFPP RETRO INELIG"
+                    If reason_code = "92" then reason_def =  "MFPP RETRO INCOMP"
+                    If reason_code = "93" then reason_def =  "MFPP SSN"
+                    If reason_code = "96" then reason_def =  "BHP PEND FOLLOWNG GRACE MONTH"
+                    If reason_code = "97" then reason_def =  "RECONCILIATION DISCREP CLOSE"
+                    If reason_code = "98" then reason_def =  "PMI MERGE"
+                    If reason_code = "99" then reason_def =  "WRKR CLOSED - NO RSN ENTERED"
+
+                    case_array (reason_code_const, i) = reason_code
+                    case_array (reason_def_const,  i) = reason_def
+                End if 
+            End if 
+
             'outputting to Excel
             objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
             objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
@@ -389,20 +517,22 @@ For i = 0 to UBound(case_array, 2)
             objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  i)
             objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    i)
             objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    i)
-            objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, i)
-            objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    i)
-            objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    i)
-            objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  i)
-            objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	i)
-            objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         i)
-            objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          i)
-            objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            i)
-            objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           i)
-            objExcel.Cells(excel_row, 19).Value = case_array(medi_A_begin,              i)
-            objExcel.Cells(excel_row, 20).Value = case_array(medi_A_end,                i)
-            objExcel.Cells(excel_row, 21).Value = case_array(medi_B_begin,              i)
-            objExcel.Cells(excel_row, 22).Value = case_array(medi_B_end,                i)
-            objExcel.Cells(excel_row, 23).Value = case_array(case_status,               i)
+            objExcel.Cells(excel_row, 10).Value = case_array (reason_code_const, 	    i)
+            objExcel.Cells(excel_row, 11).Value = case_array (reason_def_const, 	    i)
+            objExcel.Cells(excel_row, 12).Value = case_array (second_case_number_const, i)
+            objExcel.Cells(excel_row, 13).Value = case_array (second_type_const, 	    i)
+            objExcel.Cells(excel_row, 14).Value = case_array (second_elig_const, 	    i)
+            objExcel.Cells(excel_row, 15).Value = case_array (third_case_number_const,  i)
+            objExcel.Cells(excel_row, 16).Value = case_array (third_type_const,      	i)
+            objExcel.Cells(excel_row, 17).Value = case_array (third_elig_const,         i)
+            objExcel.Cells(excel_row, 18).Value = case_array (pmap_begin_const,         i)
+            objExcel.Cells(excel_row, 19).Value = case_array (pmap_end_const,           i)
+            objExcel.Cells(excel_row, 20).Value = case_array (pmap_name_const,          i)
+            objExcel.Cells(excel_row, 21).Value = case_array (medi_A_begin,             i)
+            objExcel.Cells(excel_row, 22).Value = case_array (medi_A_end,               i)
+            objExcel.Cells(excel_row, 23).Value = case_array (medi_B_begin,             i)
+            objExcel.Cells(excel_row, 24).Value = case_array (medi_B_end,               i)
+            objExcel.Cells(excel_row, 25).Value = case_array (case_status,              i)
             excel_row = excel_row + 1
 
             If duplicate_entry = True then
@@ -414,6 +544,8 @@ For i = 0 to UBound(case_array, 2)
             		case_array(rsum_PMI_const,          i) = ""
                     case_array(first_type_const, 	    i) = ""
                     case_array(first_elig_const, 	    i) = ""
+                    case_array(reason_code_const, 	    i) = ""
+                    case_array(reason_def_const, 	    i) = ""
                     case_array(second_case_number_const,i) = ""
                     case_array(second_type_const, 	    i) = ""
                     case_array(second_elig_const,       i) = ""
@@ -439,7 +571,7 @@ For i = 0 to UBound(case_array, 2)
     End if
 Next
 
-FOR i = 1 to 23		'formatting the cells
+FOR i = 1 to 25		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
