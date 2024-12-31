@@ -249,7 +249,7 @@ Next
 For i = 0 to UBound(case_array, 2)
     If case_array(case_status, i) = "RECIPIENT ID COULD NOT BE FOUND" then
         objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, i)
-        objExcel.Cells(excel_row, 23).Value = case_array(case_status, i)
+        objExcel.Cells(excel_row, 25).Value = case_array(case_status, i)
         excel_row = excel_row + 1
     Else
         get_to_RKEY
