@@ -7009,6 +7009,54 @@ LOOP UNTIL are_we_passworded_out = false
 Call check_for_MAXIS(False)
 If switch_to_summary = True Then Call run_from_GitHub(script_repository & "notes/interview-summary.vbs" )
 
+function test_edit_access(edit_access_allowed, warning_notice)
+	Call back_to_SELF
+	Call navigate_to_MAXIS_screen("CASE", "NOTE")
+	PF9
+	edit_access_allowed = False
+	warning_notice = ""
+	EMReadScreen note_prompt, 42, 3, 3
+	MsgBox note_prompt & vbCr & "Please enter your note on the lines below:"
+	If note_prompt = "Please enter your note on the lines below:" Then
+		edit_access_allowed = True
+		PF3
+		PF3
+	Else
+		EMReadScreen warning_notice, 75, 24, 2
+		warning_notice = trim(warning_notice)
+	End If
+end function
+
+Call test_edit_access(edit_access_allowed, warning_notice)
+'1489746
+If edit_access_allowed = False Then
+	edit_access_msg = "* - * - * ALERT * - * - *"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "You can still use the Interview script now"
+	edit_access_msg = edit_access_msg & vbCr & "BUT at the end of the script run, it will NOT:"
+	edit_access_msg = edit_access_msg & vbCr & "- Enter a CASE/NOTE"
+	edit_access_msg = edit_access_msg & vbCr & "- Send a SPEC/MEMO"
+	edit_access_msg = edit_access_msg & vbCr & "- Create a Worker Interview Form Document"
+	' edit_access_msg = edit_access_msg & vbCr & "- "
+	' edit_access_msg = edit_access_msg & vbCr & "- "
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run will be saved for future access."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+	edit_access_msg = edit_access_msg & vbCr & warning_notice
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "Press CANCEL to stop the script run."
+	' MsgBox edit_access_msg
+	no_acces_msg = MsgBox(edit_access_msg, vbOKCancel + vbSystemModal + vbExclamation, "No Edit Access to Case")
+	If no_acces_msg = vbCancel Then
+		script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
+		call script_end_procedure_with_error_report("~PT: Interview script cancelled at beginning of the script run due to no CASE/NOTE Edit Access.")
+	End If
+End If
+Call back_to_SELF
+
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
 	EMReadScreen summ_check, 4, 2, 46
@@ -8949,6 +8997,31 @@ End If
 save_your_work
 Call check_for_MAXIS(False)
 
+Call test_edit_access(edit_access_allowed, warning_notice)
+
+If edit_access_allowed = False Then
+	edit_access_msg = "* - * - * SCRIPT RUN ENDED * - * - *"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+	edit_access_msg = edit_access_msg & vbCr & "The script has NOT:"
+	edit_access_msg = edit_access_msg & vbCr & "- Entered a CASE/NOTE"
+	edit_access_msg = edit_access_msg & vbCr & "- Sent a SPEC/MEMO"
+	edit_access_msg = edit_access_msg & vbCr & "- Created a Worker Interview Form Document"
+	' edit_access_msg = edit_access_msg & vbCr & "- "
+	' edit_access_msg = edit_access_msg & vbCr & "- "
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run is saved for future access."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+	edit_access_msg = edit_access_msg & vbCr & warning_notice
+	' MsgBox edit_access_msg
+	script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
+	call script_end_procedure_with_error_report(edit_access_msg)
+End If
+Call back_to_SELF
+
 CAF_MONTH_DATE = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 CAF_MONTH_DATE = DateAdd("d", 0, CAF_MONTH_DATE)
 MONTH_BEFORE_CAF = DateAdd("m", -1, CAF_MONTH_DATE)
@@ -9369,7 +9442,6 @@ With (CreateObject("Scripting.FileSystemObject"))
 	End If
 End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
-
 
 ' complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
