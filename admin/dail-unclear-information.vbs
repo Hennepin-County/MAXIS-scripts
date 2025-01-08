@@ -4450,7 +4450,7 @@ If HIRE_messages = 1 Then
                                     'Script deleted the final message in the DAIL
                                     dail_row = dail_row - 1
                                     dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully cleared. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                     'Exit do loop as all messages are deleted
                                     all_done = true
 
@@ -4468,7 +4468,7 @@ If HIRE_messages = 1 Then
                                         'The total DAILs decreased by 1, message deleted successfully
                                         dail_row = dail_row - 1
                                         dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully cleared. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                     Else
                                         'The total DAILs did not decrease by 1, something went wrong
                                         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
@@ -4490,7 +4490,7 @@ If HIRE_messages = 1 Then
                                         'All DAIL messages deleted so indicates deletion a success
                                         dail_row = dail_row - 1
                                         dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully cleared. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                         'No more DAIL messages so exit do loop
                                         all_done = True
                                     ElseIf trim(final_dail_error) = "" Then
@@ -4504,7 +4504,7 @@ If HIRE_messages = 1 Then
                                             'The total DAILs decreased by 1, message deleted successfully
                                             dail_row = dail_row - 1
                                             dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                            objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                            objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully cleared. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                         Else
                                             objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                             script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 4030.")
