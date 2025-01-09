@@ -95,7 +95,8 @@ use_master_branch = False
 'TRAINING CASE SCENARIO SETTINGS==========
 
 'This is a variable which decides the default location of training case scenario Excel sheets
-training_case_creator_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Instructions & Training Materials\Training materials\Training cases\TRAINING CASE SCENARIOS.xlsx"
+' training_case_creator_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Instructions & Training Materials\Training materials\Training cases\TRAINING CASE SCENARIOS.xlsx"
+training_case_creator_excel_file_path = "T:\Eligibility Support\Scripts\Script Files\TRAINING CASE SCENARIOS.xlsx"
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
