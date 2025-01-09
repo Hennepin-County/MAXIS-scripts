@@ -189,7 +189,8 @@ DO
           Text 10, 10, 200, 10, "Hello, human. Welcome to the MAXIS Case Replicator 9000."
           Text 10, 25, 365, 20, "This script works in conjunction with the training case generator, to grab case information out of MAXIS and insert it into a new scenario in scenario spreadsheet."
           Text 10, 50, 365, 25, "Because this script relies on the training case generator template, it has a few limitations that you should be aware of before using it. Please take a moment to review the limitations below to ensure you are getting the most out of this script."
-          Text 10, 275, 140, 10, "Select an Excel file for training scenarios:"
+		  Text 10, 250, 330, 20, "*** The file selected should be one you have write access to. If you do not have a copy that you keep, this script will error as it tries to work with the file."
+		  Text 10, 280, 140, 10, "Select an Excel file for training scenarios:"
           Text 30, 185, 345, 10, "* Regarding JOBS -- this script will only be able to pull up to 3 active JOBS panels per client."
           Text 30, 80, 345, 25, "* To protext client privacy and data, if you are grabbing data from PRODUCTION or INQUIRY, you will be required to rename individuals in the scenario. If you are grabbing data from TRAINING, you will have the option of renaming the individuals in the scenario."
           Text 30, 125, 345, 10, "* Regarding BUSI -- this script will only grab data from the first BUSI panel per client."
@@ -198,9 +199,9 @@ DO
           Text 30, 155, 345, 25, "* Regarding FACI -- this script will only grab data from the first FACI panel per client. Additionally, it will only grab the first begin and end data for that facility. If the client has multiple entries and exits from that facility, it will not be captured by this script."
           Text 30, 200, 345, 10, "* Regarding UNEA -- this script will only be able to pull up to 3 active UNEA panels per client."
           Text 30, 215, 345, 25, "* Miscellaneous -- there may be additional data points in the case you are copying that are not picked up by this script. This is a limitation of the training case generator as it currently exists. This script will only pick up on data points that the training case generator is able to write to MAXIS."
-          EditBox 150, 270, 175, 15, training_case_creator_excel_file_path
+          EditBox 150, 275, 175, 15, training_case_creator_excel_file_path
           ButtonGroup ButtonPressed
-            PushButton 330, 270, 45, 15, "Browse...", select_a_file_button
+            PushButton 330, 275, 45, 15, "Browse...", select_a_file_button
             OkButton 270, 300, 50, 15
             CancelButton 325, 300, 50, 15
         EndDialog
@@ -211,10 +212,7 @@ DO
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
 
     'opening the spreadsheet
-    SET objExcel = CreateObject("Excel.Application")
-    objExcel.Visible = TRUE
-    SET objWorkbook = objExcel.Workbooks.Add(training_case_creator_excel_file_path)
-    objExcel.DisplayAlerts = FALSE
+	Call excel_open(training_case_creator_excel_file_path, True, False, ObjExcel, objWorkbook)
 
 	'Asking the user to confirm the spreadsheet
 	confirm_spreadsheet = MsgBox ("Is this the correct spreadsheet? Press YES to confirm and continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel + vbQuestion + vbSystemModal, "Confirm SpreadSheet")
@@ -257,7 +255,7 @@ FOR column = 1 to 26
 NEXT
 
 'saving the workbook
-objWorkbook.SaveAs(training_case_creator_excel_file_path)
+objWorkbook.Save()
 
 'The script ------- grabbing the MAXIS case number
 EMConnect ""
