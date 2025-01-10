@@ -7009,6 +7009,60 @@ LOOP UNTIL are_we_passworded_out = false
 Call check_for_MAXIS(False)
 If switch_to_summary = True Then Call run_from_GitHub(script_repository & "notes/interview-summary.vbs" )
 
+function test_edit_access(edit_access_allowed, warning_notice)
+	Call back_to_SELF
+	Call navigate_to_MAXIS_screen("CASE", "NOTE")
+	EMReadScreen err_window_1, 75, 8, 3
+	EMReadScreen err_window_2, 75, 9, 3
+	EMReadScreen err_window_3, 75, 10, 3
+	err_window_1 = ucase(trim(err_window_1))
+	err_window_2 = ucase(trim(err_window_2))
+	err_window_3 = ucase(trim(err_window_3))
+	If err_window_1 = "RPCERROR" or err_window_2 = "RPCERROR" or err_window_3 = "RPCERROR" Then PF3
+	PF9
+	edit_access_allowed = False
+	warning_notice = ""
+	EMReadScreen note_prompt, 42, 3, 3
+	If note_prompt = "Please enter your note on the lines below:" Then
+		edit_access_allowed = True
+		PF10
+		PF3
+		PF3
+	Else
+		EMReadScreen warning_notice, 75, 24, 2
+		warning_notice = trim(warning_notice)
+	End If
+end function
+
+Call test_edit_access(edit_access_allowed, warning_notice)
+
+If edit_access_allowed = False Then
+	edit_access_msg = "* - * - * ALERT * - * - *"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "You should still continue with the Interview script run"
+	edit_access_msg = edit_access_msg & vbCr & "BUT at the end of the script run, it will NOT:"
+	edit_access_msg = edit_access_msg & vbCr & "- Enter a CASE/NOTE"
+	edit_access_msg = edit_access_msg & vbCr & "- Send a SPEC/MEMO"
+	edit_access_msg = edit_access_msg & vbCr & "- Create a Worker Interview Form Document"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run will be saved for future access."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+	edit_access_msg = edit_access_msg & vbCr & warning_notice
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "Press CANCEL to stop the script run."
+	' MsgBox edit_access_msg
+	no_acces_msg = MsgBox(edit_access_msg, vbOKCancel + vbSystemModal + vbExclamation, "No Edit Access to Case")
+	If no_acces_msg = vbCancel Then
+		script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
+		call script_end_procedure_with_error_report("~PT: Interview script cancelled at beginning of the script run due to no CASE/NOTE Edit Access.")
+	End If
+End If
+PF3
+Call back_to_SELF
+
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
 	EMReadScreen summ_check, 4, 2, 46
@@ -8217,28 +8271,29 @@ Do
 Loop until are_we_passworded_out = FALSE
 
 call back_to_SELF
+If edit_access_allowed = True Then
+	If MFIP_orientation_assessed_and_completed = False Then
+		If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
+			Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
+			For caregiver = 0 to UBound(HH_MEMB_ARRAY, 2)
+				If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True and HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
+					Call start_a_blank_CASE_NOTE
 
-If MFIP_orientation_assessed_and_completed = False Then
-    If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
-        Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
-        For caregiver = 0 to UBound(HH_MEMB_ARRAY, 2)
-            If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True and HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
-                Call start_a_blank_CASE_NOTE
+					Call write_variable_in_CASE_NOTE("MF Orientation NOT COMPLETED for " & HH_MEMB_ARRAY(full_name_const, caregiver))
+					Call write_variable_in_CASE_NOTE("Interview completed but could not complete the MFIP Orientation at the time of the interview.")
+					Call write_variable_in_CASE_NOTE("* MFIP Orientation is still needed for " & HH_MEMB_ARRAY(full_name_const, caregiver))
+					Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(full_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation")
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_variable_in_CASE_NOTE(worker_signature)
+					PF3
+					call back_to_SELF
 
-                Call write_variable_in_CASE_NOTE("MF Orientation NOT COMPLETED for " & HH_MEMB_ARRAY(full_name_const, caregiver))
-                Call write_variable_in_CASE_NOTE("Interview completed but could not complete the MFIP Orientation at the time of the interview.")
-                Call write_variable_in_CASE_NOTE("* MFIP Orientation is still needed for " & HH_MEMB_ARRAY(full_name_const, caregiver))
-                Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(full_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation")
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(worker_signature)
-                PF3
-                call back_to_SELF
-
-            End If
-        Next
-    End If
+				End If
+			Next
+		End If
+	End If
+	MFIP_orientation_assessed_and_completed = True
 End If
-MFIP_orientation_assessed_and_completed = True
 save_your_work
 
 If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only
@@ -8949,6 +9004,31 @@ End If
 save_your_work
 Call check_for_MAXIS(False)
 
+edit_access_allowed = False
+warning_notice = ""
+Call test_edit_access(edit_access_allowed, warning_notice)
+
+If edit_access_allowed = False Then
+	edit_access_msg = "* - * - * SCRIPT RUN ENDED * - * - *"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+	edit_access_msg = edit_access_msg & vbCr & "The script has NOT:"
+	edit_access_msg = edit_access_msg & vbCr & "- Entered a CASE/NOTE"
+	edit_access_msg = edit_access_msg & vbCr & "- Sent a SPEC/MEMO"
+	edit_access_msg = edit_access_msg & vbCr & "- Created a Worker Interview Form Document"
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run is saved for future access."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+	edit_access_msg = edit_access_msg & vbCr & warning_notice
+	' MsgBox edit_access_msg
+	script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
+	call script_end_procedure_with_error_report(edit_access_msg)
+End If
+Call back_to_SELF
+
 CAF_MONTH_DATE = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 CAF_MONTH_DATE = DateAdd("d", 0, CAF_MONTH_DATE)
 MONTH_BEFORE_CAF = DateAdd("m", -1, CAF_MONTH_DATE)
@@ -9369,7 +9449,6 @@ With (CreateObject("Scripting.FileSystemObject"))
 	End If
 End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
-
 
 ' complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
