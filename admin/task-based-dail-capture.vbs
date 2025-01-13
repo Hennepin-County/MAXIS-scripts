@@ -324,14 +324,14 @@ For each worker in worker_array
 				EMReadScreen last_page_check, 21, 24, 2
 				'Check if the last page of the DAIL has been reached, also handles for situations where the last DAIL has been deleted and it displays a 'NO MESSAGES' warning
 				If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
-					last_case = true
+					all_done = true
 					exit do
 				Else
 					dail_row = 6
 				End if
 			End if
 		LOOP
-		IF last_case = true THEN exit do
+		IF all_done = true THEN exit do
 	LOOP
 Next
 '----------------------------------------------------------------------------------------------------SQL Database Actions
