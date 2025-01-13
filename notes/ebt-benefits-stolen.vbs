@@ -347,40 +347,43 @@ If action_step = "CASE/NOTE Information about Request" Then
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 286, 325, "EBT Stolen Benefits - Denial Reasons"
+    BeginDialog Dialog1, 0, 0, 301, 355, "EBT Stolen Benefits - Denial Reasons"
+      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
       CheckBox 5, 25, 10, 15, "", denial_two_replacements
       CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
       CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
       CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
       EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
-      CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
-      CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
-      CheckBox 5, 190, 10, 15, "", denial_state_case_assistance
-      CheckBox 5, 215, 10, 15, "", denial_MSA_GA_GRH
-      CheckBox 5, 240, 10, 15, "", denial_state_funded_SNAP
-      EditBox 5, 280, 275, 15, denial_additional_reasons
+      CheckBox 5, 145, 10, 15, "", denial_not_stolen_determination
+      CheckBox 5, 175, 10, 15, "", denial_stolen_outside_time_period
+      CheckBox 5, 200, 10, 15, "", denial_stolen_outside_time_period_12_24_24
+      CheckBox 5, 225, 10, 15, "", denial_state_case_assistance
+      CheckBox 5, 250, 10, 15, "", denial_MSA_GA_GRH
+      CheckBox 5, 275, 10, 15, "", denial_state_funded_SNAP
+      Text 5, 300, 205, 10, "Provide additional reason(s) for denial besides options above:"
+      EditBox 5, 315, 275, 15, denial_additional_reasons
       ButtonGroup ButtonPressed
-        OkButton 175, 305, 50, 15
-        CancelButton 230, 305, 50, 15
-      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
-      Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
-      Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
-      Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
-      Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
-      Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
-      Text 20, 190, 255, 20, "State funded case assistance, including state funded housing grants, are not eligible for EBT replacement"
-      Text 20, 218, 215, 10, "MSA, GA, and GRH benefits are not eligible for EBT replacement"
-      Text 20, 240, 255, 20, "State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement"
-      Text 5, 270, 205, 10, "Provide additional reason(s) for denial besides options above:"
+        OkButton 175, 335, 50, 15
+        CancelButton 230, 335, 50, 15
+      Text 20, 25, 275, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
+      Text 20, 50, 275, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
+      Text 20, 78, 275, 10, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
+      Text 20, 100, 275, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
+      Text 20, 145, 275, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
+      Text 20, 177, 265, 10, "The EBT benefits were stolen outside of the 10/01/2022 - 09/30/2024 time period"
+      Text 20, 203, 220, 10, "The EBT benefits were stolen after 12/24/2024"
+      Text 20, 225, 275, 20, "State funded case assistance, including state funded housing grants, are not eligible for EBT replacement"
+      Text 20, 253, 212, 10, "MSA, GA, and GRH benefits are not eligible for EBT replacement"
+      Text 20, 275, 275, 20, "State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement"
     EndDialog
+  
 
     DO
       Do
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation
-        If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period + denial_state_case_assistance + denial_MSA_GA_GRH + denial_state_funded_SNAP = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
+        If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period + denial_state_case_assistance + denial_MSA_GA_GRH + denial_state_funded_SNAP + denial_stolen_outside_time_period_12_24_24 = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
         If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
         If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -398,6 +401,7 @@ If action_step = "CASE/NOTE Information about Request" Then
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_SPEC_MEMO("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If denial_stolen_outside_time_period_12_24_24 = 1 then Call write_variable_in_SPEC_MEMO("> The EBT benefits were stolen after 12/24/2024")
     If denial_state_case_assistance = 1 then Call write_variable_in_SPEC_MEMO("> State funded case assistance, including state funded housing grants, are not eligible for EBT replacement")
     If denial_MSA_GA_GRH = 1 then Call write_variable_in_SPEC_MEMO("> MSA, GA, and GRH benefits are not eligible for EBT replacement")
     If denial_state_funded_SNAP = 1 then Call write_variable_in_SPEC_MEMO("> State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement")
@@ -416,46 +420,49 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 286, 325, "EBT Stolen Benefits - Denial Reasons"
-      CheckBox 5, 25, 10, 15, "", denial_two_replacements
-      CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
-      CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
-      CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
-      EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
-      CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
-      CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
-      CheckBox 5, 190, 10, 15, "", denial_state_case_assistance
-      CheckBox 5, 215, 10, 15, "", denial_MSA_GA_GRH
-      CheckBox 5, 240, 10, 15, "", denial_state_funded_SNAP
-      EditBox 5, 280, 275, 15, denial_additional_reasons
-      ButtonGroup ButtonPressed
-        OkButton 175, 305, 50, 15
-        CancelButton 230, 305, 50, 15
-      Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
-      Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
-      Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
-      Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
-      Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
-      Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
-      Text 20, 190, 255, 20, "State funded case assistance, including state funded housing grants, are not eligible for EBT replacement"
-      Text 20, 218, 215, 10, "MSA, GA, and GRH benefits are not eligible for EBT replacement"
-      Text 20, 240, 255, 20, "State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement"
-      Text 5, 270, 205, 10, "Provide additional reason(s) for denial besides options above:"
-    EndDialog
+    BeginDialog Dialog1, 0, 0, 301, 355, "EBT Stolen Benefits - Denial Reasons"
+    Text 5, 10, 275, 10, "Select the reason(s) for denial of benefits replacement request (check all that apply):"
+    CheckBox 5, 25, 10, 15, "", denial_two_replacements
+    CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
+    CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
+    CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
+    EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
+    CheckBox 5, 145, 10, 15, "", denial_not_stolen_determination
+    CheckBox 5, 175, 10, 15, "", denial_stolen_outside_time_period
+    CheckBox 5, 200, 10, 15, "", denial_stolen_outside_time_period_12_24_24
+    CheckBox 5, 225, 10, 15, "", denial_state_case_assistance
+    CheckBox 5, 250, 10, 15, "", denial_MSA_GA_GRH
+    CheckBox 5, 275, 10, 15, "", denial_state_funded_SNAP
+    Text 5, 300, 205, 10, "Provide additional reason(s) for denial besides options above:"
+    EditBox 5, 315, 275, 15, denial_additional_reasons
+    ButtonGroup ButtonPressed
+      OkButton 175, 335, 50, 15
+      CancelButton 230, 335, 50, 15
+    Text 20, 25, 275, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
+    Text 20, 50, 275, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
+    Text 20, 78, 275, 10, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
+    Text 20, 100, 275, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
+    Text 20, 145, 275, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
+    Text 20, 177, 265, 10, "The EBT benefits were stolen outside of the 10/01/2022 - 09/30/2024 time period"
+    Text 20, 203, 220, 10, "The EBT benefits were stolen after 12/24/2024"
+    Text 20, 225, 275, 20, "State funded case assistance, including state funded housing grants, are not eligible for EBT replacement"
+    Text 20, 253, 212, 10, "MSA, GA, and GRH benefits are not eligible for EBT replacement"
+    Text 20, 275, 275, 20, "State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement"
+  EndDialog
 
-    DO
-      Do
-        err_msg = ""    'This is the error message handling
-        Dialog Dialog1
-        cancel_confirmation
-        If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period + denial_state_case_assistance + denial_MSA_GA_GRH + denial_state_funded_SNAP = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
-        If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
-        If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-      Loop until err_msg = ""
-      CALL check_for_password(are_we_passworded_out)
-    LOOP UNTIL are_we_passworded_out = false
+
+  DO
+    Do
+      err_msg = ""    'This is the error message handling
+      Dialog Dialog1
+      cancel_confirmation
+      If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period + denial_state_case_assistance + denial_MSA_GA_GRH + denial_state_funded_SNAP + denial_stolen_outside_time_period_12_24_24 = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
+      If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
+      If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)
+  LOOP UNTIL are_we_passworded_out = false
 
     CALL start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 
@@ -467,6 +474,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_SPEC_MEMO("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If denial_stolen_outside_time_period_12_24_24 = 1 then Call write_variable_in_SPEC_MEMO("> The EBT benefits were stolen after 12/24/2024")
     If denial_state_case_assistance = 1 then Call write_variable_in_SPEC_MEMO("> State funded case assistance, including state funded housing grants, are not eligible for EBT replacement")
     If denial_MSA_GA_GRH = 1 then Call write_variable_in_SPEC_MEMO("> MSA, GA, and GRH benefits are not eligible for EBT replacement")
     If denial_state_funded_SNAP = 1 then Call write_variable_in_SPEC_MEMO("> State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement")
@@ -490,6 +498,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_Case_Note("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_Case_Note("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_Case_Note("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If denial_stolen_outside_time_period_12_24_24 = 1 then Call write_variable_in_Case_Note("> The EBT benefits were stolen after 12/24/2024")
     If denial_state_case_assistance = 1 then Call write_variable_in_Case_Note("> State funded case assistance, including state funded housing grants, are not eligible for EBT replacement")
     If denial_MSA_GA_GRH = 1 then Call write_variable_in_Case_Note("> MSA, GA, and GRH benefits are not eligible for EBT replacement")
     If denial_state_funded_SNAP = 1 then Call write_variable_in_Case_Note("> State funded SNAP, including state funded MFIP food portions, are not eligible for EBT replacement")
