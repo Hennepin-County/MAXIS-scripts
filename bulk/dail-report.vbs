@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/13/2025", "Improved DAIL navigation handling.", "Mark Riegel, Hennepin County")
 call changelog_update("03/19/2020", "Added Client Contact Follow Up Only option to support assignments for follow up generic phones work. Also updated how DAIL's are read and captured.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/28/2019", "Added functionality to remove '=' from any TIKL messages. The equal sign is not able to be written into Excel.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/28/2019", "Removed text in spreadsheet that indicates if there is no DAIL for a particular x number. Stats will still relfect the number of DAILS found.", "Ilse Ferris, Hennepin County")

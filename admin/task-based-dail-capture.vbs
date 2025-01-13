@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/13/2025", "Improved DAIL navigation handling.", "Mark Riegel, Hennepin County")
 call changelog_update("10/05/2024", "Change email communications from Ilse to Dave.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/12/2204", "Updated DAIL types that are selected based on the SOP processing calendar.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2024", "Housekeeping updates: streamlined code, and added supports when only DAIL message on a page is deleted.", "Ilse Ferris, Hennepin County")
