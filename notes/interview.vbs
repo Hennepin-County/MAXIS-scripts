@@ -11130,6 +11130,11 @@ If run_by_interview_team = True and developer_mode = False Then
 	Set info = xmlTracDoc.createTextNode(cash_request)
 	element.appendChild info
 
+	Set element = xmlTracDoc.createElement("GRHRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_request)
+	element.appendChild info
+
 	Set element = xmlTracDoc.createElement("SNAPRequest")
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(snap_request)
