@@ -972,7 +972,7 @@ Function ABAWD_FSET_exemption_finder()
         IF cl_age = "" THEN cl_age = 0
         cl_age = cl_age * 1
         eats_group_array(memb_age_const, items) = cl_age
-        
+
         'case-based exemption
 		If cl_age < 6 then child_under_six = True
         IF cl_age =< 17 THEN
@@ -981,22 +981,22 @@ Function ABAWD_FSET_exemption_finder()
 			adult_HH_count = adult_HH_count + 1
 		End if
     NEXT
-    
+
     '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
     For items = 0 to UBound(eats_group_array, 2)
         If child_under_18 = True then
-            If eats_group_array(memb_age_const, items) > 17 then 
+            If eats_group_array(memb_age_const, items) > 17 then
                 eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 18 in SNAP Household. "
                 eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
-            End if 
+            End if
         End if
         '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
         If child_under_six = True then
             If adult_HH_count = 1 then
-                If eats_group_array(memb_age_const, items) > 17 then 
+                If eats_group_array(memb_age_const, items) > 17 then
                     eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
                     eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
-                End if 
+                End if
             Else
                 eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. "
             End if
@@ -5362,7 +5362,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		err_msg = ""
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 551, 150, "Assess for Caregiver MFIP Orientation Requirement"
-		  DropListBox 185, 10, 60, 45, "MFIP"+chr(9)+"DWP", family_cash_program
+		  DropListBox 185, 10, 100, 45, "MFIP"+chr(9)+"DWP"+chr(9)+"Unable to Determine", family_cash_program		'unable to determine added to support interviewing by workers without family cash program knowledge
 		  EditBox 110, 30, 430, 15, famliy_cash_notes
 		  DropListBox 65, 65, 140, 45, person_list, caregiver_one
 		  DropListBox 330, 65, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_one_req_cash
@@ -5414,7 +5414,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 	Loop until err_msg = ""
 
-	If family_cash_program = "MFIP" Then
+	If family_cash_program = "MFIP" or family_cash_program = "Unable to Determine" Then
 		If IsNumeric(caregiver_one_hours_per_week) = True Then caregiver_one_hours_per_week = caregiver_one_hours_per_week * 1
 		If trim(caregiver_one_hours_per_week) = "" Then caregiver_one_hours_per_week = 0
 
@@ -5506,7 +5506,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 551, dlg_len, "Assess for Caregiver MFIP Orientation Requirement"
-				  Text 10, 15, 200, 10, "Which Family Cash Program is this Application for? " & family_cash_program
+				  Text 10, 15, 250, 10, "Which Family Cash Program is this Application for? " & family_cash_program
 				  Text 10, 25, 500, 20, "Notes on Program Selection: " & famliy_cash_notes
 				  GroupBox 10, 50, 530, 40, "Who are the Caregivers"
 				  Text 20, 60, 190, 10, "Caregiver: " & caregiver_one
@@ -11290,21 +11290,21 @@ function navigate_to_MMIS_region(group_security_selection)
 
 	EMReadScreen mmis_production_check, 7, 15, 15
 	EMReadScreen mmis_training_check, 7, 16, 15
-	If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+	If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then
 		script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
 	ElseIf mmis_production_check <> "RUNNING" and mmis_training_check <> "RUNNING" Then
 		EMConnect"A"
 		attn
 		EMReadScreen mmis_production_check, 7, 15, 15
 		EMReadScreen mmis_training_check, 7, 16, 15
-		If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+		If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then
 			script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
 		ElseIf mmis_production_check <> "RUNNING" and mmis_training_check <> "RUNNING" Then
 			EMConnect"B"
 			attn
 			EMReadScreen mmis_production_check, 7, 15, 15
 			EMReadScreen mmis_training_check, 7, 16, 15
-			If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then 
+			If mmis_production_check = "RUNNING" and mmis_training_check = "RUNNING" Then
 				script_end_procedure("Both MMIS Production and MMIS Training are running. Please close one before proceeding.")
 			ElseIf mmis_production_check = "RUNNING" Then
 				EMWriteScreen "10", 2, 15
@@ -11320,14 +11320,14 @@ function navigate_to_MMIS_region(group_security_selection)
 			transmit
 		ElseIf mmis_training_check = "RUNNING" Then
 			EMWriteScreen "11", 2, 15
-			transmit	
+			transmit
 		End If
 	ElseIf mmis_production_check = "RUNNING" Then
 		EMWriteScreen "10", 2, 15
 		transmit
 	ElseIf mmis_training_check = "RUNNING" Then
 		EMWriteScreen "11", 2, 15
-		transmit	
+		transmit
 	End If
 
 	DO
@@ -12528,11 +12528,11 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
     MSA_ever_active = FALSE
     FS_ever_active = FALSE
     MA_ever_active = FALSE
-    EMER_ever_active = FALSE 
+    EMER_ever_active = FALSE
     GRH_ever_active = FALSE
-    GA_ever_active = FALSE 
+    GA_ever_active = FALSE
     MFIP_ever_active = FALSE
-    DWP_ever_active = FALSE 
+    DWP_ever_active = FALSE
     QMB_ever_active = FALSE
     SLMB_ever_active = FALSE
     CCAP_ever_active = FALSE
@@ -12542,54 +12542,54 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
     IMD_ever_active = FALSE
 
     CASH_currently_active = FALSE
-    MSA_currently_active = FALSE 
-    FS_currently_active = FALSE 
-    MA_currently_active = FALSE 
-    EMER_currently_active = FALSE 
-    GRH_currently_active = FALSE 
-    GA_currently_active = FALSE 
-    MFIP_currently_active = FALSE 
-    DWP_currently_active = FALSE 
-    QMB_currently_active = FALSE 
-    SLMB_currently_active = FALSE 
-    CCAP_currently_active = FALSE 
-    QI1_currently_active = FALSE 
-    RCA_currently_active = FALSE 
-    IV_E_currently_active = FALSE 
+    MSA_currently_active = FALSE
+    FS_currently_active = FALSE
+    MA_currently_active = FALSE
+    EMER_currently_active = FALSE
+    GRH_currently_active = FALSE
+    GA_currently_active = FALSE
+    MFIP_currently_active = FALSE
+    DWP_currently_active = FALSE
+    QMB_currently_active = FALSE
+    SLMB_currently_active = FALSE
+    CCAP_currently_active = FALSE
+    QI1_currently_active = FALSE
+    RCA_currently_active = FALSE
+    IV_E_currently_active = FALSE
     IMD_currently_active = False
 
-    CASH_date_closed = ""  
-    MSA_date_closed = ""  
-    FS_date_closed = ""  
-    MA_date_closed = ""  
-    EMER_date_closed = ""  
-    GRH_date_closed = ""  
-    GA_date_closed = ""  
-    MFIP_date_closed = ""  
-    DWP_date_closed = ""  
-    QMB_date_closed = ""  
-    SLMB_date_closed = ""  
-    CCAP_date_closed = ""  
-    QI1_date_closed = ""  
-    RCA_date_closed = ""  
-    IV_E_date_closed = ""  
+    CASH_date_closed = ""
+    MSA_date_closed = ""
+    FS_date_closed = ""
+    MA_date_closed = ""
+    EMER_date_closed = ""
+    GRH_date_closed = ""
+    GA_date_closed = ""
+    MFIP_date_closed = ""
+    DWP_date_closed = ""
+    QMB_date_closed = ""
+    SLMB_date_closed = ""
+    CCAP_date_closed = ""
+    QI1_date_closed = ""
+    RCA_date_closed = ""
+    IV_E_date_closed = ""
     IMD_date_closed = ""
 
-    CASH_reason_closed = ""  
-    MSA_reason_closed = ""  
-    FS_reason_closed = ""  
-    MA_reason_closed = ""  
-    EMER_reason_closed = ""  
-    GRH_reason_closed = ""  
-    GA_reason_closed = ""  
-    MFIP_reason_closed = ""  
-    DWP_reason_closed = ""  
-    QMB_reason_closed = ""  
-    SLMB_reason_closed = ""  
-    CCAP_reason_closed = ""  
-    QI1_reason_closed = ""  
-    RCA_reason_closed = ""  
-    IV_E_reason_closed = ""  
+    CASH_reason_closed = ""
+    MSA_reason_closed = ""
+    FS_reason_closed = ""
+    MA_reason_closed = ""
+    EMER_reason_closed = ""
+    GRH_reason_closed = ""
+    GA_reason_closed = ""
+    MFIP_reason_closed = ""
+    DWP_reason_closed = ""
+    QMB_reason_closed = ""
+    SLMB_reason_closed = ""
+    CCAP_reason_closed = ""
+    QI1_reason_closed = ""
+    RCA_reason_closed = ""
+    IV_E_reason_closed = ""
     IMD_reason_closed = ""
 
     'Constants for active_spans_array
@@ -12608,7 +12608,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
 	'Navigate to CASE/CURR and then open the program history
     call maxis_case_number_finder(MAXIS_case_number)
 	Call navigate_to_MAXIS_screen("CASE", "CURR")
-	Call write_value_and_transmit("X", 4, 9)		
+	Call write_value_and_transmit("X", 4, 9)
 
     DO
         'Check if end found
@@ -12625,13 +12625,13 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
 
         EMReadScreen prog, 5, prog_history_row, 3
         prog = trim(prog)
-        
+
         'Handling to determine if end of history found
         If prog = "" Then
             prog_history_row = prog_history_row + 1
             EMReadScreen prog, 5, prog_history_row, 3
             prog = trim(prog)
-            
+
             If prog = "" or prog = "More:" Then
                 PF8
                 EMReadScreen last_page_check, 21, 24, 2
@@ -12657,7 +12657,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
 
             EMReadScreen reason, 21, prog_history_row, 60
             reason = trim(reason)
-            
+
             If prog = "CASH" Then
 
                 EMReadScreen status, 21, prog_history_row, 38
@@ -12681,8 +12681,8 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                     CASH_reason_closed = reason
 
                 End If
-            
-            ElseIf prog = "MSA" Then 
+
+            ElseIf prog = "MSA" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
@@ -12704,7 +12704,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                     MSA_reason_closed = reason
 
                 End If
-                
+
             ElseIf prog = "FS" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
@@ -12925,7 +12925,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                     CCAP_reason_closed = reason
 
                 End If
-            ElseIf prog = "QI1" Then 
+            ElseIf prog = "QI1" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
@@ -12947,7 +12947,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                     QI1_reason_closed = reason
 
                 End If
-            ElseIf prog = "RCA" Then 
+            ElseIf prog = "RCA" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
@@ -12969,7 +12969,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                     RCA_reason_closed = reason
 
                 End If
-            ElseIf prog = "IV-E" Then 
+            ElseIf prog = "IV-E" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
@@ -13029,7 +13029,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                 If status = "ACTIVE" Then
                     MSA_ever_active = True
                 End If
-                
+
             ElseIf prog = "FS" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
@@ -13097,19 +13097,19 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                 status = trim(status)
                 If status = "ACTIVE" Then
                     QI1_ever_active = True
-                End If 
+                End If
             ElseIf prog = "RCA" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
                     RCA_ever_active = True
-                End If 
+                End If
             ElseIf prog = "IV-E" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
                 If status = "ACTIVE" Then
                     IV_E_ever_active = True
-                End If 
+                End If
             ElseIf prog = "IMD" Then
                 EMReadScreen status, 21, prog_history_row, 38
                 status = trim(status)
@@ -13118,7 +13118,7 @@ function read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ev
                 End If
             End If
         End If
-        
+
         'Move to next row
         prog_history_row = prog_history_row + 1
     Loop
