@@ -11604,7 +11604,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "- TRANS #") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
         instr(dail_msg, "SSI UPDATED - (REF") OR _
-        instr(dail_msg, "MEMBER IS CHILD UNDER AGE 6. ANNUAL HC NOTICE SENT") OR _
+        instr(dail_msg, "MEMBER IS CHILD UNDER AGE 6 - ANNUAL HC NOTICE SENT") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             actionable_dail = False
         '----------------------------------------------------------------------------------------------------Removing older specific INFO messages
