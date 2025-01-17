@@ -2,7 +2,7 @@
 name_of_script = "FAA- HEALTH CARE INFORMATION REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 300                      'manual run time in seconds
+STATS_manualtime = 360                      'manual run time in seconds
 STATS_denomination = "I"       				
 'END OF stats block==============================================================================================
 
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2025", "Updated search criteria to ensure all members PMI's are found. Also added Reason code and code descriptions for the 1st eligibility span.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/18/2024", "Added Medicare start and end dates to the output report.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report for new plan: United HealthCare.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report. Added status to report. Removed error list. Status cases may also have health care information, enhancement from previous error list.", "Ilse Ferris, Hennepin County")
@@ -60,6 +61,7 @@ changelog_display
 'CONNECTS TO BlueZone
 EMConnect ""
 Call check_for_MMIS(False) 'ensuring we're in MMIS
+
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
@@ -140,8 +142,7 @@ Do
     If instr(all_pmi_array, "*" & Client_PMI & "*") then
         add_to_array = False
     Else
-        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-        'The client information is added to the array'
+        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File & The information is added to the array
         case_array(clt_PMI_const, entry_record) = Client_PMI
         case_array(first_name_adjusted, entry_record) = False 'setting default to false - need to handle these cases differently in RSEL panel search
         entry_record = entry_record + 1			'This increments to the next entry in the array'
@@ -406,7 +407,6 @@ For i = 0 to UBound(case_array, 2)
             If end_date = True then 
                 Call write_value_and_transmit("RELG", 1, 8)
                 EMReadScreen reason_code, 2, 7, 73
-                
                 If reason_code = "AH" then reason_def =  "HMCP APPROVED NEW APPL"
                 If reason_code = "CB" then reason_def =  "HMCP CLOSED NOW MCRE ELIG"
                 If reason_code = "CC" then reason_def =  "HMCP UNUSED 4 MONTH PENALTY"
@@ -520,6 +520,7 @@ For i = 0 to UBound(case_array, 2)
             End if 
         End if 
     End if 
+
     'outputting to Excel
     objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
     objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
@@ -585,8 +586,8 @@ script_end_procedure("Success! Your list has been created. Please review for cas
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/18/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------07/18/2024
-'--Incrementors reviewed (if necessary)-----------------------------------------07/18/2024
+'--Manual time study reviewed --------------------------------------------------01/17/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------01/17/2025
 '--Denomination reviewed -------------------------------------------------------07/18/2024
 '--Script name reviewed---------------------------------------------------------07/18/2024
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/18/2024
@@ -594,10 +595,10 @@ script_end_procedure("Success! Your list has been created. Please review for cas
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------07/18/2024
 '--comment Code-----------------------------------------------------------------07/18/2024
-'--Update Changelog for release/update------------------------------------------07/18/2024
+'--Update Changelog for release/update------------------------------------------01/17/2025
 '--Remove testing message boxes-------------------------------------------------07/18/2024
 '--Remove testing code/unnecessary code-----------------------------------------07/18/2024
-'--Review/update SharePoint instructions----------------------------------------07/18/2024
+'--Review/update SharePoint instructions----------------------------------------01/17/2025
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/18/2024-------------------N/A
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
