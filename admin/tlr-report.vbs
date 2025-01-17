@@ -67,9 +67,13 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
 	    TLR_fixed_clock_yr = "23"
     
 	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-        bene_yr_row = 10
         abawd_counted_months = 0					'declares the variables values at 0
         month_count = 0
+        If MAXIS_footer_year = CM_yr then 
+            bene_yr_row = 10
+        Else
+            bene_yr_row = 9
+        End if
     
         DO
         	'establishing variables for specific ABAWD counted month dates
@@ -801,7 +805,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
         For each update_code in ATR_updates
            Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'              
             bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))      'col to search starts at 15, increased by 4 for each footer month
-            bene_yr_row = 10
+            If MAXIS_footer_year = CM_yr then 
+                bene_yr_row = 10
+            Else
+                bene_yr_row = 9
+            End if
             EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
             'This bit will only update to the manual codes if the month isn't already reflecting that. 
             If manual_code = "F" then 
