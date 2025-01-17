@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-CALL changelog_update("01/01/01", "Initial version.", "Ilse Ferris, Hennepin County") 'REPLACE with release date and your name.
+CALL changelog_update("01/15/25", "Initial version.", "Mark Riegel, Hennepin County") 
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -52,100 +52,276 @@ changelog_display
 
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
-CALL MAXIS_case_number_finder(MAXIS_case_number)    				'Grabs the MAXIS case number automatically
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'Grabs the footer month and year from MAXIS
-'  -- OR --
-MAXIS_footer_month = CM_plus_1_mo									'Directly assigns a footer month based on the current month
-MAXIS_footer_year = CM_plus_1_yr
 
-Dialog1 = "" 'blanking out dialog name
-'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
-'    Some Dialog Elements:  Initial Dialog Header: 			BeginDialog Dialog1, 0, 0, 191, 105, "CATEGORY - NAME Case Number Dialog"  				-- Use CATEGORY - NAME somewhere in the header
-'							Script Instructions Button:		PushButton 135, 5, 50, 15, "Instructions", script_instructions_btn						-- Have a button to open the instructions
-'							Script Purpose/Overview: 		Text 10, 70, 120, 30, "Here is a quick summary of the purpose of the script."			-- Give the worker a little guidance
-'							Include edit boxes for necessary details like Case Number, Footer Month, Footer Year, and Worker Signature
-'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
-DO
-    Do
-        err_msg = ""    'This is the error message handling
-        Dialog Dialog1
-        cancel_confirmation or cancel_without_confirmation
-        'Add in all of your mandatory field handling from your dialog here.
-        Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
-        'The rest of the mandatory handling here
-        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
-		If ButtonPressed = script_instructions_btn Then
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/CATEGORY/CATEGORY%20-%20NAME.docx"	'copy the instructions URL here
-			err_msg = "LOOP"
-		End If
-        IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
-    'Add to all dialogs where you need to work within BLUEZONE
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-'End dialog section-----------------------------------------------------------------------------------------------
+'Read the dail message
+' EmWriteScreen "X", 6, 3
+' transmit
+'Reads the entire line above the DAIL message (the full case name and case number)
+EmReadScreen full_case_name_number, 76, 5, 5
+MAXIS_case_number = trim(right(full_case_name_number, 8))
+dail_message_member_name = left(full_case_name_number, 4)
+Call write_value_and_transmit("X", 6, 3)
+EMReadScreen full_message_1, 70, 9, 5
+EMReadScreen full_message_2, 70, 10, 5
+EMReadScreen full_message_3, 70, 11, 5
+EMReadScreen full_message_4, 70, 12, 5
+full_message = trim(trim(full_message_1) & " " & trim(full_message_2) & " " & trim(full_message_3) & " " & trim(full_message_4))
+full_case_name_number_message = full_case_name_number & full_message
+'Transmit back to DAIL
+transmit
 
-'Checks to see if in MAXIS
-CALL check_for_MAXIS(True) or Call check_for_MAXIS(False)
-
-'Reset to SELF to check the MAXIS region
-'This is also helpful to ensure we are not starting in a CASE/NOTE or something
-Call back_to_SELF
-Call clear_line_of_text(18, 43) 					'clear and rewrite the CASE Number. This is optional but can help the worker not to lose the case number.
-EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
-
-'MAXIS Region Check
-'OPTIONAL - there may be a good reason to be able to run in inquiry or production
-EMReadScreen MX_region, 10, 22, 48
-MX_region = trim(MX_region)
-If MX_region = "INQUIRY DB" Then
-	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
-	If continue_in_inquiry = vbNo Then
-		Call script_end_procedure("~PT NAME Script cancelled as it was run in inquiry.")
+If instr(full_message, "RSDI END DATE") OR instr(full_message, "SSI REPORTED TO MEC²") OR instr(full_message, "UNEMPLOYMENT INS") OR instr(full_message, "SELF EMPLOYMENT REPORTED TO MEC²") Then
+	If instr(full_message, "RSDI END DATE") OR instr(full_message, "SSI REPORTED TO MEC²") OR instr(full_message, "UNEMPLOYMENT INS") THEN
+		'Navigate to STAT/UNEA
+		Call write_value_and_transmit("S", 6, 3)
+		Call write_value_and_transmit("UNEA", 20, 71)
+	ElseIf instr(full_message, "SELF EMPLOYMENT REPORTED TO MEC²") Then
+		'Navigate to STAT/BUSI
+		Call write_value_and_transmit("S", 6, 3)
+		Call write_value_and_transmit("BUSI", 20, 71)
 	End If
-End If
 
-'PRIV Handling
-Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
+	Dialog1 = "" 'blanking out dialog name
+	BeginDialog Dialog1, 0, 0, 311, 150, "DAIL - MEC2 Message"
+		ButtonGroup ButtonPressed
+		PushButton 5, 90, 65, 15, "HSR Manual", hsr_manual_btn
+		PushButton 5, 110, 65, 15, "Script Instructions", script_instructions_btn
+		OkButton 205, 130, 50, 15
+		CancelButton 255, 130, 50, 15
+		Text 5, 5, 55, 10, "DAIL Message"
+		Text 5, 20, 295, 35, full_message
+		Text 5, 65, 300, 20, "The script has navigated to the respective STAT panel noted in the DAIL message. Please review the change and take any action required by the message. "
+		Text 75, 95, 85, 10, "Link to HSR Manual"
+		Text 75, 115, 85, 10, "Link to Script Instructions"
+	EndDialog
 
-'Out of County Handling
-'There are a few reasons to allow a script to run on an out of county case - so review if this is needed.
-EMReadScreen pw_county_code, 2, 21, 19
-If pw_county_code <> "27" Then script_end_procedure("This case is not in Hennepin County and cannot be updated. The script will now end.")
+	DO
+		Do
+			err_msg = ""    'This is the error message handling
+			Dialog Dialog1
+			cancel_without_confirmation
+			If ButtonPressed = hsr_manual_btn Then 
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MEC2.aspx"
+				err_msg = "LOOP"
+			End If
+			If ButtonPressed = script_instructions_btn Then 
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/DAIL%20-%20MEC2%20Message.docx"
+				err_msg = "LOOP"
+			End If
+		Loop until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-'Do you need to check for PRIV status
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
+	'End the script.
+	script_end_procedure("Please follow the instructions provided in the HSR Manual. The script will now end.")
 
-'Do you need to check to see if case is out of county? Add Out-of-County handling here:
-'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
+Else
+	'Message can be deleted
+	' Msgbox "This MEC2 message is non-actionable and will be deleted. Press 'OK' to delete the message. Press the 'X' to stop the script."
 
-Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
+	Dialog1 = "" 'blanking out dialog name
+	BeginDialog Dialog1, 0, 0, 311, 115, "DAIL - MEC2 Message"
+		ButtonGroup ButtonPressed
+		OkButton 205, 95, 50, 15
+		CancelButton 255, 95, 50, 15
+		Text 5, 5, 55, 10, "DAIL Message"
+		Text 5, 20, 300, 35, full_message
+		Text 5, 65, 300, 20, "This MEC2 message is non-actionable and will be deleted. Press 'OK' to delete the message. Press 'Cancel' to stop the script."
+	EndDialog
 
-'Do you need to set a TIKL?
-Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+	DO
+		Dialog Dialog1
+		cancel_without_confirmation
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-'Now it navigates to a blank case note
-Call start_a_blank_case_note
+	If ButtonPressed = OK Then
+		'Ensure we are still at the DAIL and the same message
+		EmReadScreen dail_panel_check, 4, 2, 48
+		If dail_panel_check <> "DAIL" Then
+			'No longer at the DAIL so script must navigate back to the correct DAIL message
+			PF3_count = 0
+			Do
+				PF3
+				EmReadScreen at_dail_check, 4, 2, 48
+				If at_dail_check = "DAIL" Then
+					Exit Do
+				Else
+					PF3_count = PF3_count + 1
+				End If
+				If PF3_count = 4 Then
+					unable_to_PF3_to_dail = True
+					Exit Do
+				End If
+			Loop
+			
+			If unable_to_PF3_to_dail = True Then
+				back_to_SELF
+				EMReadScreen self_panel_check, 4, 2, 50
+				If self_panel_check <> "SELF" Then
 
-'...and enters a title (replace variables with your own content)...
-CALL write_variable_in_case_note("*** CASE NOTE HEADER ***")
+					'Script will end if unable to get back to SELF to then get back to DAIL
+					script_end_procedure("The script is unable to navigate back to the DAIL. The script will now end.")
+				Else
 
-'...some editboxes or droplistboxes (replace variables with your own content)...
-CALL write_bullet_and_variable_in_case_note( "Here's the first bullet",  a_variable_from_your_dialog        )
-CALL write_bullet_and_variable_in_case_note( "Here's another bullet",    another_variable_from_your_dialog  )
+					'Navigate to DAIL
+					EMWriteScreen "DAIL", 16, 43
+					EMWriteScreen "DAIL", 21, 70
+					transmit
 
-'...checkbox responses (replace variables with your own content)...
-If some_checkbox_from_your_dialog = checked     then CALL write_variable_in_case_note( "* The checkbox was checked."     )
-If some_checkbox_from_your_dialog = unchecked   then CALL write_variable_in_case_note( "* The checkbox was not checked." )
+					EMReadScreen back_to_dail_check, 8, 1, 72
 
-'...and a worker signature.
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-'leave the case note open and in edit mode unless you have a business reason not to (BULK scripts, multiple case notes, etc.)
+					If back_to_dail_check <> "FMKDLAM6" Then
+						'Script will end if unable to get back to SELF to then get back to DAIL
+						script_end_procedure("The script is unable to navigate back to the DAIL. The script will now end.")
 
-'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("")
+					Else 
+						'To do - I don't think these are needed but commenting just in case
+						' 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
+						' Call write_value_and_transmit("H", dail_row, 3)
+						' PF3
 
-'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
+						'Update DAIL/PICK to MEC2
+						Call write_value_and_transmit("X", 4, 12)
+						EmWriteScreen "_", 7, 39
+						Call write_value_and_transmit("X", 16, 39)
+
+						'Script should now navigate to specific member name, or at least get close
+						EMWriteScreen dail_message_member_name, 21, 25
+						transmit
+
+						'Script will enter do loop to find match
+						'Set dail_row to 6 at start
+						dail_row = 6
+
+						Do
+							'Ensure we are at the same message before deleting
+							EmReadScreen check_full_case_name_number, 76, 5, 5
+							Call write_value_and_transmit("X", 6, 3)
+							EMReadScreen check_full_message_1, 70, 9, 5
+							EMReadScreen check_full_message_2, 70, 10, 5
+							EMReadScreen check_full_message_3, 70, 11, 5
+							EMReadScreen check_full_message_4, 70, 12, 5
+							check_full_case_name_number_message = full_case_name_number & trim(trim(check_full_message_1) & " " & trim(check_full_message_2) & " " & trim(check_full_message_3) & " " & trim(check_full_message_4))
+							transmit
+
+							If check_full_case_name_number_message = full_case_name_number_message Then
+								transmit
+								Exit Do
+							Else
+								transmit
+								dail_row = dail_row + 1
+
+								'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+								EMReadScreen new_case, 8, dail_row, 63
+								new_case = trim(new_case)
+								IF new_case <> "CASE NBR" THEN 
+									'If there is NOT a new case number, the script will top the message
+									Call write_value_and_transmit("T", dail_row, 3)
+								ELSEIF new_case = "CASE NBR" THEN
+									'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+									Call write_value_and_transmit("T", dail_row + 1, 3)
+								End if
+							End If
+
+						Loop
+					End If
+				End If
+
+			Else
+				'Script got back to DAIL with PF3s
+				'Update DAIL/PICK to MEC2
+				Call write_value_and_transmit("X", 4, 12)
+				EmWriteScreen "_", 7, 39
+				Call write_value_and_transmit("X", 16, 39)
+
+				'Script should now navigate to specific member name, or at least get close
+				EMWriteScreen dail_message_member_name, 21, 25
+				transmit
+
+				'Script will enter do loop to find match
+				'Set dail_row to 6 at start
+				dail_row = 6
+
+				Do
+					'Ensure we are at the same message before deleting
+					EmReadScreen check_full_case_name_number, 76, 5, 5
+					Call write_value_and_transmit("X", 6, 3)
+					EMReadScreen check_full_message_1, 70, 9, 5
+					EMReadScreen check_full_message_2, 70, 10, 5
+					EMReadScreen check_full_message_3, 70, 11, 5
+					EMReadScreen check_full_message_4, 70, 12, 5
+					check_full_case_name_number_message = full_case_name_number & trim(trim(check_full_message_1) & " " & trim(check_full_message_2) & " " & trim(check_full_message_3) & " " & trim(check_full_message_4))
+					transmit
+
+					If check_full_case_name_number_message = full_case_name_number_message Then
+						transmit
+						Exit Do
+					Else
+						transmit
+						dail_row = dail_row + 1
+
+						'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+						EMReadScreen new_case, 8, dail_row, 63
+						new_case = trim(new_case)
+						IF new_case <> "CASE NBR" THEN 
+							'If there is NOT a new case number, the script will top the message
+							Call write_value_and_transmit("T", dail_row, 3)
+						ELSEIF new_case = "CASE NBR" THEN
+							'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+							Call write_value_and_transmit("T", dail_row + 1, 3)
+						End if
+					End If
+				Loop
+			End If
+		End If
+	End If
+End if
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------
+'--Tab orders reviewed & confirmed----------------------------------------------
+'--Mandatory fields all present & Reviewed--------------------------------------
+'--All variables in dialog match mandatory fields-------------------------------
+'Review dialog names for content and content fit in dialog----------------------
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------
+'--Create a button to reference instructions------------------------------------
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------
+'--CASE:NOTE Header doesn't look funky------------------------------------------
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
+'--MAXIS_background_check reviewed (if applicable)------------------------------
+'--PRIV Case handling reviewed -------------------------------------------------
+'--Out-of-County handling reviewed----------------------------------------------
+'--script_end_procedures (w/ or w/o error messaging)----------------------------
+'--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
