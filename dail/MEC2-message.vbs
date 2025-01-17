@@ -53,9 +53,6 @@ changelog_display
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
 
-'Read the dail message
-' EmWriteScreen "X", 6, 3
-' transmit
 'Reads the entire line above the DAIL message (the full case name and case number)
 EmReadScreen full_case_name_number, 76, 5, 5
 dail_message_member_name = left(full_case_name_number, 4)
@@ -172,9 +169,9 @@ Else
 					EMWriteScreen "DAIL", 16, 43
 					EMWriteScreen "DAIL", 21, 70
 					transmit
-
+					
 					EMReadScreen back_to_dail_check, 8, 1, 72
-
+					
 					If back_to_dail_check <> "FMKDLAM6" Then
 						'Script will end if unable to navigate to DAIL from SELF
 						script_end_procedure("The script is unable to navigate back to the DAIL. The script will now end.")
@@ -184,10 +181,10 @@ Else
 						Call write_value_and_transmit("X", 4, 12)
 						EmWriteScreen "_", 7, 39
 						Call write_value_and_transmit("X", 16, 39)
-						
+
 						'Find previous case number and then case name
-						Call write_value_and_transmit(MAXIS_case_number, 16, 39)
-						Call write_value_and_transmit(dail_message_member_name, 16, 39)
+						Call write_value_and_transmit(MAXIS_case_number, 20, 38)
+						Call write_value_and_transmit(dail_message_member_name, 21, 25)
 
 						'Script will enter do loop to find match
 						'Set dail_row to 6 at start
@@ -207,16 +204,17 @@ Else
 
 							If check_full_case_name_number_message = full_case_name_number_message Then
 								'Matching message found, it will delete and then the script will end
-		
+
 								'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
 								EMReadScreen last_dail_check, 12, 3, 67
 								last_dail_check = trim(last_dail_check)
 		
 								'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
 								last_dail_check = split(last_dail_check, " ")
-		
+								
+
 								Call write_value_and_transmit("D", dail_row, 3)
-		
+
 								'Handling for deleting message under someone else's x number
 								EMReadScreen other_worker_error, 25, 24, 2
 								other_worker_error = trim(other_worker_error)
@@ -295,6 +293,9 @@ Else
 									'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 									Call write_value_and_transmit("T", dail_row + 1, 3)
 								End if
+
+								'Reset dail_row to 6
+								dail_row = 6
 							End If
 						Loop
 					End If
@@ -307,9 +308,9 @@ Else
 				EmWriteScreen "_", 7, 39
 				Call write_value_and_transmit("X", 16, 39)
 
-				'Script should now navigate to specific member name, or at least get close
-				EMWriteScreen dail_message_member_name, 21, 25
-				transmit
+				'Find previous case number and then case name
+				Call write_value_and_transmit(MAXIS_case_number, 20, 38)
+				Call write_value_and_transmit(dail_message_member_name, 21, 25)
 
 				'Script will enter do loop to find match
 				'Set dail_row to 6 at start
@@ -325,7 +326,7 @@ Else
 					EMReadScreen check_full_message_4, 70, 12, 5
 					check_full_case_name_number_message = check_full_case_name_number & trim(trim(check_full_message_1) & " " & trim(check_full_message_2) & " " & trim(check_full_message_3) & " " & trim(check_full_message_4))
 					'Exit message and transmit back to DAIL
-					transmit	
+					transmit
 
 					If check_full_case_name_number_message = full_case_name_number_message Then
 						'Matching message found, it will delete and then the script will end
@@ -336,6 +337,7 @@ Else
 
 						'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
 						last_dail_check = split(last_dail_check, " ")
+						
 
 						Call write_value_and_transmit("D", dail_row, 3)
 
@@ -417,6 +419,9 @@ Else
 							'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 							Call write_value_and_transmit("T", dail_row + 1, 3)
 						End if
+
+						'Reset dail_row to 6
+						dail_row = 6
 					End If
 				Loop
 			End If
