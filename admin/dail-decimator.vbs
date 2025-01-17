@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/13/2025", "Improved DAIL navigation handling.", "Mark Riegel, Hennepin County")
 call changelog_update("10/15/2024", "Added functionality to remove HIRE messages over 12 months old.", "Mark Riegel, Hennepin County")
 call changelog_update("06/05/2023", "Added option for removing SVES/TPQY responses sent for Ex Parte cases.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/10/2022", "Added restart functionality when using all workers option.", "Ilse Ferris, Hennepin County")
@@ -956,18 +957,20 @@ For each worker in worker_array
 				dail_row = dail_row + 1
 			End if
 
-            'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
+			'Checking for the last DAIL message. If it just processed the final message, the DAIL will appear blank but there is actually an invisible '_' at 6, 3. Handling to check for this and then navigate to the next page if needed. If it is on the last page, then it will exit the do loop 
 			EMReadScreen next_dail_check, 7, dail_row, 3
 			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
-                PF8
-                EMReadScreen next_dail_check, 7, dail_row, 3
-			    If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
-                    last_case = true
-				    exit do
-                End if 
+				'Attempt to navigate to the next page
+				PF8
+				EMReadScreen last_page_check, 21, 24, 2
+				'Check if the last page of the DAIL has been reached, also handles for situations where the last DAIL has been deleted and it displays a 'NO MESSAGES' warning
+				If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
+					all_done = true
+					exit do
+				End if
 			End if
 		LOOP
-		IF last_case = true THEN exit do
+		IF all_done = true THEN exit do
 	LOOP
 Next
 
