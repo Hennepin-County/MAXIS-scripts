@@ -261,45 +261,50 @@ For i = 0 to UBound(case_array, 2)
 
     RSEL_row = 7
     Do
-        Call MMIS_panel_confirmation("RSEL", 52)
-        
-        EMReadScreen RSEL_last_name, 17, RSEL_row, 15
-        RSEL_last_name = trim(RSEL_last_name)
-
-        EMReadScreen RSEL_first_name, 14, RSEL_row, 33
-        RSEL_first_name = trim(RSEL_first_name)
-
-        EMReadScreen RSEL_DOB, 8, RSEL_row, 71
-        EMReadScreen RSEL_PMI, 8, RSEL_row, 4
-        
-        If trim(RSEL_last_name) = "" then 
+        EmReadscreen RKEY_panel_check, 4, 1, 52
+        If RKEY_panel_check = "RKEY" then
+            EmReadscreen RKEY_error, 78, 24, 2
+            case_array(case_status, i) = trim(RKEY_error)
             exit do 
-        Else
-            If RSEL_last_name = Case_array(last_name_const, i) then 
-                client_DOB = replace(case_array(DOB_const, i), "/", "") 
-                If RSEL_DOB = client_DOB then 
-                    If instr(all_pmi_array, "*" & RSEL_PMI & "*") then
-                        skip_case = True
+        Else 
+            EMReadScreen RSEL_last_name, 17, RSEL_row, 15
+            RSEL_last_name = trim(RSEL_last_name)
+    
+            EMReadScreen RSEL_first_name, 14, RSEL_row, 33
+            RSEL_first_name = trim(RSEL_first_name)
+    
+            EMReadScreen RSEL_DOB, 8, RSEL_row, 71
+            EMReadScreen RSEL_PMI, 8, RSEL_row, 4
+            
+            If trim(RSEL_last_name) = "" then 
+                exit do 
+            Else
+                If RSEL_last_name = Case_array(last_name_const, i) then 
+                    client_DOB = replace(case_array(DOB_const, i), "/", "") 
+                    If RSEL_DOB = client_DOB then 
+                        If instr(all_pmi_array, "*" & RSEL_PMI & "*") then
+                            skip_case = True
+                        Else 
+                            ReDim Preserve case_array(case_status, entry_record)	'This resizes the array if more than one PMI is found. 
+                            'The client information is added to the array'
+                            case_array(clt_PMI_const, entry_record) = RSEL_PMI
+                            case_array(last_name_const, entry_record) = Case_array(last_name_const, i)
+                            Case_array(first_name_const, entry_record) = Case_array(first_name_const, i) 
+                            case_array(DOB_const, entry_record) = case_array(DOB_const, i)
+                            case_array(gender_const, entry_record) = case_array(gender_const, i)
+                            entry_record = entry_record + 1			'This increments to the next entry in the array'
+                            stats_counter = stats_counter + 1
+                            all_pmi_array = trim(all_pmi_array & RSEL_PMI & "*") 
+                        End if
                     Else 
-                        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array if more than one PMI is found. 
-                        'The client information is added to the array'
-                        case_array(clt_PMI_const, entry_record) = RSEL_PMI
-                        case_array(last_name_const, entry_record) = Case_array(last_name_const, i)
-                        Case_array(first_name_const, entry_record) = Case_array(first_name_const, i) 
-                        case_array(DOB_const, entry_record) = case_array(DOB_const, i)
-                        case_array(gender_const, entry_record) = case_array(gender_const, i)
-                        entry_record = entry_record + 1			'This increments to the next entry in the array'
-                        stats_counter = stats_counter + 1
-                        all_pmi_array = trim(all_pmi_array & RSEL_PMI & "*") 
+                        case_array(case_status, i) = "Unable to match DOB in RSEL." 
                     End if
                 Else 
-                    case_array(case_status, i) = "Unable to match DOB in RSEL." 
-                End if
-            Else 
-                case_array(case_status, i) = "Unable to match last name in RSEL."
-            End if          
-        End if
-        RSEL_row = RSEL_row + 1
+                    case_array(case_status, i) = "Unable to match last name in RSEL."
+                End if          
+            End if
+            RSEL_row = RSEL_row + 1
+        End if 
     Loop 
 Next                           
                 
