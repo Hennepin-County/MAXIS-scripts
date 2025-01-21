@@ -148,7 +148,143 @@ Else
 	If ButtonPressed = OK Then
 		'Ensure we are still at the DAIL and the same message
 		EmReadScreen dail_panel_check, 4, 2, 48
-		If dail_panel_check <> "DAIL" Then
+		If dail_panel_check = "DAIL" Then
+			'Update DAIL/PICK to MEC2
+			Call write_value_and_transmit("X", 4, 12)
+			EmWriteScreen "_", 7, 39
+			Call write_value_and_transmit("X", 16, 39)
+
+			'Find previous case number and then case name
+			Call write_value_and_transmit(MAXIS_case_number, 20, 38)
+			Call write_value_and_transmit(dail_message_member_name, 21, 25)
+			
+			'Script will enter do loop to find match
+			'Set dail_row to 6 at start
+			dail_row = 6
+
+			Do
+				'Ensure we are at the same message before deleting
+				EmReadScreen check_full_case_name_number, 76, 5, 5
+				Call write_value_and_transmit("X", 6, 3)
+				EMReadScreen check_full_message_1, 70, 9, 5
+				EMReadScreen check_full_message_2, 70, 10, 5
+				EMReadScreen check_full_message_3, 70, 11, 5
+				EMReadScreen check_full_message_4, 70, 12, 5
+				check_full_case_name_number_message = check_full_case_name_number & trim(trim(check_full_message_1) & " " & trim(check_full_message_2) & " " & trim(check_full_message_3) & " " & trim(check_full_message_4))
+				'Exit message and transmit back to DAIL
+				transmit	
+
+				If check_full_case_name_number_message = full_case_name_number_message Then
+					'Matching message found, it will delete and then the script will end
+
+					'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
+					EMReadScreen last_dail_check, 12, 3, 67
+					last_dail_check = trim(last_dail_check)
+
+					'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+					last_dail_check = split(last_dail_check, " ")
+					
+					Call write_value_and_transmit("D", dail_row, 3)
+
+					'Handling for deleting message under someone else's x number
+					EMReadScreen other_worker_error, 25, 24, 2
+					other_worker_error = trim(other_worker_error)
+
+					If other_worker_error = "ALL MESSAGES WERE DELETED" Then
+						'Script deleted the final message in the DAIL successfully 
+						script_end_procedure("The script successfully deleted the MEC2 message. The script will now end.")
+
+					ElseIf other_worker_error = "" Then
+						'Script appears to have deleted the message but there was no warning, checking DAIL counts to confirm deletion
+
+						'Handling to check if message actually deleted
+						total_dail_msg_count_before = last_dail_check(2) * 1
+						EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+						total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+						total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+						If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+							'The total DAILs decreased by 1, message deleted successfully
+							script_end_procedure("The script successfully deleted the MEC2 message. The script will now end.")
+						Else
+							'The message deletion failed
+							script_end_procedure("The script was unable to delete the MEC2 message. Please delete the message manually. The script will now end.")
+						End If
+
+					ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+						
+						'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
+						transmit
+
+						'Reads the total number of DAILS after deleting to determine if it decreased by 1
+						EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+						'Checks if final DAIL message deleted
+						EMReadScreen final_dail_error, 25, 24, 2
+
+						If final_dail_error = "ALL MESSAGES WERE DELETED" Then
+							'Script deleted the final message in the DAIL successfully 
+							script_end_procedure("The script successfully deleted the MEC2 message. The script will now end.")
+						ElseIf trim(final_dail_error) = "" Then
+							'Handling to check if message actually deleted
+							total_dail_msg_count_before = last_dail_check(2) * 1
+
+							total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+							total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+							If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+								'Script deleted the final message in the DAIL successfully 
+								script_end_procedure("The script successfully deleted the MEC2 message. The script will now end.")
+							Else
+								'The message deletion failed
+								script_end_procedure("The script was unable to delete the MEC2 message. Please delete the message manually. The script will now end.")
+							End If
+
+						Else
+							'The message deletion failed
+							script_end_procedure("The script was unable to delete the MEC2 message. Please delete the message manually. The script will now end.")
+						End if
+						
+					Else
+						'The message deletion failed
+						script_end_procedure("The script was unable to delete the MEC2 message. Please delete the message manually. The script will now end.")
+					End If
+				Else
+					'If message is not a match, it will move to the next DAIL message to check
+					dail_row = dail_row + 1
+
+					'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+					EMReadScreen new_case, 8, dail_row, 63
+					new_case = trim(new_case)
+					IF new_case <> "CASE NBR" THEN 
+						'If there is NOT a new case number, the script will top the message
+						Call write_value_and_transmit("T", dail_row, 3)
+					ELSEIF new_case = "CASE NBR" THEN
+						'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+						Call write_value_and_transmit("T", dail_row + 1, 3)
+					End if
+
+					' 'Reset dail_row to 6
+					' dail_row = 6
+
+					'...going to the next page if necessary
+					EMReadScreen next_dail_check, 4, dail_row, 4
+					If trim(next_dail_check) = "" then
+						PF8
+						EMReadScreen last_page_check, 21, 24, 2
+						'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+						If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
+							script_end_procedure("The script was unable to delete the MEC2 message as it could not find the message in the DAIL. Please delete the message manually. The script will now end.")
+						Else
+							dail_row = 6
+						End if
+					End if
+					'Reset dail_row to 6
+					dail_row = 6
+				End If
+			Loop
+		ElseIf dail_panel_check <> "DAIL" Then
 			'If we are no longer at the DAIL, then the script must navigate back to the DAIL so it can delete the correct message. It will start with using PF3 to navigate back
 			PF3_count = 0
 			Do
@@ -221,7 +357,6 @@ Else
 								'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
 								last_dail_check = split(last_dail_check, " ")
 								
-
 								Call write_value_and_transmit("D", dail_row, 3)
 
 								'Handling for deleting message under someone else's x number
@@ -303,6 +438,18 @@ Else
 									Call write_value_and_transmit("T", dail_row + 1, 3)
 								End if
 
+								'...going to the next page if necessary
+								EMReadScreen next_dail_check, 4, dail_row, 4
+								If trim(next_dail_check) = "" then
+									PF8
+									EMReadScreen last_page_check, 21, 24, 2
+									'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+									If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
+										script_end_procedure("The script was unable to delete the MEC2 message as it could not find the message in the DAIL. Please delete the message manually. The script will now end.")
+									Else
+										dail_row = 6
+									End if
+								End if
 								'Reset dail_row to 6
 								dail_row = 6
 							End If
@@ -347,7 +494,6 @@ Else
 						'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
 						last_dail_check = split(last_dail_check, " ")
 						
-
 						Call write_value_and_transmit("D", dail_row, 3)
 
 						'Handling for deleting message under someone else's x number
@@ -429,6 +575,21 @@ Else
 							Call write_value_and_transmit("T", dail_row + 1, 3)
 						End if
 
+						' 'Reset dail_row to 6
+						' dail_row = 6
+
+						'...going to the next page if necessary
+						EMReadScreen next_dail_check, 4, dail_row, 4
+						If trim(next_dail_check) = "" then
+							PF8
+							EMReadScreen last_page_check, 21, 24, 2
+							'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+							If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
+								script_end_procedure("The script was unable to delete the MEC2 message as it could not find the message in the DAIL. Please delete the message manually. The script will now end.")
+							Else
+								dail_row = 6
+							End if
+						End if
 						'Reset dail_row to 6
 						dail_row = 6
 					End If
