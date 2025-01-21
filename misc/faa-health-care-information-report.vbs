@@ -2,7 +2,7 @@
 name_of_script = "FAA- HEALTH CARE INFORMATION REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 300                      'manual run time in seconds
+STATS_manualtime = 360                      'manual run time in seconds
 STATS_denomination = "I"       				
 'END OF stats block==============================================================================================
 
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2025", "Updated search criteria to ensure all members PMI's are found. Also added Reason code and code descriptions for the 1st eligibility span.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/18/2024", "Added Medicare start and end dates to the output report.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report for new plan: United HealthCare.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report. Added status to report. Removed error list. Status cases may also have health care information, enhancement from previous error list.", "Ilse Ferris, Hennepin County")
@@ -60,6 +61,7 @@ changelog_display
 'CONNECTS TO BlueZone
 EMConnect ""
 Call check_for_MMIS(False) 'ensuring we're in MMIS
+
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
@@ -101,27 +103,29 @@ ReDim case_array(case_status, 0)
 const clt_PMI_const 	        = 0
 const last_name_const           = 1
 const first_name_const          = 2
-const client_SSN_const          = 3
+const first_name_adjusted       = 3
 const DOB_const                 = 4
 const gender_const              = 5
 const first_case_number_const   = 6
 const first_type_const 	        = 7
 const first_elig_const 	        = 8
-const second_case_number_const 	= 9
-const second_type_const 	    = 10
-const second_elig_const 	    = 11
-const third_case_number_const 	= 12
-const third_type_const      	= 13
-const third_elig_const      	= 14
-const medi_A_begin              = 15
-const medi_A_end                = 16
-const medi_B_begin              = 17
-const medi_B_end                = 18
-const rsum_PMI_const            = 19
-const pmap_begin_const          = 20
-const pmap_end_const            = 21
-const pmap_name_const           = 22
-const case_status               = 23
+const reason_code_const         = 9
+const reason_def_const          = 10
+const second_case_number_const 	= 11
+const second_type_const 	    = 12
+const second_elig_const 	    = 13
+const third_case_number_const 	= 14
+const third_type_const      	= 15
+const third_elig_const      	= 16
+const medi_A_begin              = 17
+const medi_A_end                = 18
+const medi_B_begin              = 19
+const medi_B_end                = 20
+const rsum_PMI_const            = 21
+const pmap_begin_const          = 22
+const pmap_end_const            = 23
+const pmap_name_const           = 24      
+const case_status               = 25 
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -138,12 +142,12 @@ Do
     If instr(all_pmi_array, "*" & Client_PMI & "*") then
         add_to_array = False
     Else
-        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-        'The client information is added to the array'
+        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File & The information is added to the array
         case_array(clt_PMI_const, entry_record) = Client_PMI
+        case_array(first_name_adjusted, entry_record) = False 'setting default to false - need to handle these cases differently in RSEL panel search
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
-        all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding MAXIS case number to case number string
+        all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding PMI to case number string
     End if
     excel_row = excel_row + 1
 Loop
@@ -169,22 +173,24 @@ ObjExcel.Cells(1,  6).Value = "Gender"
 ObjExcel.Cells(1,  7).Value = "1st Case"
 ObjExcel.Cells(1,  8).Value = "1st Type/Prog"
 ObjExcel.Cells(1,  9).Value = "1st Elig Dates"
-ObjExcel.Cells(1, 10).Value = "2nd Case"
-ObjExcel.Cells(1, 11).Value = "2nd Type/Prog"
-ObjExcel.Cells(1, 12).Value = "2nd Elig Dates"
-ObjExcel.Cells(1, 13).Value = "3rd Case"
-ObjExcel.Cells(1, 14).Value = "3rd Type/Prog"
-ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
-ObjExcel.Cells(1, 16).Value = "PMAP Start"
-ObjExcel.Cells(1, 17).Value = "PMAP End"
-ObjExcel.Cells(1, 18).Value = "PMAP Name"
-ObjExcel.Cells(1, 19).Value = "Medi A Begin"
-ObjExcel.Cells(1, 20).Value = "Med A End"
-ObjExcel.Cells(1, 21).Value = "Medi B Begin"
-ObjExcel.Cells(1, 22).Value = "Med B End"
-ObjExcel.Cells(1, 23).Value = "Status"
+ObjExcel.Cells(1, 10).Value = "Reason Code"
+ObjExcel.Cells(1, 11).Value = "Reason Description"
+ObjExcel.Cells(1, 12).Value = "2nd Case"
+ObjExcel.Cells(1, 13).Value = "2nd Type/Prog"
+ObjExcel.Cells(1, 14).Value = "2nd Elig Dates"
+ObjExcel.Cells(1, 15).Value = "3rd Case"
+ObjExcel.Cells(1, 16).Value = "3rd Type/Prog"
+ObjExcel.Cells(1, 17).Value = "3rd Elig Dates"
+ObjExcel.Cells(1, 18).Value = "PMAP Start"
+ObjExcel.Cells(1, 19).Value = "PMAP End"
+ObjExcel.Cells(1, 20).Value = "PMAP Name"
+ObjExcel.Cells(1, 21).Value = "Medi A Begin"
+ObjExcel.Cells(1, 22).Value = "Med A End"
+ObjExcel.Cells(1, 23).Value = "Medi B Begin"
+ObjExcel.Cells(1, 24).Value = "Med B End"
+ObjExcel.Cells(1, 25).Value = "Status"
 
-FOR i = 1 to 23 	'formatting the cells'
+FOR i = 1 to 25	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -205,10 +211,8 @@ Call clear_line_of_text(9, 48)  'Clearing Client Option Number
 Call clear_line_of_text(9, 69)  'Clearing Case Type
 
 For i = 0 to UBound(case_array, 2)
-    Client_PMI = case_array(clt_PMI_const, i)
-
     get_to_RKEY
-    Call write_value_and_transmit (Client_PMI, 4, 19)
+    Call write_value_and_transmit (case_array(clt_PMI_const, i), 4, 19)
     EmReadscreen RKEY_panel_check, 4, 1, 52
     If RKEY_panel_check = "RKEY" then
         EmReadscreen RKEY_error, 78, 24, 2
@@ -217,22 +221,18 @@ For i = 0 to UBound(case_array, 2)
         'All accessible cases will have information gathered for them from the RCIP panel.
         Call write_value_and_transmit ("RCIP", 1, 8)
         Call MMIS_panel_confirmation("RCIP", 52)
-
-        EmReadscreen Client_SSN, 9, 5, 28
-        Client_SSN = trim(Client_SSN)
-
-        If Client_SSN = "" then
-            case_array(case_status, i) = "Unable to find SSN in MMIS."
-        Else
-            case_array(case_status, i) = ""
-            Case_array(client_SSN_const, i) = Client_SSN
-        End if
-
+        
         EmReadscreen last_name, 17, 3, 2
         Case_array(last_name_const, i) = trim(last_name)
 
         EmReadscreen first_name, 13, 3, 20
-        Case_array(first_name_const, i) = trim(first_name)
+        first_name = trim(first_name)
+        If instr(first_name, " ") or _ 
+            instr(first_name, "'") or _ 
+            instr(first_name, "-") then 
+            case_array(first_name_adjusted, i) = True 
+        End if 
+        Case_array(first_name_const, i) = first_name
 
         EmReadscreen client_DOB, 10, 2, 24
         case_array(DOB_const, i) = trim(client_DOB)
@@ -244,202 +244,318 @@ Next
 
 '----------------------------------------------------------------------------------------------------Health Care Information Report
 For i = 0 to UBound(case_array, 2)
-    Client_SSN = case_array(client_SSN_const, i)
-    Client_PMI = case_array(clt_PMI_const, i)
+    get_to_RKEY
+    Call clear_line_of_text(4, 19)  'Clearing PMI
+    Call clear_line_of_text(6, 19)  'Clearing Last Name
+    Call clear_line_of_text(6, 48)  'Clearing First Name
+    Call clear_line_of_text(7, 19)  'Clearing DOB
 
-    If case_array(case_status, i) = "RECIPIENT ID COULD NOT BE FOUND" then
-        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, i)
-        objExcel.Cells(excel_row, 23).Value = case_array(case_status, i)
-        excel_row = excel_row + 1
-    Else
+    EMWriteScreen Case_array(last_name_const, i), 6, 19
+    If case_array(first_name_adjusted, i) = True then 
+        EMWriteScreen left(Case_array(first_name_const, i), 1), 6, 48
+    Else 
+        EMWriteScreen Case_array(first_name_const, i), 6, 48
+    End if 
+    EMWriteScreen case_array(DOB_const, i), 7, 19
+    Call write_value_and_transmit("I", 2, 19)   'transmitting to the RSEL screen.
+
+    RSEL_row = 7
+    Do
+        EmReadscreen RKEY_panel_check, 4, 1, 52
+        If RKEY_panel_check = "RKEY" then
+            EmReadscreen RKEY_error, 78, 24, 2
+            case_array(case_status, i) = trim(RKEY_error)
+            exit do 
+        Else 
+            EMReadScreen RSEL_last_name, 17, RSEL_row, 15
+            RSEL_last_name = trim(RSEL_last_name)
+    
+            EMReadScreen RSEL_first_name, 14, RSEL_row, 33
+            RSEL_first_name = trim(RSEL_first_name)
+    
+            EMReadScreen RSEL_DOB, 8, RSEL_row, 71
+            EMReadScreen RSEL_PMI, 8, RSEL_row, 4
+            
+            If trim(RSEL_last_name) = "" then 
+                exit do 
+            Else
+                If RSEL_last_name = Case_array(last_name_const, i) then 
+                    client_DOB = replace(case_array(DOB_const, i), "/", "") 
+                    If RSEL_DOB = client_DOB then 
+                        If instr(all_pmi_array, "*" & RSEL_PMI & "*") then
+                            skip_case = True
+                        Else 
+                            ReDim Preserve case_array(case_status, entry_record)	'This resizes the array if more than one PMI is found. 
+                            'The client information is added to the array'
+                            case_array(clt_PMI_const, entry_record) = RSEL_PMI
+                            case_array(last_name_const, entry_record) = Case_array(last_name_const, i)
+                            Case_array(first_name_const, entry_record) = Case_array(first_name_const, i) 
+                            case_array(DOB_const, entry_record) = case_array(DOB_const, i)
+                            case_array(gender_const, entry_record) = case_array(gender_const, i)
+                            entry_record = entry_record + 1			'This increments to the next entry in the array'
+                            stats_counter = stats_counter + 1
+                            all_pmi_array = trim(all_pmi_array & RSEL_PMI & "*") 
+                        End if
+                    Else 
+                        case_array(case_status, i) = "Unable to match DOB in RSEL." 
+                    End if
+                Else 
+                    case_array(case_status, i) = "Unable to match last name in RSEL."
+                End if          
+            End if
+            RSEL_row = RSEL_row + 1
+        End if 
+    Loop 
+Next                           
+                
+'Final clearing of the name/DOB
+get_to_RKEY
+Call clear_line_of_text(6, 19)  'Clearing Last Name
+Call clear_line_of_text(6, 48)  'Clearing First Name
+Call clear_line_of_text(7, 19)  'Clearing DOB
+
+For i = 0 to UBound(case_array, 2)
+    If case_array(case_status, i) = "" then
         get_to_RKEY
         Call clear_line_of_text(4, 19)  'Clearing PMI
-        Call clear_line_of_text(5, 19)  'Clearing SSN
+        Call write_value_and_transmit (case_array(clt_PMI_const, i), 4, 19)
 
-        If trim(Client_SSN) = "" then
-            EMWriteScreen Client_PMI, 4, 19
-        Else
-            EMWriteScreen Client_SSN, 5, 19
+        first_elig_blank = True 'default
+        EmReadscreen panel_check, 4, 1, 51
+        If panel_check = "RSUM" then
+            '1st case type/prog/elig/case number
+            EmReadscreen RSUM_PMI, 8, 2, 2
+            Case_array(rsum_PMI_const, i) = RSUM_PMI
+            EmReadscreen first_case_number, 8, 7, 16
+            first_case_number = trim(first_case_number)
+            If first_case_number = "" then case_array(case_status, i) = "No active programs in MMIS under billed PMI."
+            case_array(first_case_number_const, i) = first_case_number
+            EmReadscreen first_program, 2, 6, 13
+            EmReadscreen first_type, 2, 6, 35
+            If trim(first_program) <> "" then
+                first_elig_blank = False 
+                first_elig_type = first_program & "-" & first_type
+                case_array(first_type_const, i) = first_elig_type
+                '1st elig dates
+                EmReadscreen first_elig_start, 8, 7, 35
+                EmReadscreen first_elig_end, 8, 7, 54
+                first_elig_dates = first_elig_start &  " - " & first_elig_end
+                If (first_elig_end <> "99/99/99" or trim(first_elig_end) <> "") then end_date = True 
+                case_array(first_elig_const, i) = first_elig_dates
+            End if
+
+            '2nd case inforamtion 
+            EmReadscreen second_case_number, 8, 9, 16
+            second_case_number = trim(second_case_number)
+            If second_case_number <> "" then
+                case_array(second_case_number_const, i) = second_case_number
+                EmReadscreen second_program, 2, 8, 13
+                EmReadscreen second_type, 2, 8, 35
+                If trim(second_program) <> "" then
+                    second_elig_type = second_program & "-" & second_type
+                    case_array(second_type_const, i) = second_elig_type
+                    '2nd elig dates
+                    EmReadscreen second_elig_start, 8, 9, 35
+                    EmReadscreen second_elig_end, 8, 9, 54
+                    second_elig_dates = second_elig_start &  " - " & second_elig_end
+                    case_array(second_elig_const, i) = second_elig_dates
+                ENd if
+            End if
+
+            '3rd case information
+            EmReadscreen third_case_number, 8, 11, 16
+            third_case_number = trim(third_case_number)
+            If third_case_number <> "" then
+                case_array(third_case_number_const, i) = third_case_number
+                EmReadscreen third_program, 2, 10, 13
+                EmReadscreen third_type, 2, 10, 35
+                If trim(third_program) <> "" then
+                    third_elig_type = third_program & "-" & third_type
+                    case_array(third_type_const, i) = third_elig_type
+                    '3rd elig dates
+                    EmReadscreen third_elig_start, 8, 11, 35
+                    EmReadscreen third_elig_end, 8, 11, 54
+                    third_elig_dates = third_elig_start &  " - " & third_elig_end
+                    case_array(third_elig_const, i) = third_elig_dates
+                End if
+            End if
+
+            'Medicare Information from RSUM
+            EMReadScreen medi_part_A_start, 8, 21, 22
+            EMReadScreen medi_part_A_end, 8, 21, 36
+            EMReadScreen medi_part_B_start, 8, 21, 57
+            EMReadScreen medi_part_B_end, 8, 21, 71  
+            case_array(medi_A_begin, i) = trim(medi_part_A_start)
+            case_array(medi_A_end,   i) = trim(medi_part_A_end)
+            case_array(medi_B_begin, i) = trim(medi_part_B_start)
+            case_array(medi_B_end,   i) = trim(medi_part_B_end)
+
+            'Reading PMAP Information from RPPH panel
+            Call write_value_and_transmit("RPPH", 1, 8)
+            Call MMIS_panel_confirmation("RPPH", 52)
+            EmReadscreen pmap_begin, 8, 13, 5
+            case_array(pmap_begin_const, i) = trim(pmap_begin)
+            EmReadscreen pmap_end, 8, 13, 14
+            case_array(pmap_end_const, i) = trim(pmap_end)
+            EMReadScreen hp_code, 10, 13, 23
+            If hp_code = "A585713900" then case_array(pmap_name_const, i) = "HealthPartners"
+            If hp_code = "A565813600" then case_array(pmap_name_const, i) = "Ucare"
+            If hp_code = "A405713900" then case_array(pmap_name_const, i) = "Medica"
+            If hp_code = "A065813800" then case_array(pmap_name_const, i) = "BluePlus"
+            If hp_code = "A168407400" then case_array(pmap_name_const, i) = "United Healthcare"
+            If hp_code = "A836618200" then case_array(pmap_name_const, i) = "Hennepin Health PMAP"
+            If hp_code = "A965713400" then case_array(pmap_name_const, i) = "Hennepin Health SNBC"
         End if
 
-        Call write_value_and_transmit("I", 2, 19)   'transmitting to next screen. Could be RSEL or RSUM. If SSN is searched and more than one record is found, the RSEL screen will appear.
-        RSEL_row = 7
-        Do
-            EmReadscreen RSEL_panel_check, 4, 1, 52
-            EmReadscreen panel_check, 4, 1, 51
-            If RSEL_panel_check = "RSEL" then
-                EmReadscreen RSEL_SSN, 9, RSEL_row, 48
-                If RSEL_SSN = Client_SSN then
-                    duplicate_entry = True
-                    Call write_value_and_transmit("X", RSEL_row, 2)
-                    '---------------------------------------This bit is for the rare case where you cannot select the SSN on RSEL. Those will be on the error list
-                    EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
-                    EmReadscreen panel_check, 4, 1, 51
-                    If RSEL_panel_check = "RSEL" then
-                        EmReadscreen RSEL_error, 70, 24, 2
-                        If trim(RSEL_error) <> "" then
-                            EmReadscreen RSEL_pmi, 8, RSEL_row, 4
-                            case_array(rsum_PMI_const, i) = ""
-                            case_array(case_status, i) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
-                            duplicate_entry = False 'stopping the further search for case information
-                            Exit do
-                        End if
-                    End if
-                else
-                    Exit do
-                    duplicate_entry = False
-                End if
-            End if
+        'All conditions need to be met in order to read/output the denial code/descrption
+        If first_elig_blank = False then 
+            If end_date = True then 
+                Call write_value_and_transmit("RELG", 1, 8)
+                EMReadScreen reason_code, 2, 7, 73
+                If reason_code = "AH" then reason_def =  "HMCP APPROVED NEW APPL"
+                If reason_code = "CB" then reason_def =  "HMCP CLOSED NOW MCRE ELIG"
+                If reason_code = "CC" then reason_def =  "HMCP UNUSED 4 MONTH PENALTY"
+                If reason_code = "CD" then reason_def =  "HMCP CLOSED DECEASED"
+                If reason_code = "CG" then reason_def =  "HMCP CLOSED NO MA APPL"
+                If reason_code = "CH" then reason_def =  "HMCP CLOSED NOT IN HOUSEHOLD"
+                If reason_code = "CI" then reason_def =  "HMCP CLOSED OVER INCOME"
+                If reason_code = "CJ" then reason_def =  "HMCP CLOSED INCARCERATION"
+                If reason_code = "CL" then reason_def =  "HMCP CLOSED NOT RESIDENT"
+                If reason_code = "CM" then reason_def =  "HMCP CLOSED MA COVERAGE"
+                If reason_code = "CN" then reason_def =  "HMCP CLOSED IMIG NOT VERIFIED"
+                If reason_code = "CO" then reason_def =  "HMCP CLOSED OTHER HEALTH INS"
+                If reason_code = "CQ" then reason_def =  "HMCP CLOSED NO QC COOPERATION"
+                If reason_code = "CR" then reason_def =  "HMCP CLOSED NO RENEWAL"
+                If reason_code = "CS" then reason_def =  "HMCP CLOSED ESI"
+                If reason_code = "CT" then reason_def =  "HMCP CLOSED NON COOP BR"
+                If reason_code = "CU" then reason_def =  "HMCP CLOSED INFO NOT RECD"
+                If reason_code = "CV" then reason_def =  "HMCP CLOSED ENROLLEE REQUEST"
+                If reason_code = "CX" then reason_def =  "HMCP CLOSED ABOVE ASSETS"
+                If reason_code = "CZ" then reason_def =  "HMCP CLOSED CITIZEN REQUIRED"
+                If reason_code = "DB" then reason_def =  "HMCP DENY ELIG FOR MCRE"
+                If reason_code = "DF" then reason_def =  "HMCP DENY NO ENROLLMENT"
+                If reason_code = "DI" then reason_def =  "HMCP DENY OVER INCOME"
+                If reason_code = "DP" then reason_def =  "HMCP DENY PENALTY PERIOD"
+                If reason_code = "00" then reason_def =  "ONGOING"
+                If reason_code = "05" then reason_def =  "CURRENTLY HOSPITALIZED"
+                If reason_code = "07" then reason_def =  "CLOSE INCOME REFER HMC"
+                If reason_code = "08" then reason_def =  "NO CHILDREN IN FAMILY"
+                If reason_code = "09" then reason_def =  "NOT A FULLTIME STUDENT *"
+                If reason_code = "10" then reason_def =  "OVER INCOME LIMIT"
+                If reason_code = "11" then reason_def =  "INITIAL PREMIUM NOT PAID"
+                If reason_code = "12" then reason_def =  "CURRENT MA COVERAGE"
+                If reason_code = "13" then reason_def =  "CURRENT OTHER HEALTH COVERAGE"
+                If reason_code = "14" then reason_def =  "OTHER HEALTH CVRG LAST 4 MOS"
+                If reason_code = "15" then reason_def =  "CURR EMPLOYER SUBSIDIZED INS"
+                If reason_code = "16" then reason_def =  "EMPLOYER SUBSIDIZED INS 18 MOS"
+                If reason_code = "17" then reason_def =  "NOT MINNESOTA RESIDENT"
+                If reason_code = "18" then reason_def =  "NON COOP WITH QC"
+                If reason_code = "19" then reason_def =  "COMBINED ROLL-OVER"
+                If reason_code = "20" then reason_def =  "DECEASED"
+                If reason_code = "21" then reason_def =  "REFERRED TO MA *"
+                If reason_code = "22" then reason_def =  "PREMIUM NON-PAYMENT (CANCEL)"
+                If reason_code = "23" then reason_def =  "PREMIUM NON-PAYMENT (DENIAL)"
+                If reason_code = "25" then reason_def =  "OTHER"
+                If reason_code = "26" then reason_def =  "CURRENT CHP COVERAGE *"
+                If reason_code = "27" then reason_def =  "PARENT OF CHILD REFERRED TO M*"
+                If reason_code = "28" then reason_def =  "CLOSE OR DENY CLIENT REQUEST *"
+                If reason_code = "29" then reason_def =  "PERSON LEFT HOUSEHOLD"
+                If reason_code = "30" then reason_def =  "INCOMPLETE APPLICATION"
+                If reason_code = "31" then reason_def =  "FAILURE TO RENEW"
+                If reason_code = "32" then reason_def =  "RETRO CVRG INCOMPLETE VERIF"
+                If reason_code = "33" then reason_def =  "RETRO CVRG AWAITING PAYMENT"
+                If reason_code = "34" then reason_def =  "COST SHARE SATISFACTION"
+                If reason_code = "35" then reason_def =  "RETRO CVRG DENIED APPLY 2 LATE"
+                If reason_code = "36" then reason_def =  "EXHAUSTED BENEFIT LIMIT *"
+                If reason_code = "37" then reason_def =  "LOST INSURANCE COVERAGE *"
+                If reason_code = "38" then reason_def =  "NOT MEDICALLY ELIGIBLE *"
+                If reason_code = "39" then reason_def =  "NOT USING SERVICE *"
+                If reason_code = "40" then reason_def =  "OVER THE AGE LIMIT *"
+                If reason_code = "41" then reason_def =  "AWAITING PREMIUM PAYMENT"
+                If reason_code = "42" then reason_def =  "PENALTY PERIOD"
+                If reason_code = "43" then reason_def =  "ELIGIBLE--SYSTEM CHANGES TO 41"
+                If reason_code = "44" then reason_def =  "REQUESTED INFO NOT RECEIVED"
+                If reason_code = "45" then reason_def =  "FAILURE TO REAPPLY"
+                If reason_code = "46" then reason_def =  "DOES NOT WANT MCRE COVERAGE"
+                If reason_code = "47" then reason_def =  "VOLUNTARY TERMINATION"
+                If reason_code = "48" then reason_def =  "INCOMPLETE RENEWAL"
+                If reason_code = "50" then reason_def =  "MA NONCOMPLIANCE *"
+                If reason_code = "51" then reason_def =  "NEW MAJOR PGM--TURNED 21"
+                If reason_code = "52" then reason_def =  "NEW ELIG TYPE--TURNED 2"
+                If reason_code = "53" then reason_def =  "DENIED BY RETRO MA/N ELIG"
+                If reason_code = "54" then reason_def =  "CLOSURE DUE TO MA/N ELIG"
+                If reason_code = "56" then reason_def =  "PREGNANCY ENDED"
+                If reason_code = "57" then reason_def =  "CLOSED MA/MCRE L SPAN OPEN"
+                If reason_code = "59" then reason_def =  "CSE REQUESTED INFO NOT RECVD *"
+                If reason_code = "60" then reason_def =  "NON-COMPLIANCE WITH CSE"
+                If reason_code = "61" then reason_def =  "MILITARY EXEMPTION"
+                If reason_code = "62" then reason_def =  "MUST APPLY FOR MA"
+                If reason_code = "63" then reason_def =  "IN JAIL"
+                If reason_code = "64" then reason_def =  "IMIG STATUS DOCUMENT NEEDED"
+                If reason_code = "66" then reason_def =  "INFO TO CONTINUE ELIG NOT RECD"
+                If reason_code = "67" then reason_def =  "REQUESTED INFO NOT RECEIVED  *"
+                If reason_code = "68" then reason_def =  "NON-COOP WITH BRS"
+                If reason_code = "70" then reason_def =  "NEED ASSET INFO/FAILED ASSETS"
+                If reason_code = "71" then reason_def =  "FAIL MEET CITIZEN REQUIREMENTS"
+                If reason_code = "73" then reason_def =  "PREGNANCY"
+                If reason_code = "74" then reason_def =  "LT 15 GR 50 FAILS AGE REQUIRE"
+                If reason_code = "75" then reason_def =  "FAILS AGE REQ TURNED 50"
+                If reason_code = "76" then reason_def =  "INSTITUTIONALIZED INDIVIDUAL"
+                If reason_code = "77" then reason_def =  "EP AND EZ CODES ONLY NO NOTICE"
+                If reason_code = "78" then reason_def =  "OVER 21-INELIG ON PARENTS CASE"
+                If reason_code = "79" then reason_def =  "DID NOT VERIFY INCOME"
+                If reason_code = "80" then reason_def =  "ADDITIONAL REASONS"
+                If reason_code = "82" then reason_def =  "CITIZENSHIP VERIF NOT RECEIVED"
+                If reason_code = "83" then reason_def =  "RETURN OF VOLUNTEER STATUS"
+                If reason_code = "84" then reason_def =  "NOT QUALIFIED"
+                If reason_code = "85" then reason_def =  "PDM CLOSURE"
+                If reason_code = "86" then reason_def =  "ROP CLOSURE"
+                If reason_code = "88" then reason_def =  "HOLD CLOSED MA"
+                If reason_code = "89" then reason_def =  "12/98,12/00 & 10/01 CONV MP/ET"
+                If reason_code = "90" then reason_def =  "MFPP OTHER"
+                If reason_code = "91" then reason_def =  "MFPP RETRO INELIG"
+                If reason_code = "92" then reason_def =  "MFPP RETRO INCOMP"
+                If reason_code = "93" then reason_def =  "MFPP SSN"
+                If reason_code = "96" then reason_def =  "BHP PEND FOLLOWNG GRACE MONTH"
+                If reason_code = "97" then reason_def =  "RECONCILIATION DISCREP CLOSE"
+                If reason_code = "98" then reason_def =  "PMI MERGE"
+                If reason_code = "99" then reason_def =  "WRKR CLOSED - NO RSN ENTERED"
+                case_array (reason_code_const, i) = reason_code
+                case_array (reason_def_const,  i) = reason_def
+            End if 
+        End if 
+    End if 
 
-            If panel_check = "RSUM" then
-                '1st case type/prog/elig/case number
-                EmReadscreen RSUM_PMI, 8, 2, 2
-                Case_array(rsum_PMI_const, i) = RSUM_PMI
-                EmReadscreen first_case_number, 8, 7, 16
-                first_case_number = trim(first_case_number)
-
-                If first_case_number = "" then case_array(case_status, i) = "No active programs in MMIS under billed PMI."
-
-                case_array(first_case_number_const, i) = first_case_number
-                EmReadscreen first_program, 2, 6, 13
-                EmReadscreen first_type, 2, 6, 35
-                If trim(first_program) <> "" then
-                    first_elig_type = first_program & "-" & first_type
-                    case_array(first_type_const, i) = first_elig_type
-                    '1st elig dates
-                    EmReadscreen first_elig_start, 8, 7, 35
-                    EmReadscreen first_elig_end, 8, 7, 54
-                    first_elig_dates = first_elig_start &  " - " & first_elig_end
-                    case_array(first_elig_const, i) = first_elig_dates
-                End if
-
-                EmReadscreen second_case_number, 8, 9, 16
-                second_case_number = trim(second_case_number)
-                If second_case_number <> "" then
-                    case_array(second_case_number_const, i) = second_case_number
-                    EmReadscreen second_program, 2, 8, 13
-                    EmReadscreen second_type, 2, 8, 35
-                    If trim(second_program) <> "" then
-                        second_elig_type = second_program & "-" & second_type
-                        case_array(second_type_const, i) = second_elig_type
-                        '1st elig dates
-                        EmReadscreen second_elig_start, 8, 9, 35
-                        EmReadscreen second_elig_end, 8, 9, 54
-                        second_elig_dates = second_elig_start &  " - " & second_elig_end
-                        case_array(second_elig_const, i) = second_elig_dates
-                    ENd if
-                End if
-
-                EmReadscreen third_case_number, 8, 11, 16
-                third_case_number = trim(third_case_number)
-                If third_case_number <> "" then
-                    case_array(third_case_number_const, i) = third_case_number
-                    EmReadscreen third_program, 2, 10, 13
-                    EmReadscreen third_type, 2, 10, 35
-                    If trim(third_program) <> "" then
-                        third_elig_type = third_program & "-" & third_type
-                        case_array(third_type_const, i) = third_elig_type
-                        '1st elig dates
-                        EmReadscreen third_elig_start, 8, 11, 35
-                        EmReadscreen third_elig_end, 8, 11, 54
-                        third_elig_dates = third_elig_start &  " - " & third_elig_end
-                        case_array(third_elig_const, i) = third_elig_dates
-                    End if
-                End if
-
-        'Medicare Information from RSUM
-                EMReadScreen medi_part_A_start, 8, 21, 22
-                EMReadScreen medi_part_A_end, 8, 21, 36
-                EMReadScreen medi_part_B_start, 8, 21, 57
-                EMReadScreen medi_part_B_end, 8, 21, 71
-
-                case_array(medi_A_begin, i) = trim(medi_part_A_start)
-                case_array(medi_A_end,   i) = trim(medi_part_A_end)
-                case_array(medi_B_begin, i) = trim(medi_part_B_start)
-                case_array(medi_B_end,   i) = trim(medi_part_B_end)
-
-        'Reading PMAP Information from RPPH panel
-                Call write_value_and_transmit("RPPH", 1, 8)
-                Call MMIS_panel_confirmation("RPPH", 52)
-
-                EmReadscreen pmap_begin, 8, 13, 5
-                case_array(pmap_begin_const, i) = trim(pmap_begin)
-
-                EmReadscreen pmap_end, 8, 13, 14
-                case_array(pmap_end_const, i) = trim(pmap_end)
-
-                EMReadScreen hp_code, 10, 13, 23
-
-                If hp_code = "A585713900" then case_array(pmap_name_const, i) = "HealthPartners"
-                If hp_code = "A565813600" then case_array(pmap_name_const, i) = "Ucare"
-                If hp_code = "A405713900" then case_array(pmap_name_const, i) = "Medica"
-                If hp_code = "A065813800" then case_array(pmap_name_const, i) = "BluePlus"
-                If hp_code = "A168407400" then case_array(pmap_name_const, i) = "United Healthcare"
-                If hp_code = "A836618200" then case_array(pmap_name_const, i) = "Hennepin Health PMAP"
-                If hp_code = "A965713400" then case_array(pmap_name_const, i) = "Hennepin Health SNBC"
-            End if
-
-            'outputting to Excel
-            objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
-            objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
-            objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          i)
-            objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         i)
-            objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                i)
-            objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             i)
-            objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  i)
-            objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    i)
-            objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    i)
-            objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, i)
-            objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    i)
-            objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    i)
-            objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  i)
-            objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	i)
-            objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         i)
-            objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          i)
-            objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            i)
-            objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           i)
-            objExcel.Cells(excel_row, 19).Value = case_array(medi_A_begin,              i)
-            objExcel.Cells(excel_row, 20).Value = case_array(medi_A_end,                i)
-            objExcel.Cells(excel_row, 21).Value = case_array(medi_B_begin,              i)
-            objExcel.Cells(excel_row, 22).Value = case_array(medi_B_end,                i)
-            objExcel.Cells(excel_row, 23).Value = case_array(case_status,               i)
-            excel_row = excel_row + 1
-
-            If duplicate_entry = True then
-                RSEL_row = RSEL_row + 1
-                PF3
-                EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
-                If RSEL_panel_check = "RSEL" then
-                    case_array(first_case_number_const, i) = ""
-            		case_array(rsum_PMI_const,          i) = ""
-                    case_array(first_type_const, 	    i) = ""
-                    case_array(first_elig_const, 	    i) = ""
-                    case_array(second_case_number_const,i) = ""
-                    case_array(second_type_const, 	    i) = ""
-                    case_array(second_elig_const,       i) = ""
-                    case_array(third_case_number_const, i) = ""
-                    case_array(third_type_const,        i) = ""
-                    case_array(third_elig_const,        i) = ""
-                    case_array(case_status,             i) = ""
-                    case_array(pmap_begin_const,        i) = ""
-                    case_array(pmap_end_const,          i) = ""
-                    case_array(pmap_name_const,         i) = ""
-                    case_array(medi_A_begin,            i) = ""
-                    case_array(medi_A_end,              i) = ""
-                    case_array(medi_B_begin,            i) = ""
-                    case_array(medi_B_end,              i) = ""
-                Else
-                    exit do 'No more cases on RSEL
-                End if
-            Else
-                PF3
-                Exit do     'cases that did not have more than one known entry
-            End if
-        Loop
-    End if
+    'outputting to Excel
+    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
+    objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
+    objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          i)
+    objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         i)
+    objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                i)
+    objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             i)
+    objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  i)
+    objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    i)
+    objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    i)
+    objExcel.Cells(excel_row, 10).Value = case_array (reason_code_const, 	    i)
+    objExcel.Cells(excel_row, 11).Value = case_array (reason_def_const, 	    i)
+    objExcel.Cells(excel_row, 12).Value = case_array (second_case_number_const, i)
+    objExcel.Cells(excel_row, 13).Value = case_array (second_type_const, 	    i)
+    objExcel.Cells(excel_row, 14).Value = case_array (second_elig_const, 	    i)
+    objExcel.Cells(excel_row, 15).Value = case_array (third_case_number_const,  i)
+    objExcel.Cells(excel_row, 16).Value = case_array (third_type_const,      	i)
+    objExcel.Cells(excel_row, 17).Value = case_array (third_elig_const,         i)
+    objExcel.Cells(excel_row, 18).Value = case_array (pmap_begin_const,         i)
+    objExcel.Cells(excel_row, 19).Value = case_array (pmap_end_const,           i)
+    objExcel.Cells(excel_row, 20).Value = case_array (pmap_name_const,          i)
+    objExcel.Cells(excel_row, 21).Value = case_array (medi_A_begin,             i)
+    objExcel.Cells(excel_row, 22).Value = case_array (medi_A_end,               i)
+    objExcel.Cells(excel_row, 23).Value = case_array (medi_B_begin,             i)
+    objExcel.Cells(excel_row, 24).Value = case_array (medi_B_end,               i)
+    objExcel.Cells(excel_row, 25).Value = case_array (case_status,              i)
+    excel_row = excel_row + 1
 Next
 
-FOR i = 1 to 23		'formatting the cells
+FOR i = 1 to 25		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
@@ -475,8 +591,8 @@ script_end_procedure("Success! Your list has been created. Please review for cas
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/18/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------07/18/2024
-'--Incrementors reviewed (if necessary)-----------------------------------------07/18/2024
+'--Manual time study reviewed --------------------------------------------------01/17/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------01/17/2025
 '--Denomination reviewed -------------------------------------------------------07/18/2024
 '--Script name reviewed---------------------------------------------------------07/18/2024
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/18/2024
@@ -484,10 +600,10 @@ script_end_procedure("Success! Your list has been created. Please review for cas
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------07/18/2024
 '--comment Code-----------------------------------------------------------------07/18/2024
-'--Update Changelog for release/update------------------------------------------07/18/2024
+'--Update Changelog for release/update------------------------------------------01/17/2025
 '--Remove testing message boxes-------------------------------------------------07/18/2024
 '--Remove testing code/unnecessary code-----------------------------------------07/18/2024
-'--Review/update SharePoint instructions----------------------------------------07/18/2024
+'--Review/update SharePoint instructions----------------------------------------01/17/2025
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/18/2024-------------------N/A
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
