@@ -106,7 +106,7 @@ If instr(full_message, "RSDI END DATE") OR instr(full_message, "SSI REPORTED TO 
 				err_msg = "LOOP"
 			End If
 			If ButtonPressed = script_instructions_btn Then 
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/DAIL%20-%20MEC2%20Message.docx"
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/ALL%20DAIL%20SCRIPTS.docx"
 				err_msg = "LOOP"
 			End If
 		Loop until err_msg = ""
@@ -121,18 +121,27 @@ Else
 
 	'Dialog informing worker that message will be deleted
 	Dialog1 = "" 'blanking out dialog name
-	BeginDialog Dialog1, 0, 0, 311, 115, "DAIL - MEC2 Message"
+	BeginDialog Dialog1, 0, 0, 306, 115, "DAIL - MEC2 Message"
 		ButtonGroup ButtonPressed
 		OkButton 205, 95, 50, 15
 		CancelButton 255, 95, 50, 15
 		Text 5, 5, 55, 10, "DAIL Message"
 		Text 5, 20, 300, 35, full_message
 		Text 5, 65, 300, 20, "This MEC2 message is non-actionable and will be deleted. Press 'OK' to delete the message. Press 'Cancel' to stop the script."
+		ButtonGroup ButtonPressed
+		PushButton 5, 95, 65, 15, "Script Instructions", script_instructions_btn
 	EndDialog
 
 	DO
-		Dialog Dialog1
-		cancel_without_confirmation
+		Do
+			err_msg = ""    'This is the error message handling
+			Dialog Dialog1
+			cancel_without_confirmation
+			If ButtonPressed = script_instructions_btn Then 
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/ALL%20DAIL%20SCRIPTS.docx"
+				err_msg = "LOOP"
+			End If
+		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
@@ -433,46 +442,46 @@ End if
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
-'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
-'--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/21/2025
+'--Tab orders reviewed & confirmed----------------------------------------------01/21/2025
+'--Mandatory fields all present & Reviewed--------------------------------------01/21/2025
+'--All variables in dialog match mandatory fields-------------------------------01/21/2025
+'Review dialog names for content and content fit in dialog----------------------01/21/2025
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------01/21/2025
+'--Include script category and name somewhere on first dialog-------------------01/21/2025
+'--Create a button to reference instructions------------------------------------01/21/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----N/A
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/21/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/21/2025
+'--PRIV Case handling reviewed -------------------------------------------------01/21/2025
+'--Out-of-County handling reviewed----------------------------------------------01/21/2025
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/21/2025
+'--BULK - review output of statistics and run time/count (if applicable)--------01/21/2025
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/21/2025
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------01/21/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------01/21/2025
+'--Denomination reviewed -------------------------------------------------------01/21/2025
+'--Script name reviewed---------------------------------------------------------01/21/2025
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------01/21/2025
+'--comment Code-----------------------------------------------------------------01/21/2025
+'--Update Changelog for release/update------------------------------------------01/21/2025
+'--Remove testing message boxes-------------------------------------------------01/21/2025
+'--Remove testing code/unnecessary code-----------------------------------------01/21/2025
+'--Review/update SharePoint instructions----------------------------------------01/21/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/21/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/21/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/21/2025
+'--Complete misc. documentation (if applicable)---------------------------------01/21/2025
+'--Update project team/issue contact (if applicable)----------------------------01/21/2025
