@@ -121,11 +121,12 @@ const medi_A_begin              = 17
 const medi_A_end                = 18
 const medi_B_begin              = 19
 const medi_B_end                = 20
-const rsum_PMI_const            = 21
+const found_PMI_const           = 21
 const pmap_begin_const          = 22
 const pmap_end_const            = 23
-const pmap_name_const           = 24      
-const case_status               = 25 
+const pmap_name_const           = 24 
+const RSUM_PMI_const            = 25     
+const case_status               = 26 
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -144,6 +145,7 @@ Do
     Else
         ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File & The information is added to the array
         case_array(clt_PMI_const, entry_record) = Client_PMI
+        
         case_array(first_name_adjusted, entry_record) = False 'setting default to false - need to handle these cases differently in RSEL panel search
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
@@ -270,7 +272,7 @@ For i = 0 to UBound(case_array, 2)
             EMReadScreen RSEL_last_name, 17, RSEL_row, 15
             RSEL_last_name = trim(RSEL_last_name)
     
-            EMReadScreen RSEL_first_name, 14, RSEL_row, 33
+            EMReadScreen RSEL_first_name, 13, RSEL_row, 33
             RSEL_first_name = trim(RSEL_first_name)
     
             EMReadScreen RSEL_DOB, 8, RSEL_row, 71
@@ -286,10 +288,11 @@ For i = 0 to UBound(case_array, 2)
                             skip_case = True
                         Else 
                             ReDim Preserve case_array(case_status, entry_record)	'This resizes the array if more than one PMI is found. 
-                            'The client information is added to the array'
-                            case_array(clt_PMI_const, entry_record) = RSEL_PMI
-                            case_array(last_name_const, entry_record) = Case_array(last_name_const, i)
-                            Case_array(first_name_const, entry_record) = Case_array(first_name_const, i) 
+                            'The client information is added to the array
+                            case_array(clt_PMI_const, entry_record) = case_array(clt_PMI_const, i)
+                            Case_array(found_PMI_const, entry_record) = RSEL_PMI
+                            case_array(last_name_const, entry_record) = RSEL_last_name
+                            Case_array(first_name_const, entry_record) = RSEL_first_name
                             case_array(DOB_const, entry_record) = case_array(DOB_const, i)
                             case_array(gender_const, entry_record) = case_array(gender_const, i)
                             entry_record = entry_record + 1			'This increments to the next entry in the array'
@@ -318,17 +321,22 @@ For i = 0 to UBound(case_array, 2)
     If case_array(case_status, i) = "" then
         get_to_RKEY
         Call clear_line_of_text(4, 19)  'Clearing PMI
-        Call write_value_and_transmit (case_array(clt_PMI_const, i), 4, 19)
+        If case_array(found_PMI_const, i) = "" then 
+            Call write_value_and_transmit(case_array(clt_PMI_const, i), 4, 19)
+        Else 
+            Call write_value_and_transmit(case_array(found_PMI_const, i), 4, 19)
+        End if 
 
         first_elig_blank = True 'default
         EmReadscreen panel_check, 4, 1, 51
         If panel_check = "RSUM" then
-            '1st case type/prog/elig/case number
             EmReadscreen RSUM_PMI, 8, 2, 2
-            Case_array(rsum_PMI_const, i) = RSUM_PMI
+            Case_array(RSUM_PMI_const, i) = RSUM_PMI
+
+            '1st case type/prog/elig/case number
             EmReadscreen first_case_number, 8, 7, 16
             first_case_number = trim(first_case_number)
-            If first_case_number = "" then case_array(case_status, i) = "No active programs in MMIS under billed PMI."
+            If first_case_number = "" then case_array(case_status, i) = "No Health Care programs in MMIS under billed PMI."
             case_array(first_case_number_const, i) = first_case_number
             EmReadscreen first_program, 2, 6, 13
             EmReadscreen first_type, 2, 6, 35
@@ -528,7 +536,7 @@ For i = 0 to UBound(case_array, 2)
 
     'outputting to Excel
     objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
-    objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
+    objExcel.Cells(excel_row,  2).Value = case_array (RSUM_PMI_const,           i)
     objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          i)
     objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         i)
     objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                i)
