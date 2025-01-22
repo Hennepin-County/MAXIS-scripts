@@ -9951,32 +9951,42 @@ End If
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
-objSelection.Font.Bold = FALSE
-If case_is_expedited = True Then
-	objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
-Else
-	objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
-End If
-
-objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
-objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
-objSelection.TypeText chr(9) & "Expenses in the month of application: " & app_month_expenses & vbCr
-objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
-objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
-If case_is_expedited = True Then
-	If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
-		objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
-		If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-		If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-		If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+If expedited_determination_needed = True Then
+	objSelection.Font.Bold = TRUE
+	objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
+	objSelection.Font.Bold = FALSE
+	If case_is_expedited = True Then
+		objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
+	Else
+		objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
 	End If
-End If
+	If run_by_interview_team = True Then
+		objSelection.TypeText chr(9) & "Income in the month of application: " & exp_det_income & vbCr
+		objSelection.TypeText chr(9) & "Assets in the month of application: " & exp_det_assets & vbCr
+		objSelection.TypeText chr(9) & "Expenses in the month of application: " & calculated_expenses & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & exp_det_housing & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & exp_det_utilities & vbCr
+		If trim(exp_det_notes) <> "" Then objSelection.TypeText chr(9) & "Additional Notes: " & exp_det_notes & vbCr
+	Else
+		objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
+		objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
+		objSelection.TypeText chr(9) & "Expenses in the month of application: " & app_month_expenses & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
+		If case_is_expedited = True Then
+			If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
+				objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
+				objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
+				If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+				If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+				If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+			End If
+		End If
+	End If
 
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-objSelection.TypeParagraph()						'adds a line between the table and the next information
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
+End If
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "Interview Answers:" & vbCr
