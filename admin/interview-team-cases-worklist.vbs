@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/22/2025", "Worklist can be created for cases interviewed the current day.##~## ##~##If the same day selection is made the file will be saved with a number at the end and there will be multiple worklists for the interview day(s) selected.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/13/2025", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -136,15 +137,13 @@ For Each objFile in colFiles							'looping through each file
 Next
 
 'checking to ensure there are some cases to create a worklist with from a day prior to today
-no_cases_found = False
-If earliest_date = "" Then no_cases_found = True
-If earliest_date = date Then no_cases_found = True
-If no_cases_found = True Then Call script_end_procedure("There does not appear to be any outstanding cases from interviews on previous days. To check for previous worklists reference the script instructions for the worklist folder.")
+If earliest_date = "" Then Call script_end_procedure("There does not appear to be any outstanding cases from interviews on previous days. To check for previous worklists reference the script instructions for the worklist folder.")
 
 'Loop through each day from the earliest day forward to put the dates in order from oldest to newest
 date_to_assess = earliest_date
+tomorrow = DateAdd("d", 1, date)
 cow = 0
-Do While DateDiff("d", date, date_to_assess) <> 0			'we stop when we get to today and DO NOT include today
+Do While DateDiff("d", tomorrow, date_to_assess) <> 0			'we stop when we get to today and DO NOT include today
 	For pig = 0 to UBound(TEMP_ARRAY, 2)					'go through the temp array to find a match
 		If DateDiff("d", TEMP_ARRAY(date_const, pig), date_to_assess) = 0 Then
 			ReDim Preserve DATES_WITH_INTERVIEWS_ARRAY(dates_last_const, cow)					'Add the date with all parameters to the new array
@@ -342,9 +341,26 @@ For chkn_wg = 0 to UBound(DATES_WITH_INTERVIEWS_ARRAY, 2)
 	If DATES_WITH_INTERVIEWS_ARRAY(checkbox_const, chkn_wg) = checked Then list_of_dates = list_of_dates & DATES_WITH_INTERVIEWS_ARRAY(month_const, chkn_wg) & "-" & DATES_WITH_INTERVIEWS_ARRAY(day_const, chkn_wg) & " "
 Next
 list_of_dates = replace(trim(list_of_dates), " ", "_")
-objExcel.ActiveWorkbook.SaveAs worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates & ".xlsx"
+
+Set FSOxl = CreateObject("Scripting.FileSystemObject")
+base_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
+worklist_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
+full_worklist_file_name = worklist_file_name & ".xlsx"
+file_numb_count = 1
+Do
+	file_is_already_here = False
+	file_is_already_here = FSOxl.FileExists(full_worklist_file_name)
+	If file_is_already_here Then
+		worklist_file_name = base_file_name & "_" & file_numb_count
+		full_worklist_file_name = worklist_file_name & ".xlsx"
+		file_numb_count = file_numb_count + 1
+	End If
+Loop until file_is_already_here = False
+
+objExcel.ActiveWorkbook.SaveAs full_worklist_file_name
 
 end_msg = "Interviews from " & list_of_dates & " have been added to a worklist."
+end_msg = end_msg & vbCr & "Worklist Name: " & replace(full_worklist_file_name, worklist_folder & "\", "")
 end_msg = end_msg & vbCr & vbCr & "Worklist has been left open and can be found here:"
-end_msg = end_msg & vbCr & "T:\Eligibility Support\Assignments\Interview Team Cases Worklists\Interview Team Cases Worklist from " & list_of_dates & ".xlsx"
+end_msg = end_msg & vbCr & full_worklist_file_name
 Call script_end_procedure(end_msg)
