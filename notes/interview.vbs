@@ -246,6 +246,7 @@ function assess_caf_1_expedited_questions(expedited_screening)
 	exp_q_2_assets_this_month = exp_q_2_assets_this_month & ""
 	exp_q_3_rent_this_month = exp_q_3_rent_this_month & ""
 
+	If expedited_screening_on_form = False Then expedited_screening = ""
 end function
 
 full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
@@ -390,13 +391,13 @@ function check_for_errors(interview_questions_clear)
 	End If
 
 	If EMER_on_CAF_checkbox = checked Then
-		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
 			err_msg = err_msg & "~!~" & emer_numb & "^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
 		End If
 	End If
 
 	If resident_emergency_yn = "Yes" Then
-		If trim(emergency_type) = "" or emergency_type = "Select one" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+		If trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
 			err_msg = err_msg & "~!~" & emer_numb & "^* You indicated the resident is experiencing an emergency. You must fill out all of the fields describing the emergency."
 		End If
 	End If
@@ -487,21 +488,23 @@ function define_main_dialog()
             EditBox 120, 110, 340, 15, arep_interview_id_information
 			EditBox 10, 160, 450, 15, non_applicant_interview_info
 
-		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
-		    EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
-		    EditBox 325, 245, 50, 15, exp_q_3_rent_this_month
-		    CheckBox 140, 265, 30, 10, "Heat", caf_exp_pay_heat_checkbox
-		    CheckBox 175, 265, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
-		    CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
-		    CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
-		    CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
-		    DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-		    DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
-		    EditBox 95, 315, 80, 15, exp_previous_assistance_when
-		    EditBox 215, 315, 85, 15, exp_previous_assistance_where
-		    EditBox 335, 315, 85, 15, exp_previous_assistance_what
-		    DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
-		    ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
+			If expedited_screening_on_form = True Then
+				EditBox 325, 205, 50, 15, exp_q_1_income_this_month
+				EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
+				EditBox 325, 245, 50, 15, exp_q_3_rent_this_month
+				CheckBox 140, 265, 30, 10, "Heat", caf_exp_pay_heat_checkbox
+				CheckBox 175, 265, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
+				CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
+				CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
+				CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
+				DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+				DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+				EditBox 95, 315, 80, 15, exp_previous_assistance_when
+				EditBox 215, 315, 85, 15, exp_previous_assistance_where
+				EditBox 335, 315, 85, 15, exp_previous_assistance_what
+				DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
+				ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
+			End If
 
 		    Text 10, 15, 110, 10, "Who are you interviewing with?"
 			Text 65, 35, 55, 10, "Interview via"
@@ -513,19 +516,21 @@ function define_main_dialog()
 			Text 120, 135, 300, 10, "- If no ID is required, this can be detailed here."
 			Text 10, 150, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
 
-		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
-			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
-		    Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
-		    Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
-		    Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
-		    Text 45, 265, 90, 10, "What utilities do you pay?"
-		    Text 35, 285, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
-		    Text 35, 300, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-		    Text 45, 320, 50, 10, "If yes, When?"
-		    Text 185, 320, 30, 10, "Where?"
-		    Text 310, 320, 25, 10, "What?"
-		    Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
-		    Text 225, 340, 45, 10, "If yes, who?"
+			If expedited_screening_on_form = True Then
+				GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
+				Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
+				Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
+				Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
+				Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
+				Text 45, 265, 90, 10, "What utilities do you pay?"
+				Text 35, 285, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
+				Text 35, 300, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+				Text 45, 320, 50, 10, "If yes, When?"
+				Text 185, 320, 30, 10, "Where?"
+				Text 310, 320, 25, 10, "What?"
+				Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
+				Text 225, 340, 45, 10, "If yes, who?"
+			End If
 
 		ElseIf page_display = show_pg_one_address Then
 			Text 504, 32, 60, 10, "CAF ADDR"
@@ -1992,18 +1997,22 @@ function display_expedited_dialog()
 			If exp_page_display = show_exp_pg_amounts then
 				Text 504, 12, 65, 10, "Amounts"
 
-				GroupBox 5, 5, 390, 75, "Expedited Screening"
-				' If exp_screening_note_found = True Then
-				Text 10, 20, 145, 10, "Information pulled from previous case note."
-				Text 20, 35, 70, 10, "Income from CAF1: $ "
-				Text 100, 35, 80, 10, exp_q_1_income_this_month
-				Text 195, 35, 65, 10, "Assets from CAF1: $ "
-				Text 270, 35, 75, 10, exp_q_2_assets_this_month
-				Text 20, 50, 90, 10, "Housing from CAF1: $ "
-				Text 100, 50, 65, 10, exp_q_3_rent_this_month
-				Text 195, 50, 65, 10, "Utilities from CAF1: $ "
-				Text 270, 50, 75, 10, exp_q_4_utilities_this_month
-				Text 15, 65, 160, 10, expedited_screening
+				If expedited_screening_on_form = True Then
+					GroupBox 5, 5, 390, 75, "Expedited Screening"
+					' If exp_screening_note_found = True Then
+					Text 10, 20, 145, 10, "Information pulled from previous case note."
+					Text 20, 35, 70, 10, "Income from CAF1: $ "
+					Text 100, 35, 80, 10, exp_q_1_income_this_month
+					Text 195, 35, 65, 10, "Assets from CAF1: $ "
+					Text 270, 35, 75, 10, exp_q_2_assets_this_month
+					Text 20, 50, 90, 10, "Housing from CAF1: $ "
+					Text 100, 50, 65, 10, exp_q_3_rent_this_month
+					Text 195, 50, 65, 10, "Utilities from CAF1: $ "
+					Text 270, 50, 75, 10, exp_q_4_utilities_this_month
+					Text 15, 65, 160, 10, expedited_screening
+				Else
+					Text 10, 20, 350, 10, "Expedited Screening Questions not present on this form. No information to Display."
+				End If
 				' End If
 				' If exp_screening_note_found = False Then
 				' 	Text 10, 20, 350, 10, "CASE:NOTE for Expedited Screening could not be found. No information to Display."
@@ -4957,13 +4966,13 @@ function write_interview_CASE_NOTE()
 
 
 	'If at least one field is filled in, then it will write the emergency info to case note
-	If resident_emergency_yn <> " " or trim(emergency_type) <> "" or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+	If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
 		CALL write_variable_in_CASE_NOTE("-----  Emergency Questions -----")
-		CALL write_variable_in_CASE_NOTE("      Resident experiencing an emergency - " & resident_emergency_yn)
-		CALL write_variable_in_CASE_NOTE("      Type of emergency - " & emergency_type)
-		CALL write_variable_in_CASE_NOTE("      Discussion of emergency with resident - " & emergency_discussion)
-		CALL write_variable_in_CASE_NOTE("      Amount needed to resolve emergency - " & emergency_amount)
-		CALL write_variable_in_CASE_NOTE("      Deadline to resolve emergency - " & emergency_deadline)
+		If resident_emergency_yn <> " " Then CALL write_variable_in_CASE_NOTE("      Resident experiencing an emergency - " & resident_emergency_yn)
+		If trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("      Type of emergency - " & emergency_type)
+		If trim(emergency_discussion) <> "" Then CALL write_variable_in_CASE_NOTE("      Discussion of emergency with resident - " & emergency_discussion)
+		If trim(emergency_amount) <> ""  Then CALL write_variable_in_CASE_NOTE("      Amount needed to resolve emergency - " & emergency_amount)
+		If trim(emergency_deadline) <> "" Then CALL write_variable_in_CASE_NOTE("      Deadline to resolve emergency - " & emergency_deadline)
 	End If
 
 	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
@@ -7069,32 +7078,13 @@ Do
 Loop until summ_check = "SUMM"
 EMReadScreen case_pw, 7, 21, 17
 
-If CAF_form = "CAF (DHS-5223)" Then
-	CAF_form_name = "Combined Application Form"
-	form_number = "5223"
-End If
-If CAF_form = "HUF (DHS-8107)" Then
-	CAF_form_name = "Household Update Form"
-	form_number = "8107"
-End If
-If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
-	CAF_form_name = "SNAP Application for Seniors"
-	form_number = "5223F"
-End If
-If CAF_form = "MNbenefits" Then
-	CAF_form_name = "MNbenefits Web Form"
-	form_number = ""
-End If
-If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
-	CAF_form_name = "Combined Annual Renewal"
-	form_number = "3727"
-End If
-
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
 
 show_known_addr = FALSE
 vars_filled = FALSE
+
+Orig_CAF_form = CAF_form
 
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
@@ -7205,6 +7195,31 @@ If vars_filled = True Then
 	End With
 End If
 
+If Orig_CAF_form <> CAF_form Then MsgBox "You have selected " & Orig_CAF_form & " as the form submitted." & vbCr & vbCr & "You requested to restore details of a previous run and a different form was loaded." & vbCr & vbCr & "FORM CANNOT BE CHANGED. The script will operate using the form " & CAF_form & ". To change this, you must restart the script and lose any previous data."
+
+expedited_screening_on_form = True
+If CAF_form = "CAF (DHS-5223)" Then
+	CAF_form_name = "Combined Application Form"
+	form_number = "5223"
+End If
+If CAF_form = "HUF (DHS-8107)" Then
+	CAF_form_name = "Household Update Form"
+	form_number = "8107"
+	expedited_screening_on_form = False
+End If
+If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+	CAF_form_name = "SNAP Application for Seniors"
+	form_number = "5223F"
+End If
+If CAF_form = "MNbenefits" Then
+	CAF_form_name = "MNbenefits Web Form"
+	form_number = ""
+End If
+If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
+	CAF_form_name = "Combined Annual Renewal"
+	form_number = "3727"
+	expedited_screening_on_form = False
+End If
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 EMReadScreen worker_id_for_data_table, 7, 21, 14
@@ -9457,8 +9472,8 @@ Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 Set objWord = CreateObject("Word.Application")
 
 'Adding all of the information in the dialogs into a Word Document
-If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
-If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
+If no_case_number_checkbox = checked Then objWord.Caption = "Form Details - NEW CASE"
+If no_case_number_checkbox = unchecked Then objWord.Caption = "Form Details - CASE #" & MAXIS_case_number			'Title of the document
 ' objWord.Visible = True														'Let the worker see the document
 objWord.Visible = False 														'The worker should NOT see the docuement
 'allow certain workers to see the document
@@ -9479,6 +9494,7 @@ If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_ca
 ' If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
 objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "DATE OF APPLICATION: " & CAF_datestamp & vbCR
+objSelection.TypeText "APPLICATION FORM: " & CAF_form_name & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Interview completed with: " & who_are_we_completing_the_interview_with & vbCR
 objSelection.TypeText "Interview completed via: " & how_are_we_completing_the_interview & vbCR
@@ -9597,7 +9613,7 @@ If GRH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", HS/GRH"
 If SNAP_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", SNAP"
 If EMER_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", EMER"
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
-objSelection.TypeText "PROGRAMS REQUESTED ON CAF: " & caf_progs & vbCr
+objSelection.TypeText "PROGRAMS REQUESTED ON FORM: " & caf_progs & vbCr
 
 progs_verbal_request = ""
 If cash_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", Cash"
@@ -9894,61 +9910,71 @@ objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, 0) & vbC
 If disc_homeless_no_mail_addr = "RESOLVED" Then objSelection.TypeText "- Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation & vbCr
 If disc_no_phone_number = "RESOLVED" Then objSelection.TypeText "- No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation & vbCr
 
-' objSelection.Font.Bold = TRUE
-objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS from the CAF"
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row then column'
-set objEXPTable = objDoc.Tables(3)		'Creates the table with the specific index'
+'Now we have a dynamic number of tables
+'each table has to be defined with its index so we need to have a variable to increment
+table_count = 3			'table index variable
 
-objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
-objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
-objEXPTable.Columns(2).Width = 120
-for col = 1 to 2
-	for row = 1 to 8
-		objEXPTable.Cell(row, col).Range.Font.Bold = TRUE	'Making the cell text bold.
+If expedited_screening_on_form = True Then
+
+	' objSelection.Font.Bold = TRUE
+	objSelection.TypeText "EXPEDITED QUESTIONS from the Form"
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row then column'
+	set objEXPTable = objDoc.Tables(table_count)		'Creates the table with the specific index'
+	table_count = table_count + 1
+
+	objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
+	objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
+	objEXPTable.Columns(2).Width = 120
+	for col = 1 to 2
+		for row = 1 to 8
+			objEXPTable.Cell(row, col).Range.Font.Bold = TRUE	'Making the cell text bold.
+		next
 	next
-next
 
-'Adding the Expedited text to the table for Expedited
-objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
-objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
+	'Adding the Expedited text to the table for Expedited
+	objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
+	objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
 
-objEXPTable.Cell(2, 1).Range.Text = "2. How much does your household (including children) have cash, checking or savings?"
-objEXPTable.Cell(2, 2).Range.Text = exp_q_2_assets_this_month
+	objEXPTable.Cell(2, 1).Range.Text = "2. How much does your household (including children) have cash, checking or savings?"
+	objEXPTable.Cell(2, 2).Range.Text = exp_q_2_assets_this_month
 
-objEXPTable.Cell(3, 1).Range.Text = "3. How much does your household pay for rent/mortgage per month?"
-objEXPTable.Cell(3, 2).Range.Text = exp_q_3_rent_this_month
+	objEXPTable.Cell(3, 1).Range.Text = "3. How much does your household pay for rent/mortgage per month?"
+	objEXPTable.Cell(3, 2).Range.Text = exp_q_3_rent_this_month
 
-objEXPTable.Cell(4, 1).Range.Text = "   What utilities do you pay?"
-If caf_exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
-If caf_exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
-If caf_exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
-If caf_exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
-If caf_exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
-If right(util_pay, 2) = ", " Then util_pay = left(util_pay, len(util_pay) - 2)
-objEXPTable.Cell(4, 2).Range.Text = util_pay
+	objEXPTable.Cell(4, 1).Range.Text = "   What utilities do you pay?"
+	If caf_exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
+	If caf_exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
+	If caf_exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
+	If caf_exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
+	If caf_exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
+	If right(util_pay, 2) = ", " Then util_pay = left(util_pay, len(util_pay) - 2)
+	objEXPTable.Cell(4, 2).Range.Text = util_pay
 
-objEXPTable.Cell(5, 1).Range.Text = "4. Is anyone in your household a migrant or seasonal farm worker?"
-objEXPTable.Cell(5, 2).Range.Text = exp_migrant_seasonal_formworker_yn
+	objEXPTable.Cell(5, 1).Range.Text = "4. Is anyone in your household a migrant or seasonal farm worker?"
+	objEXPTable.Cell(5, 2).Range.Text = exp_migrant_seasonal_formworker_yn
 
-objEXPTable.Cell(6, 1).Range.Text = "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-objEXPTable.Cell(6, 2).Range.Text = exp_received_previous_assistance_yn
+	objEXPTable.Cell(6, 1).Range.Text = "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+	objEXPTable.Cell(6, 2).Range.Text = exp_received_previous_assistance_yn
 
-objEXPTable.Rows(7).Cells.Split 1, 6, TRUE										'Splitting the cells to add more detail for the three questions here
-objEXPTable.Cell(7, 1).Range.Text = "When?"
-objEXPTable.Cell(7, 2).Range.Text = exp_previous_assistance_when
-objEXPTable.Cell(7, 3).Range.Text = "Where?"
-objEXPTable.Cell(7, 4).Range.Text = exp_previous_assistance_where
-objEXPTable.Cell(7, 5).Range.Text = "What?"
-objEXPTable.Cell(7, 6).Range.Text = exp_previous_assistance_what
+	objEXPTable.Rows(7).Cells.Split 1, 6, TRUE										'Splitting the cells to add more detail for the three questions here
+	objEXPTable.Cell(7, 1).Range.Text = "When?"
+	objEXPTable.Cell(7, 2).Range.Text = exp_previous_assistance_when
+	objEXPTable.Cell(7, 3).Range.Text = "Where?"
+	objEXPTable.Cell(7, 4).Range.Text = exp_previous_assistance_where
+	objEXPTable.Cell(7, 5).Range.Text = "What?"
+	objEXPTable.Cell(7, 6).Range.Text = exp_previous_assistance_what
 
-objEXPTable.Cell(8, 1).Range.Text = "6. Is anyone in your household pregnant?"
-If exp_pregnant_who <> "" Then
-	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn & ", " &  exp_pregnant_who
-Else
-	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
+	objEXPTable.Cell(8, 1).Range.Text = "6. Is anyone in your household pregnant?"
+	If exp_pregnant_who <> "" Then
+		objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn & ", " &  exp_pregnant_who
+	Else
+		objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
+	End If
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+
 End If
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 If expedited_determination_needed = True Then
@@ -9998,9 +10024,6 @@ objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_statu
 objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, 0) & vbCr
 If HH_MEMB_ARRAY(client_verification_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, 0) & vbCr
 
-'Now we have a dynamic number of tables
-'each table has to be defined with its index so we need to have a variable to increment
-table_count = 4			'table index variable
 additional_person = False
 If UBound(HH_MEMB_ARRAY, 2) <> 0 Then
     For each_member = 1 to UBound(HH_MEMB_ARRAY, 2)
@@ -10216,9 +10239,9 @@ For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
 	FORM_QUESTION_ARRAY(each_question).add_to_wif()
 Next
 
-objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
+objSelection.TypeText "QUALIFYING QUESTIONS" & vbCr
 
-objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?" & vbCr
+objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the Form?" & vbCr
 objSelection.TypeText chr(9) & qual_question_one & vbCr
 If trim(qual_memb_one) <> "" AND qual_memb_one <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_one & vbCr
 objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
@@ -10234,17 +10257,31 @@ objSelection.TypeText "Is anyone in your household currently violating a conditi
 objSelection.TypeText chr(9) & qual_question_five & vbCr
 If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
 
-objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
-objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
-objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
-objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
-objSelection.TypeText chr(9) & emergency_type & vbCr
-objSelection.TypeText "Discussion of emergency with resident:" & vbCr
-objSelection.TypeText chr(9) & emergency_discussion & vbCr
-objSelection.TypeText "What amount is needed to resolve the emergency?" & vbCr
-objSelection.TypeText chr(9) & emergency_amount & vbCr
-objSelection.TypeText "What is the deadline to resolve the emergency?" & vbCr
-objSelection.TypeText chr(9) & emergency_deadline & vbCr
+If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+	objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
+	If resident_emergency_yn <> " " Then
+		objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
+		objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
+	End If
+	If trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type" Then
+		objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
+		objSelection.TypeText chr(9) & emergency_type & vbCr
+	End If
+	If trim(emergency_discussion) <> "" Then C
+		objSelection.TypeText "Discussion of emergency with resident:" & vbCr
+		objSelection.TypeText chr(9) & emergency_discussion & vbCr
+	End If
+	If trim(emergency_amount) <> ""  Then
+		objSelection.TypeText "What amount is needed to resolve the emergency?" & vbCr
+		objSelection.TypeText chr(9) & emergency_amount & vbCr
+	End If
+	If trim(emergency_deadline) <> "" Then
+		objSelection.TypeText "What is the deadline to resolve the emergency?" & vbCr
+		objSelection.TypeText chr(9) & emergency_deadline & vbCr
+	End If
+Else
+	objSelection.TypeText "No Emergency Details Recorded" & vbCr
+End If
 
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
@@ -10302,7 +10339,7 @@ If arep_action = "Yes - keep this AREP" Then
 
 	End If
 
-	If arep_on_CAF_checkbox = checked Then objSelection.TypeText "This AREP information was entered on the CAF." & vbCR
+	If arep_on_CAF_checkbox = checked Then objSelection.TypeText "This AREP information was entered on the Form." & vbCR
 ElseIf arep_action = "No - remove this AREP from my case" OR arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
 	objSelection.TypeText "AREP information known/provided but resident does NOT want this AREP to be Authorized:" & vbCR
 	objSelection.TypeText "Name: " & arep_name & vbCr
@@ -10364,14 +10401,14 @@ If discrepancies_exist = True Then
 		objSelection.TypeText "  - Resolution: " & disc_out_of_county_confirmation & vbCr
 	End If
 	If disc_rent_amounts = "RESOLVED" Then
-		objSelection.TypeText "The Housing Expense information on CAF Page 1 and CAF Question 14 do not appear to Match" & vbCr
-		objSelection.TypeText "  - CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month & vbCr
+		objSelection.TypeText "The Housing Expense information within the Form do not appear to Match" & vbCr
+		objSelection.TypeText "  - Page 1 Housing Expense: " & exp_q_3_rent_this_month & vbCr
 		objSelection.TypeText "  - Question on Housing Expense: " & rent_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_rent_amounts_confirmation & vbCr
 	End If
 	If disc_utility_amounts = "RESOLVED" Then
-		objSelection.TypeText "The Utility Expense information on CAF Page 1 and CAF Question 15 do not appear to Match" & vbCr
-		objSelection.TypeText "  - CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary & vbCr
+		objSelection.TypeText "The Utility Expense information within the Form do not appear to Match" & vbCr
+		objSelection.TypeText "  - Page 1 Utility Expense: " & disc_utility_caf_1_summary & vbCr
 		objSelection.TypeText "  - Question on Utility Expense: " & utility_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_utility_amounts_confirmation & vbCr
 	End If
@@ -10968,7 +11005,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	o2Exec.Terminate()
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
-	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
+	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of the INTERVIEW ANNOTATIONS on the form in ECF, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
 		With (CreateObject("Scripting.FileSystemObject"))
 
