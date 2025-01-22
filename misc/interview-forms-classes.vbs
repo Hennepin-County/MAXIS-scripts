@@ -178,7 +178,7 @@ class form_questions
 
 			GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
+			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
 			Text 95, y_pos, 25, 10, "write-in:"
 			EditBox 120, y_pos - 5, 350, 15, question_notes
@@ -277,7 +277,7 @@ class form_questions
 			'funcitonality here
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
+			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
 			Text 95, y_pos, 25, 10, "write-in:"
 			If verif_status = "" Then
@@ -308,12 +308,12 @@ class form_questions
 			col_3_2 = 360
 			col_3_3 = 430
 
-			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_1_3 - 3, 	y_pos, 40, 10, "CAF Amount"
-			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_2_3 - 3, 	y_pos, 40, 10, "CAF Amount"
-			Text 	col_3_1, 		y_pos, 40, 10, "CAF Answer"
-			Text 	col_3_3 - 3, 	y_pos, 40, 10, "CAF Amount"
+			Text 	col_1_1, 		y_pos, 42, 10, "Form Answer"
+			Text 	col_1_3 - 3, 	y_pos, 42, 10, "Form Amount"
+			Text 	col_2_1, 		y_pos, 42, 10, "Form Answer"
+			Text 	col_2_3 - 3, 	y_pos, 42, 10, "Form Amount"
+			Text 	col_3_1, 		y_pos, 42, 10, "Form Answer"
+			Text 	col_3_3 - 3, 	y_pos, 42, 10, "Form Amount"
 			y_pos = y_pos + 15
 
 			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, unea_1_yn
@@ -417,8 +417,8 @@ class form_questions
 
 
 			If make_array_checkboxes = true Then
-				If info_type = "msa" Then Text 	col_1_1, y_pos, 200, 10, "CAF Answer (check the expenses indicated on the CAF)"
-				If info_type = "stwk" Then Text col_1_1, y_pos, 200, 10, "CAF Answer (check the answers indicated on the CAF)"
+				If info_type = "msa" Then Text 	col_1_1, y_pos, 200, 10, "Form Answer (check the expenses indicated on the form)"
+				If info_type = "stwk" Then Text col_1_1, y_pos, 200, 10, "Form Answer (check the answers indicated on the form)"
 				y_pos = y_pos + 15
 
 				CheckBox  	col_1_1, y_pos, drplst_len+txt_len, 10, item_info_list(0), TEMP_ARRAY(0)
@@ -435,9 +435,9 @@ class form_questions
 				y_pos = y_pos + 5
 			Else
 
-				Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
-				Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
-				If col_3_1 <> "" Then Text 	col_3_1, y_pos, 40, 10, "CAF Answer"
+				Text 	col_1_1, 		y_pos, 42, 10, "Form Answer"
+				Text 	col_2_1, 		y_pos, 42, 10, "Form Answer"
+				If col_3_1 <> "" Then Text 	col_3_1, y_pos, 42, 10, "Form Answer"
 				y_pos = y_pos + 15
 
 				DropListBox 	col_1_1, y_pos - 5, drplst_len, 45, question_answers, TEMP_ARRAY(0)
@@ -494,7 +494,7 @@ class form_questions
 				phrase_width = len(sub_number & "." & sub_phrase)*3.5
 				phrase_width = round(phrase_width)
 				Text 15, y_pos, phrase_width, 10, sub_number & "." & sub_phrase
-				Text 15+phrase_width, y_pos, 55, 10, "CAF Answer"
+				Text 15+phrase_width, y_pos, 55, 10, "Form Answer"
 				DropListBox 65+phrase_width, y_pos - 5, 35, 45, question_answers, addtl_question
 				y_pos = y_pos + 20
 			End If
@@ -519,7 +519,7 @@ class form_questions
 		ElseIf info_type = "two-part" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
+			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
 			Text 95, y_pos, 25, 10, "write-in:"
 			If verif_status = "" Then
@@ -533,7 +533,7 @@ class form_questions
 			phrase_width = len(sub_number & "." & sub_phrase)*3.5
 			phrase_width = round(phrase_width)
 			Text 15, y_pos, phrase_width, 10, sub_number & "." & sub_phrase
-			Text 15+phrase_width, y_pos, 55, 10, "CAF Answer"
+			Text 15+phrase_width, y_pos, 55, 10, "Form Answer"
 			DropListBox 65+phrase_width, y_pos - 5, 35, 45, question_answers, addtl_question
 			y_pos = y_pos + 15
 			Text 15, y_pos, 60, 10, "Interview Notes:"
@@ -544,7 +544,7 @@ class form_questions
 		ElseIf info_type = "single-detail" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
+			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
 
 			phrase_width = len(sub_phrase & ":")*3.75
@@ -676,17 +676,17 @@ class form_questions
 		If info_type = "standard" or info_type = "two-part" or info_type = "single-detail" or detail_array_exists = true Then
 			'funcitonality here
 			If caf_answer <> "" OR trim(write_in_info) <> "" OR verif_status <> "" OR trim(interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(note_phrasing)
-			q_input = "    CAF Answer - " & caf_answer
+			q_input = "    Form Answer - " & caf_answer
 			If info_type = "single-detail" Then
 				If trim(sub_answer) <> "" Then q_input = q_input & " " & sub_note_phrase & ": " & sub_answer
 			End If
 			If caf_answer <> "" OR trim(write_in_info) <> "" Then q_input = q_input & " (Confirmed)"
-			If q_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_input)
+			If q_input <> "    Form Answer - " Then CALL write_variable_in_CASE_NOTE(q_input)
 			If info_type = "two-part" Then
 				q_sub_verbiage = "    Q" & number & sub_number & "." & sub_note_phrase
 				If sub_answer <> "" Then
 					Call write_variable_in_CASE_NOTE(q_sub_verbiage)
-					Call write_variable_in_CASE_NOTE("        CAF Answer - " & sub_answer)
+					Call write_variable_in_CASE_NOTE("        Form Answer - " & sub_answer)
 				End If
 			End If
 			If trim(write_in_info) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & write_in_info)
@@ -779,7 +779,7 @@ class form_questions
 		ElseIf info_type = "unea" Then
 			If entirely_blank = false Then
 				Call write_variable_in_CASE_NOTE(note_phrasing)
-				CALL write_variable_in_CASE_NOTE("    CAF Answer:")
+				CALL write_variable_in_CASE_NOTE("    Form Answer:")
 
 				for i = 0 to 8
 					item_ans_list(i) = left(item_ans_list(i) & "   ", 5)
@@ -798,7 +798,7 @@ class form_questions
 		ElseIf info_type = "housing" or info_type = "utilities" or info_type = "assets" or info_type = "msa" or info_type = "stwk" Then
 			If entirely_blank = false Then
 				Call write_variable_in_CASE_NOTE(note_phrasing)
-				CALL write_variable_in_CASE_NOTE("    CAF Answer:")
+				CALL write_variable_in_CASE_NOTE("    Form Answer:")
 
 				for i = 0 to UBound(item_ans_list)
 					If IsNumeric(item_ans_list(i)) = True Then
@@ -847,7 +847,7 @@ class form_questions
 				q_sub_verbiage = "    Q" & number & sub_number & "." & sub_note_phrase
 				If sub_answer <> "" Then
 					Call write_variable_in_CASE_NOTE(q_sub_verbiage)
-					Call write_variable_in_CASE_NOTE("        CAF Answer - " & sub_answer)
+					Call write_variable_in_CASE_NOTE("        Form Answer - " & sub_answer)
 				End If
 			End If
 			If trim(write_in_info) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & write_in_info)
@@ -864,10 +864,10 @@ class form_questions
 		objSelection.TypeText doc_phrasing & vbCr
 
 		If info_type = "standard" or info_type = "two-part" or info_type = "single-detail" or detail_array_exists = true Then
-			objSelection.TypeText chr(9) & "CAF Answer: " & caf_answer & vbCr
+			objSelection.TypeText chr(9) & "Form Answer: " & caf_answer & vbCr
 			If info_type = "two-part" Then
 				objSelection.TypeText "Q "& number&"."&sub_number&". "&sub_phrase & vbCr
-				objSelection.TypeText chr(9) & "CAF Answer: " & sub_answer & vbCr
+				objSelection.TypeText chr(9) & "Form Answer: " & sub_answer & vbCr
 			End If
 			If info_type = "single-detail" Then
 				If sub_answer <> "" Then objSelection.TypeText chr(9) & sub_note_phrase & ": " & sub_answer & vbCr
@@ -927,7 +927,7 @@ class form_questions
 							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
 							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_business(each_item)
 
-							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "CAF NOTES"
+							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "FORM NOTES"
 							TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = detail_write_in_info(each_item)
 
 							TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "INTERVIEW NOTES"
@@ -1208,10 +1208,10 @@ class form_questions
 				If subsidy_yn = "" and subsidy_amount = "" Then objSelection.TypeText chr(9) & "Subsidy: BLANK    Subsidy Amount: $ BLANK /month" & vbCr
 			End If
 
-			If write_in_info <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & write_in_info & vbCr
+			If write_in_info <> "" Then objSelection.TypeText chr(9) & "Form Info Write-In: " & write_in_info & vbCr
 			If verif_status <> "Mot Needed" AND verif_status <> "" Then objSelection.TypeText chr(9) & "Verification: " & verif_status & vbCr
 			If verif_notes <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & verif_notes & vbCr
-			If caf_answer <> "" OR trim(write_in_info) <> "" Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
+			If caf_answer <> "" OR trim(write_in_info) <> "" Then objSelection.TypeText chr(9) & "Form Confirmed during the Interview" & vbCR
 			If interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & interview_notes & vbCR
 		ElseIf info_type = "unea" or info_type = "housing" or info_type = "utilities" or info_type = "assets" or info_type = "msa" or info_type = "stwk" Then
 
@@ -1354,14 +1354,14 @@ class form_questions
 			array_counters = array_counters + 1
 			If sub_phrase <> "" Then
 				objSelection.TypeText "Q "& number&"."&sub_number&". "&sub_phrase & vbCr
-				objSelection.TypeText chr(9) & "CAF Answer: " & sub_answer & vbCr
+				objSelection.TypeText chr(9) & "Form Answer: " & sub_answer & vbCr
 			End If
 
-			If write_in_info <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & write_in_info & vbCr
+			If write_in_info <> "" Then objSelection.TypeText chr(9) & "Form Info Write-In: " & write_in_info & vbCr
 			If verif_status <> "Mot Needed" AND verif_status <> "" Then objSelection.TypeText chr(9) & "Verification: " & verif_status & vbCr
 			If verif_notes <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & verif_notes & vbCr
 
-			If entirely_blank = false Then objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
+			If entirely_blank = false Then objSelection.TypeText chr(9) & "Form Confirmed during the Interview" & vbCR
 			If interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & interview_notes & vbCR
 		End If
 	end sub
@@ -2396,7 +2396,7 @@ function array_details_dlg(form_question_numb, selected)
 			End If
 
 
-			Text 10, det_dlg_len-80, 110, 10, "CAF WRITE-IN INFORMATION:"
+			Text 10, det_dlg_len-80, 110, 10, "FORM WRITE-IN INFORMATION:"
 			EditBox 10, det_dlg_len-70, 305, 15, temp_write_in_info
 			Text 10, det_dlg_len-50, 85, 10, "INTERVIEW NOTES:"
 			EditBox 10, det_dlg_len-40, 305, 15, temp_interview_notes
