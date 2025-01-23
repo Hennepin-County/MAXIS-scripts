@@ -642,8 +642,9 @@ class form_questions
 			dialog Dialog1
 			If ButtonPressed = -1 Then ButtonPressed = return_btn
 			If ButtonPressed = clear_btn Then
-				verif_status = "Not Needed"
-				verif_notes = ""
+				detail_verif_status(item_index) = ""
+				detail_verif_notes(item_index) = ""
+				ButtonPressed = return_btn
 			End If
 		Loop until ButtonPressed = return_btn
 	end sub
@@ -666,8 +667,9 @@ class form_questions
 			dialog Dialog1
 			If ButtonPressed = -1 Then ButtonPressed = return_btn
 			If ButtonPressed = clear_btn Then
-				verif_status = "Not Needed"
+				verif_status = ""
 				verif_notes = ""
+				ButtonPressed = return_btn
 			End If
 		Loop until ButtonPressed = return_btn
 	end sub
