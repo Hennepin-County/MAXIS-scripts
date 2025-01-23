@@ -320,6 +320,12 @@ If ISPI_check = "ISPI" then
     call run_from_GitHub(script_repository & "dail/incarceration.vbs")
 END IF
 
+'MEC2 Message (will delete or provide information for proper processing)
+If stat_check = "MEC2" Then 
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to delete messages in the DAIL and cannot operate in INQUIRY. The script will now end.")
+    call run_from_GitHub(script_repository & "dail/mec2-message.vbs")
+END IF
+
 'MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE
 EMReadScreen MEDI_check, 52, 6, 20
 If MEDI_check = "MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE" then
