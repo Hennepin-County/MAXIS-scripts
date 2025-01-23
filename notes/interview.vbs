@@ -348,19 +348,9 @@ function check_for_errors(interview_questions_clear)
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
 			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
-			If IsDate(signature_date) = False Then
-				err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		If second_signature_detail = "Signature Completed" OR second_signature_detail  = "Accepted Verbally" Then
 			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
-			If IsDate(second_signature_date) = False Then
-				err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		'Interview date must be a date and not in the future
 		' If  Then err_msg = err_msg & "~!~" & "11^* FIELD##~##   - "
@@ -1100,15 +1090,11 @@ function define_main_dialog()
 		    Text 10, 85, 90, 10, "Signature of Primary Adult"
 		    ComboBox 105, 80, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
 		    Text 220, 85, 25, 10, "person"
-		    ComboBox 250, 80, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
-		    Text 375, 85, 20, 10, "date"
-		    EditBox 400, 80, 50, 15, signature_date
+		    ComboBox 250, 80, 200, 45, all_the_clients+chr(9)+signature_person, signature_person
 		    Text 10, 105, 90, 10, "Signature of Other Adult"
 		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+second_signature_detail, second_signature_detail
 		    Text 220, 105, 25, 10, "person"
-		    ComboBox 250, 100, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
-		    Text 375, 105, 20, 10, "date"
-		    EditBox 400, 100, 50, 15, second_signature_date
+		    ComboBox 250, 100, 200, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 
 			Text 10, 125, 130, 10, "Resident signature accepted verbally?"
 			DropListBox 135, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
@@ -2940,10 +2926,8 @@ function save_your_work()
 
 			objTextStream.WriteLine "SIG - 01 - " & signature_detail
 			objTextStream.WriteLine "SIG - 02 - " & signature_person
-			objTextStream.WriteLine "SIG - 03 - " & signature_date
 			objTextStream.WriteLine "SIG - 04 - " & second_signature_detail
 			objTextStream.WriteLine "SIG - 05 - " & second_signature_person
-			objTextStream.WriteLine "SIG - 06 - " & second_signature_date
 			objTextStream.WriteLine "SIG - 07 - " & client_signed_verbally_yn
 			objTextStream.WriteLine "SIG - 08 - " & interview_date
 			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
@@ -3311,10 +3295,8 @@ function save_your_work()
 
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 01 - " & signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 02 - " & signature_person
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 03 - " & signature_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 04 - " & second_signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 05 - " & second_signature_person
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 06 - " & second_signature_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 07 - " & client_signed_verbally_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date & vbCr & vbCr
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 01 - " & exp_snap_approval_date
@@ -3750,10 +3732,8 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 8) = "SIG - 01" Then signature_detail = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 02" Then signature_person = Mid(text_line, 12)
-					If left(text_line, 8) = "SIG - 03" Then signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 04" Then second_signature_detail = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 05" Then second_signature_person = Mid(text_line, 12)
-					If left(text_line, 8) = "SIG - 06" Then second_signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 07" Then client_signed_verbally_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 08" Then interview_date = Mid(text_line, 12)
 
@@ -6792,7 +6772,7 @@ Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_s
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
 Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_use_SNAP_checkbox
 Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
-Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
+Dim signature_detail, signature_person, second_signature_detail, second_signature_person
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
@@ -10320,13 +10300,13 @@ objSelection.Font.Size = "12"
 
 objSelection.TypeText "Signature of Primary Adult: " & signature_detail
 If signature_detail <> "Not Required" AND signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & signature_person & " on " & signature_date
+	objSelection.TypeText " by " & signature_person
 End If
 objSelection.TypeText vbCr
 
 objSelection.TypeText "Signature of Secondary Adult: " & second_signature_detail
 If second_signature_detail <> "Not Required" AND second_signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & second_signature_person & " on " & second_signature_date
+	objSelection.TypeText " by " & second_signature_person
 End If
 objSelection.TypeText vbCr
 objSelection.TypeText vbCr
