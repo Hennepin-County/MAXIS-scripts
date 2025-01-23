@@ -1067,6 +1067,9 @@ function define_main_dialog()
 			EditBox 190, 100, 45, 15, emergency_deadline
 		' ElseIf page_display =  Then
 		ElseIf page_display = show_pg_last Then
+			If second_signature_detail = "Select or Type" or second_signature_detail = "" Then
+				If UBound(HH_MEMB_ARRAY, 2) = 0 Then second_signature_detail = "Not Required"
+			End If
 			Text 498, last_pos, 60, 10, "CAF Last Page"
 
 			GroupBox 5, 5, 475, 60, "Confirm Authorized Representative"
