@@ -4619,6 +4619,7 @@ function verification_dialog()
 
               ButtonGroup ButtonPressed
                 PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
+				PushButton 465, 365, 125, 15, "Clear ALL Requested Verifications", clear_verifs_btn
               ' Text 10, 340, 580, 50, verifs_needed
             EndDialog
 
@@ -4818,6 +4819,32 @@ function verification_dialog()
 
 			If ButtonPressed = add_verif_button Then verif_err_msg = "LOOP" & verif_err_msg
             If ButtonPressed = fill_button Then verif_err_msg = "LOOP" & verif_err_msg
+			If ButtonPressed = clear_verifs_btn Then
+				verif_err_msg = "LOOP" & verif_err_msg
+				verifs_selected = ""
+
+				For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
+					If HH_MEMB_ARRAY(client_verification, the_members) = "Requested" Then
+						HH_MEMB_ARRAY(client_verification, the_members) = ""
+						HH_MEMB_ARRAY(client_verification_details, the_members) = ""
+					End If
+				Next
+
+				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+					If FORM_QUESTION_ARRAY(quest).verif_status = "Requested" Then
+						FORM_QUESTION_ARRAY(quest).verif_status = ""
+						FORM_QUESTION_ARRAY(quest).verif_notes = ""
+					End If
+					If FORM_QUESTION_ARRAY(quest).detail_array_exists = True Then
+						For each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+							If FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = "Requested" Then
+								FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = ""
+								FORM_QUESTION_ARRAY(quest).detail_verif_notes(each_item) = ""
+							End If
+						Next
+					End If
+				Next
+			End If
         Loop until verif_err_msg = ""
         ButtonPressed = verif_button
     End If
@@ -7129,7 +7156,7 @@ If vars_filled = True Then
 				FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 				FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
 				If FORM_QUESTION_ARRAY(question_num).prefil_btn <> "" Then FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
-				If FORM_QUESTION_ARRAY(question_num).add_to_array_btn <> "" Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
+				If FORM_QUESTION_ARRAY(question_num).detail_array_exists = True Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
 				question_num = question_num + 1
 			next
 			set xmlDoc = nothing
@@ -7879,6 +7906,7 @@ amounts_btn						= 827
 determination_btn				= 828
 return_to_dialog_button			= 829
 fn_review_btn					= 830
+clear_verifs_btn				= 831
 
 open_r_and_r_btn				= 700
 accounting_service_desk_btn		= 701
@@ -8001,6 +8029,7 @@ discrepancy_questions = start_at + 2
 expedited_determination = start_at + 3
 show_pg_last = start_at + 4
 
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 interview_questions_clear = False
 Do
@@ -10267,7 +10296,7 @@ If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergenc
 		objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
 		objSelection.TypeText chr(9) & emergency_type & vbCr
 	End If
-	If trim(emergency_discussion) <> "" Then C
+	If trim(emergency_discussion) <> "" Then
 		objSelection.TypeText "Discussion of emergency with resident:" & vbCr
 		objSelection.TypeText chr(9) & emergency_discussion & vbCr
 	End If
