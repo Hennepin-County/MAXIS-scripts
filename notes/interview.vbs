@@ -1099,8 +1099,7 @@ function define_main_dialog()
 		    Text 220, 105, 25, 10, "person"
 		    ComboBox 250, 100, 200, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 
-			Text 10, 125, 130, 10, "Resident signature accepted verbally?"
-			DropListBox 135, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 10, 125, 320, 20, "Only select 'Accepted Verbally' if you are the one accepting the signature verbally. For signatures accepted by another worker, indicate the signature as completed."
 			Text 335, 125, 50, 10, "Interview Date:"
 			EditBox 390, 120, 60, 15, interview_date
 
@@ -2933,6 +2932,10 @@ function save_your_work()
 			objTextStream.WriteLine "SIG - 05 - " & second_signature_person
 			objTextStream.WriteLine "SIG - 07 - " & client_signed_verbally_yn
 			objTextStream.WriteLine "SIG - 08 - " & interview_date
+			objTextStream.WriteLine "SIG - 09 - " & verbal_sig_date
+			objTextStream.WriteLine "SIG - 10 - " & verbal_sig_time
+			objTextStream.WriteLine "SIG - 11 - " & verbal_sig_phone_number
+
 			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
 			objTextStream.WriteLine "ASSESS - 02 - " & exp_snap_delays
 			objTextStream.WriteLine "ASSESS - 03 - " & snap_denial_date
@@ -3301,7 +3304,11 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 04 - " & second_signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 05 - " & second_signature_person
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 07 - " & client_signed_verbally_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 09 - " & verbal_sig_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 10 - " & verbal_sig_time
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 11 - " & verbal_sig_phone_number & vbCr & vbCr
+
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 01 - " & exp_snap_approval_date
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 02 - " & exp_snap_delays
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 03 - " & snap_denial_date
@@ -3739,6 +3746,9 @@ function restore_your_work(vars_filled)
 					If left(text_line, 8) = "SIG - 05" Then second_signature_person = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 07" Then client_signed_verbally_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 08" Then interview_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 09" Then verbal_sig_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 10" Then verbal_sig_time = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 11" Then verbal_sig_phone_number	 = Mid(text_line, 12)
 
 					If left(text_line, 11) = "ASSESS - 01" Then exp_snap_approval_date = Mid(text_line, 15)
 					If left(text_line, 11) = "ASSESS - 02" Then exp_snap_delays = Mid(text_line, 15)
@@ -4147,6 +4157,16 @@ function restore_your_work(vars_filled)
 end function
 
 function review_information()
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		If verbal_sig_date = "" Then verbal_sig_date = date & ""
+		If verbal_sig_time = "" Then
+			time_hr = DatePart("h", time)
+			time_min = DatePart("n", time)
+			verbal_sig_time = time_hr & ":" & time_min
+			verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+			verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+		End If
+	End If
 
 	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 		If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
@@ -4835,16 +4855,10 @@ function verification_dialog()
 end function
 
 function write_interview_CASE_NOTE()
+
 	' 'Now we case note!
 	STATS_manualtime = STATS_manualtime + 600
 	Call start_a_blank_case_note
-	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
-	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
-	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-	' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
-	' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
-	' Call write_variable_in_CASE_NOTE("---")
-	' Call write_variable_in_CASE_NOTE(worker_signature)
 
 	If create_incomplete_note_checkbox = checked then
 		CALL write_variable_in_CASE_NOTE("Partial Interview Information from " & interview_date)
@@ -4871,7 +4885,13 @@ function write_interview_CASE_NOTE()
 	If trim(non_applicant_interview_info) <> "" Then CALL write_variable_in_CASE_NOTE("Interviewee Information: " & non_applicant_interview_info)
 	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
 	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
-
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		CALL write_variable_in_CASE_NOTE("* * Verbal Signature Accepted during interview for:")
+		If signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & signature_person)
+		If second_signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & second_signature_person)
+		CALL write_variable_in_CASE_NOTE("    Signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & ".")
+		CALL write_variable_in_CASE_NOTE("    Resident Phone Number: " & verbal_sig_phone_number)
+	End If
 	CALL write_variable_in_CASE_NOTE("Interview Programs:")
 
 	If cash_request = True Then
@@ -6784,7 +6804,7 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim pwe_selection
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
-Dim qual_numb, exp_num, last_num, emer_numb, discrep_num
+Dim qual_numb, exp_num, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
 
 'R&R
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
@@ -8064,6 +8084,53 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+phone_droplist = "Select or Type"
+If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
+If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_number
+If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
+phone_droplist = phone_droplist+chr(9)+phone_number_selection
+
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	If verbal_sig_date = "" or verbal_sig_time = "" or verbal_sig_phone_number = "" Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 246, 200, "Verbal Signature Record"
+		If signature_detail = "Accepted Verbally" Then Text 20, 20, 185, 10, "MEMB " & signature_person
+		If second_signature_detail = "Accepted Verbally" Then Text 20, 30, 185, 10, "MEMB " & second_signature_person
+		Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
+		Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
+		Text 20, 75, 105, 10, "Signature was accepted at:"
+		Text 25, 95, 20, 10, "Date: "
+		Text 25, 115, 20, 10, "Time: "
+		EditBox 50, 90, 50, 15, verbal_sig_date
+		EditBox 50, 110, 50, 15, verbal_sig_time
+		Text 20, 140, 85, 10, "Resident Phone Number:"
+		ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
+		Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
+		ButtonGroup ButtonPressed
+			OkButton 190, 180, 50, 15
+		EndDialog
+
+		Do
+			err_msg = ""
+			dialog Dialog1
+			cancel_confirmation
+
+			If IsDate(verbal_sig_date) = False Then err_msg = err_msg & vbCr & "* Enter the date you accepted the verbal signature."
+			If IsDate(verbal_sig_time) = True Then
+				verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+				If InStr(verbal_sig_time, ":") = 0 Then err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+				verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+			Else
+				err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+			End If
+			If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
+
+			If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+		Loop until err_msg = ""
+		save_your_work
+	End If
+End If
+
 If run_by_interview_team = True Then
 	determined_income = exp_det_income
 	determined_assets = exp_det_assets
@@ -8921,12 +8988,6 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 				End If
 			End If
 
-			phone_droplist = "Select or Type"
-			If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
-			If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_number
-			If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
-			phone_droplist = phone_droplist+chr(9)+phone_number_selection
-
 			BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
 				Text 150, 10, 395, 10, "We have finished gathering all the information for the interview. Finish by reviewing this information with the resident."
 				GroupBox 10, 20, 530, 325, "CASE INTERVIEW WRAP UP"
@@ -9504,9 +9565,9 @@ objSelection.Font.Bold = FALSE
 
 If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
 ' If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
-objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "DATE OF APPLICATION: " & CAF_datestamp & vbCR
 objSelection.TypeText "APPLICATION FORM: " & CAF_form_name & vbCR
+objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Interview completed with: " & who_are_we_completing_the_interview_with & vbCR
 objSelection.TypeText "Interview completed via: " & how_are_we_completing_the_interview & vbCR
@@ -10301,17 +10362,20 @@ objSelection.Font.Bold = FALSE
 objSelection.TypeText "Signatures:" & vbCr
 objSelection.Font.Size = "12"
 
-objSelection.TypeText "Signature of Primary Adult: " & signature_detail
 If signature_detail <> "Not Required" AND signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & signature_person
+	objSelection.TypeText "Signature of Primary Adult: " & signature_person & ", " & signature_detail & vbCr
+ElseIf signature_detail = "Blank" Then
+	objSelection.TypeText "Signature of Primary Adult is blank." & vbCr
 End If
-objSelection.TypeText vbCr
-
-objSelection.TypeText "Signature of Secondary Adult: " & second_signature_detail
 If second_signature_detail <> "Not Required" AND second_signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & second_signature_person
+	objSelection.TypeText "Signature of Secondary Adult: " & second_signature_person ", " & second_signature_detail & vbCr
+ElseIf second_signature_detail = "Blank" Then
+	objSelection.TypeText "Signature of Secondary Adult is blank." & vbCr
 End If
-objSelection.TypeText vbCr
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	objSelection.TypeText "Verbal Signature Accepted during interview on " & verbal_sig_date & " at " & verbal_sig_time & "." & vbCr
+	objSelection.TypeText "Resident Phone Number: " & verbal_sig_phone_number & vbCr
+End If
 objSelection.TypeText vbCr
 
 objSelection.Font.Size = "14"
