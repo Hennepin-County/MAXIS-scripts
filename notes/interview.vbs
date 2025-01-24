@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/27/2025", "Interview Updates:##~## - Added a 'Clear ALL' button to verifications.##~##   (New Interview - Verifications instruction document!)##~## - Remove entry of signature date as it is not necessary to document.##~## - Added information on the WIF and CASE/NOTE about verbal signature to align with policy.##~## - Updated some formatting and verbiage to align with different form types.##~## - Fixed bug in the Expedited information in the WIF.##~## ##~##These updates are far reaching and with a large script like the Interview script, there may be places where additional functionality or updates are needed. Please report anything you notice about these changes.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/27/2024", "Update to the process for documenting verbal program requests and documenting verbal program request withdrawals.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "BIG NEWS ! ##~## ##~## The Interview Script now supports different questions for different form selections!!!!##~## ##~##As this is brand new AND a very large change there may be some unexpected results or bugs. Please alert the script team to any bugs, questions, or thoughts you have on the updates.##~## ##~##We are very excited to be able to get this functionality out.", "Casey Love, Hennepin County")
 call changelog_update("10/23/2024", "Added emergency questions.", "Mark Riegel, Hennepin County")
@@ -10368,7 +10369,7 @@ ElseIf signature_detail = "Blank" Then
 	objSelection.TypeText "Signature of Primary Adult is blank." & vbCr
 End If
 If second_signature_detail <> "Not Required" AND second_signature_detail <> "Blank" Then
-	objSelection.TypeText "Signature of Secondary Adult: " & second_signature_person ", " & second_signature_detail & vbCr
+	objSelection.TypeText "Signature of Secondary Adult: " & second_signature_person & ", " & second_signature_detail & vbCr
 ElseIf second_signature_detail = "Blank" Then
 	objSelection.TypeText "Signature of Secondary Adult is blank." & vbCr
 End If
