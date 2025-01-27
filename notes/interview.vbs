@@ -2624,6 +2624,7 @@ function verbal_requests()
 	If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 	If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 	If issued_date <> "" Then dlg_len = dlg_len + 10
+	If dlg_len = 230 Then dlg_len = dlg_len + 10
 
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 316, dlg_len, "Programs to Interview For"
@@ -7556,12 +7557,14 @@ End If
 Do
 	DO
 		dlg_len = 210
-		If run_by_interview_team = True Then dlg_len = 295
+		If run_by_interview_team = True Then dlg_len = 285
+		orig_dlg_len = dlg_len
 		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
 		If issued_date <> "" Then dlg_len = dlg_len + 10
+		If dlg_len = orig_dlg_len Then dlg_len = dlg_len + 10
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 326, dlg_len, "Programs to Interview For"
