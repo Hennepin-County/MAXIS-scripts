@@ -2618,8 +2618,15 @@ function verbal_requests()
 	If EMER_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
 	If GRH_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
 
+	dlg_len = 230
+	If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If issued_date <> "" Then dlg_len = dlg_len + 10
+
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 316, 225, "Programs to Interview For"
+	BeginDialog Dialog1, 0, 0, 316, dlg_len, "Programs to Interview For"
 		GroupBox 10, 10, 295, 60, "Form Details:"
 		Text 20, 25, 155, 10, CAF_form_name
 		Text 20, 40, 125, 10, "CAF Date: " & CAF_datestamp
@@ -2691,13 +2698,39 @@ function verbal_requests()
 			End If
 			GroupBox 160, 80, 145, wthdrw_y_pos-80, "VERBAL PROGRAM WITHDRAWALS"
 		End If
-
-		Text 10, 170, 220, 10, "Additional Notes about Verbal Program Requests or Withdrawals"
-		EditBox 10, 180, 295, 15, verbal_request_notes
+		y_pos = 170
+		orig_y_pos = y_pos
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, "SNAP recently closed on " & FS_date_closed & " - " & FS_reason_closed
+			y_pos = y_pos + 10
+		End If
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, cash1_recently_closed_program & " recently closed on " & cash1_date_closed & " - " & cash1_closed_reason
+			y_pos = y_pos + 10
+		End If
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, cash2_recently_closed_program & " recently closed on " & cash2_date_closed & " - " & cash2_closed_reason
+			y_pos = y_pos + 10
+		End If
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+			Text 20, y_pos, 285, 10, "GRH/HS recently closed on " & GRH_date_closed & " - " & GRH_reason_closed
+			y_pos = y_pos + 10
+		End If
+		If issued_date <> "" Then
+			Text 20, y_pos, 260, 10, "EMER last issued on " & issued_date & " (" & issued_prog & ")"
+			y_pos = y_pos + 10
+		End If
+		If y_pos = orig_y_pos Then
+			Text 20, y_pos, 260, 10, "NO RECENT PROGRAM HISTORY TO NOTE"
+			y_pos = y_pos + 10
+		End If
+		GroupBox 10, orig_y_pos-10, 295, y_pos-orig_y_pos+10, "PROGRAM HISTORY"
+		Text 10, y_pos+5, 220, 10, "Additional Notes about Verbal Program Requests or Withdrawals"
+		EditBox 10, y_pos+15, 295, 15, verbal_request_notes
 		ButtonGroup ButtonPressed
 			' OkButton 195, 200, 50, 15
 			' CancelButton 255, 200, 50, 15
-			PushButton 255, 200, 50, 15, "Return", return_btn
+			PushButton 255, y_pos+35, 50, 15, "Return", return_btn
 	EndDialog
 
 	Do
@@ -5135,6 +5168,32 @@ function write_interview_CASE_NOTE()
 			Call write_variable_in_CASE_NOTE("- " & case_summary)
 			Call write_variable_in_CASE_NOTE("---")
 		End If
+		Call write_variable_in_CASE_NOTE("Program History")
+		history_found = False
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP recently closed", FS_date_closed & " - " & FS_reason_closed)
+			history_found = True
+		End If
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH recently closed", GRH_date_closed & " - " & GRH_reason_closed)
+			history_found = True
+		End If
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE(cash1_recently_closed_program & " recently closed", cash1_date_closed & " - " & cash1_closed_reason)
+			history_found = True
+		End If
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE(cash2_recently_closed_program & " recently closed", cash2_date_closed & " - " & cash2_closed_reason)
+			history_found = True
+		End If
+		If issued_date <> "" Then
+			Call write_bullet_and_variable_in_CASE_NOTE("EMER last issued", issued_date & " (" & issued_prog & ")")
+			history_found = True
+		End If
+		If history_found = False Then
+			Call write_variable_in_CASE_NOTE("* No recent Program History listed in MX that appears relevant.")
+		End If
+		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)
 		PF3
 	End If
@@ -6789,6 +6848,18 @@ Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense,
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
 
+Dim CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active
+Dim QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active
+Dim CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active
+Dim QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active
+Dim CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed
+Dim QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed
+Dim CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed
+Dim QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array
+Dim snap_closed_in_past_30_days, snap_closed_in_past_4_months, grh_closed_in_past_30_days, grh_closed_in_past_4_months, issued_date, issued_prog
+Dim cash1_closed_in_past_30_days, cash1_closed_in_past_4_months, cash1_recently_closed_program, cash1_date_closed, cash1_closed_reason
+Dim cash2_closed_in_past_30_days, cash2_closed_in_past_4_months, cash2_recently_closed_program, cash2_date_closed, cash2_closed_reason
+
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -7252,6 +7323,25 @@ If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
 	expedited_screening_on_form = False
 End If
 
+Call navigate_to_MAXIS_screen("MONY", "INQX")
+from_mo = right("00" & DatePart("m", DateAdd("yyyy", -4, date)), 2)
+from_yr = right(DatePart("yyyy", DateAdd("yyyy", -4, date)), 2)
+EMWriteScreen from_mo, 6, 38
+EMWriteScreen from_yr, 6, 41
+EMWriteScreen CM_plus_1_mo, 6, 53
+EMWriteScreen CM_plus_1_yr, 6, 56
+EMWriteScreen "X", 9, 50
+EMWriteScreen "X", 11, 50
+transmit
+mony_row = 6
+EMReadScreen issued_date, 8, 6, 7
+issued_date = trim(issued_date)
+If issued_date <> "" Then
+	issued_date = DateAdd("d", 0, issued_date)
+	EMReadScreen issued_prog, 3, 6, 16
+	issued_prog = trim(issued_prog)
+End If
+
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 EMReadScreen worker_id_for_data_table, 7, 21, 14
 EMReadScreen case_name_for_data_table, 25, 21, 40
@@ -7358,40 +7448,183 @@ If vars_filled = False Then
 	the_process_for_emer = "Application"
 End If
 
+Call read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active, QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active, CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active, QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active, CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed, QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed, CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed, QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array)
+PF3
+
+snap_closed_in_past_30_days = False
+snap_closed_in_past_4_months = False
+If FS_ever_active = True and FS_currently_active = False Then
+	If DateDiff("m", FS_date_closed, date) = 0 Then snap_closed_in_past_30_days = True
+	If DateDiff("d", FS_date_closed, date) < 31 Then snap_closed_in_past_30_days = True
+	If DateDiff("m", FS_date_closed, date) =< 4 Then snap_closed_in_past_4_months = True
+End If
+grh_closed_in_past_30_days = False
+grh_closed_in_past_4_months = False
+If GRH_ever_active = True and GRH_currently_active = False Then
+	If DateDiff("m", GRH_date_closed, date) = 0 Then grh_closed_in_past_30_days = True
+	If DateDiff("d", GRH_date_closed, date) < 31 Then grh_closed_in_past_30_days = True
+	If DateDiff("m", GRH_date_closed, date) =< 4 Then grh_closed_in_past_4_months = True
+End If
+cash1_closed_in_past_30_days = False
+cash1_closed_in_past_4_months = False
+cash1_recently_closed_program = ""
+cash1_date_closed = ""
+cash1_closed_reason = ""
+cash2_closed_in_past_30_days = False
+cash2_closed_in_past_4_months = False
+cash2_recently_closed_program = ""
+cash2_date_closed = ""
+cash2_closed_reason = ""
+If DWP_ever_active = True and DWP_currently_active = False Then
+	If DateDiff("m", DWP_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+	If DateDiff("d", DWP_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+	If DateDiff("m", DWP_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+	If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+		cash1_recently_closed_program = "DWP"
+		cash1_date_closed = DWP_date_closed
+		cash1_closed_reason = DWP_reason_closed
+	End If
+End If
+If MSA_ever_active = True and MSA_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", MSA_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", MSA_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", MSA_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "MSA"
+			cash1_date_closed = MSA_date_closed
+			cash1_closed_reason = MSA_reason_closed
+		End If
+	Else
+		If DateDiff("m", MSA_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", MSA_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", MSA_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "MSA"
+			cash2_date_closed = MSA_date_closed
+			cash2_closed_reason = MSA_reason_closed
+		End If
+	End If
+End If
+If GA_ever_active = True and GA_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", GA_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", GA_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", GA_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "GA"
+			cash1_date_closed = GA_date_closed
+			cash1_closed_reason = GA_reason_closed
+		End If
+	Else
+		If DateDiff("m", GA_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", GA_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", GA_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "GA"
+			cash2_date_closed = GA_date_closed
+			cash2_closed_reason = GA_reason_closed
+		End If
+	End If
+End If
+If MFIP_ever_active = True and MFIP_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", MFIP_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", MFIP_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", MFIP_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "MFIP"
+			cash1_date_closed = MFIP_date_closed
+			cash1_closed_reason = MFIP_reason_closed
+		End If
+	Else
+		If DateDiff("m", MFIP_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", MFIP_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", MFIP_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "MFIP"
+			cash2_date_closed = MFIP_date_closed
+			cash2_closed_reason = MFIP_reason_closed
+		End If
+	End If
+End If
+EMER_active_in_past_12_months = False
+If EMER_ever_active = True and EMER_currently_active = False Then
+	If DateDiff("m", EMER_date_closed, date) < 12 Then EMER_active_in_past_12_months = True
+End If
 
 Do
 	DO
+		dlg_len = 210
+		If run_by_interview_team = True Then dlg_len = 295
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If issued_date <> "" Then dlg_len = dlg_len + 10
+
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 326, 310, "Programs to Interview For"
+		BeginDialog Dialog1, 0, 0, 326, dlg_len, "Programs to Interview For"
 			Text 10, 10, 300, 20, "Record details from the form here for " & CAF_form_name & " being used for this interview:"
-			Text 15, 35, 125, 10, "Date form was received in the county:"
-			EditBox 140, 30, 45, 15, CAF_datestamp
-			Text 200, 35, 110, 10, CAF_form_name
-			Text 25, 45, 260, 10, "Active Programs: " & list_active_programs
-			Text 25, 55, 260, 10, "Pending Programs: " & list_pending_programs
-			GroupBox 10, 75, 265, 30, "Check All Programs Marked on the Form"
-			CheckBox 15, 90, 30, 10, "CASH", CASH_on_CAF_checkbox
-			CheckBox 55, 90, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-			CheckBox 95, 90, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
-			CheckBox 160, 90, 105, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
-			Text 15, 110, 180, 10, "About the different programs:"
-			Text 20, 120, 245, 10, "- CASH is a monthly cash benefit."
-			Text 20, 130, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
-			Text 20, 140, 245, 10, "- EMERGENCY is a one-time payment to resolve an emergency situation."
-			Text 25, 150, 245, 10, "An example of emergency situation is eviction or utility disconnect."
-			Text 20, 160, 265, 10, "- HOUSING SUPPORT is monthly benefit for people working with an organization"
-			Text 25, 170, 125, 10, "or facility for housing supports."
-			Text 15, 185, 200, 10, "Confirm with the resident these were the programs selected."
-			Text 15, 195, 245, 10, "Explain to the resident they can verbally request additional programs to be"
-			Text 30, 205, 125, 10, "assessed while their case is pending. "
-			Text 15, 215, 270, 10, "Explain additionally to the resident they can withdraw their requests at any time."
-			Text 15, 245, 85, 10, "Program Request Notes:"
-			EditBox 15, 255, 300, 15, program_request_notes
-			Text 115, 270, 205, 10, "(Do not document verbal program request or withdrawls here.)"
+			Text 15, 30, 125, 10, "Date form was received in the county:"
+			EditBox 140, 25, 45, 15, CAF_datestamp
+			Text 200, 30, 110, 10, CAF_form_name
+			Text 25, 40, 260, 10, "Active Programs: " & list_active_programs
+			Text 25, 50, 260, 10, "Pending Programs: " & list_pending_programs
+			GroupBox 10, 65, 265, 30, "Check All Programs Marked on the Form"
+			CheckBox 15, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+			CheckBox 55, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+			CheckBox 95, 80, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
+			CheckBox 160, 80, 105, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
+			y_pos = 100
+			If run_by_interview_team = True Then
+				Text 15, y_pos, 180, 10, "About the different programs:"
+				Text 20, y_pos+10, 245, 10, "- CASH is a monthly cash benefit."
+				Text 20, y_pos+20, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
+				Text 20, y_pos+30, 245, 10, "- EMERGENCY is a one-time payment to resolve an emergency situation."
+				Text 25, y_pos+40, 245, 10, "An example of emergency situation is eviction or utility disconnect."
+				Text 20, y_pos+50, 265, 10, "- HOUSING SUPPORT is monthly benefit for people working with an organization"
+				Text 25, y_pos+60, 125, 10, "or facility for housing supports."
+				y_pos = 175
+			End If
+			Text 15, y_pos, 200, 10, "Confirm with the resident these were the programs selected."
+			Text 15, y_pos+10, 245, 10, "Explain to the resident they can verbally request additional programs to be"
+			Text 30, y_pos+20, 125, 10, "assessed while their case is pending. "
+			Text 15, y_pos+30, 270, 10, "Explain additionally to the resident they can withdraw their requests at any time."
+			y_pos = y_pos + 55
+			orig_y_pos = y_pos
+			If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, "SNAP recently closed on " & FS_date_closed & " - " & FS_reason_closed
+				y_pos = y_pos + 10
+			End If
+			If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, cash1_recently_closed_program & " recently closed on " & cash1_date_closed & " - " & cash1_closed_reason
+				y_pos = y_pos + 10
+			End If
+			If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, cash2_recently_closed_program & " recently closed on " & cash2_date_closed & " - " & cash2_closed_reason
+				y_pos = y_pos + 10
+			End If
+			If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, "GRH/HS recently closed on " & GRH_date_closed & " - " & GRH_reason_closed
+				y_pos = y_pos + 10
+			End If
+			If issued_date <> "" Then
+				Text 20, y_pos, 285, 10, "EMER last issued on " & issued_date & " (" & issued_prog & ")"
+				y_pos = y_pos + 10
+			End If
+			If y_pos = orig_y_pos Then
+				Text 20, y_pos, 285, 10, "NO RECENT PROGRAM HISTORY TO NOTE"
+				y_pos = y_pos + 10
+			End If
+			GroupBox 10, orig_y_pos-10, 305, y_pos-orig_y_pos+10, "PROGRAM HISTORY"
+			Text 15, y_pos+5, 85, 10, "Program Request Notes:"
+			EditBox 15, y_pos+15, 300, 15, program_request_notes
+			Text 15, y_pos+30, 205, 10, "(Do not document verbal program request or withdrawls here.)"
 			ButtonGroup ButtonPressed
-				PushButton 150, 225, 130, 15, "Press Here to Add Verbal Requests", program_requests_btn
-				OkButton 210, 285, 50, 15
-				CancelButton 265, 285, 50, 15
+				PushButton 235, 45, 80, 15, "Add Verbal Requests", program_requests_btn
+				OkButton 210, y_pos+35, 50, 15
+				CancelButton 265, y_pos+35, 50, 15
 		EndDialog
 
 		err_msg = ""
@@ -11248,6 +11481,107 @@ If run_by_interview_team = True and developer_mode = False Then
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(unknown_cash_pending)
 	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("FSDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(FS_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("FSReasonClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(FS_reason_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(GRH_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHReasonClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(GRH_reason_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneRecentlyClosedProgram")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_recently_closed_program)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedReason")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_reason)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoRecentlyClosedProgram")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_recently_closed_program)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedReason")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_reason)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("IssuedDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(issued_date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("IssuedProg")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(issued_prog)
+	element.appendChild info
+
 
 	Set element = xmlTracDoc.createElement("CASHRequest")
 	root.appendChild element
