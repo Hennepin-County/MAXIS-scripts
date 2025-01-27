@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/27/2025", "Interview Updates:##~## - Added a 'Clear ALL' button to verifications.##~##   (New Interview - Verifications instruction document!)##~## - Remove entry of signature date as it is not necessary to document.##~## - Added information on the WIF and CASE/NOTE about verbal signature to align with policy.##~## - Updated some formatting and verbiage to align with different form types.##~## - Fixed bug in the Expedited information in the WIF.##~## ##~##These updates are far reaching and with a large script like the Interview script, there may be places where additional functionality or updates are needed. Please report anything you notice about these changes.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/27/2024", "Update to the process for documenting verbal program requests and documenting verbal program request withdrawals.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "BIG NEWS ! ##~## ##~## The Interview Script now supports different questions for different form selections!!!!##~## ##~##As this is brand new AND a very large change there may be some unexpected results or bugs. Please alert the script team to any bugs, questions, or thoughts you have on the updates.##~## ##~##We are very excited to be able to get this functionality out.", "Casey Love, Hennepin County")
 call changelog_update("10/23/2024", "Added emergency questions.", "Mark Riegel, Hennepin County")
@@ -246,6 +247,7 @@ function assess_caf_1_expedited_questions(expedited_screening)
 	exp_q_2_assets_this_month = exp_q_2_assets_this_month & ""
 	exp_q_3_rent_this_month = exp_q_3_rent_this_month & ""
 
+	If expedited_screening_on_form = False Then expedited_screening = ""
 end function
 
 full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
@@ -347,19 +349,9 @@ function check_for_errors(interview_questions_clear)
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
 			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
-			If IsDate(signature_date) = False Then
-				err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		If second_signature_detail = "Signature Completed" OR second_signature_detail  = "Accepted Verbally" Then
 			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
-			If IsDate(second_signature_date) = False Then
-				err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & last_num & "^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		'Interview date must be a date and not in the future
 		' If  Then err_msg = err_msg & "~!~" & "11^* FIELD##~##   - "
@@ -390,13 +382,13 @@ function check_for_errors(interview_questions_clear)
 	End If
 
 	If EMER_on_CAF_checkbox = checked Then
-		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
 			err_msg = err_msg & "~!~" & emer_numb & "^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
 		End If
 	End If
 
 	If resident_emergency_yn = "Yes" Then
-		If trim(emergency_type) = "" or emergency_type = "Select one" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+		If trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
 			err_msg = err_msg & "~!~" & emer_numb & "^* You indicated the resident is experiencing an emergency. You must fill out all of the fields describing the emergency."
 		End If
 	End If
@@ -487,21 +479,23 @@ function define_main_dialog()
             EditBox 120, 110, 340, 15, arep_interview_id_information
 			EditBox 10, 160, 450, 15, non_applicant_interview_info
 
-		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
-		    EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
-		    EditBox 325, 245, 50, 15, exp_q_3_rent_this_month
-		    CheckBox 140, 265, 30, 10, "Heat", caf_exp_pay_heat_checkbox
-		    CheckBox 175, 265, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
-		    CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
-		    CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
-		    CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
-		    DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-		    DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
-		    EditBox 95, 315, 80, 15, exp_previous_assistance_when
-		    EditBox 215, 315, 85, 15, exp_previous_assistance_where
-		    EditBox 335, 315, 85, 15, exp_previous_assistance_what
-		    DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
-		    ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
+			If expedited_screening_on_form = True Then
+				EditBox 325, 205, 50, 15, exp_q_1_income_this_month
+				EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
+				EditBox 325, 245, 50, 15, exp_q_3_rent_this_month
+				CheckBox 140, 265, 30, 10, "Heat", caf_exp_pay_heat_checkbox
+				CheckBox 175, 265, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
+				CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
+				CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
+				CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
+				DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+				DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+				EditBox 95, 315, 80, 15, exp_previous_assistance_when
+				EditBox 215, 315, 85, 15, exp_previous_assistance_where
+				EditBox 335, 315, 85, 15, exp_previous_assistance_what
+				DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
+				ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
+			End If
 
 		    Text 10, 15, 110, 10, "Who are you interviewing with?"
 			Text 65, 35, 55, 10, "Interview via"
@@ -513,19 +507,21 @@ function define_main_dialog()
 			Text 120, 135, 300, 10, "- If no ID is required, this can be detailed here."
 			Text 10, 150, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
 
-		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
-			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
-		    Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
-		    Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
-		    Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
-		    Text 45, 265, 90, 10, "What utilities do you pay?"
-		    Text 35, 285, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
-		    Text 35, 300, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-		    Text 45, 320, 50, 10, "If yes, When?"
-		    Text 185, 320, 30, 10, "Where?"
-		    Text 310, 320, 25, 10, "What?"
-		    Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
-		    Text 225, 340, 45, 10, "If yes, who?"
+			If expedited_screening_on_form = True Then
+				GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
+				Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
+				Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
+				Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
+				Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
+				Text 45, 265, 90, 10, "What utilities do you pay?"
+				Text 35, 285, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
+				Text 35, 300, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+				Text 45, 320, 50, 10, "If yes, When?"
+				Text 185, 320, 30, 10, "Where?"
+				Text 310, 320, 25, 10, "What?"
+				Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
+				Text 225, 340, 45, 10, "If yes, who?"
+			End If
 
 		ElseIf page_display = show_pg_one_address Then
 			Text 504, 32, 60, 10, "CAF ADDR"
@@ -1072,6 +1068,9 @@ function define_main_dialog()
 			EditBox 190, 100, 45, 15, emergency_deadline
 		' ElseIf page_display =  Then
 		ElseIf page_display = show_pg_last Then
+			If second_signature_detail = "Select or Type" or second_signature_detail = "" Then
+				If UBound(HH_MEMB_ARRAY, 2) = 0 Then second_signature_detail = "Not Required"
+			End If
 			Text 498, last_pos, 60, 10, "CAF Last Page"
 
 			GroupBox 5, 5, 475, 60, "Confirm Authorized Representative"
@@ -1095,18 +1094,13 @@ function define_main_dialog()
 		    Text 10, 85, 90, 10, "Signature of Primary Adult"
 		    ComboBox 105, 80, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
 		    Text 220, 85, 25, 10, "person"
-		    ComboBox 250, 80, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
-		    Text 375, 85, 20, 10, "date"
-		    EditBox 400, 80, 50, 15, signature_date
+		    ComboBox 250, 80, 200, 45, all_the_clients+chr(9)+signature_person, signature_person
 		    Text 10, 105, 90, 10, "Signature of Other Adult"
 		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+second_signature_detail, second_signature_detail
 		    Text 220, 105, 25, 10, "person"
-		    ComboBox 250, 100, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
-		    Text 375, 105, 20, 10, "date"
-		    EditBox 400, 100, 50, 15, second_signature_date
+		    ComboBox 250, 100, 200, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 
-			Text 10, 125, 130, 10, "Resident signature accepted verbally?"
-			DropListBox 135, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 10, 125, 320, 20, "Only select 'Accepted Verbally' if you are the one accepting the signature verbally. For signatures accepted by another worker, indicate the signature as completed."
 			Text 335, 125, 50, 10, "Interview Date:"
 			EditBox 390, 120, 60, 15, interview_date
 
@@ -1992,18 +1986,22 @@ function display_expedited_dialog()
 			If exp_page_display = show_exp_pg_amounts then
 				Text 504, 12, 65, 10, "Amounts"
 
-				GroupBox 5, 5, 390, 75, "Expedited Screening"
-				' If exp_screening_note_found = True Then
-				Text 10, 20, 145, 10, "Information pulled from previous case note."
-				Text 20, 35, 70, 10, "Income from CAF1: $ "
-				Text 100, 35, 80, 10, exp_q_1_income_this_month
-				Text 195, 35, 65, 10, "Assets from CAF1: $ "
-				Text 270, 35, 75, 10, exp_q_2_assets_this_month
-				Text 20, 50, 90, 10, "Housing from CAF1: $ "
-				Text 100, 50, 65, 10, exp_q_3_rent_this_month
-				Text 195, 50, 65, 10, "Utilities from CAF1: $ "
-				Text 270, 50, 75, 10, exp_q_4_utilities_this_month
-				Text 15, 65, 160, 10, expedited_screening
+				If expedited_screening_on_form = True Then
+					GroupBox 5, 5, 390, 75, "Expedited Screening"
+					' If exp_screening_note_found = True Then
+					Text 10, 20, 145, 10, "Information pulled from previous case note."
+					Text 20, 35, 70, 10, "Income from CAF1: $ "
+					Text 100, 35, 80, 10, exp_q_1_income_this_month
+					Text 195, 35, 65, 10, "Assets from CAF1: $ "
+					Text 270, 35, 75, 10, exp_q_2_assets_this_month
+					Text 20, 50, 90, 10, "Housing from CAF1: $ "
+					Text 100, 50, 65, 10, exp_q_3_rent_this_month
+					Text 195, 50, 65, 10, "Utilities from CAF1: $ "
+					Text 270, 50, 75, 10, exp_q_4_utilities_this_month
+					Text 15, 65, 160, 10, expedited_screening
+				Else
+					Text 10, 20, 350, 10, "Expedited Screening Questions not present on this form. No information to Display."
+				End If
 				' End If
 				' If exp_screening_note_found = False Then
 				' 	Text 10, 20, 350, 10, "CASE:NOTE for Expedited Screening could not be found. No information to Display."
@@ -2620,8 +2618,16 @@ function verbal_requests()
 	If EMER_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
 	If GRH_on_CAF_checkbox = unchecked Then all_programs_marked_on_CAF = False
 
+	dlg_len = 230
+	If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+	If issued_date <> "" Then dlg_len = dlg_len + 10
+	If dlg_len = 230 Then dlg_len = dlg_len + 10
+
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 316, 225, "Programs to Interview For"
+	BeginDialog Dialog1, 0, 0, 316, dlg_len, "Programs to Interview For"
 		GroupBox 10, 10, 295, 60, "Form Details:"
 		Text 20, 25, 155, 10, CAF_form_name
 		Text 20, 40, 125, 10, "CAF Date: " & CAF_datestamp
@@ -2693,13 +2699,39 @@ function verbal_requests()
 			End If
 			GroupBox 160, 80, 145, wthdrw_y_pos-80, "VERBAL PROGRAM WITHDRAWALS"
 		End If
-
-		Text 10, 170, 220, 10, "Additional Notes about Verbal Program Requests or Withdrawals"
-		EditBox 10, 180, 295, 15, verbal_request_notes
+		y_pos = 170
+		orig_y_pos = y_pos
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, "SNAP recently closed on " & FS_date_closed & " - " & FS_reason_closed
+			y_pos = y_pos + 10
+		End If
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, cash1_recently_closed_program & " recently closed on " & cash1_date_closed & " - " & cash1_closed_reason
+			y_pos = y_pos + 10
+		End If
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			Text 20, y_pos, 260, 10, cash2_recently_closed_program & " recently closed on " & cash2_date_closed & " - " & cash2_closed_reason
+			y_pos = y_pos + 10
+		End If
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+			Text 20, y_pos, 285, 10, "GRH/HS recently closed on " & GRH_date_closed & " - " & GRH_reason_closed
+			y_pos = y_pos + 10
+		End If
+		If issued_date <> "" Then
+			Text 20, y_pos, 260, 10, "EMER last issued on " & issued_date & " (" & issued_prog & ")"
+			y_pos = y_pos + 10
+		End If
+		If y_pos = orig_y_pos Then
+			Text 20, y_pos, 260, 10, "NO RECENT PROGRAM HISTORY TO NOTE"
+			y_pos = y_pos + 10
+		End If
+		GroupBox 10, orig_y_pos-10, 295, y_pos-orig_y_pos+10, "PROGRAM HISTORY"
+		Text 10, y_pos+5, 220, 10, "Additional Notes about Verbal Program Requests or Withdrawals"
+		EditBox 10, y_pos+15, 295, 15, verbal_request_notes
 		ButtonGroup ButtonPressed
 			' OkButton 195, 200, 50, 15
 			' CancelButton 255, 200, 50, 15
-			PushButton 255, 200, 50, 15, "Return", return_btn
+			PushButton 255, y_pos+35, 50, 15, "Return", return_btn
 	EndDialog
 
 	Do
@@ -2931,12 +2963,14 @@ function save_your_work()
 
 			objTextStream.WriteLine "SIG - 01 - " & signature_detail
 			objTextStream.WriteLine "SIG - 02 - " & signature_person
-			objTextStream.WriteLine "SIG - 03 - " & signature_date
 			objTextStream.WriteLine "SIG - 04 - " & second_signature_detail
 			objTextStream.WriteLine "SIG - 05 - " & second_signature_person
-			objTextStream.WriteLine "SIG - 06 - " & second_signature_date
 			objTextStream.WriteLine "SIG - 07 - " & client_signed_verbally_yn
 			objTextStream.WriteLine "SIG - 08 - " & interview_date
+			objTextStream.WriteLine "SIG - 09 - " & verbal_sig_date
+			objTextStream.WriteLine "SIG - 10 - " & verbal_sig_time
+			objTextStream.WriteLine "SIG - 11 - " & verbal_sig_phone_number
+
 			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
 			objTextStream.WriteLine "ASSESS - 02 - " & exp_snap_delays
 			objTextStream.WriteLine "ASSESS - 03 - " & snap_denial_date
@@ -3302,12 +3336,14 @@ function save_your_work()
 
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 01 - " & signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 02 - " & signature_person
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 03 - " & signature_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 04 - " & second_signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 05 - " & second_signature_person
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 06 - " & second_signature_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 07 - " & client_signed_verbally_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 09 - " & verbal_sig_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 10 - " & verbal_sig_time
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 11 - " & verbal_sig_phone_number & vbCr & vbCr
+
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 01 - " & exp_snap_approval_date
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 02 - " & exp_snap_delays
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 03 - " & snap_denial_date
@@ -3741,12 +3777,13 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 8) = "SIG - 01" Then signature_detail = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 02" Then signature_person = Mid(text_line, 12)
-					If left(text_line, 8) = "SIG - 03" Then signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 04" Then second_signature_detail = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 05" Then second_signature_person = Mid(text_line, 12)
-					If left(text_line, 8) = "SIG - 06" Then second_signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 07" Then client_signed_verbally_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 08" Then interview_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 09" Then verbal_sig_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 10" Then verbal_sig_time = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 11" Then verbal_sig_phone_number	 = Mid(text_line, 12)
 
 					If left(text_line, 11) = "ASSESS - 01" Then exp_snap_approval_date = Mid(text_line, 15)
 					If left(text_line, 11) = "ASSESS - 02" Then exp_snap_delays = Mid(text_line, 15)
@@ -4155,6 +4192,16 @@ function restore_your_work(vars_filled)
 end function
 
 function review_information()
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		If verbal_sig_date = "" Then verbal_sig_date = date & ""
+		If verbal_sig_time = "" Then
+			time_hr = DatePart("h", time)
+			time_min = DatePart("n", time)
+			verbal_sig_time = time_hr & ":" & time_min
+			verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+			verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+		End If
+	End If
 
 	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 		If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
@@ -4610,6 +4657,7 @@ function verification_dialog()
 
               ButtonGroup ButtonPressed
                 PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
+				PushButton 465, 365, 125, 15, "Clear ALL Requested Verifications", clear_verifs_btn
               ' Text 10, 340, 580, 50, verifs_needed
             EndDialog
 
@@ -4809,6 +4857,32 @@ function verification_dialog()
 
 			If ButtonPressed = add_verif_button Then verif_err_msg = "LOOP" & verif_err_msg
             If ButtonPressed = fill_button Then verif_err_msg = "LOOP" & verif_err_msg
+			If ButtonPressed = clear_verifs_btn Then
+				verif_err_msg = "LOOP" & verif_err_msg
+				verifs_selected = ""
+
+				For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
+					If HH_MEMB_ARRAY(client_verification, the_members) = "Requested" Then
+						HH_MEMB_ARRAY(client_verification, the_members) = ""
+						HH_MEMB_ARRAY(client_verification_details, the_members) = ""
+					End If
+				Next
+
+				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+					If FORM_QUESTION_ARRAY(quest).verif_status = "Requested" Then
+						FORM_QUESTION_ARRAY(quest).verif_status = ""
+						FORM_QUESTION_ARRAY(quest).verif_notes = ""
+					End If
+					If FORM_QUESTION_ARRAY(quest).detail_array_exists = True Then
+						For each_item = 0 to UBound(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
+							If FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = "Requested" Then
+								FORM_QUESTION_ARRAY(quest).detail_verif_status(each_item) = ""
+								FORM_QUESTION_ARRAY(quest).detail_verif_notes(each_item) = ""
+							End If
+						Next
+					End If
+				Next
+			End If
         Loop until verif_err_msg = ""
         ButtonPressed = verif_button
     End If
@@ -4816,16 +4890,10 @@ function verification_dialog()
 end function
 
 function write_interview_CASE_NOTE()
+
 	' 'Now we case note!
 	STATS_manualtime = STATS_manualtime + 600
 	Call start_a_blank_case_note
-	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
-	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
-	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-	' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
-	' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
-	' Call write_variable_in_CASE_NOTE("---")
-	' Call write_variable_in_CASE_NOTE(worker_signature)
 
 	If create_incomplete_note_checkbox = checked then
 		CALL write_variable_in_CASE_NOTE("Partial Interview Information from " & interview_date)
@@ -4852,7 +4920,13 @@ function write_interview_CASE_NOTE()
 	If trim(non_applicant_interview_info) <> "" Then CALL write_variable_in_CASE_NOTE("Interviewee Information: " & non_applicant_interview_info)
 	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
 	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
-
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		CALL write_variable_in_CASE_NOTE("* * Verbal Signature Accepted during interview for:")
+		If signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & signature_person)
+		If second_signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & second_signature_person)
+		CALL write_variable_in_CASE_NOTE("    Signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & ".")
+		CALL write_variable_in_CASE_NOTE("    Resident Phone Number: " & verbal_sig_phone_number)
+	End If
 	CALL write_variable_in_CASE_NOTE("Interview Programs:")
 
 	If cash_request = True Then
@@ -4957,13 +5031,13 @@ function write_interview_CASE_NOTE()
 
 
 	'If at least one field is filled in, then it will write the emergency info to case note
-	If resident_emergency_yn <> " " or trim(emergency_type) <> "" or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+	If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
 		CALL write_variable_in_CASE_NOTE("-----  Emergency Questions -----")
-		CALL write_variable_in_CASE_NOTE("      Resident experiencing an emergency - " & resident_emergency_yn)
-		CALL write_variable_in_CASE_NOTE("      Type of emergency - " & emergency_type)
-		CALL write_variable_in_CASE_NOTE("      Discussion of emergency with resident - " & emergency_discussion)
-		CALL write_variable_in_CASE_NOTE("      Amount needed to resolve emergency - " & emergency_amount)
-		CALL write_variable_in_CASE_NOTE("      Deadline to resolve emergency - " & emergency_deadline)
+		If resident_emergency_yn <> " " Then CALL write_variable_in_CASE_NOTE("      Resident experiencing an emergency - " & resident_emergency_yn)
+		If trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("      Type of emergency - " & emergency_type)
+		If trim(emergency_discussion) <> "" Then CALL write_variable_in_CASE_NOTE("      Discussion of emergency with resident - " & emergency_discussion)
+		If trim(emergency_amount) <> ""  Then CALL write_variable_in_CASE_NOTE("      Amount needed to resolve emergency - " & emergency_amount)
+		If trim(emergency_deadline) <> "" Then CALL write_variable_in_CASE_NOTE("      Deadline to resolve emergency - " & emergency_deadline)
 	End If
 
 	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
@@ -5095,6 +5169,32 @@ function write_interview_CASE_NOTE()
 			Call write_variable_in_CASE_NOTE("- " & case_summary)
 			Call write_variable_in_CASE_NOTE("---")
 		End If
+		Call write_variable_in_CASE_NOTE("Program History")
+		history_found = False
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP recently closed", FS_date_closed & " - " & FS_reason_closed)
+			history_found = True
+		End If
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH recently closed", GRH_date_closed & " - " & GRH_reason_closed)
+			history_found = True
+		End If
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE(cash1_recently_closed_program & " recently closed", cash1_date_closed & " - " & cash1_closed_reason)
+			history_found = True
+		End If
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			Call write_bullet_and_variable_in_CASE_NOTE(cash2_recently_closed_program & " recently closed", cash2_date_closed & " - " & cash2_closed_reason)
+			history_found = True
+		End If
+		If issued_date <> "" Then
+			Call write_bullet_and_variable_in_CASE_NOTE("EMER last issued", issued_date & " (" & issued_prog & ")")
+			history_found = True
+		End If
+		If history_found = False Then
+			Call write_variable_in_CASE_NOTE("* No recent Program History listed in MX that appears relevant.")
+		End If
+		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)
 		PF3
 	End If
@@ -6749,6 +6849,18 @@ Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense,
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
 
+Dim CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active
+Dim QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active
+Dim CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active
+Dim QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active
+Dim CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed
+Dim QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed
+Dim CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed
+Dim QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array
+Dim snap_closed_in_past_30_days, snap_closed_in_past_4_months, grh_closed_in_past_30_days, grh_closed_in_past_4_months, issued_date, issued_prog
+Dim cash1_closed_in_past_30_days, cash1_closed_in_past_4_months, cash1_recently_closed_program, cash1_date_closed, cash1_closed_reason
+Dim cash2_closed_in_past_30_days, cash2_closed_in_past_4_months, cash2_recently_closed_program, cash2_date_closed, cash2_closed_reason
+
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -6756,7 +6868,7 @@ Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_s
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
 Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_use_SNAP_checkbox
 Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
-Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
+Dim signature_detail, signature_person, second_signature_detail, second_signature_person
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
@@ -6765,7 +6877,7 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim pwe_selection
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
-Dim qual_numb, exp_num, last_num, emer_numb, discrep_num
+Dim qual_numb, exp_num, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
 
 'R&R
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
@@ -7069,32 +7181,13 @@ Do
 Loop until summ_check = "SUMM"
 EMReadScreen case_pw, 7, 21, 17
 
-If CAF_form = "CAF (DHS-5223)" Then
-	CAF_form_name = "Combined Application Form"
-	form_number = "5223"
-End If
-If CAF_form = "HUF (DHS-8107)" Then
-	CAF_form_name = "Household Update Form"
-	form_number = "8107"
-End If
-If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
-	CAF_form_name = "SNAP Application for Seniors"
-	form_number = "5223F"
-End If
-If CAF_form = "MNbenefits" Then
-	CAF_form_name = "MNbenefits Web Form"
-	form_number = ""
-End If
-If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
-	CAF_form_name = "Combined Annual Renewal"
-	form_number = "3727"
-End If
-
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
 
 show_known_addr = FALSE
 vars_filled = FALSE
+
+Orig_CAF_form = CAF_form
 
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
@@ -7139,7 +7232,7 @@ If vars_filled = True Then
 				FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 				FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
 				If FORM_QUESTION_ARRAY(question_num).prefil_btn <> "" Then FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
-				If FORM_QUESTION_ARRAY(question_num).add_to_array_btn <> "" Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
+				If FORM_QUESTION_ARRAY(question_num).detail_array_exists = True Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
 				question_num = question_num + 1
 			next
 			set xmlDoc = nothing
@@ -7205,6 +7298,50 @@ If vars_filled = True Then
 	End With
 End If
 
+If Orig_CAF_form <> CAF_form Then MsgBox "You have selected " & Orig_CAF_form & " as the form submitted." & vbCr & vbCr & "You requested to restore details of a previous run and a different form was loaded." & vbCr & vbCr & "FORM CANNOT BE CHANGED. The script will operate using the form " & CAF_form & ". To change this, you must restart the script and lose any previous data."
+
+expedited_screening_on_form = True
+If CAF_form = "CAF (DHS-5223)" Then
+	CAF_form_name = "Combined Application Form"
+	form_number = "5223"
+End If
+If CAF_form = "HUF (DHS-8107)" Then
+	CAF_form_name = "Household Update Form"
+	form_number = "8107"
+	expedited_screening_on_form = False
+End If
+If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+	CAF_form_name = "SNAP Application for Seniors"
+	form_number = "5223F"
+End If
+If CAF_form = "MNbenefits" Then
+	CAF_form_name = "MNbenefits Web Form"
+	form_number = ""
+End If
+If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
+	CAF_form_name = "Combined Annual Renewal"
+	form_number = "3727"
+	expedited_screening_on_form = False
+End If
+
+Call navigate_to_MAXIS_screen("MONY", "INQX")
+from_mo = right("00" & DatePart("m", DateAdd("yyyy", -4, date)), 2)
+from_yr = right(DatePart("yyyy", DateAdd("yyyy", -4, date)), 2)
+EMWriteScreen from_mo, 6, 38
+EMWriteScreen from_yr, 6, 41
+EMWriteScreen CM_plus_1_mo, 6, 53
+EMWriteScreen CM_plus_1_yr, 6, 56
+EMWriteScreen "X", 9, 50
+EMWriteScreen "X", 11, 50
+transmit
+mony_row = 6
+EMReadScreen issued_date, 8, 6, 7
+issued_date = trim(issued_date)
+If issued_date <> "" Then
+	issued_date = DateAdd("d", 0, issued_date)
+	EMReadScreen issued_prog, 3, 6, 16
+	issued_prog = trim(issued_prog)
+End If
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 EMReadScreen worker_id_for_data_table, 7, 21, 14
@@ -7312,40 +7449,185 @@ If vars_filled = False Then
 	the_process_for_emer = "Application"
 End If
 
+Call read_program_history_case_curr(CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active, QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active, CASH_currently_active, MSA_currently_active, FS_currently_active, MA_currently_active, EMER_currently_active, GRH_currently_active, GA_currently_active, MFIP_currently_active, DWP_currently_active, QMB_currently_active, SLMB_currently_active, CCAP_currently_active, QI1_currently_active, RCA_currently_active, IV_E_currently_active, IMD_currently_active, CASH_date_closed, MSA_date_closed, FS_date_closed, MA_date_closed, EMER_date_closed, GRH_date_closed, GA_date_closed, MFIP_date_closed, DWP_date_closed, QMB_date_closed, SLMB_date_closed, CCAP_date_closed, QI1_date_closed, RCA_date_closed, IV_E_date_closed, IMD_date_closed, CASH_reason_closed, MSA_reason_closed, FS_reason_closed, MA_reason_closed, EMER_reason_closed, GRH_reason_closed, GA_reason_closed, MFIP_reason_closed, DWP_reason_closed, QMB_reason_closed, SLMB_reason_closed, CCAP_reason_closed, QI1_reason_closed, RCA_reason_closed, IV_E_reason_closed, IMD_reason_closed, active_spans_array)
+PF3
+
+snap_closed_in_past_30_days = False
+snap_closed_in_past_4_months = False
+If FS_ever_active = True and FS_currently_active = False Then
+	If DateDiff("m", FS_date_closed, date) = 0 Then snap_closed_in_past_30_days = True
+	If DateDiff("d", FS_date_closed, date) < 31 Then snap_closed_in_past_30_days = True
+	If DateDiff("m", FS_date_closed, date) =< 4 Then snap_closed_in_past_4_months = True
+End If
+grh_closed_in_past_30_days = False
+grh_closed_in_past_4_months = False
+If GRH_ever_active = True and GRH_currently_active = False Then
+	If DateDiff("m", GRH_date_closed, date) = 0 Then grh_closed_in_past_30_days = True
+	If DateDiff("d", GRH_date_closed, date) < 31 Then grh_closed_in_past_30_days = True
+	If DateDiff("m", GRH_date_closed, date) =< 4 Then grh_closed_in_past_4_months = True
+End If
+cash1_closed_in_past_30_days = False
+cash1_closed_in_past_4_months = False
+cash1_recently_closed_program = ""
+cash1_date_closed = ""
+cash1_closed_reason = ""
+cash2_closed_in_past_30_days = False
+cash2_closed_in_past_4_months = False
+cash2_recently_closed_program = ""
+cash2_date_closed = ""
+cash2_closed_reason = ""
+If DWP_ever_active = True and DWP_currently_active = False Then
+	If DateDiff("m", DWP_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+	If DateDiff("d", DWP_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+	If DateDiff("m", DWP_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+	If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+		cash1_recently_closed_program = "DWP"
+		cash1_date_closed = DWP_date_closed
+		cash1_closed_reason = DWP_reason_closed
+	End If
+End If
+If MSA_ever_active = True and MSA_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", MSA_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", MSA_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", MSA_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "MSA"
+			cash1_date_closed = MSA_date_closed
+			cash1_closed_reason = MSA_reason_closed
+		End If
+	Else
+		If DateDiff("m", MSA_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", MSA_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", MSA_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "MSA"
+			cash2_date_closed = MSA_date_closed
+			cash2_closed_reason = MSA_reason_closed
+		End If
+	End If
+End If
+If GA_ever_active = True and GA_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", GA_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", GA_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", GA_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "GA"
+			cash1_date_closed = GA_date_closed
+			cash1_closed_reason = GA_reason_closed
+		End If
+	Else
+		If DateDiff("m", GA_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", GA_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", GA_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "GA"
+			cash2_date_closed = GA_date_closed
+			cash2_closed_reason = GA_reason_closed
+		End If
+	End If
+End If
+If MFIP_ever_active = True and MFIP_currently_active = False Then
+	If cash1_recently_closed_program = "" Then
+		If DateDiff("m", MFIP_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
+		If DateDiff("d", MFIP_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
+		If DateDiff("m", MFIP_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+			cash1_recently_closed_program = "MFIP"
+			cash1_date_closed = MFIP_date_closed
+			cash1_closed_reason = MFIP_reason_closed
+		End If
+	Else
+		If DateDiff("m", MFIP_date_closed, date) = 0 Then cash2_closed_in_past_30_days = True
+		If DateDiff("d", MFIP_date_closed, date) < 31 Then cash2_closed_in_past_30_days = True
+		If DateDiff("m", MFIP_date_closed, date) =< 4 Then cash2_closed_in_past_4_months = True
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+			cash2_recently_closed_program = "MFIP"
+			cash2_date_closed = MFIP_date_closed
+			cash2_closed_reason = MFIP_reason_closed
+		End If
+	End If
+End If
+EMER_active_in_past_12_months = False
+If EMER_ever_active = True and EMER_currently_active = False Then
+	If DateDiff("m", EMER_date_closed, date) < 12 Then EMER_active_in_past_12_months = True
+End If
 
 Do
 	DO
+		dlg_len = 210
+		If run_by_interview_team = True Then dlg_len = 285
+		orig_dlg_len = dlg_len
+		If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then dlg_len = dlg_len + 10
+		If issued_date <> "" Then dlg_len = dlg_len + 10
+		If dlg_len = orig_dlg_len Then dlg_len = dlg_len + 10
+
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 326, 310, "Programs to Interview For"
+		BeginDialog Dialog1, 0, 0, 326, dlg_len, "Programs to Interview For"
 			Text 10, 10, 300, 20, "Record details from the form here for " & CAF_form_name & " being used for this interview:"
-			Text 15, 35, 125, 10, "Date form was received in the county:"
-			EditBox 140, 30, 45, 15, CAF_datestamp
-			Text 200, 35, 110, 10, CAF_form_name
-			Text 25, 45, 260, 10, "Active Programs: " & list_active_programs
-			Text 25, 55, 260, 10, "Pending Programs: " & list_pending_programs
-			GroupBox 10, 75, 265, 30, "Check All Programs Marked on the Form"
-			CheckBox 15, 90, 30, 10, "CASH", CASH_on_CAF_checkbox
-			CheckBox 55, 90, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-			CheckBox 95, 90, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
-			CheckBox 160, 90, 105, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
-			Text 15, 110, 180, 10, "About the different programs:"
-			Text 20, 120, 245, 10, "- CASH is a monthly cash benefit."
-			Text 20, 130, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
-			Text 20, 140, 245, 10, "- EMERGENCY is a one-time payment to resolve an emergency situation."
-			Text 25, 150, 245, 10, "An example of emergency situation is eviction or utility disconnect."
-			Text 20, 160, 265, 10, "- HOUSING SUPPORT is monthly benefit for people working with an organization"
-			Text 25, 170, 125, 10, "or facility for housing supports."
-			Text 15, 185, 200, 10, "Confirm with the resident these were the programs selected."
-			Text 15, 195, 245, 10, "Explain to the resident they can verbally request additional programs to be"
-			Text 30, 205, 125, 10, "assessed while their case is pending. "
-			Text 15, 215, 270, 10, "Explain additionally to the resident they can withdraw their requests at any time."
-			Text 15, 245, 85, 10, "Program Request Notes:"
-			EditBox 15, 255, 300, 15, program_request_notes
-			Text 115, 270, 205, 10, "(Do not document verbal program request or withdrawls here.)"
+			Text 15, 30, 125, 10, "Date form was received in the county:"
+			EditBox 140, 25, 45, 15, CAF_datestamp
+			Text 200, 30, 110, 10, CAF_form_name
+			Text 25, 40, 260, 10, "Active Programs: " & list_active_programs
+			Text 25, 50, 260, 10, "Pending Programs: " & list_pending_programs
+			GroupBox 10, 65, 265, 30, "Check All Programs Marked on the Form"
+			CheckBox 15, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+			CheckBox 55, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+			CheckBox 95, 80, 60, 10, "EMERGENCY", EMER_on_CAF_checkbox
+			CheckBox 160, 80, 105, 10, "HOUSING SUPPORT (GRH)", GRH_on_CAF_checkbox
+			y_pos = 100
+			If run_by_interview_team = True Then
+				Text 15, y_pos, 180, 10, "About the different programs:"
+				Text 20, y_pos+10, 245, 10, "- CASH is a monthly cash benefit."
+				Text 20, y_pos+20, 245, 10, "- SNAP is a monthly benefit for the purchase of food items only."
+				Text 20, y_pos+30, 245, 10, "- EMERGENCY is a one-time payment to resolve an emergency situation."
+				Text 25, y_pos+40, 245, 10, "An example of emergency situation is eviction or utility disconnect."
+				Text 20, y_pos+50, 265, 10, "- HOUSING SUPPORT is monthly benefit for people working with an organization"
+				Text 25, y_pos+60, 125, 10, "or facility for housing supports."
+				y_pos = 175
+			End If
+			Text 15, y_pos, 200, 10, "Confirm with the resident these were the programs selected."
+			Text 15, y_pos+10, 245, 10, "Explain to the resident they can verbally request additional programs to be"
+			Text 30, y_pos+20, 125, 10, "assessed while their case is pending. "
+			Text 15, y_pos+30, 270, 10, "Explain additionally to the resident they can withdraw their requests at any time."
+			y_pos = y_pos + 55
+			orig_y_pos = y_pos
+			If snap_closed_in_past_30_days = True or snap_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, "SNAP recently closed on " & FS_date_closed & " - " & FS_reason_closed
+				y_pos = y_pos + 10
+			End If
+			If cash1_closed_in_past_30_days = True or cash1_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, cash1_recently_closed_program & " recently closed on " & cash1_date_closed & " - " & cash1_closed_reason
+				y_pos = y_pos + 10
+			End If
+			If cash2_closed_in_past_30_days = True or cash2_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, cash2_recently_closed_program & " recently closed on " & cash2_date_closed & " - " & cash2_closed_reason
+				y_pos = y_pos + 10
+			End If
+			If grh_closed_in_past_30_days = True or grh_closed_in_past_4_months = True Then
+				Text 20, y_pos, 285, 10, "GRH/HS recently closed on " & GRH_date_closed & " - " & GRH_reason_closed
+				y_pos = y_pos + 10
+			End If
+			If issued_date <> "" Then
+				Text 20, y_pos, 285, 10, "EMER last issued on " & issued_date & " (" & issued_prog & ")"
+				y_pos = y_pos + 10
+			End If
+			If y_pos = orig_y_pos Then
+				Text 20, y_pos, 285, 10, "NO RECENT PROGRAM HISTORY TO NOTE"
+				y_pos = y_pos + 10
+			End If
+			GroupBox 10, orig_y_pos-10, 305, y_pos-orig_y_pos+10, "PROGRAM HISTORY"
+			Text 15, y_pos+5, 85, 10, "Program Request Notes:"
+			EditBox 15, y_pos+15, 300, 15, program_request_notes
+			Text 15, y_pos+30, 205, 10, "(Do not document verbal program request or withdrawls here.)"
 			ButtonGroup ButtonPressed
-				PushButton 150, 225, 130, 15, "Press Here to Add Verbal Requests", program_requests_btn
-				OkButton 210, 285, 50, 15
-				CancelButton 265, 285, 50, 15
+				PushButton 235, 45, 80, 15, "Add Verbal Requests", program_requests_btn
+				OkButton 210, y_pos+35, 50, 15
+				CancelButton 265, y_pos+35, 50, 15
 		EndDialog
 
 		err_msg = ""
@@ -7864,6 +8146,7 @@ amounts_btn						= 827
 determination_btn				= 828
 return_to_dialog_button			= 829
 fn_review_btn					= 830
+clear_verifs_btn				= 831
 
 open_r_and_r_btn				= 700
 accounting_service_desk_btn		= 701
@@ -7986,6 +8269,7 @@ discrepancy_questions = start_at + 2
 expedited_determination = start_at + 3
 show_pg_last = start_at + 4
 
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 interview_questions_clear = False
 Do
@@ -8036,6 +8320,53 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+phone_droplist = "Select or Type"
+If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
+If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_number
+If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
+phone_droplist = phone_droplist+chr(9)+phone_number_selection
+
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	If verbal_sig_date = "" or verbal_sig_time = "" or verbal_sig_phone_number = "" Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 246, 200, "Verbal Signature Record"
+		If signature_detail = "Accepted Verbally" Then Text 20, 20, 185, 10, "MEMB " & signature_person
+		If second_signature_detail = "Accepted Verbally" Then Text 20, 30, 185, 10, "MEMB " & second_signature_person
+		Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
+		Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
+		Text 20, 75, 105, 10, "Signature was accepted at:"
+		Text 25, 95, 20, 10, "Date: "
+		Text 25, 115, 20, 10, "Time: "
+		EditBox 50, 90, 50, 15, verbal_sig_date
+		EditBox 50, 110, 50, 15, verbal_sig_time
+		Text 20, 140, 85, 10, "Resident Phone Number:"
+		ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
+		Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
+		ButtonGroup ButtonPressed
+			OkButton 190, 180, 50, 15
+		EndDialog
+
+		Do
+			err_msg = ""
+			dialog Dialog1
+			cancel_confirmation
+
+			If IsDate(verbal_sig_date) = False Then err_msg = err_msg & vbCr & "* Enter the date you accepted the verbal signature."
+			If IsDate(verbal_sig_time) = True Then
+				verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+				If InStr(verbal_sig_time, ":") = 0 Then err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+				verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+			Else
+				err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+			End If
+			If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
+
+			If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+		Loop until err_msg = ""
+		save_your_work
+	End If
+End If
 
 If run_by_interview_team = True Then
 	determined_income = exp_det_income
@@ -8894,12 +9225,6 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 				End If
 			End If
 
-			phone_droplist = "Select or Type"
-			If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
-			If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_number
-			If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
-			phone_droplist = phone_droplist+chr(9)+phone_number_selection
-
 			BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
 				Text 150, 10, 395, 10, "We have finished gathering all the information for the interview. Finish by reviewing this information with the resident."
 				GroupBox 10, 20, 530, 325, "CASE INTERVIEW WRAP UP"
@@ -9457,8 +9782,8 @@ Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 Set objWord = CreateObject("Word.Application")
 
 'Adding all of the information in the dialogs into a Word Document
-If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
-If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
+If no_case_number_checkbox = checked Then objWord.Caption = "Form Details - NEW CASE"
+If no_case_number_checkbox = unchecked Then objWord.Caption = "Form Details - CASE #" & MAXIS_case_number			'Title of the document
 ' objWord.Visible = True														'Let the worker see the document
 objWord.Visible = False 														'The worker should NOT see the docuement
 'allow certain workers to see the document
@@ -9477,8 +9802,9 @@ objSelection.Font.Bold = FALSE
 
 If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
 ' If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
-objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "DATE OF APPLICATION: " & CAF_datestamp & vbCR
+objSelection.TypeText "APPLICATION FORM: " & CAF_form_name & vbCR
+objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Interview completed with: " & who_are_we_completing_the_interview_with & vbCR
 objSelection.TypeText "Interview completed via: " & how_are_we_completing_the_interview & vbCR
@@ -9597,7 +9923,7 @@ If GRH_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", HS/GRH"
 If SNAP_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", SNAP"
 If EMER_on_CAF_checkbox = checked Then caf_progs = caf_progs & ", EMER"
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
-objSelection.TypeText "PROGRAMS REQUESTED ON CAF: " & caf_progs & vbCr
+objSelection.TypeText "PROGRAMS REQUESTED ON FORM: " & caf_progs & vbCr
 
 progs_verbal_request = ""
 If cash_verbal_request = "Yes" Then progs_verbal_request = progs_verbal_request & ", Cash"
@@ -9894,89 +10220,109 @@ objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, 0) & vbC
 If disc_homeless_no_mail_addr = "RESOLVED" Then objSelection.TypeText "- Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation & vbCr
 If disc_no_phone_number = "RESOLVED" Then objSelection.TypeText "- No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation & vbCr
 
-' objSelection.Font.Bold = TRUE
-objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS from the CAF"
-Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row then column'
-set objEXPTable = objDoc.Tables(3)		'Creates the table with the specific index'
+'Now we have a dynamic number of tables
+'each table has to be defined with its index so we need to have a variable to increment
+table_count = 3			'table index variable
 
-objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
-objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
-objEXPTable.Columns(2).Width = 120
-for col = 1 to 2
-	for row = 1 to 8
-		objEXPTable.Cell(row, col).Range.Font.Bold = TRUE	'Making the cell text bold.
+If expedited_screening_on_form = True Then
+
+	' objSelection.Font.Bold = TRUE
+	objSelection.TypeText "EXPEDITED QUESTIONS from the Form"
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row then column'
+	set objEXPTable = objDoc.Tables(table_count)		'Creates the table with the specific index'
+	table_count = table_count + 1
+
+	objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
+	objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
+	objEXPTable.Columns(2).Width = 120
+	for col = 1 to 2
+		for row = 1 to 8
+			objEXPTable.Cell(row, col).Range.Font.Bold = TRUE	'Making the cell text bold.
+		next
 	next
-next
 
-'Adding the Expedited text to the table for Expedited
-objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
-objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
+	'Adding the Expedited text to the table for Expedited
+	objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
+	objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
 
-objEXPTable.Cell(2, 1).Range.Text = "2. How much does your household (including children) have cash, checking or savings?"
-objEXPTable.Cell(2, 2).Range.Text = exp_q_2_assets_this_month
+	objEXPTable.Cell(2, 1).Range.Text = "2. How much does your household (including children) have cash, checking or savings?"
+	objEXPTable.Cell(2, 2).Range.Text = exp_q_2_assets_this_month
 
-objEXPTable.Cell(3, 1).Range.Text = "3. How much does your household pay for rent/mortgage per month?"
-objEXPTable.Cell(3, 2).Range.Text = exp_q_3_rent_this_month
+	objEXPTable.Cell(3, 1).Range.Text = "3. How much does your household pay for rent/mortgage per month?"
+	objEXPTable.Cell(3, 2).Range.Text = exp_q_3_rent_this_month
 
-objEXPTable.Cell(4, 1).Range.Text = "   What utilities do you pay?"
-If caf_exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
-If caf_exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
-If caf_exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
-If caf_exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
-If caf_exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
-If right(util_pay, 2) = ", " Then util_pay = left(util_pay, len(util_pay) - 2)
-objEXPTable.Cell(4, 2).Range.Text = util_pay
+	objEXPTable.Cell(4, 1).Range.Text = "   What utilities do you pay?"
+	If caf_exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
+	If caf_exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
+	If caf_exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
+	If caf_exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
+	If caf_exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
+	If right(util_pay, 2) = ", " Then util_pay = left(util_pay, len(util_pay) - 2)
+	objEXPTable.Cell(4, 2).Range.Text = util_pay
 
-objEXPTable.Cell(5, 1).Range.Text = "4. Is anyone in your household a migrant or seasonal farm worker?"
-objEXPTable.Cell(5, 2).Range.Text = exp_migrant_seasonal_formworker_yn
+	objEXPTable.Cell(5, 1).Range.Text = "4. Is anyone in your household a migrant or seasonal farm worker?"
+	objEXPTable.Cell(5, 2).Range.Text = exp_migrant_seasonal_formworker_yn
 
-objEXPTable.Cell(6, 1).Range.Text = "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-objEXPTable.Cell(6, 2).Range.Text = exp_received_previous_assistance_yn
+	objEXPTable.Cell(6, 1).Range.Text = "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+	objEXPTable.Cell(6, 2).Range.Text = exp_received_previous_assistance_yn
 
-objEXPTable.Rows(7).Cells.Split 1, 6, TRUE										'Splitting the cells to add more detail for the three questions here
-objEXPTable.Cell(7, 1).Range.Text = "When?"
-objEXPTable.Cell(7, 2).Range.Text = exp_previous_assistance_when
-objEXPTable.Cell(7, 3).Range.Text = "Where?"
-objEXPTable.Cell(7, 4).Range.Text = exp_previous_assistance_where
-objEXPTable.Cell(7, 5).Range.Text = "What?"
-objEXPTable.Cell(7, 6).Range.Text = exp_previous_assistance_what
+	objEXPTable.Rows(7).Cells.Split 1, 6, TRUE										'Splitting the cells to add more detail for the three questions here
+	objEXPTable.Cell(7, 1).Range.Text = "When?"
+	objEXPTable.Cell(7, 2).Range.Text = exp_previous_assistance_when
+	objEXPTable.Cell(7, 3).Range.Text = "Where?"
+	objEXPTable.Cell(7, 4).Range.Text = exp_previous_assistance_where
+	objEXPTable.Cell(7, 5).Range.Text = "What?"
+	objEXPTable.Cell(7, 6).Range.Text = exp_previous_assistance_what
 
-objEXPTable.Cell(8, 1).Range.Text = "6. Is anyone in your household pregnant?"
-If exp_pregnant_who <> "" Then
-	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn & ", " &  exp_pregnant_who
-Else
-	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
-End If
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-objSelection.TypeParagraph()						'adds a line between the table and the next information
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
-objSelection.Font.Bold = FALSE
-If case_is_expedited = True Then
-	objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
-Else
-	objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
-End If
-
-objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
-objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
-objSelection.TypeText chr(9) & "Expenses in the month of application: " & app_month_expenses & vbCr
-objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
-objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
-If case_is_expedited = True Then
-	If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
-		objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
-		If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-		If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-		If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+	objEXPTable.Cell(8, 1).Range.Text = "6. Is anyone in your household pregnant?"
+	If exp_pregnant_who <> "" Then
+		objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn & ", " &  exp_pregnant_who
+	Else
+		objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
 	End If
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+
 End If
 
-objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
+
+If expedited_determination_needed = True Then
+	objSelection.Font.Bold = TRUE
+	objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
+	objSelection.Font.Bold = FALSE
+	If case_is_expedited = True Then
+		objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
+	Else
+		objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
+	End If
+	If run_by_interview_team = True Then
+		objSelection.TypeText chr(9) & "Income in the month of application: " & exp_det_income & vbCr
+		objSelection.TypeText chr(9) & "Assets in the month of application: " & exp_det_assets & vbCr
+		objSelection.TypeText chr(9) & "Expenses in the month of application: " & calculated_expenses & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & exp_det_housing & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & exp_det_utilities & vbCr
+		If trim(exp_det_notes) <> "" Then objSelection.TypeText chr(9) & "Additional Notes: " & exp_det_notes & vbCr
+	Else
+		objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
+		objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
+		objSelection.TypeText chr(9) & "Expenses in the month of application: " & app_month_expenses & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
+		If case_is_expedited = True Then
+			If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
+				objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
+				objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
+				If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+				If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+				If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+			End If
+		End If
+	End If
+
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
+End If
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "Interview Answers:" & vbCr
@@ -9988,9 +10334,6 @@ objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_statu
 objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, 0) & vbCr
 If HH_MEMB_ARRAY(client_verification_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, 0) & vbCr
 
-'Now we have a dynamic number of tables
-'each table has to be defined with its index so we need to have a variable to increment
-table_count = 4			'table index variable
 additional_person = False
 If UBound(HH_MEMB_ARRAY, 2) <> 0 Then
     For each_member = 1 to UBound(HH_MEMB_ARRAY, 2)
@@ -10206,9 +10549,9 @@ For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
 	FORM_QUESTION_ARRAY(each_question).add_to_wif()
 Next
 
-objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
+objSelection.TypeText "QUALIFYING QUESTIONS" & vbCr
 
-objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?" & vbCr
+objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the Form?" & vbCr
 objSelection.TypeText chr(9) & qual_question_one & vbCr
 If trim(qual_memb_one) <> "" AND qual_memb_one <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_one & vbCr
 objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
@@ -10224,17 +10567,31 @@ objSelection.TypeText "Is anyone in your household currently violating a conditi
 objSelection.TypeText chr(9) & qual_question_five & vbCr
 If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
 
-objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
-objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
-objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
-objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
-objSelection.TypeText chr(9) & emergency_type & vbCr
-objSelection.TypeText "Discussion of emergency with resident:" & vbCr
-objSelection.TypeText chr(9) & emergency_discussion & vbCr
-objSelection.TypeText "What amount is needed to resolve the emergency?" & vbCr
-objSelection.TypeText chr(9) & emergency_amount & vbCr
-objSelection.TypeText "What is the deadline to resolve the emergency?" & vbCr
-objSelection.TypeText chr(9) & emergency_deadline & vbCr
+If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+	objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
+	If resident_emergency_yn <> " " Then
+		objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
+		objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
+	End If
+	If trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type" Then
+		objSelection.TypeText "What emergency is the resident is experiencing?" & vbCr
+		objSelection.TypeText chr(9) & emergency_type & vbCr
+	End If
+	If trim(emergency_discussion) <> "" Then
+		objSelection.TypeText "Discussion of emergency with resident:" & vbCr
+		objSelection.TypeText chr(9) & emergency_discussion & vbCr
+	End If
+	If trim(emergency_amount) <> ""  Then
+		objSelection.TypeText "What amount is needed to resolve the emergency?" & vbCr
+		objSelection.TypeText chr(9) & emergency_amount & vbCr
+	End If
+	If trim(emergency_deadline) <> "" Then
+		objSelection.TypeText "What is the deadline to resolve the emergency?" & vbCr
+		objSelection.TypeText chr(9) & emergency_deadline & vbCr
+	End If
+Else
+	objSelection.TypeText "No Emergency Details Recorded" & vbCr
+End If
 
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
@@ -10242,17 +10599,20 @@ objSelection.Font.Bold = FALSE
 objSelection.TypeText "Signatures:" & vbCr
 objSelection.Font.Size = "12"
 
-objSelection.TypeText "Signature of Primary Adult: " & signature_detail
 If signature_detail <> "Not Required" AND signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & signature_person & " on " & signature_date
+	objSelection.TypeText "Signature of Primary Adult: " & signature_person & ", " & signature_detail & vbCr
+ElseIf signature_detail = "Blank" Then
+	objSelection.TypeText "Signature of Primary Adult is blank." & vbCr
 End If
-objSelection.TypeText vbCr
-
-objSelection.TypeText "Signature of Secondary Adult: " & second_signature_detail
 If second_signature_detail <> "Not Required" AND second_signature_detail <> "Blank" Then
-	objSelection.TypeText " by " & second_signature_person & " on " & second_signature_date
+	objSelection.TypeText "Signature of Secondary Adult: " & second_signature_person & ", " & second_signature_detail & vbCr
+ElseIf second_signature_detail = "Blank" Then
+	objSelection.TypeText "Signature of Secondary Adult is blank." & vbCr
 End If
-objSelection.TypeText vbCr
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	objSelection.TypeText "Verbal Signature Accepted during interview on " & verbal_sig_date & " at " & verbal_sig_time & "." & vbCr
+	objSelection.TypeText "Resident Phone Number: " & verbal_sig_phone_number & vbCr
+End If
 objSelection.TypeText vbCr
 
 objSelection.Font.Size = "14"
@@ -10292,7 +10652,7 @@ If arep_action = "Yes - keep this AREP" Then
 
 	End If
 
-	If arep_on_CAF_checkbox = checked Then objSelection.TypeText "This AREP information was entered on the CAF." & vbCR
+	If arep_on_CAF_checkbox = checked Then objSelection.TypeText "This AREP information was entered on the Form." & vbCR
 ElseIf arep_action = "No - remove this AREP from my case" OR arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
 	objSelection.TypeText "AREP information known/provided but resident does NOT want this AREP to be Authorized:" & vbCR
 	objSelection.TypeText "Name: " & arep_name & vbCr
@@ -10354,14 +10714,14 @@ If discrepancies_exist = True Then
 		objSelection.TypeText "  - Resolution: " & disc_out_of_county_confirmation & vbCr
 	End If
 	If disc_rent_amounts = "RESOLVED" Then
-		objSelection.TypeText "The Housing Expense information on CAF Page 1 and CAF Question 14 do not appear to Match" & vbCr
-		objSelection.TypeText "  - CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month & vbCr
+		objSelection.TypeText "The Housing Expense information within the Form do not appear to Match" & vbCr
+		objSelection.TypeText "  - Page 1 Housing Expense: " & exp_q_3_rent_this_month & vbCr
 		objSelection.TypeText "  - Question on Housing Expense: " & rent_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_rent_amounts_confirmation & vbCr
 	End If
 	If disc_utility_amounts = "RESOLVED" Then
-		objSelection.TypeText "The Utility Expense information on CAF Page 1 and CAF Question 15 do not appear to Match" & vbCr
-		objSelection.TypeText "  - CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary & vbCr
+		objSelection.TypeText "The Utility Expense information within the Form do not appear to Match" & vbCr
+		objSelection.TypeText "  - Page 1 Utility Expense: " & disc_utility_caf_1_summary & vbCr
 		objSelection.TypeText "  - Question on Utility Expense: " & utility_summary & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_utility_amounts_confirmation & vbCr
 	End If
@@ -10958,7 +11318,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	o2Exec.Terminate()
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
-	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
+	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of the INTERVIEW ANNOTATIONS on the form in ECF, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
 		With (CreateObject("Scripting.FileSystemObject"))
 
@@ -11124,6 +11484,107 @@ If run_by_interview_team = True and developer_mode = False Then
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(unknown_cash_pending)
 	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("FSDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(FS_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("FSReasonClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(FS_reason_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(GRH_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("GRHReasonClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(GRH_reason_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneRecentlyClosedProgram")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_recently_closed_program)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHOneClosedReason")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash1_closed_reason)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedPastThirtyDays")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_in_past_30_days)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedPastFourMonths")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_in_past_4_months)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoRecentlyClosedProgram")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_recently_closed_program)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoDateClosed")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_date_closed)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHTwoClosedReason")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash2_closed_reason)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("IssuedDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(issued_date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("IssuedProg")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(issued_prog)
+	element.appendChild info
+
 
 	Set element = xmlTracDoc.createElement("CASHRequest")
 	root.appendChild element
