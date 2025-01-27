@@ -2675,6 +2675,11 @@ END FUNCTION
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
+If windows_user_ID = "CALO001" Then									'Since CLove is a little lazy, this sets the excel path special for her.
+	Set wshshell = CreateObject("WScript.Shell")					'creating the wscript method to interact with the system
+	user_Desktop_folder = wshShell.SpecialFolders("Desktop") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
+	training_case_creator_excel_file_path = user_Desktop_folder & "TRAINING CASE SCENARIOS.xlsx"
+End If
 
 '--------------------------------------- Project Krabappel ---------------------------------------
 Dialog1 = ""
@@ -2992,11 +2997,11 @@ For cases_to_make = 1 to how_many_cases_to_make
 	EMWriteScreen ADDR_addr_verif, 9, 74
 	EMWriteScreen ADDR_homeless, 10, 43
 	EMWriteScreen ADDR_reservation, 10, 74
-	EMWriteScreen ADDR_mailing_addr_line_one, 13, 43
-	EMWriteScreen ADDR_mailing_addr_line_two, 14, 43
-	EMWriteScreen ADDR_mailing_addr_city, 15, 43
-	If ADDR_mailing_addr_line_one <> "" then EMWriteScreen "MN", 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
-	EMWriteScreen ADDR_mailing_addr_zip, 16, 52
+	EMWriteScreen ADDR_mailing_addr_line_one, 12, 49
+	EMWriteScreen ADDR_mailing_addr_line_two, 13, 49
+	EMWriteScreen ADDR_mailing_addr_city, 14, 49
+	If ADDR_mailing_addr_line_one <> "" then EMWriteScreen "MN", 15, 49	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
+	EMWriteScreen ADDR_mailing_addr_zip, 15, 58
 	EMWriteScreen MAXIS_footer_month, 20, 43
 	EMWriteScreen MAXIS_footer_year, 20, 46
 	first_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year		'We need to determine when we are updating what month we are in because these move
