@@ -20216,7 +20216,8 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or 
 ' developer_mode = False
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
-' If MAXIS_case_number = "493723" Then allow_late_note = True
+If MAXIS_case_number = "2669373" Then allow_late_note = True
+If MAXIS_case_number = "772738" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
