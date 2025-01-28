@@ -1662,6 +1662,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         addr_eff_date = replace(addr_eff_date, " ", "/")						'formatting the information from the second half
         addr_future_date = trim(addr_future_date)
         addr_future_date = replace(addr_future_date, " ", "/")
+		addr_future_date = DateAdd("d", 0, addr_future_date)					'Ensuring date is in date format
         mail_line_one = replace(mail_line_one, "_", "")
         mail_line_two = replace(mail_line_two, "_", "")
 		mail_street_full = trim(mail_line_one & " " & mail_line_two)
@@ -1755,6 +1756,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		var_year = Right(addr_eff_date, 2)
 		addr_eff_date = var_month & "/" & var_day & "/" & var_year
 		addr_eff_date = trim(addr_eff_date)
+		addr_eff_date = DateAdd("d", 0, addr_eff_date)					'Ensuring date is in date format
 		addr_future_date = trim(addr_future_date)
 		phone_one = trim(phone_one)
 		phone_two = trim(phone_two)
@@ -1778,6 +1780,8 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 			'Determining correct month to update ADDR panel
 			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+			footer_month_as_date = DateAdd("d", 0, footer_month_as_date)					'Ensuring date is in date format
+			
 			If addr_eff_date > footer_month_as_date Then	'If addr_eff provided in the dialog is greater than the footer month date, we need to change the footer month to align with addr_eff month
 				addr_greater = TRUE
 				orig_footer_month = MAXIS_footer_month
@@ -1789,17 +1793,19 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				addr_less = TRUE
 				orig_addr_eff_date = addr_eff_date
 				addr_eff_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+				addr_eff_date = DateAdd("d", 0, addr_eff_date)					'Ensuring date is in date format
 			End If
 
 			Call navigate_to_MAXIS_screen("STAT", "ADDR")							'going to ADDR
 			EMReadScreen panel_addr_eff_date, 2, 4, 43								'reading addr effective date because we will need to compare it to the one provided in the dialog
 			EMReadScreen curr_addr_footer_month, 2, 20, 55							'reading the footer month and year on the panel because there is footer months pecific differences
 			EMReadScreen curr_addr_footer_year, 2, 20, 58
-			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year		'making a date out of the footer month
+			the_footer_month_date = curr_addr_footer_month &  "/01/" & curr_addr_footer_year		'making a date out of the footer month
 			the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
 			new_version = True														'defaulting to using the new verion of the panel with text authorization and email
 			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False	'if the footer months is BEFORE 10/1/2021, then we need to read the old version
 			panel_addr_eff_date = replace(panel_addr_eff_date, " ", "/")
+			panel_addr_eff_date = DateAdd("d", 0, panel_addr_eff_date)					'Ensuring date is in date format
 			If addr_eff_date < panel_addr_eff_date Then 				'handling to update the addr_eff_date if it is before the date already in the panel
 				day_different = TRUE
 				og_addr_eff = addr_eff_date
