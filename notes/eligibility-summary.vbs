@@ -24292,6 +24292,10 @@ If enter_CNOTE_for_GRH = True Then
 
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "Required to add GRH Supportive Housing Disregard to the budget as this process is not yet automated in the system."
 			End If
+			If GRH_ELIG_APPROVALS(elig_ind).all_income_disregarded = True Then
+				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month <> "" Then GRH_UNIQUE_APPROVALS(income_disregard_note, approval_selected) = "$ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month & " of Income in the month of application is unavailable to the resident and not counted."
+			End If
+
 			GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_sent, approval_selected) = False
 
 			ei_count = 0
