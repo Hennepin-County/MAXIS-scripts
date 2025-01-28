@@ -8377,7 +8377,10 @@ End if
 
 Call check_for_MAXIS(False)
 
-If need_to_update_addr = "True" then need_to_update_addr = True
+If need_to_update_addr = "True" then 
+	need_to_update_addr = True
+	If addr_verif = "__" OR addr_verif = "Blank" Then addr_verif = "OT"
+End If
 If need_to_update_addr = "False" then need_to_update_addr = False
 
 
