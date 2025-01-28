@@ -2528,7 +2528,14 @@ function define_grh_elig_dialog()
 
 			Text 15, y_pos+5, 85, 10, "GRH FIATed - Reason:"
 			EditBox 100, y_pos, 440, 15, GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected)
-			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+		If GRH_ELIG_APPROVALS(elig_ind).all_income_disregarded = True Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 115, 10, "GRH No Counted Income - Reason:"
+			EditBox 130, y_pos, 410, 15, GRH_UNIQUE_APPROVALS(income_disregard_note, approval_selected)
 			detail_grp_len = detail_grp_len + 20
 		End If
 
@@ -6480,6 +6487,7 @@ function grh_elig_case_note()
 	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", GRH_UNIQUE_APPROVALS(fiat_reason, unique_app))
+	Call write_bullet_and_variable_in_CASE_NOTE("All Income Disregarded", GRH_UNIQUE_APPROVALS(income_disregard_note, unique_app))
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("=============================== PAYMENT DETAILS =============================")
@@ -14464,6 +14472,7 @@ class grh_eligibility_detail
 	public hrf_status
 	public hrf_doc_date
 	public appears_supportive_housing_disregard_case
+	public all_income_disregarded
 
 	public grh_elig_memb_ref_numb
 	public grh_elig_memb_full_name
@@ -14708,6 +14717,7 @@ class grh_eligibility_detail
 		End If
 		If approved_today = True Then
 			appears_supportive_housing_disregard_case = True
+			all_income_disregarded = False
 			EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
 			EMReadScreen grh_elig_memb_full_name, 15, 6, 7
 			EMReadScreen grh_elig_memb_code, 1, 6, 24
@@ -14995,6 +15005,7 @@ class grh_eligibility_detail
 
 				transmit 		'go to next panel - GRFB'
 			End If
+			If grh_elig_budg_counted_income = "0.00" and grh_elig_budg_total_income <> "0.00" Then all_income_disregarded = True
 
 			EMReadScreen grh_elig_budg_vendor_number_one, 	8, 6, 25
 			EMReadScreen grh_elig_budg_total_days_one_one, 	8, 7, 25
@@ -15791,7 +15802,8 @@ class grh_eligibility_detail
 				PF3
 			End If
 			If supportive_housing_vendor = False Then appears_supportive_housing_disregard_case = False
-
+			'If there is no income at all, we don't need to flag an error for supportive housing disregard
+			If appears_supportive_housing_disregard_case = True and grh_elig_budg_counted_income = "0.00" Then appears_supportive_housing_disregard_case = False
 		End if
 
 		Call back_to_SELF
@@ -21931,7 +21943,8 @@ const proration_reason				= 40
 const fiat_reason					= 41
 const mfip_inelig_assess_SNAP		= 42
 const mfip_inelig_SNAP_note			= 43
-const approval_confirmed			= 44
+const income_disregard_note			= 44
+const approval_confirmed			= 45
 date_of_3050 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -24343,6 +24356,7 @@ If enter_CNOTE_for_GRH = True Then
 			move_from_dialog = False
 
 			GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected))
+			GRH_UNIQUE_APPROVALS(income_disregard_note, approval_selected) = trim(GRH_UNIQUE_APPROVALS(income_disregard_note, approval_selected))
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -24369,6 +24383,11 @@ If enter_CNOTE_for_GRH = True Then
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then
 					If GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
 						err_msg = err_msg & vbNewLine & "* Since the approval for GRH in " & GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+				If GRH_ELIG_APPROVALS(elig_ind).all_income_disregarded = True Then
+					If GRH_UNIQUE_APPROVALS(income_disregard_note, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for GRH in " & GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " had all income disregarded, an explanation of this disregard is needed."
 					End If
 				End If
 			End If
