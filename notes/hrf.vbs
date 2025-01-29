@@ -70,6 +70,30 @@ EMConnect "" 'Connecting to BlueZone
 Call MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing case number & footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'New dialog alerting worker to changes with implementation of six-month reporting for MFIP and GA
+Dialog1 = "" 'blanking out dialog name
+BeginDialog Dialog1, 0, 0, 191, 75, "HRF - Notice of Changes"
+  ButtonGroup ButtonPressed
+    OkButton 85, 55, 50, 15
+    CancelButton 135, 55, 50, 15
+    PushButton 5, 55, 65, 15, "Processing Guide", guide_btn						
+  Text 5, 5, 35, 10, "NOTICE:"
+  Text 5, 20, 180, 30, "Six-month budgeting will begin for MFIP and GA effective benefit month 03/25. Please review the processing guide linked below as needed."
+EndDialog
+
+DO
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation
+		If ButtonPressed = guide_btn Then
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhssir.cty.dhs.state.mn.us/Shared%20Documents/Guide%20to%20Six-Month%20Budgeting%20Final%20Version.pdf"	'copy the instructions URL here
+			err_msg = "LOOP"
+		End If
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
 Do
     Do
         '-------------------------------------------------------------------------------------------------DIALOG
