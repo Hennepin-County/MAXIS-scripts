@@ -1662,7 +1662,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         addr_eff_date = replace(addr_eff_date, " ", "/")						'formatting the information from the second half
         addr_future_date = trim(addr_future_date)
         addr_future_date = replace(addr_future_date, " ", "/")
-		addr_future_date = DateAdd("d", 0, addr_future_date)					'Ensuring date is in date format
+		If addr_future_date <> "" and IsDate(addr_future_date) Then addr_future_date = DateAdd("d", 0, addr_future_date)					'Ensuring date is in date format
         mail_line_one = replace(mail_line_one, "_", "")
         mail_line_two = replace(mail_line_two, "_", "")
 		mail_street_full = trim(mail_line_one & " " & mail_line_two)
