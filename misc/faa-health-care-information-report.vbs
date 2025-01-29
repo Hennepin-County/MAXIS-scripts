@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/29/2025", "Added SSN Match (Y/N) output and functionality to identify if unique SSN's match the original billed PMI.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2025", "Updated search criteria to ensure all members PMI's are found. Also added Reason code and code descriptions for the 1st eligibility span.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/18/2024", "Added Medicare start and end dates to the output report.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report for new plan: United HealthCare.", "Ilse Ferris, Hennepin County")
@@ -61,7 +62,6 @@ changelog_display
 'CONNECTS TO BlueZone
 EMConnect ""
 Call check_for_MMIS(False) 'ensuring we're in MMIS
-
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
@@ -125,8 +125,10 @@ const found_PMI_const           = 21
 const pmap_begin_const          = 22
 const pmap_end_const            = 23
 const pmap_name_const           = 24 
-const RSUM_PMI_const            = 25     
-const case_status               = 26 
+const RSUM_PMI_const            = 25   
+const SSN_const                 = 26 
+const SSN_match_const           = 27
+const case_status               = 28 
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -147,6 +149,7 @@ Do
         case_array(clt_PMI_const, entry_record) = Client_PMI
         
         case_array(first_name_adjusted, entry_record) = False 'setting default to false - need to handle these cases differently in RSEL panel search
+        case_array(SSN_match_const, entry_record) = "N" 
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
         all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding PMI to case number string
@@ -171,28 +174,29 @@ ObjExcel.Cells(1,  2).Value = "RSUM PMI"
 ObjExcel.Cells(1,  3).Value = "Last Name"
 ObjExcel.Cells(1,  4).Value = "First Name"
 ObjExcel.Cells(1,  5).Value = "DOB"
-ObjExcel.Cells(1,  6).Value = "Gender"
-ObjExcel.Cells(1,  7).Value = "1st Case"
-ObjExcel.Cells(1,  8).Value = "1st Type/Prog"
-ObjExcel.Cells(1,  9).Value = "1st Elig Dates"
-ObjExcel.Cells(1, 10).Value = "Reason Code"
-ObjExcel.Cells(1, 11).Value = "Reason Description"
-ObjExcel.Cells(1, 12).Value = "2nd Case"
-ObjExcel.Cells(1, 13).Value = "2nd Type/Prog"
-ObjExcel.Cells(1, 14).Value = "2nd Elig Dates"
-ObjExcel.Cells(1, 15).Value = "3rd Case"
-ObjExcel.Cells(1, 16).Value = "3rd Type/Prog"
-ObjExcel.Cells(1, 17).Value = "3rd Elig Dates"
-ObjExcel.Cells(1, 18).Value = "PMAP Start"
-ObjExcel.Cells(1, 19).Value = "PMAP End"
-ObjExcel.Cells(1, 20).Value = "PMAP Name"
-ObjExcel.Cells(1, 21).Value = "Medi A Begin"
-ObjExcel.Cells(1, 22).Value = "Med A End"
-ObjExcel.Cells(1, 23).Value = "Medi B Begin"
-ObjExcel.Cells(1, 24).Value = "Med B End"
-ObjExcel.Cells(1, 25).Value = "Status"
+ObjExcel.Cells(1,  6).Value = "SSN Match"
+ObjExcel.Cells(1,  7).Value = "Gender"
+ObjExcel.Cells(1,  8).Value = "1st Case"
+ObjExcel.Cells(1,  9).Value = "1st Type/Prog"
+ObjExcel.Cells(1, 10).Value = "1st Elig Dates"
+ObjExcel.Cells(1, 11).Value = "Reason Code"
+ObjExcel.Cells(1, 12).Value = "Reason Description"
+ObjExcel.Cells(1, 13).Value = "2nd Case"
+ObjExcel.Cells(1, 14).Value = "2nd Type/Prog"
+ObjExcel.Cells(1, 15).Value = "2nd Elig Dates"
+ObjExcel.Cells(1, 16).Value = "3rd Case"
+ObjExcel.Cells(1, 17).Value = "3rd Type/Prog"
+ObjExcel.Cells(1, 18).Value = "3rd Elig Dates"
+ObjExcel.Cells(1, 19).Value = "PMAP Start"
+ObjExcel.Cells(1, 20).Value = "PMAP End"
+ObjExcel.Cells(1, 21).Value = "PMAP Name"
+ObjExcel.Cells(1, 22).Value = "Medi A Begin"
+ObjExcel.Cells(1, 23).Value = "Med A End"
+ObjExcel.Cells(1, 24).Value = "Medi B Begin"
+ObjExcel.Cells(1, 25).Value = "Med B End"
+ObjExcel.Cells(1, 26).Value = "Status"
 
-FOR i = 1 to 25	'formatting the cells'
+FOR i = 1 to 27	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -241,12 +245,16 @@ For i = 0 to UBound(case_array, 2)
 
         EmReadscreen gender_code, 1, 8, 28
         case_array(gender_const, i) = gender_code
+
+        EMReadScreen RCIP_SSN, 9, 5, 28
+        case_array(SSN_const, i) = trim(RCIP_SSN)
     End if
 Next
 
 '----------------------------------------------------------------------------------------------------Health Care Information Report
 For i = 0 to UBound(case_array, 2)
     get_to_RKEY
+
     Call clear_line_of_text(4, 19)  'Clearing PMI
     Call clear_line_of_text(6, 19)  'Clearing Last Name
     Call clear_line_of_text(6, 48)  'Clearing First Name
@@ -277,6 +285,8 @@ For i = 0 to UBound(case_array, 2)
     
             EMReadScreen RSEL_DOB, 8, RSEL_row, 71
             EMReadScreen RSEL_PMI, 8, RSEL_row, 4
+
+            EMReadScreen RSEL_SSN, 9, RSEL_row, 48
             
             If trim(RSEL_last_name) = "" then 
                 exit do 
@@ -284,17 +294,30 @@ For i = 0 to UBound(case_array, 2)
                 If RSEL_last_name = Case_array(last_name_const, i) then 
                     client_DOB = replace(case_array(DOB_const, i), "/", "") 
                     If RSEL_DOB = client_DOB then 
+                        If RSEL_SSN <> "000000000" then 
+                            If case_array(SSN_const, i) <> "" then 
+                                If RSEL_SSN = case_array(SSN_const, i) then case_array(SSN_match_const, i) = "Y"
+                            End if  
+                        End if 
                         If instr(all_pmi_array, "*" & RSEL_PMI & "*") then
                             skip_case = True
                         Else 
                             ReDim Preserve case_array(case_status, entry_record)	'This resizes the array if more than one PMI is found. 
                             'The client information is added to the array
                             case_array(clt_PMI_const, entry_record) = case_array(clt_PMI_const, i)
+                            case_array(SSN_match_const, entry_record) = "N"
                             Case_array(found_PMI_const, entry_record) = RSEL_PMI
                             case_array(last_name_const, entry_record) = RSEL_last_name
                             Case_array(first_name_const, entry_record) = RSEL_first_name
                             case_array(DOB_const, entry_record) = case_array(DOB_const, i)
                             case_array(gender_const, entry_record) = case_array(gender_const, i)
+                            If RSEL_SSN <> "000000000" then
+                                If case_array(SSN_const, i) <> "" then 
+                                    If RSEL_SSN = case_array(SSN_const, i) then 
+                                        case_array(SSN_match_const, entry_record) = "Y"
+                                    End if 
+                                End if 
+                            End if 
                             entry_record = entry_record + 1			'This increments to the next entry in the array'
                             stats_counter = stats_counter + 1
                             all_pmi_array = trim(all_pmi_array & RSEL_PMI & "*") 
@@ -540,30 +563,31 @@ For i = 0 to UBound(case_array, 2)
     objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          i)
     objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         i)
     objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                i)
-    objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             i)
-    objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  i)
-    objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    i)
-    objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    i)
-    objExcel.Cells(excel_row, 10).Value = case_array (reason_code_const, 	    i)
-    objExcel.Cells(excel_row, 11).Value = case_array (reason_def_const, 	    i)
-    objExcel.Cells(excel_row, 12).Value = case_array (second_case_number_const, i)
-    objExcel.Cells(excel_row, 13).Value = case_array (second_type_const, 	    i)
-    objExcel.Cells(excel_row, 14).Value = case_array (second_elig_const, 	    i)
-    objExcel.Cells(excel_row, 15).Value = case_array (third_case_number_const,  i)
-    objExcel.Cells(excel_row, 16).Value = case_array (third_type_const,      	i)
-    objExcel.Cells(excel_row, 17).Value = case_array (third_elig_const,         i)
-    objExcel.Cells(excel_row, 18).Value = case_array (pmap_begin_const,         i)
-    objExcel.Cells(excel_row, 19).Value = case_array (pmap_end_const,           i)
-    objExcel.Cells(excel_row, 20).Value = case_array (pmap_name_const,          i)
-    objExcel.Cells(excel_row, 21).Value = case_array (medi_A_begin,             i)
-    objExcel.Cells(excel_row, 22).Value = case_array (medi_A_end,               i)
-    objExcel.Cells(excel_row, 23).Value = case_array (medi_B_begin,             i)
-    objExcel.Cells(excel_row, 24).Value = case_array (medi_B_end,               i)
-    objExcel.Cells(excel_row, 25).Value = case_array (case_status,              i)
+    objExcel.Cells(excel_row,  6).Value = case_array (SSN_match_const,          i)
+    objExcel.Cells(excel_row,  7).Value = case_array (gender_const,             i)
+    objExcel.Cells(excel_row,  8).Value = case_array (first_case_number_const,  i)
+    objExcel.Cells(excel_row,  9).Value = case_array (first_type_const, 	    i)
+    objExcel.Cells(excel_row, 10).Value = case_array (first_elig_const, 	    i)
+    objExcel.Cells(excel_row, 11).Value = case_array (reason_code_const, 	    i)
+    objExcel.Cells(excel_row, 12).Value = case_array (reason_def_const, 	    i)
+    objExcel.Cells(excel_row, 13).Value = case_array (second_case_number_const, i)
+    objExcel.Cells(excel_row, 14).Value = case_array (second_type_const, 	    i)
+    objExcel.Cells(excel_row, 15).Value = case_array (second_elig_const, 	    i)
+    objExcel.Cells(excel_row, 16).Value = case_array (third_case_number_const,  i)
+    objExcel.Cells(excel_row, 17).Value = case_array (third_type_const,      	i)
+    objExcel.Cells(excel_row, 18).Value = case_array (third_elig_const,         i)
+    objExcel.Cells(excel_row, 19).Value = case_array (pmap_begin_const,         i)
+    objExcel.Cells(excel_row, 20).Value = case_array (pmap_end_const,           i)
+    objExcel.Cells(excel_row, 21).Value = case_array (pmap_name_const,          i)
+    objExcel.Cells(excel_row, 22).Value = case_array (medi_A_begin,             i)
+    objExcel.Cells(excel_row, 23).Value = case_array (medi_A_end,               i)
+    objExcel.Cells(excel_row, 24).Value = case_array (medi_B_begin,             i)
+    objExcel.Cells(excel_row, 25).Value = case_array (medi_B_end,               i)
+    objExcel.Cells(excel_row, 26).Value = case_array (case_status,              i)
     excel_row = excel_row + 1
 Next
 
-FOR i = 1 to 25		'formatting the cells
+FOR i = 1 to 27		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
