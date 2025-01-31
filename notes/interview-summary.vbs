@@ -289,19 +289,9 @@ function check_for_errors(interview_questions_clear)
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
 			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
-			If IsDate(signature_date) = False Then
-				err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		If second_signature_detail = "Signature Completed" OR second_signature_detail  = "Accepted Verbally" Then
 			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
-			If IsDate(second_signature_date) = False Then
-				err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
-			Else
-				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
-			End If
 		End If
 		'Interview date must be a date and not in the future
 		If IsDate(interview_date) = False Then
@@ -658,18 +648,13 @@ function define_main_dialog()
 		    Text 10, 85, 90, 10, "Signature of Primary Adult"
 		    ComboBox 105, 80, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
 		    Text 220, 85, 25, 10, "person"
-		    ComboBox 250, 80, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
-		    Text 375, 85, 20, 10, "date"
-		    EditBox 400, 80, 50, 15, signature_date
+		    ComboBox 250, 80, 200, 45, all_the_clients+chr(9)+signature_person, signature_person
 		    Text 10, 105, 90, 10, "Signature of Other Adult"
 		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+second_signature_detail, second_signature_detail
 		    Text 220, 105, 25, 10, "person"
-		    ComboBox 250, 100, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
-		    Text 375, 105, 20, 10, "date"
-		    EditBox 400, 100, 50, 15, second_signature_date
+		    ComboBox 250, 100, 200, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 
-			Text 10, 125, 130, 10, "Resident signature accepted verbally?"
-			DropListBox 135, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 10, 125, 320, 20, "Only select 'Accepted Verbally' if you are the one accepting the signature verbally. For signatures accepted by another worker, indicate the signature as completed."
 			Text 335, 125, 50, 10, "Interview Date:"
 			EditBox 390, 120, 60, 15, interview_date
 
@@ -1742,6 +1727,10 @@ function save_your_work()
 			objTextStream.WriteLine "SIG - 06 - " & second_signature_date
 			objTextStream.WriteLine "SIG - 07 - " & client_signed_verbally_yn
 			objTextStream.WriteLine "SIG - 08 - " & interview_date
+			objTextStream.WriteLine "SIG - 09 - " & verbal_sig_date
+			objTextStream.WriteLine "SIG - 10 - " & verbal_sig_time
+			objTextStream.WriteLine "SIG - 11 - " & verbal_sig_phone_number
+
 			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
 			objTextStream.WriteLine "ASSESS - 02 - " & exp_snap_delays
 			objTextStream.WriteLine "ASSESS - 03 - " & snap_denial_date
@@ -2069,7 +2058,11 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 05 - " & second_signature_person
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 06 - " & second_signature_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 07 - " & client_signed_verbally_yn
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 09 - " & verbal_sig_date
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 10 - " & verbal_sig_time
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 11 - " & verbal_sig_phone_number & vbCr & vbCr
+
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 01 - " & exp_snap_approval_date
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 02 - " & exp_snap_delays
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 03 - " & snap_denial_date
@@ -2456,6 +2449,9 @@ function restore_your_work(vars_filled)
 					If left(text_line, 8) = "SIG - 06" Then second_signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 07" Then client_signed_verbally_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 08" Then interview_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 09" Then verbal_sig_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 10" Then verbal_sig_time = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 11" Then verbal_sig_phone_number	 = Mid(text_line, 12)
 
 					If left(text_line, 11) = "ASSESS - 01" Then exp_snap_approval_date = Mid(text_line, 15)
 					If left(text_line, 11) = "ASSESS - 02" Then exp_snap_delays = Mid(text_line, 15)
@@ -2806,6 +2802,18 @@ function restore_your_work(vars_filled)
 	End With
 end function
 
+function review_information()
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		If verbal_sig_date = "" Then verbal_sig_date = date & ""
+		If verbal_sig_time = "" Then
+			time_hr = DatePart("h", time)
+			time_min = DatePart("n", time)
+			verbal_sig_time = time_hr & ":" & time_min
+			verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+			verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+		End If
+	End If
+end function
 
 function verification_dialog()
     If ButtonPressed = verif_button Then
@@ -3174,7 +3182,13 @@ function write_interview_CASE_NOTE()
 	If trim(non_applicant_interview_info) <> "" Then CALL write_variable_in_CASE_NOTE("Interviewee Information: " & non_applicant_interview_info)
 	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date)
 	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
-
+	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+		CALL write_variable_in_CASE_NOTE("* * Verbal Signature Accepted during interview for:")
+		If signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & signature_person)
+		If second_signature_detail = "Accepted Verbally" Then CALL write_variable_in_CASE_NOTE("    - MEMB " & second_signature_person)
+		CALL write_variable_in_CASE_NOTE("    Signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & ".")
+		CALL write_variable_in_CASE_NOTE("    Resident Phone Number: " & verbal_sig_phone_number)
+	End If
 	CALL write_variable_in_CASE_NOTE("Interview Programs:")
 
 	If cash_request = True Then
@@ -4754,7 +4768,6 @@ Dim other_expenses_info, assets_info, other_notes_info, form_changes_info
 Dim rights_responsibilities_checkbox, privacy_practices_checkbox, ebt_card_checkbox, complaints_civil_rights_checkbox
 Dim reporting_resp_checkbox, program_info_checkbox, child_support_info_checkbox, mfip_minor_caregiver_checkbox
 Dim renewal_info_checkbox, ievs_info_checkbox, appeal_rights_checkbox
-
 Dim show_case_info
 
 
@@ -5512,6 +5525,8 @@ Do
 				dialog Dialog1
 				save_your_work
 				cancel_confirmation
+
+				review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
@@ -5536,6 +5551,54 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+
+phone_droplist = "Select or Type"
+If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
+If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_number
+If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
+phone_droplist = phone_droplist+chr(9)+phone_number_selection
+
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	If verbal_sig_date = "" or verbal_sig_time = "" or verbal_sig_phone_number = "" Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 246, 200, "Verbal Signature Record"
+			If signature_detail = "Accepted Verbally" Then Text 20, 20, 185, 10, "MEMB " & signature_person
+			If second_signature_detail = "Accepted Verbally" Then Text 20, 30, 185, 10, "MEMB " & second_signature_person
+			Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
+			Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
+			Text 20, 75, 105, 10, "Signature was accepted at:"
+			Text 25, 95, 20, 10, "Date: "
+			Text 25, 115, 20, 10, "Time: "
+			EditBox 50, 90, 50, 15, verbal_sig_date
+			EditBox 50, 110, 50, 15, verbal_sig_time
+			Text 20, 140, 85, 10, "Resident Phone Number:"
+			ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
+			Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
+			ButtonGroup ButtonPressed
+				OkButton 190, 180, 50, 15
+		EndDialog
+
+		Do
+			err_msg = ""
+			dialog Dialog1
+			cancel_confirmation
+
+			If IsDate(verbal_sig_date) = False Then err_msg = err_msg & vbCr & "* Enter the date you accepted the verbal signature."
+			If IsDate(verbal_sig_time) = True Then
+				verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+				If InStr(verbal_sig_time, ":") = 0 Then err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+				verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+			Else
+				err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+			End If
+			If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
+
+			If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+		Loop until err_msg = ""
+		save_your_work
+	End If
+End If
 
 Call check_for_MAXIS(False)
 
