@@ -285,11 +285,11 @@ Do
 		additional_interviewer_note = False
 
 		interviewer_name =  trim(ObjExcel.Cells(excel_row, Interview_Worker_COL))
-		interviewer_x_number = ""
+		interviewer_mx_number = ""
 		run_by_interview_team = False										'Default the interview team option to false
 		For each worker in interviewer_array 								'loop through all of the workers listed in the interviewer_array
 			If UCase(interviewer_name) = UCase(worker.interviewer_full_name) Then
-				interviewer_x_number = UCase(worker.interviewer_x_number)
+				interviewer_mx_number = UCase(worker.interviewer_x_number)
 				Exit For
 			End If
 		Next
@@ -317,7 +317,7 @@ Do
 				If left(note_title, 16) = "MFIP Orientation" Then exclude_this_note = True
 				If note_title = "**AREP removed**" Then exclude_this_note = True
 				If note_title = "Phone Interview Attempted but Interview NOT Completed" Then exclude_this_note = True
-				If interviewer_x_number = note_worker Then exclude_this_note = True		'we are not interested in notes by the interviewing worker.
+				If interviewer_mx_number = note_worker Then exclude_this_note = True		'we are not interested in notes by the interviewing worker.
 				If note_worker = "X127L1S" Then exclude_this_note = True
 				If note_worker = "X127DC6" Then exclude_this_note = True
 				If note_worker = "X127MR7" Then exclude_this_note = True
@@ -325,6 +325,22 @@ Do
 				If left(note_title, 23) = "~ HC Pended from a METS" Then exclude_this_note = True
 				If left(note_title, 32) = "~ Received Application for SNAP," Then exclude_this_note = True
 				If left(note_title, 33) = "~ Appointment letter sent in MEMO" Then exclude_this_note = True
+				If InStr(note_title, " EBT TRX ") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "MONY/CHCK ISSUED ON ") <> 0 Then exclude_this_note = True
+				If InStr(note_title, " PARIS Match (") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "Paris match -  ") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "WAGE MATCH (") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "WAGE MATCH(") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "-----Appeal ") <> 0 Then exclude_this_note = True
+				If InStr(note_title, "DISB ") <> 0 and note_worker = "CS DAIL" Then exclude_this_note = True
+				If left(note_worker, 2) = "PW" Then exclude_this_note = True
+				If left(note_title, 25) = "Client picked up EBT card" Then exclude_this_note = True
+				If note_title = "EDRS RAN FOR THE CASE" Then exclude_this_note = True
+				If left(note_title, 22) = "DD set on this account" Then exclude_this_note = True
+				If left(note_title, 13) = "*** EX PARTE " Then exclude_this_note = True
+				If note_title = "~ Client has not completed application interview, NOMI" Then exclude_this_note = True
+
+				' MsgBox "interviewer_mx_number - " & interviewer_mx_number & vbCr & "note_worker - " & note_worker
 
 				If Instr(note_title, " HUF for ") <> 0 or Instr(note_title, " CAF for ") <> 0 Then
 					CAF_date = note_date
@@ -337,11 +353,31 @@ Do
 				ElseIf InStr(note_title, "DENIAL of ") <> 0 Then
 					PND2_denial_date = note_date
 				ElseIF exclude_this_note = False Then
-					FollowUp_date = note_date
-					FollowUp_worker = note_worker
-					FollowUp_text = note_title
-				ElseIf interviewer_x_number = note_worker Then
-					If note_title <> "Processing Needed: follow up notes from Interview" and note_title <> "~~~continued from previous note~~~" and note_title <> "~ Interview Completed on 1/15/2025 ~" and note_title <> "VERIFICATIONS REQUESTED" and note_title <> "Expedited Determination: SNAP appears expedited" and note_title <> "INTERVIEW INCOMPLETE - Attempt made but additional deta" Then
+					additional_contact_with_interview_team = False
+					For each worker in interviewer_array 								'loop through all of the workers listed in the interviewer_array
+						' MsgBox "NOTE WORKER - " & note_worker & vbCr & vbCr & "worker x number - " & worker.interviewer_x_number & vbCr & "trainer - " & worker.interview_trainer
+						If worker.interview_trainer = False and UCase(worker.interviewer_x_number) <> "X127XXX" and worker.interviewer_x_number <> "" Then
+							If note_worker = UCase(worker.interviewer_x_number) Then
+								' MsgBox "MATCH !!!" & vbCr & vbCr & "NOTE WORKER - " & note_worker & vbCr & vbCr & "worker x number - " & worker.interviewer_x_number & vbCr & "trainer - " & worker.interview_trainer
+								additional_contact_with_interview_team = True
+								Contact_date = note_date
+								Contact_worker = note_worker
+								Contact_text = note_title
+								Contact_count = Contact_count + 1
+								Exit Do
+							End If
+						End If
+					Next
+					If additional_contact_with_interview_team = False Then
+						FollowUp_date = note_date
+						FollowUp_worker = note_worker
+						FollowUp_text = note_title
+					End If
+				ElseIf interviewer_mx_number = note_worker Then
+					' MsgBox "MATCH !!!" & vbCr & vbCr & "interviewer_mx_number - " & interviewer_mx_number & vbCr & "note_worker - " & note_worker & vbCr & vbCr & "note_title - " & note_title
+
+					If note_title <> "Processing Needed: follow up notes from Interview" and note_title <> "~~~continued from previous note~~~" and left(note_title, 24) <> "~ Interview Completed on" and note_title <> "VERIFICATIONS REQUESTED" and left(note_title, 25) <> "Expedited Determination: " and note_title <> "INTERVIEW INCOMPLETE - Attempt made but additional deta" Then
+						' MsgBox "SAVE !!!" & vbCr & vbCr & "interviewer_mx_number - " & interviewer_mx_number & vbCr & "note_worker - " & note_worker & vbCr & vbCr & "note_title - " & note_title
 						additional_interviewer_note = True
 					End If
 				End If
