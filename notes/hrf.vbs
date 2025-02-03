@@ -1623,7 +1623,7 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 		If pay_frequency = "3" then pay_frequency = "biweekly"
 		If pay_frequency = "4" then pay_frequency = "weekly"
 		If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
-		If pay_frequency <> "monthly" then script_end_procedure("This JOBS panel needs to be updated to a monthly ")
+		If pay_frequency <> "monthly" then JOBS_panel_error_message = JOBS_panel_error_message & "The pay frequency is not currently monthly (1). Update the panel to reflect a monthly (1) frequency. Please update and then rerun this script." & VbCR & vbCr
 		IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
 		IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
 		IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
@@ -3014,7 +3014,7 @@ Else
 
 		'Enters the case note-----------------------------------------------------------------------------------------------
 		start_a_blank_CASE_NOTE
-		Call write_variable_in_case_note("***" & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
+		Call write_variable_in_case_note("***6 month budget conversion, " & HRF_month & " HRF received " & HRF_datestamp & ": " & HRF_status & "***")
 		call write_bullet_and_variable_in_case_note("Programs", programs_list)
 		call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 		call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
