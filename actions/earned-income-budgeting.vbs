@@ -5439,14 +5439,20 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 									End If
 								End If
 
-								EMReadScreen total_hours, 3, 18, 72
-								total_hours = trim(total_hours)
-								total_hours = replace(total_hours, "_", "")
-								If total_hours = "" Then total_hours = 0
-								total_hours = total_hours * 1
-								CASH_MONTHS_ARRAY(mo_prosp_hrs, next_cash_month) = total_hours          'saving the information to the array
-								CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = FormatNumber(CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month), 2,,0)
 							End If
+							EMReadScreen total_hours, 3, 18, 72
+							total_hours = trim(total_hours)
+							total_hours = replace(total_hours, "_", "")
+							If total_hours = "" Then total_hours = 0
+							total_hours = total_hours * 1
+							CASH_MONTHS_ARRAY(mo_prosp_hrs, next_cash_month) = total_hours          'saving the information to the array
+
+							transmit
+							EMReadScreen gross_prosp_amount, 8, 17, 67
+							gross_prosp_amount = trim(gross_prosp_amount)
+							If gross_prosp_amount = "" Then gross_prosp_amount = 0
+							CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = FormatNumber(gross_prosp_amount, 2,,0)
+
                             next_cash_month = next_cash_month + 1       'this is for incrementing the array for the next loop
                         End If          'If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked OR UH_SNAP = TRUE Then
                     End If          'If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
