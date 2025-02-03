@@ -113,12 +113,20 @@ function end_script_run_due_to_error(reason)
 			y_pos = 90
 		End If
 		If reason = "SNAP MONTHLY" Then
-			Text 20, 35, 165, 10, "SNAP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+			Text 20, 35, 165, 10, "SNAP Approval Month: " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_year
 			Text 45, 45, 105, 10, "Reporting Status: " & SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_reporting_status
 			Text 45, 55, 200, 20, "JOBS update and SNAP FIAT is explained in the Guide linked in the button below."
 			Text 5, 85, 265, 10, "* * * Six-Month Reporting on UHFS eliminates Monthly Reporting (HRF) * * *"
 			y_pos = 100
 		End If
+		If reason = "GA MONTHLY" Then
+			Text 20, 35, 165, 10, "GA Approval Month: " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & "/" & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year
+			Text 45, 45, 105, 10, "Reporting Status: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_hrf_reporting
+			Text 45, 55, 200, 20, "JOBS update and GA FIAT is explained in the Guide linked in the button below."
+			Text 5, 85, 265, 10, "* * * Six-Month Reporting on GA eliminates Monthly Reporting (HRF) * * *"
+			y_pos = 100
+		End If
+
 		Text 10, y_pos, 90, 10, "The script will now end."
 		Text 10, y_pos+10, 260, 10, "Please resolve the eligibility, then reapprove before running the script again."
 		Text 10, y_pos+25, 260, 10, "The script will send a report that this error triggered."
@@ -160,6 +168,8 @@ function end_script_run_due_to_error(reason)
 		close_msg = "Script run ended due to UHFS being approved with MONTHLY reporting status."
 	End If
 	If reason = "GA MONTHLY" Then
+		script_run_lowdown = script_run_lowdown & vbCr & "GA Approval Month: " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & "/" & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year
+		script_run_lowdown = script_run_lowdown & vbCr & "Reporting Status: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_hrf_reporting
 
 		close_msg = "Script run ended due to GA being approved with MONTHLY reporting status."
 	End If
@@ -20658,6 +20668,13 @@ For each footer_month in MONTHS_ARRAY
 		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
 			If first_GA_approval = "" Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
+				If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_hrf_reporting = "MONTHLY" Then
+					If DateDiff("d", #3/1/2025#, footer_month_date) >=0 Then
+						call end_script_run_due_to_error("GA MONTHLY")
+					End If
+				End If
+			End If
 			If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(GA_app_const, month_count) = GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
 		ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).approved_version_found = True Then
