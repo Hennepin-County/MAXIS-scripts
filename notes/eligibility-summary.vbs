@@ -100,6 +100,79 @@ QCR_MSA_Shelter_Needy = True
 QCR_MSA_SSI_Ended = True
 	QCR_MSA_SSI_Ended_String = ""
 ' ------------------------------------------------------------------------------
+function end_script_run_due_to_error(reason)
+	Dialog1 = ""
+	dlg_len = 160
+	BeginDialog Dialog1, 0, 0, 276, 200, "Error in Approval"
+		Text 65, 5, 160, 20, "The approval completed appears to have an error that needs to adjusted and the benefit reapproved."
+		If reason = "MFIP SUSPENDED" Then
+			Text 20, 35, 165, 10, "MFIP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+			Text 47, 45, 105, 10, "Earned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_monthly_earned_income
+			Text 40, 55, 100, 10, "Unearned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_unearned_income
+			Text 5, 75, 265, 10, "* * * Six-Month Reporting on MFIP eliminates allowance for Suspended Approvals * * *"
+			y_pos = 90
+		End If
+		Text 10, y_pos, 90, 10, "The script will now end."
+		Text 10, y_pos+10, 260, 10, "Please resolve the eligibility, then reapprove before running the script again."
+		Text 10, y_pos+25, 260, 10, "The script will send a report that this error triggered."
+		Text 10, y_pos+35, 260, 10, "Enter any details to report (not required):"
+		EditBox 10, y_pos+45, 260, 15, error_details_from_worker
+		ButtonGroup ButtonPressed
+			OkButton 220, 180, 50, 15
+			If reason = "MFIP SUSPENDED" Then PushButton 10, 180, 150, 15, "Six-Month Reporting Workaround Guide", workaround_guide_btn
+	EndDialog
+
+
+	Do
+		err_msg = ""
+
+		dialog Dialog1
+
+		If ButtonPressed = workaround_guide_btn Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhssir.cty.dhs.state.mn.us/Shared%20Documents/Guide%20to%20Six-Month%20Budgeting%20Final%20Version.pdf"
+		End If
+
+	Loop until err_msg = ""
+
+
+	error_details_from_worker = trim(error_details_from_worker)
+	script_run_lowdown = script_run_lowdown & vbCr & "INFORMATION FROM WORKER: " & error_details_from_worker & vbCr
+
+	If reason = "MFIP SUSPENDED" Then
+		script_run_lowdown = script_run_lowdown & vbCr & "MFIP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+		script_run_lowdown = script_run_lowdown & vbCr & "Earned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_monthly_earned_income
+		script_run_lowdown = script_run_lowdown & vbCr & "Unearned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_unearned_income
+
+		close_msg = "Script run ended due to an apparent error in the MFIP approval with benefits being suspended."
+	End If
+
+	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+	subject_of_email = "ELIG SUMM -- Ended for " & reason & " Error - Case " & MAXIS_case_number & " (Automated Report)"
+    full_text = "Script Run occurred on " & date & " at " & time & vbCr
+
+	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_active_programs
+	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_pending_programs & vbCr
+
+	full_text = full_text & vbCr & "numb_DWP_versions - " & numb_DWP_versions
+	full_text = full_text & vbCr & "numb_MFIP_versions - " & numb_MFIP_versions
+	full_text = full_text & vbCr & "numb_MSA_versions - " & numb_MSA_versions
+	full_text = full_text & vbCr & "numb_GA_versions - " & numb_GA_versions
+	full_text = full_text & vbCr & "numb_CASH_denial_versions - " & numb_CASH_denial_versions
+	full_text = full_text & vbCr & "numb_GRH_versions - " & numb_GRH_versions
+	full_text = full_text & vbCr & "numb_SNAP_versions - " & numb_SNAP_versions
+
+	full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+	If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
+	attachment_here = ""
+
+	Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
+
+	close_msg = close_msg & vbCr & "Script cannot continue with this error."
+	close_msg = close_msg & vbCr & vbCr & "Error detail has been sent for review."
+	call script_end_procedure(close_msg)
+end function
 
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
@@ -5041,6 +5114,9 @@ function mfip_elig_case_note()
 	CASE_NOTE_entered = True
 	call start_a_blank_case_note
 
+	footer_month_date = MFIP_ELIG_APPROVALS(elig_ind).elig_footer_month & "/1/" & MFIP_ELIG_APPROVALS(elig_ind).elig_footer_year
+	footer_month_date = DateAdd("d", 0, footer_month_date)
+
 	end_msg_info = end_msg_info & "NOTE entered for MFIP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
@@ -5103,8 +5179,13 @@ function mfip_elig_case_note()
 			Call write_variable_in_CASE_NOTE("*** MFIP Budget includes an ALLOCATION ****")
 			Call write_variable_in_CASE_NOTE("    Details: " & MFIP_UNIQUE_APPROVALS(allocation_notes, unique_app))
 		End If
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Call write_variable_in_CASE_NOTE("------- PROPSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "RETRO" Then Call write_variable_in_CASE_NOTE("------ RETROSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
+		If DateDiff("d", #3/1/2025#, footer_month_date) >=0 Then
+			Call write_variable_in_CASE_NOTE("- MFIP uses prospective budgeting for all cases starting 03/25 - ")
+			Call write_variable_in_CASE_NOTE("------- PROPSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
+		Else
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Call write_variable_in_CASE_NOTE("------- PROPSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "RETRO" Then Call write_variable_in_CASE_NOTE("------ RETROSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
+		End If
 		Call write_variable_in_CASE_NOTE("Earned Income:                      |          Family Wage Level: $ " & right("        " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level, 8))
 
 		earned_info = "|          (-) Earned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income, 8)
@@ -5474,10 +5555,16 @@ function mfip_elig_case_note()
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 	Call write_variable_in_CASE_NOTE("MFIP Status:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_current_prog_status)
-	Call write_variable_in_CASE_NOTE("Budget Cycle:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle)
+	If DateDiff("d", #3/1/2025#, footer_month_date) < 0 Then
+		Call write_variable_in_CASE_NOTE("Budget Cycle:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle)
+	End If
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
-		Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting)
+		If  DateDiff("d", #3/1/2025#, footer_month_date) >=0 and MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting = "MONTHLY" Then
+			Call write_variable_in_CASE_NOTE("Reporting Status will be SIX-MONTH as new policy is implemented.")
+		Else
+			Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting)
+		End If
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_review_date)
 	End If
 	If MFIP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(process_for_note, unique_app))
@@ -20482,12 +20569,20 @@ For each footer_month in MONTHS_ARRAY
 
 		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month = MAXIS_footer_month
 		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year = MAXIS_footer_year
+		footer_month_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+		footer_month_date = DateAdd("d", 0, footer_month_date)
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
 
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
 			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "SUSPENDED" Then
+				If DateDiff("d", #3/1/2025#, footer_month_date) >=0 Then
+					call navigate_to_MAXIS_screen("ELIG", "MFIP")
+					call end_script_run_due_to_error("MFIP SUSPENDED")
+				End If
+			End If
 			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
 			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_sig_change = True Then sig_change_months = sig_change_months & MAXIS_footer_month & "/" & MAXIS_footer_year & " "
@@ -22615,6 +22710,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_food_portion_deduct <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction Then match_last_benefit_amounts = False
 				If last_info_source <> MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info Then match_last_benefit_amounts = False
 				If last_sig_change <> MFIP_ELIG_APPROVALS(approval).mfip_sig_change Then match_last_benefit_amounts = False
+				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year = "03/25" Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
