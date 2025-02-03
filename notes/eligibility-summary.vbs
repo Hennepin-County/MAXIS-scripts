@@ -112,6 +112,13 @@ function end_script_run_due_to_error(reason)
 			Text 5, 75, 265, 10, "* * * Six-Month Reporting on MFIP eliminates allowance for Suspended Approvals * * *"
 			y_pos = 90
 		End If
+		If reason = "SNAP MONTHLY" Then
+			Text 20, 35, 165, 10, "SNAP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+			Text 45, 45, 105, 10, "Reporting Status: " & SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_reporting_status
+			Text 45, 55, 200, 20, "JOBS update and SNAP FIAT is explained in the Guide linked in the button below."
+			Text 5, 85, 265, 10, "* * * Six-Month Reporting on UHFS eliminates Monthly Reporting (HRF) * * *"
+			y_pos = 100
+		End If
 		Text 10, y_pos, 90, 10, "The script will now end."
 		Text 10, y_pos+10, 260, 10, "Please resolve the eligibility, then reapprove before running the script again."
 		Text 10, y_pos+25, 260, 10, "The script will send a report that this error triggered."
@@ -119,7 +126,7 @@ function end_script_run_due_to_error(reason)
 		EditBox 10, y_pos+45, 260, 15, error_details_from_worker
 		ButtonGroup ButtonPressed
 			OkButton 220, 180, 50, 15
-			If reason = "MFIP SUSPENDED" Then PushButton 10, 180, 150, 15, "Six-Month Reporting Workaround Guide", workaround_guide_btn
+			If reason = "MFIP SUSPENDED" or reason = "SNAP MONTHLY" or reason = "GA MONTHLY" Then PushButton 10, 180, 150, 15, "Six-Month Reporting Workaround Guide", workaround_guide_btn
 	EndDialog
 
 
@@ -145,6 +152,16 @@ function end_script_run_due_to_error(reason)
 		script_run_lowdown = script_run_lowdown & vbCr & "Unearned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_unearned_income
 
 		close_msg = "Script run ended due to an apparent error in the MFIP approval with benefits being suspended."
+	End If
+	If reason = "SNAP MONTHLY" Then
+		script_run_lowdown = script_run_lowdown & vbCr & "SNAP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+		script_run_lowdown = script_run_lowdown & vbCr & "Reporting Status: " & SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_reporting_status
+
+		close_msg = "Script run ended due to UHFS being approved with MONTHLY reporting status."
+	End If
+	If reason = "GA MONTHLY" Then
+
+		close_msg = "Script run ended due to GA being approved with MONTHLY reporting status."
 	End If
 
 	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
@@ -20747,12 +20764,23 @@ For each footer_month in MONTHS_ARRAY
 
 		SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month = MAXIS_footer_month
 		SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_year = MAXIS_footer_year
+		footer_month_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+		footer_month_date = DateAdd("d", 0, footer_month_date)
 
 		Call SNAP_ELIG_APPROVALS(snap_elig_months_count).read_elig
 
 		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
 			If first_SNAP_approval = "" Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+
+			If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result = "ELIGIBLE" Then
+				If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_uhfs and SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_reporting_status = "MONTHLY" Then
+					If DateDiff("d", #3/1/2025#, footer_month_date) >=0 Then
+						call end_script_run_due_to_error("SNAP MONTHLY")
+					End If
+				End If
+			End If
+
 			If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result = "INELIGIBLE" Then ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(SNAP_app_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result
 		ElseIf SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_version_found = True Then
