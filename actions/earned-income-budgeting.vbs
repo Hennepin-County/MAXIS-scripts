@@ -4211,8 +4211,7 @@ For the_panel = 0 to UBound(EARNED_INCOME_PANELS_ARRAY, 2)
 	If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked Then hc_checked_on_panel = True
 Next
 
-
-If CASH_case = TRUE and cash_checked_on_panel = True Then
+If CASH_case = TRUE or cash_checked_on_panel = True Then
 	If cash_one_prog = "MF" or cash_two_prog = "MF" Then
 		code_for_six_month_reporting_workaround = True
 		cash_workaround_mfip = True
@@ -4224,13 +4223,12 @@ If CASH_case = TRUE and cash_checked_on_panel = True Then
 	If cash_one_status = "PEND" Then ask_about_cash_prog = True
 	If cash_two_status = "PEND" Then ask_about_cash_prog = True
 End If
-If SNAP_case = TRUE and snap_checked_on_panel = True Then
+If (cash_checked_on_panel = True or CASH_case = TRUE) and cash_workaround_mfip = False and cash_workaround_ga = False Then ask_about_cash_prog = True
+
+If SNAP_case = TRUE or snap_checked_on_panel = True Then
 	If UH_SNAP = TRUE Then code_for_six_month_reporting_workaround = True
 End If
-If code_for_six_month_reporting_workaround = False Then
-	If cash_checked_on_panel = False Then ask_about_cash_prog = True
-	If snap_checked_on_panel = False and UH_SNAP = TRUE Then code_for_six_month_reporting_workaround = True
-End If
+
 If code_for_six_month_reporting_workaround = False and ask_about_cash_prog = True Then
 	'put dialog to ask which cash program here
 	Dialog1 = ""
@@ -4751,7 +4749,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         EMWriteScreen left(EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel), 1), 6, 34
                         EMWriteScreen "      ", 6, 75       'this blanks out the wage otherwise there is carryover and 10.00 becomes 100.00 - which is not correct
                         EMWriteScreen EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel), 6, 75
-                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 18, 35
+                        EMWriteScreen left(EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 1), 18, 35
 						If code_for_six_month_reporting_workaround = True Then EMWriteScreen "1", 18, 35
                         updates_to_display = updates_to_display & vbNewLine & "Income type: " & EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel) & " - Verification: " & EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) & vbNewLine & "Hourly wage: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & "/hr. Pay Frequency: " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
 
