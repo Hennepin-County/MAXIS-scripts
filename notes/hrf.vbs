@@ -1550,9 +1550,6 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 		new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
 		End if
 	Next
-	'Read if pay frequency set to 1 on JOBS panel
-	EMReadScreen JOBS_pay_frequency, 1, 18, 35
-	If JOBS_pay_frequency <> "1" then JOBS_panel_error_message = JOBS_panel_error_message & "The pay frequency must be changed to 1 on the JOBS panel. It is currently " & JOBS_pay_frequency & "." & VbCR & vbCr
 	
 	'Read the prospective and retrospective amounts. Ensure they are the same and that there are no lines filled out besides the first
 	EmReadScreen JOBS_panel_retro_pay_amount, 8, 12, 38
@@ -1617,12 +1614,17 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
 	If IsDate(JOBS_income_end_date) = True then
 		variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
+		'If the job has ended, then we are not concerned with the pay frequency. However, we want to make sure that the prospective and retrospective lines are blank or zero
+		If (JOBS_panel_retro_pay_amount <> "________" and JOBS_panel_retro_pay_amount <> "0.00") or (JOBS_panel_prosp_pay_amount <> "________" and JOBS_panel_prosp_pay_amount <> "0.00") then
+			JOBS_panel_error_message = JOBS_panel_error_message & "This JOBS panel has an income end date. Therefore, the prospective and retrospective Gross Wage fields should both be set to '0.00' or should be blank. Please update and then rerun this script." & VbCR & vbCr
+		End If
 	Else
 		If pay_frequency = "1" then pay_frequency = "monthly"
 		If pay_frequency = "2" then pay_frequency = "semimonthly"
 		If pay_frequency = "3" then pay_frequency = "biweekly"
 		If pay_frequency = "4" then pay_frequency = "weekly"
 		If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
+		'If income has NOT ended, then including error handling to ensure that Pay Frequency is set to 1
 		If pay_frequency <> "monthly" then JOBS_panel_error_message = JOBS_panel_error_message & "The pay frequency is not currently monthly (1). Update the panel to reflect a monthly (1) frequency. Please update and then rerun this script." & VbCR & vbCr
 		IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
 		IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
