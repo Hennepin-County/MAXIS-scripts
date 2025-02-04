@@ -6216,6 +6216,8 @@ function ga_elig_case_note()
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("GA INELIGIBLE because Prosp Inc exceeds INCOME Limit.")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("GA INELIGIBLE because Retro Inc exceeds INCOME Limit.")
 
+		If GA_UNIQUE_APPROVALS(six_mo_rept_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("* WCOM Added to notice of six-month reporting. *")
+
 		Call write_variable_in_CASE_NOTE(left("GA Unit Size: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_memb_hh_count & "                              ", 44)  & "|---- GA Benefit Calculation ----")
 
 		Call write_variable_in_CASE_NOTE("Income:                                     |")
@@ -22085,7 +22087,9 @@ const fiat_reason					= 41
 const mfip_inelig_assess_SNAP		= 42
 const mfip_inelig_SNAP_note			= 43
 const income_disregard_note			= 44
-const approval_confirmed			= 45
+const earned_income_exists			= 45
+const six_mo_rept_wcom_sent			= 46
+const approval_confirmed			= 47
 date_of_3050 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -23603,6 +23607,7 @@ If enter_CNOTE_for_GA = True Then
 				If last_elig_action <> GA_ELIG_APPROVALS(approval).ga_elig_summ_action_info Then match_last_benefit_amounts = False
 				If last_elig_reason <> GA_ELIG_APPROVALS(approval).ga_elig_summ_reason_info Then match_last_benefit_amounts = False
 				If last_budget_cycle <> GA_ELIG_APPROVALS(approval).ga_elig_summ_budget_cycle Then match_last_benefit_amounts = False
+				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year = "03/25" Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					GA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = GA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
@@ -23736,6 +23741,13 @@ If enter_CNOTE_for_GA = True Then
 				  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 			  End If
 			Next
+
+			GA_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
+			If ei_count <> 0 and GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE"Then
+				GA_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+				GA_UNIQUE_APPROVALS(earned_income_exists, approval_selected) = True
+			End If
+
 			ei_len = ei_count * 20
 			unea_len = unea_count * 10
 			income_box_len = 30 + unea_len
@@ -25473,6 +25485,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				If last_snap_entitlement <> SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot Then match_last_benefit_amounts = False
 				If last_expedited_status <> SNAP_ELIG_APPROVALS(approval).snap_expedited Then match_last_benefit_amounts = False
 				If last_info_source <> SNAP_ELIG_APPROVALS(approval).snap_info_source Then match_last_benefit_amounts = False
+				If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = "03/25" and SNAP_ELIG_APPROVALS(approval).snap_uhfs = True Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
@@ -26122,6 +26135,50 @@ if enter_CNOTE_for_GA = True Then
 			If ga_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
+
+		If GA_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
+			ft_mo = left(first_month, 2)
+			ft_yr = right(first_month, 2)
+
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen ft_mo, 03, 46
+			EMWriteScreen ft_yr, 03, 51
+			transmit
+
+			wcom_row = 7
+			Do
+				EMReadScreen notc_date, 8, wcom_row, 16
+				EMReadScreen notc_type, 2, wcom_row, 26
+				EMReadScreen notc_description, 30, wcom_row, 30
+				EMReadScreen notc_print_status, 8, wcom_row, 71
+
+				If notc_date <> "        " Then
+					notc_date = DateAdd("d", 0, notc_date)
+					notc_description = trim(notc_description)
+					notc_print_status = trim(notc_print_status)
+					If DateDiff("d", date, notc_date) = 0 AND notc_type = "GA" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+						Call write_value_and_transmit("X", wcom_row, 13)
+
+						PF9
+						EMReadScreen wcom_line, 60, 3, 17
+						If trim(wcom_line) = "" Then
+							If GA_UNIQUE_APPROVALS(earned_income_exists, unique_app) = True Then
+								Call write_variable_in_SPEC_MEMO("You will receive the same amount of benefits each month unless something changes in your situation. If something does change, tell your GA worker within 10 days after the month when it happens. If your income goes down, let your GA worker know right away and show proof.")
+								Call write_variable_in_SPEC_MEMO(" ")
+								Call write_variable_in_SPEC_MEMO("When you apply or renew, we will review your GA for the next six months or up to the 12th month, whichever happens first.")
+								GA_UNIQUE_APPROVALS(six_mo_rept_wcom_sent, unique_app) = True
+							End If
+							PF4
+							PF3
+						End If
+						Exit Do
+					End If
+				End if
+				wcom_row = wcom_row + 1
+			Loop until notc_date = "        "
+			Call back_to_SELF
+		End If
+
 		due_date = ""
 		If IsDate(GA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, GA_UNIQUE_APPROVALS(verif_request_date, unique_app))
 		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
