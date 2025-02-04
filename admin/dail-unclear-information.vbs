@@ -3187,20 +3187,20 @@ If CSES_messages = 1 Then
                                                         End If
                                                     End If
 
-                                                        If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
-                                                            'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                            QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                                        ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
-                                                            'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
-                                                            list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
+                                                        'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
+                                                        'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
+                                                        list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
-                                                            dail_row = dail_row - 1
-                                                        End If
+                                                        dail_row = dail_row - 1
+                                                    End If
 
                                                     'PF3 back to DAIL
                                                     PF3
@@ -3220,7 +3220,18 @@ If CSES_messages = 1 Then
                                                     objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                 Else
-                                                    msgbox "Testing -- Something went wrong as CSES message is out of scope yet reached processing stage. Dail msg is " & dail_msg 
+                                                    msgbox "Testing -- A CSES message has appeared that does not meet either types - it will be SKIPPED. DAIL message is: " & dail_msg
+                                                    
+                                                    'No action on these, simply note in spreadsheet that QI team to review
+                                                    
+                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = "QI Review. DISB EXCESS CS (TYPE 43)."
+                                                    
+                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                    'Update the excel spreadsheet with processing notes
+                                                    objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                                    
+                                                    msgbox "Testing -- Ensure spreadsheet updated correctly"
 
                                                 End If
                                             Else
