@@ -8377,7 +8377,7 @@ End if
 
 Call check_for_MAXIS(False)
 
-If need_to_update_addr = "True" then 
+If need_to_update_addr = "True" then
 	need_to_update_addr = True
 	If addr_verif = "__" OR addr_verif = "Blank" Then addr_verif = "OT"
 End If
@@ -8385,6 +8385,7 @@ If need_to_update_addr = "False" then need_to_update_addr = False
 
 
 If need_to_update_addr = "True" Then
+	If IsDate(address_change_date) = False Then address_change_date = CAF_datestamp
 	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 End If
 MAXIS_background_check		'Making sure we aren't stuck in background before Hest function is run
