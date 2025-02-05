@@ -1539,6 +1539,9 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 
 	EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
 	JOBS_month = replace(JOBS_month, " ", "/")					'Cleans up the read number by putting a / in place of the blank space between MM YY
+	'Convert JOBS footer month to date
+	JOBS_month_date = left(JOBS_month, 2) & "/01/" & right(JOBS_month, 2)
+	JOBS_month_date = DateAdd("d", 0, JOBS_month_date)
 	EMReadScreen JOBS_type, 30, 7, 42										'Reads up name of the employer and then cleans it up
 	JOBS_type = replace(JOBS_type, "_", ""	)
 	JOBS_type = trim(JOBS_type)
@@ -1558,8 +1561,10 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	EmReadScreen JOBS_panel_prosp_pay_amount, 8, 12, 67
 	JOBS_panel_prosp_pay_amount = trim(JOBS_panel_prosp_pay_amount)
 	EmReadScreen JOBS_panel_prosp_pay_amount_line_2_check, 8, 13, 67
-	
-	If JOBS_panel_retro_pay_amount_line_2_check <> "________" or JOBS_panel_prosp_pay_amount_line_2_check <> "________" Then JOBS_panel_error_message = JOBS_panel_error_message & "There is pay information on the second line of the retrospective and/or prospective fields on the JOBS panel. There should only be pay information on the first line. Please update and then rerun this script." & VbCR & vbCr
+
+	'If panels are blank, then convert them to 0.00 to handle for comparing blank lines with 0.00
+	If JOBS_panel_retro_pay_amount = "________" Then JOBS_panel_retro_pay_amount = "0.00" 
+	If JOBS_panel_prosp_pay_amount = "________" Then JOBS_panel_prosp_pay_amount = "0.00" 
 
 	' EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
 	' jobs_hourly_wage = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
@@ -1570,12 +1575,12 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	' SNAP_JOBS_amt = trim(SNAP_JOBS_amt)
 	EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
 	jobs_SNAP_prospective_amt = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
+	'Need to handle if amount is blank (which is zero)
+	If jobs_SNAP_prospective_amt = "" Then jobs_SNAP_prospective_amt = "0.00"
 	' EMReadScreen snap_pay_frequency, 1, 5, 64
 	' EMReadScreen date_of_pic_calc, 8, 5, 34
 	' date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
 	transmit
-
-	If JOBS_panel_retro_pay_amount <> JOBS_panel_prosp_pay_amount or JOBS_panel_retro_pay_amount <> jobs_SNAP_prospective_amt or JOBS_panel_prosp_pay_amount <> jobs_SNAP_prospective_amt Then JOBS_panel_error_message = JOBS_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
 
 	'Navigates to GRH PIC
 	EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
@@ -1613,12 +1618,16 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 		'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
 	If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
 	If IsDate(JOBS_income_end_date) = True then
-		variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
-		'If the job has ended, then we are not concerned with the pay frequency. However, we want to make sure that the prospective and retrospective lines are blank or zero
-		If (JOBS_panel_retro_pay_amount <> "________" and JOBS_panel_retro_pay_amount <> "0.00") or (JOBS_panel_prosp_pay_amount <> "________" and JOBS_panel_prosp_pay_amount <> "0.00") then
-			JOBS_panel_error_message = JOBS_panel_error_message & "This JOBS panel has an income end date. Therefore, the prospective and retrospective Gross Wage fields should both be set to '0.00' or should be blank. Please update and then rerun this script." & VbCR & vbCr
+		'Handling only for JOBS panels with end dates PRIOR to current month
+		If DateDiff("d", JOBS_income_end_date, JOBS_month_date) > 0 Then
+			variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
+			'If the job has ended, then we are not concerned with the pay frequency. However, we want to make sure that the prospective, retrospective, and SNAP PIC are zero
+			If (JOBS_panel_retro_pay_amount <> "0.00") or (JOBS_panel_prosp_pay_amount <> "0.00") or (jobs_SNAP_prospective_amt <> "0.00") then JOBS_panel_error_message = JOBS_panel_error_message & "This JOBS panel has an income end date prior to the footer month. Therefore, the prospective and retrospective Gross Wage fields should both be set to '0.00' or should be blank. Similarly, the SNAP PIC prospective amount should also be set to 0.00 or blank. Please update and then rerun this script." & VbCR & vbCr
 		End If
 	Else
+		'Error handling for JOBS panel if JOBS panel is still active
+		If JOBS_panel_retro_pay_amount <> JOBS_panel_prosp_pay_amount or JOBS_panel_retro_pay_amount <> jobs_SNAP_prospective_amt or JOBS_panel_prosp_pay_amount <> jobs_SNAP_prospective_amt Then JOBS_panel_error_message = JOBS_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
+		If JOBS_panel_retro_pay_amount_line_2_check <> "________" or JOBS_panel_prosp_pay_amount_line_2_check <> "________" Then JOBS_panel_error_message = JOBS_panel_error_message & "There is pay information on the second line of the retrospective and/or prospective fields on the JOBS panel. There should only be pay information on the first line. Please update and then rerun this script." & VbCR & vbCr
 		If pay_frequency = "1" then pay_frequency = "monthly"
 		If pay_frequency = "2" then pay_frequency = "semimonthly"
 		If pay_frequency = "3" then pay_frequency = "biweekly"
@@ -1685,6 +1694,8 @@ function HRF_add_UNEA_to_variable(variable_name_for_UNEA)
 		
 		EMReadScreen UNEA_PIC_prosp_amt, 8, 18, 56
 		UNEA_PIC_prosp_amt = trim(UNEA_PIC_prosp_amt)
+		'Ensure consistent handling for blanks vs 0.00
+		If UNEA_PIC_prosp_amt = "" Then UNEA_PIC_prosp_amt = "0.00"
 		transmit
 
 		' EMReadScreen retro_UNEA_amt, 8, 18, 39
@@ -1705,6 +1716,10 @@ function HRF_add_UNEA_to_variable(variable_name_for_UNEA)
 		EmReadScreen UNEA_panel_prosp_pay_amount, 8, 13, 68
 		UNEA_panel_prosp_pay_amount = trim(UNEA_panel_prosp_pay_amount)
 		EmReadScreen UNEA_panel_prosp_pay_amount_line_2_check, 8, 14, 68
+
+		'If panels are blank, then convert them to 0.00 to handle for comparing blank lines with 0.00
+		If UNEA_panel_retro_pay_amount = "________" Then UNEA_panel_retro_pay_amount = "0.00" 
+		If UNEA_panel_prosp_pay_amount = "________" Then UNEA_panel_prosp_pay_amount = "0.00" 
 
 		If UNEA_panel_retro_pay_amount <> UNEA_panel_prosp_pay_amount or UNEA_panel_retro_pay_amount <> UNEA_PIC_prosp_amt or UNEA_panel_prosp_pay_amount <> UNEA_PIC_prosp_amt Then UNEA_panel_error_message = UNEA_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
 
