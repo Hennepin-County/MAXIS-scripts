@@ -1623,6 +1623,13 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 			variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
 			'If the job has ended, then we are not concerned with the pay frequency. However, we want to make sure that the prospective, retrospective, and SNAP PIC are zero
 			If (JOBS_panel_retro_pay_amount <> "0.00") or (JOBS_panel_prosp_pay_amount <> "0.00") or (jobs_SNAP_prospective_amt <> "0.00") then JOBS_panel_error_message = JOBS_panel_error_message & "This JOBS panel has an income end date prior to the footer month. Therefore, the prospective and retrospective Gross Wage fields should both be set to '0.00' or should be blank. Similarly, the SNAP PIC prospective amount should also be set to 0.00 or blank. Please update and then rerun this script." & VbCR & vbCr
+		Else
+			'If there is an income end date but it is equal to the JOBS panel footer month, then we want to still evaluate everything entered on the panel
+			If JOBS_panel_retro_pay_amount <> JOBS_panel_prosp_pay_amount or JOBS_panel_retro_pay_amount <> jobs_SNAP_prospective_amt or JOBS_panel_prosp_pay_amount <> jobs_SNAP_prospective_amt Then JOBS_panel_error_message = JOBS_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
+			If JOBS_panel_retro_pay_amount_line_2_check <> "________" or JOBS_panel_prosp_pay_amount_line_2_check <> "________" Then JOBS_panel_error_message = JOBS_panel_error_message & "There is pay information on the second line of the retrospective and/or prospective fields on the JOBS panel. There should only be pay information on the first line. Please update and then rerun this script." & VbCR & vbCr
+			'If income has NOT ended, then including error handling to ensure that Pay Frequency is set to 1
+			If pay_frequency = "1" then pay_frequency = "monthly"
+			If pay_frequency <> "monthly" then JOBS_panel_error_message = JOBS_panel_error_message & "The pay frequency is not currently monthly (1). Update the panel to reflect a monthly (1) frequency. Please update and then rerun this script." & VbCR & vbCr
 		End If
 	Else
 		'Error handling for JOBS panel if JOBS panel is still active
