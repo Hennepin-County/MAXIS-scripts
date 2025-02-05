@@ -1575,7 +1575,7 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	' date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
 	transmit
 
-	If JOBS_panel_retro_pay_amount <> JOBS_panel_prosp_pay_amount or JOBS_panel_retro_pay_amount <> jobs_SNAP_prospective_amt or JOBS_panel_prosp_pay_amount <> jobs_SNAP_prospective_amt Then UNEA_panel_error_message = UNEA_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
+	If JOBS_panel_retro_pay_amount <> JOBS_panel_prosp_pay_amount or JOBS_panel_retro_pay_amount <> jobs_SNAP_prospective_amt or JOBS_panel_prosp_pay_amount <> jobs_SNAP_prospective_amt Then JOBS_panel_error_message = JOBS_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
 
 	'Navigates to GRH PIC
 	EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
