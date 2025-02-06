@@ -253,7 +253,16 @@ For Each objFile in colFiles								'looping through each file
 		With (CreateObject("Scripting.FileSystemObject"))
 			'Creating an object for the stream of text which we'll use frequently
 			Dim objTextStream
-			If .FileExists(xmlPath) = True then
+
+			Set file_object = CreateObject("Scripting.FileSystemObject")										'Create another FSO
+			Set xml_sig_command = file_object.OpenTextFile(xmlPath)			'Open the text file
+
+			If xml_sig_command.AtEndOfStream Then
+				attachment_here = ""
+				Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", "XML in Interview Team Tracking is BLANK", 1, False, "", "", False, "", "XML File Path: " & xmlPath, True, attachment_here, True)
+				xml_sig_command.Close
+			ElseIf .FileExists(xmlPath) = True then
+				xml_sig_command.Close
 				xmlDoc.Async = False
 
 				' Load the XML file
