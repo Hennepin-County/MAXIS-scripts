@@ -867,7 +867,7 @@ EMWriteScreen MAXIS_footer_year, 20, 46
 
 'Initial dialog - select whether to create a list or process a list
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 306, 220, "DAIL Unclear Information"
+BeginDialog Dialog1, 0, 0, 306, 260, "DAIL Unclear Information"
   GroupBox 10, 5, 290, 65, "Using the DAIL Unclear Information Script"
   Text 20, 15, 275, 50, "A BULK script that gathers and processes selected (HIRE and/or CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. As the DAIL messages are reviewed, the script will process DAIL messages for 6-month reporters on SNAP-only and process the DAIL messages accordingly. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. "
   Text 15, 80, 175, 10, "Type of DAIL Messages to Process:"
@@ -877,14 +877,18 @@ BeginDialog Dialog1, 0, 0, 306, 220, "DAIL Unclear Information"
   CheckBox 15, 125, 90, 10, "Process ALL X Numbers", process_all_x_numbers
   CheckBox 15, 135, 225, 10, "RESTART Process ALL X Numbers (enter restart X Number below)", restart_process_all_x_numbers
   EditBox 25, 145, 85, 15, restart_x_number
-  CheckBox 15, 165, 255, 10, "Process Specific X Numbers (enter X Numbers below separated by comma)", process_specific_x_numbers
-  EditBox 25, 175, 270, 15, specific_x_numbers_to_process
-  Text 15, 205, 60, 10, "Worker Signature:"
-  EditBox 80, 200, 110, 15, worker_signature
+  CheckBox 15, 165, 275, 10, "RESTART Process - Enter DAIL Messages to SKIP", restart_with_skip_cases
+  Text 30, 175, 265, 10, "Copy exactly from spreadsheet and separate by asterisk (*) with no extra spaces"
+  EditBox 25, 185, 270, 15, DAIL_messages_to_skip
+  CheckBox 15, 205, 255, 10, "Process Specific X Numbers (enter X Numbers below separated by comma)", process_specific_x_numbers
+  EditBox 25, 215, 270, 15, specific_x_numbers_to_process
+  Text 15, 245, 60, 10, "Worker Signature:"
+  EditBox 80, 240, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 205, 200, 40, 15
-    CancelButton 245, 200, 40, 15
+    OkButton 205, 240, 40, 15
+    CancelButton 245, 240, 40, 15
 EndDialog
+
 
 DO
     Do
@@ -904,6 +908,8 @@ DO
         If restart_process_all_x_numbers = 1 AND trim(restart_x_number) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Restart Process All X Numbers. The entry field for Restart Process All X Numbers is empty. Enter the X Number that the script should restart on."
         'Validation to ensure that Restart Process All X Numbers field is blank if Process Specific X Numbers is selected
         If process_specific_x_numbers = 1 AND trim(restart_x_number) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. The entry field for RESTART Process All X Numbers must be empty. Clear the field to proceed."
+        If restart_with_skip_cases = 1 and trim(DAIL_messages_to_skip) = "" Then err_msg = err_msg & vbCr & "* You need to enter the list of messages to skip."
+        If restart_process_all_x_numbers <> 1 AND (restart_with_skip_cases = 1 or trim(restart_with_skip_cases) <> "") Then err_msg = err_msg & vbCr & "* You selected the option to enter case numbers to skip in the next run, but the restart process checkbox is not checked. Check the box and enter the restart X number."
         'Validation to ensure that if processing specific X numbers, the list of X numbers field is not blank
         If process_specific_x_numbers = 1 AND trim(specific_x_numbers_to_process) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. You must enter a list of X Numbers separated by a comma to proceed. The entry field is currently empty."
         'Ensures worker signature is not blank
@@ -912,6 +918,39 @@ DO
     Loop until err_msg = "" and ButtonPressed = OK
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
+
+'Handling if there are specific DAIL messages that need to be skipped
+If restart_with_skip_cases = 1 and trim(DAIL_messages_to_skip) <> "" Then
+
+    'Dialog to ensure the messages to skip are formatted correctly
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 356, 250, "Messages to Skip"
+    ButtonGroup ButtonPressed
+        OkButton 250, 230, 50, 15
+        CancelButton 300, 230, 50, 15
+    GroupBox 5, 5, 345, 185, "Messages to Skip"
+    Text 10, 195, 335, 25, "Ensure there are no extra spaces between messages and asterisks are used to separate the messages. Press OK to proceed if the messages are correct."
+    Text 10, 15, 335, 170, DAIL_messages_to_skip
+    EndDialog
+
+    DO
+        Dialog Dialog1
+        cancel_confirmation
+
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
+
+    'If there are dail messages to skip, then set starting list_of_DAIL_messages_to_skip. Include handling to ensure that the string starts and ends in an *
+
+    If DAIL_messages_to_skip <> "" Then 
+        'Ensure first and final character in string is *
+        If right(DAIL_messages_to_skip, 1) <> "*" Then DAIL_messages_to_skip = DAIL_messages_to_skip & "*"
+        If left(DAIL_messages_to_skip, 1) <> "*" Then DAIL_messages_to_skip = "*" & DAIL_messages_to_skip
+        list_of_DAIL_messages_to_skip = DAIL_messages_to_skip
+    End If
+
+    msgbox "list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
+End If
 
 'Determining if this is a restart or not in function below when gathering the x numbers.
 If restart_process_all_x_numbers = 0 then
@@ -1089,7 +1128,8 @@ If CSES_messages = 1 Then
         list_of_DAIL_messages_to_delete = "*"
 
         'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
-        list_of_DAIL_messages_to_skip = "*"
+        If list_of_DAIL_messages_to_skip = "" then list_of_DAIL_messages_to_skip = "*"
+        msgbox "list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 
         'Formatting the worker so there are no errors
         worker = trim(ucase(worker))
@@ -1319,7 +1359,6 @@ If CSES_messages = 1 Then
                                 'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                                 dail_row = 6
 
-                                
                                 If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
                                     'Active case, SNAP only, no other active or pending programs
                                     case_details_array(snap_only_const, case_count) = "SNAP Only"
@@ -1650,6 +1689,8 @@ If CSES_messages = 1 Then
                                 If activate_msg_boxes = True Then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                             ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                                 'If the full message is on the list of dail messages to skip then the message should be skipped
+
+                                If Instr(DAIL_messages_to_skip, "*" & full_dail_msg & "*") then msgbox "It hit a message and skipped it that was on list of skips > " & full_dail_msg
 
                             ElseIf Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") = 0 AND Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") = 0 Then
                                 'If the full dail message is NOT in the list of dail messages to delete AND the full dail messages is NOT in the list of skip messages then it SHOULD be a new dail message and therefore it needs to be evaluated
@@ -3463,7 +3504,12 @@ If HIRE_messages = 1 Then
         list_of_DAIL_messages_to_delete_SDNH = "*"
 
         'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
-        list_of_DAIL_messages_to_skip = "*"
+        If list_of_DAIL_messages_to_skip = "" then 
+            msgbox "List of dail messages to skip is blank so it will set it to *"
+        Else
+            msgbox "the list is not blank"
+        End If
+        If list_of_DAIL_messages_to_skip = "" then list_of_DAIL_messages_to_skip = "*"
 
         'Create strings for tracking NDNH messages
         list_of_NDNH_messages_standard_format = "*"
@@ -4537,6 +4583,8 @@ If HIRE_messages = 1 Then
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                             ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                                 'If the full message is on the list of dail messages to skip then the message should be skipped
+
+                                If Instr(DAIL_messages_to_skip, "*" & full_dail_msg & "*") then msgbox "It hit a message and skipped it that was on list of skips > " & full_dail_msg
 
                             ElseIf Instr(list_of_DAIL_messages_to_delete_NDNH_known, "*" & full_dail_msg & "*") = 0 AND Instr(list_of_DAIL_messages_to_delete_NDNH_not_known, "*" & full_dail_msg & "*") = 0 AND Instr(list_of_DAIL_messages_to_delete_SDNH, "*" & full_dail_msg & "*") = 0 AND Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") = 0 Then
                                 'If the full dail message is NOT in the list of dail messages to delete AND the full dail messages is NOT in the list of skip messages then it SHOULD be a new dail message and therefore it needs to be evaluated
