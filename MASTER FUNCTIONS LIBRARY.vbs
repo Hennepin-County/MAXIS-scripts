@@ -11642,8 +11642,9 @@ Function non_actionable_dails(actionable_dail)
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM
     Elseif dail_type = "PEPR" then
-        'These two PEPR's effective 01/24 require action for workers and cannot be deleted outright.
+        'These three PEPR's effective 01/24 require action for workers and cannot be deleted outright.
         If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _
+			instr(dail_msg, "CEC CHILD HAS TURNED AGE 6 - REDETERMINE HEALTH CARE") OR _
             instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
             actionable_dail = True
         Else

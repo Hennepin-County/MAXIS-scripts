@@ -312,7 +312,7 @@ For each worker in worker_array
             If dail_type = "PEPR" then 
                 'If the message has already been determined to be non-actionable, we don't need to evaluate those.
                 If actionable_dail = True then 
-                    If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
+                    If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") OR instr(dail_msg, "CEC CHILD HAS TURNED AGE 6 - REDETERMINE HEALTH CARE") then
                         actionable_dail = True 'this is so these non-deletable messages are skipped. 
                     Else 
                         'PEPR determination for duplicate messages that are CM + 1
