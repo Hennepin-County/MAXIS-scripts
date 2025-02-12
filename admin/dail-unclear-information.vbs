@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/12/2025", "Fixed issue where navigation to ELIG/FS used DAIL message month instead of current month.", "Mark Riegel, Hennepin County")
 call changelog_update("01/13/2025", "Improved DAIL navigation handling.", "Mark Riegel, Hennepin County")
 call changelog_update("08/21/2023", "Initial version.", "Mark Riegel, Hennepin County")
 
@@ -1362,6 +1363,10 @@ If CSES_messages = 1 Then
                                 If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
                                     'Active case, SNAP only, no other active or pending programs
                                     case_details_array(snap_only_const, case_count) = "SNAP Only"
+
+                                    'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                    EMWriteScreen MAXIS_footer_month, 20, 54
+                                    EMWriteScreen MAXIS_footer_year, 20, 57
 
                                     'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
                                     EMWriteScreen "ELIG", 20, 22
@@ -3997,6 +4002,10 @@ If HIRE_messages = 1 Then
                                 If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
                                     'Active case, SNAP only, no other active or pending programs
                                     case_details_array(snap_only_const, case_count) = "SNAP Only"
+
+                                    'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                    EMWriteScreen MAXIS_footer_month, 20, 54
+                                    EMWriteScreen MAXIS_footer_year, 20, 57
 
                                     'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
                                     EMWriteScreen "ELIG", 20, 22
