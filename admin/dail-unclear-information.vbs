@@ -910,7 +910,7 @@ DO
         'Validation to ensure that Restart Process All X Numbers field is blank if Process Specific X Numbers is selected
         If process_specific_x_numbers = 1 AND trim(restart_x_number) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. The entry field for RESTART Process All X Numbers must be empty. Clear the field to proceed."
         If restart_with_skip_cases = 1 and trim(DAIL_messages_to_skip) = "" Then err_msg = err_msg & vbCr & "* You need to enter the list of messages to skip."
-        If restart_process_all_x_numbers <> 1 AND (restart_with_skip_cases = 1 or trim(restart_with_skip_cases) <> "") Then err_msg = err_msg & vbCr & "* You selected the option to enter case numbers to skip in the next run, but the restart process checkbox is not checked. Check the box and enter the restart X number."
+        If restart_process_all_x_numbers <> 1 AND (restart_with_skip_cases = 1 or trim(DAIL_messages_to_skip) <> "") Then err_msg = err_msg & vbCr & "* You selected the option to enter case numbers to skip in the next run, but the restart process checkbox is not checked. Check the box and enter the restart X number."
         'Validation to ensure that if processing specific X numbers, the list of X numbers field is not blank
         If process_specific_x_numbers = 1 AND trim(specific_x_numbers_to_process) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. You must enter a list of X Numbers separated by a comma to proceed. The entry field is currently empty."
         'Ensures worker signature is not blank
@@ -1130,7 +1130,7 @@ If CSES_messages = 1 Then
 
         'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
         If list_of_DAIL_messages_to_skip = "" then list_of_DAIL_messages_to_skip = "*"
-        msgbox "list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
+        msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 
         'Formatting the worker so there are no errors
         worker = trim(ucase(worker))
@@ -3509,12 +3509,8 @@ If HIRE_messages = 1 Then
         list_of_DAIL_messages_to_delete_SDNH = "*"
 
         'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
-        If list_of_DAIL_messages_to_skip = "" then 
-            msgbox "List of dail messages to skip is blank so it will set it to *"
-        Else
-            msgbox "the list is not blank"
-        End If
         If list_of_DAIL_messages_to_skip = "" then list_of_DAIL_messages_to_skip = "*"
+        msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 
         'Create strings for tracking NDNH messages
         list_of_NDNH_messages_standard_format = "*"
