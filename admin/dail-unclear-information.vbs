@@ -950,7 +950,7 @@ If restart_with_skip_cases = 1 and trim(DAIL_messages_to_skip) <> "" Then
         list_of_DAIL_messages_to_skip = DAIL_messages_to_skip
     End If
 
-    msgbox "list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
+    msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 End If
 
 'Determining if this is a restart or not in function below when gathering the x numbers.
@@ -1211,6 +1211,12 @@ If CSES_messages = 1 Then
                 actionable_dail = ""
                 renewal_6_month_check = ""
 
+                'To do - ensure with new handling for MFIP, and UHFS that this is correct spot to reset variables
+                Snap_active = ""
+                MFIP_active = ""
+                GA_Active = ""
+                Other_programs_active_or_pending = ""
+
                 'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
                 EMReadScreen new_case, 8, dail_row, 63
                 new_case = trim(new_case)
@@ -1353,6 +1359,26 @@ If CSES_messages = 1 Then
                             Else
                                 'Pull case details from CASE/CURR, maintains connection to DAIL
                                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+                                'Split list of active programs into an array to validate
+                                split_list_active_programs = split(list_active_programs, ", ")
+
+                                i = 0
+                                Do
+                                    If split_list_active_programs(i) = "SNAP" Then 
+                                        SNAP_active = true
+                                    ElseIf split_list_active_programs(i) = "MFIP" Then 
+                                        MFIP_active = true
+                                    Else
+                                        'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
+                                        other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", " 
+                                    End If
+                                    i = i + 1
+                                Loop until i = ubound(split_list_active_programs) + 1
+                                
+                                If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
+
+                                msgbox "Testing -- SNAP_active = " & snap_active & vbcr & vbcr & "MFIP_active = " & MFIP_active & vbcr & vbcr & "other_programs_active_or_pending = " & other_programs_active_or_pending  
 
                                 'Set SNAP status within array
                                 case_details_array(snap_status_const, case_count) = trim(snap_status)
@@ -3845,6 +3871,12 @@ If HIRE_messages = 1 Then
                 actionable_dail = ""
                 renewal_6_month_check = ""
 
+                'To do - ensure with new handling for GA, MFIP, and UHFS that this is correct spot to reset variables
+                Snap_active = ""
+                MFIP_active = ""
+                GA_Active = ""
+                Other_programs_active_or_pending = ""
+
                 'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
                 EMReadScreen new_case, 8, dail_row, 63
                 new_case = trim(new_case)
@@ -3988,6 +4020,28 @@ If HIRE_messages = 1 Then
                             Else
                                 'Pull case details from CASE/CURR, maintains connection to DAIL
                                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+                                'Split list of active programs into an array to validate
+                                split_list_active_programs = split(list_active_programs, ", ")
+
+                                i = 0
+                                Do
+                                    If split_list_active_programs(i) = "SNAP" Then 
+                                        SNAP_active = true
+                                    ElseIf split_list_active_programs(i) = "MFIP" Then 
+                                        MFIP_active = true
+                                    ElseIf split_list_active_programs(i) = "GA" Then 
+                                        GA_active = true
+                                    Else
+                                        'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
+                                        other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", "
+                                    End If
+                                    i = i + 1
+                                Loop until i = ubound(split_list_active_programs) + 1
+
+                                If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
+
+                                msgbox "Testing -- SNAP_active = " & snap_active & vbcr & vbcr & "MFIP_active = " & MFIP_active & vbcr & vbcr & "GA_active = " & GA_active & vbcr & vbcr & "other_programs_active_or_pending = " & other_programs_active_or_pending  
 
                                 'Set SNAP status within array
                                 case_details_array(snap_status_const, case_count) = trim(snap_status)
