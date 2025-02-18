@@ -950,7 +950,7 @@ If restart_with_skip_cases = 1 and trim(DAIL_messages_to_skip) <> "" Then
         list_of_DAIL_messages_to_skip = DAIL_messages_to_skip
     End If
 
-    msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
+    ' msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 End If
 
 'Determining if this is a restart or not in function below when gathering the x numbers.
@@ -994,20 +994,21 @@ const full_dail_msg_const		        = 5
 const dail_processing_notes_const       = 6
 const dail_excel_row_const              = 7
 
+'To do - remove this since it will now be handled within HIRE or CSES section
 'Create an array to track case details
-DIM case_details_array()
+' DIM case_details_array()
 
-'constants for array
-const case_maxis_case_number_const      = 0
-const case_worker_const	                = 1
-const snap_status_const                 = 2
-const snap_only_const                   = 3
-const reporting_status_const            = 4
-const sr_report_date_const              = 5
-const recertification_date_const        = 6
-const case_processing_notes_const       = 7
-const processable_based_on_case_const   = 8
-const case_excel_row_const              = 9
+' 'constants for array
+' const case_maxis_case_number_const      = 0
+' const case_worker_const	                = 1
+' const snap_status_const                 = 2
+' const snap_only_const                   = 3
+' const reporting_status_const            = 4
+' const sr_report_date_const              = 5
+' const recertification_date_const        = 6
+' const case_processing_notes_const       = 7
+' const processable_based_on_case_const   = 8
+' const case_excel_row_const              = 9
 
 'Create an array with PMIs to match with CASE/PERS info
 Dim PMI_and_ref_nbr_array()
@@ -1020,6 +1021,24 @@ const hh_member_count_const   = 3
 
 
 If CSES_messages = 1 Then 
+
+    'Create an array to track case details
+    DIM case_details_array()
+
+    'constants for array
+    const case_maxis_case_number_const      = 0
+    const case_worker_const	                = 1
+    const active_programs_const             = 2
+    const pending_programs_const            = 3
+    const snap_status_const                 = 4
+    const snap_type_const                   = 5
+    const reporting_status_const            = 6
+    const sr_report_date_const              = 7 
+    const recertification_date_const        = 8
+    const MFIP_status_const                 = 9
+    const case_processing_notes_const       = 10
+    const processable_based_on_case_const   = 11
+    const case_excel_row_const              = 12
 
     'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
@@ -1051,15 +1070,18 @@ If CSES_messages = 1 Then
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "Case Number"
     objExcel.Cells(1, 2).Value = "X Number"
-    objExcel.Cells(1, 3).Value = "SNAP Status"
-    objExcel.Cells(1, 4).Value = "SNAP Only"
-    objExcel.Cells(1, 5).Value = "Reporting Status"
-    objExcel.Cells(1, 6).Value = "SR Report Date"
-    objExcel.Cells(1, 7).Value = "Recertification Date"
-    objExcel.Cells(1, 8).Value = "Processing Notes for Case"
-    objExcel.Cells(1, 9).Value = "Processable based on Case Details"
+    objExcel.Cells(1, 3).Value = "Active Programs"
+    objExcel.Cells(1, 4).Value = "Pending Programs"
+    objExcel.Cells(1, 5).Value = "SNAP Status"
+    objExcel.Cells(1, 6).Value = "SNAP Type"
+    objExcel.Cells(1, 7).Value = "Reporting Status"
+    objExcel.Cells(1, 8).Value = "SR Report Date"
+    objExcel.Cells(1, 9).Value = "Recertification Date"
+    objExcel.Cells(1, 10).Value = "MFIP Status"
+    objExcel.Cells(1, 11).Value = "Processing Notes for Case"
+    objExcel.Cells(1, 12).Value = "Processable based on Case Details"
 
-    FOR i = 1 to 9		'formatting the cells'
+    FOR i = 1 to 12		'formatting the cells'
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -1099,7 +1121,7 @@ If CSES_messages = 1 Then
     'Sets variable for the Excel row to export data to Excel sheet
     dail_excel_row = 2
 
-    ReDim case_details_array(9, 0)
+    ReDim case_details_array(12, 0)
     'Incrementor for the array
     case_count = 0
 
@@ -1130,7 +1152,7 @@ If CSES_messages = 1 Then
 
         'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
         If list_of_DAIL_messages_to_skip = "" then list_of_DAIL_messages_to_skip = "*"
-        msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
+        ' msgbox "Testing -- list_of_DAIL_messages_to_skip " & list_of_DAIL_messages_to_skip
 
         'Formatting the worker so there are no errors
         worker = trim(ucase(worker))
@@ -1214,7 +1236,7 @@ If CSES_messages = 1 Then
                 'To do - ensure with new handling for MFIP, and UHFS that this is correct spot to reset variables
                 Snap_active = ""
                 MFIP_active = ""
-                GA_Active = ""
+                SNAP_or_MFIP_active = ""
                 Other_programs_active_or_pending = ""
 
                 'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
@@ -1366,9 +1388,11 @@ If CSES_messages = 1 Then
                                 i = 0
                                 Do
                                     If split_list_active_programs(i) = "SNAP" Then 
-                                        SNAP_active = true
+                                        SNAP_active = True
+                                        SNAP_or_MFIP_active = True
                                     ElseIf split_list_active_programs(i) = "MFIP" Then 
-                                        MFIP_active = true
+                                        MFIP_active = True
+                                        SNAP_or_MFIP_active = True
                                     Else
                                         'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
                                         other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", " 
@@ -1378,80 +1402,83 @@ If CSES_messages = 1 Then
                                 
                                 If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
 
-                                msgbox "Testing -- SNAP_active = " & snap_active & vbcr & vbcr & "MFIP_active = " & MFIP_active & vbcr & vbcr & "other_programs_active_or_pending = " & other_programs_active_or_pending  
-
-                                'Set SNAP status within array
-                                case_details_array(snap_status_const, case_count) = trim(snap_status)
+                                'Update array with active and pending programs, and SNAP and MFIP statuses
+                                case_details_array(active_programs_const, case_count) = list_active_programs
+                                case_details_array(pending_programs_const, case_count) = list_pending_programs
+                                case_details_array(SNAP_status_const, case_count) = trim(snap_status)
+                                case_details_array(MFIP_status_const, case_count) = trim(mfip_status)
 
                                 'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                                 dail_row = 6
 
-                                If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
-                                    'Active case, SNAP only, no other active or pending programs
-                                    case_details_array(snap_only_const, case_count) = "SNAP Only"
+                                'To do - do we need to determine recert/review for MFIP and UHFS? Will this impact whether message can be processed?
 
-                                    'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
-                                    EMWriteScreen MAXIS_footer_month, 20, 54
-                                    EMWriteScreen MAXIS_footer_year, 20, 57
+                                If case_active = TRUE and SNAP_or_MFIP_active = True and other_programs_active_or_pending = "" Then
+                                    If SNAP_active = True Then
+                                        'The case is active on SNAP, will gather more details about SNAP
 
-                                    'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
-                                    EMWriteScreen "ELIG", 20, 22
-                                    Call write_value_and_transmit("FS  ", 20, 69)
+                                        'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                        EMWriteScreen MAXIS_footer_month, 20, 54
+                                        EMWriteScreen MAXIS_footer_year, 20, 57
 
-                                    EMReadScreen no_SNAP, 10, 24, 2
-                                    If no_SNAP = "NO VERSION" then						'NO SNAP version means no determination
-                                        case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                        case_details_array(processable_based_on_case_const, case_count) = False
-                                    Else
+                                        'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
+                                        EMWriteScreen "ELIG", 20, 22
+                                        Call write_value_and_transmit("FS  ", 20, 69)
 
-                                        EMWriteScreen "99", 19, 78
-                                        transmit
-                                        'This brings up the FS versions of eligibility results to search for approved versions
-                                        status_row = 7
-                                        Do
-                                            EMReadScreen app_status, 8, status_row, 50
-                                            app_status = trim(app_status)
-                                            If app_status = "" then
-                                                PF3
-                                                exit do 	'if end of the list is reached then exits the do loop
-                                            End if
-                                            If app_status = "UNAPPROV" Then status_row = status_row + 1
-                                        Loop until app_status = "APPROVED" or app_status = ""
-
-                                        If app_status = "" or app_status <> "APPROVED" then
-                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                        EMReadScreen no_SNAP, 10, 24, 2
+                                        If no_SNAP = "NO VERSION" then						'NO SNAP version means no determination
+                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                             case_details_array(processable_based_on_case_const, case_count) = False
-                                        Elseif app_status = "APPROVED" then
-                                            EMReadScreen vers_number, 1, status_row, 23
-                                            Call write_value_and_transmit(vers_number, 18, 54)
-                                            Call write_value_and_transmit("FSSM", 19, 70)
-                                            EmReadscreen reporting_status, 12, 8, 31
-                                            reporting_status = trim(reporting_status)
+                                        Else
 
-                                            If reporting_status = "SIX MONTH" Then
-                                                'Navigate to STAT/REVW to confirm recertification and SR report date
-                                                EMWriteScreen "STAT", 19, 22
-                                                EMWaitReady 0, 0
-                                                Call write_value_and_transmit("REVW", 19, 70)
-                                                
-                                                EMWaitReady 0, 0
-                                                EmReadscreen error_prone_check, 6, 2, 51
+                                            EMWriteScreen "99", 19, 78
+                                            transmit
+                                            'This brings up the FS versions of eligibility results to search for approved versions
+                                            status_row = 7
+                                            Do
+                                                EMReadScreen app_status, 8, status_row, 50
+                                                app_status = trim(app_status)
+                                                If app_status = "" then
+                                                    PF3
+                                                    exit do 	'if end of the list is reached then exits the do loop
+                                                End if
+                                                If app_status = "UNAPPROV" Then status_row = status_row + 1
+                                            Loop until app_status = "APPROVED" or app_status = ""
 
-                                                If InStr(error_prone_check, "ERRR") Then
-                                                    transmit
-                                                    EMWaitReady 0, 0
+                                            If app_status = "" or app_status <> "APPROVED" then
+                                                case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                case_details_array(processable_based_on_case_const, case_count) = False
+                                            Elseif app_status = "APPROVED" then
+                                                EMReadScreen vers_number, 1, status_row, 23
+                                                Call write_value_and_transmit(vers_number, 18, 54)
+                                                Call write_value_and_transmit("FSSM", 19, 70)
+
+                                                EmReadscreen reporting_status, 12, 8, 31
+                                                reporting_status = trim(reporting_status)
+
+                                                'Read for UHFS
+                                                EmReadscreen UHFS_status_check, 16, 4, 3
+                                                If UHFS_status_check = "'UNCLE HARRY' FS" Then 
+                                                    case_details_array(snap_type_const, case_count) = "UHFS"
+                                                Else
+                                                    case_details_array(snap_type_const, case_count) = "SNAP"
                                                 End If
+                                                
+                                                'To do - do we care about the recert or review dates for UHFS?
+                                                If reporting_status = "SIX MONTH" and UHFS_status_check <> "'UNCLE HARRY' FS" Then
+                                                    'Navigate to STAT/REVW to confirm recertification and SR report date
+                                                    EMWriteScreen "STAT", 19, 22
+                                                    EMWaitReady 0, 0
+                                                    Call write_value_and_transmit("REVW", 19, 70)
+                                                    
+                                                    EMWaitReady 0, 0
+                                                    EmReadscreen error_prone_check, 6, 2, 51
 
-                                                'Pause here as it sometimes errors
-                                                EMWaitReady 0, 0
-                                                'Open the FS screen
-                                                EMWriteScreen "X", 5, 58
-                                                EMWaitReady 0, 0
-                                                Transmit
-                                                EMWaitReady 0, 0
+                                                    If InStr(error_prone_check, "ERRR") Then
+                                                        transmit
+                                                        EMWaitReady 0, 0
+                                                    End If
 
-                                                EMReadScreen food_support_reports_check, 20, 5, 30
-                                                If food_support_reports_check <> "Food Support Reports" Then 
                                                     'Pause here as it sometimes errors
                                                     EMWaitReady 0, 0
                                                     'Open the FS screen
@@ -1459,90 +1486,135 @@ If CSES_messages = 1 Then
                                                     EMWaitReady 0, 0
                                                     Transmit
                                                     EMWaitReady 0, 0
+
                                                     EMReadScreen food_support_reports_check, 20, 5, 30
-                                                    If food_support_reports_check <> "Food Support Reports" Then MsgBox "Testing -- FS Screen attempt 2 did not work. Try rerunning script again."
-                                                End If
+                                                    If food_support_reports_check <> "Food Support Reports" Then 
+                                                        'Pause here as it sometimes errors
+                                                        EMWaitReady 0, 0
+                                                        'Open the FS screen
+                                                        EMWriteScreen "X", 5, 58
+                                                        EMWaitReady 0, 0
+                                                        Transmit
+                                                        EMWaitReady 0, 0
+                                                        EMReadScreen food_support_reports_check, 20, 5, 30
+                                                        If food_support_reports_check <> "Food Support Reports" Then MsgBox "Testing -- FS Screen attempt 2 did not work. Try rerunning script again."
+                                                    End If
 
-                                                EmReadscreen sr_report_date, 8, 9, 26
-                                                EmReadscreen recertification_date, 8, 9, 64
+                                                    EmReadscreen sr_report_date, 8, 9, 26
+                                                    EmReadscreen recertification_date, 8, 9, 64
 
-                                                'Add handling for missing SR report date or recertification
-                                                'Adds slashes to dates then converts to datedate from string to date
-                                                If sr_report_date = "__ 01 __" Then
-                                                    sr_report_date = "SR Report Date is Missing"
-                                                Else
-                                                    sr_report_date = replace(sr_report_date, " ", "/")
-                                                    sr_report_date = DateAdd("m", 0, sr_report_date)
-                                                End If
+                                                    'Add handling for missing SR report date or recertification
+                                                    'Adds slashes to dates then converts to datedate from string to date
+                                                    If sr_report_date = "__ 01 __" Then
+                                                        sr_report_date = "SR Report Date is Missing"
+                                                    Else
+                                                        sr_report_date = replace(sr_report_date, " ", "/")
+                                                        sr_report_date = DateAdd("m", 0, sr_report_date)
+                                                    End If
 
-                                                If recertification_date = "__ 01 __" Then
-                                                    recertification_date = "Recertification Date is Missing"
-                                                Else
-                                                    recertification_date = replace(recertification_date, " ", "/")
-                                                    recertification_date = DateAdd("m", 0, recertification_date)
-                                                End If
-                        
-                                                If sr_report_date <> "SR Report Date is Missing" and recertification_date <> "Recertification Date is Missing" Then 
-                                                    renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
+                                                    If recertification_date = "__ 01 __" Then
+                                                        recertification_date = "Recertification Date is Missing"
+                                                    Else
+                                                        recertification_date = replace(recertification_date, " ", "/")
+                                                        recertification_date = DateAdd("m", 0, recertification_date)
+                                                    End If
+                            
+                                                    If sr_report_date <> "SR Report Date is Missing" and recertification_date <> "Recertification Date is Missing" Then 
+                                                        renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
 
-                                                    If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
-                                                        renewal_6_month_check = True
-                                                    Else 
+                                                        If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
+                                                            renewal_6_month_check = True
+                                                        Else 
+                                                            renewal_6_month_check = False
+                                                            case_details_array(case_processing_notes_const, case_count) = "SR Report Date and Recertification are not 6 months apart"
+                                                        End if
+                                                    
+                                                    Else
                                                         renewal_6_month_check = False
-                                                        case_details_array(case_processing_notes_const, case_count) = "SR Report Date and Recertification are not 6 months apart"
-                                                    End if
-                                                
+                                                        case_details_array(case_processing_notes_const, case_count) = "SR Report Date and/or Recertification Date is missing"
+                                                    End If
+                                                    
+                                                    'Close the FS screen
+                                                    transmit
                                                 Else
-                                                    renewal_6_month_check = False
-                                                    case_details_array(case_processing_notes_const, case_count) = "SR Report Date and/or Recertification Date is missing"
+                                                    sr_report_date = "N/A"
+                                                    recertification_date = "N/A"
+
                                                 End If
-                                                
-                                                'Close the FS screen
-                                                transmit
-                                            Else
-                                                sr_report_date = "N/A"
-                                                recertification_date = "N/A"
 
                                             End If
+                                            
+                                            'Update the array with new case details
+                                            case_details_array(reporting_status_const, case_count) = reporting_status
+                                            case_details_array(recertification_date_const, case_count) = trim(recertification_date)
+                                            case_details_array(sr_report_date_const, case_count) = trim(sr_report_date)
 
                                         End If
-                                        
-                                        'Update the array with new case details
-                                        case_details_array(reporting_status_const, case_count) = trim(reporting_status)
-                                        case_details_array(recertification_date_const, case_count) = trim(recertification_date)
-                                        case_details_array(sr_report_date_const, case_count) = trim(sr_report_date)
                                     End If
+                                    
+                                    'To do - do we need to validate anything with MFIP?
                                 Else
-                                    case_details_array(processable_based_on_case_const, case_count) = False
+                                    'Case is not processable. Write information to array accordingly
+
+                                    case_details_array(snap_type_const, case_count) = "N/A"
                                     case_details_array(reporting_status_const, case_count) = "N/A"
-                                    case_details_array(recertification_date_const, case_count) = "N/A"
                                     case_details_array(sr_report_date_const, case_count) = "N/A"
-                                    case_details_array(case_processing_notes_const, case_count) = "N/A"
-                                    case_details_array(snap_only_const, case_count) = "Not SNAP Only"
-
+                                    case_details_array(recertification_date_const, case_count) = "N/A"
+                                    case_details_array(case_processing_notes_const, case_count) = "Not processable"
+                                    case_details_array(processable_based_on_case_const, case_count) = False
                                 End If
-
                             End If    
                             
-                            If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(snap_only_const, case_count) = "SNAP Only" AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" and renewal_6_month_check = True then
-                                case_details_array(processable_based_on_case_const, case_count) = True
-                            Else
-                                case_details_array(processable_based_on_case_const, case_count) = False
-                            End if
 
+                            'To do - verify handling needed for UHFS - does the recert and/or review dates matter for UHFS?
+                            'Only need to check if case is processable if it has not already been determined to be not processable
+                            If case_details_array(processable_based_on_case_const, case_count) <> False or trim(case_details_array(processable_based_on_case_const, case_count)) = "" Then
+                                'Handling for SNAP, check if SNAP is active, if it is then verify it meets criteria
+                                If SNAP_active = True Then
+                                    If case_details_array(snap_type_const, case_count) = "SNAP" Then
+                                        If case_details_array(snap_status_const, case_count) <> "ACTIVE" OR case_details_array(reporting_status_const, case_count) <> "SIX MONTH" OR renewal_6_month_check <> True then
+                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & " SNAP Not Processable; "
+                                        End If            
+                                    ElseIf case_details_array(snap_type_const, case_count) = "UHFS" Then
+                                        If case_details_array(snap_status_const, case_count) <> "ACTIVE" OR case_details_array(reporting_status_const, case_count) <> "SIX MONTH" then
+                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & " UHFS Not Processable; "
+                                        End If
+                                    Else
+                                        case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "SNAP or UHFS Not Processable; "
+                                    End If
+                                End If
+
+                                If MFIP_active = True Then
+                                    If case_details_array(MFIP_status_const, case_count) <> "ACTIVE" then
+                                        case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "MFIP Not Processable; "
+                                    End If
+                                End If
+                            End If
+
+                            If trim(case_details_array(case_processing_notes_const, case_count)) <> "" Then
+                                case_details_array(processable_based_on_case_const, case_count) = False
+                            ElseIf trim(case_details_array(case_processing_notes_const, case_count)) = "" Then
+                                case_details_array(processable_based_on_case_const, case_count) = True
+                            End If
+                            
                             'Activate the case details sheet
                             objExcel.Worksheets("Case Details").Activate
 
                             'Update the Case Details sheet with case data
                             objExcel.Cells(case_excel_row, 1).Value = case_details_array(case_maxis_case_number_const, case_count)
                             objExcel.Cells(case_excel_row, 2).Value = case_details_array(case_worker_const, case_count)
-                            objExcel.Cells(case_excel_row, 3).Value = case_details_array(snap_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 4).Value = case_details_array(snap_only_const, case_count)
-                            objExcel.Cells(case_excel_row, 5).Value = case_details_array(reporting_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 6).Value = case_details_array(sr_report_date_const, case_count)
-                            objExcel.Cells(case_excel_row, 7).Value = case_details_array(recertification_date_const, case_count)
-                            objExcel.Cells(case_excel_row, 8).Value = case_details_array(case_processing_notes_const, case_count)
-                            objExcel.Cells(case_excel_row, 9).Value = case_details_array(processable_based_on_case_const, case_count)
+                            objExcel.Cells(case_excel_row, 3).Value = case_details_array(active_programs_const, case_count)
+                            objExcel.Cells(case_excel_row, 4).Value = case_details_array(pending_programs_const, case_count)
+                            objExcel.Cells(case_excel_row, 5).Value = case_details_array(snap_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 6).Value = case_details_array(snap_type_const, case_count)
+                            objExcel.Cells(case_excel_row, 7).Value = case_details_array(reporting_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 8).Value = case_details_array(sr_report_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 9).Value = case_details_array(recertification_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 10).Value = case_details_array(MFIP_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 11).Value = case_details_array(case_processing_notes_const, case_count)
+                            objExcel.Cells(case_excel_row, 12).Value = case_details_array(processable_based_on_case_const, case_count)
+
+                            msgbox "Delete after Testing - Review spreadsheet to ensure correct information captured and entered "
                             case_excel_row = case_excel_row + 1
 
                             EmReadScreen case_curr_check, 4, 2, 55
@@ -1795,6 +1867,8 @@ If CSES_messages = 1 Then
                                             objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                         
                                         ElseIf case_details_array(processable_based_on_case_const, each_case) = True Then     
+
+                                            'To do - need to add handling for MFIP and UHFS and whether the recert/review date matters compared to the message month; also if SNAP then does it matter?
                                             
                                             'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                             If DateAdd("m", 0, case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
