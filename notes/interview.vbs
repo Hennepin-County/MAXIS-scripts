@@ -7043,6 +7043,7 @@ form_list = form_list+chr(9)+"SNAP App for Srs (DHS-5223F)"
 form_list = form_list+chr(9)+"MNbenefits"
 form_list = form_list+chr(9)+"Combined AR for Certain Pops (DHS-3727)"
 
+when_contact_was_made = date & ", " & time
 
 'Showing the case number dialog
 Do
@@ -8464,19 +8465,35 @@ If ButtonPressed = incomplete_interview_btn Then
 			err_msg = ""
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 436, 200, "Interview Incomplete"
-			  EditBox 10, 70, 420, 15, interview_incomplete_reason
-			  CheckBox 15, 110, 250, 10, "Check Here to Create a CASE:NOTE with the detail that was gathered.", create_incomplete_note_checkbox
-			  ' CheckBox 15, 125, 265, 10, "Check here to create a document with the partial notes that exist at this point.", create_incomplete_doc_checkbox
-			  EditBox 10, 160, 420, 15, incomplete_interview_notes
-			  ButtonGroup ButtonPressed
-			    OkButton 380, 180, 50, 15
-			  GroupBox 5, 10, 425, 40, "Incompleting an Interview"
-			  Text 15, 20, 405, 25, "We make every attempt to complete the entire interview requirement when we are in contact with the resident. Sometimes this becomes impossible and if we are unable to gather all required information, we must INCOMPLETE the interview. Every attempt should be made to complete the interview first."
-			  Text 10, 60, 120, 10, "Reason the Interview is Incomplete"
-			  GroupBox 5, 95, 425, 45, "Options "
-			  Text 10, 150, 75, 10, "Additional Notes"
-			EndDialog
+			If run_by_interview_team = False Then
+				BeginDialog Dialog1, 0, 0, 436, 200, "Interview Incomplete"
+					EditBox 10, 70, 420, 15, interview_incomplete_reason
+					CheckBox 15, 110, 250, 10, "Check Here to Create a CASE:NOTE with the detail that was gathered.", create_incomplete_note_checkbox
+					' CheckBox 15, 125, 265, 10, "Check here to create a document with the partial notes that exist at this point.", create_incomplete_doc_checkbox
+					EditBox 10, 160, 420, 15, incomplete_interview_notes
+					ButtonGroup ButtonPressed
+						OkButton 380, 180, 50, 15
+					GroupBox 5, 10, 425, 40, "Incompleting an Interview"
+					Text 15, 20, 405, 25, "We make every attempt to complete the entire interview requirement when we are in contact with the resident. Sometimes this becomes impossible and if we are unable to gather all required information, we must INCOMPLETE the interview. Every attempt should be made to complete the interview first."
+					Text 10, 60, 120, 10, "Reason the Interview is Incomplete"
+					GroupBox 5, 95, 425, 45, "Options "
+					Text 10, 150, 75, 10, "Additional Notes"
+				EndDialog
+			End If
+			If run_by_interview_team = True Then
+				BeginDialog Dialog1, 0, 0, 436, 140, "Interview Incomplete"
+					EditBox 10, 70, 420, 15, interview_incomplete_reason
+					EditBox 10, 100, 420, 15, incomplete_interview_notes
+					ComboBox 100, 120, 85, 45, phone_droplist, phone_number_selection
+					ButtonGroup ButtonPressed
+						OkButton 380, 120, 50, 15
+					GroupBox 5, 10, 425, 40, "Incompleting an Interview"
+					Text 15, 20, 405, 25, "We make every attempt to complete the entire interview requirement when we are in contact with the resident. Sometimes this becomes impossible and if we are unable to gather all required information, we must INCOMPLETE the interview. Every attempt should be made to complete the interview first."
+					Text 10, 60, 120, 10, "Reason the Interview is Incomplete"
+					Text 10, 90, 75, 10, "Additional Notes"
+					Text 10, 125, 90, 10, "Phone Number (if known):"
+				EndDialog
+			End If
 
 			dialog Dialog1
 			cancel_confirmation
@@ -8506,13 +8523,29 @@ If ButtonPressed = incomplete_interview_btn Then
 
 	Call start_a_blank_case_note
 
-	Call write_variable_in_CASE_NOTE("INTERVIEW INCOMPLETE - Attempt made but additional details needed")
+	If run_by_interview_team = False Then
+		Call write_variable_in_CASE_NOTE("INTERVIEW INCOMPLETE - Attempt made but additional details needed")
 
-	Call write_variable_in_CASE_NOTE("Interview attempted on: " & interview_date)
-	If create_incomplete_doc_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Document added to Case File with information that was gathered during this partial interview.")
-	If create_incomplete_note_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Previous CASE:NOTE has details of information what was gathered during this partial interview.")
-	Call write_bullet_and_variable_in_CASE_NOTE("Reason Interview Incomplete", interview_incomplete_reason)
-	Call write_bullet_and_variable_in_CASE_NOTE("Additional Notes", incomplete_interview_notes)
+		Call write_variable_in_CASE_NOTE("Interview attempted on: " & interview_date)
+		If create_incomplete_doc_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Document added to Case File with information that was gathered during this partial interview.")
+		If create_incomplete_note_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Previous CASE:NOTE has details of information what was gathered during this partial interview.")
+		Call write_bullet_and_variable_in_CASE_NOTE("Reason Interview Incomplete", interview_incomplete_reason)
+		Call write_bullet_and_variable_in_CASE_NOTE("Additional Notes", incomplete_interview_notes)
+	End If
+	If run_by_interview_team = True Then
+		CALL write_variable_in_CASE_NOTE("Phone Call from " & who_are_we_completing_the_interview_with & " re: INCOMPLETE INTERVIEW")
+		If interpreter_information <> "No Interpreter Used" THEN
+			CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter: " & interpreter_information)
+		Else
+			CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
+		End if
+		If trim(phone_number_selection) <> "Select or Type" then CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number_selection)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Reason for contact", "Interview attempted but could not be completed.")
+		CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", "None")
+		Call write_bullet_and_variable_in_CASE_NOTE("Reason Interview Incomplete", interview_incomplete_reason)
+		Call write_bullet_and_variable_in_CASE_NOTE("Additional Notes", incomplete_interview_notes)
+
+	End If
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
