@@ -7149,24 +7149,42 @@ end function
 Call test_edit_access(edit_access_allowed, warning_notice)
 
 If edit_access_allowed = False Then
-	edit_access_msg = "* - * - * ALERT * - * - *"
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "You should still continue with the Interview script run"
-	edit_access_msg = edit_access_msg & vbCr & "BUT at the end of the script run, it will NOT:"
-	edit_access_msg = edit_access_msg & vbCr & "- Enter a CASE/NOTE"
-	edit_access_msg = edit_access_msg & vbCr & "- Send a SPEC/MEMO"
-	edit_access_msg = edit_access_msg & vbCr & "- Create a Worker Interview Form Document"
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run will be saved for future access."
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
-	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
-	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
-	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
-	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
-	edit_access_msg = edit_access_msg & vbCr & warning_notice
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "Press CANCEL to stop the script run."
+	If run_by_interview_team = True Then
+		edit_access_msg = "                *   ---   *   ---   *   ALERT   *   ---   *   ---   *"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears this case is INACTIVE or a CASE/NOTE cannot be entered."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "An email has been sent to the supervisors to update the case."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "Continue the interview as normal, "
+		edit_access_msg = edit_access_msg & vbCr & "the script will save all information."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "Once the supervisor has the case in an editable status, "
+		edit_access_msg = edit_access_msg & vbCr & "they will email you that the case is ready."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "-- The script saves all information to be rerun if needed. --"
+
+		email_subject = "Case " & MAXIS_case_number & " - is uneditable"
+		email_to_field = "Alexander.Yang@hennepin.us; jeremy.lucca@hennepin.us" '; tammy.coenen@hennepin.us; candace.brown@hennepin.us"
+		email_cc_field = "hsph.ews.bluezonescripts@hennepin.us"
+		email_body = "Case number: " & MAXIS_case_number & " appears INACTIVE." & vbCr &  "Case is being interviewed by the interview team as of " & now & ". Needs review for REIN or PEND." & vbCr & vbCr & "Warning message when attempting to create a new CASE/NOTE: " & warning_notice
+		call create_outlook_email("", email_to_field, email_cc_field, "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+	Else
+		edit_access_msg = "* - * - * ALERT * - * - *"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "You should still continue with the Interview script run"
+		edit_access_msg = edit_access_msg & vbCr & "BUT at the end of the script run, it will NOT:"
+		edit_access_msg = edit_access_msg & vbCr & "- Enter a CASE/NOTE"
+		edit_access_msg = edit_access_msg & vbCr & "- Send a SPEC/MEMO"
+		edit_access_msg = edit_access_msg & vbCr & "- Create a Worker Interview Form Document"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run will be saved for future access."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+		edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+		edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+		edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+		edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+		edit_access_msg = edit_access_msg & vbCr & warning_notice
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "Press CANCEL to stop the script run."
+	End If
 	' MsgBox edit_access_msg
-	no_acces_msg = MsgBox(edit_access_msg, vbOKCancel + vbSystemModal + vbExclamation, "No Edit Access to Case")
+	If run_by_interview_team = True Then no_acces_msg = MsgBox(edit_access_msg, vbSystemModal + vbExclamation, "No Edit Access to Case")
+	If run_by_interview_team = False Then no_acces_msg = MsgBox(edit_access_msg, vbOKCancel + vbSystemModal + vbExclamation, "No Edit Access to Case")
 	If no_acces_msg = vbCancel Then
 		script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
 		call script_end_procedure_with_error_report("~PT: Interview script cancelled at beginning of the script run due to no CASE/NOTE Edit Access.")
@@ -9338,21 +9356,36 @@ warning_notice = ""
 Call test_edit_access(edit_access_allowed, warning_notice)
 
 If edit_access_allowed = False Then
-	edit_access_msg = "* - * - * SCRIPT RUN ENDED * - * - *"
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
-	edit_access_msg = edit_access_msg & vbCr & "The script has NOT:"
-	edit_access_msg = edit_access_msg & vbCr & "- Entered a CASE/NOTE"
-	edit_access_msg = edit_access_msg & vbCr & "- Sent a SPEC/MEMO"
-	edit_access_msg = edit_access_msg & vbCr & "- Created a Worker Interview Form Document"
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run is saved for future access."
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
-	edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
-	edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
-	edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
-	edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
-	edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
-	edit_access_msg = edit_access_msg & vbCr & warning_notice
-	' MsgBox edit_access_msg
+	If run_by_interview_team = True Then
+		edit_access_msg = "                *   ---   *   ---   *   ALERT   *   ---   *   ---   *"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "Inactive case handling is in effect on this case."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears this case is INACTIVE or a CASE/NOTE cannot be entered. The script has NOT:"
+		edit_access_msg = edit_access_msg & vbCr & "  - Entered a CASE/NOTE"
+		edit_access_msg = edit_access_msg & vbCr & "  - Sent a SPEC/MEMO"
+		edit_access_msg = edit_access_msg & vbCr & "  - Created a Worker Interview Form Document"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run is saved for future access."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE THE SUPERVISOR LETS YOU KNOW THE CASE IS READY:"
+		edit_access_msg = edit_access_msg & vbCr & "  - Rerun the script for the same Case Number."
+		edit_access_msg = edit_access_msg & vbCr & "  - Information will be loaded into the script."
+		edit_access_msg = edit_access_msg & vbCr & "  - The NOTE, MEMO, and Document will be created at the end of this second script run."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "Information of the script run is saved for 5 days, check in with your supervisor with any questions."
+	Else
+		edit_access_msg = "* - * - * SCRIPT RUN ENDED * - * - *"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
+		edit_access_msg = edit_access_msg & vbCr & "The script has NOT:"
+		edit_access_msg = edit_access_msg & vbCr & "- Entered a CASE/NOTE"
+		edit_access_msg = edit_access_msg & vbCr & "- Sent a SPEC/MEMO"
+		edit_access_msg = edit_access_msg & vbCr & "- Created a Worker Interview Form Document"
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "All information captured during the script run is saved for future access."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "ONCE YOU HAVE ACCESS TO THE CASE:"
+		edit_access_msg = edit_access_msg & vbCr & "- Rerun the script for the same Case Number."
+		edit_access_msg = edit_access_msg & vbCr & "- Information will be loaded into the script."
+		edit_access_msg = edit_access_msg & vbCr & "- The NOTE, MEMO, and Document will be created at the end of this second script run."
+		edit_access_msg = edit_access_msg & vbCr & "The details will be saved for 5 days."
+		edit_access_msg = edit_access_msg & vbCr & vbCr & "CASE/NOTE Warning Message:"
+		edit_access_msg = edit_access_msg & vbCr & warning_notice
+		' MsgBox edit_access_msg
+	End If
 	script_run_lowdown = "edit_access_allowed - " & edit_access_allowed & vbCr & "warning_notice - " & warning_notice & vbCr & vbCr & script_run_lowdown
 	call script_end_procedure_with_error_report(edit_access_msg)
 End If
