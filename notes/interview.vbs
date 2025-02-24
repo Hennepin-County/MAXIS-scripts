@@ -8640,7 +8640,7 @@ If run_by_interview_team = True Then 'R&R Summary for Interview HSRs only
 			BeginDialog Dialog1, 0, 0, 551, 385, "FORMS and INFORMATION Review with Resident"
 				Text 10, 10, 460, 10, "Directions: Read the following information to the resident regarding rights and responsibilities."
 				Text 25, 30, 500, 25, "You are responsible for reporting changes that might impact benefit eligibility such as employment, income, property, household status, citizenship/immigration status, address, expenses, etc.). For cash/child care assistance, report changes within 10 days of the change. For SNAP, report changes by the 10th of the month following the change. "
-				Text 25, 65, 500, 35, "For SNAP 6-month reporting, only report if income exceeds 130% FPG or if Time Limited Recipient and work hours drop below 20 hrs/week. Change reporters must report changes in source of income, change of over $125/month in gross earned income or unearned income, unit composition, residence, housing expense, child support, and if Time Limited Recipient and work hours drop below 20 hrs/week. For Monthly reporting, submit the Household Report Form every month with income and change verifications attached."
+				Text 25, 65, 500, 35, "For SNAP 6-month reporting, only report if income exceeds 130% FPG or if Time Limited Recipient and work hours drop below 20 hrs/week. Change reporters must report changes in source of income, change of over $125/month in gross earned income or unearned income, unit composition, residence, housing expense, child support, and if Time Limited Recipient and work hours drop below 20 hrs/week."
 				Text 25, 110, 500, 30, "Providing false or incomplete information can lead to loss of benefits/criminal charges. Agencies may verify your information, requiring your consent. Using your benefits acknowledges that you've reported any changes. For child care, you may need to pay a co-payment, additional costs, or provide children's immigration/citizenship documentation; failure to pay or cooperate may end your assistance."
 				Text 25, 145, 500, 30, "You have the right to privacy of your information, reapply anytime, receive a copy of your application, know why applications are delayed, know program rules, live where/with whom you choose, and report expenses. For SNAP appeals, you have 90 days to appeal. For Cash/Child Care appeals, appeal within 30 days of receiving notice. Free legal services are available. Discrimination is illegal; if mistreated by a human service agency, file a complaint."
 
@@ -8701,7 +8701,7 @@ Else
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 				CheckBox 10, 10, 315, 10, "Check here if Cash on an Electronic Benefit (EBT) Card (DHS- 4163) was reviewed", DHS_4163_checkbox
-				DropListBox 195, 80, 135, 15, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change"+chr(9)+"Monthly", snap_reporting_type
+				DropListBox 195, 80, 135, 15, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change", snap_reporting_type
 				EditBox 410, 80, 50, 15, next_revw_month
 				ComboBox 195, 95, 135, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
 				DropListBox 195, 110, 135, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
@@ -9151,21 +9151,21 @@ Else
 						Text 45, 135, 480, 10, "-For any ABAWD, a change in work or job activities that cause their hours to fall below 20 hours per week, averaged 80 hours monthly. "
 						GroupBox 5, 0, 540, 270, ""
 					End If
-					If snap_reporting_type = "Monthly" Then
-						CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
-						ButtonGroup ButtonPressed
-							PushButton 20, 185, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
-							PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
-							PushButton 465, 365, 80, 15, "Continue", continue_btn
-						Text 25, 115, 135, 10, "Your next renewal is " & next_revw_month
-						GroupBox 5, 0, 530, 265, ""
-						Text 40, 40, 435, 20, "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within 12 months. However, the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached. "
-						Text 25, 130, 245, 10, "Complete the required form and process the month before renewal. "
-						Text 25, 145, 440, 10, "Report changes by the 10th of the month following the month of the change"
-						Text 40, 65, 470, 10, "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached"
-						Text 25, 160, 445, 20, "SNAP General Work Rules require some household members to accept any job offers and to maintain their current job/hours. If not met, benefits could be decreased/ended. "
-						Text 40, 80, 470, 20, "The Household Report Form must be answered in its entirety. Any unanswered questions will make the form incomplete and ongoing benefits will not be able to be processed. The form includes all changes that must be reported."
-					End If
+					'If snap_reporting_type = "Monthly" Then
+					'	CheckBox 10, 10, 385, 10, "Check here if Supplemental Nutrition Assistance Program Reporting Responsibilities (DHS- 2625) was reviewed", DHS_2625_checkbox
+					'	ButtonGroup ButtonPressed
+					'		PushButton 20, 185, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
+					'		PushButton 470, 10, 60, 15, "Open DHS2625", open_cs_2625_doc
+					'		PushButton 465, 365, 80, 15, "Continue", continue_btn
+					'	Text 25, 115, 135, 10, "Your next renewal is " & next_revw_month
+					'	GroupBox 5, 0, 530, 265, ""
+					'	Text 40, 40, 435, 20, "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within 12 months. However, the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached. "
+					'	Text 25, 130, 245, 10, "Complete the required form and process the month before renewal. "
+					'	Text 25, 145, 440, 10, "Report changes by the 10th of the month following the month of the change"
+					'	Text 40, 65, 470, 10, "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached"
+					'	Text 25, 160, 445, 20, "SNAP General Work Rules require some household members to accept any job offers and to maintain their current job/hours. If not met, benefits could be decreased/ended. "
+					'	Text 40, 80, 470, 20, "The Household Report Form must be answered in its entirety. Any unanswered questions will make the form incomplete and ongoing benefits will not be able to be processed. The form includes all changes that must be reported."
+					'End If
 				EndDialog
 
 
@@ -9764,7 +9764,7 @@ With (CreateObject("Scripting.FileSystemObject"))
 		objTextStream.WriteLine ""
 		objTextStream.WriteLine "The interview took " & interview_time & " minutes."
 		objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
-		objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
+		objTextStream.WriteLine "Agency Signature is not required on the " & CAF_form & "."
 		objTextStream.WriteLine ""
 		objTextStream.WriteLine ""
 		objTextStream.WriteLine "This is a great time to talk to the resident about: "
