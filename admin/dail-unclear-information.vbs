@@ -1036,9 +1036,11 @@ If CSES_messages = 1 Then
     const sr_report_date_const              = 7 
     const recertification_date_const        = 8
     const MFIP_status_const                 = 9
-    const case_processing_notes_const       = 10
-    const processable_based_on_case_const   = 11
-    const case_excel_row_const              = 12
+    const MFIP_MFSM_review_date_const       = 10
+    const MFIP_STAT_REVW_review_date_const  = 11
+    const case_processing_notes_const       = 12
+    const processable_based_on_case_const   = 13
+    const case_excel_row_const              = 14
 
     'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
@@ -1078,10 +1080,12 @@ If CSES_messages = 1 Then
     objExcel.Cells(1, 8).Value = "SNAP SR Report Date"
     objExcel.Cells(1, 9).Value = "SNAP Recertification Date"
     objExcel.Cells(1, 10).Value = "MFIP Status"
-    objExcel.Cells(1, 11).Value = "Processing Notes for Case"
-    objExcel.Cells(1, 12).Value = "Processable based on Case Details"
+    objExcel.Cells(1, 11).Value = "MFIP MFSM Review Date"
+    objExcel.Cells(1, 12).Value = "MFIP STAT/REVW Review Date"
+    objExcel.Cells(1, 13).Value = "Processing Notes for Case"
+    objExcel.Cells(1, 14).Value = "Processable based on Case Details"
 
-    FOR i = 1 to 12		'formatting the cells'
+    FOR i = 1 to 14		'formatting the cells'
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -1378,19 +1382,6 @@ If CSES_messages = 1 Then
                             If worker_county <> worker_county_code then
                                 CSES_case_details_array(case_processing_notes_const, case_count) = "Out-of-County Case"
                                 CSES_case_details_array(processable_based_on_case_const, case_count) = False
-
-                                'To do - panel testing, delete after testing
-                                Dialog1 = ""
-                                BeginDialog Dialog1, 0, 0, 306, 220, "1384 Confirm the panel and what coordinates to read"
-                                
-                                ButtonGroup ButtonPressed
-                                    OkButton 205, 200, 40, 15
-                                    CancelButton 245, 200, 40, 15
-                                EndDialog
-
-                                Do
-                                    Dialog Dialog1
-                                Loop until ButtonPressed = OK
                             Else
                                 'Pull case details from CASE/CURR, maintains connection to DAIL
                                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
@@ -1569,44 +1560,127 @@ If CSES_messages = 1 Then
                                     End If
 
                                     'To do - do we need to validate anything with MFIP? Verify the recert or review date?
+                                    If MFIP_active = True Then
+                                        'Navigate to MFSM panel to confirm review date
+                                        'Navigate to STAT/REVW to confirm review date
+                                        'Compare the review dates - here or later?
 
+                                        'To ensure starting from DAIL, PF3 to get back to DAIL then navigate back to CASE/CURR
+                                        'Back to DAIL
+                                        PF3
+                                        'Navigate back to CASE/CURR
+                                        Call write_value_and_transmit("H", dail_row, 3)
+                                        'Update the footer month/year and then navigate to ELIG/GA
+
+                                        'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                        EMWriteScreen MAXIS_footer_month, 20, 54
+                                        EMWriteScreen MAXIS_footer_year, 20, 57
+                                        
+                                        'Navigate to ELIG/GA from CASE/CURR
+                                        EMWriteScreen "ELIG", 20, 22
+                                        Call write_value_and_transmit("MFIP", 20, 69)
+
+                                        EMReadScreen no_MFIP, 10, 24, 2
+                                        If no_MFIP = "NO VERSION" then						'NO GA version means no determination
+                                            If case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "; No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            Else
+                                                case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            End If
+                                            case_details_array(processable_based_on_case_const, case_count) = False
+                                        Else
+
+                                            EMWriteScreen "99", 20, 79
+                                            transmit
+                                            'This brings up the GA versions of eligibility results to search for approved versions
+                                            status_row = 7
+                                            Do
+                                                EMReadScreen app_status, 8, status_row, 50
+                                                app_status = trim(app_status)
+                                                If app_status = "" then
+                                                    PF3
+                                                    exit do 	'if end of the list is reached then exits the do loop
+                                                End if
+                                                If app_status = "UNAPPROV" Then status_row = status_row + 1
+                                            Loop until app_status = "APPROVED" or app_status = ""
+
+                                            If app_status = "" or app_status <> "APPROVED" then
+                                                If case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                    case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "; No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                Else
+                                                    case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                End If
+                                                case_details_array(processable_based_on_case_const, case_count) = False
+                                            Elseif app_status = "APPROVED" then
+
+                                                'Check for earned income
+                                                
+                                                EMReadScreen vers_number, 1, status_row, 23
+                                                Call write_value_and_transmit(vers_number, 18, 54)
+                                                'Navigate to MFSM panel to verify earned income total
+                                                Call write_value_and_transmit("MFSM", 20, 70)
+                                                EmReadScreen MFSM_panel_check, 4, 3, 47
+                                                If MFSM_panel_check <> "MFSM" Then msgbox "Testing -- 4511 Error unable to reach MFSM"
+                                                
+                                                'Read eligibility review date from MFSM panel
+                                                EMReadScreen MFIP_MFSM_review_date, 8, 11, 31
+                                                case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                
+                                                'Navigate to STAT/REVW to confirm review date there
+                                                EMWriteScreen "STAT", 20, 13
+                                                Call write_value_and_transmit("REVW", 20, 71)
+                                                
+                                                EmReadScreen REVW_panel_check, 4, 2, 46
+                                                If REVW_panel_check <> "REVW" Then msgbox "Testing -- 1634 Error unable to reach STAT/REVW"
+                                                
+                                                'Open the CASH/GRH window
+                                                Call write_value_and_transmit("X", 5, 35)
+                                                'Read eligibility review date 
+                                                EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
+                                                'If the review date is blank, then the case should be flagged and skipped for processing
+                                                If Inst(MFIP_STAT_REVW_review_date, "_") Then
+                                                    msgbox "Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
+                                                    case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                    If case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                        case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
+                                                    Else
+                                                        case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "ER Report Date is blank on STAT/REVW"
+                                                    End If
+                                                    case_details_array(processable_based_on_case_const, case_count) = False
+                                                Else
+                                                    'ER Report date is filled out
+                                                    'Convert to MM/DD/YY
+                                                    MFIP_STAT_REVW_review_date = replace(MFIP_STAT_REVW_review_date, " ", "/")
+
+                                                    'Update the array
+                                                    case_details_array(MFIP_STAT_REVW_review_date, case_count) = trim(MFIP_STAT_REVW_review_date)
+
+                                                    'Compare the review date from MFSM and from STAT/REVW to identify any discrepancies
+                                                    MFIP_MFSM_review_date = dateadd("d", 0, MFIP_MFSM_review_date)      'Convert to date
+                                                    MFIP_STAT_REVW_review_date = dateadd("d", 0, MFIP_STAT_REVW_review_date)      'Convert to date
+                                                    If MFIP_STAT_REVW_review_date <> MFIP_MFSM_review_date Then
+                                                        msgbox "Testing -- STAT/REVW does not match MFSM 1662"
+                                                        If case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "; Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                        Else
+                                                            case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                        End If
+                                                        case_details_array(processable_based_on_case_const, case_count) = False
+                                                    End If
+                                                End If
+                                            End If
+                                        End If
+                                    End If
                                 Else
                                     'Case is not processable. Write information to array accordingly
-
                                     CSES_case_details_array(snap_type_const, case_count) = "N/A"
                                     CSES_case_details_array(reporting_status_const, case_count) = "N/A"
                                     CSES_case_details_array(sr_report_date_const, case_count) = "N/A"
                                     CSES_case_details_array(recertification_date_const, case_count) = "N/A"
                                     CSES_case_details_array(case_processing_notes_const, case_count) = "Not processable"
                                     CSES_case_details_array(processable_based_on_case_const, case_count) = False
-
-                                    'To do - panel testing, delete after testing
-                                    Dialog1 = ""
-                                    BeginDialog Dialog1, 0, 0, 306, 220, "1585 Confirm the panel and what coordinates to read"
-                                    
-                                    ButtonGroup ButtonPressed
-                                        OkButton 205, 200, 40, 15
-                                        CancelButton 245, 200, 40, 15
-                                    EndDialog
-
-                                    Do
-                                        Dialog Dialog1
-                                    Loop until ButtonPressed = OK
                                 End If
                             End If    
-                            
-                            'To do - panel testing, delete after testing
-                            Dialog1 = ""
-                            BeginDialog Dialog1, 0, 0, 306, 220, "1600 Confirm the panel and what coordinates to read"
-                            
-                            ButtonGroup ButtonPressed
-                                OkButton 205, 200, 40, 15
-                                CancelButton 245, 200, 40, 15
-                            EndDialog
-
-                            Do
-                                Dialog Dialog1
-                            Loop until ButtonPressed = OK
 
                             'To do - verify handling needed for UHFS - does the recert and/or review dates matter for UHFS?
                             'Only need to check if case is processable if it has not already been determined to be not processable
@@ -1653,10 +1727,12 @@ If CSES_messages = 1 Then
                             objExcel.Cells(case_excel_row, 8).Value = CSES_case_details_array(sr_report_date_const, case_count)
                             objExcel.Cells(case_excel_row, 9).Value = CSES_case_details_array(recertification_date_const, case_count)
                             objExcel.Cells(case_excel_row, 10).Value = CSES_case_details_array(MFIP_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 11).Value = CSES_case_details_array(case_processing_notes_const, case_count)
-                            objExcel.Cells(case_excel_row, 12).Value = CSES_case_details_array(processable_based_on_case_const, case_count)
+                            objExcel.Cells(case_excel_row, 11).Value = CSES_case_details_array(MFIP_MFSM_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 12).Value = CSES_case_details_array(MFIP_STAT_REVW_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 13).Value = CSES_case_details_array(case_processing_notes_const, case_count)
+                            objExcel.Cells(case_excel_row, 14).Value = CSES_case_details_array(processable_based_on_case_const, case_count)
 
-                            msgbox "Delete after Testing - Review spreadsheet to ensure correct information captured and entered "
+                            msgbox "Testing -- Delete after Testing - Review spreadsheet to ensure correct information captured and entered "
                             case_excel_row = case_excel_row + 1
 
                             EmReadScreen case_curr_check, 4, 2, 55
@@ -3521,6 +3597,7 @@ If HIRE_messages = 1 Then
     'Create an array to track case details
     DIM HIRE_case_details_array()
 
+    'To do - add handling for review dates for GA and MFIP and UHFS if needed
     'constants for array
     const HIRE_case_maxis_case_number_const      = 0
     const HIRE_case_worker_const	             = 1
@@ -3532,13 +3609,17 @@ If HIRE_messages = 1 Then
     const HIRE_sr_report_date_const              = 7 
     const HIRE_recertification_date_const        = 8
     const HIRE_MFIP_status_const                 = 9
-    const HIRE_GA_status_const                   = 10
-    const HIRE_GA_reporting_status               = 11
-    const HIRE_GA_budget_cycle_const             = 12
-    const HIRE_GA_earned_income_const            = 13
-    const HIRE_case_processing_notes_const       = 14
-    const HIRE_processable_based_on_case_const   = 15
-    const HIRE_case_excel_row_const              = 16
+    const HIRE_MFIP_MFSM_review_date_const       = 10
+    const HIRE_MFIP_STAT_REVW_review_date_const  = 11
+    const HIRE_GA_status_const                   = 12
+    const HIRE_GA_reporting_status               = 13
+    const HIRE_GA_budget_cycle_const             = 14
+    const HIRE_GA_earned_income_const            = 15
+    const HIRE_GA_GASM_review_date_const         = 16
+    const HIRE_GA_STAT_REVW_review_date_const    = 17
+    const HIRE_case_processing_notes_const       = 18
+    const HIRE_processable_based_on_case_const   = 19
+    const HIRE_case_excel_row_const              = 20
 
     'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
@@ -3567,6 +3648,7 @@ If HIRE_messages = 1 Then
     'Creating second Excel sheet for compiling case details
     ObjExcel.Worksheets.Add().Name = "Case Details"
 
+    'To do - add handling for review dates for MFIP, GA, if needed
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "Case Number"
     objExcel.Cells(1, 2).Value = "X Number"
@@ -3578,61 +3660,18 @@ If HIRE_messages = 1 Then
     objExcel.Cells(1, 8).Value = "SNAP SR Report Date"
     objExcel.Cells(1, 9).Value = "SNAP Recertification Date"
     objExcel.Cells(1, 10).Value = "MFIP Status"
-    objExcel.Cells(1, 11).Value = "GA Status"
-    objExcel.Cells(1, 12).Value = "GA Reporting Status"
-    objExcel.Cells(1, 13).Value = "GA Budget Cycle"
-    objExcel.Cells(1, 14).Value = "GA Earned Income"
-    objExcel.Cells(1, 15).Value = "Processing Notes for Case"
-    objExcel.Cells(1, 16).Value = "Processable based on Case Details"
+    objExcel.Cells(1, 11).Value = "MFIP MFSM Review Date"
+    objExcel.Cells(1, 12).Value = "MFIP STAT/REVW Review Date"
+    objExcel.Cells(1, 13).Value = "GA Status"
+    objExcel.Cells(1, 14).Value = "GA Reporting Status"
+    objExcel.Cells(1, 15).Value = "GA Budget Cycle"
+    objExcel.Cells(1, 16).Value = "GA Earned Income"
+    objExcel.Cells(1, 17).Value = "GA GASM Review Date"
+    objExcel.Cells(1, 18).Value = "GA STAT/REVW Review Date"
+    objExcel.Cells(1, 19).Value = "Processing Notes for Case"
+    objExcel.Cells(1, 20).Value = "Processable based on Case Details"
 
-    FOR i = 1 to 16		'formatting the cells'
-        objExcel.Cells(1, i).Font.Bold = True		'bold font'
-        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-        objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-
-    'Creates sheet to track stats for the script
-    ObjExcel.Worksheets.Add().Name = "Stats"
-
-    'Opening the Excel file for list of DAIL messages
-    Set objExcel = CreateObject("Excel.Application")
-    objExcel.Visible = True
-    Set objWorkbook = objExcel.Workbooks.Add()
-    objExcel.DisplayAlerts = True
-
-    'Changes name of Excel sheet to DAIL Messages to capture details about in-scope DAIL messages
-    ObjExcel.ActiveSheet.Name = "DAIL Messages"
-
-    'Excel headers and formatting the columns
-    objExcel.Cells(1, 1).Value = "Case Number"
-    objExcel.Cells(1, 2).Value = "X Number"
-    objExcel.Cells(1, 3).Value = "DAIL Type"
-    objExcel.Cells(1, 4).Value = "DAIL Month"
-    objExcel.Cells(1, 5).Value = "DAIL Message"
-    objExcel.Cells(1, 6).Value = "Full DAIL Message"
-    objExcel.Cells(1, 7).Value = "Processing Notes for DAIL Message"
-
-    FOR i = 1 to 7		'formatting the cells'
-        objExcel.Cells(1, i).Font.Bold = True		'bold font'
-        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-        objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-
-    'Creating second Excel sheet for compiling case details
-    ObjExcel.Worksheets.Add().Name = "Case Details"
-
-    'Excel headers and formatting the columns
-    objExcel.Cells(1, 1).Value = "Case Number"
-    objExcel.Cells(1, 2).Value = "X Number"
-    objExcel.Cells(1, 3).Value = "SNAP Status"
-    objExcel.Cells(1, 4).Value = "SNAP Only"
-    objExcel.Cells(1, 5).Value = "Reporting Status"
-    objExcel.Cells(1, 6).Value = "SR Report Date"
-    objExcel.Cells(1, 7).Value = "Recertification Date"
-    objExcel.Cells(1, 8).Value = "Processing Notes for Case"
-    objExcel.Cells(1, 9).Value = "Processable based on Case Details"
-
-    FOR i = 1 to 9		'formatting the cells'
+    FOR i = 1 to 20		'formatting the cells'
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -3655,7 +3694,6 @@ If HIRE_messages = 1 Then
     objExcel.Cells(5, 1).Value = "QI Flagged Messages:"
     objExcel.Cells(6, 1).Value = "Script run time (in seconds):"
     objExcel.Cells(7, 1).Value = "Estimated time savings by using script (in minutes):"
-
 
     FOR i = 1 to 7		'formatting the cells'
         objExcel.Cells(i, 1).Font.Bold = True		'bold font'
@@ -4049,7 +4087,7 @@ If HIRE_messages = 1 Then
         EMReadScreen number_of_dails, 1, 3, 67		
 
         DO
-        'If this space is blank the rest of the DAIL reading is skipped
+            'If this space is blank the rest of the DAIL reading is skipped
             If number_of_dails = " " Then exit do		
             'Because the script brings each new case to the top of the page, dail_row starts at 6.
             dail_row = 6	
@@ -4236,20 +4274,21 @@ If HIRE_messages = 1 Then
 
                                 If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
 
-                                msgbox "Testing -- SNAP_active = " & snap_active & vbcr & vbcr & "MFIP_active = " & MFIP_active & vbcr & vbcr & "GA_active = " & GA_active & vbcr & vbcr & "other_programs_active_or_pending = " & other_programs_active_or_pending  
+                                msgbox "Testing -- SNAP_active = " & snap_active & vbcr & vbcr & "MFIP_active = " & MFIP_active & vbcr & vbcr & "GA_active = " & GA_active & vbcr & vbcr & "other_programs_active_or_pending = " & other_programs_active_or_pending & vbcr & vbcr & "case_active = " & case_active
 
                                 'Update array with active and pending programs, and SNAP and MFIP statuses
                                 HIRE_case_details_array(HIRE_active_programs_const, case_count) = list_active_programs
                                 HIRE_case_details_array(HIRE_pending_programs_const, case_count) = list_pending_programs
-                                HIRE_case_details_array(HIRE_snap_status_const, case_count) = trim(snap_status)
-                                HIRE_case_details_array(HIRE_MFIP_status_const, case_count) = trim(mfip_status)
+                                HIRE_case_details_array(HIRE_SNAP_status_const, case_count) = trim(SNAP_status)
+                                HIRE_case_details_array(HIRE_MFIP_status_const, case_count) = trim(MFIP_status)
+                                HIRE_case_details_array(HIRE_GA_status_const, case_count) = trim(GA_status)
 
                                 'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                                 dail_row = 6
 
                                 'To do - do we need to determine recert/review for MFIP and UHFS? Will this impact whether message can be processed?
                                 
-                                If case_active = TRUE and SNAP_or_MFIP_active = True and other_programs_active_or_pending = "" Then
+                                If case_active = TRUE and SNAP_MFIP_GA_active = True and other_programs_active_or_pending = "" Then
                                     'To do - need handling to navigate to MFIP and/or GA after SNAP that takes into account where the message ends (i.e. if it is on STAT/REVW, vs ELIG vs. CASE/CURR)
                                     If SNAP_active = True Then
                                         'The case is active on SNAP, will gather more details about SNAP
@@ -4264,7 +4303,12 @@ If HIRE_messages = 1 Then
 
                                         EMReadScreen no_SNAP, 10, 24, 2
                                         If no_SNAP = "NO VERSION" then						'NO SNAP version means no determination
-                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            Else
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            End If
+
                                             HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                         Else
 
@@ -4283,7 +4327,11 @@ If HIRE_messages = 1 Then
                                             Loop until app_status = "APPROVED" or app_status = ""
 
                                             If app_status = "" or app_status <> "APPROVED" then
-                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                Else
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                End If
                                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
                                                 EMReadScreen vers_number, 1, status_row, 23
@@ -4363,12 +4411,21 @@ If HIRE_messages = 1 Then
                                                             renewal_6_month_check = True
                                                         Else 
                                                             renewal_6_month_check = False
-                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = "SR Report Date and Recertification are not 6 months apart"
+
+                                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; SR Report Date and Recertification are not 6 months apart"
+                                                            Else
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SR Report Date and Recertification are not 6 months apart"
+                                                            End If
                                                         End if
                                                     
                                                     Else
                                                         renewal_6_month_check = False
-                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = "SR Report Date and/or Recertification Date is missing"
+                                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; SR Report Date and/or Recertification Date is missing"
+                                                        Else
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SR Report Date and/or Recertification Date is missing"
+                                                        End If
                                                     End If
                                                     
                                                     'Close the FS screen
@@ -4389,299 +4446,311 @@ If HIRE_messages = 1 Then
                                         End If
                                     End If
 
-                                    'To do - probably not needed, but need to confirm
-                                    ' If MFIP_active = True Then
-                                    ' End If
+                                    'To do - need to add reading for MFIP
+                                    'To do - do we need to validate anything with MFIP? Verify the recert or review date?
+                                    If MFIP_active = True Then
+                                        'Navigate to MFSM panel to confirm review date
+                                        'Navigate to STAT/REVW to confirm review date
+                                        'To do - Compare the review dates - here or later?
+
+                                        'To ensure starting from DAIL, PF3 to get back to DAIL then navigate back to CASE/CURR
+                                        'Back to DAIL
+                                        PF3
+                                        'Navigate back to CASE/CURR
+                                        Call write_value_and_transmit("H", dail_row, 3)
+                                        'Update the footer month/year and then navigate to ELIG/GA
+
+                                        'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                        EMWriteScreen MAXIS_footer_month, 20, 54
+                                        EMWriteScreen MAXIS_footer_year, 20, 57
+                                        
+                                        'Navigate to ELIG/GA from CASE/CURR
+                                        EMWriteScreen "ELIG", 20, 22
+                                        Call write_value_and_transmit("MFIP", 20, 69)
+
+                                        EMReadScreen no_MFIP, 10, 24, 2
+                                        If no_MFIP = "NO VERSION" then						'NO GA version means no determination
+                                            If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            Else
+                                                HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            End If
+                                            HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                        Else
+
+                                            EMWriteScreen "99", 20, 79
+                                            transmit
+                                            'This brings up the GA versions of eligibility results to search for approved versions
+                                            status_row = 7
+                                            Do
+                                                EMReadScreen app_status, 8, status_row, 50
+                                                app_status = trim(app_status)
+                                                If app_status = "" then
+                                                    PF3
+                                                    exit do 	'if end of the list is reached then exits the do loop
+                                                End if
+                                                If app_status = "UNAPPROV" Then status_row = status_row + 1
+                                            Loop until app_status = "APPROVED" or app_status = ""
+
+                                            If app_status = "" or app_status <> "APPROVED" then
+                                                If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                    HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                Else
+                                                    HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                End If
+                                                HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                            Elseif app_status = "APPROVED" then
+
+                                                'Check for earned income
+                                                
+                                                EMReadScreen vers_number, 1, status_row, 23
+                                                Call write_value_and_transmit(vers_number, 18, 54)
+                                                'Navigate to MFSM panel to verify earned income total
+                                                Call write_value_and_transmit("MFSM", 20, 70)
+                                                EmReadScreen MFSM_panel_check, 4, 3, 47
+                                                If MFSM_panel_check <> "MFSM" Then msgbox "Testing -- 4511 Error unable to reach MFSM"
+                                                
+                                                'Read eligibility review date from MFSM panel
+                                                EMReadScreen MFIP_MFSM_review_date, 8, 11, 31
+                                                HIRE_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                
+                                                'Navigate to STAT/REVW to confirm review date there
+                                                EMWriteScreen "STAT", 20, 13
+                                                Call write_value_and_transmit("REVW", 20, 71)
+                                                
+                                                EmReadScreen REVW_panel_check, 4, 2, 46
+                                                If REVW_panel_check <> "REVW" Then msgbox "Testing -- 1634 Error unable to reach STAT/REVW"
+                                                
+                                                'Open the CASH/GRH window
+                                                Call write_value_and_transmit("X", 5, 35)
+                                                'Read eligibility review date 
+                                                EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
+                                                'If the review date is blank, then the case should be flagged and skipped for processing
+                                                If Inst(MFIP_STAT_REVW_review_date, "_") Then
+                                                    msgbox "Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
+                                                    HIRE_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                    If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                        HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
+                                                    Else
+                                                        HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "ER Report Date is blank on STAT/REVW"
+                                                    End If
+                                                    HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                                Else
+                                                    'ER Report date is filled out
+                                                    'Convert to MM/DD/YY
+                                                    MFIP_STAT_REVW_review_date = replace(MFIP_STAT_REVW_review_date, " ", "/")
+
+                                                    'Update the array
+                                                    HIRE_case_details_array(MFIP_STAT_REVW_review_date, case_count) = trim(MFIP_STAT_REVW_review_date)
+
+                                                    'Compare the review date from MFSM and from STAT/REVW to identify any discrepancies
+                                                    MFIP_MFSM_review_date = dateadd("d", 0, MFIP_MFSM_review_date)      'Convert to date
+                                                    MFIP_STAT_REVW_review_date = dateadd("d", 0, MFIP_STAT_REVW_review_date)      'Convert to date
+                                                    If MFIP_STAT_REVW_review_date <> MFIP_MFSM_review_date Then
+                                                        msgbox "Testing -- STAT/REVW does not match MFSM 1662"
+                                                        If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                            HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                        Else
+                                                            HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                        End If
+                                                        HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                                    End If
+                                                End If
+                                            End If
+                                        End If
+                                    End If
 
                                     If GA_active = True Then
-                                        'Determine current panel to determine if additional navigation needed
-                                        'To do - add handling to determine current MAXIS panel
-                                        EmReadScreen CASE_CURR_check, 4, 2, 55
-                                        EmReadScreen STAT_REVW_check, 4, 2, 46
-                                        EmReadScreen ELIG_FSSM_check, 4, 3, 54
-                                        EmReadScreen ELIG_FSPR_check, 4, 3, 48
-                                        EmReadScreen ELIG_ELIG_check, 4, 2, 52
-                                        If CASE_CURR_check = "CURR" Then
-                                            'Navigate to ELIG/GA
-                                            
-                                            'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
-                                            EMWriteScreen MAXIS_footer_month, 20, 54
-                                            EMWriteScreen MAXIS_footer_year, 20, 57
-                                            
-                                            'Navigate to ELIG/GA from FSSM
-                                            EMWriteScreen "ELIG", 20, 22
-                                            Call write_value_and_transmit("GA  ", 20, 69)
+                                        'To ensure starting from DAIL, PF3 to get back to DAIL then navigate back to CASE/CURR
+                                        'Back to DAIL
+                                        PF3
+                                        'Navigate back to CASE/CURR
+                                        Call write_value_and_transmit("H", dail_row, 3)
+                                        'Update the footer month/year and then navigate to ELIG/GA
 
-                                            EMReadScreen no_GA, 10, 24, 2
-                                            If no_GA = "NO VERSION" then						'NO SNAP version means no determination
-                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                            Else
-    
-                                                EMWriteScreen "99", 20, 78
-                                                transmit
-                                                'This brings up the GA versions of eligibility results to search for approved versions
-                                                status_row = 7
-                                                Do
-                                                    EMReadScreen app_status, 8, status_row, 50
-                                                    app_status = trim(app_status)
-                                                    If app_status = "" then
-                                                        PF3
-                                                        exit do 	'if end of the list is reached then exits the do loop
-                                                    End if
-                                                    If app_status = "UNAPPROV" Then status_row = status_row + 1
-                                                Loop until app_status = "APPROVED" or app_status = ""
-    
-                                                If app_status = "" or app_status <> "APPROVED" then
-                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                    HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                                Elseif app_status = "APPROVED" then
-
-                                                    'Check for earned income
-                                                    
-                                                    EMReadScreen vers_number, 1, status_row, 23
-                                                    Call write_value_and_transmit(vers_number, 18, 54)
-                                                    'Navigate to GAB1 panel to verify earned income total
-                                                    Call write_value_and_transmit("GAB1", 20, 70)
-                                                    EmReadScreen GAB1_panel_check, 4, 3, 49
-                                                    If GAB1_panel_check <> "GAB1" Then msgbox "Testing -- 4452 Error unable to reach GAB1"
-                                                    EMReadScreen GA_earned_income_total, 9, 9, 30
-                                                    GA_earned_income_total = trim(GA_earned_income_total)
-
-                                                    'Navigate to GASM panel
-                                                    Call write_value_and_transmit("GASM", 20, 71)
-                                                    
-                                                    'Read GASM panel to ensure that HRF Reporting is NON-HRF and Budget Cycle is PROSP
-                                                    EMReadScreen GA_HRF_reporting, 7, 8, 32
-                                                    EMReadScreen GA_budget_cycle, 5, 12, 32
-
-                                                    'To do - do we need a PF3 here?
-
-                                                End If
-                                            End If
-
-                                        ElseIf STAT_REVW_check = "REVW" Then
-                                            'Navigate back to DAIL then back to CASE/CURR
-                                            'Back to DAIL
-                                            PF3
-                                            'Navigate back to CASE/CURR
-                                            Call write_value_and_transmit("H", dail_row, 3)
-                                            'Update the footer month/year and then navigate to ELIG/GA
-
-                                            'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
-                                            EMWriteScreen MAXIS_footer_month, 20, 54
-                                            EMWriteScreen MAXIS_footer_year, 20, 57
-                                            
-                                            'Navigate to ELIG/GA from FSSM
-                                            EMWriteScreen "ELIG", 20, 22
-                                            Call write_value_and_transmit("GA  ", 20, 69)
-
-                                            EMReadScreen no_GA, 10, 24, 2
-                                            If no_GA = "NO VERSION" then						'NO GA version means no determination
-                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                            Else
-    
-                                                EMWriteScreen "99", 20, 78
-                                                transmit
-                                                'This brings up the GA versions of eligibility results to search for approved versions
-                                                status_row = 7
-                                                Do
-                                                    EMReadScreen app_status, 8, status_row, 50
-                                                    app_status = trim(app_status)
-                                                    If app_status = "" then
-                                                        PF3
-                                                        exit do 	'if end of the list is reached then exits the do loop
-                                                    End if
-                                                    If app_status = "UNAPPROV" Then status_row = status_row + 1
-                                                Loop until app_status = "APPROVED" or app_status = ""
-    
-                                                If app_status = "" or app_status <> "APPROVED" then
-                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                    HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                                Elseif app_status = "APPROVED" then
-
-                                                    'Check for earned income
-                                                    
-                                                    EMReadScreen vers_number, 1, status_row, 23
-                                                    Call write_value_and_transmit(vers_number, 18, 54)
-                                                    'Navigate to GAB1 panel to verify earned income total
-                                                    Call write_value_and_transmit("GAB1", 20, 70)
-                                                    EmReadScreen GAB1_panel_check, 4, 3, 49
-                                                    If GAB1_panel_check <> "GAB1" Then msgbox "Testing -- 4511 Error unable to reach GAB1"
-                                                    EMReadScreen GA_earned_income_total, 9, 9, 30
-                                                    GA_earned_income_total = trim(GA_earned_income_total)
-
-                                                    'Navigate to GASM panel
-                                                    Call write_value_and_transmit("GASM", 20, 71)
-                                                    
-                                                    'Read GASM panel to ensure that HRF Reporting is NON-HRF and Budget Cycle is PROSP
-                                                    EMReadScreen GA_HRF_reporting, 7, 8, 32
-                                                    EMReadScreen GA_budget_cycle, 5, 12, 32
-
-                                                    'To do - do we need a PF3 here?
-
-                                                End If
-                                            End If
-
-                                        ElseIf ELIG_FSSM_check = "FSSM" Then
-                                            'Navigate to ELIG/GA
-
-                                            'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
-                                            EMWriteScreen MAXIS_footer_month, 19, 54
-                                            EMWriteScreen MAXIS_footer_year, 19, 57
-                                            
-                                            'Navigate to ELIG/GA from FSSM
-                                            EMWriteScreen "ELIG", 19, 22
-                                            Call write_value_and_transmit("GA  ", 19, 70)
-
-                                            EMReadScreen no_GA, 10, 24, 2
-                                            If no_GA = "NO VERSION" then						'NO SNAP version means no determination
-                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                            Else
-    
-                                                EMWriteScreen "99", 20, 78
-                                                transmit
-                                                'This brings up the GA versions of eligibility results to search for approved versions
-                                                status_row = 7
-                                                Do
-                                                    EMReadScreen app_status, 8, status_row, 50
-                                                    app_status = trim(app_status)
-                                                    If app_status = "" then
-                                                        PF3
-                                                        exit do 	'if end of the list is reached then exits the do loop
-                                                    End if
-                                                    If app_status = "UNAPPROV" Then status_row = status_row + 1
-                                                Loop until app_status = "APPROVED" or app_status = ""
-    
-                                                If app_status = "" or app_status <> "APPROVED" then
-                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                    HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                                Elseif app_status = "APPROVED" then
-
-                                                    'Check for earned income
-                                                    
-                                                    EMReadScreen vers_number, 1, status_row, 23
-                                                    Call write_value_and_transmit(vers_number, 18, 54)
-                                                    'Navigate to GAB1 panel to verify earned income total
-                                                    Call write_value_and_transmit("GAB1", 20, 70)
-                                                    EmReadScreen GAB1_panel_check, 4, 3, 49
-                                                    If GAB1_panel_check <> "GAB1" Then msgbox "Testing -- 4511 Error unable to reach GAB1"
-                                                    EMReadScreen GA_earned_income_total, 9, 9, 30
-                                                    GA_earned_income_total = trim(GA_earned_income_total)
-
-                                                    'Navigate to GASM panel
-                                                    Call write_value_and_transmit("GASM", 20, 71)
-                                                    
-                                                    'Read GASM panel to ensure that HRF Reporting is NON-HRF and Budget Cycle is PROSP
-                                                    EMReadScreen GA_HRF_reporting, 7, 8, 32
-                                                    EMReadScreen GA_budget_cycle, 5, 12, 32
-
-                                                    'To do - do we need a PF3 here?
-
-                                                End If
-                                            End If
-
-                                        ElseIf ELIG_FSPR_check = "FSPR" Then
-                                            'Navigate to ELIG/GA
-
-                                            'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
-                                            EMWriteScreen MAXIS_footer_month, 19, 54
-                                            EMWriteScreen MAXIS_footer_year, 19, 57
-                                            
-                                            'Navigate to ELIG/GA from FSSM
-                                            EMWriteScreen "ELIG", 19, 22
-                                            Call write_value_and_transmit("GA  ", 19, 70)
-
-                                            EMReadScreen no_GA, 10, 24, 2
-                                            If no_GA = "NO VERSION" then						'NO SNAP version means no determination
-                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                            Else
-    
-                                                EMWriteScreen "99", 20, 78
-                                                transmit
-                                                'This brings up the GA versions of eligibility results to search for approved versions
-                                                status_row = 7
-                                                Do
-                                                    EMReadScreen app_status, 8, status_row, 50
-                                                    app_status = trim(app_status)
-                                                    If app_status = "" then
-                                                        PF3
-                                                        exit do 	'if end of the list is reached then exits the do loop
-                                                    End if
-                                                    If app_status = "UNAPPROV" Then status_row = status_row + 1
-                                                Loop until app_status = "APPROVED" or app_status = ""
-    
-                                                If app_status = "" or app_status <> "APPROVED" then
-                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                                                    HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                                                Elseif app_status = "APPROVED" then
-                                                    EMReadScreen vers_number, 1, status_row, 23
-                                                    Call write_value_and_transmit(vers_number, 18, 54)
-                                                    'Navigate to GAB1 panel to verify earned income total
-                                                    Call write_value_and_transmit("GAB1", 20, 70)
-                                                    EmReadScreen GAB1_panel_check, 4, 3, 49
-                                                    If GAB1_panel_check <> "GAB1" Then msgbox "Testing -- 4511 Error unable to reach GAB1"
-                                                    EMReadScreen GA_earned_income_total, 9, 9, 30
-                                                    GA_earned_income_total = trim(GA_earned_income_total)
-
-                                                    'Navigate to GASM panel
-                                                    Call write_value_and_transmit("GASM", 20, 71)
-                                                    
-                                                    'Read GASM panel to ensure that HRF Reporting is NON-HRF and Budget Cycle is PROSP
-                                                    EMReadScreen GA_HRF_reporting, 7, 8, 32
-                                                    EMReadScreen GA_budget_cycle, 5, 12, 32
-
-                                                    'To do - do we need a PF3 here?
-
-                                                End If
-                                            End If
-                                        Else
-                                            'Reached a panel not accounted for - error handling
-                                            msgbox "Testing -- 4415 - Encountered a panel not accounted for, add handling"
-                                        End If
+                                        'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
+                                        EMWriteScreen MAXIS_footer_month, 20, 54
+                                        EMWriteScreen MAXIS_footer_year, 20, 57
                                         
+                                        'Navigate to ELIG/GA from CASE/CURR
+                                        EMWriteScreen "ELIG", 20, 22
+                                        Call write_value_and_transmit("GA  ", 20, 69)
+
+                                        EMReadScreen no_GA, 10, 24, 2
+                                        If no_GA = "NO VERSION" then						'NO GA version means no determination
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            Else
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of GA exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            End If
+                                            HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                                        Else
+
+                                            EMWriteScreen "99", 20, 78
+                                            transmit
+                                            'This brings up the GA versions of eligibility results to search for approved versions
+                                            status_row = 7
+                                            Do
+                                                EMReadScreen app_status, 8, status_row, 50
+                                                app_status = trim(app_status)
+                                                If app_status = "" then
+                                                    PF3
+                                                    exit do 	'if end of the list is reached then exits the do loop
+                                                End if
+                                                If app_status = "UNAPPROV" Then status_row = status_row + 1
+                                            Loop until app_status = "APPROVED" or app_status = ""
+
+                                            If app_status = "" or app_status <> "APPROVED" then
+                                                If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                Else
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for GA exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                End If
+                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                                            Elseif app_status = "APPROVED" then
+
+                                                'Check for earned income
+                                                
+                                                EMReadScreen vers_number, 1, status_row, 23
+                                                Call write_value_and_transmit(vers_number, 18, 54)
+                                                'Navigate to GAB1 panel to verify earned income total
+                                                Call write_value_and_transmit("GAB1", 20, 70)
+                                                EmReadScreen GAB1_panel_check, 4, 3, 49
+                                                If GAB1_panel_check <> "GAB1" Then msgbox "Testing -- 4511 Error unable to reach GAB1"
+                                                EMReadScreen GA_earned_income_total, 9, 9, 30
+                                                GA_earned_income_total = trim(GA_earned_income_total)
+                                                'Update array
+                                                HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) = GA_earned_income_total
+
+                                                'Navigate to GASM panel
+                                                Call write_value_and_transmit("GASM", 20, 71)
+                                                
+                                                'Read GASM panel to ensure that HRF Reporting is NON-HRF and Budget Cycle is PROSP
+                                                EMReadScreen GA_reporting_status, 7, 8, 32
+                                                HIRE_case_details_array(HIRE_GA_reporting_status, case_count) = trim(GA_reporting_status)
+                                                
+                                                'To do  - add to array if needed
+                                                EMReadScreen GA_elig_begin_date, 8, 10, 32
+                                                EMReadScreen GA_elig_review_date, 8, 11, 32
+                                                
+                                                EMReadScreen GA_budget_cycle, 5, 12, 32
+                                                HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) = trim(GA_budget_cycle)
+
+                                            End If
+                                        End If
+
                                     End If
                                     
                                     'To do - do we need to validate anything with MFIP?
                                 Else
                                     'Case is not processable. Write information to array accordingly
                                     
-                                    'To do - need to update this
+                                    'To do - need to double-check this
                                     HIRE_case_details_array(HIRE_snap_type_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_reporting_status_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_sr_report_date_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_recertification_date_const, case_count) = "N/A"
+                                    HIRE_case_details_array(HIRE_GA_reporting_status, case_count) = "N/A"
+                                    HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) = "N/A"
+                                    HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = "Not processable"
                                     HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                 End If
 
                             End If    
 
-                            'To Do - add handling to determine if case can be processed
-                            
-                            If HIRE_case_details_array(HIRE_snap_status_const, case_count) = "ACTIVE" AND HIRE_case_details_array(snap_only_const, case_count) = "SNAP Only" AND HIRE_case_details_array(HIRE_reporting_status_const, case_count) = "SIX MONTH" and renewal_6_month_check = True then
-                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = True
-                            Else
+                            'To do - add handling for improved writing to processing notes
+                            'Only need to check if case is processable if it has not already been determined to be not processable
+                            If HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) <> False or trim(HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count)) = "" Then
+                                'Handling for SNAP, check if SNAP is active, if it is then verify it meets criteria
+                                If SNAP_active = True Then
+                                    If HIRE_case_details_array(HIRE_snap_type_const, case_count) = "SNAP" Then
+                                        If HIRE_case_details_array(HIRE_snap_status_const, case_count) <> "ACTIVE" OR HIRE_case_details_array(HIRE_reporting_status_const, case_count) <> "SIX MONTH" OR renewal_6_month_check <> True then
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; SNAP Not Processable"
+                                            Else
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SNAP Not Processable"
+                                            End If
+                                        End If            
+                                    ElseIf HIRE_case_details_array(HIRE_snap_type_const, case_count) = "UHFS" Then
+                                        If HIRE_case_details_array(HIRE_snap_status_const, case_count) <> "ACTIVE" OR HIRE_case_details_array(HIRE_reporting_status_const, case_count) <> "SIX MONTH" then
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; UHFS Not Processable"
+                                            Else
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "UHFS Not Processable"
+                                            End If
+                                        End If
+                                    Else
+                                        msgbox "Testing -- 4452 missing some handling here. Shouldn't be hitting these, right?"
+                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; SNAP or UHFS Not Processable"
+                                        Else
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SNAP or UHFS Not Processable"
+                                        End If
+                                    End If
+                                End If
+
+                                If MFIP_active = True Then
+                                    If HIRE_case_details_array(MFIP_status_const, case_count) <> "ACTIVE" then
+                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; MFIP Not Processable"
+                                        Else
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "MFIP Not Processable"
+                                        End If
+                                    End If
+                                End If
+
+                                If GA_active = True Then
+                                    If HIRE_case_details_array(GA_status_const, case_count) <> "ACTIVE" then
+                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Not Processable"
+                                        Else
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
+                                        End If
+                                    Else    
+                                        If HIRE_case_details_array(HIRE_GA_reporting_status, case_count) <> "NON-HRF" OR HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) <> "PROSP" OR HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) < 100 Then 
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Not Processable"
+                                            Else
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
+                                            End If
+                                        End If
+                                    End If
+                                End If
+                            End If
+
+                            If trim(HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)) <> "" Then
                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                            End if
+                            ElseIf trim(HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)) = "" Then
+                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = True
+                            End If
 
                             'Activate the case details sheet
                             objExcel.Worksheets("Case Details").Activate
 
                             'Update the Case Details sheet with case data
+                            'To Do - definitely double-check these
                             objExcel.Cells(case_excel_row, 1).Value = HIRE_case_details_array(HIRE_case_maxis_case_number_const, case_count)
                             objExcel.Cells(case_excel_row, 2).Value = HIRE_case_details_array(HIRE_case_worker_const, case_count)
-                            objExcel.Cells(case_excel_row, 3).Value = HIRE_case_details_array(HIRE_snap_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 4).Value = HIRE_case_details_array(snap_only_const, case_count)
-                            objExcel.Cells(case_excel_row, 5).Value = HIRE_case_details_array(HIRE_reporting_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 6).Value = HIRE_case_details_array(HIRE_sr_report_date_const, case_count)
-                            objExcel.Cells(case_excel_row, 7).Value = HIRE_case_details_array(HIRE_recertification_date_const, case_count)
-                            objExcel.Cells(case_excel_row, 8).Value = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)
-                            objExcel.Cells(case_excel_row, 9).Value = HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count)
-                            case_excel_row = case_excel_row + 1
+                            objExcel.Cells(case_excel_row, 3).Value = HIRE_case_details_array(HIRE_active_programs_const, case_count)
+                            objExcel.Cells(case_excel_row, 4).Value = HIRE_case_details_array(HIRE_pending_programs_const, case_count)
+                            objExcel.Cells(case_excel_row, 5).Value = HIRE_case_details_array(HIRE_snap_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 6).Value = HIRE_case_details_array(HIRE_snap_type_const, case_count)
+                            objExcel.Cells(case_excel_row, 7).Value = HIRE_case_details_array(HIRE_reporting_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 8).Value = HIRE_case_details_array(HIRE_sr_report_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 9).Value = HIRE_case_details_array(HIRE_recertification_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 10).Value = HIRE_case_details_array(HIRE_MFIP_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 11).Value = HIRE_case_details_array(HIRE_MFIP_MFSM_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 12).Value = HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 13).Value = HIRE_case_details_array(HIRE_GA_status_const, case_count)
+                            objExcel.Cells(case_excel_row, 14).Value = HIRE_case_details_array(HIRE_GA_reporting_status, case_count)
+                            objExcel.Cells(case_excel_row, 15).Value = HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count)
+                            objExcel.Cells(case_excel_row, 16).Value = HIRE_case_details_array(HIRE_GA_earned_income_const, case_count)
+                            objExcel.Cells(case_excel_row, 17).Value = HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 18).Value = HIRE_case_details_array(HIRE_GA_STAT_REVW_review_date_const, case_count)
+                            objExcel.Cells(case_excel_row, 19).Value = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)
+                            objExcel.Cells(case_excel_row, 20).Value = HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count)
+                            msgbox "Testing -- is the information correct in spreadsheet?"
 
                             EmReadScreen case_curr_check, 4, 2, 55
                             If case_curr_check = "CURR" Then
