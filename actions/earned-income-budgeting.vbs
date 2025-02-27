@@ -4913,15 +4913,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                             'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                             If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
                                                 If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then
-													Call create_mainframe_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), list_row, 13, "YY")           'this is the CIEW date - the one the owrker actually entered
-                                                    net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)      'taking out excluded amounts
-                                                    net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
-                                                    the_hours = FormatNumber(LIST_OF_INCOME_ARRAY(hours, all_income), 2, -1, 0, 0)
-                                                    EMWriteScreen net_amount, list_row, 25      'entering the pay amount to count
-                                                    EMWriteScreen the_hours, list_row, 35     'enting the hours
-
-                                                    updates_to_display = updates_to_display & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & net_amount & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & " hrs." & vbNewLine
-                                                    list_row = list_row + 1         'next line of the PIC'
 													If MX_region <> "INQUIRY DB" Then
 														If list_row = 14 Then
 															Do
@@ -4933,6 +4924,16 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 															list_row = 9
 														End If
                                                     End If
+													Call create_mainframe_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), list_row, 13, "YY")           'this is the CIEW date - the one the owrker actually entered
+                                                    net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)      'taking out excluded amounts
+                                                    net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
+                                                    the_hours = FormatNumber(LIST_OF_INCOME_ARRAY(hours, all_income), 2, -1, 0, 0)
+                                                    EMWriteScreen net_amount, list_row, 25      'entering the pay amount to count
+                                                    EMWriteScreen the_hours, list_row, 35     'enting the hours
+
+                                                    updates_to_display = updates_to_display & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & net_amount & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & " hrs." & vbNewLine
+                                                    list_row = list_row + 1         'next line of the PIC'
+
                                                 End If
                                             End If
                                         next
