@@ -11438,6 +11438,11 @@ If run_by_interview_team = True and developer_mode = False Then
 	Set info = xmlTracDoc.createTextNode(worker_name)
 	element.appendChild info
 
+	Set element = xmlTracDoc.createElement("WindowsUserID")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(windows_user_ID)
+	element.appendChild info
+
 	Set element = xmlTracDoc.createElement("CaseNumber")
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(MAXIS_case_number)
@@ -11744,19 +11749,19 @@ If run_by_interview_team = True and developer_mode = False Then
 		Set info = xmlTracDoc.createTextNode(HH_MEMB_ARRAY(rel_to_applcnt, the_members))
 		element.appendChild info
 
-		If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True Then
+		If HH_MEMB_ARRAY(memb_is_caregiver, the_members) = True Then
 			Set element = xmlTracDoc.createElement("MFIPOrientation")
 			root.appendChild element
-			If HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
+			If HH_MEMB_ARRAY(orientation_needed_const, the_members) = True and HH_MEMB_ARRAY(orientation_done_const, the_members) = False and HH_MEMB_ARRAY(orientation_exempt_const, the_members) = False Then
 				Set info = xmlTracDoc.createTextNode("Incomplete")
 				element.appendChild info
-			ElseIf  HH_MEMB_ARRAY(orientation_needed_const, caregiver) = False Then
+			ElseIf  HH_MEMB_ARRAY(orientation_needed_const, the_members) = False Then
 				Set info = xmlTracDoc.createTextNode("Not Needed")
 				element.appendChild info
-			ElseIf HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = True Then
+			ElseIf HH_MEMB_ARRAY(orientation_needed_const, the_members) = True and HH_MEMB_ARRAY(orientation_done_const, the_members) = True Then
 				Set info = xmlTracDoc.createTextNode("Completed")
 				element.appendChild info
-			ElseIf HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = True Then
+			ElseIf HH_MEMB_ARRAY(orientation_needed_const, the_members) = True and HH_MEMB_ARRAY(orientation_exempt_const, the_members) = True Then
 				Set info = xmlTracDoc.createTextNode("Exempt")
 				element.appendChild info
 			End If
