@@ -199,9 +199,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			CALL write_value_and_transmit("RCA ", 20, 69)
 
 			EMReadScreen no_RCA, 10, 24, 2
-			If no_RCA = "NO VERSION" then						'NO RCA version means no determination
-				'To Do - add handling here if no RCA version exists
-			Else
+			If no_RCA <> "NO VERSION" then
+				'RCA version exists so should eb at ELIG/RCA now
 				EMWriteScreen "99", 19, 78
 				transmit
 				'This brings up the FS versions of eligibility results to search for approved versions
@@ -216,9 +215,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 					If app_status = "UNAPPROV" Then status_row = status_row + 1
 				Loop until app_status = "APPROVED" or app_status = ""
 
-				If app_status = "" or app_status <> "APPROVED" then
-					'To do - add handling here if no approved status
-				Elseif app_status = "APPROVED" then
+				If app_status = "APPROVED" then
 					EMReadScreen vers_number, 1, status_row, 23
 					Call write_value_and_transmit(vers_number, 18, 54)
 					'Read the Elig Status for the HH Member
@@ -233,7 +230,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 							If members_display_check = "** NO MORE" Then
 								'Last page reached, navigate back to self as no matching member found
 								Call back_to_SELF
-								'To do - what variable to set in case it can't find member
 								exit do 	'if end of the list is reached then exits the do loop
 							Else
                                 'If script successfully navigated to next page then status_row needs to be reset
@@ -241,14 +237,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
 							End If
 						ElseIf ref_number = member_number then
 							'Found the matching Ref Number, check on Elig Status
-                            'To do - what to do with rca_case variable
 							EmReadScreen elig_status, 10, status_row, 53
 							elig_status = trim(elig_status)
 							If elig_status = "ELIGIBLE" Then 
 								rca_case = TRUE
 								verified_wreg = verified_wreg & "17" & "|"
-							Else
-								'To do - handling if ineligible
 							End If
 							Call back_to_SELF
 							exit do 	'if end of the list is reached then exits the do loop
@@ -257,7 +250,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 							status_row = status_row + 1
 						End If
 					Loop until ref_number = member_number
-					'To do - handling for HH members greater than single page
 				End If
 			End If
         End If
