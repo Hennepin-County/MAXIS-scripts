@@ -155,47 +155,62 @@ function end_script_run_due_to_error(reason)
 	error_details_from_worker = trim(error_details_from_worker)
 	script_run_lowdown = script_run_lowdown & vbCr & "INFORMATION FROM WORKER: " & error_details_from_worker & vbCr
 
+	full_text = "<H3>CASE " & MAXIS_case_number & " MUST BE UPDATED AND REAPPROVED.</H3>"
+	full_text = full_text & "<em>The Eligibility Summary script identified an error on the approval and generated this email.</em>" & "<br>"
+	full_text = full_text & "The worker was notified of the error and may be processing the required change." & "<br>"
+	full_text = full_text & "<H4>Please check this case in the next hour to ensure the case was correctly approved. If it has not been fixed, contact the worker to provide direction and support.</H4>"
+
+	full_text = full_text &	"Error identified on this approval:"
+
+	subject_of_email = "CASE " & MAXIS_case_number & " has an incorrect approval for "
 	If reason = "MFIP SUSPENDED" Then
-		script_run_lowdown = script_run_lowdown & vbCr & "MFIP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+		subject_of_email = subject_of_email & "MFIP in " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+		full_text = full_text &	"<ul><li><H3>MFIP was approved in " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & " as 'Suspended'.</H3></li>"
+		full_text = full_text &	"<ul><li>Suspended approvals are no longer a correct process as cases are not reviewed monthly.</li>"
+		full_text = full_text &	"<li>The budget should be reviewed to ensure prospective budgeting is applied and MFIP closed if the case is still over income, remembering to assess for SNAP.</li></ul></ul>"
+
 		script_run_lowdown = script_run_lowdown & vbCr & "Earned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_monthly_earned_income
 		script_run_lowdown = script_run_lowdown & vbCr & "Unearned Income: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budg_unearned_income
 
 		close_msg = "Script run ended due to an apparent error in the MFIP approval with benefits being suspended."
 	End If
 	If reason = "SNAP MONTHLY" Then
-		script_run_lowdown = script_run_lowdown & vbCr & "SNAP Approval Month: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year
+		subject_of_email = subject_of_email & "SNAP in " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_year
+		full_text = full_text &	"<ul><li><H3>SNAP was approved in " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_year & " as 'MONTHLY Reporting' which has ended.</H3></li>"
+		full_text = full_text &	"<ul><li>Unlike MFIP, SNAP results with MONTHLY reporting need to be FIATed to follow the correct reporting process.</li>"
+		full_text = full_text &	"<li>Review the case to determine if Six-Month or Change reporting is appropriate for this case and FIAT.</li></ul></ul>"
 		script_run_lowdown = script_run_lowdown & vbCr & "Reporting Status: " & SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_reporting_status
 
 		close_msg = "Script run ended due to UHFS being approved with MONTHLY reporting status."
 	End If
 	If reason = "GA MONTHLY" Then
-		script_run_lowdown = script_run_lowdown & vbCr & "GA Approval Month: " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & "/" & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year
+		subject_of_email = subject_of_email & "GA in " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & "/" & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year
+		full_text = full_text &	"<ul><li><H3>GA was approved in " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & "/" & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & " as 'MONTHLY Reporting' which has ended.</H3></li>"
+		full_text = full_text &	"<ul><li>The FIAT process should include changing the reporting and budgeting to meet the workaround direction.</li></ul></ul>"
 		script_run_lowdown = script_run_lowdown & vbCr & "Reporting Status: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_hrf_reporting
 
 		close_msg = "Script run ended due to GA being approved with MONTHLY reporting status."
 	End If
+	If error_details_from_worker <> "" Then full_text = full_text & "<Strong>Worker Entered Explanation/Information:</strong>" & "<br>" & error_details_from_worker & "<br>" & "<br>"
 
-	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
-	subject_of_email = "ELIG SUMM -- Ended for " & reason & " Error - Case " & MAXIS_case_number & " (Automated Report)"
-    full_text = "Script Run occurred on " & date & " at " & time & vbCr
+	full_text = full_text & "The policy change to end monthly reporting when into effect 03/25. Currently, MAXIS has not yet been updated to fully support this policy change and workarounds or FIATs may be required.<br>Details of the direction from DHS can be found here:" & "<br>"
+	full_text = full_text & "&emsp;- <a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/Shared%20Documents/Guide%20to%20Six-Month%20Budgeting%20Final%20Version%201-31-25.pdf" & chr(34) & ">Guide to Six-Month Budgeting</a><br>"
+	full_text = full_text & "&emsp;- <a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/Shared%20Documents/Six-Month%20Budgeting%20Questions%20and%20Answers%20for%20cash%20and%20UHFS%20v1.pdf" & chr(34) & ">FAQ for Six-Month Budgeting</a><br>"
+	full_text = full_text & "&emsp;(These open in SIR and will require login - remember the username prefix 'MN-DHSCS\')" & "<br>" & "<br>"
 
-	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_active_programs
-	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_pending_programs & vbCr
+	full_text = full_text &	"Please check in on the case " & MAXIS_case_number & " with the following details in mind:<br><strong>THIS CASE MUST BE UPDATED AND RE-APPROVED.</strong><br>Once re-approved, the script Eligibility Summary should be run again to document the approval." & "<br>"
+	full_text = full_text & "For policy questions on this issue or case, contact Knowledge Now." & "<br>"
+	full_text = full_text & "For script operation questions, email the Automation & Integration team at hsph.ews.bluezonescripts@hennepin.us ." & "<br>"
+	full_text = full_text & "Thank you for your time and attention to this issue." & "<br>"
+	full_text = full_text & "<br>" & "-- Email sent from an Automated Process in the BlueZone Scripts. ---" & "<br>"
 
-	full_text = full_text & vbCr & "numb_DWP_versions - " & numb_DWP_versions
-	full_text = full_text & vbCr & "numb_MFIP_versions - " & numb_MFIP_versions
-	full_text = full_text & vbCr & "numb_MSA_versions - " & numb_MSA_versions
-	full_text = full_text & vbCr & "numb_GA_versions - " & numb_GA_versions
-	full_text = full_text & vbCr & "numb_CASH_denial_versions - " & numb_CASH_denial_versions
-	full_text = full_text & vbCr & "numb_GRH_versions - " & numb_GRH_versions
-	full_text = full_text & vbCr & "numb_SNAP_versions - " & numb_SNAP_versions
+    full_text = full_text & "<br>" & "<br>" & "<small>Script Run occurred on " & date & " at " & time & "</small>"
 
-	full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+	full_text = full_text & "<br>" & "<small>Sent by: " & script_run_worker & "</small>"
 
-	If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
 	attachment_here = ""
 
-	Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
+	Call create_outlook_email("", supervisor_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
 
 	close_msg = close_msg & vbCr & "Script cannot continue with this error."
 	close_msg = close_msg & vbCr & vbCr & "Error detail has been sent for review."
@@ -287,6 +302,54 @@ function determine_mfip_counted_amount(gross_amount, counted_amount)
 	counted_amount = FormatNumber(counted_amount, 2, -1, 0, -1)
 	gross_amount = FormatNumber(gross_amount, 2, -1, 0, -1)
 	' MsgBox "gross_amount - " & gross_amount & vbCr & "counted_amount - " & counted_amount
+end function
+
+function gather_supervisor_email(script_user_email, supervisor_email)
+	Call back_to_SELF													'make sure we are on SELF
+	EMReadScreen script_user_x_number, 7, 22, 8							'read the X number of the person signed into MX
+	Call navigate_to_MAXIS_screen("REPT", "USER")						'go to REPT/USER to gather additional details
+	Call write_value_and_transmit(script_user_x_number, 21, 12)			'enter the x-number from SELF in the search area and search
+	Call write_value_and_transmit("X", 7, 3)							'select the first row of the search results which will always be the exact match of the x-number search
+
+	row = 1																'Search the window for the supervisor X-number
+	col = 1
+	EMSearch "SUPR ID:", row, col
+	EMReadScreen supervisor_x_number, 7, row, col+9
+
+	Call back_to_SELF													'return to SELF so we aren't in a weird REPT/USER location for the script to operate well.
+
+	'Now we are going to search the VIEW with user information for the county to gather the email.
+	Set objConnection = CreateObject("ADODB.Connection")				'create the connection and record objects
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'first Query for the supervisor record - there should only be 1 result
+	SQL_table = "SELECT * FROM  ES.V_ESAllStaff WHERE EmpStateLogOnID = '" & supervisor_x_number & "'"
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		supervisor_email = objRecordSet("EmployeeEmail")				'save the email for the supervisor
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from this query
+	objRecordSet.Close
+
+	'next QUERY for the worker email!
+	SQL_table = "SELECT * FROM  ES.V_ESAllStaff WHERE EmpStateLogOnID = '" & script_user_x_number & "'"
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		script_user_email = objRecordSet("EmployeeEmail")				'save the email for the user
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	objRecordSet.Close													'close the connections and release the object
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
 end function
 
 function supportive_housing_disregard_error(supportive_housing_applies)
@@ -20308,6 +20371,7 @@ For each_month = 0 to Ubound(footer_month_array)
 	End If
 Next
 Call back_to_SELF
+Call gather_supervisor_email(script_user_email, supervisor_email)
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 row = 1
