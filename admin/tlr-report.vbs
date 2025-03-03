@@ -185,7 +185,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
 	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
-	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
+	'Person-based determination -- Looking for RCA information while still on CASE/CURR and then navigating to ELIG/RCA to confirm eligible member(s)	
 	row = 1                                            
     col = 1
     EMSearch "RCA:", row, col
@@ -194,11 +194,75 @@ Function BULK_ABAWD_FSET_exemption_finder()
         rca_status = trim(rca_status)
 		rca_status = rca_status
         If rca_status = "ACTIVE" or rca_status = "APP CLOSE" or rca_status = "APP OPEN" Then
-            rca_case = TRUE
-			verified_wreg = verified_wreg & "17" & "|"
+			'Navigate to ELIG/RCA to verify if member is eligible for RCA
+			EMWriteScreen "ELIG", 20, 22
+			CALL write_value_and_transmit("RCA ", 20, 69)
+
+			EMReadScreen no_RCA, 10, 24, 2
+			If no_RCA = "NO VERSION" then						'NO RCA version means no determination
+				'To Do - add handling here if no RCA version exists
+			Else
+				EMWriteScreen "99", 19, 78
+				transmit
+				'This brings up the FS versions of eligibility results to search for approved versions
+				status_row = 7
+				Do
+					EMReadScreen app_status, 8, status_row, 50
+					app_status = trim(app_status)
+					If app_status = "" then
+						PF3
+						exit do 	'if end of the list is reached then exits the do loop
+					End if
+					If app_status = "UNAPPROV" Then status_row = status_row + 1
+				Loop until app_status = "APPROVED" or app_status = ""
+
+				If app_status = "" or app_status <> "APPROVED" then
+					'To do - add handling here if no approved status
+				Elseif app_status = "APPROVED" then
+					EMReadScreen vers_number, 1, status_row, 23
+					Call write_value_and_transmit(vers_number, 18, 54)
+					'Read the Elig Status for the HH Member
+					status_row = 7
+					Do
+                        EMReadScreen ref_number, 2, status_row, 6
+                        ref_number = trim(ref_number)
+						If ref_number = "" then
+							'Check if we are on last page of members - try to PF8 to next page
+							PF8
+							EMReadScreen members_display_check, 10, 24, 2
+							If members_display_check = "** NO MORE" Then
+								'Last page reached, navigate back to self as no matching member found
+								Call back_to_SELF
+								'To do - what variable to set in case it can't find member
+								exit do 	'if end of the list is reached then exits the do loop
+							Else
+                                'If script successfully navigated to next page then status_row needs to be reset
+								status_row = 7
+							End If
+						ElseIf ref_number = member_number then
+							'Found the matching Ref Number, check on Elig Status
+                            'To do - what to do with rca_case variable
+							EmReadScreen elig_status, 10, status_row, 53
+							elig_status = trim(elig_status)
+							If elig_status = "ELIGIBLE" Then 
+								rca_case = TRUE
+								verified_wreg = verified_wreg & "17" & "|"
+							Else
+								'To do - handling if ineligible
+							End If
+							Call back_to_SELF
+							exit do 	'if end of the list is reached then exits the do loop
+						Else
+                            'If no match found, then move to the next row
+							status_row = status_row + 1
+						End If
+					Loop until ref_number = member_number
+					'To do - handling for HH members greater than single page
+				End If
+			End If
         End If
 	End if 
-	
+
 	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th 
 	''<<<<<<<<<<PROG for Foster care 
 	'Person-based evaluation
