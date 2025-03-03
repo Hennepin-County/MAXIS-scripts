@@ -904,21 +904,90 @@ Function ABAWD_FSET_exemption_finder()
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
     '----------------------------------------------------------------------------------------------------17 – Receiving RCA
-	'Case-based determination -- Looking for RCA information while still on CASE/CURR
-	row = 1
+	'Person-based determination -- Looking for RCA information while still on CASE/CURR
+	row = 1                                            
     col = 1
     EMSearch "RCA:", row, col
     If row <> 0 Then
-        EMReadScreen rca_status, 9, row, col + 5
+		EMReadScreen rca_status, 9, row, col + 5
         rca_status = trim(rca_status)
 		rca_status = rca_status
         If rca_status = "ACTIVE" or rca_status = "APP CLOSE" or rca_status = "APP OPEN" Then
-            rca_case = TRUE
-			verified_wreg = verified_wreg & "17" & "|"
-        End If
-	End if
+			'Navigate to ELIG/RCA to verify if member is eligible for RCA
+			EMWriteScreen "ELIG", 20, 22
+			CALL write_value_and_transmit("RCA ", 20, 69)
 
-     For items = 0 to UBound(eats_group_array, 2)
+			EMReadScreen no_RCA, 10, 24, 2
+			If no_RCA <> "NO VERSION" then
+				'RCA version exists so should eb at ELIG/RCA now
+				EMWriteScreen "99", 19, 78
+				transmit
+				'This brings up the FS versions of eligibility results to search for approved versions
+				status_row = 7
+				Do
+					EMReadScreen app_status, 8, status_row, 50
+					app_status = trim(app_status)
+					If app_status = "" then
+						PF3
+						exit do 	'if end of the list is reached then exits the do loop
+					End if
+					If app_status = "UNAPPROV" Then status_row = status_row + 1
+				Loop until app_status = "APPROVED" or app_status = ""
+
+				If app_status = "APPROVED" then
+					EMReadScreen vers_number, 1, status_row, 23
+					Call write_value_and_transmit(vers_number, 18, 54)
+
+					'Read the status for all HH membs
+					For items = 0 to UBound(eats_group_array, 2)
+						'Read the Elig Status for each HH Member
+						status_row = 7
+						Do
+							EMReadScreen ref_number, 2, status_row, 6
+							ref_number = trim(ref_number)
+							If ref_number = "" then
+								'Check if we are on last page of members - try to PF8 to next page
+								PF8
+								EMReadScreen members_display_check, 10, 24, 2
+								If members_display_check = "** NO MORE" Then
+									'Last page reached without finding matching HH memb, reset back to first page for next member
+									Do
+										PF7
+										EmReadScreen first_page_check, 20, 24, 2
+									Loop until first_page_check = "** THIS IS THE FIRST"
+									exit do		'Exit do to move to next HH memb
+								Else
+									'If script successfully navigated to next page then status_row needs to be reset
+									status_row = 7
+								End If
+							ElseIf ref_number = eats_group_array(memb_number_const, items) then
+								'Found the matching Ref Number, check on Elig Status
+								EmReadScreen elig_status, 10, status_row, 53
+								elig_status = trim(elig_status)
+								If elig_status = "ELIGIBLE" Then 
+									eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active and Eligible. "
+									eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
+								End If
+								
+								'Regardless of whether HH member is eligible for RCA, need to reset back to start to search next HH memb
+								Do
+									PF7
+									EmReadScreen first_page_check, 20, 24, 2
+								Loop until first_page_check = "** THIS IS THE FIRST"
+								exit do 	'Exit do to move to next HH memb
+							Else
+								'If no match found, then move to the next row
+								status_row = status_row + 1
+							End If
+						Loop until ref_number = eats_group_array(memb_number_const, items)
+					Next
+				End If
+			End If
+        End If
+	End if 
+
+
+    For items = 0 to UBound(eats_group_array, 2)
         '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
         If mfip_case = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active. "
@@ -928,11 +997,6 @@ Function ABAWD_FSET_exemption_finder()
         If DWP_case = True then
             eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "DWP Active. "
             eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "20" & "|"
-        End if
-        '----------------------------------------------------------------------------------------------------17 - Receiving RCA
-        If rca_case = TRUE = True then
-            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active. "
-            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
         End if
     Next
 
@@ -1405,7 +1469,7 @@ Function ABAWD_FSET_exemption_finder()
     For items = 0 to UBound(eats_group_array, 2)
         If trim(eats_group_array(verified_exemption_const, items)) = "" then eats_group_array(verified_exemption_const, items) = "N/A"
         If trim(eats_group_array(potential_exempt_const, items)) = "" then eats_group_array(potential_exempt_const, items) = "N/A"
-        exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const , items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _
+        exemption_message = exemption_message & "------------------------------ " & vbcr & "MEMB #" & eats_group_array(memb_number_const, items) & eats_group_array(memb_name_const, items) & ":" & vbcr & "------------------------------ " & vbcr & _
         "Verified Exemptions: " & eats_group_array(verified_exemption_const, items) & vbcr & "Potential Exemptions: " & eats_group_array(potential_exempt_const, items) & vbcr
     Next
 
