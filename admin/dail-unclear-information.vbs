@@ -1472,7 +1472,7 @@ If CSES_messages = 1 Then
                                                 End If
                                                 
                                                 'To do - do we care about the recert or review dates for UHFS?
-                                                If reporting_status = "SIX MONTH" and UHFS_status_check <> "'UNCLE HARRY' FS" Then
+                                                If reporting_status = "SIX MONTH" Then
                                                     'Navigate to STAT/REVW to confirm recertification and SR report date
                                                     EMWriteScreen "STAT", 19, 22
                                                     EMWaitReady 0, 0
@@ -1563,7 +1563,6 @@ If CSES_messages = 1 Then
                                     If MFIP_active = True Then
                                         'Navigate to MFSM panel to confirm review date
                                         'Navigate to STAT/REVW to confirm review date
-                                        'Compare the review dates - here or later?
 
                                         'To ensure starting from DAIL, PF3 to get back to DAIL then navigate back to CASE/CURR
                                         'Back to DAIL
@@ -1592,7 +1591,7 @@ If CSES_messages = 1 Then
 
                                             EMWriteScreen "99", 20, 79
                                             transmit
-                                            'This brings up the GA versions of eligibility results to search for approved versions
+                                            'This brings up the MFIP versions of eligibility results to search for approved versions
                                             status_row = 7
                                             Do
                                                 EMReadScreen app_status, 8, status_row, 50
@@ -1612,13 +1611,11 @@ If CSES_messages = 1 Then
                                                 End If
                                                 CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
-
-                                                'Check for earned income
-                                                
+                                                'View approved eligibility results
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
-                                                'Navigate to MFSM panel to verify earned income total
-                                                Call write_value_and_transmit("MFSM", 20, 70)
+                                                'Navigate to MFSM panel to read the eligibility review date
+                                                Call write_value_and_transmit("MFSM", 20, 71)
                                                 EmReadScreen MFSM_panel_check, 4, 3, 47
                                                 If MFSM_panel_check <> "MFSM" Then msgbox "Testing -- 4511 Error unable to reach MFSM"
                                                 
@@ -1639,7 +1636,7 @@ If CSES_messages = 1 Then
                                                 EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
                                                 If Inst(MFIP_STAT_REVW_review_date, "_") Then
-                                                    msgbox "Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
+                                                    msgbox "Delete after Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
                                                     CSES_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
                                                     If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
                                                         CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
@@ -1648,12 +1645,11 @@ If CSES_messages = 1 Then
                                                     End If
                                                     CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                                 Else
-                                                    'ER Report date is filled out
-                                                    'Convert to MM/DD/YY
+                                                    'ER Report date is filled out so convert to MM/DD/YY
                                                     MFIP_STAT_REVW_review_date = replace(MFIP_STAT_REVW_review_date, " ", "/")
 
                                                     'Update the array
-                                                    CSES_case_details_array(MFIP_STAT_REVW_review_date, case_count) = trim(MFIP_STAT_REVW_review_date)
+                                                    CSES_case_details_array(MFIP_STAT_REVW_review_date_const, case_count) = trim(MFIP_STAT_REVW_review_date)
 
                                                     'Compare the review date from MFSM and from STAT/REVW to identify any discrepancies
                                                     MFIP_MFSM_review_date = dateadd("d", 0, MFIP_MFSM_review_date)      'Convert to date
@@ -1673,16 +1669,18 @@ If CSES_messages = 1 Then
                                     End If
                                 Else
                                     'Case is not processable. Write information to array accordingly
+                                    'To do - update to fill out all details of array
                                     CSES_case_details_array(snap_type_const, case_count) = "N/A"
                                     CSES_case_details_array(reporting_status_const, case_count) = "N/A"
                                     CSES_case_details_array(sr_report_date_const, case_count) = "N/A"
                                     CSES_case_details_array(recertification_date_const, case_count) = "N/A"
+                                    CSES_case_details_array(MFIP_MFSM_review_date_const, case_count) = "N/A"
+                                    CSES_case_details_array(MFIP_STAT_REVW_review_date_const, case_count) = "N/A"
                                     CSES_case_details_array(case_processing_notes_const, case_count) = "Not processable"
                                     CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                 End If
                             End If    
 
-                            'To do - verify handling needed for UHFS - does the recert and/or review dates matter for UHFS?
                             'Only need to check if case is processable if it has not already been determined to be not processable
                             If CSES_case_details_array(processable_based_on_case_const, case_count) <> False or trim(CSES_case_details_array(processable_based_on_case_const, case_count)) = "" Then
                                 'Handling for SNAP, check if SNAP is active, if it is then verify it meets criteria
@@ -1696,7 +1694,7 @@ If CSES_messages = 1 Then
                                             CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & " UHFS Not Processable; "
                                         End If
                                     Else
-                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "SNAP or UHFS Not Processable; "
+                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "Check ERROR! --SNAP or UHFS Not Processable; "
                                     End If
                                 End If
 
@@ -1968,7 +1966,13 @@ If CSES_messages = 1 Then
                                             ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") Then
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
                                                 QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            Else
+                                            ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "ER Report Date is blank on STAT/REVW") Then
+                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                            ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") Then
+                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                            Else    
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details: " & CSES_case_details_array(case_processing_notes_const, each_case)
                                                 not_processable_msg_count = not_processable_msg_count + 1
                                             End If
@@ -1989,7 +1993,7 @@ If CSES_messages = 1 Then
 
                                             'To do - need to add handling for MFIP and UHFS and whether the recert/review date matters compared to the message month; also if SNAP then does it matter? Add something like, if SNAP_type = SNAP then, if SNAP_type = UHFS then, if MFIP_active = true then
 
-                                            If CSES_case_details_array(snap_type_const, each_case) = "SNAP" Then
+                                            If CSES_case_details_array(snap_type_const, each_case) = "SNAP" or CSES_case_details_array(snap_type_const, each_case) = "UHFS" Then
                                                 'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                                 If DateAdd("m", 0, CSES_case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, CSES_case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
                                                     If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
@@ -1998,7 +2002,7 @@ If CSES_messages = 1 Then
                                                         
                                                         If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
 
-                                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal for SNAP/UHFS. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                             objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                                             not_processable_msg_count = not_processable_msg_count + 1
 
@@ -2022,64 +2026,37 @@ If CSES_messages = 1 Then
                                                 End If
                                             End If
 
-                                            'To do - update with UHFS 
-                                            If CSES_case_details_array(snap_type_const, each_case) = "UHFS" Then
-                                                'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
-                                                If DateAdd("m", 0, CSES_case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, CSES_case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
-                                                    If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
-
-                                                    If dail_type = "CSES" Then
-                                                        
-                                                        If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
-
-                                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
-                                                            objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
-                                                            not_processable_msg_count = not_processable_msg_count + 1
-
-                                                            'The dail message cannot be processed due to timing of recertification or SR report date
-                                                            process_dail_message = False
-
-                                                            list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-
-                                                        Else
-
-                                                            'Process the CSES message here
-                                                            process_dail_message = True
-
-                                                        End If
-                                                    End If
-
-                                                Else
-                                                    'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                                                    process_dail_message = True
-                                                    
-                                                End If
-                                            End If
-
-                                            'To do - update handling for MFIP
+                                            'To do - update handling for MFIP, if SNAP has already determined it can't be processed then MFIP doesn't matter
                                             If CSES_case_details_array(MFIP_status_const, each_case) = "ACTIVE" Then
                                                 'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
-                                                If DateAdd("m", 0, CSES_case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, CSES_case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
+                                                'Subtract 6 months from ER Report Date to get review date
+                                                ER_report_minus_6_months = DateAdd("m", -6, CSES_case_details_array(MFIP_STAT_REVW_review_date_const, each_case))
+                                                msgbox "Delete after testing -- ER_report_minus_6_months " & ER_report_minus_6_months
+
+                                                If DateAdd("m", 0, CSES_case_details_array(MFIP_STAT_REVW_review_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, ER_report_minus_6_months) = DateAdd("m", 1, footer_month_day_year) Then
                                                     If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                     If dail_type = "CSES" Then
                                                         
                                                         If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
 
-                                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                            If trim(DAIL_message_array(dail_processing_notes_const, dail_count)) = "" then
+                                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal for MFIP. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                            Else
+                                                                DAIL_message_array(dail_processing_notes_const, dail_count) = DAIL_message_array(dail_processing_notes_const, dail_count) & "; Not Processable due to DAIL Month & Recert/Renewal for MFIP. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                            End If
+                                                            
                                                             objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                                             not_processable_msg_count = not_processable_msg_count + 1
 
                                                             'The dail message cannot be processed due to timing of recertification or SR report date
                                                             process_dail_message = False
-
+                                                            'Add to skip list
                                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                                         Else
-
-                                                            'Process the CSES message here
+                                                            'DAIL message can be processed
                                                             process_dail_message = True
-
                                                         End If
                                                     End If
 
@@ -2364,7 +2341,7 @@ If CSES_messages = 1 Then
                                                             
                                                             If unea_panels_count = "1" Then
                                                                 'If there is only one UNEA panel and it is not a Type 37 then it will update processing notes
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 37) exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 37) exists for caregiver M" & caregiver_ref_nbr & "."
 
                                                             ElseIf unea_panels_count <> "1" Then
                                                                 'If there are more than just a single UNEA panel, loop through them all to check for Type 37
@@ -4421,7 +4398,7 @@ If HIRE_messages = 1 Then
                                                 End If
                                                 
                                                 'To do - do we care about the recert or review dates for UHFS?
-                                                If reporting_status = "SIX MONTH" and UHFS_status_check <> "'UNCLE HARRY' FS" Then
+                                                If reporting_status = "SIX MONTH" Then
                                                     'Navigate to STAT/REVW to confirm recertification and SR report date
                                                     EMWriteScreen "STAT", 19, 22
                                                     EMWaitReady 0, 0
