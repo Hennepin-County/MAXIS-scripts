@@ -1588,7 +1588,6 @@ If CSES_messages = 1 Then
                                             End If
                                             CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                         Else
-
                                             EMWriteScreen "99", 20, 79
                                             transmit
                                             'This brings up the MFIP versions of eligibility results to search for approved versions
@@ -1635,13 +1634,13 @@ If CSES_messages = 1 Then
                                                 'Read eligibility review date 
                                                 EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
-                                                If Inst(MFIP_STAT_REVW_review_date, "_") Then
+                                                If Instr(MFIP_STAT_REVW_review_date, "_") Then
                                                     msgbox "Delete after Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
                                                     CSES_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
                                                     If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
-                                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
+                                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; MFIP - ER Report Date is blank on STAT/REVW"
                                                     Else
-                                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "ER Report Date is blank on STAT/REVW"
+                                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "MFIP - ER Report Date is blank on STAT/REVW"
                                                     End If
                                                     CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                                 Else
@@ -1687,20 +1686,37 @@ If CSES_messages = 1 Then
                                 If SNAP_active = True Then
                                     If CSES_case_details_array(snap_type_const, case_count) = "SNAP" Then
                                         If CSES_case_details_array(snap_status_const, case_count) <> "ACTIVE" OR CSES_case_details_array(reporting_status_const, case_count) <> "SIX MONTH" OR renewal_6_month_check <> True then
-                                            CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & " SNAP Not Processable; "
+                                            If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; SNAP Not Processable"
+                                            Else
+                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "SNAP Not Processable"
+                                            End If
                                         End If            
                                     ElseIf CSES_case_details_array(snap_type_const, case_count) = "UHFS" Then
                                         If CSES_case_details_array(snap_status_const, case_count) <> "ACTIVE" OR CSES_case_details_array(reporting_status_const, case_count) <> "SIX MONTH" then
-                                            CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & " UHFS Not Processable; "
+                                            If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; UHFS Not Processable"
+                                            Else
+                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "UHFS Not Processable"
+                                            End If
                                         End If
                                     Else
-                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "Check ERROR! --SNAP or UHFS Not Processable; "
+                                        msgbox "Testing -- 1705 missing some handling here. Shouldn't be hitting these, right?"
+                                        If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                            CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; SNAP or UHFS Not Processable"
+                                        Else
+                                            CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "SNAP or UHFS Not Processable"
+                                        End If
                                     End If
                                 End If
 
                                 If MFIP_active = True Then
                                     If CSES_case_details_array(MFIP_status_const, case_count) <> "ACTIVE" then
-                                        CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "MFIP Not Processable; "
+                                        If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                            CSES_case_details_array(CSES_case_details_arraycase_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; MFIP Not Processable"
+                                        Else
+                                            CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "MFIP Not Processable"
+                                        End If
                                     End If
                                 End If
                             End If
@@ -1959,24 +1975,18 @@ If CSES_messages = 1 Then
 
                                         'To do - update to include handling for MFIP dates too
                                         If CSES_case_details_array(processable_based_on_case_const, each_case) = False Then
-                                            
-                                            If Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "ER Report Date is blank on STAT/REVW") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            ElseIf Instr(CSES_case_details_array(case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            Else    
+                                                                                   
+                                            If Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") OR _
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") OR _
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "MFIP - ER Report Date is blank on STAT/REVW") OR _
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") Then 
+                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
+                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                            Else
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details: " & CSES_case_details_array(case_processing_notes_const, each_case)
                                                 not_processable_msg_count = not_processable_msg_count + 1
                                             End If
-                                            
+
                                             'The dail message should not be processed due to case details
                                             process_dail_message = False
 
@@ -1991,8 +2001,7 @@ If CSES_messages = 1 Then
                                         
                                         ElseIf CSES_case_details_array(processable_based_on_case_const, each_case) = True Then     
 
-                                            'To do - need to add handling for MFIP and UHFS and whether the recert/review date matters compared to the message month; also if SNAP then does it matter? Add something like, if SNAP_type = SNAP then, if SNAP_type = UHFS then, if MFIP_active = true then
-
+                                            'Handling for SNAP/UHFS to check if review or recert is CM + 1. If so, checks if DAIL month is CM + 1 too. If that's the case, it will skip processing the message.
                                             If CSES_case_details_array(snap_type_const, each_case) = "SNAP" or CSES_case_details_array(snap_type_const, each_case) = "UHFS" Then
                                                 'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                                 If DateAdd("m", 0, CSES_case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, CSES_case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
@@ -2026,7 +2035,7 @@ If CSES_messages = 1 Then
                                                 End If
                                             End If
 
-                                            'To do - update handling for MFIP, if SNAP has already determined it can't be processed then MFIP doesn't matter
+                                            'Handling for MFIP to check if review or recert is CM + 1. If so, checks if DAIL month is CM + 1 too. If that's the case, it will skip processing the message.
                                             If CSES_case_details_array(MFIP_status_const, each_case) = "ACTIVE" Then
                                                 'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                                 'Subtract 6 months from ER Report Date to get review date
@@ -4499,7 +4508,6 @@ If HIRE_messages = 1 Then
                                     If MFIP_active = True Then
                                         'Navigate to MFSM panel to confirm review date
                                         'Navigate to STAT/REVW to confirm review date
-                                        'To do - Compare the review dates - here or later?
 
                                         'To ensure starting from DAIL, PF3 to get back to DAIL then navigate back to CASE/CURR
                                         'Back to DAIL
@@ -4518,14 +4526,13 @@ If HIRE_messages = 1 Then
 
                                         EMReadScreen no_MFIP, 10, 24, 2
                                         If no_MFIP = "NO VERSION" then						'NO GA version means no determination
-                                            If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
-                                                HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                             Else
-                                                HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No version of MFIP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                             End If
-                                            HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                            HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                         Else
-
                                             EMWriteScreen "99", 20, 79
                                             transmit
                                             'This brings up the GA versions of eligibility results to search for approved versions
@@ -4541,26 +4548,24 @@ If HIRE_messages = 1 Then
                                             Loop until app_status = "APPROVED" or app_status = ""
 
                                             If app_status = "" or app_status <> "APPROVED" then
-                                                If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
-                                                    HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                                 Else
-                                                    HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                                                    HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results for MFIP exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                                 End If
-                                                HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
-
                                                 'Check for earned income
-                                                
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 'Navigate to MFSM panel to verify earned income total
-                                                Call write_value_and_transmit("MFSM", 20, 70)
+                                                Call write_value_and_transmit("MFSM", 20, 71)
                                                 EmReadScreen MFSM_panel_check, 4, 3, 47
                                                 If MFSM_panel_check <> "MFSM" Then msgbox "Testing -- 4511 Error unable to reach MFSM"
                                                 
                                                 'Read eligibility review date from MFSM panel
                                                 EMReadScreen MFIP_MFSM_review_date, 8, 11, 31
-                                                HIRE_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                HIRE_case_details_array(HIRE_MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
                                                 
                                                 'Navigate to STAT/REVW to confirm review date there
                                                 EMWriteScreen "STAT", 20, 13
@@ -4574,34 +4579,34 @@ If HIRE_messages = 1 Then
                                                 'Read eligibility review date 
                                                 EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
-                                                If Inst(MFIP_STAT_REVW_review_date, "_") Then
+                                                If Instr(MFIP_STAT_REVW_review_date, "_") Then
                                                     msgbox "Testing -- error, review date on STAT/REVW for MFIP is empty 1642"
-                                                    HIRE_case_details_array(MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
-                                                    If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
-                                                        HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
+                                                    HIRE_case_details_array(HIRE_MFIP_MFSM_review_date_const, case_count) = trim(MFIP_MFSM_review_date)
+                                                    If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; MFIP - ER Report Date is blank on STAT/REVW"
                                                     Else
-                                                        HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "ER Report Date is blank on STAT/REVW"
+                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "MFIP - ER Report Date is blank on STAT/REVW"
                                                     End If
-                                                    HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                                    HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                 Else
                                                     'ER Report date is filled out
                                                     'Convert to MM/DD/YY
                                                     MFIP_STAT_REVW_review_date = replace(MFIP_STAT_REVW_review_date, " ", "/")
 
                                                     'Update the array
-                                                    HIRE_case_details_array(MFIP_STAT_REVW_review_date, case_count) = trim(MFIP_STAT_REVW_review_date)
+                                                    HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date, case_count) = trim(MFIP_STAT_REVW_review_date)
 
                                                     'Compare the review date from MFSM and from STAT/REVW to identify any discrepancies
                                                     MFIP_MFSM_review_date = dateadd("d", 0, MFIP_MFSM_review_date)      'Convert to date
                                                     MFIP_STAT_REVW_review_date = dateadd("d", 0, MFIP_STAT_REVW_review_date)      'Convert to date
                                                     If MFIP_STAT_REVW_review_date <> MFIP_MFSM_review_date Then
                                                         msgbox "Testing -- STAT/REVW does not match MFSM 1662"
-                                                        If HIRE_case_details_array(case_processing_notes_const, case_count) <> "" Then 
-                                                            HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "; Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
                                                         Else
-                                                            HIRE_case_details_array(case_processing_notes_const, case_count) = HIRE_case_details_array(case_processing_notes_const, case_count) & "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW"
                                                         End If
-                                                        HIRE_case_details_array(processable_based_on_case_const, case_count) = False
+                                                        HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                     End If
                                                 End If
                                             End If
@@ -4656,9 +4661,7 @@ If HIRE_messages = 1 Then
                                                 End If
                                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
-
                                                 'Check for earned income
-                                                
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 'Navigate to GAB1 panel to verify earned income total
@@ -4690,21 +4693,18 @@ If HIRE_messages = 1 Then
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
                                                 If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4644 Error unable to reach STAT/REVW"
 
-                                                ' const HIRE_GA_GASM_review_date_const         = 16
-                                                ' const HIRE_GA_STAT_REVW_review_date_const    = 17
-                                                
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
                                                 'Read eligibility review date 
                                                 EMReadScreen GA_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
-                                                If Inst(GA_STAT_REVW_review_date, "_") Then
+                                                If Instr(GA_STAT_REVW_review_date, "_") Then
                                                     msgbox "Testing -- error, review date on STAT/REVW for GA is empty 4651"
                                                     HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count) = trim(GA_STAT_REVW_review_date)
                                                     If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
-                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; ER Report Date is blank on STAT/REVW"
+                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA - ER Report Date is blank on STAT/REVW"
                                                     Else
-                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "ER Report Date is blank on STAT/REVW"
+                                                        HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA - ER Report Date is blank on STAT/REVW"
                                                     End If
                                                     HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                 Else
@@ -4732,10 +4732,8 @@ If HIRE_messages = 1 Then
                                         End If
                                     End If
                                     
-                                    'To do - do we need to validate anything with MFIP?
                                 Else
                                     'Case is not processable. Write information to array accordingly
-                                    
                                     HIRE_case_details_array(HIRE_reporting_status_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_sr_report_date_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_recertification_date_const, case_count) = "N/A"
@@ -4783,7 +4781,7 @@ If HIRE_messages = 1 Then
                                 End If
 
                                 If MFIP_active = True Then
-                                    If HIRE_case_details_array(MFIP_status_const, case_count) <> "ACTIVE" then
+                                    If HIRE_case_details_array(HIRE_MFIP_status_const, case_count) <> "ACTIVE" then
                                         If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; MFIP Not Processable"
                                         Else
@@ -4799,13 +4797,20 @@ If HIRE_messages = 1 Then
                                         Else
                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
                                         End If
-                                    Else    
+                                    ElseIf HIRE_case_details_array(HIRE_GA_status_const, case_count) <> "ACTIVE" then
                                         If HIRE_case_details_array(HIRE_GA_reporting_status, case_count) <> "NON-HRF" OR HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) <> "PROSP" OR HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) < 100 Then 
                                             If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
                                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Not Processable"
                                             Else
                                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
                                             End If
+                                        End If
+                                    Else
+                                        msgbox "Testing -- 4452 missing some handling here. Shouldn't be hitting these, right?"
+                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; ERROR! GA Not Processable"
+                                        Else
+                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "ERROR! GA Not Processable"
                                         End If
                                     End If
                                 End If
@@ -5320,18 +5325,19 @@ If HIRE_messages = 1 Then
                                         objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(full_dail_msg_const, dail_count)
 
                                         If HIRE_case_details_array(HIRE_processable_based_on_case_const, each_case) = False Then
-                                            
-                                            If Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                            ElseIf InStr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") Then
-                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)
-                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                            If Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "MFIP - ER Report Date is blank on STAT/REVW") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "GA - ER Report Date is blank on STAT/REVW") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "Eligibility Review Date on GASM does not match ER Report Date on STAT/REVW") Then
+                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)
+                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
                                             Else
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details: " & HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)
                                                 not_processable_msg_count = not_processable_msg_count + 1
                                             End If
-                                            
+
                                             'The dail message should not be processed due to case details
                                             process_dail_message = False
 
@@ -5400,99 +5406,88 @@ If HIRE_messages = 1 Then
                                                     End If
                                                 End If
 
-                                                'To do - update handling for UHFS
-                                                If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
-                                                    If DateAdd("m", 0, HIRE_case_details_array(HIRE_recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, HIRE_case_details_array(HIRE_sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
-                                                        If activate_msg_boxes = True then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
-
-                                                        If dail_type = "HIRE" Then
-                                                            If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
-                                                                
-                                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
-                                                                objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
-                                                                not_processable_msg_count = not_processable_msg_count + 1
-
-                                                                'The dail message cannot be processed due to timing of recertification or SR report date
-                                                                process_dail_message = False
-
-                                                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-
-                                                            Else
-                                                                'Process the HIRE message
-                                                                process_dail_message = True
-                                                            End If
-                                                        Else
-                                                            'Add handling here if needed
-                                                        End If
-
-                                                    Else
-                                                        'Situation where it is less than 6 months old AND recert/renewal is not next month
-                                                        'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                                                        process_dail_message = True
-                                                    End If
-                                                End If
-
-                                                'To do - update handling for MFIP
+                                                'Handling for MFIP to check if review or recert is CM + 1. If so, checks if DAIL month is CM + 1 too. If that's the case, it will skip processing the message.
                                                 If HIRE_case_details_array(HIRE_MFIP_status_const, each_case) = "ACTIVE" Then
-                                                    If DateAdd("m", 0, HIRE_case_details_array(HIRE_recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, HIRE_case_details_array(HIRE_sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
-                                                        If activate_msg_boxes = True then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
+                                                    'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
+                                                    'Subtract 6 months from ER Report Date to get review date
+                                                    ER_report_minus_6_months = DateAdd("m", -6, HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, each_case))
+                                                    msgbox "Delete after testing -- ER_report_minus_6_months " & ER_report_minus_6_months
+
+                                                    If DateAdd("m", 0, HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, ER_report_minus_6_months) = DateAdd("m", 1, footer_month_day_year) Then
+                                                        If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                         If dail_type = "HIRE" Then
-                                                            If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
+                                                            
+                                                            If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
+
+                                                                If trim(DAIL_message_array(dail_processing_notes_const, dail_count)) = "" then
+                                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal for MFIP. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                                Else
+                                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = DAIL_message_array(dail_processing_notes_const, dail_count) & "; Not Processable due to DAIL Month & Recert/Renewal for MFIP. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                                End If
                                                                 
-                                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                                 objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                                                 not_processable_msg_count = not_processable_msg_count + 1
 
                                                                 'The dail message cannot be processed due to timing of recertification or SR report date
                                                                 process_dail_message = False
-
+                                                                'Add to skip list
                                                                 list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                                             Else
-                                                                'Process the HIRE message
+                                                                'DAIL message can be processed
                                                                 process_dail_message = True
                                                             End If
-                                                        Else
-                                                            'Add handling here if needed
                                                         End If
 
                                                     Else
-                                                        'Situation where it is less than 6 months old AND recert/renewal is not next month
                                                         'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
                                                         process_dail_message = True
+                                                        
                                                     End If
                                                 End If
 
-                                                'To do - update handling for GA
+                                                'Handling for GA to check if review or recert is CM + 1. If so, checks if DAIL month is CM + 1 too. If that's the case, it will skip processing the message.
                                                 If HIRE_case_details_array(HIRE_GA_status_const, each_case) = "ACTIVE" Then
-                                                    If DateAdd("m", 0, HIRE_case_details_array(HIRE_recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, HIRE_case_details_array(HIRE_sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
-                                                        If activate_msg_boxes = True then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
+                                                    'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
+                                                    'Subtract 6 months from ER Report Date to get review date
+                                                    HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count) = trim(GA_GASM_review_date)
+                                                    HIRE_case_details_array(HIRE_GA_STAT_REVW_review_date, case_count) = trim(GA_STAT_REVW_review_date)
+
+                                                    ER_report_minus_6_months = DateAdd("m", -6, HIRE_case_details_array(HIRE_GA_GASM_review_date_const, each_case))
+                                                    msgbox "Delete after testing -- ER_report_minus_6_months " & ER_report_minus_6_months
+
+                                                    If DateAdd("m", 0, HIRE_case_details_array(HIRE_GA_GASM_review_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, ER_report_minus_6_months) = DateAdd("m", 1, footer_month_day_year) Then
+                                                        If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                         If dail_type = "HIRE" Then
-                                                            If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
+                                                            
+                                                            If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
+
+                                                                If trim(DAIL_message_array(dail_processing_notes_const, dail_count)) = "" then
+                                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal for GA. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                                Else
+                                                                    DAIL_message_array(dail_processing_notes_const, dail_count) = DAIL_message_array(dail_processing_notes_const, dail_count) & "; Not Processable due to DAIL Month & Recert/Renewal for GA. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                                End If
                                                                 
-                                                                DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                                 objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                                                 not_processable_msg_count = not_processable_msg_count + 1
 
                                                                 'The dail message cannot be processed due to timing of recertification or SR report date
                                                                 process_dail_message = False
-
+                                                                'Add to skip list
                                                                 list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                                             Else
-                                                                'Process the HIRE message
+                                                                'DAIL message can be processed
                                                                 process_dail_message = True
                                                             End If
-                                                        Else
-                                                            'Add handling here if needed
                                                         End If
 
                                                     Else
-                                                        'Situation where it is less than 6 months old AND recert/renewal is not next month
                                                         'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
                                                         process_dail_message = True
+                                                        
                                                     End If
                                                 End If
                                             End If
