@@ -102,8 +102,8 @@ If number_of_rows = 0 Then
 	script_info_for_email = script_info_for_email & vbCr & "The BlueZone Script Team will need to connect with the BI Team to review the data issues and will provide additional information as it becomes available."
 	script_info_for_email = script_info_for_email & vbCr & vbCr & "There is no workaround for this issue and was not caused by any individual, it was caused by a data upload/connection issue that is scheduled to happen automatically and failed for some reason. The BlueZone Script Team will provide addtional information once we have it from the BI Team."
 	script_info_for_email = script_info_for_email & vbCr & vbCR & "EMAIL AUTOMATED BY THE ON DEMAND DASHBOARD SCRIPT"
-	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "", "URGENT - On Demand Pending Table Empty", 1, False, "", "", False, "", script_info_for_email, False, "", True)
-	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Tanya and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
+	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "Jennifer.Frey@Hennepin.us", "", "URGENT - On Demand Pending Table Empty", 1, False, "", "", False, "", script_info_for_email, False, "", True)
+	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Jen and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
 End if
 
 'FUNCTIONS =================================================================================================================
@@ -2623,9 +2623,8 @@ ObjStatsExcel.Quit
 
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
-' cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
-cc_email = "tanya.payne@hennepin.us"
-If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; tanya.payne@hennepin.us"
+cc_email = "jennifer.frey@hennepin.us"
+If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
 
 email_subject = "On Demand List is Ready"
 If qi_worklist_threshold_reached = True Then email_subject = email_subject & " - HELP NEEDED"
@@ -2635,7 +2634,7 @@ email_body = email_body & "There are " & count_cases_on_wl & " cases on the work
 ' email_body = email_body & "There are " & count_denials & " DENIALS on the worklist." & vbCr
 If qi_worklist_threshold_reached = True Then email_body = email_body & "As the list is so large, help has been requested via email to the QUALITY IMPROVEMENT email. If you are NOT on the assignment today and have capacity to assist, contact " & qi_member_on_ONDEMAND & "." & vbCr
 email_body = email_body & "The cases to review are now available to access on the On Demand Dashboard."
-email_body = email_body & "Please contact Tanya if you have issues with the list or questions about the assignment." & vbCr & vbCr
+email_body = email_body & "Please contact Jen if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
 Call create_outlook_email("", qi_member_email, cc_email, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
@@ -2650,7 +2649,7 @@ If list_of_baskets_at_display_limit <> "" Then
 	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
 	' basket_email_body = basket_email_body & "" & vbCr
 	basket_email_body = basket_email_body & "Thank you!" & vbCr
-	Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", "", basket_email_subject, 1, False, "", "", False, "", basket_email_body, False, "", True)
+	Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "jennifer.frey@hennepin.us", "", basket_email_subject, 1, False, "", "", False, "", basket_email_body, False, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
