@@ -1388,22 +1388,24 @@ If CSES_messages = 1 Then
                                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
                                 'Split list of active programs into an array to validate
-                                split_list_active_programs = split(list_active_programs, ", ")
+                                If trim(list_active_programs) <> "" Then 
+                                    split_list_active_programs = split(list_active_programs, ", ")
 
-                                i = 0
-                                Do
-                                    If split_list_active_programs(i) = "SNAP" Then 
-                                        SNAP_active = True
-                                        SNAP_or_MFIP_active = True
-                                    ElseIf split_list_active_programs(i) = "MFIP" Then 
-                                        MFIP_active = True
-                                        SNAP_or_MFIP_active = True
-                                    Else
-                                        'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
-                                        other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", " 
-                                    End If
-                                    i = i + 1
-                                Loop until i = ubound(split_list_active_programs) + 1
+                                    i = 0
+                                    Do
+                                        If split_list_active_programs(i) = "SNAP" Then 
+                                            SNAP_active = True
+                                            SNAP_or_MFIP_active = True
+                                        ElseIf split_list_active_programs(i) = "MFIP" Then 
+                                            MFIP_active = True
+                                            SNAP_or_MFIP_active = True
+                                        Else
+                                            'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
+                                            other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", " 
+                                        End If
+                                        i = i + 1
+                                    Loop until i = ubound(split_list_active_programs) + 1
+                                End If
                                 
                                 If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
 
@@ -4308,25 +4310,27 @@ If HIRE_messages = 1 Then
                                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
                                 'Split list of active programs into an array to validate
-                                split_list_active_programs = split(list_active_programs, ", ")
+                                If trim(list_active_programs) <> "" Then 
+                                    split_list_active_programs = split(list_active_programs, ", ")
 
-                                i = 0
-                                Do
-                                    If split_list_active_programs(i) = "SNAP" Then 
-                                        SNAP_active = True
-                                        SNAP_MFIP_GA_active = True
-                                    ElseIf split_list_active_programs(i) = "MFIP" Then 
-                                        MFIP_active = True
-                                        SNAP_MFIP_GA_active = True
-                                    ElseIf split_list_active_programs(i) = "GA" Then 
-                                        GA_active = True
-                                        SNAP_MFIP_GA_active = True
-                                    Else
-                                        'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
-                                        other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", "
-                                    End If
-                                    i = i + 1
-                                Loop until i = ubound(split_list_active_programs) + 1
+                                    i = 0
+                                    Do
+                                        If split_list_active_programs(i) = "SNAP" Then 
+                                            SNAP_active = True
+                                            SNAP_MFIP_GA_active = True
+                                        ElseIf split_list_active_programs(i) = "MFIP" Then 
+                                            MFIP_active = True
+                                            SNAP_MFIP_GA_active = True
+                                        ElseIf split_list_active_programs(i) = "GA" Then 
+                                            GA_active = True
+                                            SNAP_MFIP_GA_active = True
+                                        Else
+                                            'If it is a program other than SNAP, GA, and/or MFIP then we will need to skip this case
+                                            other_programs_active_or_pending = other_programs_active_or_pending & split_list_active_programs(i) & ", "
+                                        End If
+                                        i = i + 1
+                                    Loop until i = ubound(split_list_active_programs) + 1
+                                End If
 
                                 If list_pending_programs <> "" then other_programs_active_or_pending = other_programs_active_or_pending & list_pending_programs
 
@@ -4845,7 +4849,7 @@ If HIRE_messages = 1 Then
                             objExcel.Cells(case_excel_row, 19).Value = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)
                             objExcel.Cells(case_excel_row, 20).Value = HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count)
 
-                            If HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = True and activate_msg_boxes = True Then then msgbox "Delete after testing -- Script found case that is in-scope, double-check spreadsheet"
+                            If HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = True and activate_msg_boxes = True Then msgbox "Delete after testing -- Script found case that is in-scope, double-check spreadsheet"
                             
                             'Increment to get to next excel row
                             case_excel_row = case_excel_row + 1
