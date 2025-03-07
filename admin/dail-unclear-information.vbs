@@ -1538,7 +1538,16 @@ If CSES_messages = 1 Then
                                                             renewal_6_month_check = False
                                                             CSES_case_details_array(case_processing_notes_const, case_count) = "SR Report Date and Recertification are not 6 months apart"
                                                         End if
-                                                    
+
+                                                        If DateDiff("m", footer_month_day_year, sr_report_date) < 0 and DateDiff("m", footer_month_day_year, recertification_date) < 0 Then
+                                                            If activate_msg_boxes = True Then msgbox "Testing -- Both SR Report and Recert Dates are before CM and has not been updated correctly 1543"
+                                                            If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; SNAP Review Dates are prior to current month. Case should be reviewed."
+                                                            Else
+                                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "SNAP Review Dates are prior to current month. Case should be reviewed."
+                                                            End If
+                                                            CSES_case_details_array(processable_based_on_case_const, case_count) = False
+                                                        End If
                                                     Else
                                                         renewal_6_month_check = False
                                                         CSES_case_details_array(case_processing_notes_const, case_count) = "SR Report Date and/or Recertification Date is missing"
@@ -1546,11 +1555,9 @@ If CSES_messages = 1 Then
                                                     
                                                     'Close the FS screen
                                                     transmit
-
                                                 Else
                                                     sr_report_date = "N/A"
                                                     recertification_date = "N/A"
-
                                                 End If
                                             End If
                                             
@@ -1665,6 +1672,18 @@ If CSES_messages = 1 Then
                                                         End If
                                                         CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                                     End If
+                                                    If MFIP_STAT_REVW_review_date = MFIP_MFSM_review_date Then
+                                                        If DateDiff("m", footer_month_day_year, MFIP_STAT_REVW_review_date) < 0 Then
+                                                            If activate_msg_boxes = True Then msgbox "Testing -- Review date is before CM and has not been updated correctly 1670"
+                                                            If CSES_case_details_array(case_processing_notes_const, case_count) <> "" Then 
+                                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "; MFIP Review Date is prior to current month. Case should be reviewed."
+                                                            Else
+                                                                CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "MFIP Review Date is prior to current month. Case should be reviewed."
+                                                            End If
+                                                            CSES_case_details_array(processable_based_on_case_const, case_count) = False
+                                                        End If
+                                                    End If
+
                                                 End If
                                             End If
                                         End If
@@ -1981,8 +2000,10 @@ If CSES_messages = 1 Then
                                                                                    
                                             If Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") OR _
                                                 Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") OR _
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SNAP Review Dates are prior to current month. Case should be reviewed") OR _
                                                 Instr(CSES_case_details_array(case_processing_notes_const, each_case), "MFIP - ER Report Date is blank on STAT/REVW") OR _
-                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") Then 
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") OR _ 
+                                                Instr(CSES_case_details_array(case_processing_notes_const, each_case), "MFIP Review Date is prior to current month. Case should be reviewed") Then 
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & CSES_case_details_array(case_processing_notes_const, each_case)
                                                     QI_flagged_msg_count = QI_flagged_msg_count + 1
                                             Else
@@ -4477,7 +4498,16 @@ If HIRE_messages = 1 Then
                                                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SR Report Date and Recertification are not 6 months apart"
                                                             End If
                                                         End if
-                                                    
+
+                                                        If DateDiff("m", footer_month_day_year, sr_report_date) < 0 AND DateDiff("m", footer_month_day_year, recertification_date) < 0 Then
+                                                            If activate_msg_boxes = True Then msgbox "Testing -- Both review dates are before CM and has not been updated correctly 4628"
+                                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; SNAP Review Dates are prior to current month. Case should be reviewed."
+                                                            Else
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "SNAP Review Dates are prior to current month. Case should be reviewed."
+                                                            End If
+                                                            HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                                                        End If
                                                     Else
                                                         renewal_6_month_check = False
                                                         If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
@@ -4610,6 +4640,17 @@ If HIRE_messages = 1 Then
                                                         End If
                                                         HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                     End If
+                                                    If MFIP_STAT_REVW_review_date = MFIP_MFSM_review_date Then
+                                                        If DateDiff("m", footer_month_day_year, MFIP_STAT_REVW_review_date) < 0 Then
+                                                            If activate_msg_boxes = True Then msgbox "Testing -- Review date is before CM and has not been updated correctly 4628"
+                                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; MFIP Review Date is prior to current month. Case should be reviewed."
+                                                            Else
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "MFIP Review Date is prior to current month. Case should be reviewed."
+                                                            End If
+                                                            HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                                                        End If
+                                                    End If
                                                 End If
                                             End If
                                         End If
@@ -4726,6 +4767,15 @@ If HIRE_messages = 1 Then
                                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; Eligibility Review Date on GASM does not match ER Report Date on STAT/REVW"
                                                         Else
                                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "Eligibility Review Date on GASM does not match ER Report Date on STAT/REVW"
+                                                        End If
+                                                        HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                                                    End If
+                                                    If GA_STAT_REVW_review_date = GA_GASM_review_date Then
+                                                        If activate_msg_boxes = True Then msgbox "Testing -- Review dates are before CM 4774"
+                                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Review Date is prior to current month. Case should be reviewed"
+                                                        Else
+                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Review Date is prior to current month. Case should be reviewed"
                                                         End If
                                                         HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                     End If
@@ -5332,9 +5382,12 @@ If HIRE_messages = 1 Then
                                         If HIRE_case_details_array(HIRE_processable_based_on_case_const, each_case) = False Then
                                             If Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") OR _
                                                 Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SNAP Review Dates are prior to current month. Case should be reviewed") OR _
                                                 Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "MFIP - ER Report Date is blank on STAT/REVW") OR _
                                                 Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "Eligibility Review Date on MFSM does not match ER Report Date on STAT/REVW") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "MFIP Review Date is prior to current month. Case should be reviewed") OR _
                                                 Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "GA - ER Report Date is blank on STAT/REVW") OR _
+                                                Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "GA Review Date is prior to current month. Case should be reviewed") OR _
                                                 Instr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "Eligibility Review Date on GASM does not match ER Report Date on STAT/REVW") Then
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed." & HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)
                                                     QI_flagged_msg_count = QI_flagged_msg_count + 1
