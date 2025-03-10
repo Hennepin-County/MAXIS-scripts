@@ -317,8 +317,6 @@ function get_caseload_array_by_type(caseload_type, available_caseload_array)
 	for i = 0 to UBound(all) - 1
         If random_team_needed = TRUE Then  'This will be used to randomly select a PM team for the case to be transferred to for cash/snap pending caseload
             team_to_check = all(i) & ""
-            'msgbox left(team_to_check, len(team_to_check)-2)
-           ' msgbox left(caseload_type, len(caseload_type) - 2)
             If left(team_to_check, len(team_to_check)-2) = left(caseload_type, len(caseload_type) - 2) Then
 			    ReDim preserve temp_array(counter)
 			    temp_array(counter) = things(i)
