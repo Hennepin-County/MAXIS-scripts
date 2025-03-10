@@ -485,14 +485,20 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 
     'Adjust correct_caseload_type for correct Team
-    If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND (case_active <> TRUE OR current_caseload_type = "") Then random_team_needed = TRUE
+    If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND (case_active <> TRUE OR isnumeric(right(current_caseload_type, 1)) = False) Then random_team_needed = TRUE
 
     If correct_caseload_type = "Adults - Pending" Then 'Grabs the current team for the caseload type for cases already active on a program
-        correct_caseload_type = "Adults - Pending " & right(current_caseload_type, 1)
-        If len(correct_caseload_type) = 17 Then correct_caseload_type = "Adults - Pending ?" 'making correct length if current_caseload_type = ""
+        If isnumeric(right(current_caseload_type, 1)) = True Then
+            correct_caseload_type = "Adults - Pending " & right(current_caseload_type, 1)
+        Else
+            correct_caseload_type = "Adults - Pending ?" 'making correct length if current_caseload_type = ""
+        End If 
     ElseIf correct_caseload_type = "Families - Pending" Then 
-        correct_caseload_type = "Families - Pending " & right(current_caseload_type, 1)
-        If len(correct_caseload_type) = 17 Then correct_caseload_type = "Families - Pending ?" 'making correct length if current_caseload_type = ""
+        If isnumeric(right(current_caseload_type, 1)) = True Then
+            correct_caseload_type = "Families - Pending " & right(current_caseload_type, 1)
+        Else
+            correct_caseload_type = "Families - Pending ?" 'making correct length if current_caseload_type = ""
+        End If
     End If 
 
 	If correct_caseload_type = current_caseload_type Then transfer_needed = False
