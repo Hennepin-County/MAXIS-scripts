@@ -315,6 +315,7 @@ function get_caseload_array_by_type(caseload_type, available_caseload_array)
 	counter = 0
 
 	for i = 0 to UBound(all) - 1
+        If right(caseload_type, 1) = "?" Then random_team_needed = True 'failsafe to ensure that the random team is selected when something slips through the cracks
         If random_team_needed = TRUE Then  'This will be used to randomly select a PM team for the case to be transferred to for cash/snap pending caseload
             team_to_check = all(i) & ""
             If left(team_to_check, len(team_to_check)-2) = left(caseload_type, len(caseload_type) - 2) Then
@@ -484,7 +485,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 
     'Adjust correct_caseload_type for correct Team
-    If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND case_active <> TRUE Then random_team_needed = TRUE
+    If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND (case_active <> TRUE OR current_caseload_type = "") Then random_team_needed = TRUE
 
     If correct_caseload_type = "Adults - Pending" Then 'Grabs the current team for the caseload type for cases already active on a program
         correct_caseload_type = "Adults - Pending " & right(current_caseload_type, 1)
