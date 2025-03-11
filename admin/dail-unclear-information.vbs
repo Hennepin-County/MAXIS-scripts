@@ -349,7 +349,7 @@ Function check_and_add_new_jobs_panel(testing_status)
                 CALL write_variable_in_case_note("---")
                 CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
                 CALL write_variable_in_case_note("---")
-                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                 CALL write_variable_in_case_note("---")
                 CALL write_variable_in_case_note(worker_signature)
             ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
@@ -361,7 +361,7 @@ Function check_and_add_new_jobs_panel(testing_status)
                 CALL write_variable_in_case_note("---")
                 CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
                 CALL write_variable_in_case_note("---")
-                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                 CALL write_variable_in_case_note("---")
                 CALL write_variable_in_case_note(worker_signature)
             Else
@@ -787,7 +787,7 @@ Function check_and_add_new_jobs_panel(testing_status)
                                 CALL write_variable_in_case_note("---")
                                 CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
                                 CALL write_variable_in_case_note("---")
-                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                                 CALL write_variable_in_case_note("---")
                                 CALL write_variable_in_case_note(worker_signature)
                             ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
@@ -799,7 +799,7 @@ Function check_and_add_new_jobs_panel(testing_status)
                                 CALL write_variable_in_case_note("---")
                                 CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
                                 CALL write_variable_in_case_note("---")
-                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                                 CALL write_variable_in_case_note("---")
                                 CALL write_variable_in_case_note(worker_signature)
                             Else
@@ -1861,9 +1861,12 @@ If CSES_messages = 1 Then
                                     all_done = true
                                 End If
 
+                                'Delete after testing new functionality
+                                activate_msg_boxes = True
                                 If activate_msg_boxes = True Then MsgBox "It is about to delete the message. Confirm before proceeding."
                                 'Delete the message
                                 Call write_value_and_transmit("D", dail_row, 3)
+                                activate_msg_boxes = False
 
                                 'Handling for deleting message under someone else's x number
                                 EMReadScreen other_worker_error, 25, 24, 2
@@ -2753,10 +2756,11 @@ If CSES_messages = 1 Then
 
                                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
                                                     'Activate testing msgboxes here
-                                                    ' activate_msg_boxes = True
+                                                    activate_msg_boxes = True
 
                                                     If activate_msg_boxes = True then MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: - In-scope message, evaluate how it works!"
-                                                
+                                                    activate_msg_boxes = False
+
                                                     'Reset variables
                                                     caregiver_ref_nbr = ""
                                                     no_exact_JOBS_panel_matches = ""
@@ -3102,7 +3106,7 @@ If CSES_messages = 1 Then
                                                             CALL write_variable_in_case_note("---")
                                                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN CSES MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN CSES DAIL MESSAGE.")
                                                             CALL write_variable_in_case_note("---")
-                                                            CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                            CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                                                             CALL write_variable_in_case_note("---")
                                                             CALL write_variable_in_case_note(worker_signature)
 
@@ -3501,7 +3505,7 @@ If CSES_messages = 1 Then
                                                                             CALL write_variable_in_case_note("---")
                                                                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN CSES MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN CSES DAIL MESSAGE.")
                                                                             CALL write_variable_in_case_note("---")
-                                                                            CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                            CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                                                                             CALL write_variable_in_case_note("---")
                                                                             CALL write_variable_in_case_note(worker_signature)
 
@@ -5003,6 +5007,8 @@ If HIRE_messages = 1 Then
                             If Instr(list_of_DAIL_messages_to_delete_NDNH_known, "*" & full_dail_msg & "*") Then
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
 
+                                'Delete after testing new functionality
+                                activate_msg_boxes = True
                                 If activate_msg_boxes = True then MsgBox "Testing -- Messages is within list_of_DAIL_messages_to_delete_NDNH_known"
 
                                 ' Resetting variables so they do not carry forward
@@ -5111,9 +5117,13 @@ If HIRE_messages = 1 Then
                                 If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC 5057"
                                 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+                                'Delete after testing
+                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_delete_NDNH_not_known, "*" & full_dail_msg & "*") Then
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
 
+                                'Delete after testing new functionality
+                                activate_msg_boxes = True
                                 If activate_msg_boxes = True then MsgBox "Testing -- Message within list_of_DAIL_messages_to_delete_NDNH_not_known"
 
                                 ' Resetting variables so they do not carry forward
@@ -5221,7 +5231,12 @@ If HIRE_messages = 1 Then
                                 If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC 4018"
 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+                                'Delete after testing new functionality
+                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_delete_SDNH, "*" & full_dail_msg & "*") Then
+
+                                'Delete after testing new functionality
+                                activate_msg_boxes = True
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
                                 If activate_msg_boxes = True then MsgBox "Testing -- Script is about to delete the duplicate SDNH message or the reviewed SDNH. Make sure that it is correct!!"
 
@@ -5245,9 +5260,12 @@ If HIRE_messages = 1 Then
                                     all_done = true
                                 End If
 
+                                'Delete after testing new functionality
+                                activate_msg_boxes = True
                                 If activate_msg_boxes = True then msgbox "Testing -- Script will now delete the SDNH message"
                                 'Delete the message
                                 Call write_value_and_transmit("D", dail_row, 3)
+                                activate_msg_boxes = False
 
                                 'Handling for deleting message under someone else's x number
                                 EMReadScreen other_worker_error, 25, 24, 2
@@ -5328,6 +5346,8 @@ If HIRE_messages = 1 Then
                                 End If
 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+                                'Delete after testing new functionality
+                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                                 'If the full message is on the list of dail messages to skip then the message should be skipped
 
@@ -5923,7 +5943,7 @@ If HIRE_messages = 1 Then
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note("HIRE MESSAGE CLEARED THROUGH INFC. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING OR THE CM GUIDE TO SIX MONTH BUDGETING.")
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note(worker_signature)
 
@@ -6414,7 +6434,7 @@ If HIRE_messages = 1 Then
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note("HIRE MESSAGE DELETED. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note(worker_signature)
 
