@@ -930,9 +930,13 @@ class form_questions
 							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_business(each_item)
 
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "FORM NOTES"
+							cell_height = CInt(len(detail_write_in_info(each_item))/55) * 15
+							TABLE_ARRAY(array_counters).Cell(6, 1).SetHeight cell_height, 2
 							TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = detail_write_in_info(each_item)
 
 							TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "INTERVIEW NOTES"
+							cell_height = CInt(len(detail_interview_notes(each_item))/55) * 15
+							TABLE_ARRAY(array_counters).Cell(8, 1).SetHeight cell_height, 2
 							TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = detail_interview_notes(each_item)
 
 							objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
