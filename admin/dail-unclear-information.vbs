@@ -3695,7 +3695,7 @@ If HIRE_messages = 1 Then
     const HIRE_MFIP_MFSM_review_date_const       = 10
     const HIRE_MFIP_STAT_REVW_review_date_const  = 11
     const HIRE_GA_status_const                   = 12
-    const HIRE_GA_reporting_status               = 13
+    const HIRE_GA_reporting_status_const         = 13
     const HIRE_GA_budget_cycle_const             = 14
     const HIRE_GA_earned_income_const            = 15
     const HIRE_GA_GASM_review_date_const         = 16
@@ -4740,6 +4740,7 @@ If HIRE_messages = 1 Then
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
                                                 If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4692 Error unable to reach STAT/REVW"
 
+
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
                                                 'Read eligibility review date 
@@ -4775,19 +4776,21 @@ If HIRE_messages = 1 Then
                                                         HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                     End If
                                                     If GA_STAT_REVW_review_date = GA_GASM_review_date Then
-                                                        If activate_msg_boxes = True Then msgbox "Testing -- Review dates are before CM 4774"
-                                                        If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
-                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Review Date is prior to current month. Case should be reviewed"
-                                                        Else
-                                                            HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Review Date is prior to current month. Case should be reviewed"
+                                                        If DateDiff("m", GA_STAT_REVW_review_date, footer_month_day_year) > 0 AND DateDiff("m", GA_GASM_review_date, footer_month_day_year) > 0 Then
+                                                            If activate_msg_boxes = True Then msgbox "Testing -- Review dates are before CM 4774"
+                                                            If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Review Date is prior to current month. Case should be reviewed"
+                                                            Else
+                                                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Review Date is prior to current month. Case should be reviewed"
+                                                            End If
+                                                            HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                         End If
-                                                        HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                                     End If
                                                 End If
                                             End If
                                         End If
                                     End If
-                                    
+
                                 Else
                                     'Case is not processable. Write information to array accordingly
                                     HIRE_case_details_array(HIRE_reporting_status_const, case_count) = "N/A"
@@ -4795,7 +4798,7 @@ If HIRE_messages = 1 Then
                                     HIRE_case_details_array(HIRE_recertification_date_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_MFIP_MFSM_review_date_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, case_count) = "N/A"
-                                    HIRE_case_details_array(HIRE_GA_reporting_status, case_count) = "N/A"
+                                    HIRE_case_details_array(HIRE_GA_reporting_status_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) = "N/A"
                                     HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count) = "N/A"
@@ -4853,7 +4856,7 @@ If HIRE_messages = 1 Then
                                         Else
                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
                                         End If
-                                    ElseIf HIRE_case_details_array(HIRE_GA_status_const, case_count) <> "ACTIVE" then
+                                    ElseIf HIRE_case_details_array(HIRE_GA_status_const, case_count) = "ACTIVE" then
                                         If HIRE_case_details_array(HIRE_GA_reporting_status, case_count) <> "NON-HRF" OR HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) <> "PROSP" OR HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) < 100 Then 
                                             If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
                                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Not Processable"
