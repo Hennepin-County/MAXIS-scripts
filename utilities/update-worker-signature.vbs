@@ -56,15 +56,17 @@ With (CreateObject("Scripting.FileSystemObject"))
 	If .FileExists(user_myDocs_folder & "workersig.txt") Then
 		Set get_worker_sig = CreateObject("Scripting.FileSystemObject")
 		Set worker_sig_command = get_worker_sig.OpenTextFile(user_myDocs_folder & "workersig.txt")
-		worker_sig = worker_sig_command.ReadAll
+		If Not worker_sig_command.AtEndOfStream Then worker_sig = worker_sig_command.ReadAll						'Read the text file
 		IF worker_sig <> "" THEN worker_signature = worker_sig
 		worker_sig_command.Close
 
-		worker_signature_msgbox = MsgBox("A worker signature was found! You are listed as: " & worker_signature & "." & vbNewLine & vbNewLine & _
-			"Your worker signature was found at: " & user_myDocs_folder & "workersig.txt." & vbNewLine & vbNewLine & _
-			"Would you like to update this signature? Press Yes to continue, or No to cancel.", vbYesNo + vbQuestion, "A worker signature was found!")
+		If worker_signature <> "" Then
+			worker_signature_msgbox = MsgBox("A worker signature was found! You are listed as: " & worker_signature & "." & vbNewLine & vbNewLine & _
+				"Your worker signature was found at: " & user_myDocs_folder & "workersig.txt." & vbNewLine & vbNewLine & _
+				"Would you like to update this signature? Press Yes to continue, or No to cancel.", vbYesNo + vbQuestion, "A worker signature was found!")
 
-		If worker_signature_msgbox = vbNo then StopScript
+			If worker_signature_msgbox = vbNo then StopScript
+		End If
 	END IF
 END WITH
 
