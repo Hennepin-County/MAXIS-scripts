@@ -456,7 +456,7 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 	If .FileExists(user_myDocs_folder & "workersig.txt") Then												'If the workersig.txt file exists...
 		Set get_worker_sig = CreateObject("Scripting.FileSystemObject")										'Create another FSO
 		Set worker_sig_command = get_worker_sig.OpenTextFile(user_myDocs_folder & "workersig.txt")			'Open the text file
-		worker_sig = worker_sig_command.ReadAll																'Read the text file
+		If Not worker_sig_command.AtEndOfStream Then worker_sig = worker_sig_command.ReadAll						'Read the text file
 		IF worker_sig <> "" THEN worker_signature = worker_sig												'If it isn't blank then the worker_signature should be populated with the contents of the file
 		worker_sig_command.Close																			'Closes the file
 	END IF
@@ -905,7 +905,7 @@ Function ABAWD_FSET_exemption_finder()
 
     '----------------------------------------------------------------------------------------------------17 – Receiving RCA
 	'Person-based determination -- Looking for RCA information while still on CASE/CURR
-	row = 1                                            
+	row = 1
     col = 1
     EMSearch "RCA:", row, col
     If row <> 0 Then
@@ -964,11 +964,11 @@ Function ABAWD_FSET_exemption_finder()
 								'Found the matching Ref Number, check on Elig Status
 								EmReadScreen elig_status, 10, status_row, 53
 								elig_status = trim(elig_status)
-								If elig_status = "ELIGIBLE" Then 
+								If elig_status = "ELIGIBLE" Then
 									eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active and Eligible. "
 									eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
 								End If
-								
+
 								'Regardless of whether HH member is eligible for RCA, need to reset back to start to search next HH memb
 								Do
 									PF7
@@ -984,7 +984,7 @@ Function ABAWD_FSET_exemption_finder()
 				End If
 			End If
         End If
-	End if 
+	End if
 
 
     For items = 0 to UBound(eats_group_array, 2)
@@ -1845,7 +1845,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			'Determining correct month to update ADDR panel
 			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 			footer_month_as_date = DateAdd("d", 0, footer_month_as_date)					'Ensuring date is in date format
-			
+
 			If addr_eff_date > footer_month_as_date Then	'If addr_eff provided in the dialog is greater than the footer month date, we need to change the footer month to align with addr_eff month
 				addr_greater = TRUE
 				orig_footer_month = MAXIS_footer_month
