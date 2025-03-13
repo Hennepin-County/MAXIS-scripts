@@ -12021,7 +12021,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 						Text 10, 10, 50, 10, "Case number:"
 					End If
 					If allow_cancel = FALSE Then CheckBox 60, 25, 140, 10, "Check here if no resources are needed.", no_resources_checkbox
-				    PushButton 150, 5, 50, 10, "Check All", check_all_button
+				    ' PushButton 150, 5, 50, 10, "Check All", check_all_button
 					CheckBox 15, 50, 145, 10, "Document Submission Options", client_virtual_dropox_checkbox
 					CheckBox 15, 65, 140, 10, "Community Action Partnership - CAP", cap_checkbox
 					CheckBox 15, 80, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
@@ -12298,9 +12298,11 @@ function provide_resources_information(case_number_known, create_case_note, note
 		    objSelection.Font.Size = "12"
 		    objSelection.Font.Bold = FALSE
 			If client_virtual_dropox_checkbox = checked Then
-				objSelection.TypeText "You can submit documents Online at www.MNbenefits.mn.gov or" & vbCr
-				objSelection.TypeText "Email with document attachment. EMAIL: hhsews@hennepin.us" & vbCr
-				objSelection.TypeText " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)" & vbCr
+				objSelection.TypeText "*** Submitting Documents:" & vbCr
+				objSelection.TypeText "- Online at infokeep.hennepin.us or MNBenefits.mn.gov" & vbCr
+				objSelection.TypeText "  Use InfoKeep to upload documents directly to your case." & vbCr
+				objSelection.TypeText "- Mail, Fax, or Drop Boxes at Service Centers." & vbCr
+				objSelection.TypeText "  More Info: https://www.hennepin.us/economic-supports" & vbCr
 				objSelection.TypeParagraph()
 			End If
 		    If cap_checkbox = checked Then
