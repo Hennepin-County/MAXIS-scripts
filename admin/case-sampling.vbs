@@ -665,7 +665,7 @@ If run_compilation = True Then
 		this_file_path = objFile.Path															'Grabing the path for the file
 
 		If this_file_type = "Microsoft Excel Worksheet" and InStr(this_file_name, "Template") = 0 and DateDiff("d", this_file_created_date, date) <> 0 Then
-			Call excel_open(this_file_path, True, False, ObjREVWExcel, objREVWWorkbook)
+			Call excel_open(this_file_path, False, False, ObjREVWExcel, objREVWWorkbook)
 			If trim(ObjREVWExcel.cells(3, 3)) = "" Then
 				files_to_delete = files_to_delete & this_file_path & "~!~"
 				file_name_to_delete = file_name_to_delete & this_file_name & "~!~"
@@ -1287,7 +1287,7 @@ If run_review_selection = True Then
 	review_select_msg = "CASE REVIEW SELECTION" & vbCr & "Case selections:"
 	For duck = 0 to UBound(POPULATION_FOR_REVIEWS_ARRAY, 2)
 		If POPULATION_FOR_REVIEWS_ARRAY(pop_selected_const, duck) = True Then
-			review_select_msg = review_select_msg & vbCr & POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, pops_count) & ": - Total possible Reviews: " & POPULATION_FOR_REVIEWS_ARRAY(pop_list_count_const, duck) & vbCr & " - Review Files Made: " & POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck)
+			review_select_msg = review_select_msg & vbCr & POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck) & ": - Total possible Reviews: " & POPULATION_FOR_REVIEWS_ARRAY(pop_list_count_const, duck) & vbCr & " - Review Files Made: " & POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck)
 		End If
 	Next
 	review_select_msg = review_select_msg & vbCr & "List was ready at " & list_ready_time & vbCr
