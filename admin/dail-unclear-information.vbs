@@ -154,7 +154,6 @@ Function check_and_add_new_jobs_panel(testing_status)
             Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
             'Writes information to JOBS panel
-            'To do - using W instead of O. Is this correct?
             EMWriteScreen "W", 5, 34
             EMWriteScreen "4", 6, 34
             EMWriteScreen HIRE_employer_name, 7, 42
@@ -592,7 +591,6 @@ Function check_and_add_new_jobs_panel(testing_status)
                             Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
                             'Writes information to JOBS panel
-                            'To do - using W instead of O. Is this correct?
                             EMWriteScreen "W", 5, 34
                             EMWriteScreen "4", 6, 34
                             EMWriteScreen HIRE_employer_name, 7, 42
@@ -996,22 +994,6 @@ const full_dail_msg_const		        = 5
 const dail_processing_notes_const       = 6
 const dail_excel_row_const              = 7
 
-'To do - remove this since it will now be handled within HIRE or CSES section
-'Create an array to track case details
-' DIM case_details_array()
-
-' 'constants for array
-' const case_maxis_case_number_const      = 0
-' const case_worker_const	                = 1
-' const snap_status_const                 = 2
-' const snap_only_const                   = 3
-' const reporting_status_const            = 4
-' const sr_report_date_const              = 5
-' const recertification_date_const        = 6
-' const case_processing_notes_const       = 7
-' const processable_based_on_case_const   = 8
-' const case_excel_row_const              = 9
-
 'Create an array with PMIs to match with CASE/PERS info
 Dim PMI_and_ref_nbr_array()
 
@@ -1231,15 +1213,13 @@ If CSES_messages = 1 Then
             dail_row = 6	
 
             DO
-                ' To do - verify if variables are resetting properly every do loop
+                'Reset variables just in case they carry through
                 dail_type = ""
                 dail_msg = ""
                 dail_month = ""
                 MAXIS_case_number = ""
                 actionable_dail = ""
                 renewal_6_month_check = ""
-
-                'To do - ensure with new handling for MFIP, and UHFS that this is correct spot to reset variables
                 Snap_active = ""
                 MFIP_active = ""
                 SNAP_or_MFIP_active = ""
@@ -1420,10 +1400,7 @@ If CSES_messages = 1 Then
                                 'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                                 dail_row = 6
 
-                                'To do - do we need to determine recert/review for MFIP and UHFS? Will this impact whether message can be processed?
-
                                 If case_active = TRUE and SNAP_or_MFIP_active = True and other_programs_active_or_pending = "" Then
-                                    'To do - assuming MFIP handling needed, need to make sure script can handle moving from SNAP to MFIP depending on the panel (i.e. STAT/REVW vs ELIG vs CASE/CURR)
                                     If SNAP_active = True Then
                                         'The case is active on SNAP, will gather more details about SNAP
 
@@ -1474,7 +1451,6 @@ If CSES_messages = 1 Then
                                                     CSES_case_details_array(snap_type_const, case_count) = "SNAP"
                                                 End If
                                                 
-                                                'To do - do we care about the recert or review dates for UHFS?
                                                 If reporting_status = "SIX MONTH" Then
                                                     'Navigate to STAT/REVW to confirm recertification and SR report date
                                                     EMWriteScreen "STAT", 19, 22
@@ -1569,7 +1545,6 @@ If CSES_messages = 1 Then
                                         End If
                                     End If
 
-                                    'To do - do we need to validate anything with MFIP? Verify the recert or review date?
                                     If MFIP_active = True Then
                                         'Navigate to MFSM panel to confirm review date
                                         'Navigate to STAT/REVW to confirm review date
@@ -1690,7 +1665,6 @@ If CSES_messages = 1 Then
                                     End If
                                 Else
                                     'Case is not processable. Write information to array accordingly
-                                    'To do - update to fill out all details of array
                                     CSES_case_details_array(snap_type_const, case_count) = "N/A"
                                     CSES_case_details_array(reporting_status_const, case_count) = "N/A"
                                     CSES_case_details_array(sr_report_date_const, case_count) = "N/A"
@@ -1862,11 +1836,11 @@ If CSES_messages = 1 Then
                                 End If
 
                                 'Delete after testing new functionality
-                                activate_msg_boxes = True
+                                ' activate_msg_boxes = True
                                 If activate_msg_boxes = True Then MsgBox "It is about to delete the message. Confirm before proceeding."
                                 'Delete the message
                                 Call write_value_and_transmit("D", dail_row, 3)
-                                activate_msg_boxes = False
+                                ' activate_msg_boxes = False
 
                                 'Handling for deleting message under someone else's x number
                                 EMReadScreen other_worker_error, 25, 24, 2
@@ -1998,9 +1972,7 @@ If CSES_messages = 1 Then
                                         objExcel.Cells(dail_excel_row, 5).Value = DAIL_message_array(dail_msg_const, dail_count)
                                         objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(full_dail_msg_const, dail_count)
 
-                                        'To do - update to include handling for MFIP dates too
                                         If CSES_case_details_array(processable_based_on_case_const, each_case) = False Then
-                                                                                   
                                             If Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") OR _
                                                 Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") OR _
                                                 Instr(CSES_case_details_array(case_processing_notes_const, each_case), "SNAP Review Dates are prior to current month. Case should be reviewed") OR _
@@ -2017,7 +1989,6 @@ If CSES_messages = 1 Then
                                             'The dail message should not be processed due to case details
                                             process_dail_message = False
 
-                                            'to do - do we need to add to skip list? It shouldn't ever process since it is false based on case details
                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                             'Activate the DAIL Messages sheet
@@ -2756,7 +2727,7 @@ If CSES_messages = 1 Then
 
                                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
                                                     'Activate testing msgboxes here
-                                                    activate_msg_boxes = True
+                                                    ' activate_msg_boxes = True
 
                                                     If activate_msg_boxes = True then MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: - In-scope message, evaluate how it works!"
                                                     activate_msg_boxes = False
@@ -3680,7 +3651,6 @@ If HIRE_messages = 1 Then
     'Create an array to track case details
     DIM HIRE_case_details_array()
 
-    'To do - add handling for review dates for GA and MFIP and UHFS if needed
     'constants for array
     const HIRE_case_maxis_case_number_const      = 0
     const HIRE_case_worker_const	             = 1
@@ -3731,7 +3701,6 @@ If HIRE_messages = 1 Then
     'Creating second Excel sheet for compiling case details
     ObjExcel.Worksheets.Add().Name = "Case Details"
 
-    'To do - add handling for review dates for MFIP, GA, if needed
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "Case Number"
     objExcel.Cells(1, 2).Value = "X Number"
@@ -3929,7 +3898,6 @@ If HIRE_messages = 1 Then
             dail_row = 6	
 
             DO
-                ' To do - verify if variables are resetting properly every do loop
                 dail_type = ""
                 dail_msg = ""
                 dail_month = ""
@@ -4182,8 +4150,6 @@ If HIRE_messages = 1 Then
                 MAXIS_case_number = ""
                 actionable_dail = ""
                 renewal_6_month_check = ""
-
-                'To do - ensure with new handling for GA, MFIP, and UHFS that this is correct spot to reset variables
                 SNAP_active = ""
                 MFIP_active = ""
                 GA_Active = ""
@@ -4371,10 +4337,7 @@ If HIRE_messages = 1 Then
                                 'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                                 dail_row = 6
 
-                                'To do - do we need to determine recert/review for MFIP and UHFS? Will this impact whether message can be processed?
-                                
                                 If case_active = TRUE and SNAP_MFIP_GA_active = True and other_programs_active_or_pending = "" Then
-                                    'To do - need handling to navigate to MFIP and/or GA after SNAP that takes into account where the message ends (i.e. if it is on STAT/REVW, vs ELIG vs. CASE/CURR)
                                     If SNAP_active = True Then
                                         'The case is active on SNAP, will gather more details about SNAP
 
@@ -4433,7 +4396,6 @@ If HIRE_messages = 1 Then
                                                     HIRE_case_details_array(HIRE_snap_type_const, case_count) = "SNAP"
                                                 End If
                                                 
-                                                'To do - do we care about the recert or review dates for UHFS?
                                                 If reporting_status = "SIX MONTH" Then
                                                     'Navigate to STAT/REVW to confirm recertification and SR report date
                                                     EMWriteScreen "STAT", 19, 22
@@ -4539,8 +4501,6 @@ If HIRE_messages = 1 Then
                                         End If
                                     End If
 
-                                    'To do - need to add reading for MFIP
-                                    'To do - do we need to validate anything with MFIP? Verify the recert or review date?
                                     If MFIP_active = True Then
                                         'Navigate to MFSM panel to confirm review date
                                         'Navigate to STAT/REVW to confirm review date
@@ -4808,7 +4768,6 @@ If HIRE_messages = 1 Then
                                 End If
                             End If    
 
-                            'To do - add handling for improved writing to processing notes
                             'Only need to check if case is processable if it has not already been determined to be not processable
                             If HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) <> False or trim(HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count)) = "" Then
                                 'Handling for SNAP, check if SNAP is active, if it is then verify it meets criteria
@@ -4857,7 +4816,7 @@ If HIRE_messages = 1 Then
                                             HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "GA Not Processable"
                                         End If
                                     ElseIf HIRE_case_details_array(HIRE_GA_status_const, case_count) = "ACTIVE" then
-                                        If HIRE_case_details_array(HIRE_GA_reporting_status, case_count) <> "NON-HRF" OR HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) <> "PROSP" OR HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) < 100 Then 
+                                        If HIRE_case_details_array(HIRE_GA_reporting_status_const, case_count) <> "NON-HRF" OR HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count) <> "PROSP" OR HIRE_case_details_array(HIRE_GA_earned_income_const, case_count) < 100 Then 
                                             If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then 
                                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; GA Not Processable"
                                             Else
@@ -4898,7 +4857,7 @@ If HIRE_messages = 1 Then
                             objExcel.Cells(case_excel_row, 11).Value = HIRE_case_details_array(HIRE_MFIP_MFSM_review_date_const, case_count)
                             objExcel.Cells(case_excel_row, 12).Value = HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, case_count)
                             objExcel.Cells(case_excel_row, 13).Value = HIRE_case_details_array(HIRE_GA_status_const, case_count)
-                            objExcel.Cells(case_excel_row, 14).Value = HIRE_case_details_array(HIRE_GA_reporting_status, case_count)
+                            objExcel.Cells(case_excel_row, 14).Value = HIRE_case_details_array(HIRE_GA_reporting_status_const, case_count)
                             objExcel.Cells(case_excel_row, 15).Value = HIRE_case_details_array(HIRE_GA_budget_cycle_const, case_count)
                             objExcel.Cells(case_excel_row, 16).Value = HIRE_case_details_array(HIRE_GA_earned_income_const, case_count)
                             objExcel.Cells(case_excel_row, 17).Value = HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count)
@@ -5011,7 +4970,7 @@ If HIRE_messages = 1 Then
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
 
                                 'Delete after testing new functionality
-                                activate_msg_boxes = True
+                                ' msgbox "Delete after testing -- Message is within list_of_DAIL_messages_to_delete_NDNH_known"
                                 If activate_msg_boxes = True then MsgBox "Testing -- Messages is within list_of_DAIL_messages_to_delete_NDNH_known"
 
                                 ' Resetting variables so they do not carry forward
@@ -5120,13 +5079,11 @@ If HIRE_messages = 1 Then
                                 If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC 5057"
                                 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
-                                'Delete after testing
-                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_delete_NDNH_not_known, "*" & full_dail_msg & "*") Then
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
 
                                 'Delete after testing new functionality
-                                activate_msg_boxes = True
+                                ' msgbox "Delete after testing -- Message is within list_of_DAIL_messages_to_delete_NDNH_not_known"
                                 If activate_msg_boxes = True then MsgBox "Testing -- Message within list_of_DAIL_messages_to_delete_NDNH_not_known"
 
                                 ' Resetting variables so they do not carry forward
@@ -5234,12 +5191,10 @@ If HIRE_messages = 1 Then
                                 If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC 4018"
 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
-                                'Delete after testing new functionality
-                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_delete_SDNH, "*" & full_dail_msg & "*") Then
 
                                 'Delete after testing new functionality
-                                activate_msg_boxes = True
+                                ' msgbox "Testing -- Script is about to delete the duplicate SDNH message or the reviewed SDNH. Make sure that it is correct!!"
                                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
                                 If activate_msg_boxes = True then MsgBox "Testing -- Script is about to delete the duplicate SDNH message or the reviewed SDNH. Make sure that it is correct!!"
 
@@ -5263,8 +5218,6 @@ If HIRE_messages = 1 Then
                                     all_done = true
                                 End If
 
-                                'Delete after testing new functionality
-                                activate_msg_boxes = True
                                 If activate_msg_boxes = True then msgbox "Testing -- Script will now delete the SDNH message"
                                 'Delete the message
                                 Call write_value_and_transmit("D", dail_row, 3)
@@ -5349,8 +5302,6 @@ If HIRE_messages = 1 Then
                                 End If
 
                                 If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
-                                'Delete after testing new functionality
-                                activate_msg_boxes = False
                             ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                                 'If the full message is on the list of dail messages to skip then the message should be skipped
 
@@ -5975,6 +5926,8 @@ If HIRE_messages = 1 Then
                                                                 EMWriteScreen HIRE_memb_number, 20, 76
                                                                 Call write_value_and_transmit("01", 20, 79)
 
+                                                                'Delete after testing
+                                                                ' msgbox "Delete after testing -- about to add new JOBS panel 5979"
                                                                 Call check_and_add_new_jobs_panel(False)
                                                                 
                                                             End If
@@ -6471,6 +6424,8 @@ If HIRE_messages = 1 Then
                                                                 EMWriteScreen HIRE_memb_number, 20, 76
                                                                 Call write_value_and_transmit("01", 20, 79)
 
+                                                                'Delete after testing
+                                                                ' msgbox "Delete after testing -- about to add new JOBS panel 6477"
                                                                 Call check_and_add_new_jobs_panel(False)
                                                                 
                                                             End If
