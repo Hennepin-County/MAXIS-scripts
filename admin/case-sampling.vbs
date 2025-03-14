@@ -771,8 +771,7 @@ If run_compilation = True Then
 		'Loop through file paths to delete
 			'delete
 		For sheep = 0 to UBound(files_to_delete)
-			objFSO.MoveFile files_to_delete(sheep) , test_folder_for_delete & "\" & file_name_to_delete(sheep) & ".xlsx"    'moving each file to the archive file
-			' objFSO.DeleteFile(files_to_delete(sheep))						'If we have determined that we need to delete the file - here we delete it
+			objFSO.DeleteFile files_to_delete(sheep)						'If we have determined that we need to delete the file - here we delete it
 		Next
 	End If
 
@@ -1290,11 +1289,13 @@ If run_review_selection = True Then
 			review_select_msg = review_select_msg & vbCr & POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck) & ": - Total possible Reviews: " & POPULATION_FOR_REVIEWS_ARRAY(pop_list_count_const, duck) & vbCr & " - Review Files Made: " & POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck)
 		End If
 	Next
-	review_select_msg = review_select_msg & vbCr & "List was ready at " & list_ready_time & vbCr
+	review_select_msg = review_select_msg & vbCr & "List was ready at " & list_ready_time
+	review_select_msg = review_select_msg & vbCr & "(Review file creation started at this time.)"
+	review_select_msg = review_select_msg & vbCr & vbCr & "Review creation took: " & revw_select_run_min & " minutes " & revw_select_run_sec & " seconds."
 End If
 
 done_msg = "Script Run Completed" & vbCr & vbCr
-done_msg = done_msg & compilation_msg & vbCr
+done_msg = done_msg & compilation_msg & vbCr & vbCr
 done_msg = done_msg & review_select_msg & vbCr
 done_msg = done_msg & vbCr & "All files managed."
 call script_end_procedure(done_msg)
