@@ -25051,13 +25051,15 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				err_msg = ""
 				move_from_dialog = False
 
-				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" and HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
-					If Isdate(HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
-						err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible Health Care approval."
-					Else
-						If DateDiff("d", HC_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
-							err_msg = err_msg & vbNewLine & "* The verification request date: " &  HC_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) <> "ELIGIBLE" Then
+					If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" and HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+						If Isdate(HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
+							err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible Health Care approval."
+						Else
+							If DateDiff("d", HC_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+								err_msg = err_msg & vbNewLine & "* The verification request date: " &  HC_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+								HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
+							End If
 						End If
 					End If
 				End If
