@@ -2246,6 +2246,7 @@ If CSES_messages = 1 Then
 
                                                                                 'Ensuring that both panel_count and unea_panels_count are both numbers
                                                                                 panel_count = panel_count * 1
+                                                                                If unea_panels_count = "" Then msgbox "2249 Delete after testing -- unea_panels_count is blank, it will probably error" 
                                                                                 unea_panels_count = unea_panels_count * 1
 
                                                                                 'If the loop has reached the final panel without encountering a Type 36 message, then it updates the processing notes accordingly
@@ -2673,7 +2674,7 @@ If CSES_messages = 1 Then
                                                             EMReadScreen unea_panels_count, 1, 2, 78
                                                             If unea_panels_count = "1" Then
                                                                 'If there is only one UNEA panel and it is not a Type 40 then it will update processing notes
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type 40) exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type 40) exists for caregiver M" & caregiver_ref_nbr & "."
                                                             
                                                             ElseIf unea_panels_count <> "1" Then
                                                                 'If there are more than just a single UNEA panel, loop through them all to check for Type 40
@@ -2743,7 +2744,10 @@ If CSES_messages = 1 Then
                                                     check_full_dail_msg = ""
                                                     employer_full_name = ""
                                                     check_full_dail_msg = ""
+                                                    case_name_to_return = ""
 
+                                                    'To ensure script can get back to DAIL message if it gets bumped back to SELF, need to read the case name
+                                                    EmReadScreen case_name_to_return, 3, dail_row - 1, 5
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
 
@@ -3527,6 +3531,82 @@ If CSES_messages = 1 Then
 
                                                     'Deactivate testing msgboxes as needed
                                                     ' activate_msg_boxes = False
+
+                                                    'There is likely an issue with cases sometimes getting locked in background after adding new job and then navigating to next CSES message. Adding a background check here to avoid that issue.
+
+                                                    'Attempt to get to STAT
+                                                    EMWriteScreen "S", 6, 3
+                                                    EMSendKey "<enter>"
+                                                    EMReadScreen background_check, 25, 7, 30
+                                                    If InStr(background_check, "A Background transaction") Then
+                                                        EMWaitReady 2, 2000
+                                                        Do
+                                                            background_check = ""
+                                                            PF3
+                                                            EMWaitReady 2, 2000
+                                                            EMWriteScreen "S", 6, 3
+                                                            EMWaitReady 2, 2000
+                                                            EMSendKey "<enter>"
+                                                            EMWaitReady 2, 2000
+                                                            EMReadScreen background_check, 25, 7, 30
+                                                            If InStr(background_check, "A Background transaction") = 0 then Exit Do
+                                                        Loop
+                                                    End If
+                                                    'Should be at STAT but need to double-check
+                                                    EMReadScreen stat_summ_check, 4, 2, 46
+                                                    EMReadScreen returned_to_SELF_check, 4, 2, 50
+                                                    If stat_summ_check = "SUMM" Then 
+                                                        'Successfully made it to STAT, can PF3 back to DAIL now
+                                                        PF3
+                                                    Else
+                                                        msgbox "Delete after testing -- didn't make it back to STAT/SUMM. Check functionality"
+                                                        If returned_to_SELF_check = "SELF" Then
+                                                            'Script got bumped back to SELF, need to try to get back to DAIL while still acounting for background lock. Also need to reset the DAIL selection
+                                                            Do
+                                                                EMWriteScreen "DAIL", 16, 43
+                                                                Call write_value_and_transmit("DAIL", 21, 70)
+                                                                EMReadScreen SELF_check, 4, 2, 50
+                                                                If SELF_check = "SELF" then
+                                                                    PF3
+                                                                    Pause 2
+                                                                End if
+                                                            Loop until SELF_check <> "SELF"
+
+                                                            'Check to  make sure that we made it back to DAIL, it should maintain the case number
+                                                            EMReadScreen back_to_dail_check, 8, 1, 72
+                                                            If back_to_dail_check = "FMKDLAM6" Then
+
+                                                                'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
+                                                                Call write_value_and_transmit("H", dail_row, 3)
+                                                                PF3
+
+                                                                'Reset DAIL to only CSES messages
+                                                                Call write_value_and_transmit("X", 4, 12)
+                                                                EMWriteScreen "_", 7, 39
+                                                                Call write_value_and_transmit("X", 10, 39)
+
+                                                                'Script should now navigate to specific member name, or at least get close
+                                                                EMWriteScreen case_name_to_return, 21, 25
+                                                                transmit
+
+                                                                msgbox "Delete after testing -- Made it back to DAIL. Should have reset the DAIL to CSES messages and got close to correct DAIL message"
+                                                            Else
+
+                                                                'Initial dialog - select whether to create a list or process a list
+                                                                Dialog1 = ""
+                                                                BeginDialog Dialog1, 0, 0, 306, 220, "Unable to return to DAIL. Double-check the issue."
+                                                                
+                                                                ButtonGroup ButtonPressed
+                                                                    OkButton 205, 200, 40, 15
+                                                                    CancelButton 245, 200, 40, 15
+                                                                EndDialog
+
+                                                                Do
+                                                                    Dialog Dialog1
+                                                                Loop until ButtonPressed = OK
+                                                            End If
+                                                        End If
+                                                    End If
 
                                                 ElseIf InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
                                                     'No action on these, simply note in spreadsheet that QI team to review
@@ -5700,7 +5780,7 @@ If HIRE_messages = 1 Then
                                                             EMWriteScreen "DAIL", 21, 70
                                                             transmit
 
-                                                            EMReadSCreen back_to_dail_check, 8, 1, 72
+                                                            EMReadScreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
 
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
