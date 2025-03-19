@@ -629,9 +629,12 @@ If run_compilation = True Then
 	'TODO - Make worksheet be a selection in dialog - will need to read the file before the dialog to get the list of worksheets
 
 	excel_row = 2
+	Case_numb_string = "*"				'using this string to ensure we don't have any duplicate entries
 	Do
 		excel_row = excel_row + 1
 		compilation_case_numb = trim(ObjExcel.cells(excel_row, 1).Value)
+		ObjExcel.cells(excel_row, comp_appl_date_col).Value
+		if compilation_case_numb <> "" Then Case_numb_string = Case_numb_string & compilation_case_numb & "*"
 	Loop until compilation_case_numb = ""
 
 	'Loop through each file in case sampling folder with correct name/type
@@ -672,52 +675,56 @@ If run_compilation = True Then
 			Else
 				files_to_move = files_to_move & this_file_path & "~!~"
 				file_name_to_move = file_name_to_move & this_file_name & "~!~"
-				ObjExcel.cells(excel_row, comp_case_numb_col).Value 					= ObjREVWExcel.cells(comp_case_numb_col, 3).Value
-				ObjExcel.cells(excel_row, comp_case_name_col).Value 					= ObjREVWExcel.cells(comp_case_name_col, 3).Value
-				ObjExcel.cells(excel_row, comp_appl_date_col).Value 					= ObjREVWExcel.cells(comp_appl_date_col, 3).Value
-				ObjExcel.cells(excel_row, comp_appl_date_issue_col).Value 				= ObjREVWExcel.cells(comp_appl_date_issue_col, 3).Value
-				ObjExcel.cells(excel_row, comp_prog_date_align_col).Value 				= ObjREVWExcel.cells(comp_prog_date_align_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_appl_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_appl_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_appl_notes_col).Value 					= ObjREVWExcel.cells(comp_appl_notes_col, 3).Value
-				ObjExcel.cells(excel_row, comp_progs_col).Value 						= ObjREVWExcel.cells(comp_progs_col, 3).Value
-				ObjExcel.cells(excel_row, comp_spec_cash_prog_col).Value 				= ObjREVWExcel.cells(comp_spec_cash_prog_col, 3).Value
-				ObjExcel.cells(excel_row, comp_hh_comp_col).Value 						= ObjREVWExcel.cells(comp_hh_comp_col, 3).Value
-				ObjExcel.cells(excel_row, comp_hh_comp_correct_col).Value 				= ObjREVWExcel.cells(comp_hh_comp_correct_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_demo_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_demo_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_prog_hh_comp_notes_col).Value 			= ObjREVWExcel.cells(comp_prog_hh_comp_notes_col, 3).Value
-				ObjExcel.cells(excel_row, comp_intvw_date_col).Value 					= ObjREVWExcel.cells(comp_intvw_date_col, 3).Value
-				ObjExcel.cells(excel_row, comp_intvw_script_used_col).Value 			= ObjREVWExcel.cells(comp_intvw_script_used_col, 3).Value
-				ObjExcel.cells(excel_row, comp_single_intvw_col).Value 					= ObjREVWExcel.cells(comp_single_intvw_col, 3).Value
-				ObjExcel.cells(excel_row, comp_mf_orient_complete_col).Value 			= ObjREVWExcel.cells(comp_mf_orient_complete_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_intvw_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_intvw_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_intvw_notes_col).Value 					= ObjREVWExcel.cells(comp_intvw_notes_col, 3).Value
-				ObjExcel.cells(excel_row, comp_verif_req_sent_col).Value 				= ObjREVWExcel.cells(comp_verif_req_sent_col, 3).Value
-				ObjExcel.cells(excel_row, comp_verif_req_blank_col).Value 				= ObjREVWExcel.cells(comp_verif_req_blank_col, 3).Value
-				ObjExcel.cells(excel_row, comp_single_verif_req_col).Value 				= ObjREVWExcel.cells(comp_single_verif_req_col, 3).Value
-				ObjExcel.cells(excel_row, comp_spec_forms_req_col).Value 				= ObjREVWExcel.cells(comp_spec_forms_req_col, 3).Value
-				ObjExcel.cells(excel_row, comp_unnec_verfs_col).Value 					= ObjREVWExcel.cells(comp_unnec_verfs_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_verif_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_verif_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_verif_notes_col).Value 					= ObjREVWExcel.cells(comp_verif_notes_col, 3).Value
-				ObjExcel.cells(excel_row, comp_date_app_col).Value 						= ObjREVWExcel.cells(comp_date_app_col, 3).Value
-				ObjExcel.cells(excel_row, comp_snap_det_exp_col).Value 					= ObjREVWExcel.cells(comp_snap_det_exp_col, 3).Value
-				ObjExcel.cells(excel_row, comp_same_day_act_col).Value 					= ObjREVWExcel.cells(comp_same_day_act_col, 3).Value
-				ObjExcel.cells(excel_row, comp_stat_pact_col).Value 					= ObjREVWExcel.cells(comp_stat_pact_col, 3).Value
-				ObjExcel.cells(excel_row, comp_ecf_docs_accept_col).Value 				= ObjREVWExcel.cells(comp_ecf_docs_accept_col, 3).Value
-				ObjExcel.cells(excel_row, comp_residnt_in_office_col).Value 			= ObjREVWExcel.cells(comp_residnt_in_office_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_app_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_app_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_app_notes_col).Value 					= ObjREVWExcel.cells(comp_app_notes_col, 3).Value
-				ObjExcel.cells(excel_row, comp_serve_purpose_col).Value 				= ObjREVWExcel.cells(comp_serve_purpose_col, 3).Value
-				ObjExcel.cells(excel_row, comp_docs_noted_col).Value 					= ObjREVWExcel.cells(comp_docs_noted_col, 3).Value
-				ObjExcel.cells(excel_row, comp_staff_not_meet_note_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_note_stndrd_col, 3).Value
-				ObjExcel.cells(excel_row, comp_case_note_col).Value 					= ObjREVWExcel.cells(comp_case_note_col, 3).Value
-				ObjExcel.cells(excel_row, comp_reviewer_col).Value 						= trim(ObjREVWExcel.cells(comp_reviewer_col, 3).Value)
-				ObjExcel.cells(excel_row, comp_time_of_case_review_col).Value 			= ObjREVWExcel.cells(comp_time_of_case_review_col, 3).Value
-				ObjExcel.cells(excel_row, comp_repair_required_col).Value 				= ObjREVWExcel.cells(comp_repair_required_col, 3).Value
-				ObjExcel.cells(excel_row, comp_coaching_col).Value 						= ObjREVWExcel.cells(comp_coaching_col, 3).Value
+				this_file_case_numb = "*" & trim(ObjREVWExcel.cells(comp_case_numb_col, 3).Value) & "*"
 
+				If InStr(Case_numb_string, this_file_case_numb) = 0 Then
+					ObjExcel.cells(excel_row, comp_case_numb_col).Value 					= ObjREVWExcel.cells(comp_case_numb_col, 3).Value
+					ObjExcel.cells(excel_row, comp_case_name_col).Value 					= ObjREVWExcel.cells(comp_case_name_col, 3).Value
+					ObjExcel.cells(excel_row, comp_appl_date_col).Value 					= ObjREVWExcel.cells(comp_appl_date_col, 3).Value
+					ObjExcel.cells(excel_row, comp_appl_date_issue_col).Value 				= ObjREVWExcel.cells(comp_appl_date_issue_col, 3).Value
+					ObjExcel.cells(excel_row, comp_prog_date_align_col).Value 				= ObjREVWExcel.cells(comp_prog_date_align_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_appl_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_appl_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_appl_notes_col).Value 					= ObjREVWExcel.cells(comp_appl_notes_col, 3).Value
+					ObjExcel.cells(excel_row, comp_progs_col).Value 						= ObjREVWExcel.cells(comp_progs_col, 3).Value
+					ObjExcel.cells(excel_row, comp_spec_cash_prog_col).Value 				= ObjREVWExcel.cells(comp_spec_cash_prog_col, 3).Value
+					ObjExcel.cells(excel_row, comp_hh_comp_col).Value 						= ObjREVWExcel.cells(comp_hh_comp_col, 3).Value
+					ObjExcel.cells(excel_row, comp_hh_comp_correct_col).Value 				= ObjREVWExcel.cells(comp_hh_comp_correct_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_demo_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_demo_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_prog_hh_comp_notes_col).Value 			= ObjREVWExcel.cells(comp_prog_hh_comp_notes_col, 3).Value
+					ObjExcel.cells(excel_row, comp_intvw_date_col).Value 					= ObjREVWExcel.cells(comp_intvw_date_col, 3).Value
+					ObjExcel.cells(excel_row, comp_intvw_script_used_col).Value 			= ObjREVWExcel.cells(comp_intvw_script_used_col, 3).Value
+					ObjExcel.cells(excel_row, comp_single_intvw_col).Value 					= ObjREVWExcel.cells(comp_single_intvw_col, 3).Value
+					ObjExcel.cells(excel_row, comp_mf_orient_complete_col).Value 			= ObjREVWExcel.cells(comp_mf_orient_complete_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_intvw_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_intvw_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_intvw_notes_col).Value 					= ObjREVWExcel.cells(comp_intvw_notes_col, 3).Value
+					ObjExcel.cells(excel_row, comp_verif_req_sent_col).Value 				= ObjREVWExcel.cells(comp_verif_req_sent_col, 3).Value
+					ObjExcel.cells(excel_row, comp_verif_req_blank_col).Value 				= ObjREVWExcel.cells(comp_verif_req_blank_col, 3).Value
+					ObjExcel.cells(excel_row, comp_single_verif_req_col).Value 				= ObjREVWExcel.cells(comp_single_verif_req_col, 3).Value
+					ObjExcel.cells(excel_row, comp_spec_forms_req_col).Value 				= ObjREVWExcel.cells(comp_spec_forms_req_col, 3).Value
+					ObjExcel.cells(excel_row, comp_unnec_verfs_col).Value 					= ObjREVWExcel.cells(comp_unnec_verfs_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_verif_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_verif_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_verif_notes_col).Value 					= ObjREVWExcel.cells(comp_verif_notes_col, 3).Value
+					ObjExcel.cells(excel_row, comp_date_app_col).Value 						= ObjREVWExcel.cells(comp_date_app_col, 3).Value
+					ObjExcel.cells(excel_row, comp_snap_det_exp_col).Value 					= ObjREVWExcel.cells(comp_snap_det_exp_col, 3).Value
+					ObjExcel.cells(excel_row, comp_same_day_act_col).Value 					= ObjREVWExcel.cells(comp_same_day_act_col, 3).Value
+					ObjExcel.cells(excel_row, comp_stat_pact_col).Value 					= ObjREVWExcel.cells(comp_stat_pact_col, 3).Value
+					ObjExcel.cells(excel_row, comp_ecf_docs_accept_col).Value 				= ObjREVWExcel.cells(comp_ecf_docs_accept_col, 3).Value
+					ObjExcel.cells(excel_row, comp_residnt_in_office_col).Value 			= ObjREVWExcel.cells(comp_residnt_in_office_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_app_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_app_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_app_notes_col).Value 					= ObjREVWExcel.cells(comp_app_notes_col, 3).Value
+					ObjExcel.cells(excel_row, comp_serve_purpose_col).Value 				= ObjREVWExcel.cells(comp_serve_purpose_col, 3).Value
+					ObjExcel.cells(excel_row, comp_docs_noted_col).Value 					= ObjREVWExcel.cells(comp_docs_noted_col, 3).Value
+					ObjExcel.cells(excel_row, comp_staff_not_meet_note_stndrd_col).Value 	= ObjREVWExcel.cells(comp_staff_not_meet_note_stndrd_col, 3).Value
+					ObjExcel.cells(excel_row, comp_case_note_col).Value 					= ObjREVWExcel.cells(comp_case_note_col, 3).Value
+					ObjExcel.cells(excel_row, comp_reviewer_col).Value 						= trim(ObjREVWExcel.cells(comp_reviewer_col, 3).Value)
+					ObjExcel.cells(excel_row, comp_time_of_case_review_col).Value 			= ObjREVWExcel.cells(comp_time_of_case_review_col, 3).Value
+					ObjExcel.cells(excel_row, comp_repair_required_col).Value 				= ObjREVWExcel.cells(comp_repair_required_col, 3).Value
+					ObjExcel.cells(excel_row, comp_coaching_col).Value 						= ObjREVWExcel.cells(comp_coaching_col, 3).Value
+					excel_row = excel_row + 1
+				End If
 				reviewer_found = False
 				For horse = 0 to UBOUnd(REVIEW_COMPLETE_ARRAY, 2)
-					If REVIEW_COMPLETE_ARRAY(reviewer_name_const, horse) = trim(ObjREVWExcel.cells(comp_reviewer_col, 3).Value) Then
+					If UCASE(REVIEW_COMPLETE_ARRAY(reviewer_name_const, horse)) = UCASE(trim(ObjREVWExcel.cells(comp_reviewer_col, 3).Value)) Then
 						REVIEW_COMPLETE_ARRAY(reviewer_count_const, horse) = REVIEW_COMPLETE_ARRAY(reviewer_count_const, horse) + 1
 						reviewer_found = True
 					End If
@@ -729,7 +736,6 @@ If run_compilation = True Then
 					total_reviewers = total_reviewers + 1
 				End If
 
-				excel_row = excel_row + 1
 				count = count + 1
 			End If
 			ObjREVWExcel.ActiveWorkbook.Close
@@ -747,6 +753,10 @@ If run_compilation = True Then
 	Set ObjExcel = Nothing
 	Set objWorkbook = Nothing
 
+	On Error Resume Next
+
+	files_failed = ""
+
 	If files_to_move <> "" Then
 		files_to_move = left(files_to_move, len(files_to_move)-3)
 		file_name_to_move = left(file_name_to_move, len(file_name_to_move)-3)
@@ -758,6 +768,8 @@ If run_compilation = True Then
 			'move
 		For cow = 0 to UBound(files_to_move)
 			objFSO.MoveFile files_to_move(cow) , archive_folder & "\" & file_name_to_move(cow) & ".xlsx"    'moving each file to the archive file
+			' If Err.Number <> 0 Then MsgBox "Error Number: " & Err.Number
+			If Err.Number <> 0 Then files_failed = files_failed & file_name_to_move(cow) & "~!~"
 		Next
 	End If
 
@@ -772,7 +784,19 @@ If run_compilation = True Then
 			'delete
 		For sheep = 0 to UBound(files_to_delete)
 			objFSO.DeleteFile files_to_delete(sheep)						'If we have determined that we need to delete the file - here we delete it
+			' If Err.Number <> 0 Then MsgBox "Error Number: " & Err.Number
+			If Err.Number <> 0 Then files_failed = files_failed & file_name_to_delete(cow) & "~!~"
+
 		Next
+	End If
+
+	On Error Goto 0
+
+	' MsgBox "files_failed - " & files_failed
+	If files_failed <> "" Then
+		files_failed = left(files_failed, len(files_failed)-3)
+		If InStr(files_failed, "~!~") <> 0 Then files_failed_array = split(files_failed, "~!~")
+		If InStr(files_failed, "~!~") = 0 Then files_failed_array = array(files_failed)
 	End If
 
 	compilation_time = timer - compilation_start_time
@@ -780,6 +804,15 @@ If run_compilation = True Then
 	For horse = 0 to UBOUnd(REVIEW_COMPLETE_ARRAY, 2)
 		compilation_msg = compilation_msg & "Reviewer: " & REVIEW_COMPLETE_ARRAY(reviewer_name_const, horse) & " - Total Reviews: " & REVIEW_COMPLETE_ARRAY(reviewer_count_const, horse) & vbCr
 	Next
+	If files_failed <> "" Then
+		compilation_msg = compilation_msg & vbCr & "SOME FILE(S) COULD NOT BE MOVED OR DELETED."
+		compilation_msg = compilation_msg & vbCr & "This is likely because the file is open by another user."
+		compilation_msg = compilation_msg & vbCr & "File Name:"
+		For each pig in files_failed_array
+			compilation_msg = compilation_msg & vbCr & "  - " & pig
+		Next
+		compilation_msg = compilation_msg & vbCr & "Move or delete the file manually when available. It HAS been logged." & vbCr
+	End If
 	compilation_min = int(compilation_time/60)
 	compilation_sec = compilation_time MOD 60
 	compilation_msg = compilation_msg & vbCr &"Compilation took: " & compilation_min & " minutes " & compilation_sec & " seconds."
