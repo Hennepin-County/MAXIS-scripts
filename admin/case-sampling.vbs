@@ -633,7 +633,6 @@ If run_compilation = True Then
 	Do
 		excel_row = excel_row + 1
 		compilation_case_numb = trim(ObjExcel.cells(excel_row, 1).Value)
-		ObjExcel.cells(excel_row, comp_appl_date_col).Value
 		if compilation_case_numb <> "" Then Case_numb_string = Case_numb_string & compilation_case_numb & "*"
 	Loop until compilation_case_numb = ""
 
