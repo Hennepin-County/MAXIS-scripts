@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2025", "Updated handling for previously requested verifications to ensure that new verifications requested generate a new CASE/NOTE.", "Mark Riegel, Hennepin County")
 call changelog_update("03/05/2025", "Extended the lookback period to 3 months to find REVW processes. This update is to support any clean-up efforts happening.", "Casey Love, Hennepin County")
 call changelog_update("09/18/2024", "Updated functionality to allow script to proceed if EMER is missing an interview date, but other programs are pending and have completed interviews.", "Mark Riegel, Hennepin County")
 call changelog_update("05/23/2024", "Added 'Pregnant' FSET status and 'ABAWD Banked Months' ABAWD status to TLR/ABAWD Dialog.", "Ilse Ferris, Hennepin County")
@@ -6804,14 +6805,16 @@ If vars_filled = False Then
 
                             verifs_to_add = verifs_to_add & line                    'adding the verif information all together
                         Next
-                        If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'triming the string
-                        If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add 'adding the information to the variable used in this script
+                        If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'trimming the string
+                        verifs_to_add = Replace(verifs_to_add, ";", ",")        'Remove the semi-colon separators
+                        If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add & ";" 'adding the information to the variable used in this script
                     End If
                 End If
                 PF3         'leaving the note
             Else
                 If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
             End If
+            previous_verifs_requested = verifs_needed
         End If
 
         'CAF QUALIFYING QUESTIONS NOTES
@@ -10037,16 +10040,20 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
     End If
 End If
 
+'If the verifs_needed has not been changed from what was initially generated, then no new case/note is needed. If it has, then a new case/note is needed
+If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed Then 
+    verifs_case_note_needed = True
+End If
+
 'Verification NOTE
 verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
-If trim(verifs_needed) = "" or verifications_requested_case_note_found = True Then
+If trim(verifs_needed) = "" AND verifications_requested_case_note_found = True Then
     case_notes_information = case_notes_information & "No Verifs NOTE Attempted "
     If trim(verifs_needed) = "" Then case_notes_information = case_notes_information & "- verif field is blank"
     If verifications_requested_case_note_found = True Then case_notes_information = case_notes_information & "- verif case note was found"
     case_notes_information = case_notes_information & " %^% %^%"
 End If
-If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False Then
-
+If (trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False) or verifs_case_note_needed = True Then
     verif_counter = 1
     verifs_needed = trim(verifs_needed)
     If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
@@ -10083,6 +10090,7 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
     Call write_variable_in_CASE_NOTE("List of all verifications requested:")
     For each verif_item in verifs_array
         verif_item = trim(verif_item)
+        If right(verif_item, 1) = "," Then verif_item = left(verif_item, len(verif_item) - 1) & "." 
         If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
         verif_counter = verif_counter + 1
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
