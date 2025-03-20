@@ -6804,8 +6804,9 @@ If vars_filled = False Then
 
                             verifs_to_add = verifs_to_add & line                    'adding the verif information all together
                         Next
-                        If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'triming the string
-                        If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add 'adding the information to the variable used in this script
+                        If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'trimming the string
+                        verifs_to_add = Replace(verifs_to_add, ";", ",")        'Remove the semi-colon separators
+                        If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add & ";" 'adding the information to the variable used in this script
                     End If
                 End If
                 PF3         'leaving the note
@@ -10088,6 +10089,7 @@ If (trim(verifs_needed) <> "" AND verifications_requested_case_note_found = Fals
     Call write_variable_in_CASE_NOTE("List of all verifications requested:")
     For each verif_item in verifs_array
         verif_item = trim(verif_item)
+        If right(verif_item, 1) = "," Then verif_item = left(verif_item, len(verif_item) - 1) & "." 
         If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
         verif_counter = verif_counter + 1
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
