@@ -6812,6 +6812,7 @@ If vars_filled = False Then
             Else
                 If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
             End If
+            previous_verifs_requested = verifs_needed
         End If
 
         'CAF QUALIFYING QUESTIONS NOTES
@@ -10037,16 +10038,20 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
     End If
 End If
 
+'If the verifs_needed has not been changed from what was initially generated, then no new case/note is needed. If it has, then a new case/note is needed
+If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed Then 
+    verifs_case_note_needed = True
+End If
+
 'Verification NOTE
 verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
-If trim(verifs_needed) = "" or verifications_requested_case_note_found = True Then
+If trim(verifs_needed) = "" AND verifications_requested_case_note_found = True Then
     case_notes_information = case_notes_information & "No Verifs NOTE Attempted "
     If trim(verifs_needed) = "" Then case_notes_information = case_notes_information & "- verif field is blank"
     If verifications_requested_case_note_found = True Then case_notes_information = case_notes_information & "- verif case note was found"
     case_notes_information = case_notes_information & " %^% %^%"
 End If
-If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False Then
-
+If (trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False) or verifs_case_note_needed = True Then
     verif_counter = 1
     verifs_needed = trim(verifs_needed)
     If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
