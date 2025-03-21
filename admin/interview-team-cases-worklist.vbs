@@ -945,7 +945,7 @@ If developer_mode = False Then
 
 	unlock_end = excel_row + fam_cases_assigned_count
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Unprotect
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A1:E" & unlock_end).Locked = False
+	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
 
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		If CASES_TO_ASSIGN_ARRAY(assign_pop_const, cow) = "Families" Then
@@ -973,7 +973,7 @@ If developer_mode = False Then
 
 	unlock_end = excel_row + adul_cases_assigned_count
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Unprotect
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A1:E" & unlock_end).Locked = False
+	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
 
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		If CASES_TO_ASSIGN_ARRAY(assign_pop_const, cow) = "Adults" Then
