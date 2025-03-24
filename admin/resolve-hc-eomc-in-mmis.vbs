@@ -482,10 +482,10 @@ If restart_checkbox <> checked Then
 						transmit
 
 						If prog = "MA" or prog = "IMD" or prog = "EMA" Then                 'for the programs MA or IMD the information is in a certain place
-							footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year  'defining footer month/year as date 
+							footer_month_and_year = MAXIS_footer_month & "/01/" & MAXIS_footer_year  'defining footer month/year as date
                             new_elig_hc_panel_date = "01/01/25"                                     'defining date ELIG/HC panel format/positions changed
 
-							new_elig_panel = FALSE 
+							new_elig_panel = FALSE
 							If DateDiff("D", new_elig_hc_panel_date, footer_month_and_year) >= 0 THEN new_elig_panel = TRUE
 
                             If new_elig_panel = FALSE Then    'Panel prior to 1/1/25
@@ -1662,12 +1662,12 @@ email_body = email_body & vbCr & vbCr & "This script has attempted to align MMIS
 email_body = email_body & vbCr & "There is an instruction document here:" & "<br>"
 email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & "EOMC Work List Instructions.docx" & chr(34) & ">" & "EOMC Work List Instructions.docx" & "</a><br>" & "<br>"
 
-email_body = email_body & vbCr & "Please reach out to Tanya with questions about this assignment." & "<br>"
+email_body = email_body & vbCr & "Please reach out to Jen with questions about this assignment." & "<br>"
 email_body = email_body & vbCr & vbCr & "Thank you!"
 
 
 'function labels		  email_from, 							  email_recip, 				 email_recip_CC, 		    email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
-Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Tanya.Payne@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
+Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Jennifer.Frey@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
 
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
