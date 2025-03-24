@@ -5458,6 +5458,9 @@ If HIRE_messages = 1 Then
                                             'Activate the DAIL Messages sheet
                                             objExcel.Worksheets("DAIL Messages").Activate
 
+                                            'To do - Delete after testing 
+                                            If MAXIS_case_number = "940366" Then msgbox "Delete after testing - Line 5465."
+
                                             'Update the Excel sheet
                                             objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                         
@@ -5487,7 +5490,7 @@ If HIRE_messages = 1 Then
 
                                                 'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                             Else
-                                                If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" Then
+                                                If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" OR HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
                                                     If DateAdd("m", 0, HIRE_case_details_array(HIRE_recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, HIRE_case_details_array(HIRE_sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
                                                         If activate_msg_boxes = True then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
