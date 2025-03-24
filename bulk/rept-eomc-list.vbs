@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/24/2025", "Handling for a bug in the instance that a Case Number is read twice, the navigation was getting caught and the report wasn't finishing.", "Casey Love, Hennepin County")
 call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -193,6 +194,8 @@ all_case_numbers_array = "*"
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+	Call clear_line_of_text(18, 43)		'ensure the case number isn't being entered into the nav function
+	MAXIS_case_number = ""				'Blanking out variable to ensure the case number isn't being entered into the nav function
 	Call navigate_to_MAXIS_screen("REPT", "EOMC")
 	EMWriteScreen worker, 21, 16
 	transmit
