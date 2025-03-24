@@ -5562,8 +5562,6 @@ If HIRE_messages = 1 Then
                                                 If HIRE_case_details_array(HIRE_GA_status_const, each_case) = "ACTIVE" Then
                                                     'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                                     'Subtract 6 months from ER Report Date to get review date
-                                                    HIRE_case_details_array(HIRE_GA_GASM_review_date_const, case_count) = trim(GA_GASM_review_date)
-                                                    HIRE_case_details_array(HIRE_GA_STAT_REVW_review_date, case_count) = trim(GA_STAT_REVW_review_date)
 
                                                     ER_report_minus_6_months = DateAdd("m", -6, HIRE_case_details_array(HIRE_GA_GASM_review_date_const, each_case))
 
