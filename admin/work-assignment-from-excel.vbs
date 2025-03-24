@@ -510,7 +510,7 @@ ElseIf worker_selection = "Select from QI" Then				'option for QI leadership to 
 	qi_worker_count = 0
 	For tester = 0 to UBound(tester_array)                         'looping through all of the testers
 		' pulling QI members by supervisor from the Complete List of Testers
-		If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then
+		If tester_array(tester).tester_population = "QI" Then
 			RedIm preserve QI_WORKERS_ARRAY(qi_worker_last_const, qi_worker_count)
 
 			QI_WORKERS_ARRAY(qi_worker_name_const, qi_worker_count) = tester_array(tester).tester_full_name
