@@ -370,7 +370,7 @@ End If
 ''Defining a list of all members of QI based on supervisor to select in the droplist
 list_of_QI_members = "Select One..."
 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
-	If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then
+	If tester_array(tester).tester_population = "QI" Then
 		list_of_QI_members = list_of_QI_members+chr(9)+tester_array(tester).tester_full_name
 	End If
 Next
