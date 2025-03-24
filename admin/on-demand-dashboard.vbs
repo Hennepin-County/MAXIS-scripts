@@ -564,7 +564,7 @@ function complete_admin_functions()
                     qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
 					qi_worker_email = tester_array(tester).tester_email
                     qi_worker_first_name = tester_array(tester).tester_first_name
-                    If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
+					If tester_array(tester).tester_population = "QI" Then qi_member_identified = True
                     If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
                     assigned_worker = tester_array(tester).tester_full_name
                     ' MsgBox "user_ID_for_validation - " & user_ID_for_validation & vbCr & "tester_array(tester).tester_id_number - " & tester_array(tester).tester_id_number & vbCr & "qi_member_identified - " & qi_member_identified
@@ -1291,7 +1291,7 @@ For tester = 0 to UBound(tester_array)                         'looping through 
         qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
         qi_worker_first_name = tester_array(tester).tester_first_name
 		qi_worker_email = tester_array(tester).tester_email
-        If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
+		If tester_array(tester).tester_population = "QI" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
     End If
