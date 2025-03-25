@@ -945,7 +945,7 @@ If developer_mode = False Then
 
 	unlock_end = excel_row + fam_cases_assigned_count
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Unprotect
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
+	' ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
 
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		If CASES_TO_ASSIGN_ARRAY(assign_pop_const, cow) = "Families" Then
@@ -960,7 +960,7 @@ If developer_mode = False Then
 		End If
 	Next
 
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = True
+	' ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = True
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Protect
 
 	ObjStaffExcel.worksheets("Adults").Activate
@@ -973,7 +973,7 @@ If developer_mode = False Then
 
 	unlock_end = excel_row + adul_cases_assigned_count
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Unprotect
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
+	' ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = False
 
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		If CASES_TO_ASSIGN_ARRAY(assign_pop_const, cow) = "Adults" Then
@@ -988,7 +988,7 @@ If developer_mode = False Then
 		End If
 	Next
 	'ADD an LOCK to the spreadsheet columns with information
-	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = True
+	' ObjStaffExcel.ActiveWorkbook.ActiveSheet.Range("A3:E" & unlock_end).Locked = True
 	ObjStaffExcel.ActiveWorkbook.ActiveSheet.Protect
 
 	'save the manager log file and close
@@ -1005,7 +1005,7 @@ end_message = end_message & vbCr & "Manager Log and Eligibility Staff Excel file
 end_message = end_message & vbCr & "Total Cases added to logs: " & total_cases_assigned_count
 end_message = end_message & vbCr & "FAMILIES Cases added to logs: " & fam_cases_assigned_count
 end_message = end_message & vbCr & "ADULTS Cases added to logs: " & adul_cases_assigned_count
-end_message = end_message & vbCr & "Files left open for review but updates are compelete." & vbCr
+end_message = end_message & vbCr & "Files left open for review but updates are complete." & vbCr
 end_message = end_message & vbCr & "Script run time: " & internal_run_min & " min, " & internal_run_sec & " sec."
 
 Call script_end_procedure(end_message)
