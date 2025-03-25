@@ -8354,6 +8354,7 @@ show_pg_last = start_at + 4
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 interview_questions_clear = False
+leave_loop = False
 Do
 	Do
 		Do
@@ -8391,14 +8392,16 @@ Do
 			call dialog_movement
 
 		Loop until leave_loop = TRUE
-		proceed_confirm = MsgBox("Have you completed the Interview?" & vbCr & vbCr &_
-								 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE or in the Interview Notes PDF." & vbCr & vbCr &_
-								 "Following this point is only check eDRS and Forms Review." & vbCr & vbCr &_
-								 "Press 'No' now if you have additional notes to make or information to review/enter. This will bring you back to the main dailogs." & vbCr &_
-								 "Press 'Yes' to confinue to the final part of the interivew (forms)." & vbCr &_
-								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Interview Completed")
-		If proceed_confirm = vbCancel then cancel_confirmation
-
+		If ButtonPressed <> incomplete_interview_btn Then
+			proceed_confirm = MsgBox("Have you completed the Interview?" & vbCr & vbCr &_
+									"Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE or in the Interview Notes PDF." & vbCr & vbCr &_
+									"Following this point is only check eDRS and Forms Review." & vbCr & vbCr &_
+									"Press 'No' now if you have additional notes to make or information to review/enter. This will bring you back to the main dailogs." & vbCr &_
+									"Press 'Yes' to confinue to the final part of the interivew (forms)." & vbCr &_
+									"Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Interview Completed")
+			If proceed_confirm = vbCancel then cancel_confirmation
+		End If
+		If ButtonPressed = incomplete_interview_btn Then proceed_confirm = vbYes
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
