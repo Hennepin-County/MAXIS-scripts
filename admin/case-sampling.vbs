@@ -1135,13 +1135,27 @@ If run_review_selection = True Then
 	Next
 
 
-	'open new excel
-	'Opening the Excel file
-	Set objExcel = CreateObject("Excel.Application")
-	objExcel.Visible = True
-	Set objWorkbook = objExcel.Workbooks.Add()
-	objExcel.DisplayAlerts = True
+	'save PND2 Excel with date as file name and close - potential restart process uses this file to fill the array
+	today_yr = DatePart("yyyy", date)
+	today_day = Right("00"&DatePart("d", date), 2)
+	today_mo = Right("00"&DatePart("m", date), 2)
+	today_review_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Daily Case Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
+	first_loop = True
+	first_run = True
 
+	'This allows for the script to be run twice and update the existing Daily List
+	If ObjFSO.FileExists(today_review_file) Then
+		Call excel_open(today_review_file, True, False, ObjExcel, objWorkbook)
+		first_loop = False
+		first_run = False
+	Else
+		'open new excel
+		'Opening the Excel file
+		Set objExcel = CreateObject("Excel.Application")
+		objExcel.Visible = True
+		Set objWorkbook = objExcel.Workbooks.Add()
+		objExcel.DisplayAlerts = True
+	End If
 
 	'Loop through yesterday's cases - twice - once for Adults and Once for Families - no other populations are considered
 		'create worksheet for population
@@ -1152,29 +1166,46 @@ If run_review_selection = True Then
 		'add date of review column (H) - NO LONGER NEEDED
 		'Save with today's date as file name in 'QI\Case Reviews\Daily Case Lists
 		'close
-	first_loop = True
 	For duck = 0 to UBound(POPULATION_FOR_REVIEWS_ARRAY, 2)
 		If POPULATION_FOR_REVIEWS_ARRAY(pop_selected_const, duck) = True Then
-			If first_loop = True Then
-				'Changes name of Excel sheet to "Families"
-				ObjExcel.ActiveSheet.Name = POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck)
-				first_loop = False
-			Else
-				'NOW adults list
-				ObjExcel.Worksheets.Add().Name = POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck)
+			excel_row = 1
+			sheet_exists = False
+			If first_run = False Then								'look for an existing sheet in case it is run a second time in the day
+				For Each objWorkSheet In objWorkbook.Worksheets
+					If objWorkSheet.Name = POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck) Then
+						sheet_exists = True
+						objExcel.worksheets(objWorkSheet.Name).Activate
+						Do
+							excel_row = excel_row + 1
+							info_here = ObjExcel.Cells(excel_row, 1).Value
+						Loop until info_here = ""
+						excel_row = excel_row - 1
+						Exit For
+					End If
+				Next
 			End If
 
-			ObjExcel.Cells(1, 1).Value = "WORKER"
-			ObjExcel.Cells(1, 2).Value = "Population"
-			ObjExcel.Cells(1, 3).Value = "CASE NUMBER"
-			ObjExcel.Cells(1, 4).Value = "NAME"
-			ObjExcel.Cells(1, 5).Value = "APPL DATE"
-			ObjExcel.Cells(1, 6).Value = "DAYS PENDING"
-			ObjExcel.Cells(1, 7).Value = "SNAP?"
-			ObjExcel.Cells(1, 8).Value = "CASH?"
-			ObjExcel.Cells(1, 9).Value = "Date of Review"
+			If sheet_exists = False Then
+				If first_loop = True Then
+					'Changes name of Excel sheet to "Families"
+					ObjExcel.ActiveSheet.Name = POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck)
+					first_loop = False
+				Else
+					'NOW adults list
+					ObjExcel.Worksheets.Add().Name = POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck)
+				End If
 
-			excel_row = 1
+				ObjExcel.Cells(1, 1).Value = "WORKER"
+				ObjExcel.Cells(1, 2).Value = "Population"
+				ObjExcel.Cells(1, 3).Value = "CASE NUMBER"
+				ObjExcel.Cells(1, 4).Value = "NAME"
+				ObjExcel.Cells(1, 5).Value = "APPL DATE"
+				ObjExcel.Cells(1, 6).Value = "DAYS PENDING"
+				ObjExcel.Cells(1, 7).Value = "SNAP?"
+				ObjExcel.Cells(1, 8).Value = "CASH?"
+				ObjExcel.Cells(1, 9).Value = "Date of Review"
+			End If
+
 			For grape = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
 				review_case = False
 				If select_MFIP_checkbox = checked and YESTERDAYS_PENDING_CASES_ARRAY(cash_prog_const, grape) = "MF" Then review_case = True
@@ -1257,12 +1288,6 @@ If run_review_selection = True Then
 			ObjExcel.ActiveSheet.ListObjects(POPULATION_FOR_REVIEWS_ARRAY(pop_table_name, duck)).TableStyle = POPULATION_FOR_REVIEWS_ARRAY(pop_table_style_const, duck)
 		End If
 	Next
-
-	'save PND2 Excel with date as file name and close - potential restart process uses this file to fill the array
-	today_yr = DatePart("yyyy", date)
-	today_day = Right("00"&DatePart("d", date), 2)
-	today_mo = Right("00"&DatePart("m", date), 2)
-	today_review_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Daily Case Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
 
 	objExcel.ActiveWorkbook.SaveAs today_review_file
 	objExcel.ActiveWorkbook.Close
