@@ -9789,6 +9789,43 @@ If update_revw = True OR update_prog = True Then
 		EMWriteScreen left(exp_migrant_seasonal_formworker_yn, 1), 18, 67
 		transmit                                    'Saving the panel
 
+		'Ensuring the interview date isn't entered on a line/for a program that doesn't have an APPL date. This helps to support the verbal request funcitonality
+		EMReadScreen prog_warning, 78, 24, 2
+		prog_warning = Trim(UCase(prog_warning))
+		Do while prog_warning <> ""
+			If InStr(prog_warning, "CASH I ENTRY INVALID") Then
+				EMWriteScreen "  ", 6, 55               'CASH I Row
+				EMWriteScreen "  ", 6, 58
+				EMWriteScreen "  ", 6, 61
+			End If
+			If InStr(prog_warning, "CASH I ENTRY INVALID") Then
+				EMWriteScreen "  ", 7, 55               'CASH II Row
+				EMWriteScreen "  ", 7, 58
+				EMWriteScreen "  ", 7, 61
+			End If
+			If InStr(prog_warning, "EMER PROGRAM NOT SELECTED") Then
+				EMWriteScreen "  ", 8, 55               'EMER Row
+				EMWriteScreen "  ", 8, 58
+				EMWriteScreen "  ", 8, 61
+			End If
+			If InStr(prog_warning, "GRH PROGRAM NOT SELECTED") Then
+				EMWriteScreen "  ", 9, 55               'GRH Row
+				EMWriteScreen "  ", 9, 58
+				EMWriteScreen "  ", 9, 61
+			End If
+			If InStr(prog_warning, "FS PROGRAM NOT SELECTED") Then
+				EMWriteScreen "  ", 10, 55               'SNAP Row
+				EMWriteScreen "  ", 10, 58
+				EMWriteScreen "  ", 10, 61
+			End If
+
+			If prog_warning = "ENTER A VALID COMMAND OR PF-KEY" Then Exit Do
+
+			transmit
+			EMReadScreen prog_warning, 78, 24, 2
+			prog_warning = Trim(UCase(prog_warning))
+		Loop
+
 		Call HCRE_panel_bypass
 		Call back_to_SELF
 		Call MAXIS_background_check
