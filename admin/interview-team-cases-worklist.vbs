@@ -485,7 +485,10 @@ Do
 Loop until err_msg = ""
 
 developer_mode = False
-If user_ID_for_validation = "CALO001" Then developer_mode = True
+If user_ID_for_validation = "CALO001" Then
+	run_in_dev = MsgBox("Do you want to run in developer mode?", vbQuestion + vbYesNo, "Developer Mode")
+	If run_in_dev = vbYes Then developer_mode = True
+End If
 
 const x_numb_const		= 00
 const case_numb_const	= 01
@@ -500,49 +503,13 @@ const emer_select_const	= 09
 const assign_pop_const	= 10
 const assigned_to_const	= 11
 const mngr_excel_row	= 12
+const file_path_const 	= 13
+const file_name_const 	= 14
 const end_const			= 20
 
 DIM CASES_TO_ASSIGN_ARRAY()
 ReDIM CASES_TO_ASSIGN_ARRAY(end_const, 0)
 intvws_count = 0
-
-'Here is the worklist creation section
-'these constants are to document the columns  - using a constant supports future changes
-Const basket_col		= 1
-Const case_numb_col 	= 2
-Const population_col 	= 3
-Const intvw_date_col 	= 4
-Const exp_det_col 		= 5
-Const assignment_col	= 6
-Const cash_col 			= 7
-Const cash_type_col		= 8
-Const grh_col 			= 9
-Const snap_col 			= 10
-Const emer_col 			= 11
-
-'Creating the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-'Setting the first row with header information
-ObjExcel.Cells(1, basket_col).Value = "CASELOAD"
-ObjExcel.Cells(1, case_numb_col).Value = "CASE NUMBER"
-ObjExcel.Cells(1, population_col).Value = "POPULATION"
-ObjExcel.Cells(1, intvw_date_col).Value = "INTERVIEW COMPLETED"
-ObjExcel.Cells(1, exp_det_col).Value = "APPEARS EXPEDITED"
-ObjExcel.Cells(1, assignment_col).Value = "ASSIGNED TO"
-
-ObjExcel.Cells(1, cash_col).Value = "CASH"
-ObjExcel.Cells(1, cash_type_col).Value = "CASH TYPE"
-ObjExcel.Cells(1, grh_col).Value = "GRH"
-ObjExcel.Cells(1, snap_col).Value = "SNAP"
-ObjExcel.Cells(1, emer_col).Value = "EMER"
-FOR cow = 1 to emer_col							'formatting the cells'
-	objExcel.Cells(1, cow).Font.Bold = True		'bold font'
-NEXT
-excel_row = 2
 case_count = 0
 
 'creating some objects needed for XML handling
@@ -672,41 +639,14 @@ For Each objFile in colFiles								'looping through each file
 					CASES_TO_ASSIGN_ARRAY(emer_select_const, intvws_count) 	= req_emer
 					CASES_TO_ASSIGN_ARRAY(assign_pop_const, intvws_count) 	= population_section
 					CASES_TO_ASSIGN_ARRAY(assigned_to_const, intvws_count) 	= ""
+					CASES_TO_ASSIGN_ARRAY(file_path_const, intvws_count) 	= xmlPath
+					CASES_TO_ASSIGN_ARRAY(file_name_const, intvws_count) 	= file_name
 
-					'Add the file information to the Excel document for the worklist
-					ObjExcel.Cells(excel_row, basket_col).Value = case_basket_numb
-					ObjExcel.Cells(excel_row, case_numb_col).Value = MAXIS_case_number
-					ObjExcel.Cells(excel_row, population_col).Value = population
-					ObjExcel.Cells(excel_row, intvw_date_col).Value = interview_date
-					If exp_det = True Then ObjExcel.Cells(excel_row, exp_det_col).Value = "Yes"
-					If req_cash = True Then
-						ObjExcel.Cells(excel_row, cash_col).Value = "True"
-						ObjExcel.Cells(excel_row, cash_type_col).Value = cash_type
-					End If
-					If req_grh = True Then ObjExcel.Cells(excel_row, grh_col).Value = "True"
-					If req_snap = True Then ObjExcel.Cells(excel_row, snap_col).Value = "True"
-					If req_emer = True Then ObjExcel.Cells(excel_row, emer_col).Value = "True"
+					'TODO - If we want to add information to the XML, we need to read it all and then rewrite it all to the xml doc - when we save it, the file will be overwritten
 
-					'THIS IS NOT WORKING BUT WILL RECORD THE DATE AND TIME THE CASE IS ADDED TO A WORKLIST IN THE XML
-					' Set root = xmlDoc.SelectSingleNode"interview"
-					' Set root = xmlDoc.documentElement
-					' Set root = xmlDoc.SelectSingleNode("//inteview")
-					' Set element = xmlDoc.createElement("AddedToWorklist")
-					' xmlDoc.DocumentElement.appendChild element
-					' Set info = xmlDoc.createTextNode(now)
-					' element.appendChild info
-
-					' xml.Save xmlPath
-					' MsgBox "PAUSE"
-
-					excel_row = excel_row + 1		'increment the excel row to add more
 					case_count = case_count + 1
 					intvws_count = intvws_count + 1
 
-					If developer_mode = False Then
-						'moving each file to the folder for cases already in a worklist
-						.MoveFile xmlPath , interview_team_cases_already_on_worklist & "\" & file_name & ".xml"
-					End If
 				End If
 			End If
 		End With
@@ -799,33 +739,17 @@ For Each objFile in colFiles								'looping through each file
 						CASES_TO_ASSIGN_ARRAY(appears_xfs_const, intvws_count)	= "?"
 						CASES_TO_ASSIGN_ARRAY(assign_pop_const, intvws_count) 	= population_section
 						CASES_TO_ASSIGN_ARRAY(assigned_to_const, intvws_count) 	= ""
+						CASES_TO_ASSIGN_ARRAY(file_path_const, intvws_count) 	= xmlPath
+						CASES_TO_ASSIGN_ARRAY(file_name_const, intvws_count) 	= file_name
 
-						'Add the file information to the Excel document for the worklist
-						ObjExcel.Cells(excel_row, basket_col).Value = case_basket_numb
-						ObjExcel.Cells(excel_row, case_numb_col).Value = MAXIS_case_number
-						ObjExcel.Cells(excel_row, population_col).Value = population
-						ObjExcel.Cells(excel_row, intvw_date_col).Value = script_date
-						ObjExcel.Cells(excel_row, exp_det_col).Value = "?"
+						'TODO - If we want to add information to the XML, we need to read it all and then rewrite it all to the xml doc - when we save it, the file will be overwritten
 
-						'THIS IS NOT WORKING BUT WILL RECORD THE DATE AND TIME THE CASE IS ADDED TO A WORKLIST IN THE XML
-						' Set root = xmlDoc.SelectSingleNode"interview"
-						' Set root = xmlDoc.documentElement
-						' Set root = xmlDoc.SelectSingleNode("//inteview")
-						' Set element = xmlDoc.createElement("AddedToWorklist")
-						' xmlDoc.DocumentElement.appendChild element
-						' Set info = xmlDoc.createTextNode(now)
-						' element.appendChild info
-
-						' xml.Save xmlPath
-						' MsgBox "PAUSE"
-
-						excel_row = excel_row + 1		'increment the excel row to add more
 						case_count = case_count + 1
 						intvws_count = intvws_count + 1
-					End If
-					If developer_mode = False Then
+					ElseIf developer_mode = False Then
 						'moving each file to the folder for cases already in a worklist
-						.MoveFile xmlPath , interview_team_cases_already_on_worklist & "\" & file_name & ".xml"
+						.MoveFile xmlPath , interview_team_cases_already_on_worklist & "\" & file_name
+						' .DeleteFile(xmlPath)
 					End If
 				End If
 			End If
@@ -833,43 +757,6 @@ For Each objFile in colFiles								'looping through each file
 	End If
 Next
 set xmlDoc = nothing
-
-'format the Worklist Excel
-For col_to_autofit = 1 to emer_col
-	ObjExcel.columns(col_to_autofit).AutoFit()
-Next
-
-If developer_mode = False Then
-	'Saves and closes the Excel Worklist - Naming convention is 'Interview Team Cases Worklist from MM-DD_MM-DD_MM-DD.xlsx' with all interview dates listed
-	' formatted_date = replace(date, "/", "-")
-	list_of_dates = " "
-	For chkn_wg = 0 to UBound(DATES_WITH_INTERVIEWS_ARRAY, 2)
-		If DATES_WITH_INTERVIEWS_ARRAY(checkbox_const, chkn_wg) = checked Then list_of_dates = list_of_dates & DATES_WITH_INTERVIEWS_ARRAY(month_const, chkn_wg) & "-" & DATES_WITH_INTERVIEWS_ARRAY(day_const, chkn_wg) & " "
-	Next
-	list_of_dates = replace(trim(list_of_dates), " ", "_")
-
-	Set FSOxl = CreateObject("Scripting.FileSystemObject")
-	base_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
-	worklist_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
-	full_worklist_file_name = worklist_file_name & ".xlsx"
-	file_numb_count = 1
-	Do
-		file_is_already_here = False
-		file_is_already_here = FSOxl.FileExists(full_worklist_file_name)
-		If file_is_already_here Then
-			worklist_file_name = base_file_name & "_" & file_numb_count
-			full_worklist_file_name = worklist_file_name & ".xlsx"
-			file_numb_count = file_numb_count + 1
-		End If
-	Loop until file_is_already_here = False
-
-	objExcel.ActiveWorkbook.SaveAs full_worklist_file_name
-	objExcel.ActiveWorkbook.Close
-	objExcel.Application.Quit
-	objExcel.Quit
-
-	end_message = end_message & vbCr & "Excel created to save the information of the interviews created today." & vbCr
-End If
 
 end_message = end_message & vbCr & "Interviews from " & list_of_dates & " have been added to a worklist."
 end_message = end_message & vbCr & "Cases found with an interview completed that needs processing: " & case_count
@@ -931,7 +818,6 @@ If developer_mode = False Then
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		CASES_TO_ASSIGN_ARRAY(assigned_to_const, cow) = trim(ObjMngrExcel.Cells(CASES_TO_ASSIGN_ARRAY(mngr_excel_row, cow), mnger_log_processor_col).Value)
 	Next
-
 
 	Call excel_open(staff_assignment_log_file_path, True, False, ObjStaffExcel, objStaffWorkbook)
 
@@ -997,6 +883,136 @@ If developer_mode = False Then
 	' ObjStaffExcel.Application.Quit
 	' ObjStaffExcel.Quit
 End If
+
+
+'Here is the worklist creation section
+'these constants are to document the columns  - using a constant supports future changes
+Const basket_col		= 1
+Const case_numb_col 	= 2
+Const population_col 	= 3
+Const intvw_date_col 	= 4
+Const exp_det_col 		= 5
+Const assignment_col	= 6
+Const cash_col 			= 7
+Const cash_type_col		= 8
+Const grh_col 			= 9
+Const snap_col 			= 10
+Const emer_col 			= 11
+
+'Creating the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Setting the first row with header information
+ObjExcel.Cells(1, basket_col).Value = "CASELOAD"
+ObjExcel.Cells(1, case_numb_col).Value = "CASE NUMBER"
+ObjExcel.Cells(1, population_col).Value = "POPULATION"
+ObjExcel.Cells(1, intvw_date_col).Value = "INTERVIEW COMPLETED"
+ObjExcel.Cells(1, exp_det_col).Value = "APPEARS EXPEDITED"
+ObjExcel.Cells(1, assignment_col).Value = "ASSIGNED TO"
+
+ObjExcel.Cells(1, cash_col).Value = "CASH"
+ObjExcel.Cells(1, cash_type_col).Value = "CASH TYPE"
+ObjExcel.Cells(1, grh_col).Value = "GRH"
+ObjExcel.Cells(1, snap_col).Value = "SNAP"
+ObjExcel.Cells(1, emer_col).Value = "EMER"
+FOR cow = 1 to emer_col							'formatting the cells'
+	objExcel.Cells(1, cow).Font.Bold = True		'bold font'
+NEXT
+
+Set mvFSO = CreateObject("Scripting.FileSystemObject")
+
+excel_row = 2
+For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
+	If InStr(CASES_TO_ASSIGN_ARRAY(file_path_const, cow), "details") Then
+		'Add the file information to the Excel document for the worklist
+		ObjExcel.Cells(excel_row, basket_col).Value 		= CASES_TO_ASSIGN_ARRAY(x_numb_const, cow)
+		ObjExcel.Cells(excel_row, case_numb_col).Value 		= CASES_TO_ASSIGN_ARRAY(case_numb_const, cow)
+		ObjExcel.Cells(excel_row, population_col).Value 	= CASES_TO_ASSIGN_ARRAY(population_const, cow)
+		ObjExcel.Cells(excel_row, intvw_date_col).Value 	= CASES_TO_ASSIGN_ARRAY(intvw_date_const, cow)
+		If CASES_TO_ASSIGN_ARRAY(appears_xfs_const, cow) = True Then ObjExcel.Cells(excel_row, exp_det_col).Value = "Yes"
+		If CASES_TO_ASSIGN_ARRAY(cash_select_const, cow) = True Then
+			ObjExcel.Cells(excel_row, cash_col).Value = "True"
+			ObjExcel.Cells(excel_row, cash_type_col).Value = CASES_TO_ASSIGN_ARRAY(cash_prog_const, cow)
+		End If
+		If CASES_TO_ASSIGN_ARRAY(grh_select_const, cow) 	= True Then ObjExcel.Cells(excel_row, grh_col).Value = "True"
+		If CASES_TO_ASSIGN_ARRAY(snap_select_const, cow) 	= True Then ObjExcel.Cells(excel_row, snap_col).Value = "True"
+		If CASES_TO_ASSIGN_ARRAY(emer_select_const, cow) 	= True Then ObjExcel.Cells(excel_row, emer_col).Value = "True"
+	End If
+
+	If InStr(CASES_TO_ASSIGN_ARRAY(file_path_const, cow), "started") Then
+		'Add the file information to the Excel document for the worklist
+		ObjExcel.Cells(excel_row, basket_col).Value 	= CASES_TO_ASSIGN_ARRAY(x_numb_const, cow)
+		ObjExcel.Cells(excel_row, case_numb_col).Value 	= CASES_TO_ASSIGN_ARRAY(case_numb_const, cow)
+		ObjExcel.Cells(excel_row, population_col).Value = CASES_TO_ASSIGN_ARRAY(population_const, cow)
+		ObjExcel.Cells(excel_row, intvw_date_col).Value = CASES_TO_ASSIGN_ARRAY(intvw_date_const, cow)
+		ObjExcel.Cells(excel_row, exp_det_col).Value = "?"
+	End If
+	excel_row = excel_row + 1		'increment the excel row to add more
+Next
+
+'format the Worklist Excel
+For col_to_autofit = 1 to emer_col
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
+If developer_mode = False Then
+	On Error Resume Next
+	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
+		Err.Clear
+		mvFSO.MoveFile CASES_TO_ASSIGN_ARRAY(file_path_const, cow), interview_team_cases_already_on_worklist & "\" & CASES_TO_ASSIGN_ARRAY(file_name_const, cow)
+
+		If Err.Number = 70 Then
+			attempt = 0
+			Do
+				EMWaitReady 0,0
+				Err.Clear
+				mvFSO.MoveFile CASES_TO_ASSIGN_ARRAY(file_path_const, cow), interview_team_cases_already_on_worklist & "\" & CASES_TO_ASSIGN_ARRAY(file_name_const, cow)
+				attempt = attempt + 1
+			Loop until Err.Number = 0 or attempt = 6
+			If Err.Number <> 0 Then
+				email_subject = "LD Interview Worklist MOVE FILE ERROR"
+				email_body = "Go manually move file: " & CASES_TO_ASSIGN_ARRAY(file_path_const, cow)
+				call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+			End If
+		End If
+	Next
+	Err.Clear
+	On Error Goto 0
+
+	'Saves and closes the Excel Worklist - Naming convention is 'Interview Team Cases Worklist from MM-DD_MM-DD_MM-DD.xlsx' with all interview dates listed
+	' formatted_date = replace(date, "/", "-")
+	list_of_dates = " "
+	For chkn_wg = 0 to UBound(DATES_WITH_INTERVIEWS_ARRAY, 2)
+		If DATES_WITH_INTERVIEWS_ARRAY(checkbox_const, chkn_wg) = checked Then list_of_dates = list_of_dates & DATES_WITH_INTERVIEWS_ARRAY(month_const, chkn_wg) & "-" & DATES_WITH_INTERVIEWS_ARRAY(day_const, chkn_wg) & " "
+	Next
+	list_of_dates = replace(trim(list_of_dates), " ", "_")
+
+	Set FSOxl = CreateObject("Scripting.FileSystemObject")
+	base_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
+	worklist_file_name = worklist_folder & "\Interview Team Cases Worklist from " & list_of_dates
+	full_worklist_file_name = worklist_file_name & ".xlsx"
+	file_numb_count = 1
+	Do
+		file_is_already_here = False
+		file_is_already_here = FSOxl.FileExists(full_worklist_file_name)
+		If file_is_already_here Then
+			worklist_file_name = base_file_name & "_" & file_numb_count
+			full_worklist_file_name = worklist_file_name & ".xlsx"
+			file_numb_count = file_numb_count + 1
+		End If
+	Loop until file_is_already_here = False
+
+	objExcel.ActiveWorkbook.SaveAs full_worklist_file_name
+	objExcel.ActiveWorkbook.Close
+	objExcel.Application.Quit
+	objExcel.Quit
+
+	end_message = end_message & vbCr & "Excel created to save the information of the interviews created today." & vbCr
+End If
+
 internal_run_time = timer - start_time
 internal_run_min = int(internal_run_time/60)
 internal_run_sec = internal_run_time MOD 60
