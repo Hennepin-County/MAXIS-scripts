@@ -676,15 +676,17 @@ Do
         ObjExcel.Cells(1, 8).Value = "Keywords"
         ObjExcel.Cells(1, 9).Value = "Release Date"
         ObjExcel.Cells(1, 10).Value = "Hot Topic Date"
-		link_col = 11
+        ObjExcel.Cells(1, 11).Value = "Hot Topic Link"
+        ObjExcel.Cells(1, 12).Value = "Usage Evaluation"
+		link_col = 13		
         If user_is_tester = True Then
-			ObjExcel.Cells(1, 11).Value = "In Testing"
-	        ObjExcel.Cells(1, 12).Value = "Testing Category"
-	        ObjExcel.Cells(1, 13).Value = "Testing Criteria"
-			link_col = 14
+			ObjExcel.Cells(1, 13).Value = "In Testing"	
+	        ObjExcel.Cells(1, 14).Value = "Testing Category"
+	        ObjExcel.Cells(1, 15).Value = "Testing Criteria"
+			link_col = 16		
 		End If
-		If user_is_BZ = True Then ObjExcel.Cells(1, 14).Value = "Retired Date"
-		If user_is_BZ = True Then link_col = 15
+		If user_is_BZ = True Then ObjExcel.Cells(1, 16).Value = "Retired Date"
+		If user_is_BZ = True Then link_col = 17		
 
 		ObjExcel.Cells(1, link_col).Value = "Policy References"
 
