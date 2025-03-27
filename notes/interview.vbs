@@ -7201,68 +7201,6 @@ Loop until summ_check = "SUMM"
 EMReadScreen case_pw, 7, 21, 17
 
 
-If run_by_interview_team = True and developer_mode = False Then
-	'creates an XML File with details of the the interview
-	Set xmlTracDoc = CreateObject("Microsoft.XMLDOM")
-	xmlTracPath = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Assignments\Script Testing Logs\Interview Team Usage\interview_started_" & MAXIS_case_number & ".xml"
-
-	xmlTracDoc.async = False
-
-	Set root = xmlTracDoc.createElement("interview")
-	xmlTracDoc.appendChild root
-
-	Set element = xmlTracDoc.createElement("ScriptRunDate")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(date)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("ScriptRunTime")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(time)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("WorkerName")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(worker_name)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("WindowsUserID")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(windows_user_ID)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("CaseNumber")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(MAXIS_case_number)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("CaseBasket")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(case_pw)
-	element.appendChild info
-
-	xmlTracDoc.save(xmlTracPath)
-
-	Set xml = CreateObject("Msxml2.DOMDocument")
-	Set xsl = CreateObject("Msxml2.DOMDocument")
-
-	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-	txt = Replace(fso.OpenTextFile(xmlTracPath).ReadAll, "><", ">" & vbCrLf & "<")
-	stylesheet = "<xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">" & _
-	"<xsl:output method=""xml"" indent=""yes""/>" & _
-	"<xsl:template match=""/"">" & _
-	"<xsl:copy-of select="".""/>" & _
-	"</xsl:template>" & _
-	"</xsl:stylesheet>"
-
-	xsl.loadXML stylesheet
-	xml.loadXML txt
-
-	xml.transformNode xsl
-
-	xml.Save xmlTracPath
-End if
-
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
 
@@ -8405,6 +8343,105 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+If run_by_interview_team = True and developer_mode = False Then
+	'This is the early tracking XML. It is deleted when the script hits the main tracking file at the end
+	Set xmlTracDoc = CreateObject("Microsoft.XMLDOM")
+	xmlTracPath = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Assignments\Script Testing Logs\Interview Team Usage\interview_started_" & MAXIS_case_number & ".xml"
+
+	xmlTracDoc.async = False
+
+	Set root = xmlTracDoc.createElement("interview")
+	xmlTracDoc.appendChild root
+
+	Set element = xmlTracDoc.createElement("ScriptRunDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ScriptRunTime")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(time)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("WorkerName")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(worker_name)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("WindowsUserID")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(windows_user_ID)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CaseNumber")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(MAXIS_case_number)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CaseBasket")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(case_pw)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("InterviewDate")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(interview_date)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("CASHRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(cash_request)
+	element.appendChild info
+
+	If cash_request = True Then
+		Set element = xmlTracDoc.createElement("TypeOfCASH")
+		root.appendChild element
+		Set info = xmlTracDoc.createTextNode(type_of_cash)
+		element.appendChild info
+	End If
+
+	Set element = xmlTracDoc.createElement("GRHRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(grh_request)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("SNAPRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(snap_request)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("EMERRequest")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(emer_request)
+	element.appendChild info
+
+	Set element = xmlTracDoc.createElement("ExpeditedDetermination")
+	root.appendChild element
+	Set info = xmlTracDoc.createTextNode(is_elig_XFS)
+	element.appendChild info
+
+	xmlTracDoc.save(xmlTracPath)
+
+	Set xml = CreateObject("Msxml2.DOMDocument")
+	Set xsl = CreateObject("Msxml2.DOMDocument")
+
+	Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+	txt = Replace(fso.OpenTextFile(xmlTracPath).ReadAll, "><", ">" & vbCrLf & "<")
+	stylesheet = "<xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">" & _
+	"<xsl:output method=""xml"" indent=""yes""/>" & _
+	"<xsl:template match=""/"">" & _
+	"<xsl:copy-of select="".""/>" & _
+	"</xsl:template>" & _
+	"</xsl:stylesheet>"
+
+	xsl.loadXML stylesheet
+	xml.loadXML txt
+
+	xml.transformNode xsl
+
+	xml.Save xmlTracPath
+End if
 
 phone_droplist = "Select or Type"
 If phone_one_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one_number
