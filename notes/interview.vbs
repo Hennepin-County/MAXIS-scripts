@@ -7164,7 +7164,7 @@ If edit_access_allowed = False Then
 		email_to_field = "Alexander.Yang@hennepin.us; jeremy.lucca@hennepin.us" '; tammy.coenen@hennepin.us; candace.brown@hennepin.us"
 		email_cc_field = "hsph.ews.bluezonescripts@hennepin.us"
 		email_body = "Case number: " & MAXIS_case_number & " appears INACTIVE." & vbCr &  "Case is being interviewed by the interview team as of " & now & ". Needs review for REIN or PEND." & vbCr & vbCr & "Warning message when attempting to create a new CASE/NOTE: " & warning_notice
-		call create_outlook_email("", email_to_field, email_cc_field, "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+		call create_outlook_email("", email_to_field, email_cc_field, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 	Else
 		edit_access_msg = "* - * - * ALERT * - * - *"
 		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
