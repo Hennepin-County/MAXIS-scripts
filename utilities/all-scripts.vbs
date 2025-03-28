@@ -676,15 +676,17 @@ Do
         ObjExcel.Cells(1, 8).Value = "Keywords"
         ObjExcel.Cells(1, 9).Value = "Release Date"
         ObjExcel.Cells(1, 10).Value = "Hot Topic Date"
-		link_col = 11
+        ObjExcel.Cells(1, 11).Value = "Hot Topic Link"
+        ObjExcel.Cells(1, 12).Value = "Usage Evaluation"
+		link_col = 13		
         If user_is_tester = True Then
-			ObjExcel.Cells(1, 11).Value = "In Testing"
-	        ObjExcel.Cells(1, 12).Value = "Testing Category"
-	        ObjExcel.Cells(1, 13).Value = "Testing Criteria"
-			link_col = 14
+			ObjExcel.Cells(1, 13).Value = "In Testing"	
+	        ObjExcel.Cells(1, 14).Value = "Testing Category"
+	        ObjExcel.Cells(1, 15).Value = "Testing Criteria"
+			link_col = 16		
 		End If
-		If user_is_BZ = True Then ObjExcel.Cells(1, 14).Value = "Retired Date"
-		If user_is_BZ = True Then link_col = 15
+		If user_is_BZ = True Then ObjExcel.Cells(1, 16).Value = "Retired Date"
+		If user_is_BZ = True Then link_col = 17		
 
 		ObjExcel.Cells(1, link_col).Value = "Policy References"
 
@@ -709,12 +711,14 @@ Do
                 ' ObjExcel.Cells(row_to_use, 8).Value = join(script_item.keywords, ", ")
                 ObjExcel.Cells(row_to_use, 9).Value = script_item.release_date
                 ObjExcel.Cells(row_to_use, 10).Value = script_item.hot_topic_date
+                If trim(script_item.hot_topic_link) <> "" Then ObjExcel.Cells(row_to_use, 11).Value = "=HYPERLINK(" & chr(34) & script_item.hot_topic_link & chr(34) & ")"
+                ObjExcel.Cells(row_to_use, 12).Value = script_item.usage_eval
 				If user_is_tester = True Then
-	                ObjExcel.Cells(row_to_use, 11).Value = script_item.in_testing
-	                ObjExcel.Cells(row_to_use, 12).Value = script_item.testing_category
-	                If IsArray(script_item.testing_criteria) = TRUE Then ObjExcel.Cells(row_to_use, 13).Value = join(script_item.testing_criteria, ", ")
+	                ObjExcel.Cells(row_to_use, 13).Value = script_item.in_testing
+	                ObjExcel.Cells(row_to_use, 14).Value = script_item.testing_category
+	                If IsArray(script_item.testing_criteria) = TRUE Then ObjExcel.Cells(row_to_use, 15).Value = join(script_item.testing_criteria, ", ")
 				End If
-				If user_is_BZ = True Then ObjExcel.Cells(row_to_use, 14).Value = script_item.retirement_date
+				If user_is_BZ = True Then ObjExcel.Cells(row_to_use, 16).Value = script_item.retirement_date
 
 				for poli_info = 0 to UBound(script_item.policy_references)
 					if script_item.policy_references(poli_info) <> "" Then
