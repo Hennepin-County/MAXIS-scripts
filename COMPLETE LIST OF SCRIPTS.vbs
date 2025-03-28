@@ -5311,7 +5311,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/06/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM Interim_Assistance_Agreements 12.12.03", "Interim_Assistance_Reimbursement_Interface 02.12.14")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Interim_Assistance_Agreements 12.12.03", "CM Interim_Assistance_Reimbursement_Interface 02.12.14")						'SEE Line 58 for format'
 script_array(script_num).usage_eval				= "STANDARD"
 
 script_num = script_num + 1						'Increment by one
