@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/31/2025", "Updated script to display conversation/clarification field regardless of program(s).", "Mark Riegel, Hennepin County")
 Call changelog_update("02/01/2025", "Support for MFIP, GA, and UHFS Budgeting Workaround to support the policy change to eliminate Monthly Reporting and Retrospective Budgeting.##~## ##~##These updates follow the Guide to Six-Mount Budgeting available in SIR. Details of how the JOBS panel is updated can be found in this guide.##~## ##~##As with any new functionality, but particularly when the supporting policy is also new, reach out with any questions or script errors.##~##", "Casey Love, Hennepin County")
 Call changelog_update("05/23/2024", "BUG FIX - Ensuring the case can be updated in STAT if run in production. This will prevent errors in panels not updating on inactive or out of county cases.", "Casey Love, Hennepin County")
 Call changelog_update("03/14/2024", "BUG FIX - Error when trying to find the correct JOBS panel in instances where the job name changes. This should now provide an option to select the correct panel.", "Casey Love, Hennepin County")
@@ -3455,8 +3456,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                            dlg_len = dlg_len + 20
 							End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
-	                            grp_len = 100 + number_of_checks_budgeted*10
-	                            If number_of_checks_budgeted < 4 Then grp_len = 125
+	                            grp_len = 45 + number_of_checks_budgeted*10
+	                            If number_of_checks_budgeted < 4 Then grp_len = 105
 	                            If using_30_days = FALSE Then grp_len = grp_len + 35
 
 	                            dlg_len = dlg_len + grp_len + 5
@@ -3485,13 +3486,16 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                        End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then        'resizing the dialog and the GRH Groupbox if income applies to GRH
 	                            dlg_len = dlg_len + 5
-	                            grh_grp_len = 60
+	                            grh_grp_len = 70
 	                            length_of_checks_list = cash_checks*10
 	                            If length_of_checks_list = 0 Then length_of_checks_list = 20
 
 	                            grh_grp_len = grh_grp_len + length_of_checks_list
 	                            dlg_len = dlg_len + grh_grp_len
 	                        End If
+
+							'Adding in the clarifications box
+							dlg_len = dlg_len + 20
 
 	                        y_pos = 35      'incrementer to move things down
 	                        'CONFIRM BUDGET Dialog - mostly shows the information after being calculated for each program and makes the worker confirm this is correct
@@ -3566,11 +3570,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
 	                              CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
 								  csbtnt_y_pos = y_pos + 10
-	                              Text 10, y_pos + 35, 60, 10, "Conversation with:"
-	                              ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
-	                              Text 140, y_pos + 35, 25, 10, "clarifies"
-	                              EditBox 170, y_pos + 30, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
-	                              y_pos = y_pos + 55
+	                              y_pos = y_pos + 30
 	                          Else      'if income does not apply to SNAP, we have to default these to being completed
 	                            confirm_budget_checkbox = checked
 	                            using_30_days = TRUE
@@ -3708,6 +3708,13 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                          Else
 	                              GRH_confirm_budget_checkbox = checked     'default if income does not apply to GRH
 	                          End If
+
+							  GroupBox 5, y_pos, 410, 30, "Conversation Details:"
+								Text 10, y_pos + 10, 60, 10, "Conversation with:"
+								ComboBox 75, y_pos + 10, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
+								Text 140, y_pos + 10, 25, 10, "clarifies"
+								EditBox 170, y_pos + 10, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
+								y_pos = y_pos + 30
 
 	                          Text 10, y_pos, 290, 25, "       *** If the budget is incorrect, press 'OK' but leave the above boxes UNCHECKED.***     If the boxes are NOT checked, the script will bring you BACK to change the pay information on the previous dialog."
 	                          y_pos = y_pos + 10
