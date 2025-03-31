@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/31/2025", "Updated script to display conversation/clarification field regardless of program(s).", "Mark Riegel, Hennepin County")
 Call changelog_update("02/01/2025", "Support for MFIP, GA, and UHFS Budgeting Workaround to support the policy change to eliminate Monthly Reporting and Retrospective Budgeting.##~## ##~##These updates follow the Guide to Six-Mount Budgeting available in SIR. Details of how the JOBS panel is updated can be found in this guide.##~## ##~##As with any new functionality, but particularly when the supporting policy is also new, reach out with any questions or script errors.##~##", "Casey Love, Hennepin County")
 Call changelog_update("05/23/2024", "BUG FIX - Ensuring the case can be updated in STAT if run in production. This will prevent errors in panels not updating on inactive or out of county cases.", "Casey Love, Hennepin County")
 Call changelog_update("03/14/2024", "BUG FIX - Error when trying to find the correct JOBS panel in instances where the job name changes. This should now provide an option to select the correct panel.", "Casey Love, Hennepin County")
