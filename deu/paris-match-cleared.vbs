@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2025", "Script will display entire resolution status in CASE/NOTE header instead of the abbreviation only.", "Mark Riegel, Hennepin County")
 call changelog_update("03/29/2024", "Enhanced PARIS Match script to be used from the DAIL Scrubber, or from the DEU Main Menu.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -497,7 +498,7 @@ Else
 
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
-    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Cleared " & rez_status & "-----")
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Cleared - " & right(resolution_status, len(resolution_status) - 5) & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Resident Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
 	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
