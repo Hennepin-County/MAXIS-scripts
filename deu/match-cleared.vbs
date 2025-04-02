@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2025", "Updated CASE/NOTE language for BN Resolution Status.", "Mark Riegel, Hennepin County")
 call changelog_update("12/10/2024", "Added claim entry for CC-Overpayment", "Megan Geissler, Hennepin County")
 call changelog_update("07/17/2024", "Reverted language for BO-Other selection to pre-pandemic language.", "Mark Riegel, Hennepin County")
 Call changelog_update("05/23/2024", "Updated messaging for matches where the county name is missing. The MAXIS system will not allow county workers to enter those matches.", "Ilse Ferris, Hennepin County")
