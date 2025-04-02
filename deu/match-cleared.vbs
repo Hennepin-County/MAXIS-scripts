@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2025", "Updated CASE/NOTE language for BN Resolution Status.", "Mark Riegel, Hennepin County")
 call changelog_update("12/10/2024", "Added claim entry for CC-Overpayment", "Megan Geissler, Hennepin County")
 call changelog_update("07/17/2024", "Reverted language for BO-Other selection to pre-pandemic language.", "Mark Riegel, Hennepin County")
 Call changelog_update("05/23/2024", "Updated messaging for matches where the county name is missing. The MAXIS system will not allow county workers to enter those matches.", "Ilse Ferris, Hennepin County")
@@ -718,7 +719,7 @@ IF resolution_status = "BE-No Change" THEN CALL write_variable_in_case_note("* N
 IF resolution_status = "BE-Overpayment Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
 IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Resident is still non-coop.")
 IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
-IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Resident reported income. Correct income is in JOBS/BUSI and budgeted.")
+IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Income known to the agency. No change to current budget period.")
 IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different. Resident's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify.")
 IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
