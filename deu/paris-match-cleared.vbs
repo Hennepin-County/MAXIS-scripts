@@ -497,7 +497,7 @@ Else
 
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
-    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Cleared " & rez_status & "-----")
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Cleared - " & right(resolution_status, len(resolution_status) - 5) & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Resident Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
 	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
