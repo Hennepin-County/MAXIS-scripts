@@ -317,7 +317,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 276, 225, "ADMIN Pending Case Sampling"
 	Text 10, 10, 225, 20, "Case Sampling Selection for Cases That were PENDING yesterday and are No Longer PENDING."
 	Text 15, 40, 70, 10, "Functionality to Run:"
-	DropListBox 85, 35, 180, 45, "Run ALL Options"+chr(9)+"Compilation Only"+chr(9)+"Case Review Selections Only", functionality_choice
+	DropListBox 85, 35, 180, 45, "Run ALL Options"+chr(9)+"Compilation Only"+chr(9)+"Case Review Selections Only"+chr(9)+"Make More Review Files", functionality_choice
 	'TODO - add a selection option for the version for the template selection and compilation sheet selection
 	Text 10, 55, 125, 10, "Select Cases for Case Sampling"
 	GroupBox 10, 70, 75, 120, "Population Selection"
@@ -376,8 +376,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 run_compilation = False
 run_review_selection = False
+add_more_review_files = False
 If functionality_choice = "Run ALL Options" OR functionality_choice = "Compilation Only" Then run_compilation = True
 If functionality_choice = "Run ALL Options" OR functionality_choice = "Case Review Selections Only" Then run_review_selection = True
+If functionality_choice = "Make More Review Files" Then add_more_review_files = True
 
 If run_review_selection = True Then
 	If IsNumeric(total_review_count) Then
@@ -817,6 +819,55 @@ If run_compilation = True Then
 	compilation_msg = compilation_msg & vbCr &"Compilation took: " & compilation_min & " minutes " & compilation_sec & " seconds."
 End If
 
+'Creating the name for the Excel for the Daily List with date as file name
+today_yr = DatePart("yyyy", date)
+today_day = Right("00"&DatePart("d", date), 2)
+today_mo = Right("00"&DatePart("m", date), 2)
+today_review_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Daily Case Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
+
+
+If add_more_review_files = True Then
+	more_review_files_start_time = timer
+	If FSO.FileExists(today_review_file) Then
+		case_count = 0
+		Call excel_open(today_review_file, True, False, ObjExcel, objWorkbook)
+		'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+		For Each objWorkSheet In objWorkbook.Worksheets
+			' If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) &
+			current_pop = objWorkSheet.Name
+			objExcel.worksheets(current_pop).Activate
+
+			excel_row = 2
+			Do
+				If trim(ObjExcel.Cells(excel_row, 10).Value) <> "" Then
+					ReDim Preserve YESTERDAYS_PENDING_CASES_ARRAY(last_pend_array_const, case_count)
+					YESTERDAYS_PENDING_CASES_ARRAY(create_review_file_const, case_count) = True
+					YESTERDAYS_PENDING_CASES_ARRAY(worker_number_const, case_count) = ObjExcel.Cells(excel_row, 1).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(population_const, case_count) 	= ObjExcel.Cells(excel_row, 2).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(case_number_const, case_count) 	= ObjExcel.Cells(excel_row, 3).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(case_name_const, case_count) 	= ObjExcel.Cells(excel_row, 4).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(appl_date_const, case_count) 	= ObjExcel.Cells(excel_row, 5).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(days_pending_const, case_count) 	= ObjExcel.Cells(excel_row, 6).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(snap_status_const, case_count) 	= ObjExcel.Cells(excel_row, 7).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(cash_status_const, case_count) 	= ObjExcel.Cells(excel_row, 8).Value
+					YESTERDAYS_PENDING_CASES_ARRAY(cash_prog_const, case_count) 	= ObjExcel.Cells(excel_row, 9).Value
+					case_count = case_count + 1
+				End If
+				excel_row = excel_row + 1
+				next_case_numb = trim(ObjExcel.Cells(excel_row, 3).Value)
+			Loop until next_case_numb = ""
+		Next
+		objExcel.ActiveWorkbook.Close
+		objExcel.Application.Quit
+		objExcel.Quit
+
+		Set ObjExcel = Nothing
+		Set objWorkbook = Nothing
+	Else
+		Call script_end_procedure("The Daily List has not been created today, the option to create MORE files cannot be run until the main Case Sampling Run is complete.")
+	End If
+End If
+
 If run_review_selection = True Then
 
 	'Starting the query start time (for the query runtime at the end)
@@ -1134,12 +1185,7 @@ If run_review_selection = True Then
 		End If
 	Next
 
-
-	'save PND2 Excel with date as file name and close - potential restart process uses this file to fill the array
-	today_yr = DatePart("yyyy", date)
-	today_day = Right("00"&DatePart("d", date), 2)
-	today_mo = Right("00"&DatePart("m", date), 2)
-	today_review_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Daily Case Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
+	'Creating the Daily List
 	first_loop = True
 	first_run = True
 
@@ -1203,7 +1249,8 @@ If run_review_selection = True Then
 				ObjExcel.Cells(1, 6).Value = "DAYS PENDING"
 				ObjExcel.Cells(1, 7).Value = "SNAP?"
 				ObjExcel.Cells(1, 8).Value = "CASH?"
-				ObjExcel.Cells(1, 9).Value = "Date of Review"
+				ObjExcel.Cells(1, 9).Value = "CASH TYPE"
+				ObjExcel.Cells(1, 10).Value = "Date of Review"
 			End If
 
 			For grape = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
@@ -1230,6 +1277,7 @@ If run_review_selection = True Then
 					ObjExcel.Cells(excel_row, 6).Value = YESTERDAYS_PENDING_CASES_ARRAY(days_pending_const, grape)
 					ObjExcel.Cells(excel_row, 7).Value = YESTERDAYS_PENDING_CASES_ARRAY(snap_status_const, grape)
 					ObjExcel.Cells(excel_row, 8).Value = YESTERDAYS_PENDING_CASES_ARRAY(cash_status_const, grape)
+					ObjExcel.Cells(excel_row, 9).Value = YESTERDAYS_PENDING_CASES_ARRAY(cash_prog_const, grape)
 				End If
 			Next
 
@@ -1272,7 +1320,7 @@ If run_review_selection = True Then
 					YESTERDAYS_PENDING_CASES_ARRAY(create_review_file_const, grape) = create_review_file			'Add the boolean to the cases array for the next loop when we actually create the files
 					If create_review_file = True Then																'next we increment the selected count and add the date to the daily list for the case that is selected
 						POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck) = POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck) + 1
-						ObjExcel.Cells(excel_row, 9).Value = date
+						ObjExcel.Cells(excel_row, 10).Value = date
 					End If
 				End if
 			Next
@@ -1297,7 +1345,9 @@ If run_review_selection = True Then
 	Set ObjExcel = Nothing
 	Set objWorkbook = Nothing
 	list_ready_time = time
+End If
 
+If add_more_review_files = True or run_review_selection = True Then
 	'Create the sampling file for each case
 		'naming convention - CASENUMBER PROGS - POPULATION
 	review_template_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Template - Application Case Sampling V2.xlsx"
@@ -1316,39 +1366,50 @@ If run_review_selection = True Then
 			End If
 			If Right(review_file_name, 1) = "-" Then review_file_name = left(review_file_name, len(review_file_name)-1)
 			review_file_name = review_file_name & " - " & YESTERDAYS_PENDING_CASES_ARRAY(population_const, duck) & ".xlsx"
+			' MsgBox "review_file_name - " & review_file_name & vbcr & "EXISTS - " & ObjFSO.FileExists(t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\" & review_file_name)
+			If not ObjFSO.FileExists(t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\" & review_file_name) Then
+				Call excel_open(review_template_file, False, False, ObjExcel, objWorkbook)
+				ObjExcel.Cells(1, 3).Value = YESTERDAYS_PENDING_CASES_ARRAY(case_number_const, duck)
 
-			Call excel_open(review_template_file, False, False, ObjExcel, objWorkbook)
-			ObjExcel.Cells(1, 3).Value = YESTERDAYS_PENDING_CASES_ARRAY(case_number_const, duck)
+				case_name_array = split(replace(YESTERDAYS_PENDING_CASES_ARRAY(case_name_const, duck), "*", ""), ",")
+				case_name = trim(case_name_array(1)) & " " & trim(case_name_array(0))
+				ObjExcel.Cells(2, 3).Value = case_name
 
-			case_name_array = split(replace(YESTERDAYS_PENDING_CASES_ARRAY(case_name_const, duck), "*", ""), ",")
-			case_name = trim(case_name_array(1)) & " " & trim(case_name_array(0))
-			ObjExcel.Cells(2, 3).Value = case_name
+				objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\" & review_file_name
+				objExcel.ActiveWorkbook.Close
+				objExcel.Application.Quit
+				objExcel.Quit
 
-			objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\" & review_file_name
-			objExcel.ActiveWorkbook.Close
-			objExcel.Application.Quit
-			objExcel.Quit
-
-			Set ObjExcel = Nothing
-			Set objWorkbook = Nothing
+				Set ObjExcel = Nothing
+				Set objWorkbook = Nothing
+				review_files_created = review_files_created + 1
+				' MsgBox "review_files_created - " & review_files_created
+			End If
 			cash_prog = ""
-
-			review_files_created = review_files_created + 1
 		End If
 	Next
-	review_selection_run_time = timer-query_start_time
-	revw_select_run_min = int(review_selection_run_time/60)
-	revw_select_run_sec = review_selection_run_time MOD 60
+	If run_review_selection = True Then
+		review_selection_run_time = timer-query_start_time
+		revw_select_run_min = int(review_selection_run_time/60)
+		revw_select_run_sec = review_selection_run_time MOD 60
 
-	review_select_msg = "CASE REVIEW SELECTION" & vbCr & "Case selections:"
-	For duck = 0 to UBound(POPULATION_FOR_REVIEWS_ARRAY, 2)
-		If POPULATION_FOR_REVIEWS_ARRAY(pop_selected_const, duck) = True Then
-			review_select_msg = review_select_msg & vbCr & POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck) & ": - Total possible Reviews: " & POPULATION_FOR_REVIEWS_ARRAY(pop_list_count_const, duck) & vbCr & " - Review Files Made: " & POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck)
-		End If
-	Next
-	review_select_msg = review_select_msg & vbCr & "List was ready at " & list_ready_time
-	review_select_msg = review_select_msg & vbCr & "(Review file creation started at this time.)"
-	review_select_msg = review_select_msg & vbCr & vbCr & "Review creation took: " & revw_select_run_min & " minutes " & revw_select_run_sec & " seconds."
+		review_select_msg = "CASE REVIEW SELECTION" & vbCr & "Case selections:"
+		For duck = 0 to UBound(POPULATION_FOR_REVIEWS_ARRAY, 2)
+			If POPULATION_FOR_REVIEWS_ARRAY(pop_selected_const, duck) = True Then
+				review_select_msg = review_select_msg & vbCr & POPULATION_FOR_REVIEWS_ARRAY(pop_name_const, duck) & ": - Total possible Reviews: " & POPULATION_FOR_REVIEWS_ARRAY(pop_list_count_const, duck) & vbCr & " - Review Files Made: " & POPULATION_FOR_REVIEWS_ARRAY(pop_review_count_const, duck)
+			End If
+		Next
+		review_select_msg = review_select_msg & vbCr & "List was ready at " & list_ready_time
+		review_select_msg = review_select_msg & vbCr & "(Review file creation started at this time.)"
+		review_select_msg = review_select_msg & vbCr & vbCr & "Review creation took: " & revw_select_run_min & " minutes " & revw_select_run_sec & " seconds."
+	End If
+	If add_more_review_files = True Then
+		files_only_run_time = timer-more_review_files_start_time
+		files_only_run_min = int(files_only_run_time/60)
+		files_only_run_sec = files_only_run_time MOD 60
+		review_select_msg = review_select_msg & vbCr & "Review Files Created: " & review_files_created
+		review_select_msg = review_select_msg & vbCr & vbCr & "File Only creation took: " & files_only_run_min & " minutes " & files_only_run_sec & " seconds."
+	End If
 End If
 
 done_msg = "Script Run Completed" & vbCr & vbCr
