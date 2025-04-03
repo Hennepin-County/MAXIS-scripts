@@ -1371,8 +1371,11 @@ If add_more_review_files = True or run_review_selection = True Then
 				Call excel_open(review_template_file, False, False, ObjExcel, objWorkbook)
 				ObjExcel.Cells(1, 3).Value = YESTERDAYS_PENDING_CASES_ARRAY(case_number_const, duck)
 
-				case_name_array = split(replace(YESTERDAYS_PENDING_CASES_ARRAY(case_name_const, duck), "*", ""), ",")
-				case_name = trim(case_name_array(1)) & " " & trim(case_name_array(0))
+				case_name = replace(YESTERDAYS_PENDING_CASES_ARRAY(case_name_const, duck), "*", "")
+				If InStr(case_name, ",") Then
+					case_name_array = split(case_name, ",")
+					case_name = trim(case_name_array(1)) & " " & trim(case_name_array(0))
+				End If
 				ObjExcel.Cells(2, 3).Value = case_name
 
 				objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\" & review_file_name
