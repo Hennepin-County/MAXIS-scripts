@@ -3572,13 +3572,18 @@ If CSES_messages = 1 Then
                                                                 End if
                                                             Loop until SELF_check <> "SELF"
 
+                                                            msgbox "3575 Delete after testing -- Escaped SELF loop, should be at DAIL/DAIL"
+
                                                             'Check to  make sure that we made it back to DAIL, it should maintain the case number
                                                             EMReadScreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
+                                                                msgbox "3580 Delete after testing - should be back at DAIL/DAIL. Show back_to_dail_check >" & back_to_dail_check
 
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
-                                                                Call write_value_and_transmit("H", dail_row, 3)
+                                                                Call write_value_and_transmit("H", 6, 3)
                                                                 PF3
+
+                                                                msgbox "3586 Delete after testing -- Did it PF3 back to just DAIL?"
 
                                                                 'Reset DAIL to only CSES messages
                                                                 Call write_value_and_transmit("X", 4, 12)
