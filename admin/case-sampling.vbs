@@ -1331,7 +1331,7 @@ If run_review_selection = True Then
 			Next
 
 			'Creating a table
-			POPULATION_FOR_REVIEWS_ARRAY(pop_table_obj, duck) = "A1:I" & excel_row
+			POPULATION_FOR_REVIEWS_ARRAY(pop_table_obj, duck) = "A1:J" & excel_row
 			ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, POPULATION_FOR_REVIEWS_ARRAY(pop_table_obj, duck), xlYes).Name = POPULATION_FOR_REVIEWS_ARRAY(pop_table_name, duck)
 			ObjExcel.ActiveSheet.ListObjects(POPULATION_FOR_REVIEWS_ARRAY(pop_table_name, duck)).TableStyle = POPULATION_FOR_REVIEWS_ARRAY(pop_table_style_const, duck)
 		End If
