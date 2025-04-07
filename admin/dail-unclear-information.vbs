@@ -4653,7 +4653,7 @@ If HIRE_messages = 1 Then
                                                 Call write_value_and_transmit("REVW", 20, 71)
                                                 
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
-                                                If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4573 Error unable to reach STAT/REVW"
+                                                ' If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4573 Error unable to reach STAT/REVW"
                                                 
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
@@ -4783,7 +4783,7 @@ If HIRE_messages = 1 Then
                                                 Call write_value_and_transmit("REVW", 20, 70)
                                                 
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
-                                                If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4692 Error unable to reach STAT/REVW"
+                                                ' If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4692 Error unable to reach STAT/REVW"
 
 
                                                 'Open the CASH/GRH window
