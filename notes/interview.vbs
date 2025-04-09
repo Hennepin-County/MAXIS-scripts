@@ -10998,75 +10998,78 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	STATS_manualtime = STATS_manualtime + 195
 	Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 
-	CALL write_variable_in_SPEC_MEMO("You have completed your interview on " & interview_date)
-	CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submitted.")
-	' Call write_variable_in_SPEC_MEMO("THERE ARE VERIFS")
-	Call write_variable_in_SPEC_MEMO("In the interview, we reviewed a number of forms:")
-	Call write_variable_in_SPEC_MEMO("  -Client Rights and Responsibilities (DHS 4163)")
-	Call write_variable_in_SPEC_MEMO("  -How to use Your Minnesota EBT Card (DHS 3315A)")
-	Call write_variable_in_SPEC_MEMO("  -Notice of Privacy Practices (DHS 3979)")
-	Call write_variable_in_SPEC_MEMO("  -Notice About Income and Eligibility Verification System and Work Reporting System (DHS 2759)")
-	Call write_variable_in_SPEC_MEMO("  -Appeal Rights and Civil Rights Notice (DHS 3353)")
-	Call write_variable_in_SPEC_MEMO("  -Program Info for Cash, Food, and Child Care (DHS 2920)")
-	Call write_variable_in_SPEC_MEMO("  -Domestic Violence Information (DHS 3477)")
-	Call write_variable_in_SPEC_MEMO("  -Do you have a Disability? (DHS 4133)")
-	' MFIP Cases Only (All on a single Dialog)
-	If family_cash_case_yn = "Yes" Then
-		Call write_variable_in_SPEC_MEMO("  -Reporting Responsibilities for MFIP (DHS 2647)")
-		Call write_variable_in_SPEC_MEMO("  -Notice of Requirement to Attend MFIP Overview (DHS 2929)")
-		Call write_variable_in_SPEC_MEMO("  -Family Violence Referral (DHS 3323)")
-		' MFIP Cases with at least One Non-Custodial Parent (All on a single Dialog)
-		If absent_parent_yn = "Yes" Then
-			Call write_variable_in_SPEC_MEMO("  -Understanding Child Support-Handbook (DHS 3393)")
-			Call write_variable_in_SPEC_MEMO("  -Referral to Support and Collections (DHS 3163B)")
-			Call write_variable_in_SPEC_MEMO("  -Cooperation with Child Support Enforcement (DHS 2338)")
-			If relative_caregiver_yn = "Y" Then Call write_variable_in_SPEC_MEMO("  -MFIP Child Only Assistance (DHS 5561)")
-			' If Non-Custodial Caregiver -
+	If memo_opened = True Then
+		CALL write_variable_in_SPEC_MEMO("You have completed your interview on " & interview_date)
+		CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submitted.")
+		' Call write_variable_in_SPEC_MEMO("THERE ARE VERIFS")
+		Call write_variable_in_SPEC_MEMO("In the interview, we reviewed a number of forms:")
+		Call write_variable_in_SPEC_MEMO("  -Client Rights and Responsibilities (DHS 4163)")
+		Call write_variable_in_SPEC_MEMO("  -How to use Your Minnesota EBT Card (DHS 3315A)")
+		Call write_variable_in_SPEC_MEMO("  -Notice of Privacy Practices (DHS 3979)")
+		Call write_variable_in_SPEC_MEMO("  -Notice About Income and Eligibility Verification System and Work Reporting System (DHS 2759)")
+		Call write_variable_in_SPEC_MEMO("  -Appeal Rights and Civil Rights Notice (DHS 3353)")
+		Call write_variable_in_SPEC_MEMO("  -Program Info for Cash, Food, and Child Care (DHS 2920)")
+		Call write_variable_in_SPEC_MEMO("  -Domestic Violence Information (DHS 3477)")
+		Call write_variable_in_SPEC_MEMO("  -Do you have a Disability? (DHS 4133)")
+		' MFIP Cases Only (All on a single Dialog)
+		If family_cash_case_yn = "Yes" Then
+			Call write_variable_in_SPEC_MEMO("  -Reporting Responsibilities for MFIP (DHS 2647)")
+			Call write_variable_in_SPEC_MEMO("  -Notice of Requirement to Attend MFIP Overview (DHS 2929)")
+			Call write_variable_in_SPEC_MEMO("  -Family Violence Referral (DHS 3323)")
+			' MFIP Cases with at least One Non-Custodial Parent (All on a single Dialog)
+			If absent_parent_yn = "Yes" Then
+				Call write_variable_in_SPEC_MEMO("  -Understanding Child Support-Handbook (DHS 3393)")
+				Call write_variable_in_SPEC_MEMO("  -Referral to Support and Collections (DHS 3163B)")
+				Call write_variable_in_SPEC_MEMO("  -Cooperation with Child Support Enforcement (DHS 2338)")
+				If relative_caregiver_yn = "Y" Then Call write_variable_in_SPEC_MEMO("  -MFIP Child Only Assistance (DHS 5561)")
+				' If Non-Custodial Caregiver -
+			End If
+			' MFIP Case with a Minor Caregiver (All on a single Dialog)
+			If left(minor_caregiver_yn, 3) = "Yes" Then
+				Call write_variable_in_SPEC_MEMO("  -Notice of Requirement to Attend School (DHS 2961)")
+				' Call write_variable_in_SPEC_MEMO("  -Graduate to Independence - MFIP Teen Parent Informational Brochure (DHS 2887)")
+				Call write_variable_in_SPEC_MEMO("  -Graduate to Independence (DHS 2887)")
+				If minor_caregiver_yn = "" Then Call write_variable_in_SPEC_MEMO("  -MFIP for Minor Caregivers (DHS 3238)")
+			End If
 		End If
-		' MFIP Case with a Minor Caregiver (All on a single Dialog)
-		If left(minor_caregiver_yn, 3) = "Yes" Then
-			Call write_variable_in_SPEC_MEMO("  -Notice of Requirement to Attend School (DHS 2961)")
-			' Call write_variable_in_SPEC_MEMO("  -Graduate to Independence - MFIP Teen Parent Informational Brochure (DHS 2887)")
-			Call write_variable_in_SPEC_MEMO("  -Graduate to Independence (DHS 2887)")
-			If minor_caregiver_yn = "" Then Call write_variable_in_SPEC_MEMO("  -MFIP for Minor Caregivers (DHS 3238)")
+		' SNAP Cases Only  (All on a single Dialog)
+		If snap_case = True OR pend_snap_on_case = "Yes" Then
+			Call write_variable_in_SPEC_MEMO("  -SNAP reporting responsibilities (DHS 2625)")
+			Call write_variable_in_SPEC_MEMO("  -SNAP reporting responsibilities (DHS 2625)")
+			' Call write_variable_in_SPEC_MEMO("  -Facts on Voluntarily Quitting Your Job If You Are on SNAP (DHS 2707)")
+			Call write_variable_in_SPEC_MEMO("  -Facts on  Quitting Your Job When on SNAP (DHS 2707)")
+			Call write_variable_in_SPEC_MEMO("  -Work Registration Notice (DHS 7635)")
 		End If
-	End If
-	' SNAP Cases Only  (All on a single Dialog)
-	If snap_case = True OR pend_snap_on_case = "Yes" Then
-		Call write_variable_in_SPEC_MEMO("  -SNAP reporting responsibilities (DHS 2625)")
-		Call write_variable_in_SPEC_MEMO("  -SNAP reporting responsibilities (DHS 2625)")
-		' Call write_variable_in_SPEC_MEMO("  -Facts on Voluntarily Quitting Your Job If You Are on SNAP (DHS 2707)")
-		Call write_variable_in_SPEC_MEMO("  -Facts on  Quitting Your Job When on SNAP (DHS 2707)")
-		Call write_variable_in_SPEC_MEMO("  -Work Registration Notice (DHS 7635)")
-	End If
-	Call write_variable_in_SPEC_MEMO("The information on these forms can help you better understand and navigate public assistance programs. They are available online at mn.gov/dhs/general-public/publications-forms-resources/edocs or by calling us and requesting a copy mailed to you.")
+		Call write_variable_in_SPEC_MEMO("The information on these forms can help you better understand and navigate public assistance programs. They are available online at mn.gov/dhs/general-public/publications-forms-resources/edocs or by calling us and requesting a copy mailed to you.")
 
-	PF4
-
+		PF4
+	End If
 	If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
 		If arep_exists = True Then
 			If arep_action = "Yes - keep this AREP" OR CAF_arep_action = "Yes - add to MAXIS" OR (arep_authorization <> "Select One..." AND arep_authorization <> "") Then
 				Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
-				CALL write_variable_in_SPEC_MEMO("You have indicated that you want to Authorize someone to be a Representative for your Public Assistance Case.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("An Authorized Representative is NOT a requirement for any Public Assistance, and you may remove this person from access to your case at any time.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("This is typically a person who can help you with gathering information, submitting documentation, and talking to the county and state on your behalf.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("You have authorized:")
-				If CAF_arep_action = "Yes - add to MAXIS" Then
-					CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
-				ElseIf arep_action = "Yes - keep this AREP" Then
-					CALL write_variable_in_SPEC_MEMO(arep_name)
-				ElseIf trim(CAF_arep_name) <> "" AND CAF_arep_action <> "No - do not allow this AREP" Then
-					CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
-				ElseIf trim(arep_name) <> "" AND arep_action <> "No - remove this AREP from my case" Then
-					CALL write_variable_in_SPEC_MEMO(arep_name)
-				End If
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("If you have any questions, or to remove an AREP, call the county.")
+				If memo_opened = True Then
+					CALL write_variable_in_SPEC_MEMO("You have indicated that you want to Authorize someone to be a Representative for your Public Assistance Case.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("An Authorized Representative is NOT a requirement for any Public Assistance, and you may remove this person from access to your case at any time.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("This is typically a person who can help you with gathering information, submitting documentation, and talking to the county and state on your behalf.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("You have authorized:")
+					If CAF_arep_action = "Yes - add to MAXIS" Then
+						CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
+					ElseIf arep_action = "Yes - keep this AREP" Then
+						CALL write_variable_in_SPEC_MEMO(arep_name)
+					ElseIf trim(CAF_arep_name) <> "" AND CAF_arep_action <> "No - do not allow this AREP" Then
+						CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
+					ElseIf trim(arep_name) <> "" AND arep_action <> "No - remove this AREP from my case" Then
+						CALL write_variable_in_SPEC_MEMO(arep_name)
+					End If
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("If you have any questions, or to remove an AREP, call the county.")
 
-				PF4
+					PF4
+				End If
 
 				Call start_a_blank_CASE_NOTE
 				Call write_variable_in_CASE_NOTE("AREP REQUESTED ADDED TO CASE")
