@@ -2396,6 +2396,38 @@ script_array(script_num).usage_eval				= "PRIMARY"
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Pending Assignments"
+' script_array(script_num).description 			= "Template for the METS to MAXIS and MAXIS to METS transition process."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex")
+script_array(script_num).subcategory            = array("TOP", "TOOL")
+script_array(script_num).release_date           = #04/10/2025#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")
+script_array(script_num).usage_eval				= "STANDARD"
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Pending Assignments"
+' script_array(script_num).description 			= "Template for the METS to MAXIS and MAXIS to METS transition process."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex")
+script_array(script_num).subcategory            = array("TOP", "TOOL")
+script_array(script_num).release_date           = #04/10/2025#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")
+script_array(script_num).usage_eval				= "STANDARD"
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Health Care Transition"
 ' script_array(script_num).description 			= "Template for the METS to MAXIS and MAXIS to METS transition process."
 script_array(script_num).category               = "NOTES"
