@@ -50,6 +50,7 @@ call changelog_update("02/12/2025", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Call run_another_script(script_repository & "admin\health-care-pending-assignments.vbs")
+If run_locally = True Then Call run_another_script(script_repository & "admin/health-care-pending-assignments.vbs")
+Call run_from_GitHub(script_repository & "admin/health-care-pending-assignments.vbs" )
 
 StopScript
