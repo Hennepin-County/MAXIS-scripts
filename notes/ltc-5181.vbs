@@ -67,16 +67,16 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'Showing the case number - defining the dialog for the case number
-BeginDialog Dialog1 , 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 221, 95, "Enter LTC-5181 Form Details"
+  EditBox 75, 25, 50, 15, MAXIS_case_number
+  EditBox 75, 45, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 25, 45, 50, 15
-	CancelButton 85, 45, 50, 15
+    OkButton 125, 75, 45, 15
+    CancelButton 170, 75, 45, 15
+    PushButton 150, 25, 65, 15, "Script Instructions", msg_show_instructions_btn
+  Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
+  Text 20, 30, 50, 10, "Case Number:"
+  Text 10, 50, 60, 10, "Worker Signature:"
 EndDialog
 
 DO
@@ -85,7 +85,6 @@ DO
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
