@@ -2304,6 +2304,7 @@ script_array(script_num).tags                   = array("Assets", "Deductions", 
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #4/15/2025#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
