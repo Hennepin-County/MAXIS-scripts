@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/15/2025", "Retired Script - NOTES - GRH NON HRF POSTPAY.##~##Eligibility Summary will support all program approvals.", "Casey Love, Hennepin County")
 call changelog_update("12/11/2024", "Retired the script NOTES - DECEASED CLIENT SUMMARY. The functionality of this script is now supported by ACTIONS - ENTER DATE OF DEATH.", "Mark Riegel, Hennepin County")
 call changelog_update("10/31/2024", "NOTES- SNAP Waived Interview has been retired.", "Megan Geissler, Hennepin County")
 call changelog_update("10/01/2024", "The scripts NOTES-Change Report Form Received and NOTES-LTC Hospice Form Received have been retired as they are supported by NOTES-Documents Received", "Megan Geissler, Hennepin County")
