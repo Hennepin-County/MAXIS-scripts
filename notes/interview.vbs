@@ -325,6 +325,9 @@ function check_for_errors(interview_questions_clear)
 			If trim(exp_det_income) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the amount of income in the application month for the Expedited Determination. If there is no income expected or received, enter a '0'"
 			If trim(exp_det_assets) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the amount of assets in the application month for the Expedited Determination. If there are no assets, enter a '0'"
 			If trim(exp_det_housing) = "" Then err_msg = err_msg & "~!~" & exp_num & "^* Enter the expense for housing in the application month for the Expedited Determination. If there is no housing expense, enter a '0'"
+			If trim(exp_det_income) <> "" and IsNumeric(exp_det_income)	= False Then err_msg = err_msg & "~!~" & exp_num & "^* The amount of income in the application month for the Expedited Determination must be entered as a number. This does not appear to be a number value, please review and reenter."
+			If trim(exp_det_assets) <> "" and IsNumeric(exp_det_assets)	= False Then err_msg = err_msg & "~!~" & exp_num & "^* The amount of assets in the application month for the Expedited Determination must be entered as a number. This does not appear to be a number value, please review and reenter."
+			If trim(exp_det_housing) <> "" and IsNumeric(exp_det_housing)	= False Then err_msg = err_msg & "~!~" & exp_num & "^* The expense for housing in the application month for the Expedited Determination must be entered as a number. This does not appear to be a number value, please review and reenter."
 			utility_checked = false
 			If heat_exp_checkbox = checked then utility_checked = true
 			If ac_exp_checkbox = checked then utility_checked = true
@@ -7164,7 +7167,10 @@ If edit_access_allowed = False Then
 		email_to_field = "Alexander.Yang@hennepin.us; jeremy.lucca@hennepin.us" '; tammy.coenen@hennepin.us; candace.brown@hennepin.us"
 		email_cc_field = "hsph.ews.bluezonescripts@hennepin.us"
 		email_body = "Case number: " & MAXIS_case_number & " appears INACTIVE." & vbCr &  "Case is being interviewed by the interview team as of " & now & ". Needs review for REIN or PEND." & vbCr & vbCr & "Warning message when attempting to create a new CASE/NOTE: " & warning_notice
-		call create_outlook_email("", email_to_field, email_cc_field, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+		send_email = True
+		If windows_user_ID = "CALO001" Then send_email = False
+		If developer_mode = True Then send_email = False
+		Call create_outlook_email("", email_to_field, email_cc_field, "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
 	Else
 		edit_access_msg = "* - * - * ALERT * - * - *"
 		edit_access_msg = edit_access_msg & vbCr & vbCr & "It appears you cannot edit this case. "
@@ -8312,7 +8318,6 @@ Do
 
 				Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
-				If run_by_interview_team = True and page_display = expedited_determination Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 				Call review_for_discrepancies
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
@@ -8322,6 +8327,7 @@ Do
                 Else
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
                 End If
+				If run_by_interview_team = True and page_display = expedited_determination and show_err_msg_during_movement = False Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 
 				If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 
