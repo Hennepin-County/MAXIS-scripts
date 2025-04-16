@@ -3450,15 +3450,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
 							If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then Call create_snap_anticipated_pay_array()
 
-	                        dlg_len = 70        'starting with this dialog
+	                        dlg_len = 95        'starting with this dialog
 	                        'FUTURE FUNCTIONALITY - maybe we add some information that summarizes what was entered on ENTER PAY Dialog - but we might not have reoom
 							If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
 	                            dlg_len = dlg_len + 20
 							End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
-	                            grp_len = 45 + number_of_checks_budgeted*10
-	                            If number_of_checks_budgeted < 4 Then grp_len = 105
-	                            If using_30_days = FALSE Then grp_len = grp_len + 35
+	                            grp_len = 70 + number_of_checks_budgeted*10
+	                            If number_of_checks_budgeted < 4 Then grp_len = 100
+	                            If using_30_days = FALSE Then grp_len = grp_len + 30
 
 	                            dlg_len = dlg_len + grp_len + 5
 	                        End If
@@ -3474,6 +3474,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
 	                            cash_grp_len = cash_grp_len + length_of_checks_list
 	                            dlg_len = dlg_len + cash_grp_len
+								If length_of_checks_list < 40 Then dlg_len = dlg_len + 5
 	                        End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'resizing the dialog and the HC Groupbox if income applies to HC
 	                            dlg_len = dlg_len + 5
@@ -3483,19 +3484,17 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
 	                            hc_grp_len = hc_grp_len + length_of_checks_list
 	                            dlg_len = dlg_len + hc_grp_len
+								If length_of_checks_list < 60 Then dlg_len = dlg_len + 5
 	                        End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then        'resizing the dialog and the GRH Groupbox if income applies to GRH
 	                            dlg_len = dlg_len + 5
-	                            grh_grp_len = 70
+	                            grh_grp_len = 60
 	                            length_of_checks_list = cash_checks*10
 	                            If length_of_checks_list = 0 Then length_of_checks_list = 20
 
 	                            grh_grp_len = grh_grp_len + length_of_checks_list
 	                            dlg_len = dlg_len + grh_grp_len
 	                        End If
-
-							'Adding in the clarifications box
-							dlg_len = dlg_len + 20
 
 	                        y_pos = 35      'incrementer to move things down
 	                        'CONFIRM BUDGET Dialog - mostly shows the information after being calculated for each program and makes the worker confirm this is correct
@@ -3570,7 +3569,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
 	                              CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
 								  csbtnt_y_pos = y_pos + 10
-	                              y_pos = y_pos + 30
+	                              y_pos = y_pos + 40
 	                          Else      'if income does not apply to SNAP, we have to default these to being completed
 	                            confirm_budget_checkbox = checked
 	                            using_30_days = TRUE
