@@ -397,8 +397,8 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
 	End If
 	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two <> "" Then
-		script_run_lowdown = script_run_lowdown & vbCr & "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
-		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
+		script_run_lowdown = script_run_lowdown & vbCr & "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name
+		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_health_dept_license_3_code
 	End If
 	bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
 	subject_of_email = "ELIG SUMM -- Ended for GRH Supportive Housing Error - Case " & MAXIS_case_number & " (Automated Report)"
@@ -13874,14 +13874,17 @@ class deny_eligibility_detail
 		EMWriteScreen elig_footer_year, 19, 57
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
-			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
-			approval_date = DateAdd("d", 0, approval_date)
-			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			If allow_late_note = True Then
-				one_week_ago = DateAdd("d", -7, date)
-				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+			EMReadScreen panel_code, 4, 3, 48
+			If panel_code = "CAPR" Then
+				EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+				approval_date = DateAdd("d", 0, approval_date)
+				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+				If allow_late_note = True Then
+					one_week_ago = DateAdd("d", -7, date)
+					If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+				End If
+				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End If
-			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
