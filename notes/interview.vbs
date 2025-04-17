@@ -8327,7 +8327,7 @@ Do
                 Else
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
                 End If
-				If run_by_interview_team = True and page_display = expedited_determination and show_err_msg_during_movement = False Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
+				If run_by_interview_team = True and page_display = expedited_determination and err_msg = "" Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 
 				If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 
