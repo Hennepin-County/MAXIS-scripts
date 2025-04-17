@@ -65,28 +65,36 @@ Const MIPPA_col						= 8
 Const METS_Transition_col			= 9
 Const EMA_col						= 10
 Const SMRT_Application_col			= 11
-Const HC_Eval_Date_col				= 12
-Const Verifs_Requested_Date_col		= 13
-Const Initial_Assignment_Worker_col	= 14
-Const Initial_Assignment_Date_col	= 15
-Const Day_20_col					= 16
-Const Day_20_Assignment_Worker_col	= 17
-Const Day_20_Assignment_Date_col	= 18
-Const Day_45_col					= 19
-Const Day_45_Assignment_Worker_col	= 20
-Const Day_45_Assignment_Date_col	= 21
-Const Day_55_col					= 22
-Const Day_55_Assignment_Worker_col	= 23
-Const Day_55_Assignment_Date_col	= 24
-Const Day_60_col					= 25
-Const Day_60_Assignment_Worker_col	= 26
-Const Day_60_Assignment_Date_col	= 27
-Const Overdue_col					= 28
-Const Needs_Assignment_col			= 29
-Const Priority_col					= 30
-Const Most_Recent_Assignment_Worker_col		= 31
-Const Most_Recent_Assignment_Date_col		= 32
-Const Currently_Assigned_col 		= 33
+
+Const SMRT_Start_col				= 12
+Const SMRT_End_col					= 13
+Const Appears_LTC_col				= 14
+Const Screened_NOT_LTC_Date_col		= 15
+
+Const HC_Eval_Date_col				= 16
+Const Verifs_Requested_Date_col		= 17
+Const Initial_Assignment_Worker_col	= 18
+Const Initial_Assignment_Date_col	= 19
+Const Day_20_col					= 20
+Const Day_20_Assignment_Worker_col	= 21
+Const Day_20_Assignment_Date_col	= 22
+Const Day_45_col					= 23
+Const Day_45_Assignment_Worker_col	= 24
+Const Day_45_Assignment_Date_col	= 25
+Const Day_55_col					= 26
+Const Day_55_Assignment_Worker_col	= 27
+Const Day_55_Assignment_Date_col	= 28
+Const Day_60_col					= 29
+Const Day_60_Assignment_Worker_col	= 30
+Const Day_60_Assignment_Date_col	= 31
+Const Overdue_col					= 32
+Const Needs_Assignment_col			= 33
+Const Priority_col					= 34
+Const Most_Recent_Assignment_Worker_col		= 35
+Const Most_Recent_Assignment_Date_col		= 36
+Const Currently_Assigned_col 		= 37
+Const Assigned_to_ADMIN_col			= 39
+Const Assigned_to_ADMIN_reason_col 	= 40
 
 
 'File Paths
@@ -279,6 +287,8 @@ end function
 lock_main_list = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\DataLockCookie.txt"
 hold_main_list = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\DataHoldCookie.txt"
 
+'TODO - Add a way to read if the current user is the one with a data lock and throw and request help
+'TODO - Add a time check on the data lock to be sure the hold hasn't lasted too long
 function create_data_lock(lock_type)
 	If lock_type = "MAIN" Then lock_file = lock_main_list
 	If lock_type = "HOLD" Then lock_file = hold_main_list
@@ -488,7 +498,7 @@ function review_hc_pending_counts()
 			For known_wrkr = 0 to UBound(ASSIGNED_ARRAY, 2)
 				Text 335, y_pos, 25, 10, ASSIGNED_ARRAY(hsr_count_const, known_wrkr)
 				Text 360, y_pos, 135, 10, " - " & ASSIGNED_ARRAY(hsr_name_const, known_wrkr)
-				y_pos = y_pos + 1
+				y_pos = y_pos + 10
 			Next
 		' End If
 	EndDialog
@@ -545,6 +555,7 @@ If windows_user_ID = "YEYA001" Then admin_run = true
 If windows_user_ID = "JAAR001" Then admin_run = true
 script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"
 If admin_run = true Then script_run_options = "Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Counts"
+If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
 
 BeginDialog Dialog1, 0, 0, 216, 105, "Health Care Pending Assignments"
   DropListBox 10, 60, 195, 45, script_run_options, operation_selection
@@ -618,6 +629,34 @@ If operation_selection = "Open My Worklist" Then
 End If
 
 If operation_selection = "Review Counts" Then review_hc_pending_counts
+
+If operation_selection = "Open and Hold List" Then
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(lock_main_list) = True then script_end_procedure("HC Pending details are being updated by somneone else. Try again in a little while.")
+
+		list_being_viewed = .FileExists(hold_main_list)
+		If list_being_viewed = True Then MsgBox "Another worker is pulling an assignment. The script will pause while this completes. It usually takes less than a minute to become available. Please wait."
+		Do while list_being_viewed = True
+			' WScript.Sleep 200
+			EMWaitReady 0, 1000
+			list_being_viewed = .FileExists(hold_main_list)
+		Loop
+	End With
+	Call create_data_lock("HOLD")
+
+	' interview_tracking_excel = t_drive & "\Eligibility Support\Assignments\Script Testing Logs\Interview Team Usage\Added to Work List\Interview Tracking.xlsx"
+	Call excel_open(controller_hc_pending_excel, True, True, ObjExcel, objWorkbook)
+
+	Do
+		wait_msg = MsgBox("Are you done with the HC Pending List?", vbQuestion + vbYesNo + vbDefaultButton2, "Close HC Pending Excel")
+
+	Loop until wait_msg = vbYes
+
+	ObjExcel.ActiveWorkbook.Close
+	ObjExcel.Application.Quit
+	ObjExcel.Quit
+	Call release_data_lock("HOLD")
+End If
 
 If run_list_management = True Then
 	'Dialog asks what stats are being pulled
@@ -860,6 +899,7 @@ If run_list_management = True Then
 			For controller_case = 0 to UBound(known_case_number_array, 2)
 				' MsgBox "controller_case - " & controller_case & vbCr & "HC_REPT_PND2(case_num_const, pnd2_case) - " & HC_REPT_PND2(case_num_const, pnd2_case)
 				If known_case_number_array(case_num_const, controller_case) = HC_REPT_PND2(case_num_const, pnd2_case) Then
+					ObjExcel.Cells(excel_row, APPL_Date_col).Value		= HC_REPT_PND2(appl_date_const, pnd2_case)
 					HC_REPT_PND2(on_controller_const, pnd2_case) = True
 					known_case_number_array(on_PND2_const, controller_case) = True
 					Exit For
@@ -973,6 +1013,31 @@ If run_list_management = True Then
 				Set element = xmlTracDoc.createElement("EMA")
 				root.appendChild element
 				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, EMA_col).Value))
+				element.appendChild info
+
+				Set element = xmlTracDoc.createElement("SMRTApplication")
+				root.appendChild element
+				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_Application_col).Value))
+				element.appendChild info
+
+				Set element = xmlTracDoc.createElement("SMRTStart")
+				root.appendChild element
+				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_Start_col).Value))
+				element.appendChild info
+
+				Set element = xmlTracDoc.createElement("SMRTEnd")
+				root.appendChild element
+				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_End_col).Value))
+				element.appendChild info
+
+				Set element = xmlTracDoc.createElement("AppearsLTC")
+				root.appendChild element
+				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, Appears_LTC_col).Value))
+				element.appendChild info
+
+				Set element = xmlTracDoc.createElement("ScreenedNotLTCDate")
+				root.appendChild element
+				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("HCEvalDate")
@@ -1111,7 +1176,7 @@ If run_list_management = True Then
 	End If
 
 	'This section adds the most recent case note information (date, x number and case note to the Excel list. The user will need to select this option in the checkbox on the dialog.)
-	If evaluate_cases_in_MAXIS = True or capture_pnd2 = True Then
+	If evaluate_cases_in_MAXIS = True or add_pending_cases_to_report = True Then
 		excel_row = 2		'starting with row 2 (1st cell with case information)
 		If evaluate_cases_in_MAXIS = False Then excel_row = excel_row_new_cases_start
 		Do
@@ -1131,14 +1196,20 @@ If run_list_management = True Then
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, METS_Transition_col), mets_trans_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, EMA_col), ema_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, SMRT_Application_col), smrt_case)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Appears_LTC_col), ltc_case)
+
 			curr_pended_date		= ObjExcel.Cells(excel_row, Pended_Date_col).Value
 			curr_hc_eval_note_date 	= ObjExcel.Cells(excel_row, HC_Eval_Date_col).Value
 			curr_verif_note_date 	= ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value
+			smrt_start_date 		= ObjExcel.Cells(excel_row, SMRT_Start_col).Value
+			smrt_end_date			= ObjExcel.Cells(excel_row, SMRT_End_col).Value
+			not_ltc_date			= ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value
 
 			If mippa_case = "" 		Then mippa_case = False
 			If mets_trans_case = "" Then mets_trans_case = False
 			If ema_case = "" 		Then ema_case = False
 			If smrt_case = "" 		Then smrt_case = False
+			If ltc_case = "" 		Then ltc_case = False
 
 			too_old_date = DateAdd("D", -1, appl_date)              'We don't need to read notes from before the CAF date
 
@@ -1174,6 +1245,16 @@ If run_list_management = True Then
 					End If
 					If left(note_title, 31) = "---Initial SMRT referral reques" Then smrt_started = True
 					If left(note_title, 31) = "---ISDS referral completed for " Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, case is being reviewe" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS,  case is being review" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, no changes or communi" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, case is still in revi" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, case is still pending" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, no new communications" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, communication sent to" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, no changes report sin" Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, case was reviewed on " Then smrt_started = True
+					If left(note_title, 10) = "Per ISDS, case reviewed by SMRT" Then smrt_started = True
 					If left(note_title, 31) = "---SMRT NOT submitted to ISDS--" Then smrt_ended = True
 					If left(note_title, 31) = "---SMRT determination received:" Then smrt_ended = True
 					If left(note_title, 31) = "---SMRT Determination Request W" Then smrt_ended = True
@@ -1182,6 +1263,8 @@ If run_list_management = True Then
 						If InStr(UCASE(note_title), "DENIED") Then smrt_ended = True
 						If InStr(UCASE(note_title), "DENY") Then smrt_ended = True
 					End If
+					If smrt_start_date = "" and smrt_started = True Then smrt_start_date = note_date
+					If smrt_end_date = "" and smrt_ended = True Then smrt_end_date = note_date
 
 					If left(note_title, 36) = "~ Application Received (MNsure HCAPP" Then pended_date = note_date
 					If left(note_title, 48) = "~ Application Received (HC - Certain Populations" Then pended_date = note_date
@@ -1205,6 +1288,10 @@ If run_list_management = True Then
 					If InStr(note_title, "MN Family Planning App:") <> 0 		Then hc_eval_note_found = True
 					If hc_eval_note_found = True and hc_eval_note_date = "" 	Then hc_eval_note_date = note_date
 
+					If InStr(note_title, "LTC HC App:") <> 0 Then ltc_case = True
+					If InStr(note_title, "LTC Renewal:") <> 0 Then ltc_case = True
+					If InStr(note_title, "*** LTC-1503 FORM RECEIVED ***") <> 0 Then ltc_case = True
+
 					note_row = note_row + 1
 					If note_row = 19 Then
 						note_row = 5
@@ -1216,16 +1303,25 @@ If run_list_management = True Then
 					If next_note_date = "        " Then Exit Do
 				Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
+				If smrt_start_date <> "" Then smrt_started = True
+				If smrt_end_date <> "" Then smrt_ended = True
 				If smrt_ended = True Then smrt_case = False
 				If smrt_started = True and smrt_ended = False Then smrt_case = True
 
 				ObjExcel.Cells(excel_row, MIPPA_col).Value 					= mippa_case
 				ObjExcel.Cells(excel_row, METS_Transition_col).Value 		= mets_trans_case
 				ObjExcel.Cells(excel_row, SMRT_Application_col).Value 		= smrt_case
+				ObjExcel.Cells(excel_row, SMRT_Start_col).Value 			= smrt_start_date
+				ObjExcel.Cells(excel_row, SMRT_End_col).Value 				= smrt_end_date
+				ObjExcel.Cells(excel_row, Appears_LTC_col).Value 			= ltc_case
 
-				If curr_pended_date = "" and pended_date <> "" 	Then ObjExcel.Cells(excel_row, Pended_Date_col).Value 			= pended_date
-				If curr_hc_eval_note_date = "" 					Then ObjExcel.Cells(excel_row, HC_Eval_Date_col).Value 			= hc_eval_note_date
-				If curr_verif_note_date = "" 					Then ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value = verif_note_date
+				newer_verif_req = False
+				If IsDate(verif_note_date) and IsDate(curr_verif_note_date) Then
+					If DateDiff("d", curr_verif_note_date, verif_note_date) > 0 Then newer_verif_req = True
+				End If
+				If curr_pended_date = "" and pended_date <> "" 			Then ObjExcel.Cells(excel_row, Pended_Date_col).Value 			= pended_date
+				If curr_hc_eval_note_date = "" 							Then ObjExcel.Cells(excel_row, HC_Eval_Date_col).Value 			= hc_eval_note_date
+				If curr_verif_note_date = "" or newer_verif_req = True  Then ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value = verif_note_date
 
 			End If
 			' EMReadScreen case_note_info, 74 , 5, 6						'reads the most recent case note
@@ -1256,7 +1352,8 @@ If run_list_management = True Then
 	pri_5_case_count = 0
 	pri_6_case_count = 0
 	case_on_assign_count = 0
-	If evaluate_assignments = True or capture_pnd2 = True Then
+	' If evaluate_assignments = True or capture_pnd2 = True Then
+	If evaluate_assignments = True or add_pending_cases_to_report = True Then
 		excel_row = 2		'starting with row 2 (1st cell with case information)
 		If evaluate_assignments = False Then excel_row = excel_row_new_cases_start
 
@@ -1269,6 +1366,9 @@ If run_list_management = True Then
 			Days_pending = 				ObjExcel.Cells(excel_row, Days_Pending_col).Value
 			pended_date = 				ObjExcel.Cells(excel_row, Pended_Date_col).Value
 			date_added_to_list = 		ObjExcel.Cells(excel_row, Date_Added_to_List_col).Value
+			smrt_start_date = 			ObjExcel.Cells(excel_row, SMRT_Start_col).Value
+			smrt_end_date = 			ObjExcel.Cells(excel_row, SMRT_End_col).Value
+			screened_not_ltc_date = 	ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value
 			HC_Eval_date = 				ObjExcel.Cells(excel_row, HC_Eval_Date_col).Value
 			Verif_requested_date = 		ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value
 			initial_assignment_worker = ObjExcel.Cells(excel_row, Initial_Assignment_Worker_col).Value
@@ -1291,19 +1391,21 @@ If run_list_management = True Then
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, METS_Transition_col), mets_trans_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, EMA_col), ema_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, SMRT_Application_col), smrt_case)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Appears_LTC_col), ltc_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Overdue_col), case_overdue)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Currently_Assigned_col), on_assignment)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Assigned_to_ADMIN_col), assigned_to_manager)
 
 
-			worked_in_past_week = False
+			worked_recently = False
 			If IsDate(Last_Assingment_Date) = True Then
 				Last_Assingment_Date = DateAdd("d", 0, Last_Assingment_Date)
 				days_since_last_work = DateDiff("d", Last_Assingment_Date, date)
-				If days_since_last_work < 8 Then worked_in_past_week = True
+				If days_since_last_work < 15 Then worked_recently = True
 			End If
 			If on_assignment = True Then case_on_assign_count = case_on_assign_count + 1
 
-			If on_assignment <> True and worked_in_past_week = False Then
+			If on_assignment <> True and worked_recently = False and assigned_to_manager <> True Then
 				If pended_date <> "" and IsDate(pended_date) = False Then
 					pended_date = ""
 					ObjExcel.Cells(excel_row, Days_Pending_col).Value = ""
@@ -1328,7 +1430,9 @@ If run_list_management = True Then
 				Days_pending = Days_pending * 1
 				' MsgBox "MIPPA_col - " & MIPPA_col & vbCr & "METS_Transition_col - " & METS_Transition_col & vbCr & "excel_row - " & excel_row
 				'TEST on FRI didn't work
-				If mippa_case = False and mets_trans_case = False Then 'and ema_case = False Then
+				If IsDate(screened_not_ltc_date) = True and ltc_case = True Then ltc_case = False
+
+				If mippa_case = False and mets_trans_case = False and ltc_case = False Then 'and ema_case = False Then
 					days_since_last_assignment = 5000
 					If IsDate(Last_Assingment_Date) = True Then
 						days_since_last_assignment = DateDiff("d", Last_Assingment_Date, date)
@@ -1354,13 +1458,13 @@ If run_list_management = True Then
 						End If
 						If IsDate(Day_55_date) = True then
 							diff_day_55 = ABS(DateDiff("d", date, Day_55_date))
-							If diff_day_55 < 4 and Day_55_assignment_worker = "" Then case_priority = 5
+							If diff_day_55 < 2 and Day_55_assignment_worker = "" Then case_priority = 5
 						End If
 					End If
 					If case_priority = "" Then
 						If IsDate(Day_60_date) = True then
 							diff_day_60 = ABS(DateDiff("d", date, Day_60_date))
-							If diff_day_60 < 4 and Day_60_assignment_worker = "" Then case_priority = 6
+							If diff_day_60 < 2 and Day_60_assignment_worker = "" Then case_priority = 6
 						End If
 					End If
 
@@ -1656,9 +1760,13 @@ If run_assignment_selection = True Then
 	const wrkr_day_60_col 		= 10 		'Day 60
 	const wrkr_assign_compl_col = 11 		'Assignment Completed
 	const wrkr_case_stat_col 	= 12 		'Approved, Denied, Pending
-	const wrkr_specialty_col 	= 13 		'SMRT / MIPPA / MAEPD / EMA / METS Transition / Etc
-	const wrkr_deny_date_col 	= 14 		'Date denial can be acted on
-	const wrkr_notes_col 		= 15 		'Notes
+	const wrkr_smrt_start_col 	= 13  		'SMRT Referral Date
+	const wrkr_smrt_end_col 	= 14  		'SMRT Completed Date
+	const wrkr_potent_ltc_col 	= 15  		'Potentially LTC
+	const wrkr_not_ltc_date_col	= 16  		'Screened NOT LTC Date
+	const wrkr_specialty_col 	= 17 		'SSpecialty Elig Basis/Progs
+	const wrkr_deny_date_col 	= 18 		'Date denial can be acted on
+	const wrkr_notes_col 		= 19 		'Notes
 
 	const end_const = 20
 
@@ -1680,20 +1788,24 @@ If run_assignment_selection = True Then
 		Do
 			'Add to an array
 			ReDim preserve COMP_ASSIGN_ARRAY(end_const, work_counter)
-			COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_hsr_col).Value) 		 		'HSR Assignment
-			COMP_ASSIGN_ARRAY(wrkr_assign_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_date_col).Value) 		 		'Assignment Date
-			COMP_ASSIGN_ARRAY(wrkr_case_numb_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_numb_col).Value) 		 		'Case Number
-			COMP_ASSIGN_ARRAY(wrkr_case_name_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_name_col).Value) 		 		'Name
-			COMP_ASSIGN_ARRAY(wrkr_appl_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_appl_date_col).Value) 		 		'APPL Date
-			COMP_ASSIGN_ARRAY(wrkr_days_pend_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_days_pend_col).Value) 		 		'Days Pending
-			COMP_ASSIGN_ARRAY(wrkr_population_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_population_col).Value) 		 		'Population
-			COMP_ASSIGN_ARRAY(wrkr_hc_eval_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_hc_eval_date_col).Value) 		 		'HC Evaluation Run
-			COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_verifs_date_col).Value) 		 		'Verifs Requested
+			COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_hsr_col).Value) 			'HSR Assignment
+			COMP_ASSIGN_ARRAY(wrkr_assign_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_date_col).Value) 		'Assignment Date
+			COMP_ASSIGN_ARRAY(wrkr_case_numb_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_numb_col).Value) 			'Case Number
+			COMP_ASSIGN_ARRAY(wrkr_case_name_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_name_col).Value) 			'Name
+			COMP_ASSIGN_ARRAY(wrkr_appl_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_appl_date_col).Value) 			'APPL Date
+			COMP_ASSIGN_ARRAY(wrkr_days_pend_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_days_pend_col).Value) 			'Days Pending
+			COMP_ASSIGN_ARRAY(wrkr_population_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_population_col).Value) 			'Population
+			COMP_ASSIGN_ARRAY(wrkr_hc_eval_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_hc_eval_date_col).Value) 		'HC Evaluation Run
+			COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_verifs_date_col).Value) 		'Verifs Requested
 			COMP_ASSIGN_ARRAY(wrkr_day_60_col, 			work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_day_60_col).Value) 		 		'Day 60
-			COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_compl_col).Value) 		 		'Assignment Completed
-			COMP_ASSIGN_ARRAY(wrkr_case_stat_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) 		 		'Approved, Denied, Pending
-			COMP_ASSIGN_ARRAY(wrkr_specialty_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_specialty_col).Value) 		 		'SMRT / MIPPA / MAEPD / EMA / METS Transition / Etc
-			COMP_ASSIGN_ARRAY(wrkr_deny_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_deny_date_col).Value) 		 		'Date denial can be acted on
+			COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_compl_col).Value) 		'Assignment Completed
+			COMP_ASSIGN_ARRAY(wrkr_case_stat_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) 			'Approved, Denied, Pending
+			COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_smrt_start_col).Value) 			'SMRT Referral Date
+			COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_smrt_end_col).Value) 			'SMRT Completed Date
+			COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_potent_ltc_col).Value) 			'Potentially LTC
+			COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_not_ltc_date_col).Value) 		'Screened NOT LTC Date
+			COMP_ASSIGN_ARRAY(wrkr_specialty_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_specialty_col).Value) 			'SMRT / MIPPA / MAEPD / EMA / METS Transition / Etc
+			COMP_ASSIGN_ARRAY(wrkr_deny_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_deny_date_col).Value) 			'Date denial can be acted on
 			COMP_ASSIGN_ARRAY(wrkr_notes_col, 			work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_notes_col).Value) 		 		'Notes
 
 
@@ -1772,6 +1884,26 @@ If run_assignment_selection = True Then
 			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_stat_col, work_counter))
 			element.appendChild info
 
+			Set element = xmlAssignDoc.createElement("SMRTStart")
+			root.appendChild element
+			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, work_counter))
+			element.appendChild info
+
+			Set element = xmlAssignDoc.createElement("SMRTEnd")
+			root.appendChild element
+			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, work_counter))
+			element.appendChild info
+
+			Set element = xmlAssignDoc.createElement("PotentiallyLTC")
+			root.appendChild element
+			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, work_counter))
+			element.appendChild info
+
+			Set element = xmlAssignDoc.createElement("NotLTCScreenDate")
+			root.appendChild element
+			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, work_counter))
+			element.appendChild info
+
 			Set element = xmlAssignDoc.createElement("Specialty")
 			root.appendChild element
 			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_specialty_col, work_counter))
@@ -1822,6 +1954,10 @@ If run_assignment_selection = True Then
 					ObjExcel.Cells(excel_row, Currently_Assigned_col).Value 	= False
 					ObjExcel.Cells(excel_row, HC_Eval_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_hc_eval_date_col, wrkr_cases)
 					ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value 	= COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, wrkr_cases)
+					ObjExcel.Cells(excel_row, SMRT_Start_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, wrkr_cases)
+					ObjExcel.Cells(excel_row, SMRT_End_col).Value 				= COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, wrkr_cases)
+					ObjExcel.Cells(excel_row, Appears_LTC_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, wrkr_cases)
+					ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value 	= COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, wrkr_cases)
 					If IsDate(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, wrkr_cases)) = True Then
 						ObjExcel.Cells(excel_row, Needs_Assignment_col).Value 		= False
 						' ObjExcel.Cells(excel_row, ).Value = COMP_ASSIGN_ARRAY(wrkr_case_numb_col, wrkr_cases)
@@ -1885,10 +2021,12 @@ If run_assignment_selection = True Then
 				If pnd_case_priority <> "" Then pnd_case_priority = pnd_case_priority * 1
 				call read_boolean_from_excel(ObjExcel.Cells(full_excel_row, Needs_Assignment_col).Value, pnd_case_need_assign)
 				call read_boolean_from_excel(ObjExcel.Cells(full_excel_row, Currently_Assigned_col).Value, pnd_case_curr_assign)
+				Call read_boolean_from_excel(ObjExcel.Cells(full_excel_row, Assigned_to_ADMIN_col).Value, assigned_to_manager)
 				If pnd_case_need_assign = "" Then pnd_case_need_assign = False
 				If pnd_case_curr_assign = "" Then pnd_case_curr_assign = False
+				If assigned_to_manager = "" Then assigned_to_manager = False
 				assign_this_case = False
-				If pnd_case_priority = priority_select and pnd_case_need_assign = True and pnd_case_curr_assign = False Then
+				If pnd_case_priority = priority_select and pnd_case_need_assign = True and pnd_case_curr_assign = False and assigned_to_manager = False Then
 					' Call random_selection(3, assign_this_case)
 					assign_this_case = True
 				End If
