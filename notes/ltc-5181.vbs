@@ -68,15 +68,15 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Dialog1 = "" 'Blanking out previous dialog detail
 'Showing the case number - defining the dialog for the case number
 BeginDialog Dialog1, 0, 0, 221, 95, "Enter LTC-5181 Form Details"
+  Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
+  Text 20, 30, 50, 10, "Case Number:"
   EditBox 75, 25, 50, 15, MAXIS_case_number
+  Text 10, 50, 60, 10, "Worker Signature:"
   EditBox 75, 45, 140, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 125, 75, 45, 15
     CancelButton 170, 75, 45, 15
-    PushButton 150, 25, 65, 15, "Script Instructions", msg_show_instructions_btn
-  Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
-  Text 20, 30, 50, 10, "Case Number:"
-  Text 10, 50, 60, 10, "Worker Signature:"
+    PushButton 150, 25, 65, 15, "Script Instructions", instructions_btn
 EndDialog
 
 DO
@@ -96,34 +96,47 @@ If is_this_priv = True then script_end_procedure("Case is privileged. The script
 'Dialog 2 - Section A: Contact Information
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Information"
-  GroupBox 5, 5, 245, 190, "FROM (assessor/case manager/care coordinator's information)"
+  GroupBox 5, 5, 245, 195, "FROM (assessor/case manager/care coordinator's information)"
   Text 10, 25, 70, 10, "Date Sent to Worker:"
-  EditBox 90, 20, 55, 15, section_a_date_form_sent
   Text 10, 40, 40, 10, "Assessor:"
-  EditBox 90, 35, 150, 15, section_a_assessor
   Text 10, 55, 50, 10, "Lead Agency:"
-  EditBox 90, 50, 150, 15, section_a_lead_agency
   Text 10, 70, 55, 10, "Phone Number:"
-  EditBox 90, 65, 55, 15, section_a_phone_number
   Text 10, 85, 55, 10, "Street Address:"
-  EditBox 90, 80, 150, 15, section_a_street_address
   Text 10, 100, 20, 10, "City:"
-  EditBox 90, 95, 150, 15, section_a_city
   Text 10, 115, 25, 10, "State:"
-  EditBox 90, 110, 25, 15, section_a_state
   Text 10, 130, 35, 10, "Zip Code:"
-  EditBox 90, 125, 55, 15, section_a_zip_code
   Text 10, 145, 55, 10, "Email Address:"
-  EditBox 90, 140, 150, 15, section_a_email_address
   Text 10, 165, 165, 10, "Click here to add another assessor (up to 3 total):"
+  EditBox 90, 20, 55, 15, section_a_date_form_sent
+  EditBox 90, 35, 150, 15, section_a_assessor
+  EditBox 90, 50, 150, 15, section_a_lead_agency
+  EditBox 90, 65, 55, 15, section_a_phone_number
+  EditBox 90, 80, 150, 15, section_a_street_address
+  EditBox 90, 95, 150, 15, section_a_city
+  EditBox 90, 110, 25, 15, section_a_state
+  EditBox 90, 125, 55, 15, section_a_zip_code
+  EditBox 90, 140, 150, 15, section_a_email_address
   ButtonGroup ButtonPressed
     PushButton 185, 160, 55, 15, "Add Assessor", section_a_add_assessor_btn
-  GroupBox 5, 200, 245, 30, "Person's Information"
-  Text 10, 210, 70, 10, "Select HH Member:"
-  DropListBox 80, 210, 160, 15, "", hh_memb_list
+    PushButton 10, 180, 75, 15, "Update Assessor 1", update_assesor_1_btn
+    PushButton 90, 180, 75, 15, "Update Assessor 3", update_assessor_2_btn
+    PushButton 170, 180, 75, 15, "Update Assessor 3", update_assessor_3_btn
+  GroupBox 5, 210, 245, 30, "Person's Information"
+  Text 10, 220, 70, 10, "Select HH Member:"
+  DropListBox 80, 220, 160, 15, "Select one:", hh_memb_list
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -135,14 +148,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Information"
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
 EndDialog
 
 DO
@@ -150,8 +155,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -159,14 +163,17 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 3 - Section B: Assessment Results - Current Status
 BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Current Status"
+  GroupBox 5, 5, 250, 50, "What is the person's current status? (check second if both apply)"
   CheckBox 15, 20, 10, 10, "", Check1
-  CheckBox 15, 40, 10, 10, "", Check2
   Text 25, 20, 215, 20, "The person currently is requesting services or already enrolled in long-term care services or program"
-  Text 25, 40, 170, 10, "The person resides in or will reside in an institution"
+  CheckBox 15, 40, 195, 10, "The person resides in or will reside in an institution", section_g_person_will_reside_institution_checkbox
+  GroupBox 5, 60, 250, 55, "Program Type"
   Text 10, 75, 185, 10, "Program person is requesting or is currently enrolled in:"
-  DropListBox 200, 70, 45, 20, "AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+  DropListBox 200, 70, 45, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+  Text 10, 90, 85, 10, "Check one (if applicable):"
   CheckBox 105, 85, 45, 15, "Diversion", section_b_diversion_checkbox
   CheckBox 155, 85, 50, 15, "Conversion", section_b_conversion_checkbox
+  GroupBox 5, 120, 245, 125, "Institution"
   Text 15, 135, 60, 10, "Admission Date:"
   Text 15, 150, 60, 10, "Facility:"
   Text 15, 165, 60, 10, "Phone Number:"
@@ -182,8 +189,18 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Current St
   EditBox 80, 205, 95, 15, section_b_institution_state
   EditBox 80, 220, 95, 15, section_b_institution_zip_code
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -195,18 +212,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Current St
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 5, 250, 50, "What is the person's current status? (check second if both apply)"
-  GroupBox 5, 60, 250, 55, "Program Type"
-  Text 10, 90, 85, 10, "Check one (if applicable):"
-  GroupBox 5, 120, 245, 125, "Institution"
 EndDialog
 
 DO
@@ -214,8 +219,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -223,29 +227,40 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 4 - Section B: Assessment Results - Initial Assessment & Case Manager
 BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Initial Assessment & Case Manager"
-  Text 15, 60, 135, 10, "Will the person open to waiver/AC/ECS?"
+  GroupBox 5, 5, 240, 105, "Initial Assessment"
+  Text 15, 20, 55, 10, "Assessment on "
   EditBox 70, 15, 55, 15, section_b_assessment_date
   Text 130, 20, 90, 10, "determined that the person:"
-  DropListBox 15, 35, 200, 20, "Does not meet institutional LOC requirement"+chr(9)+"Meets institutional LOC requirement"+chr(9)+"Meets need criteria for PCA/CFSS", section_b_assessment_determination
-  OptionGroup RadioGroup1
-    RadioButton 155, 55, 30, 15, "Yes", section_b_open_to_waiver_yes
-    RadioButton 190, 55, 25, 15, "No", section_b_open_to_waiver_no
+  DropListBox 15, 35, 200, 20, "Select one:"+chr(9)+"Does not meet institutional LOC requirement"+chr(9)+"Meets institutional LOC requirement"+chr(9)+"Meets need criteria for PCA/CFSS", section_b_assessment_determination
+  Text 15, 60, 135, 10, "Will the person open to waiver/AC/ECS?"
+  CheckBox 155, 55, 25, 15, "Yes", section_b_open_to_waiver_yes_checkbox
+  CheckBox 185, 55, 25, 15, "No", section_b_open_to_waiver_no_checkbox
   Text 15, 80, 120, 10, "Estimated monthly waiver/AC costs:"
-  Text 15, 95, 90, 10, "Anticipated effective date:"
   EditBox 140, 75, 70, 15, section_b_monthly_waiver_costs
+  Text 15, 95, 90, 10, "Anticipated effective date:"
   EditBox 140, 90, 70, 15, section_b_waiver_effective_date
-  Text 15, 135, 135, 10, "Does the person have a case manager?"
-  OptionGroup RadioGroup2
-    RadioButton 20, 145, 130, 15, "Yes - I am the case manager", section_b_yes_case_manager
-    RadioButton 20, 160, 145, 15, "Yes - Someone else is the case manager", section_b_yes_someone_else_case_manager
-    RadioButton 20, 180, 125, 10, "No (enter case manager info below)", section_b_no_case_manager
+  GroupBox 5, 120, 240, 115, "Case Manager"
+  Text 15, 135, 220, 10, "Does the person have a case manager? (select ONE option below)"
+  CheckBox 20, 150, 105, 10, "Yes - I am the case manager", section_b_yes_case_manager
+  CheckBox 20, 165, 130, 10, "Yes - Someone else is the manager", section_b_yes_someone_else_case_manager
+  CheckBox 20, 180, 125, 10, "No (enter case manager info below)", section_b_no_case_manager
   Text 35, 200, 75, 10, "Case Manager Name:"
   EditBox 110, 195, 130, 15, section_b_case_manager_name
   Text 35, 215, 60, 10, "Phone Number:"
   EditBox 110, 210, 70, 15, section_b_case_manager_phone_number
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -257,17 +272,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Initial As
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 5, 240, 105, "Initial Assessment"
-  Text 15, 20, 55, 10, "Assessment on "
-  GroupBox 5, 120, 240, 115, "Case Manager"
 EndDialog
 
 DO
@@ -275,8 +279,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -284,6 +287,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 5 - Section B: Assessment Results - MA Requests/Apps & Changes
 BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - MA Requests/Apps & Changes"
+  GroupBox 5, 5, 250, 200, "Medical Assistance requests/applications (select all that apply):"
   CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_MA_LTC_checkbox
   CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
   Text 30, 40, 170, 10, "What date did the assessor provide the DHS-3543?"
@@ -292,24 +296,45 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - MA Request
   CheckBox 15, 70, 150, 10, "Person completed DHS-3543 or DHS-3531", section_b_completed_dhs_3543_3531_checkbox
   Text 30, 80, 80, 10, "Date sent to the county:"
   EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county
-  CheckBox 15, 95, 240, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
-  EditBox 30, 110, 80, 15, Edit3
-  EditBox 110, 110, 60, 15, Edit4
-  EditBox 170, 110, 25, 15, Edit5
-  EditBox 195, 110, 40, 15, Edit6
-  CheckBox 15, 125, 160, 10, "Send DHS-3340 to person (Not MA Enrollee)", section_b_send_dhs_3340_checkbox
-  EditBox 30, 140, 80, 15, Edit7
-  EditBox 110, 140, 60, 15, Edit8
-  EditBox 170, 140, 25, 15, Edit9
-  EditBox 195, 140, 40, 15, Edit10
-  CheckBox 15, 175, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
-  Text 30, 185, 170, 10, "Effect. date of waiver exit should be no sooner than:"
-  EditBox 205, 180, 45, 15, section_b_date_waiver_exit
-  CheckBox 15, 200, 155, 10, "Person chooses to enroll in another program", Check8
-  DropListBox 190, 200, 60, 15, "AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
+  CheckBox 15, 100, 240, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
+  CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
+  EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
+  EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
+  EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
+  EditBox 190, 125, 40, 15, section_b_send_dhs_3531_city
+  Text 50, 140, 30, 10, "Address"
+  Text 120, 140, 15, 10, "City"
+  Text 170, 140, 15, 10, "MN"
+  Text 195, 140, 30, 10, "Zip code"
+  CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
+  EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
+  EditBox 105, 170, 60, 15, section_b_send_dhs_3340_city
+  EditBox 165, 170, 25, 15, section_b_send_dhs_3340_state
+  EditBox 190, 170, 40, 15, section_b_send_dhs_3340_zip
+  Text 50, 185, 30, 10, "Address"
+  Text 120, 185, 15, 10, "City"
+  Text 170, 185, 15, 10, "MN"
+  Text 195, 185, 30, 10, "Zip code"
+  GroupBox 5, 215, 250, 55, "Changes completed by assessor at reassessment (select all that apply)"
+  CheckBox 15, 225, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
+  Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
+  EditBox 205, 230, 45, 15, section_b_date_waiver_exit
+  CheckBox 15, 250, 155, 10, "Person chooses to enroll in another program", Check8
+  DropListBox 190, 250, 60, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
+    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -320,17 +345,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - MA Request
     PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
-    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 5, 250, 155, "Medical Assistance requests/applications (select all that apply):"
-  GroupBox 5, 165, 250, 65, "Changes completed by assessor at reassessment (select all that apply)"
 EndDialog
 
 DO
@@ -338,8 +352,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -347,14 +360,15 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 6 - Section C: Communication to eligibility worker - Exit Reasons
 BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Communication to eligibility worker - Exit Reasons"
+  GroupBox 5, 5, 245, 200, "Exit Reasons"
   CheckBox 15, 20, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
   Text 35, 35, 95, 10, "Effective date of waiver exit:"
   EditBox 135, 30, 40, 15, section_c_date_waiver_exit
   Text 15, 55, 175, 10, "Reason - Check reason for exit (select all that apply)"
   CheckBox 20, 70, 75, 10, "Hospital admission", section_c_hospital_admission_checkbox
   CheckBox 20, 80, 95, 10, "Nursing facility admission", section_c_nursing_facility_admission_checkbox
-  CheckBox 20, 90, 115, 10, "Residential treatment admission", section_c_residential_treatment_admission_checkbox
   CheckBox 20, 100, 100, 10, "Person's informed choice", section_c_person_informed_choice_checkbox
+  CheckBox 20, 90, 115, 10, "Residential treatment admission", section_c_residential_treatment_admission_checkbox
   CheckBox 20, 110, 85, 10, "Person is deceased", section_c_person_deceased_checkbox
   Text 35, 125, 50, 10, "Date of death:"
   EditBox 85, 120, 40, 15, section_c_date_of_death
@@ -364,8 +378,18 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Communication to eligibility wo
   CheckBox 20, 165, 205, 10, "Exited for other reasons (not including LOC) - explain below:", section_c_exited_for_other_reasons_checkbox
   EditBox 30, 180, 215, 15, section_c_exited_for_other_reasons_explanation
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -377,25 +401,14 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Communication to eligibility wo
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 5, 245, 200, "Exit Reasons"
 EndDialog
-
 
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -403,30 +416,49 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 7 - Section C: Other Changes & Section D: Comments
 BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Other Changes & Section D: Comments"
+  GroupBox 5, 5, 250, 220, "Other changes"
   Text 15, 20, 50, 10, "Program type"
-  DropListBox 70, 15, 55, 15, "AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+  DropListBox 70, 15, 55, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+  Text 15, 35, 90, 10, "Choose one (if applicable)"
   CheckBox 110, 35, 45, 10, "Diversion", section_c_diversion_checkbox
   CheckBox 160, 35, 50, 10, "Conversion", section_c_conversion_checkbox
   Text 10, 50, 100, 10, "Changes (select all that apply)"
   CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
+  Text 35, 75, 80, 10, "Date address changed:"
   EditBox 120, 70, 30, 15, section_c_date_address_changed
   EditBox 25, 90, 70, 15, section_c_street_address
   EditBox 95, 90, 50, 15, section_c_city
   EditBox 145, 90, 25, 15, section_c_state
   EditBox 170, 90, 40, 15, section_c_zip_code
   CheckBox 15, 110, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
-  EditBox 185, 120, 55, 15, section_c_legal_rep_phone_number
   EditBox 25, 120, 80, 15, section_c_legal_rep_first_name
   EditBox 105, 120, 80, 15, section_c_legal_rep_last_name
+  EditBox 185, 120, 55, 15, section_c_legal_rep_phone_number
+  EditBox 25, 140, 70, 15, section_c_legal_rep_street_address
+  EditBox 95, 140, 50, 15, section_c_legal_rep_city
+  EditBox 145, 140, 25, 15, section_c_legal_rep_state
+  EditBox 170, 140, 40, 15, section_c_legal_rep_zip_code
   CheckBox 15, 160, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
-  EditBox 95, 170, 30, 15, section_c_qual_admission_eff_date
   Text 40, 175, 50, 10, "Effective date:"
+  EditBox 95, 170, 30, 15, section_c_qual_admission_eff_date
   CheckBox 15, 190, 245, 10, "Other changes related to program/service eligibility (describe changes)", section_c_other_changes_program_checkbox
   EditBox 25, 205, 225, 15, section_c_other_changes_program
+  GroupBox 5, 230, 250, 50, "Section D: Comments from assessor, case manager or care coordinator"
+  Text 15, 245, 215, 10, "Enter any additional notes or comments"
   EditBox 15, 255, 225, 15, section_d_additional_comments
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -438,32 +470,15 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Other Changes & Section D: Comm
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 5, 250, 220, "Other changes"
-  Text 15, 35, 90, 10, "Choose one (if applicable)"
-  EditBox 95, 140, 50, 15, section_c_legal_rep_city
-  EditBox 25, 140, 70, 15, section_c_legal_rep_street_address
-  EditBox 145, 140, 25, 15, section_c_legal_rep_state
-  EditBox 170, 140, 40, 15, section_c_legal_rep_zip_code
-  Text 35, 75, 80, 10, "Date address changed:"
-  GroupBox 5, 230, 250, 50, "Section D: Comments from assessor, case manager or care coordinator"
-  Text 15, 245, 215, 10, "Enter any additional notes or comments"
 EndDialog
+
 
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -473,7 +488,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Information"
   Text 10, 10, 105, 10, "Date Sent to Eligibility Worker:"
   EditBox 120, 5, 75, 15, section_e_date_form_sent
-  GroupBox 5, 25, 245, 170, "TO (assessor/case manager/care coordinator's information)"
+  GroupBox 5, 25, 245, 175, "TO (assessor/case manager/care coordinator's information)"
   Text 10, 40, 40, 10, "Assessor:"
   EditBox 90, 35, 150, 15, section_e_assessor
   Text 10, 55, 50, 10, "Lead Agency:"
@@ -491,22 +506,27 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Information"
   Text 10, 145, 55, 10, "Email Address:"
   EditBox 90, 140, 150, 15, section_e_email_address
   Text 10, 165, 165, 10, "Click here to add another assessor (up to 3 total):"
-  GroupBox 5, 200, 245, 80, "Person's Information"
   ButtonGroup ButtonPressed
     PushButton 185, 160, 55, 15, "Add Assessor", section_e_add_assessor_btn
-    OkButton 220, 290, 50, 15
+    PushButton 10, 180, 70, 15, "Update Assessor 1", update_assessor_1_btn
+    PushButton 90, 180, 70, 15, "Update Assessor 2", update_assessor_2_btn
+    PushButton 170, 180, 70, 15, "Update Assessor 3", update_assessor_3_btn
+  GroupBox 5, 205, 245, 80, "Person's Information"
+  Text 10, 220, 105, 10, "Information entered previously:"
+  Text 15, 230, 40, 10, "First name:"
+  Text 70, 230, 75, 10, "first_name"
+  Text 15, 240, 40, 10, "Last name:"
+  Text 70, 240, 80, 10, "last_name"
+  Text 15, 250, 40, 10, "DOB:"
+  Text 70, 250, 75, 10, "DOB"
+  Text 15, 260, 40, 10, "PMI:"
+  Text 70, 260, 75, 10, "PMI_number"
+  Text 15, 270, 55, 10, "Case Number:"
+  Text 70, 270, 75, 10, "MAXIS_case_number"
+  ButtonGroup ButtonPressed
+    PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
-    PushButton 265, 25, 50, 15, "Contact Info", Button4
-    PushButton 265, 55, 50, 15, "Status", Button7
-    PushButton 265, 70, 50, 15, "Initial Assess.", Button9
-    PushButton 265, 85, 50, 15, "MA Req/App", Button11
-    PushButton 265, 115, 50, 15, "Exit Reasons", Button15
-    PushButton 265, 130, 50, 15, "Other Changes", Button9
-    PushButton 265, 160, 50, 15, "Comments", Button11
-    PushButton 265, 190, 50, 15, "Contact Info", Button14
-    PushButton 265, 220, 50, 15, "MA Status/Det", Button15
-    PushButton 265, 235, 50, 15, "Changes", Button17
-    PushButton 265, 265, 50, 15, "Comments", Button19
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
   GroupBox 260, 5, 60, 280, "Navigation"
   Text 265, 15, 40, 10, "Section A"
   Text 265, 45, 40, 10, "Section B"
@@ -515,26 +535,27 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Information"
   Text 265, 180, 40, 10, "Section E"
   Text 265, 210, 40, 10, "Section F"
   Text 265, 255, 40, 10, "Section G"
-  Text 10, 215, 105, 10, "Information entered previously:"
-  Text 15, 225, 40, 10, "First name:"
-  Text 15, 235, 40, 10, "Last name:"
-  Text 15, 245, 40, 10, "DOB:"
-  Text 15, 255, 40, 10, "PMI:"
-  Text 15, 265, 55, 10, "Case Number:"
-  Text 70, 225, 75, 10, "first_name"
-  Text 70, 235, 80, 10, "last_name"
-  Text 70, 245, 75, 10, "DOB"
-  Text 70, 255, 75, 10, "PMI_number"
-  Text 70, 265, 75, 10, "MAXIS_case_number"
+  ButtonGroup ButtonPressed
+    PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
+    PushButton 265, 55, 50, 15, "Status", status_btn
+    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
+    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
+    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
+    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
+    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
+    PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
+    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
+    PushButton 265, 235, 50, 15, "Changes", changes_btn
+    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
 EndDialog
+
 
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -554,7 +575,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section F: Medical Assistance"
   CheckBox 15, 95, 155, 10, "DHS-3543/DHS-3531 has not been returned", section_f_dhs_3543_3531_not_returned_checkbox
   GroupBox 5, 5, 250, 105, "MA status for long-term supports and services (select all that apply)"
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
     CancelButton 270, 290, 50, 15
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
@@ -593,8 +613,11 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section F: Medical Assistance"
   CheckBox 10, 245, 175, 10, "Basic MA continues until specific date (enter date)", section_f_basic_ma_continues_checkbox
   EditBox 210, 240, 30, 15, section_f_basic_ma_continues_date
   CheckBox 10, 260, 185, 15, "Results from asset assess. sent to person (date sent)", section_f_asset_assessment_results_checkbox
-  EditBox 210, 255, 30, 15, section_f_results_from asset_assessment_sent_date
+  EditBox 210, 255, 30, 15, section_f_results_from_asset_assessment_sent_date
   Text 20, 220, 185, 20, "Person inelig for MA payment of LTSS services until specific date (Enter date inelig. until)"
+  ButtonGroup ButtonPressed
+    PushButton 220, 290, 50, 15, "Next", next_btn
+    PushButton 5, 290, 50, 15, "Previous", previous_btn
 EndDialog
 
 DO
@@ -602,8 +625,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -611,12 +633,51 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog 10 - Section F: Medical Assistance
 BeginDialog Dialog1, 0, 0, 326, 310, "Section F: Medical Assistance"
-  CheckBox 15, 20, 120, 10, "LTC spenddown/waiver obligation", section_f_LTC_spenddown_checkbox
-  EditBox 165, 20, 30, 15, section_f_LTC_spenddown_amount
   GroupBox 5, 5, 250, 265, "Changes (select all that apply)"
+  CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
+  EditBox 210, 20, 30, 15, section_f_LTC_spenddown_amount
+  CheckBox 15, 40, 10, 10, "", Check14
+  Text 25, 40, 170, 20, "MA terminated - basic MA and MA payment of LTSS services (enter eff. date)"
+  EditBox 210, 40, 30, 15, section_f_ma_terminated_eff_date
+  CheckBox 15, 60, 180, 10, "Basic MA spenddown changed (enter spenddown $)", section_f_basic_ma_spenddown_change_checkbox
+  EditBox 210, 60, 30, 15, section_f_basic_ma_spenddown_change_amount
+  CheckBox 15, 80, 230, 15, "MA payment of LTSS services terminated; basic MA remains open", Check16
+  Text 30, 100, 60, 10, "Date terminated:"
+  EditBox 90, 95, 30, 15, section_f_ma_payment_terminated_term_date
+  Text 140, 100, 70, 10, "Date inelig. through:"
+  EditBox 210, 95, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
+  CheckBox 15, 120, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
+  EditBox 210, 120, 30, 15, section_f_person_deceased_date_of_death
+  CheckBox 15, 140, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
+  EditBox 25, 150, 45, 15, section_f_person_moved_institution_admit_date
+  EditBox 70, 150, 95, 15, section_f_person_moved_institution_facility_name
+  EditBox 165, 150, 70, 15, section_f_person_moved_institution_phone_number
+  EditBox 25, 170, 75, 15, section_f_person_moved_institution_address
+  EditBox 100, 170, 75, 15, section_f_person_moved_institution_city
+  EditBox 175, 170, 25, 15, section_f_person_moved_institution_state
+  EditBox 200, 170, 35, 15, section_f_person_moved_institution_zip
+  CheckBox 15, 190, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
+  EditBox 25, 200, 75, 15, section_f_person_new_address_date_changed
+  EditBox 100, 200, 135, 15, section_f_person_new_address_new_phone_number
+  EditBox 25, 220, 75, 15, section_f_person_new_address_address
+  EditBox 100, 220, 75, 15, section_f_person_new_address_city
+  EditBox 175, 220, 25, 15, section_f_person_new_address_state
+  EditBox 200, 220, 35, 15, section_f_person_new_address_zip_code
+  CheckBox 15, 240, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
+  EditBox 25, 250, 225, 15, section_f_person_other_change_description
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 220, 290, 50, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 50, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -628,48 +689,6 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section F: Medical Assistance"
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  Text 200, 20, 50, 10, "(Spenddown $)"
-  CheckBox 15, 40, 10, 10, "", Check14
-  Text 200, 40, 50, 10, "(Effective date)"
-  CheckBox 15, 60, 110, 10, "Basic MA spenddown changed", section_f_basic_ma_spenddown_change_checkbox
-  Text 200, 60, 50, 10, "(Spenddown $)"
-  EditBox 165, 60, 30, 15, section_f_basic_ma_spenddown_change_amount
-  CheckBox 15, 85, 10, 10, "", Check16
-  Text 25, 85, 135, 20, "MA payment of LTSS services terminated on specific date; basic MA remains open"
-  EditBox 165, 80, 30, 15, section_f_ma_payment_terminated_term_date
-  Text 200, 85, 45, 10, "(Term. date)"
-  EditBox 165, 95, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
-  Text 200, 100, 50, 10, "(Date inel. thru)"
-  CheckBox 15, 120, 75, 10, "Person is deceased", section_f_person_deceased_checkbox
-  EditBox 165, 115, 30, 15, section_f_person_deceased_date_of_death
-  Text 200, 120, 50, 10, "(Date of death)"
-  CheckBox 15, 140, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
-  EditBox 25, 150, 45, 15, section_f_person_moved_institution_admit_date
-  EditBox 70, 150, 95, 15, section_f_person_moved_institution_facility_name
-  EditBox 165, 150, 70, 15, section_f_person_moved_institution_phone_number
-  EditBox 25, 170, 75, 15, section_f_person_moved_institution_address
-  EditBox 100, 170, 75, 15, section_f_person_moved_institution_city
-  EditBox 175, 170, 25, 15, section_f_person_moved_institution_state
-  EditBox 200, 170, 35, 15, section_f_person_moved_institution_zip
-  CheckBox 15, 190, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
-  Text 30, 40, 115, 20, "MA terminated (basic MA and MA payment of LTSS services)"
-  EditBox 165, 40, 30, 15, section_f_ma_terminated_eff_date
-  EditBox 25, 200, 75, 15, section_f_person_new_address_date_changed
-  EditBox 100, 200, 135, 15, section_f_person_new_address_new_phone_number
-  EditBox 25, 220, 75, 15, section_f_person_new_address_address
-  EditBox 100, 220, 75, 15, section_f_person_new_address_city
-  EditBox 175, 220, 25, 15, section_f_person_new_address_state
-  EditBox 200, 220, 35, 15, section_f_person_new_address_zip_code
-  CheckBox 15, 240, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
-  EditBox 25, 250, 225, 15, section_f_person_other_change_description
 EndDialog
 
 DO
@@ -677,8 +696,7 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -689,8 +707,18 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section G: Comments from eligibility worke
   Text 5, 5, 130, 10, "Enter any additional notes or comments"
   EditBox 5, 15, 225, 15, section_g_elig_comments
   ButtonGroup ButtonPressed
-    OkButton 220, 290, 50, 15
+    PushButton 220, 290, 50, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 50, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
     PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
     PushButton 265, 55, 50, 15, "Status", status_btn
     PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -702,24 +730,14 @@ BeginDialog Dialog1, 0, 0, 326, 310, "Section G: Comments from eligibility worke
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
 EndDialog
-
 
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		' Call validate_MAXIS_case_number(err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
