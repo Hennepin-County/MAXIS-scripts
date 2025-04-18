@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/18/2025", "Fixed issue with dialog sizing for entered checks.", "Mark Riegel, Hennepin County")
 Call changelog_update("03/31/2025", "Updated script to display conversation/clarification field regardless of program(s).", "Mark Riegel, Hennepin County")
 Call changelog_update("02/01/2025", "Support for MFIP, GA, and UHFS Budgeting Workaround to support the policy change to eliminate Monthly Reporting and Retrospective Budgeting.##~## ##~##These updates follow the Guide to Six-Mount Budgeting available in SIR. Details of how the JOBS panel is updated can be found in this guide.##~## ##~##As with any new functionality, but particularly when the supporting policy is also new, reach out with any questions or script errors.##~##", "Casey Love, Hennepin County")
 Call changelog_update("05/23/2024", "BUG FIX - Ensuring the case can be updated in STAT if run in production. This will prevent errors in panels not updating on inactive or out of county cases.", "Casey Love, Hennepin County")
@@ -3456,11 +3457,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                            dlg_len = dlg_len + 20
 							End If
 	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
-	                            grp_len = 70 + number_of_checks_budgeted*10
-	                            If number_of_checks_budgeted < 4 Then grp_len = 100
-	                            If using_30_days = FALSE Then grp_len = grp_len + 30
+								'adjust sizing based on number of checks
+								grp_len = 105
+								If number_of_checks_budgeted < 5 Then grp_len = 105
+								If number_of_checks_budgeted > 4 Then grp_len = grp_len + ((number_of_checks_budgeted - 4) * 10)
+
+	                            If using_30_days = FALSE Then grp_len = grp_len + 25
 
 	                            dlg_len = dlg_len + grp_len + 5
+
 	                        End If
 	                        If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then      'adding size for XFS information tot be added to dialog
 	                            dlg_len = dlg_len + 40
@@ -3700,7 +3705,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                                  y_pos = y_pos + (list_pos * 10) + 10
 	                              End If
 	                              'FUTURE FUNCTIONALITY - add an EditBox for entering an amount for the application month ONLY that is not counted (there is a field on JOBS)
-								  y_pos = y_pos - 15
+								  If number_of_checks_budgeted = 1 Then y_pos = y_pos - 25
+								  If number_of_checks_budgeted = 2 Then y_pos = y_pos - 15
+								  If number_of_checks_budgeted > 2 Then y_pos = y_pos - 5
 	                              CheckBox 10, y_pos, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", GRH_confirm_budget_checkbox
 	                              cgbtnt_y_pos = y_pos - 5
 								  y_pos = y_pos + 20
@@ -3708,9 +3715,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                              GRH_confirm_budget_checkbox = checked     'default if income does not apply to GRH
 	                          End If
 
+							  y_pos = dlg_len - 60
 							  GroupBox 5, y_pos, 410, 30, "Conversation Details:"
 								Text 10, y_pos + 10, 60, 10, "Conversation with:"
-								ComboBox 75, y_pos + 10, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
+								ComboBox 75, y_pos + 10, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer", EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
 								Text 140, y_pos + 10, 25, 10, "clarifies"
 								EditBox 170, y_pos + 10, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
 								y_pos = y_pos + 30
