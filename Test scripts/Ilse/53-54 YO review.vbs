@@ -63,14 +63,14 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
     If tracking_record_check <> "Tracking Record" then
 		report_notes = report_notes & "Error accessing ATR. "
     ELSE
-        TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
+        TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients
 	    TLR_fixed_clock_yr = "23"
-    
+
 	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         bene_yr_row = 10
         abawd_counted_months = 0					'declares the variables values at 0
         month_count = 0
-    
+
         DO
         	'establishing variables for specific ABAWD counted month dates
         	If bene_mo_col = "19" then counted_date_month = "01"
@@ -92,7 +92,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         	If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
 
             abawd_counted_months_string = counted_date_month & "/" & counted_date_year
-    
+
         	'reading to see if a month is counted month or not
         	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
         	'counting and checking for counted ABAWD months
@@ -105,15 +105,15 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         		bene_yr_row = bene_yr_row - 1
         		bene_mo_col = 63
         	END IF
-	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members. 
+	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members.
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
-        PF3	' to exit tracking record 
-    End if 
+        PF3	' to exit tracking record
+    End if
 End Function
 
 Function BULK_ABAWD_FSET_exemption_finder()
 'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
-'excluding armed forces participation dur to non-MAXIS indicators. 
+'excluding armed forces participation dur to non-MAXIS indicators.
 '----------------------------------------------------------------------------------------------------Determining the EATS Household
     'default strings and counts
 	verified_wreg = ""
@@ -177,12 +177,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	If mfip_case = True then verified_wreg = verified_wreg & "14" & "|"
 	If DWP_case = True then verified_wreg = verified_wreg & "20" & "|"
-    
+
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
 	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
-	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
-	row = 1                                            
+	'Case-based determination -- Looking for RCA information while still on CASE/CURR
+	row = 1
     col = 1
     EMSearch "RCA:", row, col
     If row <> 0 Then
@@ -193,25 +193,25 @@ Function BULK_ABAWD_FSET_exemption_finder()
             rca_case = TRUE
 			verified_wreg = verified_wreg & "17" & "|"
         End If
-	End if 
-	
-	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th 
-	''<<<<<<<<<<PROG for Foster care 
-	'Person-based evaluation
-    CALL navigate_to_MAXIS_screen("STAT", "PROG")
-	EmReadScreen IV-E_prog, 8, 11, 33 
-	EMReadScreen IV-E_status, 4, 11, 74
-	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then 
-		foster_care = False 
-	else 
-		If Trim(IV-E_status) <> "DENY" then 
-			foster_care = True
-		else 
-			foster_care = False 
-		End if 
 	End if
 
-	Call HCRE_panel_bypass	'making sure we don't get stuck 
+	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th
+	''<<<<<<<<<<PROG for Foster care
+	'Person-based evaluation
+    CALL navigate_to_MAXIS_screen("STAT", "PROG")
+	EmReadScreen IV-E_prog, 8, 11, 33
+	EMReadScreen IV-E_status, 4, 11, 74
+	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then
+		foster_care = False
+	else
+		If Trim(IV-E_status) <> "DENY" then
+			foster_care = True
+		else
+			foster_care = False
+		End if
+	End if
+
+	Call HCRE_panel_bypass	'making sure we don't get stuck
 
 	'Case-based determination
     IF memb_found = True THEN
@@ -256,8 +256,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		    'person-based determination
 			age_50 = False
-            age_53_54 = False 
-            
+            age_53_54 = False
+
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen cl_age, 2, 8, 76
@@ -297,21 +297,21 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 			'----------------------------------------------------------------------------------------------------special temp handling for 50-52 year olds later on based on age_50 = True
 			If cl_age = 50 or _
-				cl_age = 51 or _ 
-				cl_age = 52 then 
+				cl_age = 51 or _
+				cl_age = 52 then
 				age_50 = True
-			End if 
+			End if
 
             If cl_age = 53 or _
                 cl_age = 54 then
                 age_53_54 = True
-            End if 
+            End if
 
-			'----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO. 
-			If cl_age < 24 then 
+			'----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO.
+			If cl_age < 24 then
 				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case. "
-			End if 
-			
+			End if
+
 			'<<<<<<<<<<DISA
 			'Case-based evaluation
             CALL navigate_to_MAXIS_screen("STAT", "DISA")
@@ -517,7 +517,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_RBIC, 1, 2, 78
             IF num_of_RBIC <> "0" then report_notes = report_notes & "Actually found an RBIC."
-	
+
             IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
 		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
 		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then
@@ -563,7 +563,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
 		    'Person-based determination
-            uc_unea = False 
+            uc_unea = False
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_UNEA, 1, 2, 78
             IF num_of_UNEA <> "0" THEN
@@ -576,7 +576,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             				IF unea_type = "14" then
 		    					EmReadScreen UC_verif_code, 1, 5, 65
 		    					If UC_verif_code <> "N" then
-                                    uc_unea = True 
+                                    uc_unea = True
 		    						verified_wreg = verified_wreg & "11" & "|"
 		    						Exit do
 		    					Else
@@ -606,13 +606,13 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			IF pben_disp = "A" OR pben_disp = "P" THEN
 		    				verified_wreg = verified_wreg & "11" & "|"
 		    				EXIT DO
-                        elseif pben_disp = "E" then 
-                            if uc_unea = True then 
+                        elseif pben_disp = "E" then
+                            if uc_unea = True then
                                 verified_wreg = verified_wreg & "11" & "|"
                                 Exit do
                             Else
                                 pben_row = pben_row + 1
-                            End if 
+                            End if
             			Else
 		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits. "
                             pben_row = pben_row + 1
@@ -640,11 +640,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
-						Elseif preg_verif = "N" then 
+						Elseif preg_verif = "N" then
 							verified_wreg = verified_wreg & "23" & "|"
-						Elseif preg_verif = "?" then 
-							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption. 
-						Else 
+						Elseif preg_verif = "?" then
+							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption.
+						Else
 							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy. "
 						End if
 					End If
@@ -656,9 +656,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
             CALL navigate_to_MAXIS_screen("STAT", "MEMI")
 			Call write_value_and_transmit(member_number, 20, 76)
             EMReadScreen military_service_code, 1, 12, 78
-            If military_service_code = "Y" then 
-                verified_wreg = verified_wreg & "30" & "|" 
-            End if 
+            If military_service_code = "Y" then
+                verified_wreg = verified_wreg & "30" & "|"
+            End if
 
             '>>>>>>>>>>ADDR
 		    'Case based determination
@@ -670,17 +670,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
             IF homeless_code = "Y" then
 				If living_situation = "02" or _
-					living_situation = "06" or _							
+					living_situation = "06" or _
 					living_situation = "07" or _
-					living_situation = "08" then 
+					living_situation = "08" then
 					verified_wreg = verified_wreg & "03" & "|"
-					homeless_exemption = True 
+					homeless_exemption = True
 				Else
-					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match. "  
-				End if 
+					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match. "
+				End if
             Elseif addr_line_01 = "GENERAL DELIVERY" THEN
                 possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery. "
-			Else 
+			Else
 				homeless_exemption = False
             End if
 
@@ -723,8 +723,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
 	    	End if
 	    Elseif len(verified_wreg) = 3 then
-            best_wreg_code = left(verified_wreg,2) 'resetting variable 
-        Else 
+            best_wreg_code = left(verified_wreg,2) 'resetting variable
+        Else
             wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
             for each code in wreg_hierarchy
                 If instr(verified_wreg, code) then
@@ -733,15 +733,15 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 End if
             next
 	    End if
-    
-	    If trim(best_abawd_code) = "" then 
+
+	    If trim(best_abawd_code) = "" then
             If best_wreg_code = "03" or _
 	    	    best_wreg_code = "04" or _
 	    	    best_wreg_code = "05" or _
 	    	    best_wreg_code = "06" or _
 	    	    best_wreg_code = "07" or _
 	    	    best_wreg_code = "08" or _
-	    	    best_wreg_code = "09" or _ 
+	    	    best_wreg_code = "09" or _
 	    	    best_wreg_code = "10" or _
 	    	    best_wreg_code = "11" or _
 	    	    best_wreg_code = "12" or _
@@ -756,32 +756,34 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	        If best_wreg_code = "17" then best_abawd_code = "12"
 	        If best_wreg_code = "23" then best_abawd_code = "05"
             If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
-        End If 
+        End If
 
         '----------------------------------------------------------------------------------------------------STAT/REVW
-		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
+		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough.
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
-		EMReadScreen next_revw_mo, 2, 9, 57
-		EMReadScreen next_revw_yr, 2, 9, 63
+		Call write_value_and_transmit("X", 5, 58)
+		EMReadScreen next_revw_mo, 2, 9, 64	'ER
+		EMReadScreen next_revw_yr, 2, 9, 70  'ER
+		Transmit
 		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		report_notes = report_notes & next_SNAP_revw
 
-        manual_code = "F"  'manual code for exemption cases  
+        manual_code = "F"  'manual code for exemption cases
         age_50_workaround = False
-        
+
 	    If best_abawd_code = "10" then manual_code = "M"
-            
+
         If (age_50 = True or age_53_54 = True) then
-            If (best_wreg_code = "30" and best_abawd_code = "10") then         
-		        'changing codes per temp policy 
+            If (best_wreg_code = "30" and best_abawd_code = "10") then
+		        'changing codes per temp policy
 		        best_wreg_code = "16"
 		        best_abawd_code = "03"
-                age_50_workaround = True 
-                manual_code = "M" 
-            End if 
+                age_50_workaround = True
+                manual_code = "M"
+            End if
         End if
-    
+
     End if
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
@@ -875,7 +877,7 @@ Do
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
         report_notes = report_notes & "Don't assign - Privliged case. "
-    Else    
+    Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
