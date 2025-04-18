@@ -794,7 +794,7 @@ If developer_mode = False Then
 	fam_cases_assigned_count = 0
 	adul_cases_assigned_count = 0
 
-
+	start_excel = excel_row
 	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		ObjMngrExcel.Cells(excel_row, mnger_log_area_col).Value			= ""
 		ObjMngrExcel.Cells(excel_row, mnger_logs_case_numb_col).Value  	= CASES_TO_ASSIGN_ARRAY(case_numb_const, cow)
@@ -811,6 +811,13 @@ If developer_mode = False Then
 		If CASES_TO_ASSIGN_ARRAY(assign_pop_const, cow) = "Adults" Then adul_cases_assigned_count = adul_cases_assigned_count + 1
 
 		excel_row = excel_row + 1
+	Next
+	end_excel = excel_row
+
+	For excel_row = start_excel to end_excel
+		If trim(ObjMngrExcel.Cells(excel_row, mnger_log_processor_col).Value) = "" Then
+			ObjMngrExcel.Cells(excel_row, mnger_log_processor_col).Value = "=IFERROR(XLOOKUP(1, (T_Processors[Area  (SORT-4)]=[@Area])*(T_Processors[Match HSR '#]=[@[Match HSR]]), T_Processors[Processors  (SORT-1)]),  " & Chr(34) & Chr(34) & ")"
+		End If
 	Next
 
 	'We loop back through the Excel so that it has time to generate the processor name.
