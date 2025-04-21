@@ -265,6 +265,7 @@ priority_4_cases_count		= 0
 priority_5_cases_count		= 0
 priority_6_cases_count		= 0
 curr_assign_cases_count		= 0
+finished_work_cases_count 	= 0
 
 const hsr_name_const = 0
 const hsr_count_const = 1
@@ -272,6 +273,10 @@ const hsr_count_const = 1
 Dim ASSIGNED_ARRAY()
 ReDim ASSIGNED_ARRAY(hsr_count_const, 0)
 each_hsr = 0
+
+Dim FINISHED_WORK()
+ReDim FINISHED_WORK(hsr_count_const, 0)
+each_date = 0
 
 function random_selection(out_of_number, rand_selected)
 	'The out_of_number variable is the chance of selection. For a one in three chance, the out_of_number should be set to 3
@@ -350,6 +355,7 @@ function review_hc_pending_counts()
 			case_priority = 			ObjExcel.Cells(excel_row, Priority_col)
 			days_pending =				ObjExcel.Cells(excel_row, Days_Pending_col).Value
 			worker_name = trim(ObjExcel.Cells(excel_row, Most_Recent_Assignment_Worker_col).Value)
+			worked_date = ObjExcel.Cells(excel_row, Most_Recent_Assignment_Date_col).Value & ""
 
 			total_cases_count = total_cases_count + 1
 			If mippa_case Then mippa_cases_count = mippa_cases_count + 1
@@ -398,8 +404,29 @@ function review_hc_pending_counts()
 						each_hsr = each_hsr + 1
 					End If
 				End If
-			End If
+			Else
+				finished_work_cases_count = finished_work_cases_count +1
+				If FINISHED_WORK(hsr_name_const, 0) = "" Then
+					FINISHED_WORK(hsr_name_const, 0) = worked_date & ""
+					FINISHED_WORK(hsr_count_const, 0) = 1
+				Else
+					date_found = False
+					For known_dates = 0 to UBound(FINISHED_WORK, 2)
+						If FINISHED_WORK(hsr_name_const, known_dates) = worked_date Then
+							date_found = True
+							FINISHED_WORK(hsr_count_const, known_dates) = FINISHED_WORK(hsr_count_const, known_dates) + 1
+						End If
+					Next
 
+					If worker_found = False Then
+						ReDim preserve FINISHED_WORK(hsr_count_const, each_date)
+						FINISHED_WORK(hsr_name_const, each_date) = worked_date
+						FINISHED_WORK(hsr_count_const, each_date) = 1
+						each_date = each_date + 1
+					End If
+				End If
+
+			End If
 			' caseload_number = 			ObjExcel.Cells(excel_row, Caseload_col).Value
 			' MAXIS_case_number = 		ObjExcel.Cells(excel_row, Case_Number_col).Value
 			' case_name = 				ObjExcel.Cells(excel_row, Case_Name_col).Value
@@ -494,13 +521,21 @@ function review_hc_pending_counts()
 		Text 330, 90, 25, 10, curr_assign_cases_count
 		Text 355, 90, 100, 10, "Currently Assigned"
 		y_pos = 100
-		' If ASSIGNED_ARRAY(hsr_name_const, 0) = "" Then
-			For known_wrkr = 0 to UBound(ASSIGNED_ARRAY, 2)
-				Text 335, y_pos, 25, 10, ASSIGNED_ARRAY(hsr_count_const, known_wrkr)
-				Text 360, y_pos, 135, 10, " - " & ASSIGNED_ARRAY(hsr_name_const, known_wrkr)
-				y_pos = y_pos + 10
-			Next
-		' End If
+		For known_wrkr = 0 to UBound(ASSIGNED_ARRAY, 2)
+			Text 335, y_pos, 25, 10, ASSIGNED_ARRAY(hsr_count_const, known_wrkr)
+			Text 360, y_pos, 135, 10, " - " & ASSIGNED_ARRAY(hsr_name_const, known_wrkr)
+			y_pos = y_pos + 10
+		Next
+
+		y_pos = y_pos + 5
+		Text 330, y_pos, 25, 10, finished_work_cases_count
+		Text 355, y_pos, 100, 10, "Cases Worked"
+		y_pos = y_pos + 10
+		For known_date = 0 to UBound(FINISHED_WORK, 2)
+			Text 335, y_pos, 25, 10, FINISHED_WORK(hsr_count_const, known_date)
+			Text 360, y_pos, 135, 10, " - " & FINISHED_WORK(hsr_name_const, known_date)
+			y_pos = y_pos + 10
+		Next
 	EndDialog
 
 	Dialog Dialog1
@@ -546,6 +581,44 @@ update_info_line = ""
 If update_date <> "" Then update_info_line = "HC Pending Detail Last Updated: " & update_date
 If update_time <> "" Then update_info_line = update_info_line & " at " & update_time
 
+
+'Finding the user name - we aren't using the function because we need the comma in place
+'Creating objects for Access
+Set objConnection = CreateObject("ADODB.Connection")
+Set objRecordSet = CreateObject("ADODB.Recordset")
+
+SQL_table = "SELECT * from ES.V_ESAllStaff WHERE EmpLogOnID = '" & windows_user_ID & "'"				'identifying the table that stores the ES Staff user information
+
+'This is the file path the data tables
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+	table_user_id = objRecordSet("EmpLogOnID")						'setting the user ID from table data
+	If table_user_id = windows_user_ID Then							'If the ID on thils loop of the data information matches the ID of the person running the script, we have found the staff person
+		worker_name = objRecordSet("EmpFullName")				'Save the user name
+		Exit Do														'if we have found the person, we stop looping
+	End If
+	objRecordSet.MoveNext											'Going to the next row in the table
+Loop
+
+'Now we disconnect from the table and close the connections
+objRecordSet.Close
+objConnection.Close
+Set objRecordSet=nothing
+Set objConnection=nothing
+
+worker_name = trim(worker_name)
+name_array = split(worker_name, ",")
+last_name = trim(name_array(0))
+first_name =  trim(name_array(1))
+If InStr(first_name, " ") Then
+	first_name_array = split(first_name)
+	first_name = first_name_array(0)
+End If
+indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
+indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
+
 admin_run = False
 If windows_user_ID = "CALO001" Then admin_run = true
 If windows_user_ID = "DACO003" Then admin_run = true
@@ -557,19 +630,84 @@ script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Wor
 If admin_run = true Then script_run_options = "Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Counts"
 If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
 
-BeginDialog Dialog1, 0, 0, 216, 105, "Health Care Pending Assignments"
-  DropListBox 10, 60, 195, 45, script_run_options, operation_selection
-  ButtonGroup ButtonPressed
-    OkButton 100, 80, 50, 15
-    CancelButton 155, 80, 50, 15
-  Text 10, 10, 195, 20, "This script helps facilitate the pending Health Care cases and assignments."
-  If admin_run = true Then Text 15, 30, 190, 10, update_info_line
-  Text 10, 50, 110, 10, "Select the operation needed:"
-EndDialog
+Dialog1 = ""
+If admin_run = true Then
+	BeginDialog Dialog1, 0, 0, 216, 105, "Health Care Pending Assignments"
+		DropListBox 10, 60, 195, 45, script_run_options, operation_selection
+		Text 15, 30, 190, 10, update_info_line
+		ButtonGroup ButtonPressed
+			OkButton 100, 80, 50, 15
+			CancelButton 155, 80, 50, 15
+		Text 10, 10, 195, 20, "This script helps facilitate the pending Health Care cases and assignments."
+		Text 15, 30, 190, 10, update_info_line
+		Text 10, 50, 110, 10, "Select the operation needed:"
+	EndDialog
+Else
+	BeginDialog Dialog1, 0, 0, 216, 240, "Health Care Pending Assignments"
+		DropListBox 10, 45, 195, 45, "script_run_options", operation_selection
+		ButtonGroup ButtonPressed
+			OkButton 100, 215, 50, 15
+			CancelButton 155, 215, 50, 15
+		Text 10, 10, 195, 20, "This script helps facilitate the pending Health Care cases and assignments."
+		Text 10, 35, 110, 10, "Select the operation needed:"
+		GroupBox 10, 65, 195, 140, "Details of Script Run Options"
+		Text 20, 80, 145, 10, "Individual Worker Assignment Creation"
+		Text 30, 90, 140, 10, "- Will Complete an Existing Worklist"
+		Text 30, 100, 170, 10, "- Adds new Cases to a Worklist for you to Process"
+		Text 20, 115, 145, 10, "Open My Worklist"
+		Text 30, 125, 140, 10, "- Opens your Existing Worklist"
+		Text 20, 140, 145, 10, "Complete Individual Worklist"
+		Text 30, 150, 140, 10, "- Will Complete an Existing Worklist"
+		Text 30, 160, 170, 10, "- Deletes the Completed Worklist"
+		Text 30, 170, 170, 10, "Use at the end of your work time to:"
+		Text 40, 180, 155, 10, "- Save your completed work"
+		Text 40, 190, 155, 10, "- Return uncompleted work for reassignment"
+	EndDialog
+End If
 
-'Dialog asks what stats are being pulled
-Dialog Dialog1
-cancel_without_confirmation
+Do
+	confirmed_msg = False
+
+	Dialog Dialog1
+	cancel_without_confirmation
+
+	msg_detail = "The script will now: "
+	If operation_selection = "Individual Worker Assignment Creation" Then msg_detail = msg_detail & vbCr & "** Complete your existing worklist (if one exists)." & vbCr & "** Create a worklist of new cases." & vbCr
+	If operation_selection = "Open My Worklist" Then msg_detail = msg_detail & vbCr & "** Open your existing worklist. (No new list can be made.)" & vbCr
+	If operation_selection = "Complete Individual Worklist" Then msg_detail = msg_detail & vbCr & "** Complete your existing worklist." & vbCr
+	If operation_selection = "List Management" Then msg_detail = msg_detail & vbCr & "Update the MAIN Background list." & vbCr & "THIS RUN USUALLY TAKES ABOUT AN HOUR!" & vbCr
+	If operation_selection = "Review Counts" Then msg_detail = msg_detail & vbCr & "Show the case and work progress." & vbCr
+	If operation_selection = "Open and Hold List" Then msg_detail = msg_detail & vbCr & "Just opens the MAIN Background List and puts in a data lock." & vbCr
+	' If operation_selection = "" Then msg_detail = msg_detail & vbCr & ""
+	msg_detail = msg_detail & vbCr & "Is this what you want to do?" & vbCr & "- YES to continue the script." & vbCr & "- NO to go back and make a new selection." & vbCr & "- CANCEL to stop the script"
+
+	confrim_action_msg = MsgBox(msg_detail, vbQuestion + vbYesNoCancel, "Confirm Script Run Option")
+	If confrim_action_msg = vbYes Then confirmed_msg = True
+	If confrim_action_msg = vbCancel Then cancel_without_confirmation
+Loop until confirmed_msg = True
+
+On Error Resume Next
+Set objXl = GetObject(, "Excel.Application")		'try to find an excel file
+
+' MsgBox "Err.Number - " & Err.Number & vbCr & "TypeName(objXL) - " & TypeName(objXL)
+If Err.Number = 0 Then 								'the script knows an error has been thrown and will stop the script
+	If Not TypeName(objXL) = "Empty" then				'If the type is not empty - then an excel exists
+		file_name = objXL.ActiveWorkbook.Name
+		' MsgBox "PRE - file_name - " & file_name
+		For Each objWorkbook In objXL.Workbooks
+			objWorkbook.Activate
+			file_name = objXL.ActiveWorkbook.Name
+			' file_name = objWorkbook.Name
+			' MsgBox file_name
+			If file_name = indv_worklist_file_name Then script_end_procedure("It appears you have your worklist currently open. Please save and close the worklist before running the script again.")
+			' If file_name = "Current Pending Health Care Cases.xlsx" Then
+			' 	objXL.Visible = True
+			' 	objXL.WindowState = -4137
+			' End If
+		Next
+	End If
+End If
+On Error Goto 0
 
 run_assignment_selection = False
 run_list_management = False
@@ -578,43 +716,6 @@ If operation_selection = "Complete Individual Worklist" Then run_assignment_sele
 If operation_selection = "List Management" Then run_list_management = True
 
 If operation_selection = "Open My Worklist" Then
-
-	'Finding the user name - we aren't using the function because we need the comma in place
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	SQL_table = "SELECT * from ES.V_ESAllStaff WHERE EmpLogOnID = '" & windows_user_ID & "'"				'identifying the table that stores the ES Staff user information
-
-	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
-
-	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
-		table_user_id = objRecordSet("EmpLogOnID")						'setting the user ID from table data
-		If table_user_id = windows_user_ID Then							'If the ID on thils loop of the data information matches the ID of the person running the script, we have found the staff person
-			worker_name = objRecordSet("EmpFullName")				'Save the user name
-			Exit Do														'if we have found the person, we stop looping
-		End If
-		objRecordSet.MoveNext											'Going to the next row in the table
-	Loop
-
-	'Now we disconnect from the table and close the connections
-	objRecordSet.Close
-	objConnection.Close
-	Set objRecordSet=nothing
-	Set objConnection=nothing
-
-	worker_name = trim(worker_name)
-	name_array = split(worker_name, ",")
-	last_name = trim(name_array(0))
-	first_name =  trim(name_array(1))
-	If InStr(first_name, " ") Then
-		first_name_array = split(first_name)
-		first_name = first_name_array(0)
-	End If
-	indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
-	indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
 
 	If objFSO.FileExists(indv_worklist_file_path) Then
 		Call excel_open(indv_worklist_file_path, True, False, ObjWrkrExcel, objWrkrWorkbook)
@@ -1017,27 +1118,27 @@ If run_list_management = True Then
 
 				Set element = xmlTracDoc.createElement("SMRTApplication")
 				root.appendChild element
-				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_Application_col).Value))
+				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, SMRT_Application_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("SMRTStart")
 				root.appendChild element
-				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_Start_col).Value))
+				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, SMRT_Start_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("SMRTEnd")
 				root.appendChild element
-				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, SMRT_End_col).Value))
+				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, SMRT_End_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("AppearsLTC")
 				root.appendChild element
-				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, Appears_LTC_col).Value))
+				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, Appears_LTC_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("ScreenedNotLTCDate")
 				root.appendChild element
-				Set info = xmlTracDoc.createTextNote(trim(ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value))
+				Set info = xmlTracDoc.createTextNode(trim(ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value))
 				element.appendChild info
 
 				Set element = xmlTracDoc.createElement("HCEvalDate")
@@ -1668,83 +1769,15 @@ End If
 'PULL CASES TO WORK ----------------------------------------------------------------
 
 If run_assignment_selection = True Then
-	requested_case_count = "10"
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 221, 95, "HC Cases Worklist Creation"
-		EditBox 170, 45, 40, 15, requested_case_count
-		ButtonGroup ButtonPressed
-			OkButton 105, 70, 50, 15
-			CancelButton 160, 70, 50, 15
-		Text 10, 10, 90, 10, "The script will:"
-		Text 20, 20, 150, 10, "- Record your previous worklist information."
-		Text 20, 30, 150, 10, "- Create a new worklist."
-		Text 10, 50, 160, 10, "How many cases do you want on your worklist?"
-	EndDialog
 
-	'Dialog asks what stats are being pulled
-	Do
-		err_msg = ""
-
-		Dialog Dialog1
-		cancel_without_confirmation
-
-		If IsNumeric(requested_case_count) = False Then err_msg = err_msg & vbCr & "* Enter a valid number for the number of cases to put on the worklist"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	Loop until err_mag = ""
-	requested_case_count = requested_case_count * 1
-
-	'Finding the user name - we aren't using the function because we need the comma in place
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	SQL_table = "SELECT * from ES.V_ESAllStaff WHERE EmpLogOnID = '" & windows_user_ID & "'"				'identifying the table that stores the ES Staff user information
-
-	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
-
-	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
-		table_user_id = objRecordSet("EmpLogOnID")						'setting the user ID from table data
-		If table_user_id = windows_user_ID Then							'If the ID on thils loop of the data information matches the ID of the person running the script, we have found the staff person
-			worker_name = objRecordSet("EmpFullName")				'Save the user name
-			Exit Do														'if we have found the person, we stop looping
-		End If
-		objRecordSet.MoveNext											'Going to the next row in the table
-	Loop
-
-	'Now we disconnect from the table and close the connections
-	objRecordSet.Close
-	objConnection.Close
-	Set objRecordSet=nothing
-	Set objConnection=nothing
-
-	worker_name = trim(worker_name)
-	name_array = split(worker_name, ",")
-	last_name = trim(name_array(0))
-	first_name =  trim(name_array(1))
-	If InStr(first_name, " ") Then
-		first_name_array = split(first_name)
-		first_name = first_name_array(0)
+	developer_mode = False
+	If user_ID_for_validation = "CALO001" Then
+		run_in_dev = MsgBox("Do you want to run in developer mode?", vbQuestion + vbYesNo, "Developer Mode")
+		If run_in_dev = vbYes Then developer_mode = True
 	End If
-	indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
-	indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
-	indv_worklist_template_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Worker Assignment Template.xlsx"
 
-	'check to see if the current pending list is 'locked' (maybe use a locking cookie) - if locked - end the script and tell the worker they need to wait.
-	With (CreateObject("Scripting.FileSystemObject"))
-		If .FileExists(lock_main_list) = True then script_end_procedure("HC Pending details are being updated. Try again in a little while.")
 
-		list_being_viewed = .FileExists(hold_main_list)
-		If list_being_viewed = True Then MsgBox "Another worker is pulling an assignment. The script will pause while this completes. It usually takes less than a minute to become available. Please wait."
-		Do while list_being_viewed = True
-			' WScript.Sleep 200
-			EMWaitReady 0, 1000
-			list_being_viewed = .FileExists(hold_main_list)
-		Loop
-	End With
-	Call create_data_lock("HOLD")
-
+	'TODO  - LOOK FOR AN OPEN EXCEL OF THE WORKER'S NAME
 	'TODO - maybe have BT create a sharepoint file
 
 	'WORKER LISTS column definitions
@@ -1774,6 +1807,21 @@ If run_assignment_selection = True Then
 	ReDim COMP_ASSIGN_ARRAY(end_const, 0)
 	work_counter = 0
 
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(lock_main_list) = True then script_end_procedure("HC Pending details are being updated by somneone else. Try again in a little while.")
+
+		list_being_viewed = .FileExists(hold_main_list)
+		If list_being_viewed = True Then MsgBox "Another worker is pulling an assignment. The script will pause for a minute to see if the other data pull is almost done." & vbCr & vbCr & "The script will cancel if the file isn't made available quickly."
+		wait_timer = timer
+		Do while list_being_viewed = True
+			' WScript.Sleep 200
+			EMWaitReady 0, 1000
+			list_being_viewed = .FileExists(hold_main_list)
+			If timer - wait_timer > 60 Then Call script_end_procedure("The file is not available right now, please wait a few minutes and try again.")
+		Loop
+	End With
+	Call create_data_lock("HOLD")
+
 	'Update the current pending cases log with assignment information and release the case for reassignment if needed
 	Call excel_open(controller_hc_pending_excel, False, False, ObjExcel, objWorkbook)
 	objExcel.worksheets("Cases").Activate			'Activates the selected worksheet'
@@ -1782,6 +1830,125 @@ If run_assignment_selection = True Then
 	If objFSO.FileExists(indv_worklist_file_path) Then
 		'Open the sheet
 		Call excel_open(indv_worklist_file_path, False, False, ObjWrkrExcel, objWrkrWorkbook)
+
+		total_completed = 0
+		total_approved = 0
+		total_denied = 0
+		total_pending = 0
+		worklist_count = 0
+		cases_to_reassign = " "
+		excel_row = 2
+		Do
+			worklist_count = worklist_count + 1
+			completed_date = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_compl_col).Value) 		'Assignment Completed
+
+			If IsDate(completed_date) = True Then
+				total_completed = total_completed + 1
+				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Approved" Then total_approved = total_approved + 1
+				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Denied" Then total_denied = total_denied + 1
+				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Pending" Then total_pending = total_pending + 1
+			End If
+			If IsDate(completed_date) = False Then cases_to_reassign = cases_to_reassign & trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_numb_col).Value) & " "
+
+			excel_row = excel_row + 1
+			next_case_numb = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_hsr_col).Value)
+		Loop until next_case_numb = ""
+
+		cases_to_reassign = trim(cases_to_reassign)
+		If cases_to_reassign <> "" Then reassign_array = split(cases_to_reassign)
+
+		confirmation_droplist = "Select One..."+chr(9)+"YES! Looks Right"+chr(9)+"No, something is wrong"
+		If total_completed = 0 Then confirmation_droplist = confirmation_droplist+chr(9)+"No, I Processed Cases"
+		dlg_len = 145
+		If cases_to_reassign <> "" Then
+			dlg_len = 165
+			cases_to_list = UBound(reassign_array)+1
+			adjust = cases_to_list mod 3
+			If adjust <> 0 Then adjust = 3 - adjust
+			dlg_increase_factor = (cases_to_list+adjust)/3
+			dlg_len = dlg_len + dlg_increase_factor*10
+		End If
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 236, dlg_len, "Completed WORK DETAIL"
+
+			Text 10, 10, 130, 10, "A previous worklist was found!"
+			Text 10, 40, 160, 10, "Details of your work on the previous Worklist:"
+			Text 15, 55, 180, 10, "Total number of cases from your worklist: " & worklist_count
+			Text 15, 70, 95, 10, "CASES PROCESSED: " & total_completed
+			Text 20, 80, 95, 10, "Number APPROVED: " & total_approved
+			Text 30, 90, 95, 10, "Number DENIED: " & total_denied
+			Text 25, 100, 95, 10, "Number PENDING: " & total_pending
+			If cases_to_reassign = "" Then Text 10, 25, 210, 10, "No cases to reassign."
+			If cases_to_reassign <> "" Then
+				If total_completed > 0 Then Text 10, 25, 210, 10, "* ! * ! * THERE ARE CASES THAT WILL BE REASSIGNED * ! * ! *"
+				If total_completed = 0 Then Text 10, 25, 210, 10, "* ! * ! * ~~~ ALL CASES WILL BE REASSIGNED ~~~ * ! * ! *"
+				Text 10, 120, 205, 10, "*** CASES NOT COMPLETED THAT WILL BE REASSIGNED:"
+				y_pos = 130
+				x_pos = -35
+				For each reassign_case in reassign_array
+					x_pos = x_pos + 60
+					If x_pos = 205 Then
+						x_pos = 25
+						y_pos = y_pos + 10
+					End If
+					Text x_pos, y_pos, 50, 10, reassign_case
+				Next
+			End If
+			y_pos = y_pos + 20
+			Text 10, y_pos+5, 50, 10, "Is this correct?"
+			DropListBox 65, y_pos, 100, 40, confirmation_droplist, work_completed_confirmation
+			ButtonGroup ButtonPressed
+				OkButton 175, y_pos, 50, 15
+		EndDialog
+
+		Do
+			err_msg = ""
+			dialog Dialog1
+			If ButtonPressed = 0 then work_completed_confirmation = "No, something is wrong"
+
+			If work_completed_confirmation = "Select One..." Then err_msg = "Review the completed work detail and confirm if this is accurate or not."
+			If err_msg <> "" Then MsgBox "* ~ * ~ * ~ NOTICE ~ * ~ * ~ *" & vbCr & vbCr & err_msg
+		Loop until err_msg = ""
+
+		If work_completed_confirmation = "No, something is wrong" OR work_completed_confirmation = "No, I Processed Cases" Then
+			ObjExcel.ActiveWorkbook.Close
+			ObjExcel.Application.Quit
+			ObjExcel.Quit
+			Call release_data_lock("HOLD")
+
+			ObjWrkrExcel.Visible = True					'set to visible and maximize the window
+			ObjWrkrExcel.WindowState = -4137			'Excel Ennumeration can be found here -  https://docs.microsoft.com/en-us/office/vba/api/excel.xlwindowstate
+
+			end_msg = "Your Worklist has been opened."
+			end_msg = end_msg & vbCr & vbCr & "REVIEW THE RECORDED CASE DETAILS."
+			end_msg = end_msg & vbCr & "Update the processing details on the Excel."
+			end_msg = end_msg & vbCr & "Remember, to record a completed assignment, enter a date in the 'Assignment Completed' column. (Specifically enter the date the work is completed.)"
+			end_msg = end_msg & vbCr & vbCr & "For any script questions, please reach out to the script team."
+			end_msg = end_msg & vbCr & vbCr & "The script has ended, once you update your sheet, save and close and rerun the script to record your completed work."
+			call script_end_procedure_with_error_report(end_msg)
+		End If
+
+		please_wait_msg_file = user_myDocs_folder & "hc pending assignment processing.txt"
+		With (CreateObject("Scripting.FileSystemObject"))
+			If .FileExists(please_wait_msg_file) = True then .DeleteFile(please_wait_msg_file)
+
+			If .FileExists(please_wait_msg_file) = False then
+				Set objTextStream = .OpenTextFile(please_wait_msg_file, 2, true)
+
+				'Write the contents of the text file
+				objTextStream.WriteLine "The script is still running!"
+				objTextStream.WriteLine "Your completed work is being recorded."
+				objTextStream.WriteLine ""
+				objTextStream.WriteLine "It may look like nothing is happening, but be patient."
+				objTextStream.WriteLine "Sometimes reviewing data takes time."
+				objTextStream.WriteLine ""
+				objTextStream.WriteLine "(This message will close once the script actions are finished.)"
+
+				objTextStream.Close
+			End If
+		End With
+		Set o2Exec = WshShell.Exec("notepad " & please_wait_msg_file)
 
 		'Read information from the sheet
 		excel_row = 2
@@ -1808,138 +1975,138 @@ If run_assignment_selection = True Then
 			COMP_ASSIGN_ARRAY(wrkr_deny_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_deny_date_col).Value) 			'Date denial can be acted on
 			COMP_ASSIGN_ARRAY(wrkr_notes_col, 			work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_notes_col).Value) 		 		'Notes
 
+			If developer_mode = False Then
+				'Save The Assignment Details for record keeping
+				Set xmlAssignDoc = CreateObject("Microsoft.XMLDOM")
+				xmlAssignPath = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\hc_pending_assignment_" & COMP_ASSIGN_ARRAY(wrkr_case_numb_col, work_counter) & "_on_" & replace(replace(replace(date, "/", "_"),":", "_")," ", "_") & ".xml"
 
-			'Save The Assignment Details for record keeping
-			Set xmlAssignDoc = CreateObject("Microsoft.XMLDOM")
-			xmlAssignPath = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\hc_pending_assignment_" & COMP_ASSIGN_ARRAY(wrkr_case_numb_col, work_counter) & "_on_" & replace(replace(replace(date, "/", "_"),":", "_")," ", "_") & ".xml"
+				xmlAssignDoc.async = False
 
-			xmlAssignDoc.async = False
-
-			Set root = xmlAssignDoc.createElement("HCPendAssignment")
-			xmlAssignDoc.appendChild root
+				Set root = xmlAssignDoc.createElement("HCPendAssignment")
+				xmlAssignDoc.appendChild root
 
 
-			Set element = xmlAssignDoc.createElement("AssignedHSR")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("AssignedHSR")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("AssignedDate")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_date_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("AssignedDate")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_date_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("CaseNumber")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_numb_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("CaseNumber")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_numb_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("CaseName")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_name_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("CaseName")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_name_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("APPLDate")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_appl_date_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("APPLDate")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_appl_date_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("DaysPending")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_days_pend_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("DaysPending")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_days_pend_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("Population")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_population_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("Population")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_population_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("HCEvalRunDate")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_hc_eval_date_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("HCEvalRunDate")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_hc_eval_date_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("VerifsDate")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("VerifsDate")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("DaySixty")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_day_60_col, work_counter))
-			element.appendChild info
+				Set element = xmlAssignDoc.createElement("DaySixty")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_day_60_col, work_counter))
+				element.appendChild info
 
-			Set element = xmlAssignDoc.createElement("AssignmentCompleted")
-			root.appendChild element
-			If IsDate(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter)) = True Then
-				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter))
-			Else
-				If COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter) <> "" Then Set info = xmlAssignDoc.createTextNode("INCOMPELTE??? - " & COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter))
-				If COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter) = "" Then Set info = xmlAssignDoc.createTextNode("INCOMPELTE???")
+				Set element = xmlAssignDoc.createElement("AssignmentCompleted")
+				root.appendChild element
+				If IsDate(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter)) = True Then
+					Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter))
+				Else
+					If COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter) <> "" Then Set info = xmlAssignDoc.createTextNode("INCOMPELTE??? - " & COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter))
+					If COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, work_counter) = "" Then Set info = xmlAssignDoc.createTextNode("INCOMPELTE???")
+				End If
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("CaseStatus")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_stat_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("SMRTStart")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("SMRTEnd")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("PotentiallyLTC")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("NotLTCScreenDate")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("Specialty")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_specialty_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("DateToDeny")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_deny_date_col, work_counter))
+				element.appendChild info
+
+				Set element = xmlAssignDoc.createElement("Notes")
+				root.appendChild element
+				Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_notes_col, work_counter))
+				element.appendChild info
+
+				xmlAssignDoc.save(xmlAssignPath)
+
+				Set xml = CreateObject("Msxml2.DOMDocument")
+				Set xsl = CreateObject("Msxml2.DOMDocument")
+
+				Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+				txt = Replace(fso.OpenTextFile(xmlAssignPath).ReadAll, "><", ">" & vbCrLf & "<")
+				stylesheet = "<xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">" & _
+				"<xsl:output method=""xml"" indent=""yes""/>" & _
+				"<xsl:template match=""/"">" & _
+				"<xsl:copy-of select="".""/>" & _
+				"</xsl:template>" & _
+				"</xsl:stylesheet>"
+
+				xsl.loadXML stylesheet
+				xml.loadXML txt
+
+				xml.transformNode xsl
+
+				xml.Save xmlAssignPath
 			End If
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("CaseStatus")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_case_stat_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("SMRTStart")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("SMRTEnd")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("PotentiallyLTC")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("NotLTCScreenDate")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("Specialty")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_specialty_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("DateToDeny")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_deny_date_col, work_counter))
-			element.appendChild info
-
-			Set element = xmlAssignDoc.createElement("Notes")
-			root.appendChild element
-			Set info = xmlAssignDoc.createTextNode(COMP_ASSIGN_ARRAY(wrkr_notes_col, work_counter))
-			element.appendChild info
-
-			xmlAssignDoc.save(xmlAssignPath)
-
-			Set xml = CreateObject("Msxml2.DOMDocument")
-			Set xsl = CreateObject("Msxml2.DOMDocument")
-
-			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-			txt = Replace(fso.OpenTextFile(xmlAssignPath).ReadAll, "><", ">" & vbCrLf & "<")
-			stylesheet = "<xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">" & _
-			"<xsl:output method=""xml"" indent=""yes""/>" & _
-			"<xsl:template match=""/"">" & _
-			"<xsl:copy-of select="".""/>" & _
-			"</xsl:template>" & _
-			"</xsl:stylesheet>"
-
-			xsl.loadXML stylesheet
-			xml.loadXML txt
-
-			xml.transformNode xsl
-
-			xml.Save xmlAssignPath
-
 			excel_row = excel_row + 1
 			work_counter = work_counter + 1
 			next_case_numb = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_hsr_col).Value)
@@ -1993,7 +2160,72 @@ If run_assignment_selection = True Then
 		ObjWrkrExcel.ActiveWorkbook.Close
 		ObjWrkrExcel.Application.Quit
 		ObjWrkrExcel.Quit
+
+		end_msg = end_msg & vbCr & "Completed work recorded!"
+		end_msg = end_msg & vbCr & "- Total on worklist: " & worklist_count
+		end_msg = end_msg & vbCr & "    - Completed: " & total_completed
+		end_msg = end_msg & "(Approved: " & total_approved
+		end_msg = end_msg & ", Denied: " & total_denied
+		end_msg = end_msg & ", Pending: " & total_pending & ")"
+		If cases_to_reassign <> "" Then end_msg = end_msg & vbCr & "    - To Reassign: " & UBound(reassign_array)+1
+		end_msg = end_msg & vbCr
+
+		o2Exec.Terminate()
+		If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
 	End If
+
+	requested_case_count = "10"
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 221, 95, "HC Cases Worklist Creation"
+		EditBox 170, 45, 40, 15, requested_case_count
+		ButtonGroup ButtonPressed
+			OkButton 105, 70, 50, 15
+			CancelButton 160, 70, 50, 15
+		Text 10, 10, 90, 10, "The script will:"
+		Text 20, 20, 150, 10, "- Record your previous worklist information."
+		Text 20, 30, 150, 10, "- Create a new worklist."
+		Text 10, 50, 160, 10, "How many cases do you want on your worklist?"
+	EndDialog
+
+	'Dialog asks what stats are being pulled
+	Do
+		err_msg = ""
+
+		Dialog Dialog1
+		If ButtonPressed = 0 then
+			ObjExcel.ActiveWorkbook.Close
+			ObjExcel.Application.Quit
+			ObjExcel.Quit
+			Call release_data_lock("HOLD")
+		End If
+		cancel_without_confirmation
+
+		If IsNumeric(requested_case_count) = False Then err_msg = err_msg & vbCr & "* Enter a valid number for the number of cases to put on the worklist"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop until err_mag = ""
+	requested_case_count = requested_case_count * 1
+
+
+	please_wait_msg_file = user_myDocs_folder & "hc pending assignment processing.txt"
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(please_wait_msg_file) = True then .DeleteFile(please_wait_msg_file)
+
+		If .FileExists(please_wait_msg_file) = False then
+			Set objTextStream = .OpenTextFile(please_wait_msg_file, 2, true)
+
+			'Write the contents of the text file
+			objTextStream.WriteLine "The script is still running!"
+			objTextStream.WriteLine "The script is finding you new cases.."
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "It may look like nothing is happening, but be patient."
+			objTextStream.WriteLine "Sometimes reviewing data takes time."
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "(This message will close once the script actions are finished.)"
+
+			objTextStream.Close
+		End If
+	End With
+	Set o2Exec = WshShell.Exec("notepad " & please_wait_msg_file)
 
 	If operation_selection = "Complete Individual Worklist" Then
 
@@ -2003,7 +2235,7 @@ If run_assignment_selection = True Then
 			End If
 		End With
 
-		end_msg = "Worklist details logged and worklist deleted." & vbCr & vbCr & "No new worklist created, run the script again to create a worklist when you are ready for more pending work."
+		end_msg = end_msg & vbCr & "Worklist details logged and worklist deleted." & vbCr & vbCr & "No new worklist created, run the script again to create a worklist when you are ready for more pending work."
 
 	Else
 		'Open a template and save as the worker's worklist
@@ -2063,7 +2295,7 @@ If run_assignment_selection = True Then
 			Loop until next_case_numb = ""
 			If selected_case_count = requested_case_count Then Exit For
 		Next
-
+		' MsgBox "STOP HERE FOR TESTING"
 		'report to the worker that the cases are ready - leave the worklist open.
 		ObjWrkrExcel.ActiveWorkbook.SaveAs indv_worklist_file_path
 		ObjWrkrExcel.ActiveWorkbook.Close
@@ -2071,20 +2303,27 @@ If run_assignment_selection = True Then
 		ObjWrkrExcel.Quit
 	End If
 
-	objWorkbook.Save()		'saving the excel
-	ObjExcel.ActiveWorkbook.Close
-	ObjExcel.Application.Quit
-	ObjExcel.Quit
+	If developer_mode = False Then
+		objWorkbook.Save()		'saving the excel
+		ObjExcel.ActiveWorkbook.Close
+		ObjExcel.Application.Quit
+		ObjExcel.Quit
+	Else
+		ObjExcel.Visible = True
+	End If
 
 	Call release_data_lock("HOLD")
 
 	If operation_selection <> "Complete Individual Worklist" Then
 		Call excel_open(indv_worklist_file_path, True, True, ObjWrkrExcel, objWrkrWorkbook)
 
-		end_msg = "Worklist created of HC Pending Cases." & vbCr
+		end_msg = end_msg & vbCr & "Worklist created of HC Pending Cases." & vbCr
 		If COMP_ASSIGN_ARRAY(wrkr_case_numb_col, 0) <> "" Then end_msg = end_msg & UBound(COMP_ASSIGN_ARRAY, 2)+1 & " cases from previous worklist have been recorded." & vbCr
 		end_msg = end_msg & requested_case_count & " cases added to a new worklist."
 	End If
+	o2Exec.Terminate()
+	If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
+
 End If
 
 'Logging usage stats
