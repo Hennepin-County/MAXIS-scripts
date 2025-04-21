@@ -618,6 +618,7 @@ If InStr(first_name, " ") Then
 End If
 indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
 indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
+indv_worklist_template_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Worker Assignment Template.xlsx"
 
 admin_run = False
 If windows_user_ID = "CALO001" Then admin_run = true
