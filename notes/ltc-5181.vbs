@@ -84,10 +84,14 @@ section_e_update_assesor_1_btn  = 220
 section_e_update_assesor_2_btn  = 221
 section_e_update_assesor_3_btn  = 222
 
+'Defining variables
+dialog_count = ""
+
 'DEFINING FUNCTIONS===========================================================================
 
 'Dialog 1 - Section A: Contact Information
 function section_a_contact_info()
+  dialog_count = 1
   BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
   GroupBox 5, 5, 245, 195, "FROM (assessor/case manager/care coordinator's information)"
   Text 10, 25, 70, 10, "Date Sent to Worker:"
@@ -120,7 +124,6 @@ function section_a_contact_info()
   ButtonGroup ButtonPressed
     PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
-    PushButton 5, 290, 55, 15, "Previous", previous_btn
   GroupBox 260, 5, 60, 280, "Navigation"
   Text 265, 15, 40, 10, "Section A"
   Text 265, 45, 40, 10, "Section B"
@@ -148,7 +151,8 @@ end function
 
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
-  BeginDialog Dialog1, 0, 0, 326, 310, "2 - Section B: Assessment Results - Current Status"
+  dialog_count = 2
+  BeginDialog Dialog1, 0, 0, 326, 310, "2 - Section B: Assess. Results - Current Status"
   GroupBox 5, 5, 250, 50, "What is the person's current status? (check second if both apply)"
   CheckBox 15, 20, 10, 10, "", Check1
   Text 25, 20, 215, 20, "The person currently is requesting services or already enrolled in long-term care services or program"
@@ -203,9 +207,10 @@ end function
 'To do - dim all the variables?
 ' Dim
 
-'Dialog 4 - Section B: Assessment Results - Initial Assessment & Case Manager
+'Dialog 3 - Section B: Assessment Results - Initial Assessment & Case Manager
 function section_b_assess_results_initial_assess_case_manager()
-  BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Initial Assessment & Case Manager"
+  dialog_count = 3
+  BeginDialog Dialog1, 0, 0, 326, 310, "3 - Section B: Assess. Results - Initial Assess. and Case Manager"
   GroupBox 5, 5, 240, 105, "Initial Assessment"
   Text 15, 20, 55, 10, "Assessment on "
   EditBox 70, 15, 55, 15, section_b_assessment_date
@@ -258,7 +263,8 @@ end function
 
 'Dialog 4 - Section B: Assessment Results - MA Requests/Apps & Changes
 function section_b_assess_results_MA_requests_apps_changes()
-  BeginDialog Dialog1, 0, 0, 326, 310, "4 - Section B: Assessment Results - MA Requests/Apps & Changes"
+  dialog_count = 4
+  BeginDialog Dialog1, 0, 0, 326, 310, "4 - Section B: Assess. Results - MA Requests/Apps and Changes"
     GroupBox 5, 5, 250, 200, "Medical Assistance requests/applications (select all that apply):"
     CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_MA_LTC_checkbox
     CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
@@ -323,8 +329,9 @@ end function
 ' Dim
 
 'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
-function section_comm_elig_worker_exit_reasons()
-  BeginDialog Dialog1, 0, 0, 326, 310, "5 - Section C: Communication to eligibility worker - Exit Reasons"
+function section_c_comm_elig_worker_exit_reasons()
+  dialog_count = 5
+  BeginDialog Dialog1, 0, 0, 326, 310, "5 - Section C: Comm. to elig. worker - Exit Reasons"
     GroupBox 5, 5, 245, 200, "Exit Reasons"
     CheckBox 15, 20, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
     Text 35, 35, 95, 10, "Effective date of waiver exit:"
@@ -373,7 +380,8 @@ end function
 
 'Dialog 6 - Section C: Other Changes & Section D: Comments
 function section_c_other_changes_section_d_comments()
-  BeginDialog Dialog1, 0, 0, 326, 310, "Section C: Other Changes & Section D: Comments"
+  dialog_count = 6
+  BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes and Section D: Comments"
     GroupBox 5, 5, 250, 220, "Other changes"
     Text 15, 20, 50, 10, "Program type"
     DropListBox 70, 15, 55, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
@@ -433,9 +441,10 @@ end function
 'To do - dim all the variables?
 ' Dim
 
-'Dialog 8 - Section E: Contact Information
+'Dialog 7 - Section E: Contact Information
 function section_e_contact_info()
-  BeginDialog Dialog1, 0, 0, 326, 310, "8 - Section E: Contact Information"
+  dialog_count = 7
+  BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
     Text 10, 10, 105, 10, "Date Sent to Eligibility Worker:"
     EditBox 120, 5, 75, 15, section_e_date_form_sent
     GroupBox 5, 25, 245, 175, "TO (assessor/case manager/care coordinator's information)"
@@ -502,9 +511,10 @@ end function
 'To do - dim all the variables?
 ' Dim
 
-'Dialog 9 - Section F: Medical Assistance
+'Dialog 8 - Section F: Medical Assistance
 function section_f_medical_assistance()
-  BeginDialog Dialog1, 0, 0, 326, 310, "9 - Section F: Medical Assistance"
+  dialog_count = 8
+  BeginDialog Dialog1, 0, 0, 326, 310, "8 - Section F: Medical Assistance"
   CheckBox 15, 20, 175, 10, "Person applied for MA/MA-LTC (enter date applied)", section_f_person_applied_MA_checkbox
   CheckBox 15, 35, 150, 10, "DHS-3531 sent to person (enter date sent)", section_f_dhs_3531_sent_checkbox
   EditBox 195, 15, 30, 15, section_f_person_applied_date
@@ -565,9 +575,10 @@ end function
 'To do - dim all the variables?
 ' Dim
 
-'Dialog 10 - Section F: Medical Assistance
+'Dialog 9 - Section F: Medical Assistance
 function section_f_medical_assistance_changes()
-  BeginDialog Dialog1, 0, 0, 326, 310, "Section F: Medical Assistance - Changes"
+  dialog_count = 9
+  BeginDialog Dialog1, 0, 0, 326, 310, "9 - Section F: Medical Assistance - Changes"
     GroupBox 5, 5, 250, 265, "Changes (select all that apply)"
     CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
     EditBox 210, 20, 30, 15, section_f_LTC_spenddown_amount
@@ -629,9 +640,10 @@ end function
 'To do - dim all the variables?
 ' Dim
 
-'Dialog 11 - Section G: Comments from eligibility worker
+'Dialog 10 - Section G: Comments from eligibility worker
 function section_g_comments_elig_worker()
-  BeginDialog Dialog1, 0, 0, 326, 310, "11 - Section G: Comments from elig. worker"
+  dialog_count = 10
+  BeginDialog Dialog1, 0, 0, 326, 310, "10 - Section G: Comments from elig. worker"
   Text 5, 5, 130, 10, "Enter any additional notes or comments"
   EditBox 5, 15, 225, 15, section_g_elig_comments
   ButtonGroup ButtonPressed
@@ -662,6 +674,50 @@ function section_g_comments_elig_worker()
 end function
 'To do - dim all the variables?
 ' Dim
+
+Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
+  If dialog_selected = 1 then call section_a_contact_info()
+  If dialog_selected = 2 then call section_b_assess_results_current_status()
+  If dialog_selected = 3 then call section_b_assess_results_initial_assess_case_manager()
+  If dialog_selected = 4 then call section_b_assess_results_MA_requests_apps_changes()
+  If dialog_selected = 5 then call section_c_comm_elig_worker_exit_reasons()
+  If dialog_selected = 6 then call section_c_other_changes_section_d_comments()
+  If dialog_selected = 7 then call section_e_contact_info()
+  If dialog_selected = 8 then call section_f_medical_assistance()
+  If dialog_selected = 9 then call section_f_medical_assistance_changes()
+  If dialog_selected = 10 then call section_g_comments_elig_worker()
+End Function
+
+function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
+	If ButtonPressed = next_btn AND err_msg = "" Then dialog_count = dialog_count + 1 'If next is selected, it will go to the next dialog
+	If ButtonPressed = previous_btn AND err_msg = "" Then dialog_count = dialog_count - 1	'If previous is selected, it will go to the previous dialog
+
+  If err_msg = "" and ButtonPressed = contact_info_btn then dialog_count = 1
+  If err_msg = "" and ButtonPressed = status_btn then dialog_count = 2
+  If err_msg = "" and ButtonPressed = initial_assessment_btn then dialog_count = 3
+  If err_msg = "" and ButtonPressed = MA_req_app_btn then dialog_count = 4
+  If err_msg = "" and ButtonPressed = exit_reasons_btn then dialog_count = 5
+  If err_msg = "" and ButtonPressed = other_changes_btn then dialog_count = 6
+  If err_msg = "" and ButtonPressed = section_d_comments_btn then dialog_count = 6
+  If err_msg = "" and ButtonPressed = contact_info_btn then dialog_count = 7
+  If err_msg = "" and ButtonPressed = MA_status_determination_btn then dialog_count = 8
+  If err_msg = "" and ButtonPressed = changes_btn then dialog_count = 9
+  If err_msg = "" and ButtonPressed = section_g_comments_btn then dialog_count = 10
+end function
+
+' function form_specific_error_handling()	'Error handling for main dialog of forms
+' 	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn OR ButtonPressed = other_btn OR ButtonPressed = sf_update_addr_btn OR ButtonPressed = sf_update_shel_btn OR ButtonPressed = sf_update_hest_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+' 		For form_errors = 0 to Ubound(form_type_array, 2)
+' 			If form_type_array(form_type_const, form_errors) = asset_form_name then 'Error handling for Asset Form
+' 				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
+' 				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
+' 				If (asset_dhs_6054_checkbox = checked AND IsDate(asset_date_received) = FALSE) Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter Document Date."
+' 				If current_dialog = "asset" Then Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
+' 				If current_dialog = "asset" Then ButtonPressed = asset_btn_storage	'ButtonPressed defined to store buttonpress on main asset dialog
+' 			End If
+
+' 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+' end function
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
@@ -697,6 +753,29 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+
+
+dialog_count = 1
+
+Do
+	Do
+		Do
+			Dialog1 = "" 'Blanking out previous dialog detail
+      Call dialog_selection(dialog_count)
+
+				
+      'Blank out variables on each new dialog
+			err_msg = ""
+
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+			'To do - add form specific handling
+      ' Call form_specific_error_handling	'function for error handling of main dialog of forms
+			Call button_movement()				'function to move throughout the dialogs
+		Loop until err_msg = ""
+	Loop until ButtonPressed = complete_btn
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Dialog completed by worker. Each dialog follows this process:
 '  1. Show the dialog and validate that next/OK or prev is pressed
