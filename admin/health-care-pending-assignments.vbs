@@ -2175,58 +2175,60 @@ If run_assignment_selection = True Then
 		If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
 	End If
 
-	requested_case_count = "10"
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 221, 95, "HC Cases Worklist Creation"
-		EditBox 170, 45, 40, 15, requested_case_count
-		ButtonGroup ButtonPressed
-			OkButton 105, 70, 50, 15
-			CancelButton 160, 70, 50, 15
-		Text 10, 10, 90, 10, "The script will:"
-		Text 20, 20, 150, 10, "- Record your previous worklist information."
-		Text 20, 30, 150, 10, "- Create a new worklist."
-		Text 10, 50, 160, 10, "How many cases do you want on your worklist?"
-	EndDialog
+	If operation_selection = "Individual Worker Assignment Creation" Then
+		requested_case_count = "10"
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 221, 95, "HC Cases Worklist Creation"
+			EditBox 170, 45, 40, 15, requested_case_count
+			ButtonGroup ButtonPressed
+				OkButton 105, 70, 50, 15
+				CancelButton 160, 70, 50, 15
+			Text 10, 10, 90, 10, "The script will:"
+			Text 20, 20, 150, 10, "- Record your previous worklist information."
+			Text 20, 30, 150, 10, "- Create a new worklist."
+			Text 10, 50, 160, 10, "How many cases do you want on your worklist?"
+		EndDialog
 
-	'Dialog asks what stats are being pulled
-	Do
-		err_msg = ""
+		'Dialog asks what stats are being pulled
+		Do
+			err_msg = ""
 
-		Dialog Dialog1
-		If ButtonPressed = 0 then
-			ObjExcel.ActiveWorkbook.Close
-			ObjExcel.Application.Quit
-			ObjExcel.Quit
-			Call release_data_lock("HOLD")
-		End If
-		cancel_without_confirmation
+			Dialog Dialog1
+			If ButtonPressed = 0 then
+				ObjExcel.ActiveWorkbook.Close
+				ObjExcel.Application.Quit
+				ObjExcel.Quit
+				Call release_data_lock("HOLD")
+			End If
+			cancel_without_confirmation
 
-		If IsNumeric(requested_case_count) = False Then err_msg = err_msg & vbCr & "* Enter a valid number for the number of cases to put on the worklist"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	Loop until err_mag = ""
-	requested_case_count = requested_case_count * 1
+			If IsNumeric(requested_case_count) = False Then err_msg = err_msg & vbCr & "* Enter a valid number for the number of cases to put on the worklist"
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		Loop until err_mag = ""
+		requested_case_count = requested_case_count * 1
 
 
-	please_wait_msg_file = user_myDocs_folder & "hc pending assignment processing.txt"
-	With (CreateObject("Scripting.FileSystemObject"))
-		If .FileExists(please_wait_msg_file) = True then .DeleteFile(please_wait_msg_file)
+		please_wait_msg_file = user_myDocs_folder & "hc pending assignment processing.txt"
+		With (CreateObject("Scripting.FileSystemObject"))
+			If .FileExists(please_wait_msg_file) = True then .DeleteFile(please_wait_msg_file)
 
-		If .FileExists(please_wait_msg_file) = False then
-			Set objTextStream = .OpenTextFile(please_wait_msg_file, 2, true)
+			If .FileExists(please_wait_msg_file) = False then
+				Set objTextStream = .OpenTextFile(please_wait_msg_file, 2, true)
 
-			'Write the contents of the text file
-			objTextStream.WriteLine "The script is still running!"
-			objTextStream.WriteLine "The script is finding you new cases.."
-			objTextStream.WriteLine ""
-			objTextStream.WriteLine "It may look like nothing is happening, but be patient."
-			objTextStream.WriteLine "Sometimes reviewing data takes time."
-			objTextStream.WriteLine ""
-			objTextStream.WriteLine "(This message will close once the script actions are finished.)"
+				'Write the contents of the text file
+				objTextStream.WriteLine "The script is still running!"
+				objTextStream.WriteLine "The script is finding you new cases.."
+				objTextStream.WriteLine ""
+				objTextStream.WriteLine "It may look like nothing is happening, but be patient."
+				objTextStream.WriteLine "Sometimes reviewing data takes time."
+				objTextStream.WriteLine ""
+				objTextStream.WriteLine "(This message will close once the script actions are finished.)"
 
-			objTextStream.Close
-		End If
-	End With
-	Set o2Exec = WshShell.Exec("notepad " & please_wait_msg_file)
+				objTextStream.Close
+			End If
+		End With
+		Set o2Exec = WshShell.Exec("notepad " & please_wait_msg_file)
+	End If
 
 	If operation_selection = "Complete Individual Worklist" Then
 
