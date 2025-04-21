@@ -72,17 +72,14 @@ changes_btn                     = 210
 section_g_comments_btn          = 211
 next_btn                        = 212
 previous_btn                    = 213
+complete_btn                    = 214
 
 '--Other buttons
-instructions_btn                = 214
-section_a_add_assessor_btn      = 215
-section_a_update_assesor_1_btn  = 216
-section_a_update_assesor_2_btn  = 217
-section_a_update_assesor_3_btn  = 218
-section_e_add_assessor_btn      = 219
-section_e_update_assesor_1_btn  = 220
-section_e_update_assesor_2_btn  = 221
-section_e_update_assesor_3_btn  = 222
+instructions_btn                = 215
+section_a_add_assessor_btn      = 216
+section_e_add_assessor_btn      = 217
+section_a_assessor_return_btn   = 218
+section_e_assessor_return_btn   = 219
 
 'Defining variables
 dialog_count = ""
@@ -93,7 +90,7 @@ dialog_count = ""
 function section_a_contact_info()
   dialog_count = 1
   BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
-  GroupBox 5, 5, 245, 195, "FROM (assessor/case manager/care coordinator's information)"
+  GroupBox 5, 5, 245, 175, "FROM (assessor/case manager/care coordinator's information)"
   Text 10, 25, 70, 10, "Date Sent to Worker:"
   Text 10, 40, 40, 10, "Assessor:"
   Text 10, 55, 50, 10, "Lead Agency:"
@@ -103,7 +100,7 @@ function section_a_contact_info()
   Text 10, 115, 25, 10, "State:"
   Text 10, 130, 35, 10, "Zip Code:"
   Text 10, 145, 55, 10, "Email Address:"
-  Text 10, 165, 165, 10, "Click here to add another assessor (up to 3 total):"
+  Text 10, 165, 145, 10, "Click button to add up to 2 add'l assessors:"
   EditBox 90, 20, 55, 15, section_a_date_form_sent
   EditBox 90, 35, 150, 15, section_a_assessor
   EditBox 90, 50, 150, 15, section_a_lead_agency
@@ -114,16 +111,14 @@ function section_a_contact_info()
   EditBox 90, 125, 55, 15, section_a_zip_code
   EditBox 90, 140, 150, 15, section_a_email_address
   ButtonGroup ButtonPressed
-    PushButton 185, 160, 55, 15, "Add Assessor", section_a_add_assessor_btn
-    PushButton 10, 180, 75, 15, "Update Assessor 1", section_a_update_assesor_1_btn
-    PushButton 90, 180, 75, 15, "Update Assessor 2", section_a_update_assessor_2_btn
-    PushButton 170, 180, 75, 15, "Update Assessor 3", section_a_update_assessor_3_btn
-  GroupBox 5, 210, 245, 30, "Person's Information"
-  Text 10, 220, 70, 10, "Select HH Member:"
-  DropListBox 80, 220, 160, 15, "Select one:", hh_memb_list
+   PushButton 160, 160, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
+  GroupBox 5, 190, 245, 30, "Person's Information"
+  Text 10, 200, 70, 10, "Select HH Member:"
+  DropListBox 80, 200, 160, 15, "Select one:", hh_memb_list
   ButtonGroup ButtonPressed
     PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
   GroupBox 260, 5, 60, 280, "Navigation"
   Text 265, 15, 40, 10, "Section A"
   Text 265, 45, 40, 10, "Section B"
@@ -144,10 +139,52 @@ function section_a_contact_info()
     PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
     PushButton 265, 235, 50, 15, "Changes", changes_btn
     PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  EndDialog
+EndDialog
 end function
 'To do - dim all the variables?
 ' Dim
+
+function section_a_additional_assessors()
+  dialog_count = 11
+  BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
+    Text 10, 20, 40, 10, "Assessor:"
+    EditBox 90, 15, 150, 15, section_a_assessor_1
+    Text 10, 35, 50, 10, "Lead Agency:"
+    EditBox 90, 30, 150, 15, section_a_lead_agency_1
+    Text 10, 50, 55, 10, "Phone Number:"
+    EditBox 90, 45, 55, 15, section_a_phone_number_1
+    Text 10, 65, 55, 10, "Street Address:"
+    EditBox 90, 60, 150, 15, section_a_street_address_1
+    Text 10, 80, 20, 10, "City:"
+    EditBox 90, 75, 150, 15, section_a_city_1
+    Text 10, 95, 25, 10, "State:"
+    EditBox 90, 90, 25, 15, section_a_state_1
+    Text 10, 110, 35, 10, "Zip Code:"
+    EditBox 90, 105, 55, 15, section_a_zip_code_1
+    Text 10, 125, 55, 10, "Email Address:"
+    EditBox 90, 120, 150, 15, section_a_email_address_1
+    GroupBox 5, 150, 245, 135, "Additional Assessor (3)"
+    Text 10, 165, 40, 10, "Assessor:"
+    EditBox 90, 160, 150, 15, section_a_assessor_2
+    Text 10, 180, 50, 10, "Lead Agency:"
+    EditBox 90, 175, 150, 15, section_a_lead_agency_2
+    Text 10, 195, 55, 10, "Phone Number:"
+    EditBox 90, 190, 55, 15, section_a_phone_number_2
+    Text 10, 210, 55, 10, "Street Address:"
+    EditBox 90, 205, 150, 15, section_a_street_address_2
+    Text 10, 225, 20, 10, "City:"
+    EditBox 90, 220, 150, 15, section_a_city_2
+    Text 10, 240, 25, 10, "State:"
+    EditBox 90, 235, 25, 15, section_a_state_2
+    Text 10, 255, 35, 10, "Zip Code:"
+    EditBox 90, 250, 55, 15, section_a_zip_code_2
+    Text 10, 270, 55, 10, "Email Address:"
+    EditBox 90, 265, 150, 15, section_a_email_address_2
+    ButtonGroup ButtonPressed
+      PushButton 245, 290, 80, 20, "Return to Contact Info", section_a_assessor_return_btn
+  EndDialog
+end function
 
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
@@ -274,25 +311,19 @@ function section_b_assess_results_MA_requests_apps_changes()
     CheckBox 15, 70, 150, 10, "Person completed DHS-3543 or DHS-3531", section_b_completed_dhs_3543_3531_checkbox
     Text 30, 80, 80, 10, "Date sent to the county:"
     EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county
-    CheckBox 15, 100, 240, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
+    CheckBox 15, 100, 145, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
     CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
     EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
     EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
     EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
     EditBox 190, 125, 40, 15, section_b_send_dhs_3531_city
-    Text 50, 140, 30, 10, "Address"
-    Text 120, 140, 15, 10, "City"
-    Text 170, 140, 15, 10, "MN"
-    Text 195, 140, 30, 10, "Zip code"
+    Text 50, 140, 175, 10, "Address                          City              State        Zip"
     CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
     EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
     EditBox 105, 170, 60, 15, section_b_send_dhs_3340_city
     EditBox 165, 170, 25, 15, section_b_send_dhs_3340_state
     EditBox 190, 170, 40, 15, section_b_send_dhs_3340_zip
-    Text 50, 185, 30, 10, "Address"
-    Text 120, 185, 15, 10, "City"
-    Text 170, 185, 15, 10, "MN"
-    Text 195, 185, 30, 10, "Zip code"
+    Text 50, 185, 175, 10, "Address                          City              State        Zip"
     GroupBox 5, 215, 250, 55, "Changes completed by assessor at reassessment (select all that apply)"
     CheckBox 15, 225, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
     Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
@@ -312,7 +343,6 @@ function section_b_assess_results_MA_requests_apps_changes()
     Text 265, 210, 40, 10, "Section F"
     Text 265, 255, 40, 10, "Section G"
     ButtonGroup ButtonPressed
-      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
       PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
       PushButton 265, 55, 50, 15, "Status", status_btn
       PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
@@ -323,6 +353,7 @@ function section_b_assess_results_MA_requests_apps_changes()
       PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
       PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
       PushButton 265, 235, 50, 15, "Changes", changes_btn
+      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
   EndDialog
 end function
 'To do - dim all the variables?
@@ -381,37 +412,107 @@ end function
 'Dialog 6 - Section C: Other Changes & Section D: Comments
 function section_c_other_changes_section_d_comments()
   dialog_count = 6
-  BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes and Section D: Comments"
-    GroupBox 5, 5, 250, 220, "Other changes"
-    Text 15, 20, 50, 10, "Program type"
-    DropListBox 70, 15, 55, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
-    Text 15, 35, 90, 10, "Choose one (if applicable)"
-    CheckBox 110, 35, 45, 10, "Diversion", section_c_diversion_checkbox
-    CheckBox 160, 35, 50, 10, "Conversion", section_c_conversion_checkbox
-    Text 10, 50, 100, 10, "Changes (select all that apply)"
-    CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
-    Text 35, 75, 80, 10, "Date address changed:"
-    EditBox 120, 70, 30, 15, section_c_date_address_changed
-    EditBox 25, 90, 70, 15, section_c_street_address
-    EditBox 95, 90, 50, 15, section_c_city
-    EditBox 145, 90, 25, 15, section_c_state
-    EditBox 170, 90, 40, 15, section_c_zip_code
-    CheckBox 15, 110, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
-    EditBox 25, 120, 80, 15, section_c_legal_rep_first_name
-    EditBox 105, 120, 80, 15, section_c_legal_rep_last_name
-    EditBox 185, 120, 55, 15, section_c_legal_rep_phone_number
-    EditBox 25, 140, 70, 15, section_c_legal_rep_street_address
-    EditBox 95, 140, 50, 15, section_c_legal_rep_city
-    EditBox 145, 140, 25, 15, section_c_legal_rep_state
-    EditBox 170, 140, 40, 15, section_c_legal_rep_zip_code
-    CheckBox 15, 160, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
-    Text 40, 175, 50, 10, "Effective date:"
-    EditBox 95, 170, 30, 15, section_c_qual_admission_eff_date
-    CheckBox 15, 190, 245, 10, "Other changes related to program/service eligibility (describe changes)", section_c_other_changes_program_checkbox
-    EditBox 25, 205, 225, 15, section_c_other_changes_program
-    GroupBox 5, 230, 250, 50, "Section D: Comments from assessor, case manager or care coordinator"
-    Text 15, 245, 215, 10, "Enter any additional notes or comments"
-    EditBox 15, 255, 225, 15, section_d_additional_comments
+  BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes & Section D: Comments"
+  GroupBox 5, 5, 250, 235, "Other changes"
+  Text 15, 20, 50, 10, "Program type"
+  DropListBox 70, 15, 55, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+  Text 20, 30, 90, 10, "Choose one (if applicable)"
+  CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
+  CheckBox 170, 30, 50, 10, "Conversion", section_c_conversion_checkbox
+  Text 15, 45, 100, 10, "Changes (select all that apply)"
+  CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
+  Text 35, 75, 80, 10, "Date address changed:"
+  EditBox 120, 70, 30, 15, section_c_date_address_changed
+  EditBox 25, 90, 70, 15, section_c_street_address
+  EditBox 95, 90, 50, 15, section_c_city
+  EditBox 145, 90, 25, 15, section_c_state
+  EditBox 170, 90, 40, 15, section_c_zip_code
+  Text 35, 105, 165, 10, "Address                       City                State       Zip"
+  CheckBox 15, 115, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
+  EditBox 25, 125, 80, 15, section_c_legal_rep_first_name
+  EditBox 105, 125, 80, 15, section_c_legal_rep_last_name
+  EditBox 185, 125, 55, 15, section_c_legal_rep_phone_number
+  Text 35, 140, 195, 10, "First name                         Last name                      Phone number"
+  EditBox 25, 150, 70, 15, section_c_legal_rep_street_address
+  EditBox 95, 150, 50, 15, section_c_legal_rep_city
+  EditBox 145, 150, 25, 15, section_c_legal_rep_state
+  EditBox 170, 150, 40, 15, section_c_legal_rep_zip_code
+  Text 35, 165, 165, 10, "Address                       City                State       Zip"
+  CheckBox 15, 175, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
+  Text 40, 190, 50, 10, "Effective date:"
+  EditBox 95, 185, 30, 15, section_c_qual_admission_eff_date
+  CheckBox 15, 205, 225, 10, "Other changes related to program/service elig. (describe changes)", section_c_other_changes_program_checkbox
+  EditBox 25, 220, 225, 15, section_c_other_changes_program
+  GroupBox 5, 245, 250, 40, "Section D: Comments from assessor, case manager or care coordinator"
+  Text 15, 255, 215, 10, "Enter any additional notes or comments"
+  EditBox 15, 265, 225, 15, section_d_additional_comments
+  ButtonGroup ButtonPressed
+    PushButton 215, 290, 55, 15, "Next", next_btn
+    CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
+    PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
+    PushButton 265, 55, 50, 15, "Status", status_btn
+    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
+    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
+    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
+    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
+    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
+    PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
+    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
+    PushButton 265, 235, 50, 15, "Changes", changes_btn
+    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
+EndDialog
+end function
+'To do - dim all the variables?
+' Dim
+
+'Dialog 7 - Section E: Contact Information
+function section_e_contact_info()
+  dialog_count = 7
+  BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
+    Text 10, 10, 105, 10, "Date Sent to Eligibility Worker:"
+    EditBox 120, 5, 75, 15, section_e_date_form_sent
+    GroupBox 5, 25, 245, 155, "TO (assessor/case manager/care coordinator's information)"
+    Text 10, 40, 40, 10, "Assessor:"
+    EditBox 90, 35, 150, 15, section_e_assessor
+    Text 10, 55, 50, 10, "Lead Agency:"
+    EditBox 90, 50, 150, 15, section_e_lead_agency
+    Text 10, 70, 55, 10, "Phone Number:"
+    EditBox 90, 65, 55, 15, section_e_phone_number
+    Text 10, 85, 55, 10, "Street Address:"
+    EditBox 90, 80, 150, 15, section_e_street_address
+    Text 10, 100, 20, 10, "City:"
+    EditBox 90, 95, 150, 15, section_e_city
+    Text 10, 115, 25, 10, "State:"
+    EditBox 90, 110, 25, 15, section_e_state
+    Text 10, 130, 35, 10, "Zip Code:"
+    EditBox 90, 125, 45, 15, section_e_zip_code
+    Text 10, 145, 55, 10, "Email Address:"
+    EditBox 90, 140, 150, 15, section_e_email_address
+    Text 10, 165, 145, 10, "Click button to add up to 2 add'l assessors:"
+    ButtonGroup ButtonPressed
+      PushButton 160, 160, 85, 15, "Add/Update Assessor", section_e_add_assessor_btn
+    GroupBox 5, 190, 245, 80, "Person's Information"
+    Text 10, 205, 105, 10, "Information entered previously:"
+    Text 15, 215, 40, 10, "First name:"
+    Text 70, 215, 75, 10, "first_name"
+    Text 15, 225, 40, 10, "Last name:"
+    Text 70, 225, 80, 10, "last_name"
+    Text 15, 235, 40, 10, "DOB:"
+    Text 70, 235, 75, 10, "DOB"
+    Text 15, 245, 40, 10, "PMI:"
+    Text 70, 245, 75, 10, "PMI_number"
+    Text 15, 255, 55, 10, "Case Number:"
+    Text 70, 255, 75, 10, "MAXIS_case_number"
     ButtonGroup ButtonPressed
       PushButton 215, 290, 55, 15, "Next", next_btn
       CancelButton 270, 290, 50, 15
@@ -442,70 +543,45 @@ end function
 ' Dim
 
 'Dialog 7 - Section E: Contact Information
-function section_e_contact_info()
-  dialog_count = 7
-  BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
-    Text 10, 10, 105, 10, "Date Sent to Eligibility Worker:"
-    EditBox 120, 5, 75, 15, section_e_date_form_sent
-    GroupBox 5, 25, 245, 175, "TO (assessor/case manager/care coordinator's information)"
-    Text 10, 40, 40, 10, "Assessor:"
-    EditBox 90, 35, 150, 15, section_e_assessor
-    Text 10, 55, 50, 10, "Lead Agency:"
-    EditBox 90, 50, 150, 15, section_e_lead_agency
-    Text 10, 70, 55, 10, "Phone Number:"
-    EditBox 90, 65, 55, 15, section_e_phone_number
-    Text 10, 85, 55, 10, "Street Address:"
-    EditBox 90, 80, 150, 15, section_e_street_address
-    Text 10, 100, 20, 10, "City:"
-    EditBox 90, 95, 150, 15, section_e_city
-    Text 10, 115, 25, 10, "State:"
-    EditBox 90, 110, 25, 15, section_e_state
-    Text 10, 130, 35, 10, "Zip Code:"
-    EditBox 90, 125, 45, 15, section_e_zip_code
-    Text 10, 145, 55, 10, "Email Address:"
-    EditBox 90, 140, 150, 15, section_e_email_address
-    Text 10, 165, 165, 10, "Click here to add another assessor (up to 3 total):"
+function section_e_additional_assessors()
+  dialog_count = 12
+  BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
+    Text 10, 20, 40, 10, "Assessor:"
+    EditBox 90, 15, 150, 15, section_a_assessor_1
+    Text 10, 35, 50, 10, "Lead Agency:"
+    EditBox 90, 30, 150, 15, section_a_lead_agency_1
+    Text 10, 50, 55, 10, "Phone Number:"
+    EditBox 90, 45, 55, 15, section_a_phone_number_1
+    Text 10, 65, 55, 10, "Street Address:"
+    EditBox 90, 60, 150, 15, section_a_street_address_1
+    Text 10, 80, 20, 10, "City:"
+    EditBox 90, 75, 150, 15, section_a_city_1
+    Text 10, 95, 25, 10, "State:"
+    EditBox 90, 90, 25, 15, section_a_state_1
+    Text 10, 110, 35, 10, "Zip Code:"
+    EditBox 90, 105, 55, 15, section_a_zip_code_1
+    Text 10, 125, 55, 10, "Email Address:"
+    EditBox 90, 120, 150, 15, section_a_email_address_1
+    GroupBox 5, 150, 245, 135, "Additional Assessor (3)"
+    Text 10, 165, 40, 10, "Assessor:"
+    EditBox 90, 160, 150, 15, section_a_assessor_2
+    Text 10, 180, 50, 10, "Lead Agency:"
+    EditBox 90, 175, 150, 15, section_a_lead_agency_2
+    Text 10, 195, 55, 10, "Phone Number:"
+    EditBox 90, 190, 55, 15, section_a_phone_number_2
+    Text 10, 210, 55, 10, "Street Address:"
+    EditBox 90, 205, 150, 15, section_a_street_address_2
+    Text 10, 225, 20, 10, "City:"
+    EditBox 90, 220, 150, 15, section_a_city_2
+    Text 10, 240, 25, 10, "State:"
+    EditBox 90, 235, 25, 15, section_a_state_2
+    Text 10, 255, 35, 10, "Zip Code:"
+    EditBox 90, 250, 55, 15, section_a_zip_code_2
+    Text 10, 270, 55, 10, "Email Address:"
+    EditBox 90, 265, 150, 15, section_a_email_address_2
     ButtonGroup ButtonPressed
-      PushButton 185, 160, 55, 15, "Add Assessor", section_e_add_assessor_btn
-      PushButton 10, 180, 70, 15, "Update Assessor 1", section_e_update_assessor_1_btn
-      PushButton 90, 180, 70, 15, "Update Assessor 2", section_e_update_assessor_2_btn
-      PushButton 170, 180, 70, 15, "Update Assessor 3", section_e_update_assessor_3_btn
-    GroupBox 5, 205, 245, 80, "Person's Information"
-    Text 10, 220, 105, 10, "Information entered previously:"
-    Text 15, 230, 40, 10, "First name:"
-    Text 70, 230, 75, 10, "first_name"
-    Text 15, 240, 40, 10, "Last name:"
-    Text 70, 240, 80, 10, "last_name"
-    Text 15, 250, 40, 10, "DOB:"
-    Text 70, 250, 75, 10, "DOB"
-    Text 15, 260, 40, 10, "PMI:"
-    Text 70, 260, 75, 10, "PMI_number"
-    Text 15, 270, 55, 10, "Case Number:"
-    Text 70, 270, 75, 10, "MAXIS_case_number"
-    ButtonGroup ButtonPressed
-      PushButton 215, 290, 55, 15, "Next", next_btn
-      CancelButton 270, 290, 50, 15
-      PushButton 5, 290, 55, 15, "Previous", previous_btn
-    GroupBox 260, 5, 60, 280, "Navigation"
-    Text 265, 15, 40, 10, "Section A"
-    Text 265, 45, 40, 10, "Section B"
-    Text 265, 105, 40, 10, "Section C"
-    Text 265, 150, 40, 10, "Section D"
-    Text 265, 180, 40, 10, "Section E"
-    Text 265, 210, 40, 10, "Section F"
-    Text 265, 255, 40, 10, "Section G"
-    ButtonGroup ButtonPressed
-      PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
-      PushButton 265, 55, 50, 15, "Status", status_btn
-      PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-      PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-      PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-      PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-      PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-      PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
-      PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-      PushButton 265, 235, 50, 15, "Changes", changes_btn
-      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
+      PushButton 245, 290, 80, 20, "Return to Contact Info", section_e_assessor_return_btn
   EndDialog
 end function
 'To do - dim all the variables?
@@ -579,7 +655,7 @@ end function
 function section_f_medical_assistance_changes()
   dialog_count = 9
   BeginDialog Dialog1, 0, 0, 326, 310, "9 - Section F: Medical Assistance - Changes"
-    GroupBox 5, 5, 250, 265, "Changes (select all that apply)"
+    GroupBox 5, 5, 250, 275, "Changes (select all that apply)"
     CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
     EditBox 210, 20, 30, 15, section_f_LTC_spenddown_amount
     CheckBox 15, 40, 10, 10, "", Check14
@@ -587,30 +663,38 @@ function section_f_medical_assistance_changes()
     EditBox 210, 40, 30, 15, section_f_ma_terminated_eff_date
     CheckBox 15, 60, 180, 10, "Basic MA spenddown changed (enter spenddown $)", section_f_basic_ma_spenddown_change_checkbox
     EditBox 210, 60, 30, 15, section_f_basic_ma_spenddown_change_amount
-    CheckBox 15, 80, 230, 15, "MA payment of LTSS services terminated; basic MA remains open", Check16
-    Text 30, 100, 60, 10, "Date terminated:"
-    EditBox 90, 95, 30, 15, section_f_ma_payment_terminated_term_date
-    Text 140, 100, 70, 10, "Date inelig. through:"
-    EditBox 210, 95, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
-    CheckBox 15, 120, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
-    EditBox 210, 120, 30, 15, section_f_person_deceased_date_of_death
-    CheckBox 15, 140, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
-    EditBox 25, 150, 45, 15, section_f_person_moved_institution_admit_date
-    EditBox 70, 150, 95, 15, section_f_person_moved_institution_facility_name
-    EditBox 165, 150, 70, 15, section_f_person_moved_institution_phone_number
-    EditBox 25, 170, 75, 15, section_f_person_moved_institution_address
-    EditBox 100, 170, 75, 15, section_f_person_moved_institution_city
-    EditBox 175, 170, 25, 15, section_f_person_moved_institution_state
-    EditBox 200, 170, 35, 15, section_f_person_moved_institution_zip
+    CheckBox 15, 80, 230, 10, "MA payment of LTSS services terminated; basic MA remains open", Check16
+    Text 30, 95, 60, 10, "Date terminated:"
+    EditBox 90, 90, 30, 15, section_f_ma_payment_terminated_term_date
+    Text 140, 95, 70, 10, "Date inelig. through:"
+    EditBox 210, 90, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
+    CheckBox 15, 110, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
+    EditBox 210, 110, 30, 15, section_f_person_deceased_date_of_death
+    CheckBox 15, 125, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
+    EditBox 25, 135, 45, 15, section_f_person_moved_institution_admit_date
+    EditBox 70, 135, 95, 15, section_f_person_moved_institution_facility_name
+    EditBox 165, 135, 70, 15, section_f_person_moved_institution_phone_number
+    EditBox 25, 160, 75, 15, section_f_person_moved_institution_address
+    EditBox 100, 160, 75, 15, section_f_person_moved_institution_city
+    EditBox 175, 160, 25, 15, section_f_person_moved_institution_state
+    EditBox 200, 160, 35, 15, section_f_person_moved_institution_zip
     CheckBox 15, 190, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
     EditBox 25, 200, 75, 15, section_f_person_new_address_date_changed
     EditBox 100, 200, 135, 15, section_f_person_new_address_new_phone_number
-    EditBox 25, 220, 75, 15, section_f_person_new_address_address
-    EditBox 100, 220, 75, 15, section_f_person_new_address_city
-    EditBox 175, 220, 25, 15, section_f_person_new_address_state
-    EditBox 200, 220, 35, 15, section_f_person_new_address_zip_code
-    CheckBox 15, 240, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
-    EditBox 25, 250, 225, 15, section_f_person_other_change_description
+    EditBox 25, 225, 75, 15, section_f_person_new_address_address
+    EditBox 100, 225, 75, 15, section_f_person_new_address_city
+    EditBox 175, 225, 25, 15, section_f_person_new_address_state
+    EditBox 200, 225, 35, 15, section_f_person_new_address_zip_code
+    CheckBox 15, 250, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
+    EditBox 25, 260, 225, 15, section_f_person_other_change_description
+    ButtonGroup ButtonPressed
+      PushButton 220, 290, 50, 15, "Next", next_btn
+      CancelButton 270, 290, 50, 15
+      PushButton 5, 290, 50, 15, "Previous", previous_btn
+    Text 30, 150, 205, 10, "Admit date              Facility name                   Phone number"
+    Text 30, 175, 205, 10, "Address                                 City                       State       Zip"
+    Text 30, 240, 205, 10, "Address                                 City                       State       Zip"
+    Text 30, 215, 185, 10, "Date addr. changed        New Phone Number (if changed)"
     ButtonGroup ButtonPressed
       PushButton 220, 290, 50, 15, "Next", next_btn
       CancelButton 270, 290, 50, 15
@@ -647,7 +731,7 @@ function section_g_comments_elig_worker()
   Text 5, 5, 130, 10, "Enter any additional notes or comments"
   EditBox 5, 15, 225, 15, section_g_elig_comments
   ButtonGroup ButtonPressed
-    PushButton 220, 290, 50, 15, "Next", next_btn
+    PushButton 220, 290, 50, 15, "Complete", complete_btn
     CancelButton 270, 290, 50, 15
     PushButton 5, 290, 50, 15, "Previous", previous_btn
   GroupBox 260, 5, 60, 280, "Navigation"
@@ -686,6 +770,8 @@ Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
   If dialog_selected = 8 then call section_f_medical_assistance()
   If dialog_selected = 9 then call section_f_medical_assistance_changes()
   If dialog_selected = 10 then call section_g_comments_elig_worker()
+  If dialog_selected = 11 then call section_a_additional_assessors()
+  If dialog_selected = 12 then call section_e_additional_assessors()
 End Function
 
 function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
@@ -703,6 +789,10 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
   If err_msg = "" and ButtonPressed = MA_status_determination_btn then dialog_count = 8
   If err_msg = "" and ButtonPressed = changes_btn then dialog_count = 9
   If err_msg = "" and ButtonPressed = section_g_comments_btn then dialog_count = 10
+  If err_msg = "" and ButtonPressed = section_a_add_assessor_btn then dialog_count = 11
+  If err_msg = "" and ButtonPressed = section_e_add_assessor_btn then dialog_count = 12
+  If err_msg = "" and ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
+  If err_msg = "" and ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
 end function
 
 ' function form_specific_error_handling()	'Error handling for main dialog of forms
@@ -767,7 +857,7 @@ Do
       'Blank out variables on each new dialog
 			err_msg = ""
 
-			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
 			cancel_confirmation
 			'To do - add form specific handling
       ' Call form_specific_error_handling	'function for error handling of main dialog of forms
