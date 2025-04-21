@@ -644,7 +644,7 @@ If admin_run = true Then
 	EndDialog
 Else
 	BeginDialog Dialog1, 0, 0, 216, 240, "Health Care Pending Assignments"
-		DropListBox 10, 45, 195, 45, "script_run_options", operation_selection
+		DropListBox 10, 45, 195, 45, script_run_options, operation_selection
 		ButtonGroup ButtonPressed
 			OkButton 100, 215, 50, 15
 			CancelButton 155, 215, 50, 15
