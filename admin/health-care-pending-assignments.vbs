@@ -1505,68 +1505,74 @@ If run_list_management = True Then
 				days_since_last_work = DateDiff("d", Last_Assingment_Date, date)
 				If days_since_last_work < 15 Then worked_recently = True
 			End If
-			If on_assignment = True Then case_on_assign_count = case_on_assign_count + 1
+			If on_assignment = True Then
+				case_on_assign_count = case_on_assign_count + 1
+			Else
+				case_needs_assignment = False
+				case_priority = ""
 
-			If on_assignment <> True and worked_recently = False and assigned_to_manager <> True Then
-				If pended_date <> "" and IsDate(pended_date) = False Then
-					pended_date = ""
-					ObjExcel.Cells(excel_row, Days_Pending_col).Value = ""
-				End If
-
-				If APPL_date <> "" 					Then APPL_date = 				DateAdd("d", 0, APPL_date)
-				If pended_date <> "" 				Then pended_date = 				DateAdd("d", 0, pended_date)
-				If date_added_to_list <> "" 		Then date_added_to_list = 		DateAdd("d", 0, date_added_to_list)
-				If HC_Eval_date <> "" 				Then HC_Eval_date = 			DateAdd("d", 0, HC_Eval_date)
-				If Verif_requested_date <> "" 		Then Verif_requested_date = 	DateAdd("d", 0, Verif_requested_date)
-				If initial_assignment_date <> "" 	Then initial_assignment_date = 	DateAdd("d", 0, initial_assignment_date)
-				If Day_20_date <> "" 				Then Day_20_date = 				DateAdd("d", 0, Day_20_date)
-				If Day_20_assignment_date <> "" 	Then Day_20_assignment_date = 	DateAdd("d", 0, Day_20_assignment_date)
-				If Day_45_date <> "" 				Then Day_45_date = 				DateAdd("d", 0, Day_45_date)
-				If Day_45_assignment_date <> "" 	Then Day_45_assignment_date = 	DateAdd("d", 0, Day_45_assignment_date)
-				If Day_55_date <> "" 				Then Day_55_date = 				DateAdd("d", 0, Day_55_date)
-				If Day_55_assignment_date <> "" 	Then Day_55_assignment_date = 	DateAdd("d", 0, Day_55_assignment_date)
-				If Day_60_date <> "" 				Then Day_60_date = 				DateAdd("d", 0, Day_60_date)
-				If Day_60_assignment_date <> "" 	Then Day_60_assignment_date = 	DateAdd("d", 0, Day_60_assignment_date)
-				If Last_Assingment_Date <> "" 		Then Last_Assingment_Date = 	DateAdd("d", 0, Last_Assingment_Date)
-
-				Days_pending = Days_pending * 1
-				' MsgBox "MIPPA_col - " & MIPPA_col & vbCr & "METS_Transition_col - " & METS_Transition_col & vbCr & "excel_row - " & excel_row
-				'TEST on FRI didn't work
-				If IsDate(screened_not_ltc_date) = True and ltc_case = True Then ltc_case = False
-
-				If mippa_case = False and mets_trans_case = False and ltc_case = False Then 'and ema_case = False Then
-					days_since_last_assignment = 5000
-					If IsDate(Last_Assingment_Date) = True Then
-						days_since_last_assignment = DateDiff("d", Last_Assingment_Date, date)
+				If worked_recently = False and assigned_to_manager <> True Then
+					If pended_date <> "" and IsDate(pended_date) = False Then
+						pended_date = ""
+						ObjExcel.Cells(excel_row, Days_Pending_col).Value = ""
 					End If
 
-					case_needs_assignment = False
-					case_priority = ""
-					verifs_are_due = False
-					If IsDate(Verif_requested_date) = True Then
-						If DateDiff("d", Verif_requested_date, date) >= 10 Then verifs_are_due = True
-					End If
-					If case_overdue = True and verifs_are_due = True and smrt_case = False Then case_priority = 1
-					If case_overdue = True and IsDate(Verif_requested_date) = False and smrt_case = False Then case_priority = 1
-					If HC_Eval_date = "" and case_priority = "" Then case_priority = 2
-					If case_priority = "" and days_since_last_assignment > 10 Then
-						If IsDate(Day_20_date) = True then
-							diff_day_20 = ABS(DateDiff("d", date, Day_20_date))
-							If diff_day_20 < 4 and Day_20_assignment_worker = "" Then case_priority = 3
+					If APPL_date <> "" 					Then APPL_date = 				DateAdd("d", 0, APPL_date)
+					If pended_date <> "" 				Then pended_date = 				DateAdd("d", 0, pended_date)
+					If date_added_to_list <> "" 		Then date_added_to_list = 		DateAdd("d", 0, date_added_to_list)
+					If HC_Eval_date <> "" 				Then HC_Eval_date = 			DateAdd("d", 0, HC_Eval_date)
+					If Verif_requested_date <> "" 		Then Verif_requested_date = 	DateAdd("d", 0, Verif_requested_date)
+					If initial_assignment_date <> "" 	Then initial_assignment_date = 	DateAdd("d", 0, initial_assignment_date)
+					If Day_20_date <> "" 				Then Day_20_date = 				DateAdd("d", 0, Day_20_date)
+					If Day_20_assignment_date <> "" 	Then Day_20_assignment_date = 	DateAdd("d", 0, Day_20_assignment_date)
+					If Day_45_date <> "" 				Then Day_45_date = 				DateAdd("d", 0, Day_45_date)
+					If Day_45_assignment_date <> "" 	Then Day_45_assignment_date = 	DateAdd("d", 0, Day_45_assignment_date)
+					If Day_55_date <> "" 				Then Day_55_date = 				DateAdd("d", 0, Day_55_date)
+					If Day_55_assignment_date <> "" 	Then Day_55_assignment_date = 	DateAdd("d", 0, Day_55_assignment_date)
+					If Day_60_date <> "" 				Then Day_60_date = 				DateAdd("d", 0, Day_60_date)
+					If Day_60_assignment_date <> "" 	Then Day_60_assignment_date = 	DateAdd("d", 0, Day_60_assignment_date)
+					If Last_Assingment_Date <> "" 		Then Last_Assingment_Date = 	DateAdd("d", 0, Last_Assingment_Date)
+
+					Days_pending = Days_pending * 1
+					' MsgBox "MIPPA_col - " & MIPPA_col & vbCr & "METS_Transition_col - " & METS_Transition_col & vbCr & "excel_row - " & excel_row
+					'TEST on FRI didn't work
+					If IsDate(screened_not_ltc_date) = True and ltc_case = True Then ltc_case = False
+
+					If mippa_case = False and mets_trans_case = False and ltc_case = False Then 'and ema_case = False Then
+						days_since_last_assignment = 5000
+						If IsDate(Last_Assingment_Date) = True Then
+							days_since_last_assignment = DateDiff("d", Last_Assingment_Date, date)
 						End If
-						If IsDate(Day_45_date) = True then
-							diff_day_45 = ABS(DateDiff("d", date, Day_45_date))
-							If diff_day_45 < 4 and Day_45_assignment_worker = "" Then case_priority = 4
-						End If
-						If IsDate(Day_55_date) = True then
-							diff_day_55 = ABS(DateDiff("d", date, Day_55_date))
-							If diff_day_55 < 2 and Day_55_assignment_worker = "" Then case_priority = 5
-						End If
-					End If
-					If case_priority = "" Then
-						If IsDate(Day_60_date) = True then
-							diff_day_60 = ABS(DateDiff("d", date, Day_60_date))
-							If diff_day_60 < 2 and Day_60_assignment_worker = "" Then case_priority = 6
+
+
+						If days_since_last_assignment > 13 Then
+							verifs_are_due = False
+							If IsDate(Verif_requested_date) = True Then
+								If DateDiff("d", Verif_requested_date, date) >= 10 Then verifs_are_due = True
+							End If
+							If case_overdue = True and verifs_are_due = True and smrt_case = False Then case_priority = 1
+							If case_overdue = True and IsDate(Verif_requested_date) = False and smrt_case = False Then case_priority = 1
+							If HC_Eval_date = "" and case_priority = "" Then case_priority = 2
+							If case_priority = "" Then
+								If IsDate(Day_20_date) = True then
+									diff_day_20 = ABS(DateDiff("d", date, Day_20_date))
+									If diff_day_20 < 4 and Day_20_assignment_worker = "" Then case_priority = 3
+								End If
+								If IsDate(Day_45_date) = True then
+									diff_day_45 = ABS(DateDiff("d", date, Day_45_date))
+									If diff_day_45 < 4 and Day_45_assignment_worker = "" Then case_priority = 4
+								End If
+								If IsDate(Day_55_date) = True then
+									diff_day_55 = ABS(DateDiff("d", date, Day_55_date))
+									If diff_day_55 < 2 and Day_55_assignment_worker = "" Then case_priority = 5
+								End If
+							End If
+							If case_priority = "" Then
+								If IsDate(Day_60_date) = True then
+									diff_day_60 = ABS(DateDiff("d", date, Day_60_date))
+									If diff_day_60 < 2 and Day_60_assignment_worker = "" Then case_priority = 6
+								End If
+							End If
 						End If
 					End If
 
@@ -1580,14 +1586,10 @@ If run_list_management = True Then
 						If case_priority = 5 Then pri_5_case_count = pri_5_case_count + 1
 						If case_priority = 6 Then pri_6_case_count = pri_6_case_count + 1
 					End If
-					ObjExcel.Cells(excel_row, Priority_col) = case_priority
-					ObjExcel.Cells(excel_row, Needs_Assignment_col) = case_needs_assignment
-					ObjExcel.Cells(excel_row, Currently_Assigned_col).Value = False
-
-
 				End If
-
-				' MsgBox "excel_row - " & excel_row & vbCr & "case_priority - " & case_priority & vbCr & "case_needs_assignment - " & case_needs_assignment & vbCr & "verifs_are_due - " & verifs_are_due
+				ObjExcel.Cells(excel_row, Priority_col) = case_priority
+				ObjExcel.Cells(excel_row, Needs_Assignment_col) = case_needs_assignment
+				ObjExcel.Cells(excel_row, Currently_Assigned_col).Value = False
 			End If
 			excel_row = excel_row + 1									'moves Excel to next row
 			next_MAXIS_case_number = trim(ObjExcel.Cells(excel_row, Case_Number_col).Value)
@@ -1970,7 +1972,7 @@ If run_assignment_selection = True Then
 			COMP_ASSIGN_ARRAY(wrkr_case_stat_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) 			'Approved, Denied, Pending
 			COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_smrt_start_col).Value) 			'SMRT Referral Date
 			COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_smrt_end_col).Value) 			'SMRT Completed Date
-			COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, 	 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_potent_ltc_col).Value) 			'Potentially LTC
+			COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_potent_ltc_col).Value) 			'Potentially LTC
 			COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, 	work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_not_ltc_date_col).Value) 		'Screened NOT LTC Date
 			COMP_ASSIGN_ARRAY(wrkr_specialty_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_specialty_col).Value) 			'SMRT / MIPPA / MAEPD / EMA / METS Transition / Etc
 			COMP_ASSIGN_ARRAY(wrkr_deny_date_col, 		work_counter) = trim(ObjWrkrExcel.Cells(excel_row, wrkr_deny_date_col).Value) 			'Date denial can be acted on
@@ -2124,7 +2126,12 @@ If run_assignment_selection = True Then
 					ObjExcel.Cells(excel_row, Verifs_Requested_Date_col).Value 	= COMP_ASSIGN_ARRAY(wrkr_verifs_date_col, wrkr_cases)
 					ObjExcel.Cells(excel_row, SMRT_Start_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_smrt_start_col, wrkr_cases)
 					ObjExcel.Cells(excel_row, SMRT_End_col).Value 				= COMP_ASSIGN_ARRAY(wrkr_smrt_end_col, wrkr_cases)
-					ObjExcel.Cells(excel_row, Appears_LTC_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, wrkr_cases)
+
+					ltc_entry = ""
+					ltc_entry = COMP_ASSIGN_ARRAY(wrkr_potent_ltc_col, wrkr_cases)
+					If ltc_entry = "Yes" Then ltc_entry = True
+					If ltc_entry = "No" Then ltc_entry = False
+					ObjExcel.Cells(excel_row, Appears_LTC_col).Value = ltc_entry
 					ObjExcel.Cells(excel_row, Screened_NOT_LTC_Date_col).Value 	= COMP_ASSIGN_ARRAY(wrkr_not_ltc_date_col, wrkr_cases)
 					If IsDate(COMP_ASSIGN_ARRAY(wrkr_assign_compl_col, wrkr_cases)) = True Then
 						ObjExcel.Cells(excel_row, Needs_Assignment_col).Value 		= False
@@ -2284,6 +2291,10 @@ If run_assignment_selection = True Then
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_specialty_col).Value 	= ObjExcel.Cells(full_excel_row, ).Value
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_deny_date_col).Value 	= ObjExcel.Cells(full_excel_row, ).Value
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_notes_col).Value 		= ObjExcel.Cells(full_excel_row, ).Value
+					ObjWrkrExcel.Cells(excel_row, wrkr_smrt_start_col).Value		= ObjExcel.Cells(full_excel_row, SMRT_Start_col).Value
+					ObjWrkrExcel.Cells(excel_row, wrkr_smrt_end_col).Value			= ObjExcel.Cells(full_excel_row, SMRT_End_col).Value
+					ObjWrkrExcel.Cells(excel_row, wrkr_potent_ltc_col).Value		= ObjExcel.Cells(full_excel_row, Appears_LTC_col).Value
+					ObjWrkrExcel.Cells(excel_row, wrkr_not_ltc_date_col).Value		= ObjExcel.Cells(full_excel_row, Screened_NOT_LTC_Date_col).Value
 
 					ObjExcel.Cells(full_excel_row, Most_Recent_Assignment_Worker_col).Value = first_name & " " & left(last_name, 1)
 					ObjExcel.Cells(full_excel_row, Most_Recent_Assignment_Date_col).Value = date
