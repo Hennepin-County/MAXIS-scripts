@@ -814,9 +814,10 @@ If developer_mode = False Then
 	Next
 	end_excel = excel_row
 
-	For excel_row = start_excel to end_excel
-		If trim(ObjMngrExcel.Cells(excel_row, mnger_log_processor_col).Value) = "" Then
-			ObjMngrExcel.Cells(excel_row, mnger_log_processor_col).Value = "=IFERROR(XLOOKUP(1, (T_Processors[Area  (SORT-4)]=[@Area])*(T_Processors[Match HSR '#]=[@[Match HSR]]), T_Processors[Processors  (SORT-1)]),  " & Chr(34) & Chr(34) & ")"
+	' For xl_row = start_excel to end_excel
+	For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
+		If trim(ObjMngrExcel.Cells(CASES_TO_ASSIGN_ARRAY(mngr_excel_row, cow), mnger_log_processor_col).Value) = "" Then
+			ObjMngrExcel.Cells(CASES_TO_ASSIGN_ARRAY(mngr_excel_row, cow), mnger_log_processor_col).Value = "=IFERROR(XLOOKUP(1, (T_Processors[Area  (SORT-4)]=[@Area])*(T_Processors[Match HSR '#]=[@[Match HSR]]), T_Processors[Processors  (SORT-1)]),  " & Chr(34) & Chr(34) & ")"
 		End If
 	Next
 
