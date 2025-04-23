@@ -75,11 +75,13 @@ previous_btn                    = 213
 complete_btn                    = 214
 
 '--Other buttons
-instructions_btn                = 215
-section_a_add_assessor_btn      = 216
-section_e_add_assessor_btn      = 217
-section_a_assessor_return_btn   = 218
-section_e_assessor_return_btn   = 219
+instructions_btn                        = 215
+section_a_add_assessor_btn              = 216
+section_e_add_assessor_btn              = 217
+section_a_assessor_return_btn           = 218
+section_e_assessor_return_btn           = 219
+section_a_assessor_return_no_save_btn   = 220
+section_e_assessor_return_no_save_btn   = 221
 
 'Defining variables
 dialog_count = ""
@@ -149,44 +151,45 @@ function section_a_additional_assessors()
   BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Info (Add'l Assessors)"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
-    EditBox 90, 15, 150, 15, section_a_assessor_1
+    EditBox 90, 15, 150, 15, section_a_assessor_2
     Text 10, 35, 50, 10, "Lead Agency:"
-    EditBox 90, 30, 150, 15, section_a_lead_agency_1
+    EditBox 90, 30, 150, 15, section_a_lead_agency_2
     Text 10, 50, 55, 10, "Phone Number:"
-    EditBox 90, 45, 55, 15, section_a_phone_number_1
+    EditBox 90, 45, 55, 15, section_a_phone_number_2
     Text 10, 65, 55, 10, "Street Address:"
-    EditBox 90, 60, 150, 15, section_a_street_address_1
+    EditBox 90, 60, 150, 15, section_a_street_address_2
     Text 10, 80, 20, 10, "City:"
-    EditBox 90, 75, 150, 15, section_a_city_1
+    EditBox 90, 75, 150, 15, section_a_city_2
     Text 10, 95, 25, 10, "State:"
-    EditBox 90, 90, 25, 15, section_a_state_1
+    EditBox 90, 90, 25, 15, section_a_state_2
     Text 10, 110, 35, 10, "Zip Code:"
-    EditBox 90, 105, 55, 15, section_a_zip_code_1
+    EditBox 90, 105, 55, 15, section_a_zip_code_2
     Text 10, 125, 55, 10, "Email Address:"
-    EditBox 90, 120, 150, 15, section_a_email_address_1
-    GroupBox 5, 150, 245, 135, "Additional Assessor (3)"
+    EditBox 90, 120, 150, 15, section_a_email_address_2
+    GroupBox 5, 150, 245, 135, "Additional Assessor (3) - Leave all fields blank if unneeded"
     Text 10, 165, 40, 10, "Assessor:"
-    EditBox 90, 160, 150, 15, section_a_assessor_2
+    EditBox 90, 160, 150, 15, section_a_assessor_3
     Text 10, 180, 50, 10, "Lead Agency:"
-    EditBox 90, 175, 150, 15, section_a_lead_agency_2
+    EditBox 90, 175, 150, 15, section_a_lead_agency_3
     Text 10, 195, 55, 10, "Phone Number:"
-    EditBox 90, 190, 55, 15, section_a_phone_number_2
+    EditBox 90, 190, 55, 15, section_a_phone_number_3
     Text 10, 210, 55, 10, "Street Address:"
-    EditBox 90, 205, 150, 15, section_a_street_address_2
+    EditBox 90, 205, 150, 15, section_a_street_address_3
     Text 10, 225, 20, 10, "City:"
-    EditBox 90, 220, 150, 15, section_a_city_2
+    EditBox 90, 220, 150, 15, section_a_city_3
     Text 10, 240, 25, 10, "State:"
-    EditBox 90, 235, 25, 15, section_a_state_2
+    EditBox 90, 235, 25, 15, section_a_state_3
     Text 10, 255, 35, 10, "Zip Code:"
-    EditBox 90, 250, 55, 15, section_a_zip_code_2
+    EditBox 90, 250, 55, 15, section_a_zip_code_3
     Text 10, 270, 55, 10, "Email Address:"
-    EditBox 90, 265, 150, 15, section_a_email_address_2
+    EditBox 90, 265, 150, 15, section_a_email_address_3
     ButtonGroup ButtonPressed
-      PushButton 245, 290, 80, 20, "Return to Contact Info", section_a_assessor_return_btn
+      PushButton 205, 290, 120, 15, "Save Info and Return to Contact Info", section_a_assessor_return_btn
+      PushButton 5, 290, 185, 15, "Return to Contact Info WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
   EndDialog
 end function
 'Dim all variables in function
-Dim section_a_assessor_1, section_a_lead_agency_1, section_a_phone_number_1, section_a_street_address_1, section_a_city_1, section_a_state_1, section_a_zip_code_1, section_a_email_address_1, section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2
+Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
 
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
@@ -298,7 +301,7 @@ function section_b_assess_results_initial_assess_case_manager()
   EndDialog
 end function
 'Dim all variables in function
-Dim section_b_assessment_date, section_b_assessment_determination, section_b_open_to_waiver_yes_checkbox, section_b_open_to_waiver_no_checkbox, section_b_monthly_waiver_costs, section_b_waiver_effective_date,  section_b_yes_case_manager, section_b_yes_someone_else_case_manager, section_b_no_case_manager, section_b_case_manager_name, section_b_case_manager_phone_number
+Dim section_b_assessment_date, section_b_assessment_determination, section_b_open_to_waiver_yes_checkbox, section_b_open_to_waiver_no_checkbox, section_b_monthly_waiver_costs, section_b_waiver_effective_date, section_b_yes_case_manager, section_b_yes_someone_else_case_manager, section_b_no_case_manager, section_b_case_manager_name, section_b_case_manager_phone_number
 
 
 'Dialog 4 - Section B: Assessment Results - MA Requests/Apps & Changes
@@ -306,20 +309,20 @@ function section_b_assess_results_MA_requests_apps_changes()
   dialog_count = 4
   BeginDialog Dialog1, 0, 0, 326, 310, "4 - Section B: Assess. Results - MA Requests/Apps and Changes"
     GroupBox 5, 5, 250, 200, "Medical Assistance requests/applications (select all that apply):"
-    CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_MA_LTC_checkbox
+    CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_LTC_checkbox
     CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
     Text 30, 40, 170, 10, "What date did the assessor provide the DHS-3543?"
     EditBox 205, 35, 40, 15, section_b_date_dhs_3543_provided
     CheckBox 15, 55, 205, 10, "Person completed DHS-3543 or DHS-3531 and it is attached", section_b_completed_dhs_3543_3531_attached_checkbox
     CheckBox 15, 70, 150, 10, "Person completed DHS-3543 or DHS-3531", section_b_completed_dhs_3543_3531_checkbox
     Text 30, 80, 80, 10, "Date sent to the county:"
-    EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county
+    EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county_date
     CheckBox 15, 100, 145, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
     CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
     EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
     EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
     EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
-    EditBox 190, 125, 40, 15, section_b_send_dhs_3531_city
+    EditBox 190, 125, 40, 15, section_b_send_dhs_3531_zip
     Text 50, 140, 175, 10, "Address                          City              State        Zip"
     CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
     EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
@@ -360,7 +363,7 @@ function section_b_assess_results_MA_requests_apps_changes()
   EndDialog
 end function
 'Dim all variables in function
-Dim section_b_applied_MA_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b_date_dhs_3543_provided, section_b_completed_dhs_3543_3531_attached_checkbox, section_b_completed_dhs_3543_3531_checkbox, section_b_dhs_3543_3531_sent_to_county, section_b_send_dhs_3543_checkbox, section_b_send_dhs_3531_checkbox, section_b_send_dhs_3531_address, section_b_send_dhs_3531_city, section_b_send_dhs_3531_state, section_b_send_dhs_3531_city, section_b_send_dhs_3340_checkbox, section_b_send_dhs_3340_address, section_b_send_dhs_3340_city, section_b_send_dhs_3340_state, section_b_send_dhs_3340_zip, section_b_person_no_longer_institutional_LOC_checkbox, section_b_date_waiver_exit, section_b_person_enroll_another_program, section_b_enroll_another_program_list
+Dim section_b_applied_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b_date_dhs_3543_provided, section_b_completed_dhs_3543_3531_attached_checkbox, section_b_completed_dhs_3543_3531_checkbox, section_b_dhs_3543_3531_sent_to_county_date, section_b_send_dhs_3543_checkbox, section_b_send_dhs_3531_checkbox, section_b_send_dhs_3531_address, section_b_send_dhs_3531_city, section_b_send_dhs_3531_state, section_b_send_dhs_3531_zip, section_b_send_dhs_3340_checkbox, section_b_send_dhs_3340_address, section_b_send_dhs_3340_city, section_b_send_dhs_3340_state, section_b_send_dhs_3340_zip, section_b_person_no_longer_institutional_LOC_checkbox, section_b_date_waiver_exit, section_b_person_enroll_another_program, section_b_enroll_another_program_list
 
 'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
 function section_c_comm_elig_worker_exit_reasons()
@@ -476,7 +479,7 @@ function section_c_other_changes_section_d_comments()
 EndDialog
 end function
 'Dim the variables in function
-Dim section_c_program_type_list, section_c_diversion_checkbox, section_c_conversion_checkbox, section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code, section_c_new_legal_rep_checkbox, section_c_legal_rep_last_name, section_c_legal_rep_phone_number, section_c_legal_rep_street_address, section_c_legal_rep_city, section_c_legal_rep_state, section_c_legal_rep_zip_code, section_c_person_return_to_community_checkbox, section_c_qual_admission_eff_date, section_c_other_changes_program_checkbox, section_c_other_changes_program, section_d_additional_comments
+Dim section_c_program_type_list, section_c_diversion_checkbox, section_c_conversion_checkbox, section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code, section_c_new_legal_rep_checkbox, section_c_legal_rep_first_name, section_c_legal_rep_last_name, section_c_legal_rep_phone_number, section_c_legal_rep_street_address, section_c_legal_rep_city, section_c_legal_rep_state, section_c_legal_rep_zip_code, section_c_person_return_to_community_checkbox, section_c_qual_admission_eff_date, section_c_other_changes_program_checkbox, section_c_other_changes_program, section_d_additional_comments
 
 'Dialog 7 - Section E: Contact Information
 function section_e_contact_info()
@@ -551,44 +554,45 @@ function section_e_additional_assessors()
   BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Info (Add'l Assessors)"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
-    EditBox 90, 15, 150, 15, section_e_assessor_1
+    EditBox 90, 15, 150, 15, section_e_assessor_2
     Text 10, 35, 50, 10, "Lead Agency:"
-    EditBox 90, 30, 150, 15, section_e_lead_agency_1
+    EditBox 90, 30, 150, 15, section_e_lead_agency_2
     Text 10, 50, 55, 10, "Phone Number:"
-    EditBox 90, 45, 55, 15, section_e_phone_number_1
+    EditBox 90, 45, 55, 15, section_e_phone_number_2
     Text 10, 65, 55, 10, "Street Address:"
-    EditBox 90, 60, 150, 15, section_e_street_address_1
+    EditBox 90, 60, 150, 15, section_e_street_address_2
     Text 10, 80, 20, 10, "City:"
-    EditBox 90, 75, 150, 15, section_e_city_1
+    EditBox 90, 75, 150, 15, section_e_city_2
     Text 10, 95, 25, 10, "State:"
-    EditBox 90, 90, 25, 15, section_e_state_1
+    EditBox 90, 90, 25, 15, section_e_state_2
     Text 10, 110, 35, 10, "Zip Code:"
-    EditBox 90, 105, 55, 15, section_e_zip_code_1
+    EditBox 90, 105, 55, 15, section_e_zip_code_2
     Text 10, 125, 55, 10, "Email Address:"
-    EditBox 90, 120, 150, 15, section_e_email_address_1
-    GroupBox 5, 150, 245, 135, "Additional Assessor (3)"
+    EditBox 90, 120, 150, 15, section_e_email_address_2
+    GroupBox 5, 150, 245, 135, "Additional Assessor (3) - Leave blank if unneeded"
     Text 10, 165, 40, 10, "Assessor:"
-    EditBox 90, 160, 150, 15, section_e_assessor_2
+    EditBox 90, 160, 150, 15, section_e_assessor_3
     Text 10, 180, 50, 10, "Lead Agency:"
-    EditBox 90, 175, 150, 15, section_e_lead_agency_2
+    EditBox 90, 175, 150, 15, section_e_lead_agency_3
     Text 10, 195, 55, 10, "Phone Number:"
-    EditBox 90, 190, 55, 15, section_e_phone_number_2
+    EditBox 90, 190, 55, 15, section_e_phone_number_3
     Text 10, 210, 55, 10, "Street Address:"
-    EditBox 90, 205, 150, 15, section_e_street_address_2
+    EditBox 90, 205, 150, 15, section_e_street_address_3
     Text 10, 225, 20, 10, "City:"
-    EditBox 90, 220, 150, 15, section_e_city_2
+    EditBox 90, 220, 150, 15, section_e_city_3
     Text 10, 240, 25, 10, "State:"
-    EditBox 90, 235, 25, 15, section_e_state_2
+    EditBox 90, 235, 25, 15, section_e_state_3
     Text 10, 255, 35, 10, "Zip Code:"
-    EditBox 90, 250, 55, 15, section_e_zip_code_2
+    EditBox 90, 250, 55, 15, section_e_zip_code_3
     Text 10, 270, 55, 10, "Email Address:"
-    EditBox 90, 265, 150, 15, section_e_email_address_2
+    EditBox 90, 265, 150, 15, section_e_email_address_3
     ButtonGroup ButtonPressed
-      PushButton 245, 290, 80, 20, "Return to Contact Info", section_e_assessor_return_btn
+      PushButton 205, 290, 120, 15, "Save Info and Return to Contact Info", section_e_assessor_return_btn
+      PushButton 5, 290, 185, 15, "Return to Contact Info WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
   EndDialog
 end function
 ' Dim all functions in variable
-Dim section_e_assessor_1, section_e_lead_agency_1, section_e_phone_number_1, section_e_street_address_1, section_e_city_1, section_e_state_1, section_e_zip_code_1, section_e_email_address_1, section_e_assessor_2,  section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2
+Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3,  section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
 
 'Dialog 8 - Section F: Medical Assistance
 function section_f_medical_assistance()
@@ -633,8 +637,8 @@ function section_f_medical_assistance()
   EditBox 210, 140, 30, 15, section_f_basic_ma_medical_spenddown
   CheckBox 10, 160, 200, 10, "MA for LTC services open on specific date (enter eff. date)", section_f_ma_LTC_services_checkbox
   EditBox 210, 155, 30, 15, section_f_ma_LTC_services_date
-  CheckBox 10, 175, 195, 10, "LTC spenddown/waiver oblig. for initial month (eff. date)", section_f_LTC_spenddown_checkbox
-  EditBox 210, 170, 30, 15, section_f_LTC_spenddown
+  CheckBox 10, 175, 195, 10, "LTC spenddown/waiver oblig. for initial month (eff. date)", section_f_LTC_spenddown_initial_month_checkbox
+  EditBox 210, 170, 30, 15, section_f_LTC_spenddown_date
   CheckBox 10, 190, 95, 10, "MA denied (enter eff. date)", section_f_ma_denied_checkbox
   EditBox 210, 185, 30, 15, section_f_ma_denied_date
   CheckBox 10, 205, 180, 10, "MA payment of LTC services denied (enter eff. date)", section_f_ma_payment_denied_checkbox
@@ -652,7 +656,7 @@ function section_f_medical_assistance()
   EndDialog
 end function
 ' Dim all functions in variable
-Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_date, section_f_dhs_3543_sent_checkbox, section_f_dhs_3543_sent_date, section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments, section_f_dhs_3543_3531_not_returned_checkbox, section_f_ma_opened_checkbox, section_f_ma_opened_date, section_f_basic_ma_medical_spenddown_checkbox, section_f_basic_ma_medical_spenddown, section_f_ma_LTC_services_checkbox, section_f_ma_LTC_services_date, section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_payment_denied_checkbox, section_f_ma_payment_LTC_date, section_f_inelig_for_MA_payment_checkbox, section_f_inelig_for_MA_payment_date, section_f_basic_ma_continues_checkbox, section_f_basic_ma_continues_date, section_f_asset_assessment_results_checkbox, section_f_results_from_asset_assessment_sent_date
+Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_date, section_f_dhs_3543_sent_checkbox, section_f_dhs_3543_sent_date, section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments, section_f_dhs_3543_3531_not_returned_checkbox, section_f_ma_opened_checkbox, section_f_ma_opened_date, section_f_basic_ma_medical_spenddown_checkbox, section_f_basic_ma_medical_spenddown, section_f_ma_LTC_services_checkbox, section_f_ma_LTC_services_date, section_f_LTC_spenddown_initial_month_checkbox, section_f_LTC_spenddown_date, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_payment_denied_checkbox, section_f_ma_payment_LTC_date, section_f_inelig_for_MA_payment_checkbox, section_f_inelig_for_MA_payment_date, section_f_basic_ma_continues_checkbox, section_f_basic_ma_continues_date, section_f_asset_assessment_results_checkbox, section_f_results_from_asset_assessment_sent_date
 
 'Dialog 9 - Section F: Medical Assistance
 function section_f_medical_assistance_changes()
@@ -795,11 +799,54 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
   If err_msg = "" and ButtonPressed = section_a_add_assessor_btn then dialog_count = 11
   If err_msg = "" and ButtonPressed = section_e_add_assessor_btn then dialog_count = 12
   If err_msg = "" and ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
+  If ButtonPressed = section_a_assessor_return_no_save_btn then 
+    'Reset all Add'l Assessor variables
+    section_a_assessor_2 = ""
+    section_a_lead_agency_2 = ""
+    section_a_phone_number_2 = ""
+    section_a_street_address_2 = ""
+    section_a_city_2 = ""
+    section_a_state_2 = ""
+    section_a_zip_code_2 = ""
+    section_a_email_address_2 = ""
+    section_a_assessor_3 = ""
+    section_a_lead_agency_3 = ""
+    section_a_phone_number_3 = ""
+    section_a_street_address_3 = ""
+    section_a_city_3 = ""
+    section_a_state_3 = ""
+    section_a_zip_code_3 = ""
+    section_a_email_address_3 = ""
+
+    dialog_count = 1
+  End If 
   If err_msg = "" and ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
+  If ButtonPressed = section_e_assessor_return_no_save_btn then 
+    'Reset all Add'l Assessor variables
+    section_e_assessor_2 = ""
+    section_e_lead_agency_2 = ""
+    section_e_phone_number_2 = ""
+    section_e_street_address_2 = ""
+    section_e_city_2 = ""
+    section_e_state_2 = ""
+    section_e_zip_code_2 = ""
+    section_e_email_address_2 = ""
+    section_e_assessor_3 = ""
+    section_e_lead_agency_3 = ""
+    section_e_phone_number_3 = ""
+    section_e_street_address_3 = ""
+    section_e_city_3 = ""
+    section_e_state_3 = ""
+    section_e_zip_code_3 = ""
+    section_e_email_address_3 = ""
+    
+    dialog_count = 7
+  End If
 end function
 
-function form_specific_error_handling()	'Error handling for main dialog of forms
+function dialog_specific_error_handling()	'Error handling for main dialog of forms
   'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+  'To do - need these?
 	If ButtonPressed = contact_info_btn OR _
     ButtonPressed = status_btn OR _
     ButtonPressed = initial_assessment_btn OR _
@@ -815,8 +862,6 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
     ButtonPressed = previous_btn OR _
     ButtonPressed = complete_btn OR _
     ButtonPressed = instructions_btn OR _
-    ButtonPressed = section_a_add_assessor_btn OR _
-    ButtonPressed = section_e_add_assessor_btn OR _
     ButtonPressed = section_a_assessor_return_btn OR _
     ButtonPressed = section_e_assessor_return_btn OR _
     ButtonPressed = -1 Then
@@ -831,31 +876,251 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
         If trim(section_a_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field." 
         If trim(section_a_email_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address field." 
         If hh_memb_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
-
-      If dialog_count = 2 then call section_b_assess_results_current_status()
-      If dialog_count = 3 then call section_b_assess_results_initial_assess_case_manager()
-      If dialog_count = 4 then call section_b_assess_results_MA_requests_apps_changes()
-      If dialog_count = 5 then call section_c_comm_elig_worker_exit_reasons()
-      If dialog_count = 6 then call section_c_other_changes_section_d_comments()
-      If dialog_count = 7 then call section_e_contact_info()
-      If dialog_count = 8 then call section_f_medical_assistance()
-      If dialog_count = 9 then call section_f_medical_assistance_changes()
-      If dialog_count = 10 then call section_g_comments_elig_worker()
-      If dialog_count = 11 then call section_a_additional_assessors()
-      If dialog_count = 12 then call section_e_additional_assessors()
-
-      If form_type_array(form_type_const, form_errors) = arep_form_name then 'Error handling for AREP Form
-      If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
-      If arep_update_AREP_panel_checkbox = checked Then
-        If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
-        If len(arep_name) > 37 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
-        If len(arep_street) > 44 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
-        If len(arep_city) > 15 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
-        If len(arep_state) > 2 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
-        If len(arep_zip) > 5 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
       End If
-  
+      If dialog_count = 11 then 
+        If trim(section_a_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (2) field." 
+        If trim(section_a_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (2) field." 
+        If trim(section_a_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field." 
+        If trim(section_a_street_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (2) field." 
+        If trim(section_a_city_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (2) field." 
+        If trim(section_a_state_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State (2) field." 
+        If trim(section_a_zip_code_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code (2) field." 
+        If trim(section_a_email_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address (2) field." 
 
+        'Handling for Asessor (3) to only trigger errors if some fields are filled in but if completely blank then it will ignore errors
+        If trim(section_a_assessor_3) <> "" or trim(section_a_lead_agency_3) <> "" OR trim(section_a_phone_number_3) <> "" OR trim(section_a_street_address_3) <> "" OR trim(section_a_city_3) <> "" OR trim(section_a_state_3) <> "" OR trim(section_a_zip_code_3) <> "" OR trim(section_a_email_address_3) <> "" Then
+          If trim(section_a_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (3) field." 
+          If trim(section_a_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (3) field." 
+          If trim(section_a_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field." 
+          If trim(section_a_street_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (3) field." 
+          If trim(section_a_city_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (3) field." 
+          If trim(section_a_state_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State (3) field." 
+          If trim(section_a_zip_code_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code (3) field." 
+          If trim(section_a_email_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address (3) field." 
+        End If
+      End If
+      If dialog_count = 12 then 
+        If trim(section_e_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (2) field." 
+        If trim(section_e_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (2) field." 
+        If trim(section_e_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field." 
+        If trim(section_e_street_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (2) field." 
+        If trim(section_e_city_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (2) field." 
+        If trim(section_e_state_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State (2) field." 
+        If trim(section_e_zip_code_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code (2) field." 
+        If trim(section_e_email_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address (2) field." 
+
+        'Handling for Asessor (3) to only trigger errors if some fields are filled in but if completely blank then it will ignore errors
+        If trim(section_e_assessor_3) <> "" or trim(section_e_lead_agency_3) <> "" OR trim(section_e_phone_number_3) <> "" OR trim(section_e_street_address_3) <> "" OR trim(section_e_city_3) <> "" OR trim(section_e_state_3) <> "" OR trim(section_e_zip_code_3) <> "" OR trim(section_e_email_address_3) <> "" Then
+          If trim(section_e_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (3) field." 
+          If trim(section_e_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (3) field." 
+          If trim(section_e_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field." 
+          If trim(section_e_street_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (3) field." 
+          If trim(section_e_city_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (3) field." 
+          If trim(section_e_state_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State (3) field." 
+          If trim(section_e_zip_code_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code (3) field." 
+          If trim(section_e_email_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address (3) field." 
+        End If
+      End If
+      If dialog_count = 2 then 
+        If section_g_person_requesting_already_enrolled_LTC + section_g_person_will_reside_institution_checkbox = 0 Then err_msg = err_msg & vbNewLine & "* You must check one of the boxes for the person's current status."
+        If section_g_person_requesting_already_enrolled_LTC + section_g_person_will_reside_institution_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* Only select the second option for the person's current status if both options apply."
+
+        If section_b_program_type = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the program the person is requesting or is currently enrolled in from the dropdown list." 
+        If section_b_diversion_checkbox + section_b_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox option - Diversion or Conversion."
+        If trim(section_b_admission_date) = "" or IsDate(section_b_admission_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
+        If trim(section_b_facility) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Facility field."
+        If trim(section_b_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field."
+        If trim(section_b_institution_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field."
+        If trim(section_b_institution_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field."
+        If trim(section_b_institution_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State field."
+        If trim(section_b_institution_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field."
+      End if 
+      If dialog_count = 3 then 
+        If trim(section_b_assessment_date) = "" or IsDate(section_b_assessment_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessment Date field in the format MM/DD/YYYY."
+        If section_b_assessment_determination = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the Assessment Determination from the dropdown list." 
+        If section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox option for whether the person will open to waiver/AC/ECS - Yes or No."
+        If section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 Then err_msg = err_msg & vbNewLine & "* You must select one checkbox option for whether the person will open to waiver/AC/ECS - Yes or No."
+        If trim(section_b_monthly_waiver_costs) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the estimated monthly waiver/AC costs field."
+        If trim(section_b_waiver_effective_date) = "" or IsDate(section_b_waiver_effective_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the anticipated effective date field in the format MM/DD/YYYY."
+        If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager > 1 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox for whether the person has a case manager."
+        If section_b_no_case_manager = 1 Then 
+          If trim(section_b_case_manager_name) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Case Manager Name field."
+          If trim(section_b_case_manager_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field for the case manager."
+        End If
+      End if 
+      If dialog_count = 4 then 
+        'To do - Handling needed?
+        ' section_b_applied_MA_LTC_checkbox
+        If section_b_ma_enrollee_checkbox = 1 Then
+          If trim(section_b_date_dhs_3543_provided) = "" or IsDate(section_b_date_dhs_3543_provided) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the assessor provided the DHS-3543."
+        End If
+        'To do - handling needed?
+        If section_b_completed_dhs_3543_3531_attached_checkbox = 1 Then
+          If trim(section_b_dhs_3543_3531_sent_to_county_date) = "" or IsDate(section_b_dhs_3543_3531_sent_to_county_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the assessor provided the DHS-3543."
+        End If
+        'Tod do - handling needed?
+        ' section_b_send_dhs_3543_checkbox
+        If section_b_send_dhs_3531_checkbox = 1 Then
+          If trim(section_b_dhs_3543_3531_sent_to_county_date) = "" or IsDate(section_b_dhs_3543_3531_sent_to_county_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the assessor provided the DHS-3543."
+        End If
+        If section_b_send_dhs_3340_checkbox = 1 Then
+          If trim(section_b_send_dhs_3340_address) = "" or trim(section_b_send_dhs_3340_city) = "" or trim(section_b_send_dhs_3340_state) = "" or trim(section_b_send_dhs_3340_zip) = "" Then err_msg = err_msg & vbNewLine & "* The checkbox for Send DHS-3340 to person (asset assessment needed) is checked so you must fill out the Address, City, State, and Zip Code fields below the checkbox."
+        End If          
+        If section_b_person_no_longer_institutional_LOC_checkbox = 1 Then
+          If trim(section_b_date_waiver_exit) = "" OR IsDate(section_b_date_waiver_exit) = False Then err_msg = err_msg & vbNewLine & "* The checkbox for Person no longer meets institutional LOC is checked. You must enter the effective date of waiver exit."
+        End If 
+        If section_b_person_enroll_another_program = 1 Then
+          If section_b_enroll_another_program_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* The checkbox for Person chooses to enroll in another program. You must select the program from the dropdown list."
+        End If 
+      End if 
+      If dialog_count = 5 then 
+        If section_c_exited_waiver_program_checkbox = 1 Then
+          If trim(section_c_date_waiver_exit) = "" or IsDate(section_c_date_waiver_exit) = False Then err_msg = err_msg & vbNewLine & "* You must enter the effective date of the waiver exit."
+        End If
+        'To do - handling needed?
+        ' section_c_hospital_admission_checkbox, section_c_nursing_facility_admission_checkbox, section_c_person_informed_choice_checkbox, section_c_residential_treatment_admission_checkbox
+        If section_c_person_deceased_checkbox = 1 Then
+          If trim(section_c_date_of_death) = "" or IsDate(section_c_date_of_death) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the date of death field in the format MM/DD/YYYY."
+        End If
+        If section_c_person_moved_out_of_state_checkbox = 1 Then
+          If trim(section_c_date_of_move) = "" or IsDate(section_c_date_of_move) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the date of move field in the format MM/DD/YYYY."
+        End If
+        If section_c_exited_for_other_reasons_checkbox = 1 Then
+          If trim(section_c_exited_for_other_reasons_explanation) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Exited for other reasons field."
+        End If
+      End if 
+      If dialog_count = 6 then 
+        If section_c_program_type_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the program type from the dropdown list."
+
+        If section_c_diversion_checkbox + section_c_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one option, not both, for Diversion or Conversion."
+        
+        If section_c_person_moved_new_address_checkbox = 1 Then
+          If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
+          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) OR trim(section_c_zip_code) Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
+        End If
+        If section_c_new_legal_rep_checkbox = 1 Then
+          If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
+          If trim(section_c_legal_rep_street_address) = "" or trim(section_c_legal_rep_city) = "" or trim(section_c_legal_rep_state) = "" OR trim(section_c_legal_rep_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address, City, State, and Zip Code fields for the new legal representative."
+        End If
+        If section_c_person_return_to_community_checkbox = 1 Then 
+          If trim(section_c_qual_admission_eff_date) = "" OR IsDate(section_c_qual_admission_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Effective Date for the Person returning to community w/in 121 days of a qual. admission."
+        End If
+        If section_c_other_changes_program_checkbox = 1 Then
+          If trim(section_c_other_changes_program) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the field to describe the Other changes related to program/service eligibility."
+        End If 
+        'To do - handling needed?
+        ' section_d_additional_comments
+      End if 
+      If dialog_count = 7 then 
+        If section_c_program_type_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the program type from the dropdown list."
+
+        If section_c_diversion_checkbox + section_c_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one option, not both, for Diversion or Conversion."
+        
+        If section_c_person_moved_new_address_checkbox = 1 Then
+          If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
+          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) OR trim(section_c_zip_code) Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
+        End If
+        If section_c_new_legal_rep_checkbox = 1 Then
+          If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
+          If trim(section_c_legal_rep_street_address) = "" or trim(section_c_legal_rep_city) = "" or trim(section_c_legal_rep_state) = "" OR trim(section_c_legal_rep_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address, City, State, and Zip Code fields for the new legal representative."
+        End If
+        If section_c_person_return_to_community_checkbox = 1 Then 
+          If trim(section_c_qual_admission_eff_date) = "" OR IsDate(section_c_qual_admission_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Effective Date for the Person returning to community w/in 121 days of a qual. admission."
+        End If
+        If section_c_other_changes_program_checkbox = 1 Then
+          If trim(section_c_other_changes_program) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the field to describe the Other changes related to program/service eligibility."
+        End If 
+        'To do - handling needed?
+        ' section_d_additional_comments
+      End if 
+      If dialog_count = 8 then 
+        If trim(section_e_date_form_sent) = "" OR IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
+        If trim(section_e_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+        If trim(section_e_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+        If trim(section_e_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field." 
+        If trim(section_e_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field." 
+        If trim(section_e_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field." 
+        If trim(section_e_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State field." 
+        If trim(section_e_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field." 
+        If trim(section_e_email_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address field." 
+        If hh_memb_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
+      End If
+      If dialog_count = 9 then
+        If section_f_person_applied_MA_checkbox = 1 Then
+          If trim(section_f_person_applied_date) = "" OR IsDate(section_f_person_applied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the person applied for MA/MA-LTC in the format MM/DD/YYYY."
+        End If
+        If section_f_dhs_3531_sent_checkbox = 1 Then
+          If trim(section_f_dhs_3531_sent_date) = "" OR IsDate(section_f_dhs_3531_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3531 was sent to the person in the format MM/DD/YYYY."
+        End If
+        If section_f_dhs_3543_sent_checkbox = 1 Then
+          If trim(section_f_dhs_3543_sent_date) = "" OR IsDate(section_f_dhs_3543_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3543 was sent to the person in the format MM/DD/YYYY."
+        End If
+        'To do - handling needed?
+        ' section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments
+        ' section_f_dhs_3543_3531_not_returned_checkbox 
+        If section_f_ma_opened_checkbox = 1 Then
+          If trim(section_f_ma_opened_date) = "" OR IsDate(section_f_ma_opened_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3543 was sent to the person in the format MM/DD/YYYY."
+        End If
+        If section_f_basic_ma_medical_spenddown_checkbox = 1 Then
+          If trim(section_f_basic_ma_medical_spenddown) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the dollar amount in the basic MA medical spenddown field."
+        End If
+        If section_f_ma_LTC_services_checkbox = 1 Then
+          If trim(section_f_ma_LTC_services_date) = "" OR IsDate(section_f_ma_LTC_services_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for when the MA for LTC services opened in the format MM/DD/YYYY."
+        End If
+        If section_f_LTC_spenddown_initial_month_checkbox = 1 Then
+          If trim(section_f_LTC_spenddown_date) = "" OR IsDate(section_f_LTC_spenddown_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the LTC spenddown/waiver obligation for initial month in the format MM/DD/YYYY."
+        End If
+        If section_f_ma_denied_checkbox = 1 Then
+          If trim(section_f_ma_denied_date) = "" OR IsDate(section_f_ma_denied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA denial in the format MM/DD/YYYY."
+        End If
+        If section_f_ma_payment_denied_checkbox = 1 Then
+          If trim(section_f_ma_payment_LTC_date) = "" OR IsDate(section_f_ma_payment_LTC_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA payment of LTC services denial in the format MM/DD/YYYY."
+        End If
+        If section_f_inelig_for_MA_payment_checkbox = 1 Then
+          If trim(section_f_inelig_for_MA_payment_date) = "" OR IsDate(section_f_inelig_for_MA_payment_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You checked the box that the person is ineligible for MA payment of LTSS services until a specific date. You must enter the date the ineligibility lasts until in the format MM/DD/YYYY."
+        End If
+        If section_f_basic_ma_continues_checkbox = 1 Then
+          If trim(section_f_basic_ma_continues_date) = "" OR IsDate(section_f_basic_ma_continues_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date that basic MA continues until in the format MM/DD/YYYY."
+        End If
+        If section_f_asset_assessment_results_checkbox = 1 Then
+          If trim(section_f_results_from_asset_assessment_sent_date) = "" OR IsDate(section_f_results_from_asset_assessment_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the results from the asset assessment were sent to the person in the format MM/DD/YYYY."
+        End If
+      End If
+      If dialog_count = 10 then
+        If section_f_LTC_spenddown_checkbox = 1 Then
+          If trim(section_f_LTC_spenddown_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the spenddown dollar amount for the LTC spenddown/waiver obligation."
+        End If
+        If section_f_MA_terminated_checkbox = 1 Then
+          If trim(section_f_ma_terminated_eff_date) = "" OR IsDate(section_f_ma_terminated_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA termination for basic MA and MA payment of LTSS services in the format MM/DD/YYYY."
+        End If
+        If section_f_basic_ma_spenddown_change_checkbox = 1 Then
+          If trim(section_f_basic_ma_spenddown_change_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the spenddown dollar amount for the basic MA spenddown."
+        End If
+        If section_f_ma_payment_terminated_basic_open_checkbox = 1 Then
+          If trim(section_f_ma_payment_terminated_term_date) = "" OR IsDate(section_f_ma_payment_terminated_term_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the termination date of the MA payment of LTSS services in the format MM/DD/YYYY."
+          If trim(section_f_ma_payment_terminated_date_inelig_thru) = "" OR IsDate(section_f_ma_payment_terminated_date_inelig_thru) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the ineligibility lasts through in the format MM/DD/YYYY."
+        End If
+        If section_f_person_deceased_checkbox = 1 Then
+          If trim(section_f_person_deceased_date_of_death) = "" OR IsDate(section_f_person_deceased_date_of_death) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date of death in the format MM/DD/YYYY."
+        End If
+        
+        If section_f_person_moved_institution_checkbox = 1 Then
+          If trim(section_f_person_moved_institution_admit_date) = "" OR IsDate(section_f_person_moved_institution_admit_date) Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
+          If trim(section_f_person_moved_institution_facility_name) = "" OR trim(section_f_person_moved_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
+          If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
+        End If
+
+        If section_f_person_new_address_checkbox = 1 Then
+          If trim(section_f_person_new_address_date_changed) = "" OR IsDate(section_f_person_new_address_date_changed) Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
+          If trim(section_f_person_new_address_new_phone_number) = "" OR trim(section_f_person_new_address_address) = "" OR trim(section_f_person_new_address_city) = "" OR trim(section_f_person_new_address_state) = "" OR trim(section_f_person_new_address_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
+          If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
+        End If
+
+        If section_f_other_change_checkbox = 1 Then
+          If trim(section_f_person_other_change_description) = "" Then err_msg = err_msg & vbNewLine & "* You checked the Other change box. You must describe the reason in the field provided."
+        End If
+      End If
+    End If
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 end function
 
@@ -905,14 +1170,13 @@ Do
 			Dialog1 = "" 'Blanking out previous dialog detail
       Call dialog_selection(dialog_count)
 
-				
       'Blank out variables on each new dialog
 			err_msg = ""
 
 			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
 			cancel_confirmation
 			'To do - add form specific handling
-      ' Call form_specific_error_handling	'function for error handling of main dialog of forms
+      Call dialog_specific_error_handling	'function for error handling of main dialog of forms
 			Call button_movement()				'function to move throughout the dialogs
 		Loop until err_msg = ""
 	Loop until ButtonPressed = complete_btn
