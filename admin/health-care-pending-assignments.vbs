@@ -628,7 +628,7 @@ If windows_user_ID = "BETE001" Then admin_run = true
 If windows_user_ID = "YEYA001" Then admin_run = true
 If windows_user_ID = "JAAR001" Then admin_run = true
 script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"
-If admin_run = true Then script_run_options = "Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Counts"
+If admin_run = true Then script_run_options = "Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Counts"
 If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
 
 Dialog1 = ""
@@ -674,6 +674,8 @@ Do
 
 	msg_detail = "The script will now: "
 	If operation_selection = "Individual Worker Assignment Creation" Then msg_detail = msg_detail & vbCr & "** Complete your existing worklist (if one exists)." & vbCr & "** Create a worklist of new cases." & vbCr
+	If operation_selection = "Create Assignment for Another Worker" Then msg_detail = msg_detail & vbCr & "** Create a workslist for another worker. " & vbCr
+	If operation_selection = "Complete Assignment for Another Worker" Then msg_detail = msg_detail & vbCr & "** COMPLETES the workslist for another worker. " & vbCr
 	If operation_selection = "Open My Worklist" Then msg_detail = msg_detail & vbCr & "** Open your existing worklist. (No new list can be made.)" & vbCr
 	If operation_selection = "Complete Individual Worklist" Then msg_detail = msg_detail & vbCr & "** Complete your existing worklist." & vbCr
 	If operation_selection = "List Management" Then msg_detail = msg_detail & vbCr & "Update the MAIN Background list." & vbCr & "THIS RUN USUALLY TAKES ABOUT AN HOUR!" & vbCr
@@ -686,6 +688,49 @@ Do
 	If confrim_action_msg = vbYes Then confirmed_msg = True
 	If confrim_action_msg = vbCancel Then cancel_without_confirmation
 Loop until confirmed_msg = True
+
+worker_list_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\worker_list.txt"
+If operation_selection = "Create Assignment for Another Worker" or operation_selection = "Complete Assignment for Another Worker" Then
+	worker_selection_droplist = "Select One..."
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(worker_list_path) = True then
+			Set objTextStream = .OpenTextFile(worker_list_path, ForReading)
+			every_line_in_text_file = objTextStream.ReadAll
+
+			'Splitting the text file contents into an array which will be sorted
+			worker_info = split(every_line_in_text_file, vbNewLine)
+			For Each text_line in worker_info
+				' MsgBox "text_line - " & text_line
+				If trim(text_line) <> "" Then worker_selection_droplist = worker_selection_droplist+chr(9)+trim(text_line)
+			Next
+		End If
+	End With
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 211, 75, "ADMIN Worker Selection"
+		Text 15, 10, 170, 10, "Which worker do you need to create a worklist for?"
+		Text 20, 35, 30, 10, "Worker:"
+		DropListBox 50, 30, 150, 45, worker_selection_droplist, worker_selected
+		ButtonGroup ButtonPressed
+			OkButton 150, 50, 50, 15
+	EndDialog
+
+	Do
+		dialog Dialog1
+		cancel_confirmation
+
+		woker_name_array = split(worker_selected)
+		first_name =  trim(woker_name_array(0))
+		last_name = trim(woker_name_array(1))
+		indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
+		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
+
+		confirm_worker = MsgBox("You have selected: " & first_name & " " & last_name & vbCr & vbCr & "Is this correct?", vbQuestion + vbYesNo, "Confirm selected worker")
+	Loop until confirm_worker = vbYes
+
+	If operation_selection = "Create Assignment for Another Worker" Then operation_selection = "Individual Worker Assignment Creation"
+	If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
+End If
 
 On Error Resume Next
 Set objXl = GetObject(, "Excel.Application")		'try to find an excel file
@@ -1826,13 +1871,15 @@ If run_assignment_selection = True Then
 	Call create_data_lock("HOLD")
 
 	'Update the current pending cases log with assignment information and release the case for reassignment if needed
-	Call excel_open(controller_hc_pending_excel, False, False, ObjExcel, objWorkbook)
+	visible_stat = False
+	If windows_user_ID = "CALO001" Then visible_stat = True
+	Call excel_open(controller_hc_pending_excel, visible_stat, False, ObjExcel, objWorkbook)
 	objExcel.worksheets("Cases").Activate			'Activates the selected worksheet'
 
 	'If yes:
 	If objFSO.FileExists(indv_worklist_file_path) Then
 		'Open the sheet
-		Call excel_open(indv_worklist_file_path, False, False, ObjWrkrExcel, objWrkrWorkbook)
+		Call excel_open(indv_worklist_file_path, visible_stat, False, ObjWrkrExcel, objWrkrWorkbook)
 
 		total_completed = 0
 		total_approved = 0
@@ -2249,7 +2296,7 @@ If run_assignment_selection = True Then
 
 	Else
 		'Open a template and save as the worker's worklist
-		Call excel_open(indv_worklist_template_file_path, False, False, ObjWrkrExcel, objWrkrWorkbook)
+		Call excel_open(indv_worklist_template_file_path, visible_stat, False, ObjWrkrExcel, objWrkrWorkbook)
 
 		'Select the number of cases requested based on priority and count
 		'add the worker info to the HC Pending to 'assign' the case
@@ -2291,10 +2338,10 @@ If run_assignment_selection = True Then
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_specialty_col).Value 	= ObjExcel.Cells(full_excel_row, ).Value
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_deny_date_col).Value 	= ObjExcel.Cells(full_excel_row, ).Value
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_notes_col).Value 		= ObjExcel.Cells(full_excel_row, ).Value
-					ObjWrkrExcel.Cells(excel_row, wrkr_smrt_start_col).Value		= ObjExcel.Cells(full_excel_row, SMRT_Start_col).Value
-					ObjWrkrExcel.Cells(excel_row, wrkr_smrt_end_col).Value			= ObjExcel.Cells(full_excel_row, SMRT_End_col).Value
-					ObjWrkrExcel.Cells(excel_row, wrkr_potent_ltc_col).Value		= ObjExcel.Cells(full_excel_row, Appears_LTC_col).Value
-					ObjWrkrExcel.Cells(excel_row, wrkr_not_ltc_date_col).Value		= ObjExcel.Cells(full_excel_row, Screened_NOT_LTC_Date_col).Value
+					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_smrt_start_col).Value		= ObjExcel.Cells(full_excel_row, SMRT_Start_col).Value
+					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_smrt_end_col).Value			= ObjExcel.Cells(full_excel_row, SMRT_End_col).Value
+					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_potent_ltc_col).Value		= ObjExcel.Cells(full_excel_row, Appears_LTC_col).Value
+					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_not_ltc_date_col).Value		= ObjExcel.Cells(full_excel_row, Screened_NOT_LTC_Date_col).Value
 
 					ObjExcel.Cells(full_excel_row, Most_Recent_Assignment_Worker_col).Value = first_name & " " & left(last_name, 1)
 					ObjExcel.Cells(full_excel_row, Most_Recent_Assignment_Date_col).Value = date
