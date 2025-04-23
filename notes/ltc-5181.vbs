@@ -116,7 +116,7 @@ function section_a_contact_info()
    PushButton 160, 160, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
   GroupBox 5, 190, 245, 30, "Person's Information"
   Text 10, 200, 70, 10, "Select HH Member:"
-  DropListBox 80, 200, 160, 15, HH_Memb_DropDown, hh_memb_with_new_job
+  DropListBox 80, 200, 160, 15, HH_Memb_DropDown, hh_memb
   ButtonGroup ButtonPressed
     PushButton 215, 290, 55, 15, "Next", next_btn
     CancelButton 270, 290, 50, 15
@@ -144,7 +144,7 @@ function section_a_contact_info()
 EndDialog
 end function
 'To do - dim all the variables?
-Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb_with_new_job
+Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
 
 function section_a_additional_assessors()
   dialog_count = 11
@@ -201,7 +201,7 @@ function section_b_assess_results_current_status()
   CheckBox 15, 40, 195, 10, "The person resides in or will reside in an institution", section_g_person_will_reside_institution_checkbox
   GroupBox 5, 60, 250, 55, "Program Type"
   Text 10, 75, 185, 10, "Program person is requesting or is currently enrolled in:"
-  DropListBox 200, 70, 45, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+  DropListBox 195, 70, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
   Text 10, 90, 85, 10, "Check one (if applicable):"
   CheckBox 105, 85, 45, 15, "Diversion", section_b_diversion_checkbox
   CheckBox 155, 85, 50, 15, "Conversion", section_b_conversion_checkbox
@@ -335,7 +335,7 @@ function section_b_assess_results_MA_requests_apps_changes()
     Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
     EditBox 205, 230, 45, 15, section_b_date_waiver_exit
     CheckBox 15, 250, 155, 10, "Person chooses to enroll in another program", section_b_person_enroll_another_program
-    DropListBox 190, 250, 60, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
+    DropListBox 180, 250, 70, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
     ButtonGroup ButtonPressed
       PushButton 215, 290, 55, 15, "Next", next_btn
       CancelButton 270, 290, 50, 15
@@ -421,7 +421,7 @@ function section_c_other_changes_section_d_comments()
   BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes & Section D: Comments"
   GroupBox 5, 5, 250, 235, "Other changes"
   Text 15, 20, 50, 10, "Program type"
-  DropListBox 70, 15, 55, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+  DropListBox 70, 15, 65, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
   Text 20, 30, 90, 10, "Choose one (if applicable)"
   CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
   CheckBox 170, 30, 50, 10, "Conversion", section_c_conversion_checkbox
@@ -484,6 +484,8 @@ Dim section_c_program_type_list, section_c_diversion_checkbox, section_c_convers
 'Dialog 7 - Section E: Contact Information
 function section_e_contact_info()
   dialog_count = 7
+  first_name
+  last_name
   BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
     Text 10, 10, 105, 10, "Date Sent to Eligibility Worker:"
     EditBox 120, 5, 75, 15, section_e_date_form_sent
@@ -510,15 +512,11 @@ function section_e_contact_info()
     GroupBox 5, 190, 245, 80, "Person's Information"
     Text 10, 205, 105, 10, "Information entered previously:"
     Text 15, 215, 40, 10, "First name:"
-    Text 70, 215, 75, 10, "first_name"
+    Text 70, 215, 170, 10, first_name
     Text 15, 225, 40, 10, "Last name:"
-    Text 70, 225, 80, 10, "last_name"
-    Text 15, 235, 40, 10, "DOB:"
-    Text 70, 235, 75, 10, "DOB"
-    Text 15, 245, 40, 10, "PMI:"
-    Text 70, 245, 75, 10, "PMI_number"
-    Text 15, 255, 55, 10, "Case Number:"
-    Text 70, 255, 75, 10, "MAXIS_case_number"
+    Text 70, 225, 170, 10, last_name
+    Text 15, 235, 45, 10, "Ref Number:"
+    Text 70, 235, 75, 10, ref_nbr
     ButtonGroup ButtonPressed
       PushButton 215, 290, 55, 15, "Next", next_btn
       CancelButton 270, 290, 50, 15
@@ -546,7 +544,7 @@ function section_e_contact_info()
   EndDialog
 end function
 ' Dim all variables in function
-Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address
+Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, first_name, last_name, ref_nbr
 
 'Dialog 7 - Section E: Contact Information
 function section_e_additional_assessors()
@@ -875,7 +873,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_a_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State field." 
         If trim(section_a_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field." 
         If trim(section_a_email_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address field." 
-        If hh_memb_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
+        If hh_memb = "Select One:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
       End If
       If dialog_count = 11 then 
         If trim(section_a_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (2) field." 
@@ -1043,7 +1041,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_e_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State field." 
         If trim(section_e_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field." 
         If trim(section_e_email_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address field." 
-        If hh_memb_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
+        If hh_memb = "Select One:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
       End If
       If dialog_count = 9 then
         If section_f_person_applied_MA_checkbox = 1 Then
