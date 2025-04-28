@@ -621,7 +621,7 @@ If run_compilation = True Then
 	const comp_time_of_case_review_col 	= 40   						'Total time of case review (in minutes)
 	const comp_repair_required_col 		= 41   						'Case required repair from Cash/SNAP staff
 	const comp_coaching_col 			= 42   						'If no, is coaching recommeded? (IE: not case noting in detail/using interview script)
-
+	const comp_fix_summary_col			= 43						'Summary of repair(s) needed to the case
 
 	'Open Compilation excel
 		'find next empty row
@@ -721,6 +721,7 @@ If run_compilation = True Then
 					ObjExcel.cells(excel_row, comp_time_of_case_review_col).Value 			= ObjREVWExcel.cells(comp_time_of_case_review_col, 3).Value
 					ObjExcel.cells(excel_row, comp_repair_required_col).Value 				= ObjREVWExcel.cells(comp_repair_required_col, 3).Value
 					ObjExcel.cells(excel_row, comp_coaching_col).Value 						= ObjREVWExcel.cells(comp_coaching_col, 3).Value
+					ObjExcel.cells(excel_row, comp_fix_summary_col).Value 					= ObjREVWExcel.cells(comp_fix_summary_col, 3).Value
 					excel_row = excel_row + 1
 				End If
 				reviewer_found = False
@@ -771,6 +772,7 @@ If run_compilation = True Then
 			objFSO.MoveFile files_to_move(cow) , archive_folder & "\" & file_name_to_move(cow) & ".xlsx"    'moving each file to the archive file
 			' If Err.Number <> 0 Then MsgBox "Error Number: " & Err.Number
 			If Err.Number <> 0 Then files_failed = files_failed & file_name_to_move(cow) & "~!~"
+			Err.Clear
 		Next
 	End If
 
@@ -787,7 +789,7 @@ If run_compilation = True Then
 			objFSO.DeleteFile files_to_delete(sheep)						'If we have determined that we need to delete the file - here we delete it
 			' If Err.Number <> 0 Then MsgBox "Error Number: " & Err.Number
 			If Err.Number <> 0 Then files_failed = files_failed & file_name_to_delete(cow) & "~!~"
-
+			Err.Clear
 		Next
 	End If
 
