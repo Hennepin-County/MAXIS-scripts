@@ -1051,7 +1051,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         
         If section_c_person_moved_new_address_checkbox = 1 Then
           If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
-          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) OR trim(section_c_zip_code) Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
+          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) = "" OR trim(section_c_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
         End If
         If section_c_new_legal_rep_checkbox = 1 Then
           If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
@@ -1073,7 +1073,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         
         If section_c_person_moved_new_address_checkbox = 1 Then
           If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
-          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) OR trim(section_c_zip_code) Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
+          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) = "" OR trim(section_c_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
         End If
         If section_c_new_legal_rep_checkbox = 1 Then
           If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
@@ -1230,7 +1230,7 @@ Do
 
 			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
 			cancel_confirmation
-      ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+      Call dialog_specific_error_handling	'function for error handling of main dialog of forms
 			Call button_movement()				'function to move throughout the dialogs
 		Loop until err_msg = ""
 	Loop until ButtonPressed = complete_btn
@@ -1241,7 +1241,75 @@ call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 
 'To do - update handling to update SWKR, ADDR, DOD if needed
 
-' 'ACTIONS----------------------------------------------------------------------------------------------------
+'ACTIONS----------------------------------------------------------------------------------------------------
+'Update ADDR
+'--Fields with new address
+'Create dialog that shows the current address and entered addresses (if different)
+'To do - need to include footer month for updates
+If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
+  'Navigate to STAT/ADDR
+  Call navigate_to_MAXIS_screen("STAT", "ADDR")
+  Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+  'Include in dialog that shows current address and then the new addresses provided
+
+End If
+
+'Display ADDR information from panel and entered information
+' section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code
+
+' section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code
+
+'--Fields with new assessor details (SWKR panel)
+'Navigate to STAT/SWKR to gather details
+Call navigate_to_MAXIS_screen("STAT", "SWKR")
+EmReadScreen swkr_does_not_exist, 19, 24, 2
+If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
+  swkr_panel_exists = False
+Else
+  swkr_panel_exists = True
+  'Read the SWKR screen - name, street, city, state, zip, phone
+  EmReadScreen current_swkr_name, 35, 6, 32
+  current_swkr_name = replace(current_swkr_name, "_", "")
+  EmReadScreen current_swkr_street, 22, 8, 32
+  current_swkr_street = replace(current_swkr_street, "_", "")
+  EmReadScreen current_swkr_city, 15, 10, 32
+  current_swkr_city = replace(current_swkr_city, "_", "")
+  EmReadScreen current_swkr_state, 2, 10, 54
+  EmReadScreen current_swkr_zip, 5, 10, 63
+  EmReadScreen current_swkr_area_code, 3, 12, 34
+  EmReadScreen current_swkr_prefix_code, 3, 12, 40
+  EmReadScreen current_swkr_line_code, 4, 12, 44
+  current_swkr_line_code = current_swkr_area_code & current_swkr_prefix_code & current_swkr_line_code
+End If
+
+'Dialog that will display details from current SWKR, as well as assessors added in the dialogs
+' section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+
+' section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
+
+' section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, hh_memb
+
+' section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3, section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
+
+'--Fields with date of death
+'Navigate to STAT/MEMB to gather details
+If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
+  Call navigate_to_MAXIS_screen("STAT", "MEMB")
+  'Navigate to HH Memb
+  Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
+  EMReadScreen memb_date_of_death, 10, 19, 42
+  If memb_date_of_death = "__ __ ____" then 
+    memb_panel_date_of_death_exists = False
+  Else
+    memb_panel_date_of_death_exists = True
+    memb_date_of_death = replace(memb_date_of_death, " ", "/")
+  End If
+End If
+
+
+'Dialog that will display date of death from panel and entered date of death(s) 
+
 ' 'Updates STAT MEMB with client's date of death (client_deceased_check)
 ' IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB
 ' 	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
