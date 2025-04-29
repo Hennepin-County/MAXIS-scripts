@@ -668,7 +668,7 @@ If run_compilation = True Then
 		this_file_created_date = objFile.DateCreated											'Reading the date created
 		this_file_path = objFile.Path															'Grabing the path for the file
 
-		If this_file_type = "Microsoft Excel Worksheet" and InStr(this_file_name, "Template") = 0 and DateDiff("d", this_file_created_date, date) <> 0 Then
+		If this_file_type = "Microsoft Excel Worksheet" and InStr(this_file_name, "Template") = 0 and InStr(this_file_name, "Interview") = 0 and DateDiff("d", this_file_created_date, date) <> 0 Then
 			Call excel_open(this_file_path, False, False, ObjREVWExcel, objREVWWorkbook)
 			If trim(ObjREVWExcel.cells(3, 3)) = "" Then
 				files_to_delete = files_to_delete & this_file_path & "~!~"
