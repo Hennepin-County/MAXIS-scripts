@@ -835,7 +835,7 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					Text 280, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_start_date(each_memb)
 					If STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) <> "" Then Text 280, y_pos + 10, 115, 10, " Income End Date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb)
-					If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "" Then
+					If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "0.00" Then
 						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb)
 						y_pos = y_pos + 10
 						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_gross_inc(each_memb)
@@ -3227,7 +3227,7 @@ function write_income_details_in_NOTE()
 			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb))
 			busi_string = ""
 
-			If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "" Then
+			If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "0.00" Then
 				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb)
 				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_gross_inc(each_memb)
 				If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb)
