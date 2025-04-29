@@ -1223,14 +1223,14 @@ Do
 	Do
 		Do
 			Dialog1 = "" 'Blanking out previous dialog detail
-      Call dialog_selection(dialog_count)
+            Call dialog_selection(dialog_count)
 
-      'Blank out variables on each new dialog
+            'Blank out variables on each new dialog
 			err_msg = ""
 
 			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
 			cancel_confirmation
-      Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+            ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
 			Call button_movement()				'function to move throughout the dialogs
 		Loop until err_msg = ""
 	Loop until ButtonPressed = complete_btn
@@ -1246,13 +1246,26 @@ call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 '--Fields with new address
 'Create dialog that shows the current address and entered addresses (if different)
 'To do - need to include footer month for updates
+new_address_provided = False
+date_of_death_provided = False
+
 If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
-  'Navigate to STAT/ADDR
-  Call navigate_to_MAXIS_screen("STAT", "ADDR")
-  Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    new_address_provided = True
+    'Navigate to STAT/ADDR
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-  'Include in dialog that shows current address and then the new addresses provided
-
+    'If both addresses have been added, then need to compare them to determine if they match
+    If section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 1 Then
+        section_c_person_moved_new_address_full = section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code
+        section_f_person_new_address_full = section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code
+        msgbox "section_c_person_moved_new_address_full > " & section_c_person_moved_new_address_full & vbcr & vbcr & "section_f_person_new_address_full > " & section_f_person_new_address_full
+        If section_c_person_moved_new_address_full = section_f_person_new_address_full Then
+            section_c_section_f_addresses_match = True
+        Else
+            section_c_section_f_addresses_match = False
+        End If
+    End If
 End If
 
 'Display ADDR information from panel and entered information
@@ -1295,6 +1308,7 @@ End If
 '--Fields with date of death
 'Navigate to STAT/MEMB to gather details
 If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
+    date_of_death_provided = True
   Call navigate_to_MAXIS_screen("STAT", "MEMB")
   'Navigate to HH Memb
   Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
@@ -1305,117 +1319,125 @@ If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox 
     memb_panel_date_of_death_exists = True
     memb_date_of_death = replace(memb_date_of_death, " ", "/")
   End If
+    'If both addresses have been added, then need to compare them to determine if they match
+    If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
+        'Convert both dates of death to dates to compare them
+        section_c_date_of_death = datepart("m", 0, section_c_date_of_death)
+        section_f_person_deceased_date_of_death = datepart("m", 0, section_f_person_deceased_date_of_death)
+        If section_c_date_of_death = section_f_person_deceased_date_of_death Then
+            'The dates are the same date
+            section_c_section_f_dates_of_death_match = True
+        Else
+            'The dates do not match - this shouldn't happen
+            section_c_section_f_dates_of_death_match = False
+        End If
+    End If
 End If
 
+' section_c_person_deceased_checkbox, section_c_date_of_death
+' section_f_person_deceased_date_of_death, section_f_person_deceased_checkbox
 
-'Dialog that will display date of death from panel and entered date of death(s) 
+'Format
+'x, y, length, height
+'Starting y_pos position
+y_pos = 5
+'y_pos = 100 for second groupbox
+'y_pos = 155 for third groupbox
 
-' 'Updates STAT MEMB with client's date of death (client_deceased_check)
-' IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB
-' 	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-' 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-' 	'Calculates the difference between the two dates (date of death and footer month)
-' 	difference_between_dates = DateDiff("m", date_of_death, footer_month_as_date)
+If new_address_provided = True and date_of_death_provided = True then
+    addr_pos = 100
+    dod_pos = 155
+End If
+If new_address_provided = True and date_of_death_provided = False then
+    addr_pos = 100
+End If
+If new_address_provided = False and date_of_death_provided = True then
+    dod_pos = 100
+End If
 
-' 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-' 	If difference_between_dates <> 0 THEN
-' 		back_to_SELF
-' 		Call convert_date_into_MAXIS_footer_month(date_of_death, MAXIS_footer_month, MAXIS_footer_year)
-' 		EMWriteScreen MAXIS_footer_month, 20, 43
-' 		EMWriteScreen MAXIS_footer_year, 20, 46
-' 		Transmit
-' 	END IF
-' 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-' 	PF9
-' 	'Writes in DOD from the date_of_death
-' 	Call create_MAXIS_friendly_date_with_YYYY(date_of_death, 0, 19, 42)
-' 	transmit
-' 	PF3
-' 	transmit
-' END IF
+'ADDR, SWKR, DOD match
+BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
+  GroupBox 5, 5, 315, 90, "Update SWKR"
+  CheckBox 10, 15, 290, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
+  CheckBox 20, 25, 275, 10, "Section A - Assessor 1: ", section_a_assessor_1_checkbox
+  CheckBox 20, 35, 275, 10, "Section A - Assessor 2:", section_a_assessor_2_checkbox
+  CheckBox 20, 45, 275, 10, "Section A - Assessor 3:", section_a_assessor_3_checkbox
+  CheckBox 20, 55, 275, 10, "Section E - Assessor 1:", section_e_assessor_1_checkbox
+  CheckBox 20, 65, 275, 10, "Section E - Assessor 2:", section_e_assessor_2_checkbox
+  CheckBox 20, 75, 275, 10, "Section E - Assessor 3:", section_e_assessor_3_checkbox
+    If new_address_provided = True and date_of_death_provided = True then
+        addr_pos = 100
+        dod_pos = 155
+        If section_c_section_f_addresses_match = False Then
+            GroupBox 5, addr_pos, 315, 50, "Update ADDR"
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_checkbox
+            CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address", section_c_new_address_checkbox
+            CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address", section_f_new_address_checkbox
+        ElseIf section_c_section_f_addresses_match = True Then
+            GroupBox 5, addr_pos, 315, 50, "Update ADDR"
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
+            Text 25, addr_pos + 25, 290, 10, "New Address Entered on LTC-5181: "
+        End If
+        If section_c_section_f_dates_of_death_match = False Then
+            GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_checkbox
+            CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death:", section_c_date_of_death_checkbox
+            CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death:", section_f_date_of_death_checkbox
+        ElseIf section_c_section_f_dates_of_death_match = True Then
+            GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
+            Text 25, dod_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: "
+        End If
+    ElseIf new_address_provided = True and date_of_death_provided = False then
+        addr_pos = 100
+        If section_c_section_f_addresses_match = False Then
+            GroupBox 5, addr_pos, 315, 50, "Update ADDR"
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_checkbox
+            CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address", section_c_new_address_checkbox
+            CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address", section_f_new_address_checkbox
+        ElseIf section_c_section_f_addresses_match = True Then
+            GroupBox 5, addr_pos, 315, 50, "Update ADDR"
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
+            Text 25, addr_pos + 25, 290, 10, "New Address Entered on LTC-5181: "
+        End If
+    ElseIf new_address_provided = False and date_of_death_provided = True then
+        dod_pos = 100
+        If section_c_section_f_dates_of_death_match = False Then
+            GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_checkbox
+            CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death:", section_c_date_of_death_checkbox
+            CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death:", section_f_date_of_death_checkbox
+        ElseIf section_c_section_f_dates_of_death_match = True Then
+            GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
+            Text 25, dod_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: "
+        End If
+    End If
+    Text 5, 295, 135, 10, "Enter footer month and year for updates:"
+    EditBox 145, 290, 25, 15, footer_month_updates
+    EditBox 175, 290, 25, 15, footer_year_updates
+    ButtonGroup ButtonPressed
+        PushButton 220, 290, 50, 15, "Next", next_btn
+        CancelButton 270, 290, 50, 15
+EndDialog
 
-' '------ADDRESS UPDATES----------------------------------------------------------------------------------------------------
-' 'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
-' IF update_addr_checkbox = 1 THEN
-' 	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-' 	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+Do
+	Do
+		Do
+			Dialog1 = "" 'Blanking out previous dialog detail
+            Call dialog_selection(dialog_count)
 
-' 	'Calculates the difference between the two dates (date of admission and footer month)
-' 	difference_between_dates = DateDiff("m", date_of_admission, footer_month_as_date)
+            'Blank out variables on each new dialog
+			err_msg = ""
 
-' 	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-' 	If difference_between_dates <> 0 THEN
-' 		back_to_SELF
-' 		CALL convert_date_into_MAXIS_footer_month(date_of_admission, MAXIS_footer_month, MAXIS_footer_year)
-' 		EMWriteScreen MAXIS_footer_month, 20, 43
-' 		EMWriteScreen MAXIS_footer_year, 20, 46
-' 		Transmit
-' 	END IF
-
-'     Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
-' 	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-' END If
-
-' 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
-' If update_SWKR_info_checkbox = 1 THEN
-
-' 	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
-' 	'creates a new panel if one doesn't exist, and will needs new if there is not one
-' 	EMReadScreen panel_exists_check, 1, 2, 73
-' 	IF panel_exists_check = "0" THEN
-' 		EMWriteScreen "NN", 20, 79 'creating new panel
-' 		transmit
-' 	ELSE
-' 		PF9	'putting panel into edit mode
-' 	END IF
-
-' 	'Blanks out the old info and writes in the new info into the SWKR panel if updated in the dialog
-'     If trim(lead_agency_assessor) <> "" then
-'         call clear_line_of_text(6, 32)
-'         EMWriteScreen lead_agency_assessor, 6, 32
-'     End if
-
-'     'updating all the ADDR info together
-'     If trim(casemgr_ADDR_line_01) <> "" then
-'         call clear_line_of_text(8, 32)
-'         call clear_line_of_text(9, 32)
-'         EMWriteScreen casemgr_ADDR_line_01, 8, 32
-'         EMWriteScreen casemgr_ADDR_line_02, 9, 32
-'     End if
-
-'     If trim(casemgr_city) <> "" then
-'         call clear_line_of_text(10, 32)
-'         EMWriteScreen casemgr_city, 10, 32
-'     End if
-
-'     If trim(casemgr_state) <> "" then
-'         call clear_line_of_text(10, 54)
-'         EMWriteScreen casemgr_state, 10, 54
-'     End if
-
-'     If trim(casemgr_zip_code) <> "" then
-'         call clear_line_of_text(10, 63)
-'         EMWriteScreen casemgr_zip_code, 10, 63
-'     End if
-
-'     'Updating all the phone number info together
-'     If trim(phone_area_code) <> "" then
-'         call clear_line_of_text(12, 34)
-'         call clear_line_of_text(12, 40)
-'         call clear_line_of_text(12, 44)
-'         call clear_line_of_text(12, 54)
-'         EMWriteScreen phone_area_code, 12, 34
-'         EMWriteScreen phone_prefix, 12, 40
-'         EMWriteScreen phone_second_four, 12, 44
-'         EMWriteScreen phone_extension, 12, 54
-'     End if
-
-' 	EMWriteScreen "Y", 15, 63
-' 	transmit
-' 	transmit
-' 	PF3
-' END IF
+			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+			cancel_confirmation
+            ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+			Call button_movement()				'function to move throughout the dialogs
+		Loop until err_msg = ""
+	Loop until ButtonPressed = complete_btn
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
