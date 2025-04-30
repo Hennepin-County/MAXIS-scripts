@@ -84,15 +84,29 @@ section_a_assessor_return_no_save_btn   = 220
 section_e_assessor_return_no_save_btn   = 221
 section_a_fill_SWKR_btn                 = 222
 section_e_fill_SWKR_btn                 = 223
+update_panels_btn                       = 224
+skip_panel_updates_btn                  = 225
 
 'Defining variables
 dialog_count = ""
+section_a_contact_info_called = False
+section_a_additional_assessors_called = False
+section_b_assess_results_current_status_called = False
+section_b_assess_results_MA_requests_apps_changes_called = False
+section_c_comm_elig_worker_exit_reasons_called = False
+section_c_other_changes_section_d_comments_called = False
+section_e_contact_info_called = False
+section_e_additional_assessors_called = False
+section_f_medical_assistance_called = False
+section_f_medical_assistance_changes_called = False
+section_g_comments_elig_worker_called = False
 
 'DEFINING FUNCTIONS===========================================================================
 
 'Dialog 1 - Section A: Contact Information
 function section_a_contact_info()
   dialog_count = 1
+  section_a_contact_info_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
     GroupBox 5, 5, 250, 190, "FROM (assessor/case manager/care coordinator's information)"
     Text 10, 20, 155, 10, "Click here to fill information from SWKR Panel:"
@@ -153,6 +167,7 @@ Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section
 
 function section_a_additional_assessors()
   dialog_count = 11
+  section_a_additional_assessors_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Info (Add'l Assessors)"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
@@ -199,6 +214,7 @@ Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, sec
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
   dialog_count = 2
+  section_b_assess_results_current_status_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "2 - Section B: Assess. Results - Current Status"
   GroupBox 5, 5, 250, 50, "What is the person's current status? (check second if both apply)"
   CheckBox 15, 20, 10, 10, "", section_g_person_requesting_already_enrolled_LTC
@@ -257,6 +273,7 @@ Dim section_g_person_requesting_already_enrolled_LTC, section_g_person_will_resi
 'Dialog 3 - Section B: Assessment Results - Initial Assessment & Case Manager
 function section_b_assess_results_initial_assess_case_manager()
   dialog_count = 3
+  section_b_assess_results_initial_assess_case_manager_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "3 - Section B: Assess. Results - Initial Assess. and Case Manager"
   GroupBox 5, 5, 240, 105, "Initial Assessment"
   Text 15, 20, 55, 10, "Assessment on "
@@ -312,6 +329,7 @@ Dim section_b_assessment_date, section_b_assessment_determination, section_b_ope
 'Dialog 4 - Section B: Assessment Results - MA Requests/Apps & Changes
 function section_b_assess_results_MA_requests_apps_changes()
   dialog_count = 4
+  section_b_assess_results_MA_requests_apps_changes_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "4 - Section B: Assess. Results - MA Requests/Apps and Changes"
     GroupBox 5, 5, 250, 200, "Medical Assistance requests/applications (select all that apply):"
     CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_LTC_checkbox
@@ -373,6 +391,7 @@ Dim section_b_applied_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b
 'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
 function section_c_comm_elig_worker_exit_reasons()
   dialog_count = 5
+  section_c_comm_elig_worker_exit_reasons_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "5 - Section C: Comm. to elig. worker - Exit Reasons"
     GroupBox 5, 5, 245, 200, "Exit Reasons"
     CheckBox 15, 20, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
@@ -423,6 +442,7 @@ Dim section_c_exited_waiver_program_checkbox, section_c_date_waiver_exit, sectio
 'Dialog 6 - Section C: Other Changes & Section D: Comments
 function section_c_other_changes_section_d_comments()
   dialog_count = 6
+  section_c_other_changes_section_d_comments_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes & Section D: Comments"
   GroupBox 5, 5, 250, 235, "Other changes"
   Text 15, 20, 50, 10, "Program type"
@@ -492,6 +512,7 @@ function section_e_contact_info()
   last_name = replace(last_name, "_", "")
   ref_nbr = left(hh_memb, 2)
   dialog_count = 7
+  section_e_contact_info_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
     Text 10, 25, 180, 10, "Date Sent to assessor/case manager/care coordinator:"
     EditBox 195, 20, 55, 15, section_e_date_form_sent
@@ -558,6 +579,7 @@ Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section
 'Dialog 7 - Section E: Contact Information
 function section_e_additional_assessors()
   dialog_count = 12
+  section_e_additional_assessors_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Info (Add'l Assessors)"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
@@ -604,6 +626,7 @@ Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, sec
 'Dialog 8 - Section F: Medical Assistance
 function section_f_medical_assistance()
   dialog_count = 8
+  section_f_medical_assistance_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "8 - Section F: Medical Assistance"
   CheckBox 15, 20, 175, 10, "Person applied for MA/MA-LTC (enter date applied)", section_f_person_applied_MA_checkbox
   CheckBox 15, 35, 150, 10, "DHS-3531 sent to person (enter date sent)", section_f_dhs_3531_sent_checkbox
@@ -668,6 +691,7 @@ Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, sect
 'Dialog 9 - Section F: Medical Assistance
 function section_f_medical_assistance_changes()
   dialog_count = 9
+  section_f_medical_assistance_changes_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "9 - Section F: Medical Assistance - Changes"
     GroupBox 5, 5, 250, 275, "Changes (select all that apply)"
     CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
@@ -741,6 +765,7 @@ Dim section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown_amount, section_f_
 'Dialog 10 - Section G: Comments from eligibility worker
 function section_g_comments_elig_worker()
   dialog_count = 10
+  section_g_comments_elig_worker_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "10 - Section G: Comments from elig. worker"
   Text 5, 5, 130, 10, "Enter any additional notes or comments"
   EditBox 5, 15, 225, 15, section_g_elig_comments
@@ -789,23 +814,23 @@ Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
 End Function
 
 function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
-	If ButtonPressed = next_btn AND err_msg = "" Then dialog_count = dialog_count + 1 'If next is selected, it will go to the next dialog
-	If ButtonPressed = previous_btn AND err_msg = "" Then dialog_count = dialog_count - 1	'If previous is selected, it will go to the previous dialog
-
+	If err_msg = "" AND ButtonPressed = next_btn Then dialog_count = dialog_count + 1 'If next is selected, it will go to the next dialog
+	If err_msg = "" AND ButtonPressed = previous_btn Then dialog_count = dialog_count - 1	'If previous is selected, it will go to the previous dialog
+  If err_msg = "" AND ButtonPressed = -1 then dialog_count = dialog_count + 1   'If enter is pressed, then move to next dialog if no errors
   If err_msg = "" and ButtonPressed = section_a_contact_info_btn then dialog_count = 1
-  If err_msg = "" and ButtonPressed = status_btn then dialog_count = 2
-  If err_msg = "" and ButtonPressed = initial_assessment_btn then dialog_count = 3
-  If err_msg = "" and ButtonPressed = MA_req_app_btn then dialog_count = 4
-  If err_msg = "" and ButtonPressed = exit_reasons_btn then dialog_count = 5
-  If err_msg = "" and ButtonPressed = other_changes_btn then dialog_count = 6
-  If err_msg = "" and ButtonPressed = section_d_comments_btn then dialog_count = 6
-  If err_msg = "" and ButtonPressed = section_b_contact_info_btn then dialog_count = 7
-  If err_msg = "" and ButtonPressed = MA_status_determination_btn then dialog_count = 8
-  If err_msg = "" and ButtonPressed = changes_btn then dialog_count = 9
-  If err_msg = "" and ButtonPressed = section_g_comments_btn then dialog_count = 10
-  If err_msg = "" and ButtonPressed = section_a_add_assessor_btn then dialog_count = 11
-  If err_msg = "" and ButtonPressed = section_e_add_assessor_btn then dialog_count = 12
-  If err_msg = "" and ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
+  If err_msg = "" AND ButtonPressed = status_btn then dialog_count = 2
+  If err_msg = "" AND ButtonPressed = initial_assessment_btn then dialog_count = 3
+  If err_msg = "" AND ButtonPressed = MA_req_app_btn then dialog_count = 4
+  If err_msg = "" AND ButtonPressed = exit_reasons_btn then dialog_count = 5
+  If err_msg = "" AND ButtonPressed = other_changes_btn then dialog_count = 6
+  If err_msg = "" AND ButtonPressed = section_d_comments_btn then dialog_count = 6
+  If err_msg = "" AND ButtonPressed = section_b_contact_info_btn then dialog_count = 7
+  If err_msg = "" AND ButtonPressed = MA_status_determination_btn then dialog_count = 8
+  If err_msg = "" AND ButtonPressed = changes_btn then dialog_count = 9
+  If err_msg = "" AND ButtonPressed = section_g_comments_btn then dialog_count = 10
+  If err_msg = "" AND ButtonPressed = section_a_add_assessor_btn then dialog_count = 11
+  If err_msg = "" AND ButtonPressed = section_e_add_assessor_btn then dialog_count = 12
+  If err_msg = "" AND ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
   If ButtonPressed = section_a_assessor_return_no_save_btn then 
     'Reset all Add'l Assessor variables
     section_a_assessor_2 = ""
@@ -827,7 +852,7 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
 
     dialog_count = 1
   End If 
-  If err_msg = "" and ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
+  If err_msg = "" AND ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
   If ButtonPressed = section_e_assessor_return_no_save_btn then 
     'Reset all Add'l Assessor variables
     section_e_assessor_2 = ""
@@ -897,6 +922,7 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
     END IF
   End If
+
 end function
 
 function dialog_specific_error_handling()	'Error handling for main dialog of forms
@@ -915,7 +941,6 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
     ButtonPressed = section_g_comments_btn OR _
     ButtonPressed = next_btn OR _
     ButtonPressed = previous_btn OR _
-    ButtonPressed = complete_btn OR _
     ButtonPressed = instructions_btn OR _
     ButtonPressed = section_a_assessor_return_btn OR _
     ButtonPressed = section_e_assessor_return_btn OR _
@@ -1067,28 +1092,6 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         ' section_d_additional_comments
       End if 
       If dialog_count = 7 then 
-        If section_c_program_type_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the program type from the dropdown list."
-
-        If section_c_diversion_checkbox + section_c_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one option, not both, for Diversion or Conversion."
-        
-        If section_c_person_moved_new_address_checkbox = 1 Then
-          If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
-          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) = "" OR trim(section_c_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the new address (address, state, city, and zip code)."
-        End If
-        If section_c_new_legal_rep_checkbox = 1 Then
-          If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
-          If trim(section_c_legal_rep_street_address) = "" or trim(section_c_legal_rep_city) = "" or trim(section_c_legal_rep_state) = "" OR trim(section_c_legal_rep_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address, City, State, and Zip Code fields for the new legal representative."
-        End If
-        If section_c_person_return_to_community_checkbox = 1 Then 
-          If trim(section_c_qual_admission_eff_date) = "" OR IsDate(section_c_qual_admission_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Effective Date for the Person returning to community w/in 121 days of a qual. admission."
-        End If
-        If section_c_other_changes_program_checkbox = 1 Then
-          If trim(section_c_other_changes_program) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the field to describe the Other changes related to program/service eligibility."
-        End If 
-        'To do - handling needed?
-        ' section_d_additional_comments
-      End if 
-      If dialog_count = 8 then 
         If trim(section_e_date_form_sent) = "" OR IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
         If trim(section_e_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
         If trim(section_e_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
@@ -1099,8 +1102,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_e_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field." 
         If trim(section_e_email_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Email Address field." 
         If hh_memb = "Select One:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
-      End If
-      If dialog_count = 9 then
+      End if 
+      If dialog_count = 8 then 
         If section_f_person_applied_MA_checkbox = 1 Then
           If trim(section_f_person_applied_date) = "" OR IsDate(section_f_person_applied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the person applied for MA/MA-LTC in the format MM/DD/YYYY."
         End If
@@ -1141,7 +1144,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
           If trim(section_f_results_from_asset_assessment_sent_date) = "" OR IsDate(section_f_results_from_asset_assessment_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the results from the asset assessment were sent to the person in the format MM/DD/YYYY."
         End If
       End If
-      If dialog_count = 10 then
+      If dialog_count = 9 then
         If section_f_LTC_spenddown_checkbox = 1 Then
           If trim(section_f_LTC_spenddown_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the spenddown dollar amount for the LTC spenddown/waiver obligation."
         End If
@@ -1158,24 +1161,47 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If section_f_person_deceased_checkbox = 1 Then
           If trim(section_f_person_deceased_date_of_death) = "" OR IsDate(section_f_person_deceased_date_of_death) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date of death in the format MM/DD/YYYY."
         End If
-        
         If section_f_person_moved_institution_checkbox = 1 Then
           If trim(section_f_person_moved_institution_admit_date) = "" OR IsDate(section_f_person_moved_institution_admit_date) Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
           If trim(section_f_person_moved_institution_facility_name) = "" OR trim(section_f_person_moved_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
           If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
         End If
-
         If section_f_person_new_address_checkbox = 1 Then
           If trim(section_f_person_new_address_date_changed) = "" OR IsDate(section_f_person_new_address_date_changed) Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
           If trim(section_f_person_new_address_new_phone_number) = "" OR trim(section_f_person_new_address_address) = "" OR trim(section_f_person_new_address_city) = "" OR trim(section_f_person_new_address_state) = "" OR trim(section_f_person_new_address_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
           If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
         End If
-
         If section_f_other_change_checkbox = 1 Then
           If trim(section_f_person_other_change_description) = "" Then err_msg = err_msg & vbNewLine & "* You checked the Other change box. You must describe the reason in the field provided."
         End If
       End If
+      ' If dialog_count = 10 then
+      '   'No error handling needed for comments
+      ' End If
+  End If
+  If ButtonPressed = complete_btn Then
+    If section_a_contact_info_called = False OR _
+    section_b_assess_results_current_status_called = False OR _
+    section_b_assess_results_MA_requests_apps_changes_called = False OR _
+    section_c_comm_elig_worker_exit_reasons_called = False OR _
+    section_c_other_changes_section_d_comments_called = False OR _
+    section_e_contact_info_called = False OR _
+    section_f_medical_assistance_called = False OR _
+    section_f_medical_assistance_changes_called = False OR _
+    section_g_comments_elig_worker_called = False Then
+      err_msg = err_msg & vbNewLine & "* All dialogs must be viewed/completed. Please review the following dialogs:"
     End If
+
+    If section_a_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section A: Contact Info"
+    If section_b_assess_results_current_status_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Status"
+    If section_b_assess_results_MA_requests_apps_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Initial Assess."
+    If section_c_comm_elig_worker_exit_reasons_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Exit Reasons"
+    If section_c_other_changes_section_d_comments_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Other Changes"
+    If section_e_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section E: Contact Info"
+    If section_f_medical_assistance_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: MA Status/Det"
+    If section_f_medical_assistance_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: Changes"
+    If section_g_comments_elig_worker_called = False Then err_msg = err_msg & vbNewLine & "--> Section G: Comments"
+  End If
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 end function
 
@@ -1223,29 +1249,28 @@ Do
 	Do
 		Do
 			Dialog1 = "" 'Blanking out previous dialog detail
-            Call dialog_selection(dialog_count)
+      Call dialog_selection(dialog_count)
 
-            'Blank out variables on each new dialog
+      'Blank out variables on each new dialog
 			err_msg = ""
 
 			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
 			cancel_confirmation
-            ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+      Call dialog_specific_error_handling	'function for error handling of main dialog of forms
 			Call button_movement()				'function to move throughout the dialogs
 		Loop until err_msg = ""
 	Loop until ButtonPressed = complete_btn
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+
+
 call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 
-'To do - update handling to update SWKR, ADDR, DOD if needed
-
 'ACTIONS----------------------------------------------------------------------------------------------------
+'Read through panels to determine status and updates if needed
 'Update ADDR
 '--Fields with new address
-'Create dialog that shows the current address and entered addresses (if different)
-'To do - need to include footer month for updates
 new_address_provided = False
 date_of_death_provided = False
 
@@ -1339,23 +1364,9 @@ End If
 
 'Format
 'x, y, length, height
-'Starting y_pos position
-y_pos = 5
-'y_pos = 100 for second groupbox
-'y_pos = 155 for third groupbox
-
-If new_address_provided = True and date_of_death_provided = True then
-    addr_pos = 100
-    dod_pos = 155
-End If
-If new_address_provided = True and date_of_death_provided = False then
-    addr_pos = 100
-End If
-If new_address_provided = False and date_of_death_provided = True then
-    dod_pos = 100
-End If
 
 'ADDR, SWKR, DOD match
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
   GroupBox 5, 5, 315, 90, "Update SWKR"
   CheckBox 10, 15, 290, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
@@ -1365,12 +1376,12 @@ BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
   CheckBox 20, 55, 275, 10, "Section E - Assessor 1:", section_e_assessor_1_checkbox
   CheckBox 20, 65, 275, 10, "Section E - Assessor 2:", section_e_assessor_2_checkbox
   CheckBox 20, 75, 275, 10, "Section E - Assessor 3:", section_e_assessor_3_checkbox
-    If new_address_provided = True and date_of_death_provided = True then
+    If new_address_provided = True AND date_of_death_provided = True then
         addr_pos = 100
         dod_pos = 155
         If section_c_section_f_addresses_match = False Then
             GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_checkbox
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
             CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address", section_c_new_address_checkbox
             CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address", section_f_new_address_checkbox
         ElseIf section_c_section_f_addresses_match = True Then
@@ -1380,7 +1391,7 @@ BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
         End If
         If section_c_section_f_dates_of_death_match = False Then
             GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_checkbox
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
             CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death:", section_c_date_of_death_checkbox
             CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death:", section_f_date_of_death_checkbox
         ElseIf section_c_section_f_dates_of_death_match = True Then
@@ -1388,11 +1399,11 @@ BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
             CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
             Text 25, dod_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: "
         End If
-    ElseIf new_address_provided = True and date_of_death_provided = False then
+    ElseIf new_address_provided = True AND date_of_death_provided = False then
         addr_pos = 100
         If section_c_section_f_addresses_match = False Then
             GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_checkbox
+            CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
             CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address", section_c_new_address_checkbox
             CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address", section_f_new_address_checkbox
         ElseIf section_c_section_f_addresses_match = True Then
@@ -1400,11 +1411,11 @@ BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
             CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
             Text 25, addr_pos + 25, 290, 10, "New Address Entered on LTC-5181: "
         End If
-    ElseIf new_address_provided = False and date_of_death_provided = True then
+    ElseIf new_address_provided = False AND date_of_death_provided = True then
         dod_pos = 100
         If section_c_section_f_dates_of_death_match = False Then
             GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_checkbox
+            CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
             CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death:", section_c_date_of_death_checkbox
             CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death:", section_f_date_of_death_checkbox
         ElseIf section_c_section_f_dates_of_death_match = True Then
@@ -1417,26 +1428,34 @@ BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
     EditBox 145, 290, 25, 15, footer_month_updates
     EditBox 175, 290, 25, 15, footer_year_updates
     ButtonGroup ButtonPressed
-        PushButton 220, 290, 50, 15, "Next", next_btn
-        CancelButton 270, 290, 50, 15
+      PushButton 205, 290, 60, 15, "UPDATE Panels", update_panels_btn
+      PushButton 270, 290, 55, 15, "SKIP Updates", skip_panel_updates_btn
 EndDialog
 
+'Dialog validation
 Do
-	Do
-		Do
-			Dialog1 = "" 'Blanking out previous dialog detail
-            Call dialog_selection(dialog_count)
+  Do
+    'Blank out variables on each new dialog
+    err_msg = ""
 
-            'Blank out variables on each new dialog
-			err_msg = ""
+    dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+    cancel_confirmation
+    ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+    ' Call button_movement()				'function to move throughout the dialogs
 
-			dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-			cancel_confirmation
-            ' Call dialog_specific_error_handling	'function for error handling of main dialog of forms
-			Call button_movement()				'function to move throughout the dialogs
-		Loop until err_msg = ""
-	Loop until ButtonPressed = complete_btn
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Error handling only if worker intends to update panels
+    If ButtonPressed = update_panels_btn Then
+      If swkr_update_checkbox = 1 AND ((section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox = 0) OR (section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox > 1)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select ONLY one assessor to use for the update." 
+
+      If addr_update_multiple_checkbox = 1 AND ((section_c_new_address_checkbox + section_f_new_address_checkbox = 0) OR (section_c_new_address_checkbox + section_f_new_address_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must select ONLY one address to use for the update." 
+
+      If date_of_death_update_multiple_checkbox = 1 AND ((section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 0) OR (section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the Date of Death on the MEMB panel, you must select ONLY one date to use for the update."
+    End If 
+    
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    'To do - add parameter for next btn
+  LOOP UNTIL err_msg = ""	AND ((ButtonPressed = update_panels_btn) OR (ButtonPressed = skip_panel_updates_btn))								'loops until all errors are resolved
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
@@ -1469,7 +1488,7 @@ If section_a_assessor_3 <> "" Then
 End If
 'Person's information
 Call write_variable_in_case_note("Person's Information")
-Call write_bullet_and_variable_in_case_note("Name", first_name & " " & last_name & "(" & ref_nbr & ")")
+Call write_bullet_and_variable_in_case_note("Name", replace(first_name, "_", "") & " " & replace(last_name, "_", "") & "(" & ref_nbr & ")")
 
 'Information from Dialog 2
 Call write_variable_in_case_note("Section B - Assessment Results")
