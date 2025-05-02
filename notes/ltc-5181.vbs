@@ -1273,30 +1273,10 @@ call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 'Update ADDR
 '--Fields with new address
 new_address_provided = False
+section_c_section_f_both_new_addresses = False
+section_c_person_moved_new_address_only = False
+section_f_person_new_address_only = False
 date_of_death_provided = False
-
-If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
-    new_address_provided = True
-    'Navigate to STAT/ADDR
-    Call navigate_to_MAXIS_screen("STAT", "ADDR")
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
-    'If both addresses have been added, then need to compare them to determine if they match
-    If section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 1 Then
-        section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
-        section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
-        If section_c_person_moved_new_address_full = section_f_person_new_address_full Then
-            section_c_section_f_addresses_match = True
-        Else
-            section_c_section_f_addresses_match = False
-        End If
-    End If
-End If
-
-'Display ADDR information from panel and entered information
-' section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code
-
-' section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code
 
 '--Fields with new assessor details (SWKR panel)
 'Navigate to STAT/SWKR to gather details
@@ -1318,22 +1298,59 @@ Else
   EmReadScreen current_swkr_area_code, 3, 12, 34
   EmReadScreen current_swkr_prefix_code, 3, 12, 40
   EmReadScreen current_swkr_line_code, 4, 12, 44
-  current_swkr_line_code = current_swkr_area_code & current_swkr_prefix_code & current_swkr_line_code
+  current_swkr_phone_number = current_swkr_area_code & current_swkr_prefix_code & current_swkr_line_code
+  current_swkr_panel_info = current_swkr_name & "(" & current_swkr_street & ", " & current_swkr_city & ", " & current_swkr_state & " " & current_swkr_zip & "; " & current_swkr_phone_number & ")"
 End If
 
-'Dialog that will display details from current SWKR, as well as assessors added in the dialogs
-' section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
+    new_address_provided = True
+    'Navigate to STAT/ADDR
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-' section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
+    addr_eff_date = replace(addr_eff_date, " ", "/")
 
-' section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, hh_memb
+    current_ADDR_address = addr_eff_date & "; " & resi_street_full & ", " & resi_state & ", " & resi_zip & "(" & "County: " & resi_county & "; " & "Ver: " & addr_verif & "; " & "Living Sit: " & addr_living_sit & ")"
 
-' section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3, section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
+    'If both addresses have been added, then need to compare them to determine if they match
+    If section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 1 Then
+      section_c_section_f_both_new_addresses = True
+      section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
+      section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
+      If section_c_person_moved_new_address_full = section_f_person_new_address_full Then
+        section_c_section_f_addresses_match = True
+      Else
+        section_c_section_f_addresses_match = False
+      End If
+    ElseIf section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox <> 1 Then
+      'Only section c new address checked
+      section_c_person_moved_new_address_only = True
+      section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
+    ElseIf section_c_person_moved_new_address_checkbox <> 1 AND section_f_person_new_address_checkbox = 1 Then
+      'Only section f new address checked
+      section_f_person_new_address_only = True
+      section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
+    End If
+End If
+
+' 'Display ADDR information from panel and entered information
+' ' section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code
+
+' ' section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code
+
+' 'Dialog that will display details from current SWKR, as well as assessors added in the dialogs
+' ' section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+
+' ' section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
+
+' ' section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, hh_memb
+
+' ' section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3, section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
 
 '--Fields with date of death
 'Navigate to STAT/MEMB to gather details
 If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
-    date_of_death_provided = True
+  date_of_death_provided = True
   Call navigate_to_MAXIS_screen("STAT", "MEMB")
   'Navigate to HH Memb
   Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
@@ -1344,19 +1361,26 @@ If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox 
     memb_panel_date_of_death_exists = True
     memb_date_of_death = replace(memb_date_of_death, " ", "/")
   End If
-    'If both addresses have been added, then need to compare them to determine if they match
-    If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
-        'Convert both dates of death to dates to compare them
-        section_c_date_of_death = datepart("m", 0, section_c_date_of_death)
-        section_f_person_deceased_date_of_death = datepart("m", 0, section_f_person_deceased_date_of_death)
-        If section_c_date_of_death = section_f_person_deceased_date_of_death Then
-            'The dates are the same date
-            section_c_section_f_dates_of_death_match = True
-        Else
-            'The dates do not match - this shouldn't happen
-            section_c_section_f_dates_of_death_match = False
-        End If
+  'If both addresses have been added, then need to compare them to determine if they match
+  If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
+    section_c_section_f_both_new_DOD = True
+    'Convert both dates of death to dates to compare them
+    section_c_date_of_death = datepart("m", 0, section_c_date_of_death)
+    section_f_person_deceased_date_of_death = datepart("m", 0, section_f_person_deceased_date_of_death)
+    If section_c_date_of_death = section_f_person_deceased_date_of_death Then
+      'The dates are the same date
+      section_c_section_f_dates_of_death_match = True
+    Else
+      'The dates do not match - this shouldn't happen
+      section_c_section_f_dates_of_death_match = False
     End If
+  ElseIf section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox <> 1 Then
+    'If only section c DOD entered
+    section_c_person_deceased_only = True
+  ElseIf section_c_person_deceased_checkbox <> 1 AND section_f_person_deceased_checkbox = 1 Then
+    'If only section f DOD entered
+    section_f_person_deceased_only = True
+  End If
 End If
 
 ' section_c_person_deceased_checkbox, section_c_date_of_death
@@ -1364,90 +1388,113 @@ End If
 
 'Format
 'x, y, length, height
-'Set starting position for assessor
-assessor_y_pos = 25
+'Set starting position for y_pos
+y_pos = 60
+
+'Calculate size of the SWKR group box
+swkr_group_box = 95
+If section_a_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10
+If section_a_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10
+If section_e_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10 
+If section_e_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10 
 
 'ADDR, SWKR, DOD match
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
-  GroupBox 5, 5, 315, 100, "Update SWKR"
-  CheckBox 10, 15, 290, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
-  CheckBox 20, assessor_y_pos, 275, 10, "Section A - Assessor 1: " & section_a_assessor, section_a_assessor_1_checkbox
+  GroupBox 5, 5, 315, swkr_group_box, "Update SWKR"
+  Text 15, 20, 70, 10, "Current SWKR Panel: "
+  If swkr_panel_exists = True Then Text 15, 30, 290, 10, current_swkr_panel_info
+  If swkr_panel_exists = False Then Text 15, 30, 290, 10, "No SWKR Panel Exists" 
+  CheckBox 15, 45, 290, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
+  CheckBox 25, 60, 275, 10, "Section A - Assessor 1: " & section_a_assessor, section_a_assessor_1_checkbox
   If section_a_assessor_2 <> "" Then 
-    CheckBox 20, assessor_y_pos + 10, 275, 10, "Section A - Assessor 2: " & section_a_assessor_2, section_a_assessor_2_checkbox
-    assessor_y_pos = assessor_y_pos + 10
+    CheckBox 25, y_pos + 10, 275, 10, "Section A - Assessor 2: " & section_a_assessor_2, section_a_assessor_2_checkbox
+    y_pos = y_pos + 10
   End If
   If section_a_assessor_3 <> "" Then 
-    CheckBox 20, assessor_y_pos + 10, 275, 10, "Section A - Assessor 3: " & section_a_assessor_3, section_a_assessor_3_checkbox
-    assessor_y_pos = assessor_y_pos + 10
+    CheckBox 25, y_pos + 10, 275, 10, "Section A - Assessor 3: " & section_a_assessor_3, section_a_assessor_3_checkbox
+    y_pos = y_pos + 10
   End If
-  CheckBox 20, assessor_y_pos + 10, 275, 10, "Section E - Assessor 1: " & section_e_assessor, section_e_assessor_1_checkbox
-  assessor_y_pos = assessor_y_pos + 10
+  CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 1: " & section_e_assessor, section_e_assessor_1_checkbox
+  y_pos = y_pos + 10
   If section_e_assessor_2 <> "" Then 
-    CheckBox 20, assessor_y_pos + 10, 275, 10, "Section E - Assessor 2: " & section_e_assessor_2, section_e_assessor_2_checkbox
-    assessor_y_pos = assessor_y_pos + 10
+    CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 2: " & section_e_assessor_2, section_e_assessor_2_checkbox
+    y_pos = y_pos + 10
   End If
   If section_e_assessor_3 <> "" Then 
-    CheckBox 20, assessor_y_pos + 10, 275, 10, "Section E - Assessor 3: " & section_e_assessor_3, section_e_assessor_3_checkbox
-    assessor_y_pos = assessor_y_pos + 10
+    CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 3: " & section_e_assessor_3, section_e_assessor_3_checkbox
+    y_pos = y_pos + 10
   End If
-  Text 10, assessor_y_pos + 15, 145, 10, "All notices to Social Worker (select Y or N):"
-  CheckBox 160, assessor_y_pos + 15, 25, 10, "Yes", notices_to_social_worker_y_checkbox
-  CheckBox 190, assessor_y_pos + 15, 25, 10, "No", notices_to_social_worker_n_checkbox
-  If new_address_provided = True AND date_of_death_provided = True then
-      addr_pos = 125
-      dod_pos = 180
-      If section_c_section_f_addresses_match = False Then
-          GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-          CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
-          CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, section_c_new_address_checkbox
-          CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address: " & section_f_person_new_address_full, section_f_new_address_checkbox
-      ElseIf section_c_section_f_addresses_match = True Then
-          GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-          CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
-          Text 25, addr_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_f_person_new_address_full
+  Text 10, y_pos + 15, 145, 10, "All notices to Social Worker (select Y or N):"
+  CheckBox 160, y_pos + 15, 25, 10, "Yes", notices_to_social_worker_y_checkbox
+  CheckBox 190, y_pos + 15, 25, 10, "No", notices_to_social_worker_n_checkbox
+  y_pos = y_pos + 30
+  'Add the addresses if needed
+  If new_address_provided = True Then
+    'Insert current ADDR information
+    GroupBox 5, y_pos, 315, 70, "Update ADDR"
+    Text 15, y_pos + 10, 70, 10, "Current ADDR Panel: "
+    Text 15, y_pos + 20, 290, 10, current_ADDR_address
+    y_pos = y_pos + 30
+    If section_c_section_f_both_new_addresses = True Then
+      If section_c_section_f_addresses_match = True Then
+        'The addresses DO match so only need to display one of them
+        CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
+        Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_f_person_new_address_full
+        y_pos = y_pos + 35
+      ElseIf section_c_section_f_addresses_match = False Then
+        'The addresses DO NOT match so need to display both of them
+        CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
+        CheckBox 25, y_pos + 20, 275, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, section_c_new_address_checkbox
+        CheckBox 25, y_pos + 30, 275, 10, "Section F - New Address: " & section_f_person_new_address_full, section_f_new_address_checkbox
+        y_pos = y_pos + 30
       End If
-      If section_c_section_f_dates_of_death_match = False Then
-          GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-          CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
-          CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
-          CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
-      ElseIf section_c_section_f_dates_of_death_match = True Then
-          GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-          CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
-          Text 25, dod_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+    ElseIf section_c_person_moved_new_address_only = True Then
+      'Only need to display the section c address
+      CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
+      Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_c_person_moved_new_address_full
+      y_pos = y_pos + 35
+    ElseIf section_f_person_moved_new_address_only = True Then
+      'Only need to display the section f address
+      CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
+      Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_f_person_new_address_full
+      y_pos = y_pos + 35
+    End If
+  End If
+  If date_of_death_provided = True then
+    y_pos = y_pos + 15
+    GroupBox 5, y_pos, 315, 65, "Update MEMB (Date of Death)"
+    Text 15, y_pos + 15, 100, 10, "Current DOD on MEMB Panel: "
+    If memb_panel_date_of_death_exists = True Then Text 120, y_pos + 15, 100, 10, memb_date_of_death
+    If memb_panel_date_of_death_exists = False Then Text 120, y_pos + 15, 100, 10, "No date of death entered"
+    y_pos = y_pos + 15 
+    If section_c_section_f_both_new_DOD = True Then
+      If section_c_section_f_dates_of_death_match = True Then
+        CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
+        CheckBox 25, y_pos + 25, 275, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
+        CheckBox 25, y_pos + 35, 275, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
+        y_pos = y_pos + 10
+      ElseIf section_c_section_f_dates_of_death_match = False Then
+        CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
+        Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+        y_pos = y_pos + 10
       End If
-  ElseIf new_address_provided = True AND date_of_death_provided = False then
-      addr_pos = 125
-      If section_c_section_f_addresses_match = False Then
-          GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-          CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
-          CheckBox 25, addr_pos + 20, 275, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, section_c_new_address_checkbox
-          CheckBox 25, addr_pos + 30, 275, 10, "Section F - New Address: " & section_f_person_new_address_full, section_f_new_address_checkbox
-      ElseIf section_c_section_f_addresses_match = True Then
-          GroupBox 5, addr_pos, 315, 50, "Update ADDR"
-          CheckBox 15, addr_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox
-          Text 25, addr_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_c_person_moved_new_address_full
-      End If
-  ElseIf new_address_provided = False AND date_of_death_provided = True then
-      dod_pos = 125
-      If section_c_section_f_dates_of_death_match = False Then
-          GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-          CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
-          CheckBox 25, dod_pos + 25, 275, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
-          CheckBox 25, dod_pos + 35, 275, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
-      ElseIf section_c_section_f_dates_of_death_match = True Then
-          GroupBox 5, dod_pos, 315, 50, "Update MEMB (Date of Death)"
-          CheckBox 15, dod_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
-          Text 25, dod_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
-      End If
+    ElseIf section_c_person_deceased_only = True Then
+      CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
+      Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+      y_pos = y_pos + 10
+    ElseIf section_f_person_deceased_only = True Then
+      CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", date_of_death_update_checkbox
+      Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_f_person_deceased_date_of_death
+      y_pos = y_pos + 10
+    End If
   End If
   Text 5, 295, 135, 10, "Enter footer month and year for updates:"
   EditBox 145, 290, 25, 15, footer_month_updates
   EditBox 175, 290, 25, 15, footer_year_updates
   ButtonGroup ButtonPressed
     PushButton 205, 290, 60, 15, "UPDATE Panels", update_panels_btn
-    PushButton 270, 290, 55, 15, "SKIP Updates", skip_panel_updates_btn
+    PushButton 265, 290, 55, 15, "SKIP Updates", skip_panel_updates_btn
 EndDialog
 
 'Dialog validation
@@ -1563,6 +1610,57 @@ If swkr_update_checkbox = 1 Then
     transmit
   End If
 End If
+
+'To do - determine how best to update ADDR panel -> need Living Situation, county of residence code, address line 2
+If addr_update_multiple_checkbox = 1 OR addr_update_checkbox = 1 Then
+  'Navigate to STAT/ADDR
+  Call navigate_to_MAXIS_screen("STAT", "ADDR")
+  'Put panel into edit mode
+  PF9
+
+  'Write information to panel depending on which address selected
+  If addr_update_multiple_checkbox = 1 Then
+    If section_c_new_address_checkbox = 1 Then
+      Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    ElseIf section_f_new_address_checkbox = 1 Then
+      Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    End If
+  ElseIf addr_update_checkbox = 1 Then
+    Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+  End If
+End If
+
+'Update the DOD on MEMB panel
+If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
+  'Navigate to STAT/MEMB
+  Call navigate_to_MAXIS_screen("STAT", "MEMB")
+  'Navigate to HH Memb
+  Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
+  'Put panel into edit mode
+  PF9
+  'Write date of death ot MEMB panel
+  EMReadScreen memb_date_of_death, 10, 19, 42
+  If memb_date_of_death = "__ __ ____" then 
+    memb_panel_date_of_death_exists = False
+  Else
+    memb_panel_date_of_death_exists = True
+    memb_date_of_death = replace(memb_date_of_death, " ", "/")
+  End If
+    'If both addresses have been added, then need to compare them to determine if they match
+    If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
+        'Convert both dates of death to dates to compare them
+        section_c_date_of_death = datepart("m", 0, section_c_date_of_death)
+        section_f_person_deceased_date_of_death = datepart("m", 0, section_f_person_deceased_date_of_death)
+        If section_c_date_of_death = section_f_person_deceased_date_of_death Then
+            'The dates are the same date
+            section_c_section_f_dates_of_death_match = True
+        Else
+            'The dates do not match - this shouldn't happen
+            section_c_section_f_dates_of_death_match = False
+        End If
+    End If
+End If
+
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
