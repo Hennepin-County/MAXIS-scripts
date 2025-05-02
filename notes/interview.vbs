@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/02/2025", "Updated button locations for verifications dialog", "Mark Riegel, Hennepin County")
 call changelog_update("01/27/2025", "Interview Updates:##~## - Added a 'Clear ALL' button to verifications.##~##   (New Interview - Verifications instruction document!)##~## - Remove entry of signature date as it is not necessary to document.##~## - Added information on the WIF and CASE/NOTE about verbal signature to align with policy.##~## - Updated some formatting and verbiage to align with different form types.##~## - Fixed bug in the Expedited information in the WIF.##~## ##~##These updates are far reaching and with a large script like the Interview script, there may be places where additional functionality or updates are needed. Please report anything you notice about these changes.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/27/2024", "Update to the process for documenting verbal program requests and documenting verbal program request withdrawals.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "BIG NEWS ! ##~## ##~## The Interview Script now supports different questions for different form selections!!!!##~## ##~##As this is brand new AND a very large change there may be some unexpected results or bugs. Please alert the script team to any bugs, questions, or thoughts you have on the updates.##~## ##~##We are very excited to be able to get this functionality out.", "Casey Love, Hennepin County")
@@ -4583,7 +4584,7 @@ function verification_dialog()
 				Text 10, 10, 235, 10, "All verifications you have indicated are listed Here."
 				Text 10, 20, 470, 10, "Press 'Add Another' to add other verifications to this list, or add them in the 'ADD VERIFICATION' buttons on the main dialog."
 				ButtonGroup ButtonPressed
-				  PushButton 485, 10, 50, 15, "Add Another", add_verif_button
+					PushButton 485, 10, 50, 15, "Add Another", add_verif_button
 			  End If
 			  If verif_view = "Add A Verif" Then
 	              Groupbox 5, 35, 520, 130, "Personal and Household Information"
@@ -4659,8 +4660,8 @@ function verification_dialog()
 
 
               ButtonGroup ButtonPressed
-                PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
-				PushButton 465, 365, 125, 15, "Clear ALL Requested Verifications", clear_verifs_btn
+			  	PushButton 545, 365, 60, 15, "Return to Dialog", return_to_dialog_button
+				PushButton 5, 365, 125, 15, "Clear ALL Requested Verifications", clear_verifs_btn
               ' Text 10, 340, 580, 50, verifs_needed
             EndDialog
 
