@@ -245,6 +245,7 @@ total_cases_count			= 0
 mippa_cases_count			= 0
 ema_cases_count				= 0
 mets_trans_cases_count		= 0
+ltc_cases_count				= 0
 reg_cases_count				= 0
 days_1_10_cases_count		= 0
 days_11_20_cases_count		= 0
@@ -268,7 +269,8 @@ curr_assign_cases_count		= 0
 finished_work_cases_count 	= 0
 
 const hsr_name_const = 0
-const hsr_count_const = 1
+const hsr_order_const = 1
+const hsr_count_const = 2
 
 Dim ASSIGNED_ARRAY()
 ReDim ASSIGNED_ARRAY(hsr_count_const, 0)
@@ -331,11 +333,14 @@ function review_hc_pending_counts()
 
 		Call excel_open(controller_hc_pending_excel, True, False, ObjExcel, objWorkbook)
 		objExcel.worksheets("Cases").Activate			'Activates the selected worksheet'
-
+		oldest_date = ""
 		excel_row = 2
+		each_hsr = 1
+		each_date = 1
 		Do
 			mippa_case = ""
 			mets_trans_case = ""
+			ltc_case = ""
 			ema_case = ""
 			smrt_case = ""
 			case_overdue = ""
@@ -345,6 +350,7 @@ function review_hc_pending_counts()
 
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, MIPPA_col), mippa_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, METS_Transition_col), mets_trans_case)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Appears_LTC_col), ltc_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, EMA_col), ema_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, SMRT_Application_col), smrt_case)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Overdue_col), case_overdue)
@@ -356,11 +362,13 @@ function review_hc_pending_counts()
 			days_pending =				ObjExcel.Cells(excel_row, Days_Pending_col).Value
 			worker_name = trim(ObjExcel.Cells(excel_row, Most_Recent_Assignment_Worker_col).Value)
 			worked_date = ObjExcel.Cells(excel_row, Most_Recent_Assignment_Date_col).Value & ""
+			If ltc_case = "" Then ltc_case = False
 
 			total_cases_count = total_cases_count + 1
 			If mippa_case Then mippa_cases_count = mippa_cases_count + 1
 			' If ema_case Then ema_cases_count = ema_cases_count + 1
 			If mets_trans_case Then mets_trans_cases_count = mets_trans_cases_count + 1
+			If ltc_case Then ltc_cases_count = ltc_cases_count + 1
 			If smrt_case Then smrt_app_cases_count = smrt_app_cases_count + 1
 			' If not mippa_case and not ema_case and not mets_trans_case Then reg_cases_count = reg_cases_count + 1
 			If not mippa_case and not mets_trans_case Then reg_cases_count = reg_cases_count + 1
@@ -404,28 +412,33 @@ function review_hc_pending_counts()
 						each_hsr = each_hsr + 1
 					End If
 				End If
-			Else
+			ElseIf IsDate(worked_date) Then
 				finished_work_cases_count = finished_work_cases_count +1
 				If FINISHED_WORK(hsr_name_const, 0) = "" Then
-					FINISHED_WORK(hsr_name_const, 0) = worked_date & ""
+					FINISHED_WORK(hsr_name_const, 0) = DateAdd("d", 0, worked_date)
 					FINISHED_WORK(hsr_count_const, 0) = 1
 				Else
 					date_found = False
 					For known_dates = 0 to UBound(FINISHED_WORK, 2)
-						If FINISHED_WORK(hsr_name_const, known_dates) = worked_date Then
+						If DateDiff("d", FINISHED_WORK(hsr_name_const, known_dates), worked_date) = 0 Then
 							date_found = True
 							FINISHED_WORK(hsr_count_const, known_dates) = FINISHED_WORK(hsr_count_const, known_dates) + 1
 						End If
 					Next
 
-					If worker_found = False Then
+					If date_found = False Then
 						ReDim preserve FINISHED_WORK(hsr_count_const, each_date)
-						FINISHED_WORK(hsr_name_const, each_date) = worked_date
+						FINISHED_WORK(hsr_name_const, each_date) = DateAdd("d", 0, worked_date)
 						FINISHED_WORK(hsr_count_const, each_date) = 1
+
+						If oldest_date = "" Then
+							oldest_date = DateAdd("d", 0, worked_date)
+						ElseIf DateDiff("d", worked_date, oldest_date) > 0 Then
+							oldest_date = DateAdd("d", 0, worked_date)
+						End If
 						each_date = each_date + 1
 					End If
 				End If
-
 			End If
 			' caseload_number = 			ObjExcel.Cells(excel_row, Caseload_col).Value
 			' MAXIS_case_number = 		ObjExcel.Cells(excel_row, Case_Number_col).Value
@@ -461,24 +474,40 @@ function review_hc_pending_counts()
 		ObjExcel.Application.Quit
 		ObjExcel.Quit
 		Call release_data_lock("HOLD")
+
+		tomorrow = DateAdd("d", 1, date)
+		order = 0
+		Do
+			For dog = 0 to UBound(FINISHED_WORK, 2)
+				If DateDiff("d", FINISHED_WORK(hsr_name_const, dog), oldest_date) = 0 Then
+					FINISHED_WORK(hsr_order_const, dog) = order
+					order = order + 1
+					Exit For
+				End If
+			Next
+			oldest_date = DateAdd("d", 1, oldest_date)
+		Loop until DateDiff("d", tomorrow, oldest_date) >= 0
+		order_end = order
 	End If
 
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 506, 260, "Pending Health Care Counts"
+	BeginDialog Dialog1, 0, 0, 680, 260, "Pending Health Care Counts"
 		ButtonGroup ButtonPressed
-			OkButton 450, 240, 50, 15
+			OkButton 625, 240, 50, 15
 			'CancelButton 450, 240, 50, 15
 		Text 15, 15, 50, 10, "Total Cases:"
 		Text 75, 15, 35, 10, total_cases_count
+		Text 20, 25, 40, 10, "  Standard: "
+		Text 80, 25, 35, 10, reg_cases_count
 		Text 190, 15, 30, 10, " MIPPAs:"
 		Text 30, 90, 20, 10, mippa_cases_count
 		Text 200, 25, 20, 10, " EMA:"
 		Text 230, 25, 35, 10, ema_cases_count
 		Text 160, 35, 65, 10, "METS Transitions:"
 		Text 230, 35, 35, 10, mets_trans_cases_count
-		Text 185, 45, 40, 10, "  Standard: "
-		Text 230, 45, 35, 10, reg_cases_count
-		GroupBox 15, 60, 485, 175, "Standard Cases: " & reg_cases_count
+		Text 200, 45, 20, 10, " LTC:"
+		Text 230, 45, 35, 10, ltc_cases_count
+		GroupBox 15, 60, 660, 175, "Standard Cases: " & reg_cases_count
 		Text 25, 75, 60, 10, "Pending Days"
 		Text 230, 15, 35, 10, days_1_10_cases_count
 		Text 55, 90, 75, 10, "1 - 10 Days"
@@ -527,14 +556,18 @@ function review_hc_pending_counts()
 			y_pos = y_pos + 10
 		Next
 
-		y_pos = y_pos + 5
-		Text 330, y_pos, 25, 10, finished_work_cases_count
-		Text 355, y_pos, 100, 10, "Cases Worked"
-		y_pos = y_pos + 10
-		For known_date = 0 to UBound(FINISHED_WORK, 2)
-			Text 335, y_pos, 25, 10, FINISHED_WORK(hsr_count_const, known_date)
-			Text 360, y_pos, 135, 10, " - " & FINISHED_WORK(hsr_name_const, known_date)
-			y_pos = y_pos + 10
+		Text 505, 90, 25, 10, finished_work_cases_count
+		Text 530, 90, 100, 10, "Cases Worked"
+		y_pos = 100
+		For order = 0 to order_end
+			For known_date = 0 to UBound(FINISHED_WORK, 2)
+				If FINISHED_WORK(hsr_order_const, known_date) = order Then
+					Text 510, y_pos, 25, 10, FINISHED_WORK(hsr_count_const, known_date)
+					Text 535, y_pos, 135, 10, " - " & FINISHED_WORK(hsr_name_const, known_date)
+					y_pos = y_pos + 10
+					' Exit For
+				End If
+			Next
 		Next
 	EndDialog
 
@@ -628,7 +661,7 @@ If windows_user_ID = "BETE001" Then admin_run = true
 If windows_user_ID = "YEYA001" Then admin_run = true
 If windows_user_ID = "JAAR001" Then admin_run = true
 script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"
-If admin_run = true Then script_run_options = "Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Counts"
+If admin_run = true Then script_run_options = "Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Completed Assignments"+chr(9)+"Review Counts"
 If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
 
 Dialog1 = ""
@@ -679,6 +712,7 @@ Do
 	If operation_selection = "Open My Worklist" Then msg_detail = msg_detail & vbCr & "** Open your existing worklist. (No new list can be made.)" & vbCr
 	If operation_selection = "Complete Individual Worklist" Then msg_detail = msg_detail & vbCr & "** Complete your existing worklist." & vbCr
 	If operation_selection = "List Management" Then msg_detail = msg_detail & vbCr & "Update the MAIN Background list." & vbCr & "THIS RUN USUALLY TAKES ABOUT AN HOUR!" & vbCr
+	If operation_selection = "Review Completed Assignments" Then msg_detail = msg_detail & vbCr & "Gather details of completed assignments." & vbCr
 	If operation_selection = "Review Counts" Then msg_detail = msg_detail & vbCr & "Show the case and work progress." & vbCr
 	If operation_selection = "Open and Hold List" Then msg_detail = msg_detail & vbCr & "Just opens the MAIN Background List and puts in a data lock." & vbCr
 	' If operation_selection = "" Then msg_detail = msg_detail & vbCr & ""
@@ -732,28 +766,28 @@ If operation_selection = "Create Assignment for Another Worker" or operation_sel
 	If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
 End If
 
-On Error Resume Next
-Set objXl = GetObject(, "Excel.Application")		'try to find an excel file
+' On Error Resume Next
+' Set objXl = GetObject(, "Excel.Application")		'try to find an excel file
 
-' MsgBox "Err.Number - " & Err.Number & vbCr & "TypeName(objXL) - " & TypeName(objXL)
-If Err.Number = 0 Then 								'the script knows an error has been thrown and will stop the script
-	If Not TypeName(objXL) = "Empty" then				'If the type is not empty - then an excel exists
-		file_name = objXL.ActiveWorkbook.Name
-		' MsgBox "PRE - file_name - " & file_name
-		For Each objWorkbook In objXL.Workbooks
-			objWorkbook.Activate
-			file_name = objXL.ActiveWorkbook.Name
-			' file_name = objWorkbook.Name
-			' MsgBox file_name
-			If file_name = indv_worklist_file_name Then script_end_procedure("It appears you have your worklist currently open. Please save and close the worklist before running the script again.")
-			' If file_name = "Current Pending Health Care Cases.xlsx" Then
-			' 	objXL.Visible = True
-			' 	objXL.WindowState = -4137
-			' End If
-		Next
-	End If
-End If
-On Error Goto 0
+' ' MsgBox "Err.Number - " & Err.Number & vbCr & "TypeName(objXL) - " & TypeName(objXL)
+' If Err.Number = 0 Then 								'the script knows an error has been thrown and will stop the script
+' 	If Not TypeName(objXL) = "Empty" then				'If the type is not empty - then an excel exists
+' 		file_name = objXL.ActiveWorkbook.Name
+' 		' MsgBox "PRE - file_name - " & file_name
+' 		For Each objWorkbook In objXL.Workbooks
+' 			objWorkbook.Activate
+' 			file_name = objXL.ActiveWorkbook.Name
+' 			' file_name = objWorkbook.Name
+' 			' MsgBox file_name
+' 			If file_name = indv_worklist_file_name Then script_end_procedure("It appears you have your worklist currently open. Please save and close the worklist before running the script again.")
+' 			' If file_name = "Current Pending Health Care Cases.xlsx" Then
+' 			' 	objXL.Visible = True
+' 			' 	objXL.WindowState = -4137
+' 			' End If
+' 		Next
+' 	End If
+' End If
+' On Error Goto 0
 
 run_assignment_selection = False
 run_list_management = False
@@ -1548,7 +1582,7 @@ If run_list_management = True Then
 			If IsDate(Last_Assingment_Date) = True Then
 				Last_Assingment_Date = DateAdd("d", 0, Last_Assingment_Date)
 				days_since_last_work = DateDiff("d", Last_Assingment_Date, date)
-				If days_since_last_work < 15 Then worked_recently = True
+				If days_since_last_work < 29 Then worked_recently = True
 			End If
 			If on_assignment = True Then
 				case_on_assign_count = case_on_assign_count + 1
@@ -1590,7 +1624,7 @@ If run_list_management = True Then
 						End If
 
 
-						If days_since_last_assignment > 13 Then
+						If days_since_last_assignment > 27 Then
 							verifs_are_due = False
 							If IsDate(Verif_requested_date) = True Then
 								If DateDiff("d", Verif_requested_date, date) >= 10 Then verifs_are_due = True
@@ -1639,6 +1673,45 @@ If run_list_management = True Then
 			excel_row = excel_row + 1									'moves Excel to next row
 			next_MAXIS_case_number = trim(ObjExcel.Cells(excel_row, Case_Number_col).Value)
 		LOOP until next_MAXIS_case_number = ""								'Loops until all the case have been noted
+		ObjExcel.worksheets("Assignment Record").Activate
+		assign_sheet_date_col 		= 2
+		assign_sheet_total_col 		= 3
+		assign_sheet_pri1_count_col = 4
+		assign_sheet_pri1_desc_col 	= 5
+		assign_sheet_pri2_count_col = 6
+		assign_sheet_pri2_desc_col 	= 7
+		assign_sheet_pri3_count_col = 8
+		assign_sheet_pri3_desc_col 	= 9
+		assign_sheet_pri4_count_col = 10
+		assign_sheet_pri4_desc_col 	= 11
+		assign_sheet_pri5_count_col = 12
+		assign_sheet_pri5_desc_col 	= 13
+		assign_sheet_pri6_count_col = 14
+		assign_sheet_pri6_desc_col 	= 15
+
+		excel_row = 3
+		Do
+			excel_row = excel_row + 1
+		Loop until trim(ObjExcel.Cells(excel_row, assign_sheet_date_col).Value) = ""
+
+
+		ObjExcel.Cells(excel_row, assign_sheet_date_col)  		= date
+		ObjExcel.Cells(excel_row, assign_sheet_total_col)  		= case_to_assign_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri1_count_col)  = pri_1_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri1_desc_col)  	= "Pending over 60 days and workable"
+		ObjExcel.Cells(excel_row, assign_sheet_pri2_count_col)  = pri_2_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri2_desc_col)  	= "No HC Eval Run"
+		ObjExcel.Cells(excel_row, assign_sheet_pri3_count_col)  = pri_3_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri3_desc_col)  	= "Pending 20 Days"
+		ObjExcel.Cells(excel_row, assign_sheet_pri4_count_col)  = pri_4_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri4_desc_col)  	= "Pending 45 Days"
+		ObjExcel.Cells(excel_row, assign_sheet_pri5_count_col)  = pri_5_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri5_desc_col)  	= "Pending 55 Days"
+		ObjExcel.Cells(excel_row, assign_sheet_pri6_count_col)  = pri_6_case_count
+		ObjExcel.Cells(excel_row, assign_sheet_pri6_desc_col)  	= "Pending 60 Days"
+
+		ObjExcel.worksheets("Cases").Activate
+
 		objWorkbook.Save()		'saving the excel
 	End If
 
@@ -1930,11 +2003,11 @@ If run_assignment_selection = True Then
 			Text 30, 90, 95, 10, "Number DENIED: " & total_denied
 			Text 25, 100, 95, 10, "Number PENDING: " & total_pending
 			If cases_to_reassign = "" Then Text 10, 25, 210, 10, "No cases to reassign."
+			y_pos = 130
 			If cases_to_reassign <> "" Then
 				If total_completed > 0 Then Text 10, 25, 210, 10, "* ! * ! * THERE ARE CASES THAT WILL BE REASSIGNED * ! * ! *"
 				If total_completed = 0 Then Text 10, 25, 210, 10, "* ! * ! * ~~~ ALL CASES WILL BE REASSIGNED ~~~ * ! * ! *"
 				Text 10, 120, 205, 10, "*** CASES NOT COMPLETED THAT WILL BE REASSIGNED:"
-				y_pos = 130
 				x_pos = -35
 				For each reassign_case in reassign_array
 					x_pos = x_pos + 60
@@ -2340,7 +2413,9 @@ If run_assignment_selection = True Then
 					' ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_notes_col).Value 		= ObjExcel.Cells(full_excel_row, ).Value
 					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_smrt_start_col).Value		= ObjExcel.Cells(full_excel_row, SMRT_Start_col).Value
 					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_smrt_end_col).Value			= ObjExcel.Cells(full_excel_row, SMRT_End_col).Value
-					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_potent_ltc_col).Value		= ObjExcel.Cells(full_excel_row, Appears_LTC_col).Value
+					Call read_boolean_from_excel(ObjExcel.Cells(full_excel_row, Appears_LTC_col).Value, potentially_ltc)
+					If potentially_ltc = True Then ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_potent_ltc_col).Value  = "Yes"
+					If potentially_ltc <> True Then ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_potent_ltc_col).Value = "No"
 					ObjWrkrExcel.Cells(wrkr_excel_row, wrkr_not_ltc_date_col).Value		= ObjExcel.Cells(full_excel_row, Screened_NOT_LTC_Date_col).Value
 
 					ObjExcel.Cells(full_excel_row, Most_Recent_Assignment_Worker_col).Value = first_name & " " & left(last_name, 1)
@@ -2385,6 +2460,144 @@ If run_assignment_selection = True Then
 	o2Exec.Terminate()
 	If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
 
+End If
+
+
+
+If operation_selection = "Review Completed Assignments" Then
+	Const HSR_completed_COL 			= 01
+	Const Assigned_On_Date_COL 			= 02
+	Const Completed_Case_Number_COL 	= 03
+	Const Completed_APPL_Date_COL 		= 04
+	Const Days_Pending_at_Completion_COL= 05
+	Const Completed_Population_COL 		= 06
+	Const Completed_HC_Eval_Date_COL 	= 07
+	Const Completed_Verifs_Date_COL 	= 08
+	Const Completed_Day_60_COL 			= 09
+	Const Assignment_Completed_Date_COL = 10
+	Const Case_Status_after_Assign_COL 	= 11
+	Const SMRT_Start_Date_COL 			= 12
+	Const SMRT_End_Date_COL 			= 13
+	Const Potentially_LTC_COL 			= 14
+	Const Not_LTC_Screened_Date_COL 	= 15
+	Const Specialty_Program_Notes_COL 	= 16
+	Const Date_to_Deny_COL 				= 17
+	Const Completed_Notes_COL 			= 18
+	Const file_name_col					= 19
+
+	assignments_completed_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews"
+	assignments_recorded_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\Recorded"
+	Set objFolder = objFSO.GetFolder(assignments_completed_folder)										'Creates an oject of the whole my documents folder
+	Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+
+	assignments_completed_excel = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\Completed Reviews.xlsx"
+	Call excel_open(assignments_completed_excel, True, False, ObjExcel, objWorkbook)
+
+	all_known_file_names = " "
+	excel_row = 2
+	Do
+		file_name = trim(objExcel.Cells(excel_row, file_name_col).Value)
+		all_known_file_names = all_known_file_names & file_name & " "
+
+		excel_row = excel_row + 1
+	Loop until trim(ObjExcel.Cells(excel_row, HSR_completed_COL).Value) = ""
+	excel_row = excel_row - 1
+	all_known_file_names = trim(all_known_file_names)
+	ALL_KNOW_FILES_ARRAY = split(all_known_file_names)
+
+	Set xmlDoc = CreateObject("Microsoft.XMLDOM")
+	Set xml = CreateObject("Msxml2.DOMDocument")
+
+	For Each objFile in colFiles								'looping through each file
+		file_type = objFile.Type
+		If file_type = "XML Source File" Then
+			quack = objFile.Name
+			file_recorded = False
+			xmlPath = objFile.Path												'identifying the current file
+
+			For each duck in ALL_KNOW_FILES_ARRAY
+				If duck = quack Then
+					file_recorded = True
+					With (CreateObject("Scripting.FileSystemObject"))
+						If .FileExists(assignments_recorded_folder & "\" & quack) = False Then
+							.MoveFile xmlPath , assignments_recorded_folder & "\" & quack
+						End If
+					End With
+
+					Exit For
+				End If
+			Next
+
+			If file_recorded = False Then
+				With (CreateObject("Scripting.FileSystemObject"))
+					'Creating an object for the stream of text which we'll use frequently
+					If .FileExists(xmlPath) = True then
+						xmlDoc.Async = False
+
+						' Load the XML file
+						xmlDoc.load(xmlPath)
+
+						set node = xmlDoc.SelectSingleNode("//AssignedHSR")
+						ObjExcel.Cells(excel_row, HSR_completed_COL).Value  			= node.text
+
+						set node = xmlDoc.SelectSingleNode("//AssignedDate")
+						ObjExcel.Cells(excel_row, Assigned_On_Date_COL).Value  			= node.text
+
+						set node = xmlDoc.SelectSingleNode("//CaseNumber")
+						ObjExcel.Cells(excel_row, Completed_Case_Number_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//APPLDate")
+						ObjExcel.Cells(excel_row, Completed_APPL_Date_COL).Value  		= node.text
+
+						set node = xmlDoc.SelectSingleNode("//DaysPending")
+						ObjExcel.Cells(excel_row, Days_Pending_at_Completion_COL).Value = node.text
+
+						set node = xmlDoc.SelectSingleNode("//Population")
+						ObjExcel.Cells(excel_row, Completed_Population_COL).Value  		= node.text
+
+						set node = xmlDoc.SelectSingleNode("//HCEvalRunDate")
+						ObjExcel.Cells(excel_row, Completed_HC_Eval_Date_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//VerifsDate")
+						ObjExcel.Cells(excel_row, Completed_Verifs_Date_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//DaySixty")
+						ObjExcel.Cells(excel_row, Completed_Day_60_COL).Value  			= node.text
+
+						set node = xmlDoc.SelectSingleNode("//AssignmentCompleted")
+						ObjExcel.Cells(excel_row, Assignment_Completed_Date_COL).Value  = node.text
+
+						set node = xmlDoc.SelectSingleNode("//CaseStatus")
+						ObjExcel.Cells(excel_row, Case_Status_after_Assign_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//SMRTStart")
+						If Not node Is Nothing Then ObjExcel.Cells(excel_row, SMRT_Start_Date_COL).Value = node.text
+
+						set node = xmlDoc.SelectSingleNode("//SMRTEnd")
+						If Not node Is Nothing Then ObjExcel.Cells(excel_row, SMRT_End_Date_COL).Value  			= node.text
+
+						set node = xmlDoc.SelectSingleNode("//PotentiallyLTC")
+						If Not node Is Nothing Then ObjExcel.Cells(excel_row, Potentially_LTC_COL).Value  			= node.text
+
+						set node = xmlDoc.SelectSingleNode("//NotLTCScreenDate")
+						If Not node Is Nothing Then ObjExcel.Cells(excel_row, Not_LTC_Screened_Date_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//Specialty")
+						ObjExcel.Cells(excel_row, Specialty_Program_Notes_COL).Value  	= node.text
+
+						set node = xmlDoc.SelectSingleNode("//DateToDeny")
+						ObjExcel.Cells(excel_row, Date_to_Deny_COL).Value  				= node.text
+
+						set node = xmlDoc.SelectSingleNode("//Notes")
+						ObjExcel.Cells(excel_row, Completed_Notes_COL).Value  			= node.text
+
+						ObjExcel.Cells(excel_row, file_name_col).Value  				= quack
+						excel_row = excel_row + 1
+					End If
+				End With
+			End If
+		End If
+	Next
 End If
 
 'Logging usage stats
