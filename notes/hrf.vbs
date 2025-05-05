@@ -2006,43 +2006,43 @@ script_end_procedure_with_error_report(end_msg & vbcr & "Please make sure to acc
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------01/31/2025
-'--Tab orders reviewed & confirmed----------------------------------------------01/31/2025
-'--Mandatory fields all present & Reviewed--------------------------------------01/31/2025
-'--All variables in dialog match mandatory fields-------------------------------01/31/2025
-'Review dialog names for content and content fit in dialog----------------------01/31/2025
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/05/2025
+'--Tab orders reviewed & confirmed----------------------------------------------05/05/2025
+'--Mandatory fields all present & Reviewed--------------------------------------05/05/2025
+'--All variables in dialog match mandatory fields-------------------------------05/05/2025
+'Review dialog names for content and content fit in dialog----------------------05/05/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------01/31/2025
-'--CASE:NOTE Header doesn't look funky------------------------------------------01/31/2025
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/31/2025
-'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----01/31/2025
+'--All variables are CASE:NOTEing (if required)---------------------------------05/05/2025
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/05/2025
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/05/2025
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----05/05/2025
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/31/2025
-'--MAXIS_background_check reviewed (if applicable)------------------------------01/31/2025
-'--PRIV Case handling reviewed -------------------------------------------------01/31/2025
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/05/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/05/2025
+'--PRIV Case handling reviewed -------------------------------------------------05/05/2025
 '--Out-of-County handling reviewed----------------------------------------------NA
-'--script_end_procedures (w/ or w/o error messaging)----------------------------02/04/2025
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/05/2025
 '--BULK - review output of statistics and run time/count (if applicable)--------NA
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/31/2025
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/05/2025
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------01/31/2025
-'--Incrementors reviewed (if necessary)-----------------------------------------01/31/2025
-'--Denomination reviewed -------------------------------------------------------01/31/2025
-'--Script name reviewed---------------------------------------------------------01/31/2025
+'--Manual time study reviewed --------------------------------------------------05/05/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------05/05/2025
+'--Denomination reviewed -------------------------------------------------------05/05/2025
+'--Script name reviewed---------------------------------------------------------05/05/2025
 '--BULK - remove 1 incrementor at end of script reviewed------------------------NA
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------01/31/2025
-'--comment Code-----------------------------------------------------------------01/31/2025
-'--Update Changelog for release/update------------------------------------------01/31/2025
-'--Remove testing message boxes-------------------------------------------------01/31/2025
-'--Remove testing code/unnecessary code-----------------------------------------01/31/2025
-'--Review/update SharePoint instructions----------------------------------------01/31/2025
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/31/2025
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/31/2025
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/31/2025
-'--Complete misc. documentation (if applicable)---------------------------------01/31/2025
-'--Update project team/issue contact (if applicable)----------------------------01/31/2025
+'--Confirm all GitHub tasks are complete----------------------------------------05/05/2025
+'--comment Code-----------------------------------------------------------------05/05/2025
+'--Update Changelog for release/update------------------------------------------05/05/2025
+'--Remove testing message boxes-------------------------------------------------05/05/2025
+'--Remove testing code/unnecessary code-----------------------------------------05/05/2025
+'--Review/update SharePoint instructions----------------------------------------05/05/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/05/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/05/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/05/2025
+'--Complete misc. documentation (if applicable)---------------------------------05/05/2025
+'--Update project team/issue contact (if applicable)----------------------------05/05/2025
