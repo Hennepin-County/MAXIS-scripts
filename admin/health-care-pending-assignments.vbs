@@ -2003,8 +2003,9 @@ If run_assignment_selection = True Then
 			Text 30, 90, 95, 10, "Number DENIED: " & total_denied
 			Text 25, 100, 95, 10, "Number PENDING: " & total_pending
 			If cases_to_reassign = "" Then Text 10, 25, 210, 10, "No cases to reassign."
-			y_pos = 130
+			y_pos = 105
 			If cases_to_reassign <> "" Then
+				y_pos = 130
 				If total_completed > 0 Then Text 10, 25, 210, 10, "* ! * ! * THERE ARE CASES THAT WILL BE REASSIGNED * ! * ! *"
 				If total_completed = 0 Then Text 10, 25, 210, 10, "* ! * ! * ~~~ ALL CASES WILL BE REASSIGNED ~~~ * ! * ! *"
 				Text 10, 120, 205, 10, "*** CASES NOT COMPLETED THAT WILL BE REASSIGNED:"
