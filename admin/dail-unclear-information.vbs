@@ -5534,12 +5534,12 @@ If HIRE_messages = 1 Then
 
                                                     If DateAdd("m", 0, HIRE_case_details_array(HIRE_MFIP_STAT_REVW_review_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, ER_report_minus_6_months) = DateAdd("m", 1, footer_month_day_year) Then
                                                         ' If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
-                                                        Msgbox "5537 Delete after testing -- The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
+                                                        ' Msgbox "5537 Delete after testing -- The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                         If dail_type = "HIRE" Then
                                                             
                                                             If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
-                                                                msgbox "5542 Delete after testing -- Unable to process the message since recert is next month and DAIL month is current month"
+                                                                ' msgbox "5542 Delete after testing -- Unable to process the message since recert is next month and DAIL month is current month"
 
                                                                 If trim(DAIL_message_array(dail_processing_notes_const, dail_count)) = "" then
                                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal for MFIP. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
