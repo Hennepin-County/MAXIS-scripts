@@ -1660,6 +1660,8 @@ If CSES_messages = 1 Then
                                                     End If
 
                                                 End If
+                                                'Close the CASH screen
+                                                transmit
                                             End If
                                         End If
                                     End If
@@ -4701,6 +4703,9 @@ If HIRE_messages = 1 Then
                                                         End If
                                                     End If
                                                 End If
+
+                                                'Close the CASH screen
+                                                transmit
                                             End If
                                         End If
                                     End If
@@ -4832,6 +4837,9 @@ If HIRE_messages = 1 Then
                                                         End If
                                                     End If
                                                 End If
+
+                                                'Close the CASH screen
+                                                transmit
                                             End If
                                         End If
                                     End If
