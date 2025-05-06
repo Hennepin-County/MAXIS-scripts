@@ -1972,7 +1972,7 @@ DO
 LOOP UNTIL are_we_passworded_out = false
 
 'Creating program list---------------------------------------------------------------------------------------------
-If MSA_check = 1 Then programs_list = programs_list & "MSA "
+If MSA_check = 1 Then programs_list = "MSA"
 
 'Enters the case note-----------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
