@@ -4121,6 +4121,10 @@ If HIRE_messages = 1 Then
                             'Open the full HIRE message
                             Call write_value_and_transmit("X", dail_row, 3)
 
+                            'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                            EmReadScreen multiple_selections_error_check, 20, 24, 2
+                            If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "4126 It failed to clear the previous X" 
+
                             'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
                             'Set row and col
                             row = 1
@@ -4790,7 +4794,6 @@ If HIRE_messages = 1 Then
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
                                                 ' If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4692 Error unable to reach STAT/REVW"
 
-
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
                                                 'Read eligibility review date 
@@ -4997,6 +5000,10 @@ If HIRE_messages = 1 Then
 
                             'Script opens the entire DAIL message to evaluate if it is a new message or not
                             Call write_value_and_transmit("X", dail_row, 3)
+
+                            'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                            EmReadScreen multiple_selections_error_check, 20, 24, 2
+                            If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "5006 It failed to clear the previous X"
 
                             'Handling for reading full dail message depends on message type
 
@@ -5664,6 +5671,10 @@ If HIRE_messages = 1 Then
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
 
+                                                    'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "5675 It failed to clear the previous X"
+
                                                     ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                     EMReadScreen check_full_dail_msg_case_number, 35, 6, 44
                                                     check_full_dail_msg_case_number = trim(check_full_dail_msg_case_number)
@@ -5827,6 +5838,10 @@ If HIRE_messages = 1 Then
 
                                                                     'Enters “X” on DAIL message to open full message. 
                                                                     Call write_value_and_transmit("X", dail_row, 3)
+
+                                                                    'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                                                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "5844 It failed to clear the previous X"
 
                                                                     ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                                     EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
@@ -6138,6 +6153,10 @@ If HIRE_messages = 1 Then
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
 
+                                                    'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "6158 It failed to clear the previous X"
+
                                                     ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                     EMReadScreen check_full_dail_msg_case_number, 35, 6, 44
                                                     check_full_dail_msg_case_number = trim(check_full_dail_msg_case_number)
@@ -6321,6 +6340,10 @@ If HIRE_messages = 1 Then
 
                                                                     'Enters “X” on DAIL message to open full message. 
                                                                     Call write_value_and_transmit("X", dail_row, 3)
+
+                                                                    'Delete after testing - trying to figure out when and why script sometimes does not clear the X
+                                                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then msgbox "6346 It failed to clear the previous X"
 
                                                                     ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                                     EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
