@@ -220,7 +220,7 @@ function section_b_assess_results_current_status()
   CheckBox 15, 20, 10, 10, "", section_g_person_requesting_already_enrolled_LTC
   Text 25, 20, 215, 20, "The person currently is requesting services or already enrolled in long-term care services or program"
   CheckBox 15, 40, 195, 10, "The person resides in or will reside in an institution", section_g_person_will_reside_institution_checkbox
-  GroupBox 5, 60, 250, 55, "Program Type"
+  GroupBox 5, 60, 250, 55, "Program Type:"
   Text 10, 75, 185, 10, "Program person is requesting or is currently enrolled in:"
   DropListBox 195, 70, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
   Text 10, 90, 85, 10, "Check one (if applicable):"
@@ -445,7 +445,7 @@ function section_c_other_changes_section_d_comments()
   section_c_other_changes_section_d_comments_called = True
   BeginDialog Dialog1, 0, 0, 326, 310, "6 - Section C: Other Changes & Section D: Comments"
   GroupBox 5, 5, 250, 235, "Other changes"
-  Text 15, 20, 50, 10, "Program type"
+  Text 15, 20, 50, 10, "Program type:"
   DropListBox 70, 15, 65, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
   Text 20, 30, 90, 10, "Choose one (if applicable)"
   CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
@@ -959,7 +959,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_a_date_form_sent) = "" OR IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
         If trim(section_a_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
         If trim(section_a_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
-        If trim(section_a_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field." 
+        If trim(section_a_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####." 
+        If len(trim(section_a_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
         If trim(section_a_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field." 
         If trim(section_a_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field." 
         If trim(section_a_state) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the State field." 
@@ -971,7 +972,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
       If dialog_count = 11 then 
         If trim(section_a_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (2) field." 
         If trim(section_a_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (2) field." 
-        If trim(section_a_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field." 
+        If trim(section_a_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field in the format ###-###-####."
+        If len(trim(section_a_phone_number_2)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field in the format ###-###-####."
         If trim(section_a_street_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (2) field." 
         If trim(section_a_city_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (2) field." 
         If trim(section_a_state_2) = "" OR len(trim(section_a_state_2)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State (2) field in the two character format, ex. MN." 
@@ -982,7 +984,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_a_assessor_3) <> "" or trim(section_a_lead_agency_3) <> "" OR trim(section_a_phone_number_3) <> "" OR trim(section_a_street_address_3) <> "" OR trim(section_a_city_3) <> "" OR trim(section_a_state_3) <> "" OR trim(section_a_zip_code_3) <> "" OR trim(section_a_email_address_3) <> "" Then
           If trim(section_a_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (3) field." 
           If trim(section_a_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (3) field." 
-          If trim(section_a_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field." 
+          If trim(section_a_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field in the format ###-###-####." 
+          If len(trim(section_a_phone_number_3)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field in the format ###-###-####."
           If trim(section_a_street_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (3) field." 
           If trim(section_a_city_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (3) field." 
           If trim(section_a_state_3) = "" OR len(trim(section_a_state_3)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State (3) field in the two character format, ex. MN." 
@@ -993,7 +996,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
       If dialog_count = 12 then 
         If trim(section_e_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (2) field." 
         If trim(section_e_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (2) field." 
-        If trim(section_e_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field." 
+        If trim(section_e_phone_number_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field in the format ###-###-####." 
+        If len(trim(section_e_phone_number_2)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (2) field in the format ###-###-####." 
         If trim(section_e_street_address_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (2) field." 
         If trim(section_e_city_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (2) field." 
         If trim(section_e_state_2) = "" or len(trim(section_e_state_2)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State (2) field in the two character format, ex. MN." 
@@ -1004,7 +1008,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_e_assessor_3) <> "" or trim(section_e_lead_agency_3) <> "" OR trim(section_e_phone_number_3) <> "" OR trim(section_e_street_address_3) <> "" OR trim(section_e_city_3) <> "" OR trim(section_e_state_3) <> "" OR trim(section_e_zip_code_3) <> "" OR trim(section_e_email_address_3) <> "" Then
           If trim(section_e_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor (3) field." 
           If trim(section_e_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency (3) field." 
-          If trim(section_e_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field." 
+          If trim(section_e_phone_number_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field in the format ###-###-####." 
+          If len(trim(section_e_phone_number_3)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number (3) field in the format ###-###-####." 
           If trim(section_e_street_address_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address (3) field." 
           If trim(section_e_city_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City (3) field." 
           If trim(section_e_state_3) = "" or len(trim(section_e_state_3)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State (3) field in the two character format, ex. MN." 
@@ -1020,7 +1025,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If section_b_diversion_checkbox + section_b_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox option - Diversion or Conversion."
         If trim(section_b_admission_date) = "" or IsDate(section_b_admission_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
         If trim(section_b_facility) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Facility field."
-        If trim(section_b_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field."
+        If trim(section_b_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
+        If len(trim(section_b_institution_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
         If trim(section_b_institution_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field."
         If trim(section_b_institution_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field."
         If trim(section_b_institution_state) = "" OR len(trim(section_b_institution_state)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
@@ -1036,7 +1042,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager > 1 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox for whether the person has a case manager."
         If section_b_no_case_manager = 1 Then 
           If trim(section_b_case_manager_name) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Case Manager Name field."
-          If trim(section_b_case_manager_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field for the case manager."
+          If trim(section_b_case_manager_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field for the case manager in the format ###-###-####."
+          If len(trim(section_b_case_manager_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field for the case manager in the format ###-###-####."
         End If
       End if 
       If dialog_count = 4 then 
@@ -1091,6 +1098,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         End If
         If section_c_new_legal_rep_checkbox = 1 Then
           If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
+          If len(trim(section_c_legal_rep_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
           If trim(section_c_legal_rep_street_address) = "" or trim(section_c_legal_rep_city) = "" or trim(section_c_legal_rep_state) = "" OR trim(section_c_legal_rep_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address, City, State, and Zip Code fields for the new legal representative."
         End If
         If section_c_person_return_to_community_checkbox = 1 Then 
@@ -1106,7 +1114,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_e_date_form_sent) = "" OR IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
         If trim(section_e_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
         If trim(section_e_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
-        If trim(section_e_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field." 
+        If trim(section_e_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
+        If len(trim(section_e_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####."
         If trim(section_e_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field." 
         If trim(section_e_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field." 
         If trim(section_e_state) = "" or len(trim(section_e_state)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN." 
@@ -1173,16 +1182,17 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
           If trim(section_f_person_deceased_date_of_death) = "" OR IsDate(section_f_person_deceased_date_of_death) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date of death in the format MM/DD/YYYY."
         End If
         If section_f_person_moved_institution_checkbox = 1 Then
-          If trim(section_f_person_moved_institution_admit_date) = "" OR IsDate(section_f_person_moved_institution_admit_date) Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
+          If trim(section_f_person_moved_institution_admit_date) = "" OR IsDate(section_f_person_moved_institution_admit_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
           If trim(section_f_person_moved_institution_facility_name) = "" OR trim(section_f_person_moved_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
+          If len(trim(section_f_person_moved_institution_phone_number)) <> 12 Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the phone number for the institution in the format ###-###-####."
           If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
         End If
         If section_f_person_new_address_checkbox = 1 Then
-          If trim(section_f_person_new_address_date_changed) = "" OR (IsDate(section_f_person_new_address_date_changed) = False AND trim(section_f_person_new_address_date_changed) = "") Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person has a new address. You must enter the date of the address change in the format MM/DD/YYYY."
+          If trim(section_f_person_new_address_date_changed) = "" OR IsDate(section_f_person_new_address_date_changed) = False Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person has a new address. You must enter the date of the address change in the format MM/DD/YYYY."
           If trim(section_f_person_new_address_address) = "" OR trim(section_f_person_new_address_city) = "" OR trim(section_f_person_new_address_state) = "" OR trim(section_f_person_new_address_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person has a new address. You must enter the new address, city, state, and zip code for the new address."
         End If
         If section_f_other_change_checkbox = 1 Then
-          If trim(section_f_person_other_change_description) = "" Then err_msg = err_msg & vbNewLine & "* You checked the Other change box. You must describe the reason in the field provided."
+          If trim(section_f_person_other_change_description) = "" Then err_msg = err_msg & vbNewLine & "* You checked the Other change box. You must describe the change in the field provided."
         End If
       End If
       ' If dialog_count = 10 then
@@ -1341,6 +1351,8 @@ If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_addre
       section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
     End If
 End If
+
+msgbox "section_c_section_f_addresses_match > " & section_c_section_f_addresses_match & vbcr & "section_c_person_moved_new_address_only > " & section_c_person_moved_new_address_only & vbcr & "section_f_person_new_address_only > " & section_f_person_new_address_only 
 
 ' 'Display ADDR information from panel and entered information
 ' ' section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code
@@ -1519,7 +1531,7 @@ Do
     If ButtonPressed = update_panels_btn Then
       If swkr_update_checkbox = 1 AND ((section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox = 0) OR (section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox > 1)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select ONLY one assessor to use for the update." 
 
-      If addr_update_multiple_checkbox = 1 AND ((section_c_new_address_checkbox + section_f_new_address_checkbox = 0) OR (section_c_new_address_checkbox + section_f_new_address_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must select ONLY one address to use for the update." 
+      If addr_update_multiple_checkbox = 1 AND ((multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 0) OR (multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must select ONLY one address to use for the update." 
 
       If date_of_death_update_multiple_checkbox = 1 AND ((section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 0) OR (section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the Date of Death on the MEMB panel, you must select ONLY one date to use for the update."
       
@@ -1667,7 +1679,7 @@ If addr_update_multiple_checkbox = 1 OR addr_update_checkbox_section_c_section_f
       End If 
       If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
       'To do - add parameter for next btn
-    LOOP UNTIL err_msg = ""	AND ((ButtonPressed = update_panels_btn) OR (ButtonPressed = skip_panel_updates_btn))								'loops until all errors are resolved
+    LOOP UNTIL err_msg = ""	AND ButtonPressed = OK								'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -1676,19 +1688,15 @@ If addr_update_multiple_checkbox = 1 OR addr_update_checkbox_section_c_section_f
   ' 'Put panel into edit mode
   ' PF9
 
-  section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
-
-  section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
-
   'Write information to panel depending on which address selected
   If addr_update_checkbox_section_c_section_f_match = 1 Then 
 
-    Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_addr_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
   ElseIf addr_update_multiple_checkbox = 1 Then
     If multiple_section_c_new_address_checkbox = 1 Then
 
-      Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_addr_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_addr_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
     ElseIf multiple_section_f_new_address_checkbox = 1 Then
 
