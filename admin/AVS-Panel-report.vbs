@@ -75,22 +75,13 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 286, 130, "Pull REPT data into Excel dialog"
   EditBox 135, 20, 145, 15, worker_number
   CheckBox 70, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 70, 70, 150, 10, "Check here to resume from a previous spreadsheet", resume_check
-  'CheckBox 10, 15, 40, 10, "All Active", all_programs
-  'CheckBox 10, 30, 40, 10, "SNAP", SNAP_check
-  'CheckBox 10, 40, 40, 10, "CASH", cash_check
-  'CheckBox 10, 50, 40, 10, "HC", HC_check
-  'CheckBox 10, 60, 40, 10, "EA", EA_check
-  'CheckBox 10, 70, 40, 10, "GRH", GRH_check
-  'CheckBox 10, 80, 40, 10, "IV-E", IVE_check
-  'CheckBox 10, 90, 50, 10, "CCA", CCA_check
+  CheckBox 70, 70, 190, 10, "Check here to resume from a previous spreadsheet.", resume_check
   ButtonGroup ButtonPressed
     OkButton 185, 110, 45, 15
     CancelButton 235, 110, 45, 15
   Text 70, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
   Text 70, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 110, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  GroupBox 5, 5, 55, 100, "Progs to scan"
   Text 70, 25, 65, 10, "Worker(s) to check:"
 EndDialog
 
@@ -447,17 +438,6 @@ Do
 Loop until MAXIS_case_number = ""
 'End if
 
-'col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
-
-'Query date/time/runtime info
-'objExcel.Cells(1, col_to_use - 1).Font.Bold = TRUE
-'objExcel.Cells(2, col_to_use - 1).Font.Bold = TRUE
-'ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
-'ObjExcel.Cells(1, col_to_use).Value = now
-'ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-'ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
-'ObjExcel.Cells(3, col_to_use - 1).Value = "Number of pages found"	'Goes back one, as this is on the next row
-'ObjExcel.Cells(3, col_to_use).Value = number_of_pages
 'Autofitting columns
 For col_to_autofit = 1 to 9
 	ObjExcel.columns(col_to_autofit).AutoFit()
