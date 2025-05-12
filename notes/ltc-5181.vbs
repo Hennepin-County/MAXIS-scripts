@@ -892,6 +892,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       EMReadScreen section_a_phone_number, 14, 12, 34
       section_a_phone_number = replace(section_a_phone_number, " ) ", "")
       section_a_phone_number = replace(section_a_phone_number, " ", "")
+      'Convert phone number to ###-###-####
+      section_a_phone_number = left(section_a_phone_number, 3) & "-" & mid(section_a_phone_number, 4, 3) & "-" & right(section_a_phone_number, 4) 
       EMReadScreen section_a_state, 2, 10, 54
       EMReadScreen section_a_zip_code, 10, 10, 63
       'Return to STAT/MEMB
@@ -916,6 +918,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       EMReadScreen section_e_phone_number, 14, 12, 34
       section_e_phone_number = replace(section_e_phone_number, " ) ", "")
       section_e_phone_number = replace(section_e_phone_number, " ", "")
+      'Convert phone number to ###-###-####
+      section_e_phone_number = left(section_e_phone_number, 3) & "-" & mid(section_e_phone_number, 4, 3) & "-" & right(section_e_phone_number, 4)
       EMReadScreen section_e_state, 2, 10, 54
       EMReadScreen section_e_zip_code, 10, 10, 63
       'Return to STAT/MEMB
