@@ -787,9 +787,9 @@ class form_questions
 					item_ans_list(i) = left(item_ans_list(i) & "   ", 5)
 					If trim(item_detail_list(i)) <> "" Then item_detail_list(i) = left("$" & item_detail_list(i) & ".00       ", 8)
 				next
-				CALL write_variable_in_CASE_NOTE("    RSDI - " & item_ans_list(0) & " " & item_detail_list(0) & "   UI - " & item_ans_list(1) & " " & item_detail_list(1) & " Tribal - " & item_ans_list(2) & " " & item_detail_list(2))
-				CALL write_variable_in_CASE_NOTE("     SSI - " & item_ans_list(3) & " " & item_detail_list(3) & "   WC - " & item_ans_list(4) & " " & item_detail_list(4) & "   CSES - " & item_ans_list(5) & " " & item_detail_list(5))
-				CALL write_variable_in_CASE_NOTE("      VA - " & item_ans_list(6) & " " & item_detail_list(6) & "  Ret - " & item_ans_list(7) & " " & item_detail_list(7) & "  Other - " & item_ans_list(8) & " " & item_detail_list(8))
+				CALL write_variable_in_CASE_NOTE("    RSDI - " & item_ans_list(0) & " " & item_detail_list(0) & "     SSI - " & item_ans_list(1) & " " & item_detail_list(1) & "      VA - " & item_ans_list(2) & " " & item_detail_list(2))
+				CALL write_variable_in_CASE_NOTE("      UI - " & item_ans_list(3) & " " & item_detail_list(3) & "      WC - " & item_ans_list(4) & " " & item_detail_list(4) & "     Ret - " & item_ans_list(5) & " " & item_detail_list(5))
+				CALL write_variable_in_CASE_NOTE("  Tribal - " & item_ans_list(6) & " " & item_detail_list(6) & "    CSES - " & item_ans_list(7) & " " & item_detail_list(7) & "   Other - " & item_ans_list(8) & " " & item_detail_list(8))
 			End If
 			If trim(write_in_info) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & write_in_info)
 			If verif_status <> "" Then
