@@ -7166,7 +7166,7 @@ If edit_access_allowed = False Then
 
 		email_subject = "Case " & MAXIS_case_number & " - is uneditable"
 		email_to_field = "Alexander.Yang@hennepin.us; jeremy.lucca@hennepin.us" '; tammy.coenen@hennepin.us; candace.brown@hennepin.us"
-		email_cc_field = "hsph.ews.bluezonescripts@hennepin.us"
+		email_cc_field = ""
 		email_body = "Case number: " & MAXIS_case_number & " appears INACTIVE." & vbCr &  "Case is being interviewed by the interview team as of " & now & ". Needs review for REIN or PEND." & vbCr & vbCr & "Warning message when attempting to create a new CASE/NOTE: " & warning_notice
 		send_email = True
 		If windows_user_ID = "CALO001" Then send_email = False
