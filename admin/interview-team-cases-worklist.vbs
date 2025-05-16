@@ -239,7 +239,7 @@ curr_month = MonthName(DatePart("M",date))
 curr_day = DatePart("d",date)
 curr_year = DatePart("yyyy", date)
 
-manager_log_file_path 				= "https://hennepin.sharepoint.com/teams/InterviewPhoneHSRs-Supervisors/Shared%20Documents/Management%20Team-HSR%20Interviews/Manager%20Log%20" & curr_year & "%20" & curr_month & ".xlsx"
+manager_log_file_path 				= "https://hennepin.sharepoint.com/teams/InterviewPhoneHSRs-Supervisors/Shared%20Documents/Management%20Team/Manager%20Log%20" & curr_year & "%20" & curr_month & ".xlsx"
 staff_assignment_log_file_path 		= "https://hennepin.sharepoint.com/teams/InterviewPhoneHSRs-EligibilityHSRs/Shared%20Documents/Eligibility%20HSRs/Eligibility%20Staff%20" & curr_year & "%20" & curr_month & ".xlsx"
 
 template_manager_log_file_path 			= t_drive & "\Eligibility Support\Assignments\Interview Team Cases Worklists\Support Documents\Template Manager Log.xlsx"
