@@ -256,7 +256,6 @@ caseload_info.add "X127EF9", "1800 - Team 160"
 caseload_info.add "X1275H5", "Privileged Cases"
 caseload_info.add "X127FAT", "Privileged Cases"
 caseload_info.add "X127F3H", "Privileged Cases"
-caseload_info.add "X127FF5", "Contracted - North Ridge Facilities"
 caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
 caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
 caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
@@ -1036,9 +1035,7 @@ app_form_list = app_form_list+chr(9)+"EA/EGA Application"
 If running_from_ca_menu = True Then app_form_list = app_form_list+chr(9)+"Form other than Application"
 app_form_list = app_form_list+chr(9)+"No Application Required"
 
-
-app_facilities = "North Ridge Facilities"
-app_facilities = app_facilities+chr(9)+"Monarch Facilities Contract"		'MONARCH
+app_facilities = "Monarch Facilities Contract"		'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at Bloomington "			'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at Chateau"					'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at Excelsior"				'MONARCH
