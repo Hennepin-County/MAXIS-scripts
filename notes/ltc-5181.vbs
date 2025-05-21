@@ -2020,12 +2020,8 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EditBox 345, 100, 25, 15, OS_addr_state
     Text 265, 120, 35, 10, "Zip code:"
     EditBox 345, 115, 35, 15, OS_addr_zip
-    Text 265, 135, 35, 10, "Resi Co:"
+    Text 265, 135, 45, 10, "County code:"
     EditBox 345, 130, 25, 15, OS_addr_resi_code
-    Text 265, 155, 20, 10, "Ver:"
-    DropListBox 345, 150, 60, 15, "Select one:"+chr(9)+"SF"+chr(9)+"CO"+chr(9)+"LE"+chr(9)+"MO"+chr(9)+"TX"+chr(9)+"CD"+chr(9)+"UT"+chr(9)+"DL"+chr(9)+"OT"+chr(9)+"NO", OS_addr_ver
-    Text 265, 170, 60, 10, "Living Situation:"
-    DropListBox 345, 165, 60, 15, "Select one:"+chr(9)+"01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"09"+chr(9)+"10", OS_addr_living_situation
     ButtonGroup ButtonPressed
       PushButton 400, 255, 55, 15, "Next", next_btn
       CancelButton 455, 255, 50, 15
@@ -2059,8 +2055,6 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
         If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
         If trim(OS_addr_resi_code) = "" OR len(OS_addr_zip) <> 2 OR IsNumeric(OS_addr_zip) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
-        If OS_addr_ver = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Ver dropdown." 
-        If OS_addr_living_situation = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Living Situation dropdown." 
       End If
       If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
       If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -2162,7 +2156,6 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EMWriteScreen "_______", 9, 43
     EMWriteScreen "__", 9, 66
     EMWriteScreen "__", 9, 74
-    EMWriteScreen "__", 11, 43
 
     EMWriteScreen left(OS_addr_eff_date, 2), 4, 43
     EMWriteScreen mid(OS_addr_eff_date, 4, 2), 4, 46
@@ -2173,13 +2166,11 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EMWriteScreen OS_addr_state, 8, 66
     EMWriteScreen left(OS_addr_zip, 7), 9, 43
     EMWriteScreen OS_addr_resi_code, 9, 66
-    EMWriteScreen OS_addr_ver, 9, 74
-    EMWriteScreen OS_addr_living_situation, 11, 43
+    EMWriteScreen "OT", 9, 74
     'Transmit to save
     transmit
     transmit
     transmit
-
   End If
 
   'CASE/NOTE information
