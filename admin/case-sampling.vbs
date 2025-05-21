@@ -256,6 +256,83 @@ basket_detail.add "X127FI7", "LTC+"
 
 basket_detail.add "X127FI1", "METS Retro Request"
 
+
+'DAILY COMPILATION column
+const comp_case_numb_col 			= 01   						'Case #
+const comp_case_name_col 			= 02   						'Case Name
+const comp_appl_date_col 			= 03   						'Application Date
+const comp_appl_date_issue_col 		= 04   						'Are there issue(s) with application date(s)?
+const comp_prog_date_align_col 		= 05   						'Were all pending program dates aligned on PROG?
+const comp_staff_not_meet_appl_stndrd_col = 06  				'Identify staff not meeting appplication standards(comma seperated if more than 1)
+const comp_appl_notes_col 			= 07   						'Application Notes
+const comp_progs_col 				= 08   						'Programs applied
+const comp_spec_cash_prog_col 		= 09   						'Specific Cash Program(s) - If applicable.
+const comp_hh_comp_col 				= 10   						'HH Composition
+const comp_hh_comp_correct_col 		= 11   						'HH comp correct?
+const comp_staff_not_meet_demo_stndrd_col = 12  				'Identify staff not meeting demographic standards(comma seperated if more than 1)
+const comp_prog_hh_comp_notes_col 	= 13  						'Prog/HH Comp Notes
+const comp_intvw_date_col 			= 14   						'Interview Date
+const comp_intvw_script_used_col 	= 15   						'Was the Interview Script used?
+const comp_single_intvw_col 		= 16   						'Was single interview completed for multiple programs?
+const comp_mf_orient_complete_col 	= 17   						'If MFIP, was orientation completed?
+const comp_staff_not_meet_intvw_stndrd_col = 18 				'Identify staff not meeting interview standards(comma seperated if more than 1)
+const comp_intvw_notes_col 			= 19   						'Interview Notes
+const comp_verif_req_sent_col 		= 20   						'Was a verification request sent to the case/household?
+const comp_verif_req_blank_col 		= 21   						'Was the verificaiton request blank?
+const comp_single_verif_req_col 	= 22   						'Were all the verifications requested in a single verification request?
+const comp_spec_forms_req_col 		= 23   						'Did the worker ask for specific forms instead of providing options to verify proofs?
+const comp_unnec_verfs_col 			= 24   						'Did worker ask for unnecessary verifications?
+const comp_staff_not_meet_verif_stndrd_col = 25   				'Identify staff not meeting verification standards(comma seperated if more than 1)
+const comp_verif_notes_col 			= 26   						'Verification Notes
+const comp_date_app_col 			= 27   						'Date(s) case was APP's (approved/denied)
+const comp_snap_det_exp_col 		= 28   						'If SNAP, was the case DETERMINED to be expedited?
+const comp_same_day_act_col 		= 29   						'If more than one program pending, were all programs acted on the same day?
+const comp_stat_pact_col 			= 30   						'Was STAT/PACT used?
+const comp_ecf_docs_accept_col 		= 31    						'Were all ECF Documents accepted?
+const comp_residnt_in_office_col 	= 32   						'During the pending period did resident/AREP come into the office?
+const comp_staff_not_meet_app_stndrd_col = 33					'Identify staff not meeting approval standards(comma seperated if more than 1)
+const comp_app_notes_col 			= 34   						'Approval Notes:
+const comp_serve_purpose_col 		= 35   						'Serve a purpose? Are there case notes that are about the task or worker vs. the important case information?
+const comp_docs_noted_col 			= 36   						'Were all documents sent and/or received case noted in detail?
+const comp_staff_not_meet_note_stndrd_col = 37					'Identify staff not meeting CASE/NOTE standards(comma seperated if more than 1)
+const comp_case_note_col 			= 38   						'CASE/NOTE Notes
+const comp_reviewer_col 			= 39   						'Reviewer Name
+const comp_time_of_case_review_col 	= 40   						'Total time of case review (in minutes)
+const comp_repair_required_col 		= 41   						'Case required repair from Cash/SNAP staff
+const comp_coaching_col 			= 42   						'If no, is coaching recommeded? (IE: not case noting in detail/using interview script)
+const comp_fix_summary_col			= 43						'Summary of repair(s) needed to the case
+const comp_file_create_date_col		= 44						'Date the file was created
+
+'Repair report columns
+const fix_case_numb_col 			= 01   						'Case #
+const fix_appl_date_col 			= 02  						'Application Date
+const fix_progs_col 				= 03  						'Programs applied
+const fix_spec_cash_prog_col 		= 04  						'Specific Cash Program(s) - If applicable.
+const fix_fix_summary_col			= 05				'Summary of repair(s) needed to the case
+
+'simple report columns
+const simple_comp_case_numb_col 					= 01   						'Case #
+const simple_comp_appl_date_col 					= 02   						'Application Date
+const simple_comp_staff_not_meet_appl_stndrd_col 	= 03  				'Identify staff not meeting appplication standards(comma seperated if more than 1)
+const simple_comp_appl_notes_col 					= 04   						'Application Notes
+const simple_comp_progs_col 						= 05   						'Programs applied
+const simple_comp_staff_not_meet_demo_stndrd_col 	= 06  				'Identify staff not meeting demographic standards(comma seperated if more than 1)
+const simple_comp_prog_hh_comp_notes_col 			= 07  						'Prog/HH Comp Notes
+const simple_comp_intvw_date_col 					= 08   						'Interview Date
+const simple_comp_staff_not_meet_intvw_stndrd_col 	= 09 				'Identify staff not meeting interview standards(comma seperated if more than 1)
+const simple_comp_intvw_notes_col 					= 10   						'Interview Notes
+const simple_comp_verif_req_sent_col 				= 11   						'Was a verification request sent to the case/household?
+const simple_comp_staff_not_meet_verif_stndrd_col 	= 12   				'Identify staff not meeting verification standards(comma seperated if more than 1)
+const simple_comp_verif_notes_col 					= 13   						'Verification Notes
+const simple_comp_snap_det_exp_col 					= 14   						'If SNAP, was the case DETERMINED to be expedited?
+const simple_comp_stat_pact_col 					= 15   						'Was STAT/PACT used?
+const simple_comp_staff_not_meet_app_stndrd_col 	= 16					'Identify staff not meeting approval standards(comma seperated if more than 1)
+const simple_comp_app_notes_col 					= 17   						'Approval Notes:
+const simple_comp_serve_purpose_col 				= 18   						'Serve a purpose? Are there case notes that are about the task or worker vs. the important case information?
+const simple_comp_docs_noted_col 					= 19   						'Were all documents sent and/or received case noted in detail?
+const simple_comp_staff_not_meet_note_stndrd_col 	= 20					'Identify staff not meeting CASE/NOTE standards(comma seperated if more than 1)
+const simple_comp_case_note_col 					= 21   						'CASE/NOTE Notes
+
 ' ==========================================================================================================================
 
 function random_selection(out_of_number, rand_selected)
@@ -317,7 +394,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 276, 225, "ADMIN Pending Case Sampling"
 	Text 10, 10, 225, 20, "Case Sampling Selection for Cases That were PENDING yesterday and are No Longer PENDING."
 	Text 15, 40, 70, 10, "Functionality to Run:"
-	DropListBox 85, 35, 180, 45, "Run ALL Options"+chr(9)+"Compilation Only"+chr(9)+"Case Review Selections Only"+chr(9)+"Make More Review Files", functionality_choice
+	DropListBox 85, 35, 180, 45, "Run ALL Options"+chr(9)+"Compilation Only"+chr(9)+"Case Review Selections Only"+chr(9)+"Make More Review Files"+chr(9)+"Compile Biweekly Report", functionality_choice
 	'TODO - add a selection option for the version for the template selection and compilation sheet selection
 	Text 10, 55, 125, 10, "Select Cases for Case Sampling"
 	GroupBox 10, 70, 75, 120, "Population Selection"
@@ -377,9 +454,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 run_compilation = False
 run_review_selection = False
 add_more_review_files = False
+biweekly_report_run = False
 If functionality_choice = "Run ALL Options" OR functionality_choice = "Compilation Only" Then run_compilation = True
 If functionality_choice = "Run ALL Options" OR functionality_choice = "Case Review Selections Only" Then run_review_selection = True
 If functionality_choice = "Make More Review Files" Then add_more_review_files = True
+If functionality_choice = "Compile Biweekly Report" Then biweekly_report_run = True
 
 If run_review_selection = True Then
 	If IsNumeric(total_review_count) Then
@@ -578,51 +657,6 @@ If run_compilation = True Then
 
 	compilation_start_time = timer
 
-	'DAILY COMPILATION
-	const comp_case_numb_col 			= 01   						'Case #
-	const comp_case_name_col 			= 02   						'Case Name
-	const comp_appl_date_col 			= 03   						'Application Date
-	const comp_appl_date_issue_col 		= 04   						'Are there issue(s) with application date(s)?
-	const comp_prog_date_align_col 		= 05   						'Were all pending program dates aligned on PROG?
-	const comp_staff_not_meet_appl_stndrd_col = 06  				'Identify staff not meeting appplication standards(comma seperated if more than 1)
-	const comp_appl_notes_col 			= 07   						'Application Notes
-	const comp_progs_col 				= 08   						'Programs applied
-	const comp_spec_cash_prog_col 		= 09   						'Specific Cash Program(s) - If applicable.
-	const comp_hh_comp_col 				= 10   						'HH Composition
-	const comp_hh_comp_correct_col 		= 11   						'HH comp correct?
-	const comp_staff_not_meet_demo_stndrd_col = 12  				'Identify staff not meeting demographic standards(comma seperated if more than 1)
-	const comp_prog_hh_comp_notes_col 	= 13  						'Prog/HH Comp Notes
-	const comp_intvw_date_col 			= 14   						'Interview Date
-	const comp_intvw_script_used_col 	= 15   						'Was the Interview Script used?
-	const comp_single_intvw_col 		= 16   						'Was single interview completed for multiple programs?
-	const comp_mf_orient_complete_col 	= 17   						'If MFIP, was orientation completed?
-	const comp_staff_not_meet_intvw_stndrd_col = 18 				'Identify staff not meeting interview standards(comma seperated if more than 1)
-	const comp_intvw_notes_col 			= 19   						'Interview Notes
-	const comp_verif_req_sent_col 		= 20   						'Was a verification request sent to the case/household?
-	const comp_verif_req_blank_col 		= 21   						'Was the verificaiton request blank?
-	const comp_single_verif_req_col 	= 22   						'Were all the verifications requested in a single verification request?
-	const comp_spec_forms_req_col 		= 23   						'Did the worker ask for specific forms instead of providing options to verify proofs?
-	const comp_unnec_verfs_col 			= 24   						'Did worker ask for unnecessary verifications?
-	const comp_staff_not_meet_verif_stndrd_col = 25   				'Identify staff not meeting verification standards(comma seperated if more than 1)
-	const comp_verif_notes_col 			= 26   						'Verification Notes
-	const comp_date_app_col 			= 27   						'Date(s) case was APP's (approved/denied)
-	const comp_snap_det_exp_col 		= 28   						'If SNAP, was the case DETERMINED to be expedited?
-	const comp_same_day_act_col 		= 29   						'If more than one program pending, were all programs acted on the same day?
-	const comp_stat_pact_col 			= 30   						'Was STAT/PACT used?
-	const comp_ecf_docs_accept_col 		= 31    						'Were all ECF Documents accepted?
-	const comp_residnt_in_office_col 	= 32   						'During the pending period did resident/AREP come into the office?
-	const comp_staff_not_meet_app_stndrd_col = 33					'Identify staff not meeting approval standards(comma seperated if more than 1)
-	const comp_app_notes_col 			= 34   						'Approval Notes:
-	const comp_serve_purpose_col 		= 35   						'Serve a purpose? Are there case notes that are about the task or worker vs. the important case information?
-	const comp_docs_noted_col 			= 36   						'Were all documents sent and/or received case noted in detail?
-	const comp_staff_not_meet_note_stndrd_col = 37					'Identify staff not meeting CASE/NOTE standards(comma seperated if more than 1)
-	const comp_case_note_col 			= 38   						'CASE/NOTE Notes
-	const comp_reviewer_col 			= 39   						'Reviewer Name
-	const comp_time_of_case_review_col 	= 40   						'Total time of case review (in minutes)
-	const comp_repair_required_col 		= 41   						'Case required repair from Cash/SNAP staff
-	const comp_coaching_col 			= 42   						'If no, is coaching recommeded? (IE: not case noting in detail/using interview script)
-	const comp_fix_summary_col			= 43						'Summary of repair(s) needed to the case
-
 	'Open Compilation excel
 		'find next empty row
 	compilation_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Support Documents\Data Compilation V2 - SNAP Cash Application Sampling.xlsx"
@@ -722,6 +756,7 @@ If run_compilation = True Then
 					ObjExcel.cells(excel_row, comp_repair_required_col).Value 				= ObjREVWExcel.cells(comp_repair_required_col, 3).Value
 					ObjExcel.cells(excel_row, comp_coaching_col).Value 						= ObjREVWExcel.cells(comp_coaching_col, 3).Value
 					ObjExcel.cells(excel_row, comp_fix_summary_col).Value 					= ObjREVWExcel.cells(comp_fix_summary_col, 3).Value
+					ObjExcel.cells(excel_row, comp_file_create_date_col).Value 				= this_file_created_date								'saving the date the review was created, which is usually the day the review was completed
 					excel_row = excel_row + 1
 				End If
 				reviewer_found = False
@@ -1417,6 +1452,182 @@ If add_more_review_files = True or run_review_selection = True Then
 	End If
 End If
 
+If biweekly_report_run = True Then
+	'Setting some variables and file paths
+	curr_date_file_format = date
+	curr_date_file_format = replace(curr_date_file_format, "/", "-")
+	fix_file_path 			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Repair%20List%20-%20" & curr_date_file_format & ".xlsx"
+	simple_comp_file_path 	= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Sampling%20List%20-%20" & curr_date_file_format & ".xlsx"
+
+	'These are the template files for making new files
+	fix_file_template 			= "https://hennepin.sharepoint.com/:x:/r/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Repair%20List%20TEMPLATE.xlsx"
+	simple_comp_file_template	= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Sampling%20List%20TEMPLATE.xlsx"
+
+	'Open the template files and save them as the specific date file name
+	Call excel_open(fix_file_template, True, False, ObjFixExcel, objFixWorkbook)				'Repair List
+	ObjFixExcel.ActiveWorkbook.SaveAs fix_file_path
+
+	Call excel_open(simple_comp_file_template, True, False, ObjSimpExcel, objSimpWorkbook)		'Full Review List
+	ObjSimpExcel.ActiveWorkbook.SaveAs simple_comp_file_path
+
+	'Open Compilation excel to read the review details
+	compilation_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\Support Documents\Data Compilation V2 - SNAP Cash Application Sampling.xlsx"
+	Call excel_open(compilation_file_path, True, False, ObjExcel, objWorkbook)
+	ObjExcel.WorkSheets("V2.1 Cont.").Activate		'get to the right sheet
+
+	'Setting the start of a loop to read every line on the compilation list.
+	'All cases will be added to the simplified review report (ObjSimpExcel)
+	'Only cases with a 'Yes' in the column for need repair will be added to the repair report (ObjFixExcel)
+	excel_row = 3			'rows start at 3 because there are two header rows
+	fix_excel_row = 3
+	earliest_date = date	'these dates are to determine the beginning and end date of the review completion dates
+	latest_date = #1/1/2025#
+	Do
+		ObjSimpExcel.cells(excel_row, simple_comp_case_numb_col).Value 						= ObjExcel.cells(excel_row, comp_case_numb_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_appl_date_col).Value 						= ObjExcel.cells(excel_row, comp_appl_date_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_appl_stndrd_col).Value 	= ObjExcel.cells(excel_row, comp_staff_not_meet_appl_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_appl_notes_col).Value 					= ObjExcel.cells(excel_row, comp_appl_notes_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_progs_col).Value 							= ObjExcel.cells(excel_row, comp_progs_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_demo_stndrd_col).Value 	= ObjExcel.cells(excel_row, comp_staff_not_meet_demo_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_prog_hh_comp_notes_col).Value 			= ObjExcel.cells(excel_row, comp_prog_hh_comp_notes_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_intvw_date_col).Value 					= ObjExcel.cells(excel_row, comp_intvw_date_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_intvw_stndrd_col).Value 	= ObjExcel.cells(excel_row, comp_staff_not_meet_intvw_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_intvw_notes_col).Value 					= ObjExcel.cells(excel_row, comp_intvw_notes_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_verif_req_sent_col).Value 				= ObjExcel.cells(excel_row, comp_verif_req_sent_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_verif_stndrd_col).Value 	= ObjExcel.cells(excel_row, comp_staff_not_meet_verif_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_verif_notes_col).Value 					= ObjExcel.cells(excel_row, comp_verif_notes_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_snap_det_exp_col).Value 					= ObjExcel.cells(excel_row, comp_snap_det_exp_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_stat_pact_col).Value 						= ObjExcel.cells(excel_row, comp_stat_pact_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_app_stndrd_col).Value 		= ObjExcel.cells(excel_row, comp_staff_not_meet_app_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_app_notes_col).Value 						= ObjExcel.cells(excel_row, comp_app_notes_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_serve_purpose_col).Value 					= ObjExcel.cells(excel_row, comp_serve_purpose_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_docs_noted_col).Value 					= ObjExcel.cells(excel_row, comp_docs_noted_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_staff_not_meet_note_stndrd_col).Value 	= ObjExcel.cells(excel_row, comp_staff_not_meet_note_stndrd_col).Value
+		ObjSimpExcel.cells(excel_row, simple_comp_case_note_col).Value 						= ObjExcel.cells(excel_row, comp_case_note_col).Value
+
+		If trim(ObjExcel.cells(excel_row, comp_repair_required_col).Value) = "Yes" Then		'These are repair cases
+			ObjFixExcel.cells(fix_excel_row, fix_case_numb_col).Value 						= ObjExcel.cells(excel_row, comp_case_numb_col).Value
+			ObjFixExcel.cells(fix_excel_row, fix_appl_date_col).Value 						= ObjExcel.cells(excel_row, comp_appl_date_col).Value
+			ObjFixExcel.cells(fix_excel_row, fix_progs_col).Value 							= ObjExcel.cells(excel_row, comp_progs_col).Value
+			ObjFixExcel.cells(fix_excel_row, fix_spec_cash_prog_col).Value 					= ObjExcel.cells(excel_row, comp_spec_cash_prog_col).Value
+			ObjFixExcel.cells(fix_excel_row, fix_fix_summary_col).Value 					= ObjExcel.cells(excel_row, comp_fix_summary_col).Value
+			fix_excel_row = fix_excel_row + 1
+		End If
+
+		'Determining the earliest and latest file dates as the date reviews were completed
+		file_date = trim(ObjExcel.cells(excel_row, comp_file_create_date_col).Value)
+		If trim(file_date) <> "" Then
+			If IsDate(file_date) Then
+				file_date = DateAdd("d", 0, file_date)
+				If DateDiff("d", file_date, earliest_date) > 0 Then earliest_date = file_date
+				If DateDiff("d", latest_date, file_date) > 0 Then latest_date = file_date
+			End If
+		End If
+		excel_row = excel_row + 1
+
+	Loop until trim(ObjExcel.cells(excel_row, comp_case_numb_col).Value) = ""
+
+	'save the report files and close
+	objFixWorkbook.Save()
+	ObjFixExcel.ActiveWorkbook.Close
+	ObjFixExcel.Application.Quit
+	ObjFixExcel.Quit
+
+	objSimpWorkbook.Save()
+	ObjSimpExcel.ActiveWorkbook.Close
+	ObjSimpExcel.Application.Quit
+	ObjSimpExcel.Quit
+
+	'This part creates a worksheet in the compilation file for the already captured reviews and blanks out the main compilation sheet for the next biweekly period
+	'Find the last existing worksheet on the compilation workbook
+	last_worksheet = ""
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If objWorkSheet.Name <> "V.2 Comp" Then last_worksheet = objWorkSheet.Name
+	Next
+	'Create a name for the worksheet that was just created
+	new_worksheek_name = DatePart("m", earliest_date) & "-" & DatePart("d", earliest_date) & " - " & DatePart("m", latest_date) & "-" & DatePart("d", latest_date)
+
+	'Copy the existing main sheet to the end of the sheets and then rename the sheet to the name created with dates
+	objExcel.worksheets("V2.1 Cont.").Copy, objExcel.worksheets(last_worksheet)
+	ObjExcel.WorkSheets("V2.1 Cont. (2)").Activate
+	ObjExcel.ActiveSheet.Name = new_worksheek_name
+
+	'Go back to the main list
+	ObjExcel.WorkSheets("V2.1 Cont.").Activate
+
+	'Email that the reports are ready
+	send_email_to = "Jennifer.Frey@hennepin.us"
+	cc_email_to = "Tanya.Payne@hennepin.us"
+	email_subject = "Case Sampling Biweekly Report"
+	email_body = "The Case Sampling reports for the past 2 weeks have been compiled." & "<br>" & "<br>"
+	email_body = email_body & "The reports can be found here:" & "<br>"
+	email_body = email_body & "&emsp;" & "- " & "<a href=" & chr(34) & fix_file_path & chr(34) & ">" & "Repair List - " & curr_date_file_format & "</a>" & " Case that appear to need to be fixed." & "<br>"
+	email_body = email_body & "&emsp;" & "- " & "<a href=" & chr(34) & simple_comp_file_path & chr(34) & ">" & "Sampling List - " & curr_date_file_format & "</a>" & " Full list from the past 2 weeks (" & earliest_date & " - " & latest_date & ")." & "<br>" & "<br>"
+	email_body = email_body & "Worklists created by a BlueZone script to support case sampling."
+
+	Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+
+	'Now we blank out the reviews on the main list since they are saved on the copy sheet.
+	'This keeps this workbook quicker/more responsive
+	excel_row = 3
+	Do
+		ObjExcel.cells(excel_row, comp_case_numb_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_case_name_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_appl_date_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_appl_date_issue_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_prog_date_align_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_appl_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_appl_notes_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_progs_col).Value 						= ""
+		ObjExcel.cells(excel_row, comp_spec_cash_prog_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_hh_comp_col).Value 						= ""
+		ObjExcel.cells(excel_row, comp_hh_comp_correct_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_demo_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_prog_hh_comp_notes_col).Value 			= ""
+		ObjExcel.cells(excel_row, comp_intvw_date_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_intvw_script_used_col).Value 			= ""
+		ObjExcel.cells(excel_row, comp_single_intvw_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_mf_orient_complete_col).Value 			= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_intvw_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_intvw_notes_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_verif_req_sent_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_verif_req_blank_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_single_verif_req_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_spec_forms_req_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_unnec_verfs_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_verif_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_verif_notes_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_date_app_col).Value 						= ""
+		ObjExcel.cells(excel_row, comp_snap_det_exp_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_same_day_act_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_stat_pact_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_ecf_docs_accept_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_residnt_in_office_col).Value 			= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_app_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_app_notes_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_serve_purpose_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_docs_noted_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_staff_not_meet_note_stndrd_col).Value 	= ""
+		ObjExcel.cells(excel_row, comp_case_note_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_reviewer_col).Value 						= ""
+		ObjExcel.cells(excel_row, comp_time_of_case_review_col).Value 			= ""
+		ObjExcel.cells(excel_row, comp_repair_required_col).Value 				= ""
+		ObjExcel.cells(excel_row, comp_coaching_col).Value 						= ""
+		ObjExcel.cells(excel_row, comp_fix_summary_col).Value 					= ""
+		ObjExcel.cells(excel_row, comp_file_create_date_col).Value 				= ""
+		excel_row = excel_row + 1
+	Loop until trim(ObjExcel.cells(excel_row, comp_case_numb_col).Value) = ""
+
+	'save and close the compilation file
+	objWorkbook.Save()
+	ObjExcel.ActiveWorkbook.Close
+	ObjExcel.Application.Quit
+	ObjExcel.Quit
+
+	'end message output - note that this can be run on an interval other than biweekly the only strict biweekly outputs are in these hard coded strings that do not impact functionality.
+	compilation_msg = "BiWeekly reports created:" & vbCr & "Repair List - " & curr_date_file_format & vbCr & "Sampling List - " & curr_date_file_format
+End If
+
 done_msg = "Script Run Completed" & vbCr & vbCr
 done_msg = done_msg & compilation_msg & vbCr & vbCr
 done_msg = done_msg & review_select_msg & vbCr
@@ -1424,8 +1635,6 @@ done_msg = done_msg & vbCr & "All files managed."
 call script_end_procedure(done_msg)
 
 
-'HOW LONG ARE WE KEEPING DAILY LISTS?
-'Delete after 2 weeks
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
