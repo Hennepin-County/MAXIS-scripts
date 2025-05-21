@@ -574,6 +574,62 @@ class form_questions
 			caf_answer = question_yn
 			If caf_answer <> "" Then entirely_blank = false
 		End If
+
+		If detail_array_exists = true Then
+			If detail_source = "shel-hest" Then
+				If housing_payment <> "" Then entirely_blank = false
+				If heat_air_checkbox <> "" Then entirely_blank = false
+				If electric_checkbox <> "" Then entirely_blank = false
+				If phone_checkbox <> "" Then entirely_blank = false
+				If subsidy_yn <> "" Then entirely_blank = false
+				If subsidy_amount <> "" Then entirely_blank = false
+			End If
+
+			for each_item = 0 to UBOUND(detail_interview_notes)
+				info_entered = false
+				If detail_source = "jobs" Then
+					If detail_business(each_item) <> "" OR detail_resident_name(each_item) <> "" OR detail_monthly_amount(each_item) <> "" OR detail_hourly_wage(each_item) <> "" OR detail_hours_per_week(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "assets" Then
+					If detail_resident_name(each_item) <> "" OR detail_type(each_item) <> "" OR detail_value(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "unea" Then
+					If detail_resident_name(each_item) <> "" OR detail_type(each_item) <> "" OR detail_date(each_item) <> "" OR detail_amount(each_item) <> "" OR detail_frequency(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "shel-hest" Then
+					If detail_type(each_item) <> "" OR detail_amount(each_item) <> "" OR detail_frequency(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "expense" Then
+					If detail_resident_name(each_item) <> "" OR detail_amount(each_item) <> "" OR detail_current(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "winnings" Then
+					If detail_resident_name(each_item) <> "" or detail_amount(each_item) <> "" or detail_date(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				ElseIf detail_source = "changes" Then
+					If detail_resident_name(each_item) <> "" OR detail_date(each_item) <> "" OR detail_explain(each_item) <> "" Then
+						entirely_blank = false
+						info_entered = true
+					End If
+				End If
+				If info_entered = true Then
+					If detail_verif_status(each_item) <> "" Then entirely_blank = false
+					If trim(detail_write_in_info(each_item)) <> "" Then entirely_blank = false
+					If trim(detail_interview_notes(each_item)) <> "" Then entirely_blank = false
+				End If
+			next
+		End If
 		If answer_is_array = true Then
 			If info_type <> "unea" Then
 				For i = 0 to UBound(TEMP_ARRAY)
@@ -615,6 +671,7 @@ class form_questions
 
 		If write_in_info <> "" Then entirely_blank = false
 		If interview_notes <> "" Then entirely_blank = false
+		If verif_status <> "" Then entirely_blank = false
 		If sub_answer <> "" Then entirely_blank = false
 	end sub
 
@@ -675,9 +732,9 @@ class form_questions
 	end sub
 
 	public sub enter_case_note()
+		If entirely_blank = false Then CALL write_variable_in_CASE_NOTE(note_phrasing)			'This writes the question number and text at the beginning of the note block
+
 		If info_type = "standard" or info_type = "two-part" or info_type = "single-detail" or detail_array_exists = true Then
-			'funcitonality here
-			If caf_answer <> "" OR trim(write_in_info) <> "" OR verif_status <> "" OR trim(interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(note_phrasing)
 			q_input = "    Form Answer - " & caf_answer
 			If info_type = "single-detail" Then
 				If trim(sub_answer) <> "" Then q_input = q_input & " " & sub_note_phrase & ": " & sub_answer
@@ -718,7 +775,6 @@ class form_questions
 						If subsidy_yn <> "No" Then CALL write_variable_in_CASE_NOTE("    - Subsidy: " & subsidy_yn & "    Subsidy Amount: $ " & subsidy_amount & " /month")
 						If subsidy_yn = "No" Then CALL write_variable_in_CASE_NOTE("    - Subsidy: " & subsidy_yn)
 					End If
-					' If subsidy_yn = "" and subsidy_amount = "" Then CALL write_variable_in_CASE_NOTE("    - Subsidy: BLANK    Subsidy Amount: $ BLANK /month")
 				End If
 
 				for each_item = 0 to UBOUND(detail_interview_notes)
@@ -771,16 +827,12 @@ class form_questions
 						If trim(detail_interview_notes(each_item)) <> "" Then CALL write_variable_in_CASE_NOTE("     INTVW NOTES: " & detail_interview_notes(each_item))
 					End If
 				next
-				If detail_source = "shel-hest" Then
-
-				End If
 			End If
 		' ElseIf info_type = "two-part" Then
 		' ElseIf info_type = "jobs" Then
 		' ElseIf info_type = "single-detail" Then
 		ElseIf info_type = "unea" Then
 			If entirely_blank = false Then
-				Call write_variable_in_CASE_NOTE(note_phrasing)
 				CALL write_variable_in_CASE_NOTE("    Form Answer:")
 
 				for i = 0 to 8
@@ -799,7 +851,6 @@ class form_questions
 			If trim(interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_notes)
 		ElseIf info_type = "housing" or info_type = "utilities" or info_type = "assets" or info_type = "msa" or info_type = "stwk" Then
 			If entirely_blank = false Then
-				Call write_variable_in_CASE_NOTE(note_phrasing)
 				CALL write_variable_in_CASE_NOTE("    Form Answer:")
 
 				for i = 0 to UBound(item_ans_list)
