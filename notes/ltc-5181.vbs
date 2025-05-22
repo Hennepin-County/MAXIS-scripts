@@ -1265,6 +1265,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+Call back_to_SELF
 
 'If OS staff, then provide dialog with options to make updates. If HSR staff, then provide full suite of dialogs
 If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
@@ -1972,16 +1973,16 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
 
   Dialog1 = "" 'Blanking out previous dialog detail
   BeginDialog Dialog1, 0, 0, 511, 275, "Update SWKR/ADDR Panels"
-    GroupBox 5, 5, 245, 245, "Update SWKR Panel"
-    CheckBox 15, 20, 120, 10, "Click here to update SWKR panel", OS_swkr_update_panel_checkbox
-    Text 15, 45, 70, 10, "Date Sent to Worker:"
-    EditBox 95, 40, 55, 15, OS_date_sent_worker
-    Text 15, 60, 70, 10, "Date Received:"
-    EditBox 95, 55, 55, 15, OS_date_form_received
-    Text 15, 75, 40, 10, "Assessor:"
-    EditBox 95, 70, 120, 15, OS_assessor
-    Text 15, 90, 50, 10, "Lead Agency:"
-    EditBox 95, 85, 120, 15, OS_lead_agency
+    Text 10, 10, 65, 10, "Date on DHS-5181:"
+    EditBox 80, 5, 55, 15, OS_date_sent_worker
+    Text 150, 10, 55, 10, "Date Received:"
+    EditBox 205, 5, 55, 15, OS_date_form_received
+    GroupBox 5, 25, 250, 225, "Update SWKR Panel"
+    CheckBox 15, 40, 120, 10, "Click here to update SWKR panel", OS_swkr_update_panel_checkbox
+    Text 15, 75, 50, 10, "Lead Agency:"
+    EditBox 95, 70, 120, 15, OS_lead_agency
+    Text 15, 90, 40, 10, "Assessor:"
+    EditBox 95, 85, 120, 15, OS_assessor
     Text 15, 105, 55, 10, "Phone Number:"
     EditBox 95, 100, 55, 15, OS_phone_number
     Text 155, 105, 20, 10, "Ext:"
@@ -2003,62 +2004,73 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Text 15, 230, 115, 10, "All notices to Social Worker (Y/N):"
     DropListBox 135, 225, 65, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", OS_swkr_notices_dropdown
     ButtonGroup ButtonPressed
-      PushButton 175, 15, 70, 15, "Navigate to SWKR", swkr_nav_btn
-    GroupBox 255, 5, 250, 245, "Update ADDR Panel"
-    CheckBox 265, 20, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
+        PushButton 180, 35, 70, 15, "Navigate to SWKR", swkr_nav_btn
+    GroupBox 260, 25, 245, 225, "Update ADDR Panel"
+    Text 265, 75, 70, 10, "Address Eff Date:"
+    EditBox 345, 70, 55, 15, OS_addr_eff_date
+    Text 265, 90, 50, 10, "Street Line 1:"
+    EditBox 345, 85, 120, 15, OS_addr_address_street_line_1
+    Text 265, 105, 50, 10, "Street Line 2:"
+    EditBox 345, 100, 120, 15, OS_addr_address_street_line_2
+    Text 265, 120, 20, 10, "City:"
+    EditBox 345, 115, 120, 15, OS_addr_city
+    Text 265, 135, 25, 10, "State:"
+    EditBox 345, 130, 25, 15, OS_addr_state
+    Text 265, 150, 35, 10, "Zip code:"
+    EditBox 345, 145, 35, 15, OS_addr_zip
+    Text 265, 165, 45, 10, "County code:"
+    EditBox 345, 160, 25, 15, OS_addr_resi_code
+    CheckBox 265, 40, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
     ButtonGroup ButtonPressed
-      PushButton 430, 15, 70, 15, "Navigate to ADDR", addr_nav_btn
-    Text 265, 45, 70, 10, "Address Eff Date:"
-    EditBox 345, 40, 55, 15, OS_addr_eff_date
-    Text 265, 60, 50, 10, "Street Line 1:"
-    EditBox 345, 55, 120, 15, OS_addr_address_street_line_1
-    Text 265, 75, 50, 10, "Street Line 2:"
-    EditBox 345, 70, 120, 15, OS_addr_address_street_line_2
-    Text 265, 90, 20, 10, "City:"
-    EditBox 345, 85, 120, 15, OS_addr_city
-    Text 265, 105, 25, 10, "State:"
-    EditBox 345, 100, 25, 15, OS_addr_state
-    Text 265, 120, 35, 10, "Zip code:"
-    EditBox 345, 115, 35, 15, OS_addr_zip
-    Text 265, 135, 45, 10, "County code:"
-    EditBox 345, 130, 25, 15, OS_addr_resi_code
-    ButtonGroup ButtonPressed
-      PushButton 400, 255, 55, 15, "Next", next_btn
-      CancelButton 455, 255, 50, 15
-  EndDialog
+        PushButton 420, 35, 70, 15, "Navigate to ADDR", addr_nav_btn
+        PushButton 400, 255, 55, 15, "Next", next_btn
+        CancelButton 455, 255, 50, 15
+    Text 15, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
+    Text 265, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
+    EndDialog
 
   DO
     DO
-      err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-      dialog Dialog1				'main dialog
-      cancel_without_confirmation
+        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+        dialog Dialog1				'main dialog
+        cancel_without_confirmation
 
-      'Error handling for SWKR panel updates
-      If OS_swkr_update_panel_checkbox = 1 Then
-        If trim(OS_date_sent_worker) = "" or IsDate(OS_date_sent_worker) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-5181 was sent to the worker in the format MM/DD/YYYY."  
+        'Ensure dates are filled out
+        If trim(OS_date_sent_worker) = "" or IsDate(OS_date_sent_worker) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date on the DHS-5181 in the format MM/DD/YYYY."  
         If trim(OS_date_form_received) = "" or IsDate(OS_date_form_received) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-5181 was received in the format MM/DD/YYYY."  
-        If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
-        If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."  
-        If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
-        If len(OS_fax_number) <> 12 OR mid(OS_fax_number, 4, 1) <> "-" OR mid(OS_fax_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Fax Number field in the format ###-###-####."
-        If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
-        If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
-        If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
-        If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
-        If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
-      End If
-      'Error handling for ADDR panel updates
-      If OS_addr_update_panel_btn = 1 Then
-        If trim(OS_addr_eff_date) = "" or IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
-        If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
-        If trim(OS_addr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."
-        If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
-        If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
-        If trim(OS_addr_resi_code) = "" OR len(OS_addr_zip) <> 2 OR IsNumeric(OS_addr_zip) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
-      End If
-      If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
-      If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+
+        'Error handling for SWKR panel updates
+        If OS_swkr_update_panel_checkbox = 1 Then
+            If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."
+            'Navigate to SWKR panel to ensure that SWKR panel exists
+            Call navigate_to_MAXIS_screen("STAT", "SWKR")
+            'Check if SWKR panel exists
+            EmReadScreen swkr_does_not_exist, 19, 24, 2
+            If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then 
+                Call back_to_SELF
+                If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
+                If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+                If len(OS_fax_number) <> 12 OR mid(OS_fax_number, 4, 1) <> "-" OR mid(OS_fax_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Fax Number field in the format ###-###-####."
+                If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+                If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
+                If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
+                If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
+                If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
+            End If
+        End If
+        'Error handling for ADDR panel updates
+        If OS_addr_update_panel_btn = 1 Then
+            If trim(OS_addr_eff_date) <> "" AND IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
+            If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+            If trim(OS_addr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."
+            If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
+            If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
+            If trim(OS_addr_resi_code) = "" OR len(OS_addr_zip) <> 2 OR IsNumeric(OS_addr_zip) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
+        End If
+        If OS_swkr_update_panel_checkbox + OS_addr_update_panel_btn = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
+        If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
+        If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = "" and (ButtonPressed <> swkr_nav_btn and ButtonPressed <> addr_nav_btn) 									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -2067,12 +2079,12 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
 
   If OS_swkr_update_panel_checkbox = 1 Then
     'Ensure the specifically selected assessor (SWKR) will update the panel
-    swkr_panel_name = OS_assessor
-    swkr_panel_street_line_1 = OS_swkr_street_address_1
+    swkr_panel_name = trim(OS_assessor)
+    swkr_panel_street_line_1 = trim(OS_swkr_street_address_1)
     If trim(OS_swkr_street_address_2) <> "" Then swkr_panel_street_line_2 = OS_swkr_street_address_2
-    swkr_panel_city = OS_swkr_city
-    swkr_panel_state = OS_swkr_state
-    swkr_panel_zip = OS_swkr_zip_code
+    swkr_panel_city = trim(OS_swkr_city)
+    swkr_panel_state = trim(OS_swkr_state)
+    swkr_panel_zip = trim(OS_swkr_zip_code)
     swkr_panel_phone = replace(OS_phone_number, "-", "")
     If trim(OS_phone_ext) <> "" Then swkr_panel_phone_ext = OS_phone_ext
     
@@ -2081,48 +2093,70 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     'Check if SWKR panel exists
     EmReadScreen swkr_does_not_exist, 19, 24, 2
     If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
-      'Add new panel
-      Call write_value_and_transmit("NN", 20, 79)
-      'Write details to panel
-      EMWriteScreen swkr_panel_name, 6, 32
-      EMWriteScreen swkr_panel_street_line_1, 8, 32
-      EMWriteScreen swkr_panel_street_line_2, 9, 32
-      EMWriteScreen swkr_panel_city, 10, 32
-      EMWriteScreen swkr_panel_state, 10, 54
-      EMWriteScreen swkr_panel_zip, 10, 63
-      EMWriteScreen swkr_panel_phone_ext, 12, 54
-      EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-      EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-      EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+        'Add new panel
+        Call write_value_and_transmit("NN", 20, 79)
+        'Write details to panel
+        EMWriteScreen swkr_panel_name, 6, 32
+        EMWriteScreen swkr_panel_street_line_1, 8, 32
+        If trim(swkr_panel_street_line_2) <> "" Then EMWriteScreen swkr_panel_street_line_2, 9, 32
+        EMWriteScreen swkr_panel_city, 10, 32
+        EMWriteScreen swkr_panel_state, 10, 54
+        EMWriteScreen swkr_panel_zip, 10, 63
+        If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
+        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
 
-      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
 
-      'Transmit to save 
-      transmit
+        'Transmit to save 
+        transmit
   
     Else
-      'Put panel into edit mode
-      PF9
-      'Write to panel
-      EMWriteScreen swkr_panel_name, 6, 32
-      EMWriteScreen swkr_panel_street_line_1, 8, 32
-      'Clear Street Line 2 in case it was filled out
-      EMWriteScreen "______________________", 9, 32
-      EMWriteScreen swkr_panel_street_line_2, 9, 32
-      EMWriteScreen swkr_panel_city, 10, 32
-      EMWriteScreen swkr_panel_state, 10, 54
-      EMWriteScreen swkr_panel_zip, 10, 63
-      'Clear the ext if it was filled out
-      EMWriteScreen "____", 12, 54
-      EMWriteScreen swkr_panel_phone_ext, 12, 54
-      EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-      EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-      EMWriteScreen right(swkr_panel_phone, 4), 12, 44
-      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
-      'Transmit to save 
-      transmit
+        'Put panel into edit mode
+        PF9
+        'Write to panel
+        If trim(swkr_panel_name) <> "" Then
+            EMWriteScreen "___________________________________", 6, 32
+            EMWriteScreen swkr_panel_name, 6, 32
+        End If
+        If trim(swkr_panel_street_line_1) <> "" Then
+            EMWriteScreen "______________________", 8, 32
+            EMWriteScreen swkr_panel_street_line_1, 8, 32
+        End If
+        If trim(swkr_panel_street_line_2) <> "" Then
+            EMWriteScreen "______________________", 9, 32
+            EMWriteScreen swkr_panel_street_line_2, 9, 32
+        End If
+        If trim(swkr_panel_city) <> "" Then 
+            EMWriteScreen "_______________", 10, 32
+            EMWriteScreen swkr_panel_city, 10, 32
+        End If
+        If trim(swkr_panel_state) <> "" Then
+            EMWriteScreen "__", 10, 54
+            EMWriteScreen swkr_panel_state, 10, 54
+        End If
+        If trim(swkr_panel_zip) <> "" Then
+            EMWriteScreen "_____", 10, 63
+            EMWriteScreen swkr_panel_zip, 10, 63
+        End If
+        If trim(swkr_panel_phone) <> "" Then
+            EMWriteScreen "___", 12, 34
+            EMWriteScreen "___", 12, 40
+            EMWriteScreen "____", 12, 44
+            EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+            EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+            EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+        End If
+        If trim(swkr_panel_phone_ext) <> "" Then
+            EMWriteScreen "____", 12, 54
+            EMWriteScreen swkr_panel_phone_ext, 12, 54
+        End If
+        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+        'Transmit to save 
+        transmit
     End If
   End If
 
@@ -2177,11 +2211,11 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
 
   If OS_swkr_update_panel_checkbox = 1 OR OS_addr_update_panel_checkbox = 1 Then
     If OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox = 1 Then
-      panels_updated = "SWKR and ADDR Updated"
+        panels_updated = "SWKR and ADDR Updated"
     ElseIf OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox <> 1 Then
-      panels_updated = "SWKR Updated"
+        panels_updated = "SWKR Updated"
     ElseIf OS_swkr_update_panel_checkbox <> 1 AND OS_addr_update_panel_checkbox = 1 Then
-      panels_updated = "ADDR Updated"
+        panels_updated = "ADDR Updated"
     End If
 
     Call start_a_blank_CASE_NOTE
@@ -2190,37 +2224,36 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Call write_variable_in_case_note("~~~DHS-5181 Received - " & panels_updated & "~~~")
 
     If OS_swkr_update_panel_checkbox = 1 Then
-      Call write_variable_in_case_note("SWKR Updates")  
-      Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", OS_date_sent_worker)
-      Call write_bullet_and_variable_in_case_note("Date 5181 received", OS_date_form_received)
-      Call write_bullet_and_variable_in_case_note("Assessor", OS_assessor)
-      Call write_bullet_and_variable_in_case_note("Lead agency", OS_lead_agency)
-      Call write_bullet_and_variable_in_case_note("Phone number", OS_phone_number)
-      If trim(OS_fax_number) <> "" Then Call write_bullet_and_variable_in_case_note("Fax number", OS_fax_number)
-      If OS_swkr_street_address_2 <> "" Then 
-        Call write_bullet_and_variable_in_case_note("Address", OS_swkr_street_address_1 & ", " & OS_swkr_street_address_2 & ", " & OS_swkr_city & ", " & OS_swkr_state & ", " & OS_swkr_zip_code)
-      Else
-        Call write_bullet_and_variable_in_case_note("Address", OS_swkr_street_address_1 & ", " & OS_swkr_city & ", " & OS_swkr_state & ", " & OS_swkr_zip_code)
-      End If
-
-      Call write_bullet_and_variable_in_case_note("Email address", OS_swkr_email_address)
-      Call write_bullet_and_variable_in_case_note("All notices to Social Worker", OS_swkr_notices_dropdown)
-      Call write_variable_in_case_note("---")
+        Call write_variable_in_case_note("SWKR Updates")  
+        Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", OS_date_sent_worker)
+        Call write_bullet_and_variable_in_case_note("Date 5181 received", OS_date_form_received)
+        Call write_bullet_and_variable_in_case_note("Lead agency", OS_lead_agency)
+        If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Assessor", OS_assessor)
+        If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Phone number", OS_phone_number)
+        If trim(OS_fax_number) <> "" Then Call write_bullet_and_variable_in_case_note("Fax number", OS_fax_number)
+        If trim(OS_swkr_street_address_1) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 1", OS_swkr_street_address_1)
+        If trim(OS_swkr_street_address_2) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 2", OS_swkr_street_address_2)
+        If trim(OS_swkr_city) <> "" Then Call write_bullet_and_variable_in_case_note("City", OS_swkr_city)
+        If trim(OS_swkr_state) <> "" Then Call write_bullet_and_variable_in_case_note("State", OS_swkr_state)
+        If trim(OS_swkr_zip_code) <> "" Then Call write_bullet_and_variable_in_case_note("Zip code", OS_swkr_zip_code)
+        If trim(OS_swkr_email_address) <> "" Then Call write_bullet_and_variable_in_case_note("Email address", OS_swkr_email_address)
+        If trim(OS_swkr_notices_dropdown) <> "Select one:" Then Call write_bullet_and_variable_in_case_note("All notices to Social Worker", OS_swkr_notices_dropdown)
+        Call write_variable_in_case_note("---")
     End If
 
     If OS_addr_update_panel_checkbox = 1 Then
-      Call write_variable_in_case_note("ADDR Updates")  
-      Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
+        Call write_variable_in_case_note("ADDR Updates")  
+        Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
 
-      If OS_addr_address_street_line_2 <> "" Then 
-        Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
-      Else
-        Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
-      End If
-      Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
-      Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
-      Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
-      Call write_variable_in_case_note ("---")
+        If OS_addr_address_street_line_2 <> "" Then 
+            Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
+        Else
+            Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
+        End If
+        Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
+        Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
+        Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
+        Call write_variable_in_case_note ("---")
     End If
 
     'Add worker signature
