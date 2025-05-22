@@ -604,7 +604,6 @@ class stat_detail
 	Public stat_othr_one_cash_value_verif_code()
 	Public stat_othr_one_cash_value_verif_info()
 	Public stat_othr_one_amount_owed()
-	Public stat_othr_one_amounted_owed_verif()
 	Public stat_othr_one_amount_owed_verif_code()
 	Public stat_othr_one_amount_owed_verif_info()
 	Public stat_othr_one_as_of_date()
@@ -621,7 +620,6 @@ class stat_detail
 	Public stat_othr_two_cash_value_verif_code()
 	Public stat_othr_two_cash_value_verif_info()
 	Public stat_othr_two_amount_owed()
-	Public stat_othr_two_amounted_owed_verif()
 	Public stat_othr_two_amount_owed_verif_code()
 	Public stat_othr_two_amount_owed_verif_info()
 	Public stat_othr_two_as_of_date()
@@ -638,7 +636,6 @@ class stat_detail
 	Public stat_othr_three_cash_value_verif_code()
 	Public stat_othr_three_cash_value_verif_info()
 	Public stat_othr_three_amount_owed()
-	Public stat_othr_three_amounted_owed_verif()
 	Public stat_othr_three_amount_owed_verif_code()
 	Public stat_othr_three_amount_owed_verif_info()
 	Public stat_othr_three_as_of_date()
@@ -655,7 +652,6 @@ class stat_detail
 	Public stat_othr_four_cash_value_verif_code()
 	Public stat_othr_four_cash_value_verif_info()
 	Public stat_othr_four_amount_owed()
-	Public stat_othr_four_amounted_owed_verif()
 	Public stat_othr_four_amount_owed_verif_code()
 	Public stat_othr_four_amount_owed_verif_info()
 	Public stat_othr_four_as_of_date()
@@ -672,7 +668,6 @@ class stat_detail
 	Public stat_othr_five_cash_value_verif_code()
 	Public stat_othr_five_cash_value_verif_info()
 	Public stat_othr_five_amount_owed()
-	Public stat_othr_five_amounted_owed_verif()
 	Public stat_othr_five_amount_owed_verif_code()
 	Public stat_othr_five_amount_owed_verif_info()
 	Public stat_othr_five_as_of_date()
@@ -1794,7 +1789,6 @@ class stat_detail
 		ReDim stat_othr_one_cash_value_verif_code(0)
 		ReDim stat_othr_one_cash_value_verif_info(0)
 		ReDim stat_othr_one_amount_owed(0)
-		ReDim stat_othr_one_amounted_owed_verif(0)
 		ReDim stat_othr_one_amount_owed_verif_code(0)
 		ReDim stat_othr_one_amount_owed_verif_info(0)
 		ReDim stat_othr_one_as_of_date(0)
@@ -1811,7 +1805,6 @@ class stat_detail
 		ReDim stat_othr_two_cash_value_verif_code(0)
 		ReDim stat_othr_two_cash_value_verif_info(0)
 		ReDim stat_othr_two_amount_owed(0)
-		ReDim stat_othr_two_amounted_owed_verif(0)
 		ReDim stat_othr_two_amount_owed_verif_code(0)
 		ReDim stat_othr_two_amount_owed_verif_info(0)
 		ReDim stat_othr_two_as_of_date(0)
@@ -1828,7 +1821,6 @@ class stat_detail
 		ReDim stat_othr_three_cash_value_verif_code(0)
 		ReDim stat_othr_three_cash_value_verif_info(0)
 		ReDim stat_othr_three_amount_owed(0)
-		ReDim stat_othr_three_amounted_owed_verif(0)
 		ReDim stat_othr_three_amount_owed_verif_code(0)
 		ReDim stat_othr_three_amount_owed_verif_info(0)
 		ReDim stat_othr_three_as_of_date(0)
@@ -1845,7 +1837,6 @@ class stat_detail
 		ReDim stat_othr_four_cash_value_verif_code(0)
 		ReDim stat_othr_four_cash_value_verif_info(0)
 		ReDim stat_othr_four_amount_owed(0)
-		ReDim stat_othr_four_amounted_owed_verif(0)
 		ReDim stat_othr_four_amount_owed_verif_code(0)
 		ReDim stat_othr_four_amount_owed_verif_info(0)
 		ReDim stat_othr_four_as_of_date(0)
@@ -1862,7 +1853,6 @@ class stat_detail
 		ReDim stat_othr_five_cash_value_verif_code(0)
 		ReDim stat_othr_five_cash_value_verif_info(0)
 		ReDim stat_othr_five_amount_owed(0)
-		ReDim stat_othr_five_amounted_owed_verif(0)
 		ReDim stat_othr_five_amount_owed_verif_code(0)
 		ReDim stat_othr_five_amount_owed_verif_info(0)
 		ReDim stat_othr_five_as_of_date(0)
@@ -2978,7 +2968,6 @@ class stat_detail
 				ReDim preserve stat_othr_one_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_one_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_one_amount_owed(memb_count)
-				ReDim preserve stat_othr_one_amounted_owed_verif(memb_count)
 				ReDim preserve stat_othr_one_amount_owed_verif_code(memb_count)
 				ReDim preserve stat_othr_one_amount_owed_verif_info(memb_count)
 				ReDim preserve stat_othr_one_as_of_date(memb_count)
@@ -2995,7 +2984,6 @@ class stat_detail
 				ReDim preserve stat_othr_two_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_two_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_two_amount_owed(memb_count)
-				ReDim preserve stat_othr_two_amounted_owed_verif(memb_count)
 				ReDim preserve stat_othr_two_amount_owed_verif_code(memb_count)
 				ReDim preserve stat_othr_two_amount_owed_verif_info(memb_count)
 				ReDim preserve stat_othr_two_as_of_date(memb_count)
@@ -3012,7 +3000,6 @@ class stat_detail
 				ReDim preserve stat_othr_three_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_three_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_three_amount_owed(memb_count)
-				ReDim preserve stat_othr_three_amounted_owed_verif(memb_count)
 				ReDim preserve stat_othr_three_amount_owed_verif_code(memb_count)
 				ReDim preserve stat_othr_three_amount_owed_verif_info(memb_count)
 				ReDim preserve stat_othr_three_as_of_date(memb_count)
@@ -3029,7 +3016,6 @@ class stat_detail
 				ReDim preserve stat_othr_four_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_four_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_four_amount_owed(memb_count)
-				ReDim preserve stat_othr_four_amounted_owed_verif(memb_count)
 				ReDim preserve stat_othr_four_amount_owed_verif_code(memb_count)
 				ReDim preserve stat_othr_four_amount_owed_verif_info(memb_count)
 				ReDim preserve stat_othr_four_as_of_date(memb_count)
@@ -3046,7 +3032,6 @@ class stat_detail
 				ReDim preserve stat_othr_five_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_five_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_five_amount_owed(memb_count)
-				ReDim preserve stat_othr_five_amounted_owed_verif(memb_count)
 				ReDim preserve stat_othr_five_amount_owed_verif_code(memb_count)
 				ReDim preserve stat_othr_five_amount_owed_verif_info(memb_count)
 				ReDim preserve stat_othr_five_as_of_date(memb_count)
@@ -5350,7 +5335,7 @@ class stat_detail
 				If stat_othr_one_cash_value_verif_code(each_memb) = "N" Then stat_othr_one_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_one_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_one_amounted_owed_verif(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_one_amounted_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "1" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "2" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "3" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5401,7 +5386,7 @@ class stat_detail
 				If stat_othr_two_cash_value_verif_code(each_memb) = "N" Then stat_othr_two_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_two_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_two_amounted_owed_verif(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_two_amounted_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "1" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "2" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "3" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5452,7 +5437,7 @@ class stat_detail
 				If stat_othr_three_cash_value_verif_code(each_memb) = "N" Then stat_othr_three_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_three_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_three_amounted_owed_verif(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_three_amounted_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "1" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "2" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "3" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5503,7 +5488,7 @@ class stat_detail
 				If stat_othr_four_cash_value_verif_code(each_memb) = "N" Then stat_othr_four_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_four_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_four_amounted_owed_verif(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_four_amounted_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "1" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "2" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "3" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5554,7 +5539,7 @@ class stat_detail
 				If stat_othr_five_cash_value_verif_code(each_memb) = "N" Then stat_othr_five_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_five_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_five_amounted_owed_verif(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_five_amounted_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "1" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "2" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "3" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
