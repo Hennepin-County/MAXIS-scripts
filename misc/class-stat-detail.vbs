@@ -601,7 +601,6 @@ class stat_detail
 	Public stat_othr_one_property_type_code()
 	Public stat_othr_one_property_type_info()
 	Public stat_othr_one_cash_value()
-	Public stat_othr_one_cash_value_verif()
 	Public stat_othr_one_cash_value_verif_code()
 	Public stat_othr_one_cash_value_verif_info()
 	Public stat_othr_one_amount_owed()
@@ -619,7 +618,6 @@ class stat_detail
 	Public stat_othr_two_property_type_code()
 	Public stat_othr_two_property_type_info()
 	Public stat_othr_two_cash_value()
-	Public stat_othr_two_cash_value_verif()
 	Public stat_othr_two_cash_value_verif_code()
 	Public stat_othr_two_cash_value_verif_info()
 	Public stat_othr_two_amount_owed()
@@ -637,7 +635,6 @@ class stat_detail
 	Public stat_othr_three_property_type_code()
 	Public stat_othr_three_property_type_info()
 	Public stat_othr_three_cash_value()
-	Public stat_othr_three_cash_value_verif()
 	Public stat_othr_three_cash_value_verif_code()
 	Public stat_othr_three_cash_value_verif_info()
 	Public stat_othr_three_amount_owed()
@@ -655,7 +652,6 @@ class stat_detail
 	Public stat_othr_four_property_type_code()
 	Public stat_othr_four_property_type_info()
 	Public stat_othr_four_cash_value()
-	Public stat_othr_four_cash_value_verif()
 	Public stat_othr_four_cash_value_verif_code()
 	Public stat_othr_four_cash_value_verif_info()
 	Public stat_othr_four_amount_owed()
@@ -673,7 +669,6 @@ class stat_detail
 	Public stat_othr_five_property_type_code()
 	Public stat_othr_five_property_type_info()
 	Public stat_othr_five_cash_value()
-	Public stat_othr_five_cash_value_verif()
 	Public stat_othr_five_cash_value_verif_code()
 	Public stat_othr_five_cash_value_verif_info()
 	Public stat_othr_five_amount_owed()
@@ -1796,7 +1791,6 @@ class stat_detail
 		ReDim stat_othr_one_property_type_code(0)
 		ReDim stat_othr_one_property_type_info(0)
 		ReDim stat_othr_one_cash_value(0)
-		ReDim stat_othr_one_cash_value_verif(0)
 		ReDim stat_othr_one_cash_value_verif_code(0)
 		ReDim stat_othr_one_cash_value_verif_info(0)
 		ReDim stat_othr_one_amount_owed(0)
@@ -1814,7 +1808,6 @@ class stat_detail
 		ReDim stat_othr_two_property_type_code(0)
 		ReDim stat_othr_two_property_type_info(0)
 		ReDim stat_othr_two_cash_value(0)
-		ReDim stat_othr_two_cash_value_verif(0)
 		ReDim stat_othr_two_cash_value_verif_code(0)
 		ReDim stat_othr_two_cash_value_verif_info(0)
 		ReDim stat_othr_two_amount_owed(0)
@@ -1832,7 +1825,6 @@ class stat_detail
 		ReDim stat_othr_three_property_type_code(0)
 		ReDim stat_othr_three_property_type_info(0)
 		ReDim stat_othr_three_cash_value(0)
-		ReDim stat_othr_three_cash_value_verif(0)
 		ReDim stat_othr_three_cash_value_verif_code(0)
 		ReDim stat_othr_three_cash_value_verif_info(0)
 		ReDim stat_othr_three_amount_owed(0)
@@ -1850,7 +1842,6 @@ class stat_detail
 		ReDim stat_othr_four_property_type_code(0)
 		ReDim stat_othr_four_property_type_info(0)
 		ReDim stat_othr_four_cash_value(0)
-		ReDim stat_othr_four_cash_value_verif(0)
 		ReDim stat_othr_four_cash_value_verif_code(0)
 		ReDim stat_othr_four_cash_value_verif_info(0)
 		ReDim stat_othr_four_amount_owed(0)
@@ -1868,7 +1859,6 @@ class stat_detail
 		ReDim stat_othr_five_property_type_code(0)
 		ReDim stat_othr_five_property_type_info(0)
 		ReDim stat_othr_five_cash_value(0)
-		ReDim stat_othr_five_cash_value_verif(0)
 		ReDim stat_othr_five_cash_value_verif_code(0)
 		ReDim stat_othr_five_cash_value_verif_info(0)
 		ReDim stat_othr_five_amount_owed(0)
@@ -2985,7 +2975,6 @@ class stat_detail
 				ReDim preserve stat_othr_one_property_type_code(memb_count)
 				ReDim preserve stat_othr_one_property_type_info(memb_count)
 				ReDim preserve stat_othr_one_cash_value(memb_count)
-				ReDim preserve stat_othr_one_cash_value_verif(memb_count)
 				ReDim preserve stat_othr_one_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_one_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_one_amount_owed(memb_count)
@@ -3003,7 +2992,6 @@ class stat_detail
 				ReDim preserve stat_othr_two_property_type_code(memb_count)
 				ReDim preserve stat_othr_two_property_type_info(memb_count)
 				ReDim preserve stat_othr_two_cash_value(memb_count)
-				ReDim preserve stat_othr_two_cash_value_verif(memb_count)
 				ReDim preserve stat_othr_two_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_two_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_two_amount_owed(memb_count)
@@ -3021,7 +3009,6 @@ class stat_detail
 				ReDim preserve stat_othr_three_property_type_code(memb_count)
 				ReDim preserve stat_othr_three_property_type_info(memb_count)
 				ReDim preserve stat_othr_three_cash_value(memb_count)
-				ReDim preserve stat_othr_three_cash_value_verif(memb_count)
 				ReDim preserve stat_othr_three_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_three_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_three_amount_owed(memb_count)
@@ -3039,7 +3026,6 @@ class stat_detail
 				ReDim preserve stat_othr_four_property_type_code(memb_count)
 				ReDim preserve stat_othr_four_property_type_info(memb_count)
 				ReDim preserve stat_othr_four_cash_value(memb_count)
-				ReDim preserve stat_othr_four_cash_value_verif(memb_count)
 				ReDim preserve stat_othr_four_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_four_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_four_amount_owed(memb_count)
@@ -3057,7 +3043,6 @@ class stat_detail
 				ReDim preserve stat_othr_five_property_type_code(memb_count)
 				ReDim preserve stat_othr_five_property_type_info(memb_count)
 				ReDim preserve stat_othr_five_cash_value(memb_count)
-				ReDim preserve stat_othr_five_cash_value_verif(memb_count)
 				ReDim preserve stat_othr_five_cash_value_verif_code(memb_count)
 				ReDim preserve stat_othr_five_cash_value_verif_info(memb_count)
 				ReDim preserve stat_othr_five_amount_owed(memb_count)
@@ -5355,7 +5340,7 @@ class stat_detail
 				If stat_othr_one_property_type_code(each_memb) = "9" Then stat_othr_one_property_type_info(each_memb) = "Irrevocable Burial Acct"
 
 				EMReadScreen stat_othr_one_cash_value(each_memb), 10, 8, 40
-				EMReadScreen stat_othr_one_cash_value_verif(each_memb), 1, 8, 57
+				EMReadScreen stat_othr_one_cash_value_verif_code(each_memb), 1, 8, 57
 				If stat_othr_one_cash_value_verif_code(each_memb) = "1" Then stat_othr_one_cash_value_verif_info(each_memb) = "Appraisal"
 				If stat_othr_one_cash_value_verif_code(each_memb) = "2" Then stat_othr_one_cash_value_verif_info(each_memb) = "Purchase Agmt"
 				If stat_othr_one_cash_value_verif_code(each_memb) = "3" Then stat_othr_one_cash_value_verif_info(each_memb) = "NADA"
@@ -5406,7 +5391,7 @@ class stat_detail
 				If stat_othr_two_property_type_code(each_memb) = "9" Then stat_othr_two_property_type_info(each_memb) = "Irrevocable Burial Acct"
 
 				EMReadScreen stat_othr_two_cash_value(each_memb), 10, 8, 40
-				EMReadScreen stat_othr_two_cash_value_verif(each_memb), 1, 8, 57
+				EMReadScreen stat_othr_two_cash_value_verif_code(each_memb), 1, 8, 57
 				If stat_othr_two_cash_value_verif_code(each_memb) = "1" Then stat_othr_two_cash_value_verif_info(each_memb) = "Appraisal"
 				If stat_othr_two_cash_value_verif_code(each_memb) = "2" Then stat_othr_two_cash_value_verif_info(each_memb) = "Purchase Agmt"
 				If stat_othr_two_cash_value_verif_code(each_memb) = "3" Then stat_othr_two_cash_value_verif_info(each_memb) = "NADA"
@@ -5457,7 +5442,7 @@ class stat_detail
 				If stat_othr_three_property_type_code(each_memb) = "9" Then stat_othr_three_property_type_info(each_memb) = "Irrevocable Burial Acct"
 
 				EMReadScreen stat_othr_three_cash_value(each_memb), 10, 8, 40
-				EMReadScreen stat_othr_three_cash_value_verif(each_memb), 1, 8, 57
+				EMReadScreen stat_othr_three_cash_value_verif_code(each_memb), 1, 8, 57
 				If stat_othr_three_cash_value_verif_code(each_memb) = "1" Then stat_othr_three_cash_value_verif_info(each_memb) = "Appraisal"
 				If stat_othr_three_cash_value_verif_code(each_memb) = "2" Then stat_othr_three_cash_value_verif_info(each_memb) = "Purchase Agmt"
 				If stat_othr_three_cash_value_verif_code(each_memb) = "3" Then stat_othr_three_cash_value_verif_info(each_memb) = "NADA"
@@ -5508,7 +5493,7 @@ class stat_detail
 				If stat_othr_four_property_type_code(each_memb) = "9" Then stat_othr_four_property_type_info(each_memb) = "Irrevocable Burial Acct"
 
 				EMReadScreen stat_othr_four_cash_value(each_memb), 10, 8, 40
-				EMReadScreen stat_othr_four_cash_value_verif(each_memb), 1, 8, 57
+				EMReadScreen stat_othr_four_cash_value_verif_code(each_memb), 1, 8, 57
 				If stat_othr_four_cash_value_verif_code(each_memb) = "1" Then stat_othr_four_cash_value_verif_info(each_memb) = "Appraisal"
 				If stat_othr_four_cash_value_verif_code(each_memb) = "2" Then stat_othr_four_cash_value_verif_info(each_memb) = "Purchase Agmt"
 				If stat_othr_four_cash_value_verif_code(each_memb) = "3" Then stat_othr_four_cash_value_verif_info(each_memb) = "NADA"
@@ -5559,7 +5544,7 @@ class stat_detail
 				If stat_othr_five_property_type_code(each_memb) = "9" Then stat_othr_five_property_type_info(each_memb) = "Irrevocable Burial Acct"
 
 				EMReadScreen stat_othr_five_cash_value(each_memb), 10, 8, 40
-				EMReadScreen stat_othr_five_cash_value_verif(each_memb), 1, 8, 57
+				EMReadScreen stat_othr_five_cash_value_verif_code(each_memb), 1, 8, 57
 				If stat_othr_five_cash_value_verif_code(each_memb) = "1" Then stat_othr_five_cash_value_verif_info(each_memb) = "Appraisal"
 				If stat_othr_five_cash_value_verif_code(each_memb) = "2" Then stat_othr_five_cash_value_verif_info(each_memb) = "Purchase Agmt"
 				If stat_othr_five_cash_value_verif_code(each_memb) = "3" Then stat_othr_five_cash_value_verif_info(each_memb) = "NADA"
