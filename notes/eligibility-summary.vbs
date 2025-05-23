@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2025", "BUG FIX for ELIG/Health Care to correctly read the tests since the panel has changed with the addition of new tests.##~##- AVSA cooperation tests added to MA and EMA types##~##- MNSure System test added to MSP types.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "Update to GRH Information to include payment approval type (Pre-pay, Post-pay, etc) in the CASE/NOTE header.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/04/2025", "* * * POLICY UPDATE * * * ##~##Monthly Reporting Ended##~## ##~##Script updated to check cases for accuracy. Errors here will cause the script run to end and the case will likely need to be reapproved. Updates effective footer month 03/25:##~##- MFIP Eligibility should not be suspended.##~##- UHFS should not be approved with a MONTHLY reporting status.##~##- GA should not be approved with a MONTHLY reporting status.##~##Additionally, cases approved GA with earned income will have a WCOM added to explain six-month reporting.##~## ##~##A guide for processing these cases can be found on SIR in Worker Resources.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/11/2024", "Additional handling for GRH cases: ##~## - Review of Supportive Housing Disregard Errors##~## - Allow for a single past month approval.##~##", "Casey Love, Hennepin County")
@@ -7277,6 +7278,7 @@ function hc_elig_case_note()
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Apply for Other Benefits (PBEN)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben_cash(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("     - CASH")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben_smrt(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("     - SMRT")
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_avsa(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Provided Account Validation System Authorization (AVSA)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_fail_provide_info(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Failure to Provide Information (PACT)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_IEVS(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * IEVS (DISQ)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_medical_support(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Medical Support (ABPS)")
@@ -17646,6 +17648,7 @@ class hc_eligibility_detail
 	public hc_prog_elig_test_coop_pben_cash()
 	public hc_prog_elig_test_coop_pben_smrt()
 	public hc_prog_elig_test_coop_pben()
+	public hc_prog_elig_test_coop_avsa()
 	public hc_prog_elig_test_coop_fail_provide_info()
 	public hc_prog_elig_test_coop_IEVS()
 	public hc_prog_elig_test_coop_medical_support()
@@ -17849,6 +17852,7 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_test_coop_pben_cash(0)
 		ReDim hc_prog_elig_test_coop_pben_smrt(0)
 		ReDim hc_prog_elig_test_coop_pben(0)
+		ReDim hc_prog_elig_test_coop_avsa(0)
 		ReDim hc_prog_elig_test_coop_fail_provide_info(0)
 		ReDim hc_prog_elig_test_coop_IEVS(0)
 		ReDim hc_prog_elig_test_coop_medical_support(0)
@@ -18067,6 +18071,7 @@ class hc_eligibility_detail
 				ReDim preserve hc_prog_elig_test_coop_pben_cash(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_pben_smrt(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_pben(hc_prog_count)
+				ReDim preserve hc_prog_elig_test_coop_avsa(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_fail_provide_info(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_IEVS(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_medical_support(hc_prog_count)
@@ -18465,12 +18470,13 @@ class hc_eligibility_detail
 															EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
 															transmit
 															EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_avsa(hc_prog_count), 				6, 11, 28
+															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 12, 28
+															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 13, 28
+															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 14, 28
+															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 15, 28
+															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 17, 28
 														ElseIf UCase(uncomp_xfer_pop_up_check) = "UNCOMPENSATED" Then
 															' MsgBox "FIVE"
 														ElseIf UCase(verif_pop_up_check) = "VERIFICATION" Then
@@ -19191,12 +19197,13 @@ class hc_eligibility_detail
 															EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
 															transmit
 															EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_avsa(hc_prog_count), 				6, 11, 28
+															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 12, 28
+															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 13, 28
+															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 14, 28
+															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 15, 28
+															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 17, 28
 														ElseIf UCase(uncomp_xfer_pop_up_check) = "UNCOMPENSATED" Then
 															' MsgBox "FIVE"
 														ElseIf UCase(verif_pop_up_check) = "VERIFICATION" Then
@@ -19995,10 +20002,11 @@ class hc_eligibility_detail
 								EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 6, 45
 								EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 7, 45
 								EMReadScreen hc_prog_elig_test_income(hc_prog_count), 				6, 8, 45
-								EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 9, 45
-								EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 10, 45
-								EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 11, 45
-								EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 12, 45
+								EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 		6, 9, 45
+								EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 10, 45
+								EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 11, 45
+								EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 12, 45
+								EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 13, 45
 
 								EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
 
