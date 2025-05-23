@@ -115,6 +115,8 @@ class stat_detail
 	Public stat_insa_notes
 	Public stat_faci_notes
 	Public stat_bils_remedial_care_entered
+	Public stat_othr_notes
+
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -5318,7 +5320,7 @@ class stat_detail
 				If stat_othr_one_property_type_code(each_memb) = "2" Then stat_othr_one_property_type_info(each_memb) = "Burial Plot"
 				If stat_othr_one_property_type_code(each_memb) = "3" Then stat_othr_one_property_type_info(each_memb) = "Boats/Motors"
 				If stat_othr_one_property_type_code(each_memb) = "4" Then stat_othr_one_property_type_info(each_memb) = "Tools/Equip"
-				If stat_othr_one_property_type_code(each_memb) = "5" Then stat_othr_one_property_type_info(each_memb) = "Livestock/Farm Implements"
+				If stat_othr_one_property_type_code(each_memb) = "5" Then stat_othr_one_property_type_info(each_memb) = "Livestock/Farm Implmnts"
 				If stat_othr_one_property_type_code(each_memb) = "6" Then stat_othr_one_property_type_info(each_memb) = "Off-Road Veh"
 				If stat_othr_one_property_type_code(each_memb) = "7" Then stat_othr_one_property_type_info(each_memb) = "Collections"
 				If stat_othr_one_property_type_code(each_memb) = "8" Then stat_othr_one_property_type_info(each_memb) = "Other"
@@ -5335,7 +5337,7 @@ class stat_detail
 				If stat_othr_one_cash_value_verif_code(each_memb) = "N" Then stat_othr_one_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_one_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_one_amounted_owed_verif_code(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_one_amount_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "1" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "2" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_one_amount_owed_verif_code(each_memb) = "3" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5369,7 +5371,7 @@ class stat_detail
 				If stat_othr_two_property_type_code(each_memb) = "2" Then stat_othr_two_property_type_info(each_memb) = "Burial Plot"
 				If stat_othr_two_property_type_code(each_memb) = "3" Then stat_othr_two_property_type_info(each_memb) = "Boats/Motors"
 				If stat_othr_two_property_type_code(each_memb) = "4" Then stat_othr_two_property_type_info(each_memb) = "Tools/Equip"
-				If stat_othr_two_property_type_code(each_memb) = "5" Then stat_othr_two_property_type_info(each_memb) = "Livestock/Farm Implements"
+				If stat_othr_two_property_type_code(each_memb) = "5" Then stat_othr_two_property_type_info(each_memb) = "Livestock/Farm Implmnts"
 				If stat_othr_two_property_type_code(each_memb) = "6" Then stat_othr_two_property_type_info(each_memb) = "Off-Road Veh"
 				If stat_othr_two_property_type_code(each_memb) = "7" Then stat_othr_two_property_type_info(each_memb) = "Collections"
 				If stat_othr_two_property_type_code(each_memb) = "8" Then stat_othr_two_property_type_info(each_memb) = "Other"
@@ -5386,7 +5388,7 @@ class stat_detail
 				If stat_othr_two_cash_value_verif_code(each_memb) = "N" Then stat_othr_two_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_two_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_two_amounted_owed_verif_code(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_two_amount_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "1" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "2" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_two_amount_owed_verif_code(each_memb) = "3" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5420,7 +5422,7 @@ class stat_detail
 				If stat_othr_three_property_type_code(each_memb) = "2" Then stat_othr_three_property_type_info(each_memb) = "Burial Plot"
 				If stat_othr_three_property_type_code(each_memb) = "3" Then stat_othr_three_property_type_info(each_memb) = "Boats/Motors"
 				If stat_othr_three_property_type_code(each_memb) = "4" Then stat_othr_three_property_type_info(each_memb) = "Tools/Equip"
-				If stat_othr_three_property_type_code(each_memb) = "5" Then stat_othr_three_property_type_info(each_memb) = "Livestock/Farm Implements"
+				If stat_othr_three_property_type_code(each_memb) = "5" Then stat_othr_three_property_type_info(each_memb) = "Livestock/Farm Implmnts"
 				If stat_othr_three_property_type_code(each_memb) = "6" Then stat_othr_three_property_type_info(each_memb) = "Off-Road Veh"
 				If stat_othr_three_property_type_code(each_memb) = "7" Then stat_othr_three_property_type_info(each_memb) = "Collections"
 				If stat_othr_three_property_type_code(each_memb) = "8" Then stat_othr_three_property_type_info(each_memb) = "Other"
@@ -5437,7 +5439,7 @@ class stat_detail
 				If stat_othr_three_cash_value_verif_code(each_memb) = "N" Then stat_othr_three_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_three_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_three_amounted_owed_verif_code(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_three_amount_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "1" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "2" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_three_amount_owed_verif_code(each_memb) = "3" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5471,7 +5473,7 @@ class stat_detail
 				If stat_othr_four_property_type_code(each_memb) = "2" Then stat_othr_four_property_type_info(each_memb) = "Burial Plot"
 				If stat_othr_four_property_type_code(each_memb) = "3" Then stat_othr_four_property_type_info(each_memb) = "Boats/Motors"
 				If stat_othr_four_property_type_code(each_memb) = "4" Then stat_othr_four_property_type_info(each_memb) = "Tools/Equip"
-				If stat_othr_four_property_type_code(each_memb) = "5" Then stat_othr_four_property_type_info(each_memb) = "Livestock/Farm Implements"
+				If stat_othr_four_property_type_code(each_memb) = "5" Then stat_othr_four_property_type_info(each_memb) = "Livestock/Farm Implmnts"
 				If stat_othr_four_property_type_code(each_memb) = "6" Then stat_othr_four_property_type_info(each_memb) = "Off-Road Veh"
 				If stat_othr_four_property_type_code(each_memb) = "7" Then stat_othr_four_property_type_info(each_memb) = "Collections"
 				If stat_othr_four_property_type_code(each_memb) = "8" Then stat_othr_four_property_type_info(each_memb) = "Other"
@@ -5488,7 +5490,7 @@ class stat_detail
 				If stat_othr_four_cash_value_verif_code(each_memb) = "N" Then stat_othr_four_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_four_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_four_amounted_owed_verif_code(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_four_amount_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "1" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "2" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_four_amount_owed_verif_code(each_memb) = "3" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
@@ -5522,7 +5524,7 @@ class stat_detail
 				If stat_othr_five_property_type_code(each_memb) = "2" Then stat_othr_five_property_type_info(each_memb) = "Burial Plot"
 				If stat_othr_five_property_type_code(each_memb) = "3" Then stat_othr_five_property_type_info(each_memb) = "Boats/Motors"
 				If stat_othr_five_property_type_code(each_memb) = "4" Then stat_othr_five_property_type_info(each_memb) = "Tools/Equip"
-				If stat_othr_five_property_type_code(each_memb) = "5" Then stat_othr_five_property_type_info(each_memb) = "Livestock/Farm Implements"
+				If stat_othr_five_property_type_code(each_memb) = "5" Then stat_othr_five_property_type_info(each_memb) = "Livestock/Farm Implmnts"
 				If stat_othr_five_property_type_code(each_memb) = "6" Then stat_othr_five_property_type_info(each_memb) = "Off-Road Veh"
 				If stat_othr_five_property_type_code(each_memb) = "7" Then stat_othr_five_property_type_info(each_memb) = "Collections"
 				If stat_othr_five_property_type_code(each_memb) = "8" Then stat_othr_five_property_type_info(each_memb) = "Other"
@@ -5539,7 +5541,7 @@ class stat_detail
 				If stat_othr_five_cash_value_verif_code(each_memb) = "N" Then stat_othr_five_cash_value_verif_info(each_memb) = "No Ver Prvd"
 
 				EMReadScreen stat_othr_five_amount_owed(each_memb), 10, 9, 40
-				EMReadScreen stat_othr_five_amounted_owed_verif_code(each_memb), 1, 9, 57
+				EMReadScreen stat_othr_five_amount_owed_verif_code(each_memb), 1, 9, 57
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "1" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Bank Statement"
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "2" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
 				If stat_othr_five_amount_owed_verif_code(each_memb) = "3" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
