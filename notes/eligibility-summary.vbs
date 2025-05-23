@@ -20453,7 +20453,7 @@ allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 ' developer_mode = False
-If developer_mode = True Then MsgBox "DEVELOEPR - Welcome!"
+If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "2683408" Then allow_late_note = True
