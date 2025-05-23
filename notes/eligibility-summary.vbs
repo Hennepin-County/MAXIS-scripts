@@ -42,6 +42,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2025", "BUG FIX to resolve:##~##- Finding Retro approvals correctly.##~##- Emergency Exist test in EMA cases was missing.##~##These issues should now be resolved.##~##", "Casey Love, Hennepin County")
+call changelog_update("05/23/2025", "BUG FIX for ELIG/Health Care to correctly read the tests since the panel has changed with the addition of new tests.##~##- AVSA cooperation tests added to MA and EMA types##~##- MNSure System test added to MSP types.##~##", "Casey Love, Hennepin County")
+call changelog_update("05/23/2025", "Update to GRH Information to include payment approval type (Pre-pay, Post-pay, etc) in the CASE/NOTE header.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/04/2025", "* * * POLICY UPDATE * * * ##~##Monthly Reporting Ended##~## ##~##Script updated to check cases for accuracy. Errors here will cause the script run to end and the case will likely need to be reapproved. Updates effective footer month 03/25:##~##- MFIP Eligibility should not be suspended.##~##- UHFS should not be approved with a MONTHLY reporting status.##~##- GA should not be approved with a MONTHLY reporting status.##~##Additionally, cases approved GA with earned income will have a WCOM added to explain six-month reporting.##~## ##~##A guide for processing these cases can be found on SIR in Worker Resources.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/11/2024", "Additional handling for GRH cases: ##~## - Review of Supportive Housing Disregard Errors##~## - Allow for a single past month approval.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/04/2024", "Updates to policy and functionality in three areas:##~## ##~## - MFIP Special Diets to better separate MSA and MFIP information and identify benefit month.##~## ##~## - Update to Remedial Care HC Deduction policy from clarification provided.##~## ##~## - Added support for GRHs budgets to include the Supportive Housing Disregard information.##~## ##~##As with any new functionality, these may not work exactly as expected and we rely on reports to identify errors in the functionality. Please reach out with any questions or issues.##~##", "Casey Love, Hennepin County")
@@ -3000,7 +3003,7 @@ function define_grh_elig_dialog()
 			Text 15, y_pos+40, 150, 10, "    Rm/Brd/DOC: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_room_board_doc_one
 			Text 15, y_pos+50, 150, 10, "      Income Test: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_income_test_one
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_one <> "" Then Text 15, y_pos+60, 100, 10, "(Amt Already Issued) " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_one
-			Text 155, y_pos+10, 100, 10, "PAYMENT: "
+			Text 155, y_pos+10, 140, 10, "PAYMENT: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_one_info
 			Text 155, y_pos+20, 100, 10, "GRH (State) AMT: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_one
 			Text 155, y_pos+30, 100, 10, "     County Liability: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one
 			Text 155, y_pos+40, 100, 10, "   Counted Income: - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
@@ -3015,7 +3018,7 @@ function define_grh_elig_dialog()
 				Text 285, y_pos+40, 150, 10, "    Rm/Brd/DOC: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_room_board_doc_two
 				Text 285, y_pos+50, 150, 10, "      Income Test: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_income_test_two
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_two <> "" Then Text 285, y_pos+60, 100, 10, "(Amt Already Issued  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_two & ")"
-				Text 425, y_pos+10, 100, 10, "PAYMENT: "
+				Text 425, y_pos+10, 140, 10, "PAYMENT: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_two_info
 				Text 425, y_pos+20, 100, 10, "GRH (State) AMT: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_two
 				Text 425, y_pos+30, 100, 10, "     County Liability: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two
 				Text 425, y_pos+40, 100, 10, "   Counted Income: - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
@@ -3351,6 +3354,11 @@ function define_hc_elig_dialog()
 					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is eligible for another program. - ELIG OTHR PRGM"
 					add_to_y_pos = add_to_y_pos + 10
 				End If
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_emergency_exists(memb_ind) = "FAILED" Then
+					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " no medical emergency confirmed. - EMERGENCY EXISTS"
+					add_to_y_pos = add_to_y_pos + 10
+				End If
+
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_fail_file(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Review/Report process has not been completed."
 					add_to_y_pos = add_to_y_pos + 10
@@ -3415,7 +3423,8 @@ function define_hc_elig_dialog()
 
 				Text 125, y_pos+15, 90, 10, "Correct Faci .  .  . " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_correctional_faci(memb_ind)
 			    Text 125, y_pos+25, 90, 10, "Death .  .  .  .  .  . " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind)
-			    Text 125, y_pos+35, 90, 10, "Elig othr Prgm  .  ." & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind)
+			    If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind) <> "" Then Text 125, y_pos+35, 90, 10, "Elig othr Prgm  .  ." & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind)
+			    If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_emergency_exists(memb_ind) <> "" Then Text 125, y_pos+35, 90, 10, "Emergency Exists " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_emergency_exists(memb_ind)
 			    Text 125, y_pos+45, 90, 10, "Fail to File .  .  .  . " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_fail_file(memb_ind)
 			    Text 125, y_pos+55, 90, 10, "IMD .  .  .  .  .  .  .  " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_IMD(memb_ind)
 
@@ -6676,14 +6685,16 @@ function grh_elig_case_note()
 
 			If InStr(GRH_UNIQUE_APPROVALS(months_in_approval, unique_app), GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year) <> 0 Then
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one <> "" Then
-					month_and_name = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name
+					month_and_proc = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_pre_or_post_pay_one_info
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_one, 8)
-					If len(month_and_name) > 43 Then month_and_name = left(month_and_name, 43)
+					If len(month_and_proc) > 43 Then month_and_proc = left(month_and_proc, 43)
 
-					len_needed_of_grh_info = 77 - len(month_and_name)
+					len_needed_of_grh_info = 77 - len(month_and_proc)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
-					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
+					Call write_variable_in_CASE_NOTE(month_and_proc & grh_cost_info)
 
+					name_info = left("         " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name & "                                                 ", 45)
+					name_used = False
 					whole_month = False
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "28" or GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "29")Then whole_month = true
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
@@ -6699,25 +6710,38 @@ function grh_elig_case_note()
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
 					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one & " Days (whole month)     ", 45)
 					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one & " Days                 ", 45)
+
 					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one <> "" Then
-						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one, 8))
+						Call write_variable_in_CASE_NOTE(name_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one, 8))
+						name_used = True
+					End If
+					If name_used = True Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+						stay_info = "                                             "
+					Else
+						Call write_variable_in_CASE_NOTE(name_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+					End If
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one <> "" Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one, 8))
 						stay_info = "                                             "
 					End If
-					Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one <> "" Then Call write_variable_in_CASE_NOTE("                                             Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one, 8))
-					Call write_variable_in_CASE_NOTE("                                             Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_one, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one <> "0.00" Then Call write_variable_in_CASE_NOTE("                                             Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one, 8))
+					Call write_variable_in_CASE_NOTE(stay_info & "Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_one, 8))
+					stay_info = "                                             "
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one <> "0.00" Then Call write_variable_in_CASE_NOTE("Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one, 8))
 					vendor_details_found = True
 				End if
 
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two <> "" Then
-					month_and_name = "        " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name
+					month_and_proc = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_pre_or_post_pay_two_info
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_two, 8)
-					If len(month_and_name) > 43 Then month_and_name = left(month_and_name, 43)
+					If len(month_and_proc) > 43 Then month_and_proc = left(month_and_proc, 43)
 
-					len_needed_of_grh_info = 77 - len(month_and_name)
+					len_needed_of_grh_info = 77 - len(month_and_proc)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
-					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
+					Call write_variable_in_CASE_NOTE(month_and_proc & grh_cost_info)
+
+					name_info = left("         " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name & "                                                 ", 45)
+					name_used = False
 					whole_month = False
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "28" or GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "29")Then whole_month = true
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
@@ -6733,14 +6757,24 @@ function grh_elig_case_note()
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
 					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two & " Days (whole month)     ", 45)
 					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two & " Days                 ", 45)
+
 					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two <> "" Then
-						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two, 8))
+						Call write_variable_in_CASE_NOTE(name_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two, 8))
+						name_used = True
+					End If
+					If name_used = True Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+						stay_info = "                                             "
+					Else
+						Call write_variable_in_CASE_NOTE(name_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+					End If
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two <> "" Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two, 8))
 						stay_info = "                                             "
 					End If
-					Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two <> "" Then Call write_variable_in_CASE_NOTE("                                             Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two, 8))
-					Call write_variable_in_CASE_NOTE("                                             Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_two, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two <> "0.00" Then Call write_variable_in_CASE_NOTE("                                             Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two, 8))
+					Call write_variable_in_CASE_NOTE(stay_info & "Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_two, 8))
+					stay_info = "                                             "
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two <> "0.00" Then Call write_variable_in_CASE_NOTE("Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two, 8))
 					vendor_details_found = True
 				End if
 			End If
@@ -7251,6 +7285,7 @@ function hc_elig_case_note()
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Apply for Other Benefits (PBEN)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben_cash(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("     - CASH")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_pben_smrt(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("     - SMRT")
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_avsa(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Provided Account Validation System Authorization (AVSA)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_fail_provide_info(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Failure to Provide Information (PACT)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_IEVS(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * IEVS (DISQ)")
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop_medical_support(memb_ind) = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Medical Support (ABPS)")
@@ -7263,6 +7298,9 @@ function hc_elig_case_note()
 			End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind) = "FAILED" Then
 				Call write_variable_in_CASE_NOTE(" - MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is eligible for another program. (ELIGIBILITY FOR OTHER PROGRAM)")
+			End If
+			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_emergency_exists(memb_ind) = "FAILED" Then
+				Call write_variable_in_CASE_NOTE(" - MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " does not have verified medical emergency. (EMERGENCY EXISTS)")
 			End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_fail_file(memb_ind) = "FAILED" Then
 				Call write_variable_in_CASE_NOTE(" - Review/Report process has not been completed.")
@@ -17604,6 +17642,7 @@ class hc_eligibility_detail
 	public hc_prog_elig_test_correctional_faci()
 	public hc_prog_elig_test_death()
 	public hc_prog_elig_test_elig_other_prog()
+	public hc_prog_elig_test_emergency_exists()
 	public hc_prog_elig_test_fail_file()
 	public hc_prog_elig_test_IMD()
 	public hc_prog_elig_test_uncompensated_transfer()
@@ -17620,6 +17659,7 @@ class hc_eligibility_detail
 	public hc_prog_elig_test_coop_pben_cash()
 	public hc_prog_elig_test_coop_pben_smrt()
 	public hc_prog_elig_test_coop_pben()
+	public hc_prog_elig_test_coop_avsa()
 	public hc_prog_elig_test_coop_fail_provide_info()
 	public hc_prog_elig_test_coop_IEVS()
 	public hc_prog_elig_test_coop_medical_support()
@@ -17807,6 +17847,7 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_test_correctional_faci(0)
 		ReDim hc_prog_elig_test_death(0)
 		ReDim hc_prog_elig_test_elig_other_prog(0)
+		ReDim hc_prog_elig_test_emergency_exists(0)
 		ReDim hc_prog_elig_test_fail_file(0)
 		ReDim hc_prog_elig_test_IMD(0)
 		ReDim hc_prog_elig_test_uncompensated_transfer(0)
@@ -17823,6 +17864,7 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_test_coop_pben_cash(0)
 		ReDim hc_prog_elig_test_coop_pben_smrt(0)
 		ReDim hc_prog_elig_test_coop_pben(0)
+		ReDim hc_prog_elig_test_coop_avsa(0)
 		ReDim hc_prog_elig_test_coop_fail_provide_info(0)
 		ReDim hc_prog_elig_test_coop_IEVS(0)
 		ReDim hc_prog_elig_test_coop_medical_support(0)
@@ -17976,13 +18018,18 @@ class hc_eligibility_detail
 
 		EMReadScreen warning_msg, 50, 24, 2
 		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
-			EMWriteScreen CM_mo, 20, 43
-			EMWriteScreen CM_yr, 20, 46
+			EMWriteScreen CM_mo, 20, 43				'This handles for retro months, making sure to reach ELIG/HC by using the current month. The next section will go back to the correct month for retro support
+			EMWriteScreen CM_yr, 20, 46				'ELIG/HC can be reached for months prior to the APPL date once IN ELIG but not from STAT
 			transmit
+			EMReadScreen warning_msg, 50, 24, 2
 		End If
 		If Instr(warning_msg, "YOU ARE NOT AUTHORIZED FOR THIS FUNCTION") = 0 Then
-			EMWriteScreen elig_footer_month, 19, 54
-			EMWriteScreen elig_footer_year, 19, 57
+			srch_row = 1							'Making sure to find the spot where the month information is entered in ELIG/HC - I have the sense this has changed so I want it to be dynamic
+			srch_col = 1
+			EMSearch "Month: ", srch_row, srch_col
+
+			EMWriteScreen elig_footer_month, srch_row, srch_col+7
+			EMWriteScreen elig_footer_year, srch_row, srch_col+10
 			transmit
 			' approval_date 'TODO - figure out how to read approval date
 			'===================================THIS IS THE BREAK - IF WE NEED TO BE DATE CONDITIONAL, DATE LOGIC GOES HERE
@@ -18025,6 +18072,7 @@ class hc_eligibility_detail
 				ReDim preserve hc_prog_elig_test_correctional_faci(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_death(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_elig_other_prog(hc_prog_count)
+				ReDim preserve hc_prog_elig_test_emergency_exists(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_fail_file(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_IMD(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_uncompensated_transfer(hc_prog_count)
@@ -18041,6 +18089,7 @@ class hc_eligibility_detail
 				ReDim preserve hc_prog_elig_test_coop_pben_cash(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_pben_smrt(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_pben(hc_prog_count)
+				ReDim preserve hc_prog_elig_test_coop_avsa(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_fail_provide_info(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_IEVS(hc_prog_count)
 				ReDim preserve hc_prog_elig_test_coop_medical_support(hc_prog_count)
@@ -18372,7 +18421,8 @@ class hc_eligibility_detail
 													EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 10, 5
 													EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 11, 5
 													EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 12, 5
-													EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+													If hc_prog_elig_major_program(hc_prog_count) = "MA" Then EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+													If hc_prog_elig_major_program(hc_prog_count) = "EMA" Then EMReadScreen hc_prog_elig_test_emergency_exists(hc_prog_count), 	6, 13, 5
 													EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 14, 5
 													EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 15, 5
 
@@ -18439,12 +18489,13 @@ class hc_eligibility_detail
 															EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
 															transmit
 															EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_avsa(hc_prog_count), 				6, 11, 28
+															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 12, 28
+															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 13, 28
+															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 14, 28
+															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 15, 28
+															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 17, 28
 														ElseIf UCase(uncomp_xfer_pop_up_check) = "UNCOMPENSATED" Then
 															' MsgBox "FIVE"
 														ElseIf UCase(verif_pop_up_check) = "VERIFICATION" Then
@@ -19098,7 +19149,8 @@ class hc_eligibility_detail
 													EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 10, 5
 													EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 11, 5
 													EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 12, 5
-													EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+													If hc_prog_elig_major_program(hc_prog_count) = "MA" Then EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+													If hc_prog_elig_major_program(hc_prog_count) = "EMA" Then EMReadScreen hc_prog_elig_test_emergency_exists(hc_prog_count), 	6, 13, 5
 													EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 14, 5
 													EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 15, 5
 
@@ -19165,12 +19217,13 @@ class hc_eligibility_detail
 															EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
 															transmit
 															EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_avsa(hc_prog_count), 				6, 11, 28
+															EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 12, 28
+															EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 13, 28
+															EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 14, 28
+															EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 15, 28
+															EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 16, 28
+															EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 17, 28
 														ElseIf UCase(uncomp_xfer_pop_up_check) = "UNCOMPENSATED" Then
 															' MsgBox "FIVE"
 														ElseIf UCase(verif_pop_up_check) = "VERIFICATION" Then
@@ -19969,10 +20022,11 @@ class hc_eligibility_detail
 								EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 6, 45
 								EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 7, 45
 								EMReadScreen hc_prog_elig_test_income(hc_prog_count), 				6, 8, 45
-								EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 9, 45
-								EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 10, 45
-								EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 11, 45
-								EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 12, 45
+								EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 		6, 9, 45
+								EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 10, 45
+								EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 11, 45
+								EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 12, 45
+								EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 13, 45
 
 								EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
 
@@ -20399,6 +20453,7 @@ allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 ' developer_mode = False
+If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "2683408" Then allow_late_note = True
@@ -26396,7 +26451,7 @@ If enter_CNOTE_for_GRH = True Then
 			Else
 				header_end = " only"
 			End If
-			elig_info = "ELIGIBLE"
+			elig_info = GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_one_info & " ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "INELIGIBLE" Then
 			elig_info = "INELIGIBLE"
