@@ -1737,8 +1737,19 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an appoint
 
     	PF3
     End If
-END IF
 
+END IF
+'If this is an emer app, send the informational notice about rent-help hennepin
+If emer_status = "PENDING" Then
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True) 
+    Call write_variable_in_SPEC_Memo("You recently applied for Emergency Assistance through Hennepin County.") 
+    Call write_variable_in_SPEC_Memo("If you are seeking emergency rent assistance (help for past due rent and associated expenses) please access using the RentHelp Hennepin application at:")
+    Call write_variable_in_SPEC_Memo("                        ")
+    Call write_variable_in_SPEC_Memo("              renthelphennepin.hdsallita.com ")
+    Call write_variable_in_SPEC_Memo("                        ")
+    Call write_variable_in_SPEC_Memo("Emergency rent assistance for Hennepin County residents is no longer accessed through MNBenefits or the Combined Application Form. Emergency Assistance and Emergency General Assistance programs continue to be available for emergencies not related to past due rent.")
+     PF4
+End IF 
 'THIS IS FUNCTIONALITY WE WILL NEED TO ADD BACK IN WHEN WE RETURN TO IN PERSON.
 'removal of in person functionality during the COVID-19 PEACETIME STATE OF EMERGENCY'
 'IF same_day_offered = TRUE and how_application_rcvd = "Office" THEN
