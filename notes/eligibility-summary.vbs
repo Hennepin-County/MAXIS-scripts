@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2025", "Update to GRH Information to include payment approval type (Pre-pay, Post-pay, etc) in the CASE/NOTE header.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/04/2025", "* * * POLICY UPDATE * * * ##~##Monthly Reporting Ended##~## ##~##Script updated to check cases for accuracy. Errors here will cause the script run to end and the case will likely need to be reapproved. Updates effective footer month 03/25:##~##- MFIP Eligibility should not be suspended.##~##- UHFS should not be approved with a MONTHLY reporting status.##~##- GA should not be approved with a MONTHLY reporting status.##~##Additionally, cases approved GA with earned income will have a WCOM added to explain six-month reporting.##~## ##~##A guide for processing these cases can be found on SIR in Worker Resources.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/11/2024", "Additional handling for GRH cases: ##~## - Review of Supportive Housing Disregard Errors##~## - Allow for a single past month approval.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/04/2024", "Updates to policy and functionality in three areas:##~## ##~## - MFIP Special Diets to better separate MSA and MFIP information and identify benefit month.##~## ##~## - Update to Remedial Care HC Deduction policy from clarification provided.##~## ##~## - Added support for GRHs budgets to include the Supportive Housing Disregard information.##~## ##~##As with any new functionality, these may not work exactly as expected and we rely on reports to identify errors in the functionality. Please reach out with any questions or issues.##~##", "Casey Love, Hennepin County")
@@ -3000,7 +3001,7 @@ function define_grh_elig_dialog()
 			Text 15, y_pos+40, 150, 10, "    Rm/Brd/DOC: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_room_board_doc_one
 			Text 15, y_pos+50, 150, 10, "      Income Test: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_income_test_one
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_one <> "" Then Text 15, y_pos+60, 100, 10, "(Amt Already Issued) " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_one
-			Text 155, y_pos+10, 100, 10, "PAYMENT: "
+			Text 155, y_pos+10, 140, 10, "PAYMENT: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_one_info
 			Text 155, y_pos+20, 100, 10, "GRH (State) AMT: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_one
 			Text 155, y_pos+30, 100, 10, "     County Liability: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one
 			Text 155, y_pos+40, 100, 10, "   Counted Income: - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
@@ -3015,7 +3016,7 @@ function define_grh_elig_dialog()
 				Text 285, y_pos+40, 150, 10, "    Rm/Brd/DOC: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_room_board_doc_two
 				Text 285, y_pos+50, 150, 10, "      Income Test: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_income_test_two
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_two <> "" Then Text 285, y_pos+60, 100, 10, "(Amt Already Issued  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_amount_already_issued_two & ")"
-				Text 425, y_pos+10, 100, 10, "PAYMENT: "
+				Text 425, y_pos+10, 140, 10, "PAYMENT: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_two_info
 				Text 425, y_pos+20, 100, 10, "GRH (State) AMT: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_two
 				Text 425, y_pos+30, 100, 10, "     County Liability: + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two
 				Text 425, y_pos+40, 100, 10, "   Counted Income: - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
@@ -6676,14 +6677,16 @@ function grh_elig_case_note()
 
 			If InStr(GRH_UNIQUE_APPROVALS(months_in_approval, unique_app), GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year) <> 0 Then
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one <> "" Then
-					month_and_name = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name
+					month_and_proc = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_pre_or_post_pay_one_info
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_one, 8)
-					If len(month_and_name) > 43 Then month_and_name = left(month_and_name, 43)
+					If len(month_and_proc) > 43 Then month_and_proc = left(month_and_proc, 43)
 
-					len_needed_of_grh_info = 77 - len(month_and_name)
+					len_needed_of_grh_info = 77 - len(month_and_proc)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
-					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
+					Call write_variable_in_CASE_NOTE(month_and_proc & grh_cost_info)
 
+					name_info = left("         " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name & "                                                 ", 45)
+					name_used = False
 					whole_month = False
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "28" or GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "29")Then whole_month = true
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
@@ -6699,25 +6702,38 @@ function grh_elig_case_note()
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
 					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one & " Days (whole month)     ", 45)
 					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one & " Days                 ", 45)
+
 					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one <> "" Then
-						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one, 8))
+						Call write_variable_in_CASE_NOTE(name_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_one, 8))
+						name_used = True
+					End If
+					If name_used = True Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+						stay_info = "                                             "
+					Else
+						Call write_variable_in_CASE_NOTE(name_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+					End If
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one <> "" Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one, 8))
 						stay_info = "                                             "
 					End If
-					Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one <> "" Then Call write_variable_in_CASE_NOTE("                                             Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_one, 8))
-					Call write_variable_in_CASE_NOTE("                                             Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_one, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one <> "0.00" Then Call write_variable_in_CASE_NOTE("                                             Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one, 8))
+					Call write_variable_in_CASE_NOTE(stay_info & "Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_one, 8))
+					stay_info = "                                             "
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one <> "0.00" Then Call write_variable_in_CASE_NOTE("Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_one, 8))
 					vendor_details_found = True
 				End if
 
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two <> "" Then
-					month_and_name = "        " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name
+					month_and_proc = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_pre_or_post_pay_two_info
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_two, 8)
-					If len(month_and_name) > 43 Then month_and_name = left(month_and_name, 43)
+					If len(month_and_proc) > 43 Then month_and_proc = left(month_and_proc, 43)
 
-					len_needed_of_grh_info = 77 - len(month_and_name)
+					len_needed_of_grh_info = 77 - len(month_and_proc)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
-					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
+					Call write_variable_in_CASE_NOTE(month_and_proc & grh_cost_info)
+
+					name_info = left("         " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name & "                                                 ", 45)
+					name_used = False
 					whole_month = False
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "28" or GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "29")Then whole_month = true
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
@@ -6733,14 +6749,24 @@ function grh_elig_case_note()
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
 					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two & " Days (whole month)     ", 45)
 					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two & " Days                 ", 45)
+
 					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two <> "" Then
-						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two, 8))
+						Call write_variable_in_CASE_NOTE(name_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_county_liability_two, 8))
+						name_used = True
+					End If
+					If name_used = True Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+						stay_info = "                                             "
+					Else
+						Call write_variable_in_CASE_NOTE(name_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
+					End If
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two <> "" Then
+						Call write_variable_in_CASE_NOTE(stay_info & "Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two, 8))
 						stay_info = "                                             "
 					End If
-					Call write_variable_in_CASE_NOTE(stay_info & "Counted Income    : - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_counted_income, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two <> "" Then Call write_variable_in_CASE_NOTE("                                             Amt Already Issued: - $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_amount_already_issued_two, 8))
-					Call write_variable_in_CASE_NOTE("                                             Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_two, 8))
-					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two <> "0.00" Then Call write_variable_in_CASE_NOTE("                                             Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two, 8))
+					Call write_variable_in_CASE_NOTE(stay_info & "Total Payment     : = $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_total_two, 8))
+					stay_info = "                                             "
+					If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two <> "0.00" Then Call write_variable_in_CASE_NOTE("Client Obligation :   $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_client_obligation_two, 8))
 					vendor_details_found = True
 				End if
 			End If
@@ -20399,6 +20425,7 @@ allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 ' developer_mode = False
+If developer_mode = True Then MsgBox "DEVELOEPR - Welcome!"
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "2683408" Then allow_late_note = True
@@ -26396,7 +26423,7 @@ If enter_CNOTE_for_GRH = True Then
 			Else
 				header_end = " only"
 			End If
-			elig_info = "ELIGIBLE"
+			elig_info = GRH_ELIG_APPROVALS(elig_ind).grh_elig_pre_or_post_pay_one_info & " ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "INELIGIBLE" Then
 			elig_info = "INELIGIBLE"
