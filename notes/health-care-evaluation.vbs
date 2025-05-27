@@ -1253,7 +1253,6 @@ function define_main_dialog()
 					y_pos = y_pos + 25
 				End If
 
-				'TODO - DEAL WITH OTHR panel
 			Next
 			If y_pos = 90 Then
 				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the case file for the selected members."
@@ -1345,10 +1344,14 @@ function define_main_dialog()
 				End If
 			Next
 
-			Text 25, y_pos+5, 50, 10, "Asset Notes:"
-			EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes)
-
-			If othr_panels_exist <> True Then Text 25, y_pos, 150, 10, "No OTHR panels exist for selected members."
+			If othr_panels_exist <> True Then
+				Text 25, y_pos, 150, 10, "No OTHR panels exist for selected members."
+				Text 25, y_pos+15, 50, 10, "Asset Notes:"
+				EditBox 75, y_pos + 10, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes)
+			Else
+				Text 25, y_pos+5, 50, 10, "Asset Notes:"
+				EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes)
+			End If
 		ElseIf page_display = show_cars_rest_page Then															'Cars ad Real Estate Page
 			cars_exists = False
 			rest_exists = False
@@ -3663,6 +3666,50 @@ function write_asset_details_in_NOTE()
 	Next
 	If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Liquid Assets for this Case.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes))
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_othr_one_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " with property type " & STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_one_property_type_info(each_memb))
+			othr_string = ""
+			othr_string = othr_string & "Cash Value: $" & trim(STAT_INFORMATION(month_ind).stat_othr_one_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & ", Amt Owed: $" & trim(STAT_INFORMATION(month_ind).stat_othr_one_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & "; " & "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_one_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_one_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_one_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_one_count_iv_e(each_memb) & "; Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_one_joint_owner(each_memb) & "; Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_one_share_ratio(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("OTHR Asset Detail", othr_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_othr_two_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " with property type " & STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_two_property_type_info(each_memb))
+			othr_string = ""
+			othr_string = othr_string & "Cash Value: $" & trim(STAT_INFORMATION(month_ind).stat_othr_two_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & ", Amt Owed: $" & trim(STAT_INFORMATION(month_ind).stat_othr_two_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & "; " & "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_two_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_two_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_two_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_two_count_iv_e(each_memb) & "; Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_two_joint_owner(each_memb) & "; Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_two_share_ratio(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("OTHR Asset Detail", othr_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_othr_three_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " with property type " & STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_three_property_type_info(each_memb))
+			othr_string = ""
+			othr_string = othr_string & "Cash Value: $" & trim(STAT_INFORMATION(month_ind).stat_othr_three_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & ", Amt Owed: $" & trim(STAT_INFORMATION(month_ind).stat_othr_three_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & "; " & "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_three_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_three_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_three_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_three_count_iv_e(each_memb) & "; Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_three_joint_owner(each_memb) & "; Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_three_share_ratio(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("OTHR Asset Detail", othr_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_othr_four_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " with property type " & STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_four_property_type_info(each_memb))
+			othr_string = ""
+			othr_string = othr_string & "Cash Value: $" & trim(STAT_INFORMATION(month_ind).stat_othr_four_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & ", Amt Owed: $" & trim(STAT_INFORMATION(month_ind).stat_othr_four_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & "; " & "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_four_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_four_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_four_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_four_count_iv_e(each_memb) & "; Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_four_joint_owner(each_memb) & "; Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_four_share_ratio(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("OTHR Asset Detail", othr_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_othr_five_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " with property type " & STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_five_property_type_info(each_memb))
+			othr_string = ""
+			othr_string = othr_string & "Cash Value: $" & trim(STAT_INFORMATION(month_ind).stat_othr_five_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & ", Amt Owed: $" & trim(STAT_INFORMATION(month_ind).stat_othr_five_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_info(each_memb) & ")"
+			othr_string = othr_string & "; " & "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_five_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_five_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_five_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_five_count_iv_e(each_memb) & "; Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_five_joint_owner(each_memb) & "; Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_five_share_ratio(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("OTHR Asset Detail", othr_string)
+		End If
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("OTHR Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes))
 
 	asset_detail_entered = False
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
