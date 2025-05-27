@@ -1283,14 +1283,13 @@ function define_main_dialog()
 			grp_len = grp_len - 80
 			GroupBox 10, y_pos, 465, grp_len, "Other Assets (OTHR Panel)"
 			y_pos = y_pos + 10
+			othr_burial_assets = ""
 			
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_othr_one_exists(each_memb) = True Then
 					othr_panels_exist = true
 					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 					y_pos = y_pos + 10
-
-
 					If STAT_INFORMATION(month_ind).stat_othr_one_exists(each_memb) = True Then
 						Text 25, y_pos, 150, 10, "Property Type: " & STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) & " " & STAT_INFORMATION(month_ind).stat_othr_one_property_type_info(each_memb)
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_one_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_info(each_memb) & ")"
@@ -1299,6 +1298,7 @@ function define_main_dialog()
 						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_one_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_one_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_one_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_one_count_iv_e(each_memb) 
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_one_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_one_share_ratio(each_memb)
+						If STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "9" Then othr_burial_assets = True
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_othr_two_exists(each_memb) = True Then
@@ -1309,6 +1309,7 @@ function define_main_dialog()
 						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_two_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_two_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_two_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_two_count_iv_e(each_memb) 
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_two_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_two_share_ratio(each_memb)
+						If STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "9" Then othr_burial_assets = True
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_othr_three_exists(each_memb) = True Then
@@ -1319,6 +1320,7 @@ function define_main_dialog()
 						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_three_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_three_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_three_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_three_count_iv_e(each_memb) 
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_three_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_three_share_ratio(each_memb)
+						If STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "9" Then othr_burial_assets = True
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_othr_four_exists(each_memb) = True Then
@@ -1329,6 +1331,7 @@ function define_main_dialog()
 						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_four_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_four_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_four_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_four_count_iv_e(each_memb) 
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_four_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_four_share_ratio(each_memb)
+						If STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "9" Then othr_burial_assets = True
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_othr_five_exists(each_memb) = True Then
@@ -1339,6 +1342,7 @@ function define_main_dialog()
 						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_five_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_five_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_five_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_five_count_iv_e(each_memb) 
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_five_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_five_share_ratio(each_memb)
+						If STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "9" Then othr_burial_assets = True
 						y_pos = y_pos + 10
 					End If
 				End If
@@ -1351,6 +1355,10 @@ function define_main_dialog()
 			Else
 				Text 25, y_pos+5, 50, 10, "Asset Notes:"
 				EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes)
+				If othr_burial_assets = True Then 
+					Text 25, y_pos+20, 80, 10, "Burial Asset (Yes/No):"
+					DropListBox 105, y_pos + 20, 60, 20, "Select one:"+chr(9)+"Yes"+chr(9)+"No", burial_asset_droplist
+				End If	
 			End If
 		ElseIf page_display = show_cars_rest_page Then															'Cars ad Real Estate Page
 			cars_exists = False
@@ -3710,6 +3718,7 @@ function write_asset_details_in_NOTE()
 		End If
 	Next
 	Call write_bullet_and_variable_in_CASE_NOTE("OTHR Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes))
+	If burial_asset_droplist <> "Select one:" and burial_asset_droplist <> "" Then Call write_variable_in_CASE_NOTE("Burial Asset (Yes/No): " & burial_asset_droplist & ", refer to Burial Asset CASE/NOTE")
 
 	asset_detail_entered = False
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -4236,7 +4245,7 @@ Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox,
 Dim last_page_numb
 Dim retro_income_detail, retro_asset_detail, retro_expense_detail, ltc_elig_notes, ltc_info_still_needed
 Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
-Dim avs_form_status, avs_form_notes, avs_portal_notes, county_of_financial_responsibility
+Dim avs_form_status, avs_form_notes, avs_portal_notes, county_of_financial_responsibility, burial_asset_droplist
 Dim month_MA_starts, clt_in_community, LTCC_date, month_MA_LTC_starts, baseline_date
 Dim recvd_date_5181, recvd_date_5103, sent_date_3050, sent_date_3203, sent_date_asset_transfer
 Dim annuity_LTC_PRB, home_equity_limit, transfer_notes, ltcp_exists, ltc_partnership_notes, ltc_intake_notes
