@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/24/2024", "Added handling to pull details from the OTHR panel, added dialog field to CASE/NOTE burial assets noted on OTHR panels.", "Mark Riegel, Hennepin County")
 call changelog_update("10/24/2024", "BUG FIX - updated handling for BILS dialog.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Added a reminder to review Remedial Care for any person in a type 55 or 56 Facility.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Updated the script to handle ex parte phase 1 for households with 3 or more members on health care.", "Dave Courtright, Hennepin County")
