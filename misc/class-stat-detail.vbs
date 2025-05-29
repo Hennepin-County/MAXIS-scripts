@@ -115,6 +115,8 @@ class stat_detail
 	Public stat_insa_notes
 	Public stat_faci_notes
 	Public stat_bils_remedial_care_entered
+	Public stat_othr_notes
+
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -596,6 +598,87 @@ class stat_detail
 	Public stat_unea_five_mfip_gross_amt()
 	Public stat_unea_five_ga_gross_amt()
 	Public stat_unea_five_notes()
+
+	Public stat_othr_one_exists()
+	Public stat_othr_one_property_type_code()
+	Public stat_othr_one_property_type_info()
+	Public stat_othr_one_cash_value()
+	Public stat_othr_one_cash_value_verif_code()
+	Public stat_othr_one_cash_value_verif_info()
+	Public stat_othr_one_amount_owed()
+	Public stat_othr_one_amount_owed_verif_code()
+	Public stat_othr_one_amount_owed_verif_info()
+	Public stat_othr_one_as_of_date()
+	Public stat_othr_one_count_cash()
+	Public stat_othr_one_count_snap()
+	Public stat_othr_one_count_hc()
+	Public stat_othr_one_count_iv_e()
+	Public stat_othr_one_joint_owner()
+	Public stat_othr_one_share_ratio()
+	Public stat_othr_two_exists()
+	Public stat_othr_two_property_type_code()
+	Public stat_othr_two_property_type_info()
+	Public stat_othr_two_cash_value()
+	Public stat_othr_two_cash_value_verif_code()
+	Public stat_othr_two_cash_value_verif_info()
+	Public stat_othr_two_amount_owed()
+	Public stat_othr_two_amount_owed_verif_code()
+	Public stat_othr_two_amount_owed_verif_info()
+	Public stat_othr_two_as_of_date()
+	Public stat_othr_two_count_cash()
+	Public stat_othr_two_count_snap()
+	Public stat_othr_two_count_hc()
+	Public stat_othr_two_count_iv_e()
+	Public stat_othr_two_joint_owner()
+	Public stat_othr_two_share_ratio()
+	Public stat_othr_three_exists()
+	Public stat_othr_three_property_type_code()
+	Public stat_othr_three_property_type_info()
+	Public stat_othr_three_cash_value()
+	Public stat_othr_three_cash_value_verif_code()
+	Public stat_othr_three_cash_value_verif_info()
+	Public stat_othr_three_amount_owed()
+	Public stat_othr_three_amount_owed_verif_code()
+	Public stat_othr_three_amount_owed_verif_info()
+	Public stat_othr_three_as_of_date()
+	Public stat_othr_three_count_cash()
+	Public stat_othr_three_count_snap()
+	Public stat_othr_three_count_hc()
+	Public stat_othr_three_count_iv_e()
+	Public stat_othr_three_joint_owner()
+	Public stat_othr_three_share_ratio()
+	Public stat_othr_four_exists()
+	Public stat_othr_four_property_type_code()
+	Public stat_othr_four_property_type_info()
+	Public stat_othr_four_cash_value()
+	Public stat_othr_four_cash_value_verif_code()
+	Public stat_othr_four_cash_value_verif_info()
+	Public stat_othr_four_amount_owed()
+	Public stat_othr_four_amount_owed_verif_code()
+	Public stat_othr_four_amount_owed_verif_info()
+	Public stat_othr_four_as_of_date()
+	Public stat_othr_four_count_cash()
+	Public stat_othr_four_count_snap()
+	Public stat_othr_four_count_hc()
+	Public stat_othr_four_count_iv_e()
+	Public stat_othr_four_joint_owner()
+	Public stat_othr_four_share_ratio()
+	Public stat_othr_five_exists()
+	Public stat_othr_five_property_type_code()
+	Public stat_othr_five_property_type_info()
+	Public stat_othr_five_cash_value()
+	Public stat_othr_five_cash_value_verif_code()
+	Public stat_othr_five_cash_value_verif_info()
+	Public stat_othr_five_amount_owed()
+	Public stat_othr_five_amount_owed_verif_code()
+	Public stat_othr_five_amount_owed_verif_info()
+	Public stat_othr_five_as_of_date()
+	Public stat_othr_five_count_cash()
+	Public stat_othr_five_count_snap()
+	Public stat_othr_five_count_hc()
+	Public stat_othr_five_count_iv_e()
+	Public stat_othr_five_joint_owner()
+	Public stat_othr_five_share_ratio()
 
 	Public stat_cash_asset_panel_exists()
 	Public stat_cash_exists()
@@ -1701,6 +1784,86 @@ class stat_detail
 		ReDim stat_busi_three_hc_b_income_verif_info(0)
 		ReDim stat_busi_three_hc_b_expense_verif_info(0)
 		ReDim stat_busi_three_notes(0)
+		ReDim stat_othr_one_exists(0)
+		ReDim stat_othr_one_property_type_code(0)
+		ReDim stat_othr_one_property_type_info(0)
+		ReDim stat_othr_one_cash_value(0)
+		ReDim stat_othr_one_cash_value_verif_code(0)
+		ReDim stat_othr_one_cash_value_verif_info(0)
+		ReDim stat_othr_one_amount_owed(0)
+		ReDim stat_othr_one_amount_owed_verif_code(0)
+		ReDim stat_othr_one_amount_owed_verif_info(0)
+		ReDim stat_othr_one_as_of_date(0)
+		ReDim stat_othr_one_count_cash(0)
+		ReDim stat_othr_one_count_snap(0)
+		ReDim stat_othr_one_count_hc(0)
+		ReDim stat_othr_one_count_iv_e(0)
+		ReDim stat_othr_one_joint_owner(0)
+		ReDim stat_othr_one_share_ratio(0)
+		ReDim stat_othr_two_exists(0)
+		ReDim stat_othr_two_property_type_code(0)
+		ReDim stat_othr_two_property_type_info(0)
+		ReDim stat_othr_two_cash_value(0)
+		ReDim stat_othr_two_cash_value_verif_code(0)
+		ReDim stat_othr_two_cash_value_verif_info(0)
+		ReDim stat_othr_two_amount_owed(0)
+		ReDim stat_othr_two_amount_owed_verif_code(0)
+		ReDim stat_othr_two_amount_owed_verif_info(0)
+		ReDim stat_othr_two_as_of_date(0)
+		ReDim stat_othr_two_count_cash(0)
+		ReDim stat_othr_two_count_snap(0)
+		ReDim stat_othr_two_count_hc(0)
+		ReDim stat_othr_two_count_iv_e(0)
+		ReDim stat_othr_two_joint_owner(0)
+		ReDim stat_othr_two_share_ratio(0)
+		ReDim stat_othr_three_exists(0)
+		ReDim stat_othr_three_property_type_code(0)
+		ReDim stat_othr_three_property_type_info(0)
+		ReDim stat_othr_three_cash_value(0)
+		ReDim stat_othr_three_cash_value_verif_code(0)
+		ReDim stat_othr_three_cash_value_verif_info(0)
+		ReDim stat_othr_three_amount_owed(0)
+		ReDim stat_othr_three_amount_owed_verif_code(0)
+		ReDim stat_othr_three_amount_owed_verif_info(0)
+		ReDim stat_othr_three_as_of_date(0)
+		ReDim stat_othr_three_count_cash(0)
+		ReDim stat_othr_three_count_snap(0)
+		ReDim stat_othr_three_count_hc(0)
+		ReDim stat_othr_three_count_iv_e(0)
+		ReDim stat_othr_three_joint_owner(0)
+		ReDim stat_othr_three_share_ratio(0)
+		ReDim stat_othr_four_exists(0)
+		ReDim stat_othr_four_property_type_code(0)
+		ReDim stat_othr_four_property_type_info(0)
+		ReDim stat_othr_four_cash_value(0)
+		ReDim stat_othr_four_cash_value_verif_code(0)
+		ReDim stat_othr_four_cash_value_verif_info(0)
+		ReDim stat_othr_four_amount_owed(0)
+		ReDim stat_othr_four_amount_owed_verif_code(0)
+		ReDim stat_othr_four_amount_owed_verif_info(0)
+		ReDim stat_othr_four_as_of_date(0)
+		ReDim stat_othr_four_count_cash(0)
+		ReDim stat_othr_four_count_snap(0)
+		ReDim stat_othr_four_count_hc(0)
+		ReDim stat_othr_four_count_iv_e(0)
+		ReDim stat_othr_four_joint_owner(0)
+		ReDim stat_othr_four_share_ratio(0)
+		ReDim stat_othr_five_exists(0)
+		ReDim stat_othr_five_property_type_code(0)
+		ReDim stat_othr_five_property_type_info(0)
+		ReDim stat_othr_five_cash_value(0)
+		ReDim stat_othr_five_cash_value_verif_code(0)
+		ReDim stat_othr_five_cash_value_verif_info(0)
+		ReDim stat_othr_five_amount_owed(0)
+		ReDim stat_othr_five_amount_owed_verif_code(0)
+		ReDim stat_othr_five_amount_owed_verif_info(0)
+		ReDim stat_othr_five_as_of_date(0)
+		ReDim stat_othr_five_count_cash(0)
+		ReDim stat_othr_five_count_snap(0)
+		ReDim stat_othr_five_count_hc(0)
+		ReDim stat_othr_five_count_iv_e(0)
+		ReDim stat_othr_five_joint_owner(0)
+		ReDim stat_othr_five_share_ratio(0)
 		ReDim stat_unea_one_exists(0)
 		ReDim stat_unea_one_counted_for_snap(0)
 		ReDim stat_unea_one_counted_for_mfip(0)
@@ -2800,6 +2963,86 @@ class stat_detail
 				ReDim preserve stat_busi_three_hc_b_income_verif_info(memb_count)
 				ReDim preserve stat_busi_three_hc_b_expense_verif_info(memb_count)
 				ReDim preserve stat_busi_three_notes(memb_count)
+				ReDim preserve stat_othr_one_exists(memb_count)
+				ReDim preserve stat_othr_one_property_type_code(memb_count)
+				ReDim preserve stat_othr_one_property_type_info(memb_count)
+				ReDim preserve stat_othr_one_cash_value(memb_count)
+				ReDim preserve stat_othr_one_cash_value_verif_code(memb_count)
+				ReDim preserve stat_othr_one_cash_value_verif_info(memb_count)
+				ReDim preserve stat_othr_one_amount_owed(memb_count)
+				ReDim preserve stat_othr_one_amount_owed_verif_code(memb_count)
+				ReDim preserve stat_othr_one_amount_owed_verif_info(memb_count)
+				ReDim preserve stat_othr_one_as_of_date(memb_count)
+				ReDim preserve stat_othr_one_count_cash(memb_count)
+				ReDim preserve stat_othr_one_count_snap(memb_count)
+				ReDim preserve stat_othr_one_count_hc(memb_count)
+				ReDim preserve stat_othr_one_count_iv_e(memb_count)
+				ReDim preserve stat_othr_one_joint_owner(memb_count)
+				ReDim preserve stat_othr_one_share_ratio(memb_count)
+				ReDim preserve stat_othr_two_exists(memb_count)
+				ReDim preserve stat_othr_two_property_type_code(memb_count)
+				ReDim preserve stat_othr_two_property_type_info(memb_count)
+				ReDim preserve stat_othr_two_cash_value(memb_count)
+				ReDim preserve stat_othr_two_cash_value_verif_code(memb_count)
+				ReDim preserve stat_othr_two_cash_value_verif_info(memb_count)
+				ReDim preserve stat_othr_two_amount_owed(memb_count)
+				ReDim preserve stat_othr_two_amount_owed_verif_code(memb_count)
+				ReDim preserve stat_othr_two_amount_owed_verif_info(memb_count)
+				ReDim preserve stat_othr_two_as_of_date(memb_count)
+				ReDim preserve stat_othr_two_count_cash(memb_count)
+				ReDim preserve stat_othr_two_count_snap(memb_count)
+				ReDim preserve stat_othr_two_count_hc(memb_count)
+				ReDim preserve stat_othr_two_count_iv_e(memb_count)
+				ReDim preserve stat_othr_two_joint_owner(memb_count)
+				ReDim preserve stat_othr_two_share_ratio(memb_count)
+				ReDim preserve stat_othr_three_exists(memb_count)
+				ReDim preserve stat_othr_three_property_type_code(memb_count)
+				ReDim preserve stat_othr_three_property_type_info(memb_count)
+				ReDim preserve stat_othr_three_cash_value(memb_count)
+				ReDim preserve stat_othr_three_cash_value_verif_code(memb_count)
+				ReDim preserve stat_othr_three_cash_value_verif_info(memb_count)
+				ReDim preserve stat_othr_three_amount_owed(memb_count)
+				ReDim preserve stat_othr_three_amount_owed_verif_code(memb_count)
+				ReDim preserve stat_othr_three_amount_owed_verif_info(memb_count)
+				ReDim preserve stat_othr_three_as_of_date(memb_count)
+				ReDim preserve stat_othr_three_count_cash(memb_count)
+				ReDim preserve stat_othr_three_count_snap(memb_count)
+				ReDim preserve stat_othr_three_count_hc(memb_count)
+				ReDim preserve stat_othr_three_count_iv_e(memb_count)
+				ReDim preserve stat_othr_three_joint_owner(memb_count)
+				ReDim preserve stat_othr_three_share_ratio(memb_count)
+				ReDim preserve stat_othr_four_exists(memb_count)
+				ReDim preserve stat_othr_four_property_type_code(memb_count)
+				ReDim preserve stat_othr_four_property_type_info(memb_count)
+				ReDim preserve stat_othr_four_cash_value(memb_count)
+				ReDim preserve stat_othr_four_cash_value_verif_code(memb_count)
+				ReDim preserve stat_othr_four_cash_value_verif_info(memb_count)
+				ReDim preserve stat_othr_four_amount_owed(memb_count)
+				ReDim preserve stat_othr_four_amount_owed_verif_code(memb_count)
+				ReDim preserve stat_othr_four_amount_owed_verif_info(memb_count)
+				ReDim preserve stat_othr_four_as_of_date(memb_count)
+				ReDim preserve stat_othr_four_count_cash(memb_count)
+				ReDim preserve stat_othr_four_count_snap(memb_count)
+				ReDim preserve stat_othr_four_count_hc(memb_count)
+				ReDim preserve stat_othr_four_count_iv_e(memb_count)
+				ReDim preserve stat_othr_four_joint_owner(memb_count)
+				ReDim preserve stat_othr_four_share_ratio(memb_count)
+				ReDim preserve stat_othr_five_exists(memb_count)
+				ReDim preserve stat_othr_five_property_type_code(memb_count)
+				ReDim preserve stat_othr_five_property_type_info(memb_count)
+				ReDim preserve stat_othr_five_cash_value(memb_count)
+				ReDim preserve stat_othr_five_cash_value_verif_code(memb_count)
+				ReDim preserve stat_othr_five_cash_value_verif_info(memb_count)
+				ReDim preserve stat_othr_five_amount_owed(memb_count)
+				ReDim preserve stat_othr_five_amount_owed_verif_code(memb_count)
+				ReDim preserve stat_othr_five_amount_owed_verif_info(memb_count)
+				ReDim preserve stat_othr_five_as_of_date(memb_count)
+				ReDim preserve stat_othr_five_count_cash(memb_count)
+				ReDim preserve stat_othr_five_count_snap(memb_count)
+				ReDim preserve stat_othr_five_count_hc(memb_count)
+				ReDim preserve stat_othr_five_count_iv_e(memb_count)
+				ReDim preserve stat_othr_five_joint_owner(memb_count)
+				ReDim preserve stat_othr_five_share_ratio(memb_count)
 				ReDim preserve stat_unea_one_exists(memb_count)
 				ReDim preserve stat_unea_one_counted_for_snap(memb_count)
 				ReDim preserve stat_unea_one_counted_for_mfip(memb_count)
@@ -5059,6 +5302,264 @@ class stat_detail
 				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
+		Next
+
+		call navigate_to_MAXIS_screen("STAT", "OTHR")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "01", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_othr_one_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_othr_one_exists(each_memb) = False
+
+			If stat_othr_one_exists(each_memb) = True Then
+				EMReadScreen stat_othr_one_property_type_code(each_memb), 1, 6, 40
+				'to do - not needed? -> stat_othr_one_counted_for_snap(each_memb) = True
+				If stat_othr_one_property_type_code(each_memb) = "1" Then stat_othr_one_property_type_info(each_memb) = "Burial Ctrct"
+				If stat_othr_one_property_type_code(each_memb) = "2" Then stat_othr_one_property_type_info(each_memb) = "Burial Plot"
+				If stat_othr_one_property_type_code(each_memb) = "3" Then stat_othr_one_property_type_info(each_memb) = "Boats/Motors"
+				If stat_othr_one_property_type_code(each_memb) = "4" Then stat_othr_one_property_type_info(each_memb) = "Tools/Equip"
+				If stat_othr_one_property_type_code(each_memb) = "5" Then stat_othr_one_property_type_info(each_memb) = "Livestock/Farm Implmnts"
+				If stat_othr_one_property_type_code(each_memb) = "6" Then stat_othr_one_property_type_info(each_memb) = "Off-Road Veh"
+				If stat_othr_one_property_type_code(each_memb) = "7" Then stat_othr_one_property_type_info(each_memb) = "Collections"
+				If stat_othr_one_property_type_code(each_memb) = "8" Then stat_othr_one_property_type_info(each_memb) = "Other"
+				If stat_othr_one_property_type_code(each_memb) = "9" Then stat_othr_one_property_type_info(each_memb) = "Irrevocable Burial Acct"
+
+				EMReadScreen stat_othr_one_cash_value(each_memb), 10, 8, 40
+				EMReadScreen stat_othr_one_cash_value_verif_code(each_memb), 1, 8, 57
+				If stat_othr_one_cash_value_verif_code(each_memb) = "1" Then stat_othr_one_cash_value_verif_info(each_memb) = "Appraisal"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "2" Then stat_othr_one_cash_value_verif_info(each_memb) = "Purchase Agmt"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "3" Then stat_othr_one_cash_value_verif_info(each_memb) = "NADA"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "4" Then stat_othr_one_cash_value_verif_info(each_memb) = "Bank/Lending Inst Stmt"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "5" Then stat_othr_one_cash_value_verif_info(each_memb) = "Client Stmt"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "6" Then stat_othr_one_cash_value_verif_info(each_memb) = "Other Document"
+				If stat_othr_one_cash_value_verif_code(each_memb) = "N" Then stat_othr_one_cash_value_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_one_amount_owed(each_memb), 10, 9, 40
+				EMReadScreen stat_othr_one_amount_owed_verif_code(each_memb), 1, 9, 57
+				If stat_othr_one_amount_owed_verif_code(each_memb) = "1" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Bank Statement"
+				If stat_othr_one_amount_owed_verif_code(each_memb) = "2" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
+				If stat_othr_one_amount_owed_verif_code(each_memb) = "3" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
+				If stat_othr_one_amount_owed_verif_code(each_memb) = "4" Then stat_othr_one_amount_owed_verif_info(each_memb) = "Other Document"
+				If stat_othr_one_amount_owed_verif_code(each_memb) = "N" Then stat_othr_one_amount_owed_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_one_as_of_date(each_memb), 8, 10, 39
+				stat_othr_one_as_of_date(each_memb) = replace(stat_othr_one_as_of_date(each_memb), " ", "/")
+
+				EMReadScreen stat_othr_one_count_cash(each_memb), 1, 12, 50
+				EMReadScreen stat_othr_one_count_snap(each_memb), 1, 12, 57
+				EMReadScreen stat_othr_one_count_hc(each_memb), 1, 12, 64
+				EMReadScreen stat_othr_one_count_iv_e(each_memb), 1, 12, 73
+				
+				EMReadScreen stat_othr_one_joint_owner(each_memb), 1, 13, 44
+				
+				EMReadScreen stat_othr_one_share_ratio(each_memb), 5, 15, 50
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "02", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_othr_two_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_othr_two_exists(each_memb) = False
+
+			If stat_othr_two_exists(each_memb) = True Then
+				EMReadScreen stat_othr_two_property_type_code(each_memb), 1, 6, 40
+				'to do - not needed? -> stat_othr_two_counted_for_snap(each_memb) = True
+				If stat_othr_two_property_type_code(each_memb) = "1" Then stat_othr_two_property_type_info(each_memb) = "Burial Ctrct"
+				If stat_othr_two_property_type_code(each_memb) = "2" Then stat_othr_two_property_type_info(each_memb) = "Burial Plot"
+				If stat_othr_two_property_type_code(each_memb) = "3" Then stat_othr_two_property_type_info(each_memb) = "Boats/Motors"
+				If stat_othr_two_property_type_code(each_memb) = "4" Then stat_othr_two_property_type_info(each_memb) = "Tools/Equip"
+				If stat_othr_two_property_type_code(each_memb) = "5" Then stat_othr_two_property_type_info(each_memb) = "Livestock/Farm Implmnts"
+				If stat_othr_two_property_type_code(each_memb) = "6" Then stat_othr_two_property_type_info(each_memb) = "Off-Road Veh"
+				If stat_othr_two_property_type_code(each_memb) = "7" Then stat_othr_two_property_type_info(each_memb) = "Collections"
+				If stat_othr_two_property_type_code(each_memb) = "8" Then stat_othr_two_property_type_info(each_memb) = "Other"
+				If stat_othr_two_property_type_code(each_memb) = "9" Then stat_othr_two_property_type_info(each_memb) = "Irrevocable Burial Acct"
+
+				EMReadScreen stat_othr_two_cash_value(each_memb), 10, 8, 40
+				EMReadScreen stat_othr_two_cash_value_verif_code(each_memb), 1, 8, 57
+				If stat_othr_two_cash_value_verif_code(each_memb) = "1" Then stat_othr_two_cash_value_verif_info(each_memb) = "Appraisal"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "2" Then stat_othr_two_cash_value_verif_info(each_memb) = "Purchase Agmt"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "3" Then stat_othr_two_cash_value_verif_info(each_memb) = "NADA"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "4" Then stat_othr_two_cash_value_verif_info(each_memb) = "Bank/Lending Inst Stmt"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "5" Then stat_othr_two_cash_value_verif_info(each_memb) = "Client Stmt"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "6" Then stat_othr_two_cash_value_verif_info(each_memb) = "Other Document"
+				If stat_othr_two_cash_value_verif_code(each_memb) = "N" Then stat_othr_two_cash_value_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_two_amount_owed(each_memb), 10, 9, 40
+				EMReadScreen stat_othr_two_amount_owed_verif_code(each_memb), 1, 9, 57
+				If stat_othr_two_amount_owed_verif_code(each_memb) = "1" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Bank Statement"
+				If stat_othr_two_amount_owed_verif_code(each_memb) = "2" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
+				If stat_othr_two_amount_owed_verif_code(each_memb) = "3" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
+				If stat_othr_two_amount_owed_verif_code(each_memb) = "4" Then stat_othr_two_amount_owed_verif_info(each_memb) = "Other Document"
+				If stat_othr_two_amount_owed_verif_code(each_memb) = "N" Then stat_othr_two_amount_owed_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_two_as_of_date(each_memb), 8, 10, 39
+				stat_othr_two_as_of_date(each_memb) = replace(stat_othr_two_as_of_date(each_memb), " ", "/")
+
+				EMReadScreen stat_othr_two_count_cash(each_memb), 1, 12, 50
+				EMReadScreen stat_othr_two_count_snap(each_memb), 1, 12, 57
+				EMReadScreen stat_othr_two_count_hc(each_memb), 1, 12, 64
+				EMReadScreen stat_othr_two_count_iv_e(each_memb), 1, 12, 73
+				
+				EMReadScreen stat_othr_two_joint_owner(each_memb), 1, 13, 44
+				
+				EMReadScreen stat_othr_two_share_ratio(each_memb), 5, 15, 50
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "03", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_othr_three_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_othr_three_exists(each_memb) = False
+
+			If stat_othr_three_exists(each_memb) = True Then
+				EMReadScreen stat_othr_three_property_type_code(each_memb), 1, 6, 40
+				'to do - not needed? -> stat_othr_three_counted_for_snap(each_memb) = True
+				If stat_othr_three_property_type_code(each_memb) = "1" Then stat_othr_three_property_type_info(each_memb) = "Burial Ctrct"
+				If stat_othr_three_property_type_code(each_memb) = "2" Then stat_othr_three_property_type_info(each_memb) = "Burial Plot"
+				If stat_othr_three_property_type_code(each_memb) = "3" Then stat_othr_three_property_type_info(each_memb) = "Boats/Motors"
+				If stat_othr_three_property_type_code(each_memb) = "4" Then stat_othr_three_property_type_info(each_memb) = "Tools/Equip"
+				If stat_othr_three_property_type_code(each_memb) = "5" Then stat_othr_three_property_type_info(each_memb) = "Livestock/Farm Implmnts"
+				If stat_othr_three_property_type_code(each_memb) = "6" Then stat_othr_three_property_type_info(each_memb) = "Off-Road Veh"
+				If stat_othr_three_property_type_code(each_memb) = "7" Then stat_othr_three_property_type_info(each_memb) = "Collections"
+				If stat_othr_three_property_type_code(each_memb) = "8" Then stat_othr_three_property_type_info(each_memb) = "Other"
+				If stat_othr_three_property_type_code(each_memb) = "9" Then stat_othr_three_property_type_info(each_memb) = "Irrevocable Burial Acct"
+
+				EMReadScreen stat_othr_three_cash_value(each_memb), 10, 8, 40
+				EMReadScreen stat_othr_three_cash_value_verif_code(each_memb), 1, 8, 57
+				If stat_othr_three_cash_value_verif_code(each_memb) = "1" Then stat_othr_three_cash_value_verif_info(each_memb) = "Appraisal"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "2" Then stat_othr_three_cash_value_verif_info(each_memb) = "Purchase Agmt"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "3" Then stat_othr_three_cash_value_verif_info(each_memb) = "NADA"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "4" Then stat_othr_three_cash_value_verif_info(each_memb) = "Bank/Lending Inst Stmt"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "5" Then stat_othr_three_cash_value_verif_info(each_memb) = "Client Stmt"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "6" Then stat_othr_three_cash_value_verif_info(each_memb) = "Other Document"
+				If stat_othr_three_cash_value_verif_code(each_memb) = "N" Then stat_othr_three_cash_value_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_three_amount_owed(each_memb), 10, 9, 40
+				EMReadScreen stat_othr_three_amount_owed_verif_code(each_memb), 1, 9, 57
+				If stat_othr_three_amount_owed_verif_code(each_memb) = "1" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Bank Statement"
+				If stat_othr_three_amount_owed_verif_code(each_memb) = "2" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
+				If stat_othr_three_amount_owed_verif_code(each_memb) = "3" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
+				If stat_othr_three_amount_owed_verif_code(each_memb) = "4" Then stat_othr_three_amount_owed_verif_info(each_memb) = "Other Document"
+				If stat_othr_three_amount_owed_verif_code(each_memb) = "N" Then stat_othr_three_amount_owed_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_three_as_of_date(each_memb), 8, 10, 39
+				stat_othr_three_as_of_date(each_memb) = replace(stat_othr_three_as_of_date(each_memb), " ", "/")
+
+				EMReadScreen stat_othr_three_count_cash(each_memb), 1, 12, 50
+				EMReadScreen stat_othr_three_count_snap(each_memb), 1, 12, 57
+				EMReadScreen stat_othr_three_count_hc(each_memb), 1, 12, 64
+				EMReadScreen stat_othr_three_count_iv_e(each_memb), 1, 12, 73
+				
+				EMReadScreen stat_othr_three_joint_owner(each_memb), 1, 13, 44
+				
+				EMReadScreen stat_othr_three_share_ratio(each_memb), 5, 15, 50
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "04", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_othr_four_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_othr_four_exists(each_memb) = False
+
+			If stat_othr_four_exists(each_memb) = True Then
+				EMReadScreen stat_othr_four_property_type_code(each_memb), 1, 6, 40
+				'to do - not needed? -> stat_othr_four_counted_for_snap(each_memb) = True
+				If stat_othr_four_property_type_code(each_memb) = "1" Then stat_othr_four_property_type_info(each_memb) = "Burial Ctrct"
+				If stat_othr_four_property_type_code(each_memb) = "2" Then stat_othr_four_property_type_info(each_memb) = "Burial Plot"
+				If stat_othr_four_property_type_code(each_memb) = "3" Then stat_othr_four_property_type_info(each_memb) = "Boats/Motors"
+				If stat_othr_four_property_type_code(each_memb) = "4" Then stat_othr_four_property_type_info(each_memb) = "Tools/Equip"
+				If stat_othr_four_property_type_code(each_memb) = "5" Then stat_othr_four_property_type_info(each_memb) = "Livestock/Farm Implmnts"
+				If stat_othr_four_property_type_code(each_memb) = "6" Then stat_othr_four_property_type_info(each_memb) = "Off-Road Veh"
+				If stat_othr_four_property_type_code(each_memb) = "7" Then stat_othr_four_property_type_info(each_memb) = "Collections"
+				If stat_othr_four_property_type_code(each_memb) = "8" Then stat_othr_four_property_type_info(each_memb) = "Other"
+				If stat_othr_four_property_type_code(each_memb) = "9" Then stat_othr_four_property_type_info(each_memb) = "Irrevocable Burial Acct"
+
+				EMReadScreen stat_othr_four_cash_value(each_memb), 10, 8, 40
+				EMReadScreen stat_othr_four_cash_value_verif_code(each_memb), 1, 8, 57
+				If stat_othr_four_cash_value_verif_code(each_memb) = "1" Then stat_othr_four_cash_value_verif_info(each_memb) = "Appraisal"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "2" Then stat_othr_four_cash_value_verif_info(each_memb) = "Purchase Agmt"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "3" Then stat_othr_four_cash_value_verif_info(each_memb) = "NADA"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "4" Then stat_othr_four_cash_value_verif_info(each_memb) = "Bank/Lending Inst Stmt"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "5" Then stat_othr_four_cash_value_verif_info(each_memb) = "Client Stmt"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "6" Then stat_othr_four_cash_value_verif_info(each_memb) = "Other Document"
+				If stat_othr_four_cash_value_verif_code(each_memb) = "N" Then stat_othr_four_cash_value_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_four_amount_owed(each_memb), 10, 9, 40
+				EMReadScreen stat_othr_four_amount_owed_verif_code(each_memb), 1, 9, 57
+				If stat_othr_four_amount_owed_verif_code(each_memb) = "1" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Bank Statement"
+				If stat_othr_four_amount_owed_verif_code(each_memb) = "2" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
+				If stat_othr_four_amount_owed_verif_code(each_memb) = "3" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
+				If stat_othr_four_amount_owed_verif_code(each_memb) = "4" Then stat_othr_four_amount_owed_verif_info(each_memb) = "Other Document"
+				If stat_othr_four_amount_owed_verif_code(each_memb) = "N" Then stat_othr_four_amount_owed_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_four_as_of_date(each_memb), 8, 10, 39
+				stat_othr_four_as_of_date(each_memb) = replace(stat_othr_four_as_of_date(each_memb), " ", "/")
+
+				EMReadScreen stat_othr_four_count_cash(each_memb), 1, 12, 50
+				EMReadScreen stat_othr_four_count_snap(each_memb), 1, 12, 57
+				EMReadScreen stat_othr_four_count_hc(each_memb), 1, 12, 64
+				EMReadScreen stat_othr_four_count_iv_e(each_memb), 1, 12, 73
+				
+				EMReadScreen stat_othr_four_joint_owner(each_memb), 1, 13, 44
+				
+				EMReadScreen stat_othr_four_share_ratio(each_memb), 5, 15, 50
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "05", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_unea_five_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_unea_five_exists(each_memb) = False
+
+			If stat_othr_five_exists(each_memb) = True Then
+				EMReadScreen stat_othr_five_property_type_code(each_memb), 1, 6, 40
+				'to do - not needed? -> stat_othr_five_counted_for_snap(each_memb) = True
+				If stat_othr_five_property_type_code(each_memb) = "1" Then stat_othr_five_property_type_info(each_memb) = "Burial Ctrct"
+				If stat_othr_five_property_type_code(each_memb) = "2" Then stat_othr_five_property_type_info(each_memb) = "Burial Plot"
+				If stat_othr_five_property_type_code(each_memb) = "3" Then stat_othr_five_property_type_info(each_memb) = "Boats/Motors"
+				If stat_othr_five_property_type_code(each_memb) = "4" Then stat_othr_five_property_type_info(each_memb) = "Tools/Equip"
+				If stat_othr_five_property_type_code(each_memb) = "5" Then stat_othr_five_property_type_info(each_memb) = "Livestock/Farm Implmnts"
+				If stat_othr_five_property_type_code(each_memb) = "6" Then stat_othr_five_property_type_info(each_memb) = "Off-Road Veh"
+				If stat_othr_five_property_type_code(each_memb) = "7" Then stat_othr_five_property_type_info(each_memb) = "Collections"
+				If stat_othr_five_property_type_code(each_memb) = "8" Then stat_othr_five_property_type_info(each_memb) = "Other"
+				If stat_othr_five_property_type_code(each_memb) = "9" Then stat_othr_five_property_type_info(each_memb) = "Irrevocable Burial Acct"
+
+				EMReadScreen stat_othr_five_cash_value(each_memb), 10, 8, 40
+				EMReadScreen stat_othr_five_cash_value_verif_code(each_memb), 1, 8, 57
+				If stat_othr_five_cash_value_verif_code(each_memb) = "1" Then stat_othr_five_cash_value_verif_info(each_memb) = "Appraisal"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "2" Then stat_othr_five_cash_value_verif_info(each_memb) = "Purchase Agmt"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "3" Then stat_othr_five_cash_value_verif_info(each_memb) = "NADA"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "4" Then stat_othr_five_cash_value_verif_info(each_memb) = "Bank/Lending Inst Stmt"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "5" Then stat_othr_five_cash_value_verif_info(each_memb) = "Client Stmt"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "6" Then stat_othr_five_cash_value_verif_info(each_memb) = "Other Document"
+				If stat_othr_five_cash_value_verif_code(each_memb) = "N" Then stat_othr_five_cash_value_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_five_amount_owed(each_memb), 10, 9, 40
+				EMReadScreen stat_othr_five_amount_owed_verif_code(each_memb), 1, 9, 57
+				If stat_othr_five_amount_owed_verif_code(each_memb) = "1" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Bank Statement"
+				If stat_othr_five_amount_owed_verif_code(each_memb) = "2" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Othr Lend Stmt"
+				If stat_othr_five_amount_owed_verif_code(each_memb) = "3" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Priv Lend Stmt"
+				If stat_othr_five_amount_owed_verif_code(each_memb) = "4" Then stat_othr_five_amount_owed_verif_info(each_memb) = "Other Document"
+				If stat_othr_five_amount_owed_verif_code(each_memb) = "N" Then stat_othr_five_amount_owed_verif_info(each_memb) = "No Ver Prvd"
+
+				EMReadScreen stat_othr_five_as_of_date(each_memb), 8, 10, 39
+				stat_othr_five_as_of_date(each_memb) = replace(stat_othr_five_as_of_date(each_memb), " ", "/")
+
+				EMReadScreen stat_othr_five_count_cash(each_memb), 1, 12, 50
+				EMReadScreen stat_othr_five_count_snap(each_memb), 1, 12, 57
+				EMReadScreen stat_othr_five_count_hc(each_memb), 1, 12, 64
+				EMReadScreen stat_othr_five_count_iv_e(each_memb), 1, 12, 73
+				
+				EMReadScreen stat_othr_five_joint_owner(each_memb), 1, 13, 44
+				
+				EMReadScreen stat_othr_five_share_ratio(each_memb), 5, 15, 50
+			End If
 		Next
 
 		call navigate_to_MAXIS_screen("STAT", "CASH")
