@@ -901,23 +901,32 @@ function define_main_dialog()
 						End If
 					next
 				End If
+				'Condense UNEA information so information does not extend past dialog
+				x_pos = 30
+				yes_answer_count = 0
 				If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
 					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
 					y_pos = y_pos + 10
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
 						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
 							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
-								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes" & " - " & FORM_QUESTION_ARRAY(quest).item_detail_list(each_caf_unea)
-								y_pos = y_pos + 10
+								Text x_pos, y_pos, 140, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes" & " - " & FORM_QUESTION_ARRAY(quest).item_detail_list(each_caf_unea)
+								yes_answer_count = yes_answer_count + 1
+								x_pos = x_pos + 140
+								If x_pos > 310 Then
+									x_pos = 30
+									y_pos = y_pos + 10
+								End If
 							End If
 						Next
+						If yes_answer_count = 1 Or yes_answer_count = 2 Or yes_answer_count = 4 OR yes_answer_count = 5 or yes_answer_count = 7 or  yes_answer_count = 8 then y_pos = y_pos + 10
 					End If
 					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
-						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
+						Text 30, y_pos, 400, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
 						y_pos = y_pos + 10
 					End If
 					If FORM_QUESTION_ARRAY(quest).interview_notes <> "" Then
-						Text 30, y_pos, 450, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
+						Text 30, y_pos, 400, 10, "Interview Notes: " & FORM_QUESTION_ARRAY(quest).interview_notes
 						y_pos = y_pos + 10
 					End If
 				End If
@@ -1013,17 +1022,27 @@ function define_main_dialog()
 					y_pos = y_pos + 20
 				End If
 
+				'Display information in columns to reduce risk of details extending past dialog
+				x_pos = 30
+				yes_answer_count = 0
 				If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
 					Text 25, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).number & "." & FORM_QUESTION_ARRAY(quest).dialog_phrasing
 					y_pos = y_pos + 10
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
 						For each_caf_unea = 0 to UBound(FORM_QUESTION_ARRAY(quest).item_info_list)
 							If FORM_QUESTION_ARRAY(quest).item_ans_list(each_caf_unea) = "Yes" Then
-								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
-								y_pos = y_pos + 10
+								Text x_pos, y_pos, 140, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
+								yes_answer_count = yes_answer_count + 1
+								x_pos = x_pos + 140
+								If x_pos > 310 Then
+									x_pos = 30
+									y_pos = y_pos + 10
+								End If
 							End If
 						Next
+						If yes_answer_count = 1 Or yes_answer_count = 2 Or yes_answer_count = 4 OR yes_answer_count = 5 then y_pos = y_pos + 10
 					End If
+					
 					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
 						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
 						y_pos = y_pos + 10
@@ -1034,6 +1053,8 @@ function define_main_dialog()
 					End If
 				End If
 
+				'Adjust the utilities information to condense information
+				x_pos = 30
 				If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
 					first_array = True
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = True Then
@@ -1044,14 +1065,18 @@ function define_main_dialog()
 									y_pos = y_pos + 10
 									first_array = False
 								End If
-								Text 30, y_pos, 450, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
-								y_pos = y_pos + 10
+								Text x_pos, y_pos, 105, 10, FORM_QUESTION_ARRAY(quest).item_info_list(each_caf_unea) & " - Yes"
+								x_pos = x_pos + 115
+								If x_pos > 260 Then
+									x_pos = 30
+									y_pos = y_pos + 10
+								End If
 							End If
 						Next
 					End If
 				End If
 			Next
-			y_pos = y_pos + 5
+			y_pos = y_pos + 10
 
 			Text 15, y_pos, 305, 10, "Add notes or other details in making the expedited determination:"
 			EditBox 15, y_pos+10, 450, 15, exp_det_notes
