@@ -651,6 +651,7 @@ If InStr(first_name, " ") Then
 End If
 indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
 indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
+indv_worklist_open_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\~$" & indv_worklist_file_name
 indv_worklist_template_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Worker Assignment Template.xlsx"
 
 admin_run = False
@@ -723,26 +724,25 @@ Do
 	If confrim_action_msg = vbCancel Then cancel_without_confirmation
 Loop until confirmed_msg = True
 
-worker_list_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\worker_list.txt"
+worker_list_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\"
 If operation_selection = "Create Assignment for Another Worker" or operation_selection = "Complete Assignment for Another Worker" Then
 	worker_selection_droplist = "Select One..."
-	With (CreateObject("Scripting.FileSystemObject"))
-		If .FileExists(worker_list_path) = True then
-			Set objTextStream = .OpenTextFile(worker_list_path, ForReading)
-			every_line_in_text_file = objTextStream.ReadAll
+	' If operation_selection = "Complete Assignment for Another Worker" Then worker_selection_droplist = worker_selection_droplist+chr(9)+"ALL"			'TODO - add this functionality
 
-			'Splitting the text file contents into an array which will be sorted
-			worker_info = split(every_line_in_text_file, vbNewLine)
-			For Each text_line in worker_info
-				' MsgBox "text_line - " & text_line
-				If trim(text_line) <> "" Then worker_selection_droplist = worker_selection_droplist+chr(9)+trim(text_line)
-			Next
+	Set objFolder = objFSO.GetFolder(worker_list_folder)										'Creates an oject of the whole my documents folder
+	Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+	For Each objFile in colFiles																'looping through each file
+		this_file_name = objFile.Name															'Grabing the file name
+		this_file_type = objFile.Type															'Grabing the file type
+		If this_file_type = "Microsoft Excel Worksheet" Then
+			If left(this_file_name, 2) <> "~$" Then worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
 		End If
-	End With
+	Next
 
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 211, 75, "ADMIN Worker Selection"
-		Text 15, 10, 170, 10, "Which worker do you need to create a worklist for?"
+		If operation_selection = "Create Assignment for Another Worker" Then Text 15, 10, 170, 10, "Which worker do you need to create a worklist for?"
+		If operation_selection = "Complete Assignment for Another Worker" Then Text 15, 10, 170, 10, "Which worklist do you want to complete?"
 		Text 20, 35, 30, 10, "Worker:"
 		DropListBox 50, 30, 150, 45, worker_selection_droplist, worker_selected
 		ButtonGroup ButtonPressed
@@ -753,41 +753,17 @@ If operation_selection = "Create Assignment for Another Worker" or operation_sel
 		dialog Dialog1
 		cancel_confirmation
 
-		woker_name_array = split(worker_selected)
-		first_name =  trim(woker_name_array(0))
-		last_name = trim(woker_name_array(1))
-		indv_worklist_file_name = first_name & " " & left(last_name, 1) & " Assignment.xlsx"
-		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name
+		confirm_worker = MsgBox("You have selected: " & worker_selected & vbCr & vbCr & "Is this correct?", vbQuestion + vbYesNo, "Confirm selected worker")
+	Loop until confirm_worker = vbYes and worker_selected <> "Select One..."
 
-		confirm_worker = MsgBox("You have selected: " & first_name & " " & last_name & vbCr & vbCr & "Is this correct?", vbQuestion + vbYesNo, "Confirm selected worker")
-	Loop until confirm_worker = vbYes
+	If worker_selected <> "ALL" Then
+		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name & " Assignment.xlsx"
+		If operation_selection = "Create Assignment for Another Worker" Then operation_selection = "Individual Worker Assignment Creation"
+		If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
+	End If
 
-	If operation_selection = "Create Assignment for Another Worker" Then operation_selection = "Individual Worker Assignment Creation"
-	If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
 End If
 
-' On Error Resume Next
-' Set objXl = GetObject(, "Excel.Application")		'try to find an excel file
-
-' ' MsgBox "Err.Number - " & Err.Number & vbCr & "TypeName(objXL) - " & TypeName(objXL)
-' If Err.Number = 0 Then 								'the script knows an error has been thrown and will stop the script
-' 	If Not TypeName(objXL) = "Empty" then				'If the type is not empty - then an excel exists
-' 		file_name = objXL.ActiveWorkbook.Name
-' 		' MsgBox "PRE - file_name - " & file_name
-' 		For Each objWorkbook In objXL.Workbooks
-' 			objWorkbook.Activate
-' 			file_name = objXL.ActiveWorkbook.Name
-' 			' file_name = objWorkbook.Name
-' 			' MsgBox file_name
-' 			If file_name = indv_worklist_file_name Then script_end_procedure("It appears you have your worklist currently open. Please save and close the worklist before running the script again.")
-' 			' If file_name = "Current Pending Health Care Cases.xlsx" Then
-' 			' 	objXL.Visible = True
-' 			' 	objXL.WindowState = -4137
-' 			' End If
-' 		Next
-' 	End If
-' End If
-' On Error Goto 0
 
 run_assignment_selection = False
 run_list_management = False
@@ -1897,9 +1873,12 @@ If run_assignment_selection = True Then
 		If run_in_dev = vbYes Then developer_mode = True
 	End If
 
-
-	'TODO  - LOOK FOR AN OPEN EXCEL OF THE WORKER'S NAME
-	'TODO - maybe have BT create a sharepoint file
+	'LOOK FOR AN OPEN EXCEL OF THE WORKER'S NAME
+	stop_early_msg = "It appears you have your worklist file open." & vbCr &_
+					 "This file should be closed before running this script." & vbCr & vbCr &_
+					 "SAVE AND CLOSE YOUR WORKLIST." & vbCr & vbCr &_
+					 "The script will now end, close your list and run the script again."
+	If objFSO.FileExists(indv_worklist_open_file_path) Then call script_end_procedure(stop_early_msg)
 
 	'WORKER LISTS column definitions
 	const wrkr_assign_hsr_col 	= 01 		'HSR Assignment
@@ -2301,6 +2280,14 @@ If run_assignment_selection = True Then
 
 		o2Exec.Terminate()
 		If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
+
+		With (CreateObject("Scripting.FileSystemObject"))
+			If .FileExists(indv_worklist_file_path) = True then
+				.DeleteFile(indv_worklist_file_path)
+			End If
+		End With
+		If operation_selection = "Complete Individual Worklist" Then end_msg = end_msg & vbCr & "Worklist details logged and worklist deleted." & vbCr & vbCr & "No new worklist created, run the script again to create a worklist when you are ready for more pending work."
+
 	End If
 
 	If operation_selection = "Individual Worker Assignment Creation" Then
@@ -2356,19 +2343,7 @@ If run_assignment_selection = True Then
 			End If
 		End With
 		Set o2Exec = WshShell.Exec("notepad " & please_wait_msg_file)
-	End If
 
-	If operation_selection = "Complete Individual Worklist" Then
-
-		With (CreateObject("Scripting.FileSystemObject"))
-			If .FileExists(indv_worklist_file_path) = True then
-				.DeleteFile(indv_worklist_file_path)
-			End If
-		End With
-
-		end_msg = end_msg & vbCr & "Worklist details logged and worklist deleted." & vbCr & vbCr & "No new worklist created, run the script again to create a worklist when you are ready for more pending work."
-
-	Else
 		'Open a template and save as the worker's worklist
 		Call excel_open(indv_worklist_template_file_path, visible_stat, False, ObjWrkrExcel, objWrkrWorkbook)
 
@@ -2476,15 +2451,16 @@ If operation_selection = "Review Completed Assignments" Then
 	Const Completed_Verifs_Date_COL 	= 08
 	Const Completed_Day_60_COL 			= 09
 	Const Assignment_Completed_Date_COL = 10
-	Const Case_Status_after_Assign_COL 	= 11
-	Const SMRT_Start_Date_COL 			= 12
-	Const SMRT_End_Date_COL 			= 13
-	Const Potentially_LTC_COL 			= 14
-	Const Not_LTC_Screened_Date_COL 	= 15
-	Const Specialty_Program_Notes_COL 	= 16
-	Const Date_to_Deny_COL 				= 17
-	Const Completed_Notes_COL 			= 18
-	Const file_name_col					= 19
+	Const Assignment_Incomplete_COL		= 11
+	Const Case_Status_after_Assign_COL 	= 12
+	Const SMRT_Start_Date_COL 			= 13
+	Const SMRT_End_Date_COL 			= 14
+	Const Potentially_LTC_COL 			= 15
+	Const Not_LTC_Screened_Date_COL 	= 16
+	Const Specialty_Program_Notes_COL 	= 17
+	Const Date_to_Deny_COL 				= 18
+	Const Completed_Notes_COL 			= 19
+	Const file_name_col					= 20
 
 	assignments_completed_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews"
 	assignments_recorded_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\Recorded"
@@ -2533,6 +2509,7 @@ If operation_selection = "Review Completed Assignments" Then
 				With (CreateObject("Scripting.FileSystemObject"))
 					'Creating an object for the stream of text which we'll use frequently
 					If .FileExists(xmlPath) = True then
+						save_for_notes = ""
 						xmlDoc.Async = False
 
 						' Load the XML file
@@ -2566,8 +2543,14 @@ If operation_selection = "Review Completed Assignments" Then
 						ObjExcel.Cells(excel_row, Completed_Day_60_COL).Value  			= node.text
 
 						set node = xmlDoc.SelectSingleNode("//AssignmentCompleted")
-						ObjExcel.Cells(excel_row, Assignment_Completed_Date_COL).Value  = node.text
 
+						If IsDate(node.text) Then
+							ObjExcel.Cells(excel_row, Assignment_Completed_Date_COL).Value  = node.text
+						Else
+							ObjExcel.Cells(excel_row, Assignment_Incomplete_COL).Value  = "True"
+							save_for_notes = node.text
+							save_for_notes = replace(save_for_notes, "INCOMPELTE???", "")
+						End If
 						set node = xmlDoc.SelectSingleNode("//CaseStatus")
 						ObjExcel.Cells(excel_row, Case_Status_after_Assign_COL).Value  	= node.text
 
@@ -2590,7 +2573,7 @@ If operation_selection = "Review Completed Assignments" Then
 						ObjExcel.Cells(excel_row, Date_to_Deny_COL).Value  				= node.text
 
 						set node = xmlDoc.SelectSingleNode("//Notes")
-						ObjExcel.Cells(excel_row, Completed_Notes_COL).Value  			= node.text
+						ObjExcel.Cells(excel_row, Completed_Notes_COL).Value  			= node.text & " " & save_for_notes
 
 						ObjExcel.Cells(excel_row, file_name_col).Value  				= quack
 						excel_row = excel_row + 1
@@ -2599,6 +2582,8 @@ If operation_selection = "Review Completed Assignments" Then
 			End If
 		End If
 	Next
+	objWorkbook.Save()
+
 End If
 
 'Logging usage stats
