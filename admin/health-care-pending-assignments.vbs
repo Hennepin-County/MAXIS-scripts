@@ -99,6 +99,7 @@ Const Assigned_to_ADMIN_reason_col 	= 40
 
 'File Paths
 controller_hc_pending_excel = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Current Pending Health Care Cases.xlsx"
+controller_open_hc_pending_excel = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\~$Current Pending Health Care Cases.xlsx"
 snapshot_hc_pending_excel = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\HC Pending Snapshot Data.xlsx"
 pending_hc_update_cookie = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\PendingHCUpdate.txt"
 
@@ -495,6 +496,7 @@ function review_hc_pending_counts()
 		ButtonGroup ButtonPressed
 			OkButton 625, 240, 50, 15
 			'CancelButton 450, 240, 50, 15
+		Text 15, 245, 350, 10, "* These counts are not exclusive and cases may be in more than one total. *"
 		Text 15, 15, 50, 10, "Total Cases:"
 		Text 75, 15, 35, 10, total_cases_count
 		Text 20, 25, 40, 10, "  Standard: "
@@ -507,7 +509,7 @@ function review_hc_pending_counts()
 		Text 230, 35, 35, 10, mets_trans_cases_count
 		Text 200, 45, 20, 10, " LTC:"
 		Text 230, 45, 35, 10, ltc_cases_count
-		GroupBox 15, 60, 660, 175, "Standard Cases: " & reg_cases_count
+		GroupBox 15, 60, 410, 175, "Standard Cases: " & reg_cases_count
 		Text 25, 75, 60, 10, "Pending Days"
 		Text 230, 15, 35, 10, days_1_10_cases_count
 		Text 55, 90, 75, 10, "1 - 10 Days"
@@ -547,24 +549,30 @@ function review_hc_pending_counts()
 		Text 185, 140, 135, 10, "Priority 5 - Case at Day 55"
 		Text 160, 150, 25, 10, priority_6_cases_count
 		Text 185, 150, 135, 10, "Priority 6 - Case at Day 60"
-		Text 330, 90, 25, 10, curr_assign_cases_count
-		Text 355, 90, 100, 10, "Currently Assigned"
-		y_pos = 100
+		Text 325, 70, 25, 10, curr_assign_cases_count
+		Text 350, 70, 70, 10, "Currently Assigned"
+		y_pos = 80
 		For known_wrkr = 0 to UBound(ASSIGNED_ARRAY, 2)
-			Text 335, y_pos, 25, 10, ASSIGNED_ARRAY(hsr_count_const, known_wrkr)
-			Text 360, y_pos, 135, 10, " - " & ASSIGNED_ARRAY(hsr_name_const, known_wrkr)
+			Text 330, y_pos, 25, 10, ASSIGNED_ARRAY(hsr_count_const, known_wrkr)
+			Text 355, y_pos, 50, 10, " - " & ASSIGNED_ARRAY(hsr_name_const, known_wrkr)
 			y_pos = y_pos + 10
 		Next
 
-		Text 505, 90, 25, 10, finished_work_cases_count
-		Text 530, 90, 100, 10, "Cases Worked"
-		y_pos = 100
+		GroupBox 430, 15, 240, 220, "Cases Worked   - "
+		Text 500, 15, 25, 10, finished_work_cases_count
+		Text 525, 15, 175, 10, "*** only still Pending Cases listed here ***"
+		y_pos = 30
+		x_pos = 440
 		For order = 0 to order_end
 			For known_date = 0 to UBound(FINISHED_WORK, 2)
 				If FINISHED_WORK(hsr_order_const, known_date) = order Then
-					Text 510, y_pos, 25, 10, FINISHED_WORK(hsr_count_const, known_date)
-					Text 535, y_pos, 135, 10, " - " & FINISHED_WORK(hsr_name_const, known_date)
+					Text x_pos, y_pos, 15, 10, FINISHED_WORK(hsr_count_const, known_date)
+					Text x_pos+15, y_pos, 45, 10, " - " & FINISHED_WORK(hsr_name_const, known_date)
 					y_pos = y_pos + 10
+					If y_pos = 230 Then
+						x_pos = x_pos + 75
+						y_pos = 30
+					End If
 					' Exit For
 				End If
 			Next
@@ -662,7 +670,7 @@ If windows_user_ID = "BETE001" Then admin_run = true
 If windows_user_ID = "YEYA001" Then admin_run = true
 If windows_user_ID = "JAAR001" Then admin_run = true
 script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"
-If admin_run = true Then script_run_options = "Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Completed Assignments"+chr(9)+"Review Counts"
+If admin_run = true Then script_run_options = "DATA LOCK - Clear"+chr(9)+"Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Completed Assignments"+chr(9)+"Review Counts"
 If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
 
 Dialog1 = ""
@@ -723,6 +731,85 @@ Do
 	If confrim_action_msg = vbYes Then confirmed_msg = True
 	If confrim_action_msg = vbCancel Then cancel_without_confirmation
 Loop until confirmed_msg = True
+
+If operation_selection = "DATA LOCK - Clear" Then
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(lock_main_list) = False and .FileExists(hold_main_list) = False then script_end_procedure("No DATA LOCK currently in place! Script ended with no further action")
+
+		If .FileExists(lock_main_list) = True Then
+			set main_lock_file = objFSO.GetFile(lock_main_list)
+			lock_start = main_lock_file.DateCreated
+			If DateDiff("n", lock_start, now) < 60 Then
+				end_msg = "*  *  *  MAIN LOCK still IN EFFECT *  *  *"
+				end_msg = end_msg & vbCr & vbCr & "Lock was started: " & lock_start
+				end_msg = end_msg & vbCr & "This was only " & DateDiff("n", lock_start, now) & " minutes ago."
+				end_msg = end_msg & vbCr & vbCr & "Lock is still considered 'timely' and should not yet be cleared."
+				end_msg = end_msg & vbCr & "(Timely is under 60 minutes.)"
+				script_end_procedure(end_msg)
+			End If
+			If .FileExists(controller_open_hc_pending_excel) = False Then
+				.DeleteFile(lock_main_list)
+				end_msg = "*  *  *  MAIN LOCK Released *  *  *"
+				end_msg = end_msg & vbCr & vbCr & "Primary list was not open."
+				end_msg = end_msg & vbCr & "Lock was able to be released with no issue."
+				script_end_procedure(end_msg)
+			End If
+		End If
+
+		If .FileExists(hold_main_list) = True Then
+			set hold_lock_file = objFSO.GetFile(hold_main_list)
+			' hold_lock_file.GetFile(hold_main_list)
+			lock_start = hold_lock_file.DateCreated
+
+			If DateDiff("n", lock_start, now) < 10 Then
+				end_msg = "*  *  *  UPDATE LOCK still IN EFFECT *  *  *"
+				end_msg = end_msg & vbCr & vbCr & "Lock was started: " & lock_start
+				end_msg = end_msg & vbCr & "This was only " & DateDiff("n", lock_start, now) & " minutes and " & DateDiff("s", lock_start, now) & " seconds ago."
+				end_msg = end_msg & vbCr & vbCr & "Lock is still considered 'timely' and should not yet be cleared."
+				end_msg = end_msg & vbCr & "(Timely is under 10 minutes.)"
+				script_end_procedure(end_msg)
+			End If
+			If .FileExists(controller_open_hc_pending_excel) = True Then MsgBox "PRIMARY FILE OPEN"
+			If .FileExists(controller_open_hc_pending_excel) = False Then
+				.DeleteFile(hold_main_list)
+				end_msg = "*  *  *  UPDATE LOCK Released *  *  *"
+				end_msg = end_msg & vbCr & vbCr & "Primary list was not open."
+				end_msg = end_msg & vbCr & "Lock was able to be released with no issue."
+				script_end_procedure(end_msg)
+			End If
+
+			'If the lock exists and there is a file indicating that the Primary HC Pending Assignment is open, we need to find who is holding it.
+			Set objTextStream = .OpenTextFile(hold_main_list, ForReading)
+
+			'Reading the entire text file into a string
+			every_line_in_text_file = objTextStream.ReadAll
+
+			'Splitting the text file contents into an array which will be sorted
+			hold_details = split(every_line_in_text_file, vbNewLine)
+			hold_author = ""
+			For Each text_line in hold_details
+				If left(text_line, 11) = "Locked by: " Then hold_author = right(text_line, len(text_line)-11)
+			Next
+
+			orig_windows_user_ID = windows_user_ID
+			windows_user_ID = UCase(hold_author)
+			call find_user_name(hold_worker)
+			windows_user_ID = orig_windows_user_ID
+
+			end_msg = "*  *  *  Primary HC Pending List is LOCKED *  *  *"
+			end_msg = end_msg & vbCr & vbCr & "The data lock cannot be released as the primary list is open in the background of a worker."
+			end_msg = end_msg & vbCr & "List locked by: " & hold_worker
+			end_msg = end_msg & vbCr & vbCr & "CONTACT " & hold_worker & " to run the script:"
+			end_msg = end_msg & vbCr & "UTILITIES - Find Hidden Excel"
+			end_msg = end_msg & vbCr & vbCr & "The worker should close all excel files first."
+			end_msg = end_msg & vbCr & "Once the 'Find Hidden Excel' script is run, the Primary list will appear."
+			end_msg = end_msg & vbCr & vbCr & hold_worker & " should close the file without saving."
+			end_msg = end_msg & vbCr & "Once closed, the 'DATA LOCK Clear' can be run again to clear the data lock."
+			call script_end_procedure(end_msg)
+		End If
+	End With
+	script_end_procedure("Data lock specifics are not yet handled in the script. Contact the BZST for questions.")
+End If
 
 worker_list_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\"
 If operation_selection = "Create Assignment for Another Worker" or operation_selection = "Complete Assignment for Another Worker" Then
