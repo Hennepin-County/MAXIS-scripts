@@ -757,7 +757,9 @@ If operation_selection = "Create Assignment for Another Worker" or operation_sel
 	Loop until confirm_worker = vbYes and worker_selected <> "Select One..."
 
 	If worker_selected <> "ALL" Then
-		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & indv_worklist_file_name & " Assignment.xlsx"
+		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & worker_selected & " Assignment.xlsx"
+		indv_worklist_open_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\~$" & worker_selected & " Assignment.xlsx"
+
 		If operation_selection = "Create Assignment for Another Worker" Then operation_selection = "Individual Worker Assignment Creation"
 		If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
 	End If
@@ -2433,7 +2435,7 @@ If run_assignment_selection = True Then
 		If COMP_ASSIGN_ARRAY(wrkr_case_numb_col, 0) <> "" Then end_msg = end_msg & UBound(COMP_ASSIGN_ARRAY, 2)+1 & " cases from previous worklist have been recorded." & vbCr
 		end_msg = end_msg & requested_case_count & " cases added to a new worklist."
 	End If
-	o2Exec.Terminate()
+	If operation_selection = "Individual Worker Assignment Creation" Then o2Exec.Terminate()
 	If objFSO.FileExists(please_wait_msg_file) = True then objFSO.DeleteFile(please_wait_msg_file)
 
 End If
