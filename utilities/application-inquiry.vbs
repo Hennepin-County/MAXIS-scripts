@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/03/2025", "Email will be sent to Case Assignment rather than QI.", "Mark Riegel, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("03/31/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -141,7 +142,7 @@ DO
             GroupBox 5, 105, 320, 50, "Application Detail"
             Text 10, 140, 55, 10, "Applicant Name: "
             Text 155, 120, 75, 10, "Confirmation Number:"
-            Text 10, 10, 315, 20, "If a resident is reporting they have submitted an online application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to locate."
+            Text 10, 10, 315, 20, "If a resident is reporting they have submitted an online application, and there is no corresponding application in ECF, this script can assist in sending the request to Case Assignment to locate."
         EndDialog
 
         Dialog Dialog1
@@ -204,17 +205,17 @@ email_body = email_body & "Name of Applicant: " & name_of_applicant & vbCr
 email_body = email_body & "Date of Application: " & date_of_app & vbCr
 email_body = email_body & "Confirmation Number: " & confirmation_number & vbCr
 
-'using case pending or not to give information to QI
+'using case pending or not to give information to HSPH.ES.CA
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 If case_pending = TRUE Then email_body = email_body & vbCr & "~~The case has been APPL'd. ~~" & vbCr
 If case_pending = FALSE Then email_body = email_body & vbCr & "~~This case is not pending and has not been APPL'd.~~" & vbCr
 
 email_body = email_body & vbCr & "Thank you, " & vbCr & worker_name
-Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)		'Send the Email
+Call create_outlook_email("", "HSPH.ES.CA.MNB@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)		'Send the Email
 
 'Add a message with the email information for display
 end_msg = "Success!" & vbNewLine & vbNewLine
-end_msg = end_msg & "Your email has been sent to QI. Email sent:" & vbCr
+end_msg = end_msg & "Your email has been sent to Case Assignment. Email sent:" & vbCr
 end_msg = end_msg & "--------------------------------------------------" & vbCr & vbCr
 end_msg = end_msg & email_body
 
@@ -251,7 +252,7 @@ call script_end_procedure_with_error_report(end_msg)
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete-----------------------------------------
 '--comment Code-----------------------------------------------------------------03/31/2022
-'--Update Changelog for release/update------------------------------------------03/31/2022
+'--Update Changelog for release/update------------------------------------------06/03/2025
 '--Remove testing message boxes-------------------------------------------------03/31/2022
 '--Remove testing code/unnecessary code-----------------------------------------03/31/2022
 '--Review/update SharePoint instructions----------------------------------------04/01/2022
