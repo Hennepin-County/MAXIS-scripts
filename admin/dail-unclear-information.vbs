@@ -2248,7 +2248,7 @@ If CSES_messages = 1 Then
 
                                                                                 'Ensuring that both panel_count and unea_panels_count are both numbers
                                                                                 panel_count = panel_count * 1
-                                                                                If unea_panels_count = "" Then msgbox "2249 Delete after testing -- unea_panels_count is blank, it will probably error" 
+                                                                                ' If unea_panels_count = "" Then msgbox "2249 Delete after testing -- unea_panels_count is blank, it will probably error" 
                                                                                 unea_panels_count = unea_panels_count * 1
 
                                                                                 'If the loop has reached the final panel without encountering a Type 36 message, then it updates the processing notes accordingly
