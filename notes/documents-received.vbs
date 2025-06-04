@@ -1970,38 +1970,41 @@ end function
 Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_tikl_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()
- EditBox 395, 0, 45, 15, sf_date_received
-  ComboBox 85, 45, 220, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
-  EditBox 85, 65, 220, 15, sf_tenant_name
-  EditBox 85, 85, 45, 15, sf_total_rent
-  EditBox 85, 105, 45, 15, sf_subsidy
-  EditBox 85, 125, 25, 15, sf_adults
-  EditBox 85, 145, 20, 15, sf_children
-  EditBox 260, 85, 45, 15, sf_lot_rent
-  EditBox 260, 105, 45, 15, sf_mortgage
-  EditBox 260, 125, 45, 15, sf_insurance
-  EditBox 260, 145, 45, 15, sf_taxes
-  EditBox 85, 170, 220, 15, sf_comments
-  ButtonGroup ButtonPressed
-    PushButton 30, 205, 60, 15, "Update ADDR", sf_update_addr_btn
-    PushButton 95, 205, 60, 15, "Update SHEL", sf_update_shel_btn
-    PushButton 160, 205, 60, 15, "Update HEST", sf_update_hest_btn
-  CheckBox 30, 230, 130, 10, "Check here to set a TIKL", sf_tikl_nav_check
-  Text 5, 5, 220, 10, sf_form_name
-  Text 340, 5, 55, 10, "Document Date:"
-  GroupBox 10, 35, 320, 160, "Form Information"
+  Text 5, 5, 220, 10, "sf_form_name"
+  GroupBox 10, 35, 320, 170, "Form Information"
   Text 30, 50, 40, 10, "Form Name"
+  ComboBox 85, 45, 220, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
   Text 30, 70, 45, 10, "Tenant Name"
+  EditBox 85, 65, 220, 15, sf_tenant_name
   Text 30, 90, 40, 10, "Total Rent"
-  Text 30, 110, 45, 10, "Subsidy Amt"
-  Text 30, 130, 45, 10, "Adults in Unit"
-  Text 30, 150, 55, 10, "Children in Unit"
+  EditBox 85, 85, 45, 15, sf_total_rent
   Text 225, 90, 30, 10, "Lot Rent"
+  EditBox 260, 85, 45, 15, sf_lot_rent
+  Text 30, 110, 45, 10, "Subsidy Amt"
+  EditBox 85, 105, 45, 15, sf_subsidy
   Text 225, 110, 30, 10, "Mortgage"
-  Text 225, 130, 35, 10, "Insurance"
-  Text 225, 150, 35, 10, "Taxes"
-  Text 30, 175, 35, 10, "Comments"
-  GroupBox 10, 190, 320, 55, "Actions"
+  EditBox 260, 105, 45, 15, sf_mortgage
+  Text 30, 130, 35, 10, "Insurance"
+  EditBox 85, 125, 45, 15, sf_insurance
+  Text 225, 130, 25, 10, "Taxes"
+  EditBox 260, 125, 45, 15, sf_taxes
+  Text 30, 150, 45, 10, "Garage Amt"
+  EditBox 85, 145, 45, 15, sf_garage_amt
+  CheckBox 135, 150, 120, 10, "Check here if garage is required", garage_required_checkbox
+  Text 30, 170, 45, 10, "Adults in Unit"
+  EditBox 85, 165, 25, 15, sf_adults
+  Text 205, 170, 55, 10, "Children in Unit"
+  EditBox 260, 165, 20, 15, sf_children
+  Text 30, 190, 35, 10, "Comments"
+  EditBox 85, 185, 220, 15, sf_comments
+  GroupBox 10, 210, 320, 55, "Actions"
+  ButtonGroup ButtonPressed
+    PushButton 30, 225, 60, 15, "Update ADDR", sf_update_addr_btn
+    PushButton 95, 225, 60, 15, "Update SHEL", sf_update_shel_btn
+    PushButton 160, 225, 60, 15, "Update HEST", sf_update_hest_btn
+  CheckBox 30, 250, 130, 10, "Check here to set a TIKL", sf_tikl_nav_check
+  Text 340, 5, 55, 10, "Document Date:"
+  EditBox 395, 0, 45, 15, sf_date_received
 end function
 Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check, sf_lot_rent, sf_mortgage, sf_insurance, sf_taxes
 
@@ -5226,6 +5229,9 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Mortgage", sf_mortgage)
 		CALL write_bullet_and_variable_in_case_note("Insurance", sf_insurance)
 		CALL write_bullet_and_variable_in_case_note("Taxes", sf_taxes)
+		CALL write_bullet_and_variable_in_case_note("Garage Amt", sf_garage_amt)
+		If garage_required_checkbox = 1 Then Call write_variable_in_case_note("Garage is required")
+		If garage_required_checkbox = 0 Then Call write_variable_in_case_note("Garage is not required")
 		If sf_adults <> "" or sf_children <> "" Then CALL write_variable_in_case_note("* Person(s) in Unit")
 		CALL write_bullet_and_variable_in_case_note("  Adults", sf_adults)
 		CALL write_bullet_and_variable_in_CASE_NOTE ("  Children", sf_children)
