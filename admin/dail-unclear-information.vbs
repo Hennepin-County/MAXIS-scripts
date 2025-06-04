@@ -5172,7 +5172,7 @@ If HIRE_messages = 1 Then
 
                                 PF3' this takes us back to DAIL/DAIL
 
-                                Call nav_back_to_dail_check(True)
+                                Call nav_back_to_dail_check(False)
 
                                 EMReadScreen infc_clear_error, 40, 24, 2
                                 infc_clear_error = trim(infc_clear_error)
@@ -5284,7 +5284,7 @@ If HIRE_messages = 1 Then
 
                                 PF3' this takes us back to DAIL/DAIL
 
-                                Call nav_back_to_dail_check(True)
+                                Call nav_back_to_dail_check(False)
 
                                 EMReadScreen infc_clear_error, 40, 24, 2
                                 infc_clear_error = trim(infc_clear_error)
@@ -6092,7 +6092,7 @@ If HIRE_messages = 1 Then
                                                         End If
                                                     End If
                                                     
-                                                    Call nav_back_to_dail_check(True)
+                                                    Call nav_back_to_dail_check(False)
 
                                                     'Navigate back to DAIL message - case name and number
                                                     EMWriteScreen hire_message_member_name, 21, 25
@@ -6572,7 +6572,7 @@ If HIRE_messages = 1 Then
                                                         
                                                     End If
 
-                                                    Call nav_back_to_dail_check(True)
+                                                    Call nav_back_to_dail_check(False)
                                                     
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then 
                                                         ' EMWaitReady 1, 1000
