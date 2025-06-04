@@ -3561,7 +3561,7 @@ If CSES_messages = 1 Then
                                                         'Successfully made it to STAT, can PF3 back to DAIL now
                                                         PF3
                                                     Else
-                                                        msgbox "Delete after testing -- didn't make it back to STAT/SUMM. Check functionality"
+                                                        ' msgbox "Delete after testing -- didn't make it back to STAT/SUMM. Check functionality"
                                                         If returned_to_SELF_check = "SELF" Then
                                                             'Script got bumped back to SELF, need to try to get back to DAIL while still acounting for background lock. Also need to reset the DAIL selection
                                                             Do
@@ -3574,18 +3574,18 @@ If CSES_messages = 1 Then
                                                                 End if
                                                             Loop until SELF_check <> "SELF"
 
-                                                            msgbox "3575 Delete after testing -- Escaped SELF loop, should be at DAIL/DAIL"
+                                                            ' msgbox "3575 Delete after testing -- Escaped SELF loop, should be at DAIL/DAIL"
 
                                                             'Check to  make sure that we made it back to DAIL, it should maintain the case number
                                                             EMReadScreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
-                                                                msgbox "3580 Delete after testing - should be back at DAIL/DAIL. Show back_to_dail_check >" & back_to_dail_check
+                                                                ' msgbox "3580 Delete after testing - should be back at DAIL/DAIL. Show back_to_dail_check >" & back_to_dail_check
 
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
                                                                 Call write_value_and_transmit("H", 6, 3)
                                                                 PF3
 
-                                                                msgbox "3586 Delete after testing -- Did it PF3 back to just DAIL?"
+                                                                ' msgbox "3586 Delete after testing -- Did it PF3 back to just DAIL?"
 
                                                                 'Reset DAIL to only CSES messages
                                                                 Call write_value_and_transmit("X", 4, 12)
@@ -3596,7 +3596,7 @@ If CSES_messages = 1 Then
                                                                 EMWriteScreen case_name_to_return, 21, 25
                                                                 transmit
 
-                                                                msgbox "Delete after testing -- Made it back to DAIL. Should have reset the DAIL to CSES messages and got close to correct DAIL message"
+                                                                ' msgbox "Delete after testing -- Made it back to DAIL. Should have reset the DAIL to CSES messages and got close to correct DAIL message"
                                                             Else
 
                                                                 'Initial dialog - select whether to create a list or process a list
@@ -3625,7 +3625,7 @@ If CSES_messages = 1 Then
                                                     objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                 Else
-                                                    msgbox "Testing -- A CSES message has appeared that does not meet either types - it will be SKIPPED. DAIL message is: " & dail_msg
+                                                    ' msgbox "Testing -- A CSES message has appeared that does not meet either types - it will be SKIPPED. DAIL message is: " & dail_msg
                                                     
                                                     'No action on these, simply note in spreadsheet that QI team to review
                                                     
@@ -3636,7 +3636,7 @@ If CSES_messages = 1 Then
                                                     objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                     
-                                                    msgbox "Testing -- Ensure spreadsheet updated correctly with the CSES Type that cannot be processed"
+                                                    ' msgbox "Testing -- Ensure spreadsheet updated correctly with the CSES Type that cannot be processed"
 
                                                 End If
                                             Else
@@ -5478,9 +5478,6 @@ If HIRE_messages = 1 Then
                                             'Activate the DAIL Messages sheet
                                             objExcel.Worksheets("DAIL Messages").Activate
 
-                                            'To do - Delete after testing 
-                                            If MAXIS_case_number = "940366" Then msgbox "Delete after testing - Line 5465."
-
                                             'Update the Excel sheet
                                             objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                         
@@ -5592,10 +5589,10 @@ If HIRE_messages = 1 Then
 
                                                     If DateAdd("m", 0, HIRE_case_details_array(HIRE_GA_GASM_review_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, ER_report_minus_6_months) = DateAdd("m", 1, footer_month_day_year) Then
                                                         If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
-                                                        Msgbox "5579 Delete after testing -- The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
+                                                        ' Msgbox "5579 Delete after testing -- The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                         If dail_type = "HIRE" Then
-                                                            msgbox "5583 Delete after testing -- Unable to process the message since recert is next month and DAIL month is current month"
+                                                            ' msgbox "5583 Delete after testing -- Unable to process the message since recert is next month and DAIL month is current month"
                                                             
                                                             If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
 
