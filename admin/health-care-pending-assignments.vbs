@@ -666,9 +666,12 @@ admin_run = False
 If windows_user_ID = "CALO001" Then admin_run = true
 If windows_user_ID = "DACO003" Then admin_run = true
 If windows_user_ID = "MARI001" Then admin_run = true
-If windows_user_ID = "BETE001" Then admin_run = true
-If windows_user_ID = "YEYA001" Then admin_run = true
-If windows_user_ID = "JAAR001" Then admin_run = true
+If windows_user_ID = "BETE001" Then admin_run = true	'Ben Teskey
+If windows_user_ID = "WFC041"  Then admin_run = true	'Kerry Walsh
+If windows_user_ID = "YEYA001" Then admin_run = true	'Yeng Yang
+If windows_user_ID = "WFH136"  Then admin_run = true	'Rebecca Zelaya
+If windows_user_ID = "JAAR001" Then admin_run = true	'Jacob Arco
+
 script_run_options = "Individual Worker Assignment Creation"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"
 If admin_run = true Then script_run_options = "DATA LOCK - Clear"+chr(9)+"Create Assignment for Another Worker"+chr(9)+"Complete Assignment for Another Worker"+chr(9)+"Individual Worker Assignment Creation"+chr(9)+"List Management"+chr(9)+"Open My Worklist"+chr(9)+"Complete Individual Worklist"+chr(9)+"Review Completed Assignments"+chr(9)+"Review Counts"
 If windows_user_ID = "CALO001" Then script_run_options = script_run_options+chr(9)+"Open and Hold List"
@@ -724,6 +727,7 @@ Do
 	If operation_selection = "Review Completed Assignments" Then msg_detail = msg_detail & vbCr & "Gather details of completed assignments." & vbCr
 	If operation_selection = "Review Counts" Then msg_detail = msg_detail & vbCr & "Show the case and work progress." & vbCr
 	If operation_selection = "Open and Hold List" Then msg_detail = msg_detail & vbCr & "Just opens the MAIN Background List and puts in a data lock." & vbCr
+	If operation_selection = "DATA LOCK - Clear" Then msg_detail = msg_detail & vbCr & "Review and clear a data lock if possible." & vbCr
 	' If operation_selection = "" Then msg_detail = msg_detail & vbCr & ""
 	msg_detail = msg_detail & vbCr & "Is this what you want to do?" & vbCr & "- YES to continue the script." & vbCr & "- NO to go back and make a new selection." & vbCr & "- CANCEL to stop the script"
 
@@ -732,14 +736,16 @@ Do
 	If confrim_action_msg = vbCancel Then cancel_without_confirmation
 Loop until confirmed_msg = True
 
-If operation_selection = "DATA LOCK - Clear" Then
+If operation_selection = "DATA LOCK - Clear" Then			'This will unlock the data in the even it gets 'stuck'
 	With (CreateObject("Scripting.FileSystemObject"))
+		'If there is no file for the main data lock or hold data lock currently in place there is nothing to clear and the script will end
 		If .FileExists(lock_main_list) = False and .FileExists(hold_main_list) = False then script_end_procedure("No DATA LOCK currently in place! Script ended with no further action")
 
+		'If the data lock is for the primary update process, there are some different standards that exist.
 		If .FileExists(lock_main_list) = True Then
-			set main_lock_file = objFSO.GetFile(lock_main_list)
-			lock_start = main_lock_file.DateCreated
-			If DateDiff("n", lock_start, now) < 60 Then
+			set main_lock_file = objFSO.GetFile(lock_main_list)			'create file object
+			lock_start = main_lock_file.DateCreated						'identify the file create date - which includes date and time
+			If DateDiff("n", lock_start, now) < 60 Then					'Anything under 1 hour is likely still in use and the lock should not be cleared
 				end_msg = "*  *  *  MAIN LOCK still IN EFFECT *  *  *"
 				end_msg = end_msg & vbCr & vbCr & "Lock was started: " & lock_start
 				end_msg = end_msg & vbCr & "This was only " & DateDiff("n", lock_start, now) & " minutes ago."
@@ -747,7 +753,8 @@ If operation_selection = "DATA LOCK - Clear" Then
 				end_msg = end_msg & vbCr & "(Timely is under 60 minutes.)"
 				script_end_procedure(end_msg)
 			End If
-			If .FileExists(controller_open_hc_pending_excel) = False Then
+			'the -controller_open_hc_pending_excel- file starts with '~$' and is a temporary file indicating the file is open.
+			If .FileExists(controller_open_hc_pending_excel) = False Then		'if the HC Pending main list is not open, we can jsut clear the lock with no other actions
 				.DeleteFile(lock_main_list)
 				end_msg = "*  *  *  MAIN LOCK Released *  *  *"
 				end_msg = end_msg & vbCr & vbCr & "Primary list was not open."
@@ -758,7 +765,6 @@ If operation_selection = "DATA LOCK - Clear" Then
 
 		If .FileExists(hold_main_list) = True Then
 			set hold_lock_file = objFSO.GetFile(hold_main_list)
-			' hold_lock_file.GetFile(hold_main_list)
 			lock_start = hold_lock_file.DateCreated
 
 			If DateDiff("n", lock_start, now) < 10 Then
@@ -769,8 +775,8 @@ If operation_selection = "DATA LOCK - Clear" Then
 				end_msg = end_msg & vbCr & "(Timely is under 10 minutes.)"
 				script_end_procedure(end_msg)
 			End If
-			If .FileExists(controller_open_hc_pending_excel) = True Then MsgBox "PRIMARY FILE OPEN"
-			If .FileExists(controller_open_hc_pending_excel) = False Then
+			'the -controller_open_hc_pending_excel- file starts with '~$' and is a temporary file indicating the file is open.
+			If .FileExists(controller_open_hc_pending_excel) = False Then		'if the HC Pending main list is not open, we can jsut clear the lock with no other actions
 				.DeleteFile(hold_main_list)
 				end_msg = "*  *  *  UPDATE LOCK Released *  *  *"
 				end_msg = end_msg & vbCr & vbCr & "Primary list was not open."
@@ -822,6 +828,7 @@ If operation_selection = "Create Assignment for Another Worker" or operation_sel
 		this_file_name = objFile.Name															'Grabing the file name
 		this_file_type = objFile.Type															'Grabing the file type
 		If this_file_type = "Microsoft Excel Worksheet" Then
+			' worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
 			If left(this_file_name, 2) <> "~$" Then worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
 		End If
 	Next
@@ -1962,6 +1969,13 @@ If run_assignment_selection = True Then
 		If run_in_dev = vbYes Then developer_mode = True
 	End If
 
+	If developer_mode = True Then
+		If objFSO.FileExists(indv_worklist_open_file_path) Then
+			Delete_open_temp_file = MsgBox("It appears the users file is open." & vbCr & vbCr & "Check it now to see if this is true." & vbCr & vbCr & "Yes for DELETE TEMP FILE. This means the file doesn't appear to actually be open" & vbCr & "No to end the script an leave the temp file", vbYesNo + vbCritical, "Remove Temp File?")
+			If Delete_open_temp_file = vbYes Then objFSO.DeleteFile(indv_worklist_open_file_path)
+		End If
+	End If
+
 	'LOOK FOR AN OPEN EXCEL OF THE WORKER'S NAME
 	stop_early_msg = "It appears you have your worklist file open." & vbCr &_
 					 "This file should be closed before running this script." & vbCr & vbCr &_
@@ -2327,22 +2341,25 @@ If run_assignment_selection = True Then
 						' ObjExcel.Cells(excel_row, ).Value = COMP_ASSIGN_ARRAY(wrkr_case_numb_col, wrkr_cases)
 
 						pnd_case_priority = trim(ObjExcel.Cells(excel_row, Priority_col).Value)
-						If pnd_case_priority <> "" Then pnd_case_priority = pnd_case_priority * 1
-						If pnd_case_priority = 1 or pnd_case_priority = 6 Then
-							ObjExcel.Cells(excel_row, Day_60_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
-							ObjExcel.Cells(excel_row, Day_60_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
-						ElseIf pnd_case_priority = 2 Then
-							ObjExcel.Cells(excel_row, Initial_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
-							ObjExcel.Cells(excel_row, Initial_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
-						ElseIf pnd_case_priority = 3 Then
-							ObjExcel.Cells(excel_row, Day_20_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
-							ObjExcel.Cells(excel_row, Day_20_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
-						ElseIf pnd_case_priority = 4 Then
-							ObjExcel.Cells(excel_row, Day_45_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
-							ObjExcel.Cells(excel_row, Day_45_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
-						ElseIf pnd_case_priority = 5 Then
-							ObjExcel.Cells(excel_row, Day_55_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
-							ObjExcel.Cells(excel_row, Day_55_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+						If pnd_case_priority <> "" Then
+							pnd_case_priority = pnd_case_priority * 1
+							' MsgBox "pnd_case_priority - " & pnd_case_priority & vbCr & "excel_row - " & excel_row
+							If pnd_case_priority = 1 or pnd_case_priority = 6 Then
+								ObjExcel.Cells(excel_row, Day_60_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
+								ObjExcel.Cells(excel_row, Day_60_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+							ElseIf pnd_case_priority = 2 Then
+								ObjExcel.Cells(excel_row, Initial_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
+								ObjExcel.Cells(excel_row, Initial_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+							ElseIf pnd_case_priority = 3 Then
+								ObjExcel.Cells(excel_row, Day_20_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
+								ObjExcel.Cells(excel_row, Day_20_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+							ElseIf pnd_case_priority = 4 Then
+								ObjExcel.Cells(excel_row, Day_45_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
+								ObjExcel.Cells(excel_row, Day_45_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+							ElseIf pnd_case_priority = 5 Then
+								ObjExcel.Cells(excel_row, Day_55_Assignment_Worker_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_hsr_col, wrkr_cases)
+								ObjExcel.Cells(excel_row, Day_55_Assignment_Date_col).Value 			= COMP_ASSIGN_ARRAY(wrkr_assign_date_col, wrkr_cases)
+							End If
 						End If
 					Else
 						ObjExcel.Cells(excel_row, Needs_Assignment_col).Value 		= True
