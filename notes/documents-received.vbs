@@ -1972,7 +1972,7 @@ Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section
 function sf_dialog()
   Text 340, 5, 55, 10, "Document Date:"
   EditBox 395, 0, 45, 15, sf_date_received
-  Text 5, 5, 220, 10, "sf_form_name"
+  Text 5, 5, 220, 10, sf_form_name
   GroupBox 10, 35, 320, 195, "Form Information"
   Text 30, 50, 40, 10, "Form Name"
   ComboBox 85, 45, 220, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
@@ -2007,7 +2007,7 @@ function sf_dialog()
   CheckBox 20, 265, 105, 10, "Check here to update SHEL", shel_update_checkbox
   CheckBox 20, 275, 130, 10, "Check here to set a TIKL", sf_tikl_nav_check
 end function
-Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check, sf_lot_rent, sf_mortgage, sf_insurance, sf_taxes, addr_update_checkbox, hest_update_checkbox, shel_update_checkbox
+Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check, sf_lot_rent, sf_mortgage, sf_insurance, sf_taxes, addr_update_checkbox, hest_update_checkbox, shel_update_checkbox, room_board_notes, garage_required_checkbox, sf_garage_amt
 
 function addr_shel_hest_panel_dialog()
 	'Individual dialogs for each panel update indicated
@@ -2092,7 +2092,7 @@ function addr_shel_hest_panel_dialog()
 
 				BeginDialog Dialog1, 0, 0, 555, 385, "SHEL Panel Updates"
 
-					Call display_SHEL_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest, update_information_btn, save_information_btn)
+					Call display_SHEL_information(update_shel, show_totals, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, display_totals, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, paid_to, percent_paid_by_household, percent_paid_by_others,  total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, memb_btn_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
 
 					OkButton 450, 365, 50, 15
 					CancelButton 500, 365, 50, 15
@@ -2434,6 +2434,10 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = sf_form_name then 'Error handling for Shelter Form
+				If trim(room_board_notes) <> "" then 
+					MsgBox "The script will not update SHEL because this client is indicating room and board. Please update SHEL manually. Press OK to continue."
+					shel_update_checkbox = 0
+				End If
 				IF IsDate(sf_date_received) = FALSE THEN sf_err_msg = sf_err_msg & vbCr & "* Enter a valid Document Date."
 				If trim(sf_name_of_form) = "" or trim(sf_name_of_form) = "Select or Type" Then sf_err_msg = sf_err_msg & vbCr & "* Enter a valid Form Name"
 				If current_dialog = "sf" Then
