@@ -2939,6 +2939,13 @@ If ex_parte_function = "Prep 1" Then
 					this_month = datepart("M", date)
 					If len(this_month) = 1 Then this_month = "0" & this_month
 					year_month = datepart("YYYY", date) & this_month
+
+					IF memb_asset_test = 1 THEN 'we need to go to STAT/AVSA for members that have an asset test	
+						Call navigate_to_MAXIS_screen("STAT", "AVSA")		'Navigate to STAT/AVSA
+						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb), 20, 76)		'write the member number to the screen
+						'check for panel
+						'if panel exists, step through lines and look for V, E, W? Or maybe just record the status and put it into sql?
+					End IF
 					'Check the table for existing member line, update asset_test if found. 
 					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
 					Set objAVSConnection = CreateObject("ADODB.Connection")
