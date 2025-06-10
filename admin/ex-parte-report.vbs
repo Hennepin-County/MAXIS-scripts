@@ -2943,7 +2943,24 @@ If ex_parte_function = "Prep 1" Then
 					IF memb_asset_test = 1 THEN 'we need to go to STAT/AVSA for members that have an asset test	
 						Call navigate_to_MAXIS_screen("STAT", "AVSA")		'Navigate to STAT/AVSA
 						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb), 20, 76)		'write the member number to the screen
-						'check for panel
+						EMReadScreen panel_exists, 1, 2, 78 ' check for panel
+						If panel_exists <> "0" Then 'if the panel exists, we need to read the information
+							'read through the status lines
+							status_string = ""
+							For status_line = 9 to 14
+								EMReadScreen form_status, 1, status_line, 76
+								If form_status = "_" Then 
+									exit for
+								Else
+									status_string = status_string & form_status
+								End If
+							Next
+							If instr(status_string, "I") > 0 OR instr(status_string, "R") > 0 Then
+								AVSFormValid = 0		'if there is an I or R, we set asset_test to False	
+							Else
+								AVSFormValid = 1		'if there is no V, we set asset_test to True
+							End If
+						End If
 						'if panel exists, step through lines and look for V, E, W? Or maybe just record the status and put it into sql?
 					End IF
 					'Check the table for existing member line, update asset_test if found. 
@@ -2973,13 +2990,13 @@ If ex_parte_function = "Prep 1" Then
 						'Set objConnection = CreateObject("ADODB.Connection")
 						Set objupdateRecordSet = CreateObject("ADODB.Recordset")
 						'Set the value of asset_test to true (1) for any member found over 21.
-						objUpdateAVS = "UPDATE ES.ES_AVSList SET AssetTest = '" & memb_asset_test & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
+						objUpdateAVS = "UPDATE ES.ES_AVSList SET AssetTest = '" & memb_asset_test & "', AVSFormValid = '" & AVSFormValid & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
 
 						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 						objupdateRecordSet.Open objUpdateAVS, objConnection
 						'objupdateRecordSet.Close
 					Else'If not found, enter new line in database
-						objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "')"
+						objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest, AVSFormValid) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "', '" & AVSFormValid & "')"
 										' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 								'Creating objects for Access
 						'Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -2991,6 +3008,7 @@ If ex_parte_function = "Prep 1" Then
 						'MsGbox "Updated " & MAXIS_case_number & " " & Member_SMI
 						'objinsertRecordSet.Close
 					End If 
+					'msgbox "updated " & MAXIS_case_number & " " & MEMBER_INFO_ARRAY(memb_name_const, this_memb) & " SMI: " & MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb) & " Asset Test: " & memb_asset_test & " AVS Form Valid: " & AVSFormValid
 				End If 
 			Next
 
