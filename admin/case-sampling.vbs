@@ -1456,12 +1456,13 @@ If biweekly_report_run = True Then
 	'Setting some variables and file paths
 	curr_date_file_format = date
 	curr_date_file_format = replace(curr_date_file_format, "/", "-")
-	fix_file_path 			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Repair%20List%20-%20" & curr_date_file_format & ".xlsx"
-	simple_comp_file_path 	= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Sampling%20List%20-%20" & curr_date_file_format & ".xlsx"
+	share_point_folder 		= "https://hennepin.sharepoint.com/teams/hs-economic-supports-management/Shared%20Documents/Case%20Sampling/"
+	fix_file_path 			= share_point_folder & "Repair%20List%20-%20" & curr_date_file_format & ".xlsx"
+	simple_comp_file_path 	= share_point_folder & "Sampling%20List%20-%20" & curr_date_file_format & ".xlsx"
 
 	'These are the template files for making new files
-	fix_file_template 			= "https://hennepin.sharepoint.com/:x:/r/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Repair%20List%20TEMPLATE.xlsx"
-	simple_comp_file_template	= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Case%20Sampling/Sampling%20List%20TEMPLATE.xlsx"
+	fix_file_template 			= share_point_folder & "Repair%20List%20TEMPLATE.xlsx"
+	simple_comp_file_template	= share_point_folder & "Sampling%20List%20TEMPLATE.xlsx"
 
 	'Open the template files and save them as the specific date file name
 	Call excel_open(fix_file_template, True, False, ObjFixExcel, objFixWorkbook)				'Repair List
