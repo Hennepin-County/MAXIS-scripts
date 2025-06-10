@@ -74,9 +74,10 @@ basket_list = "X127EE2~X127EN5~X127EG4~X127ED8~X127EH8~X127EQ3~X127EQ2~X127ET9~X
 
 basket_list = "X127EQ3~X127EH8~X127EK9~X127ES8~X127ES3~X127EG4~X127EN5~X127ED8~X127EQ2~X127ET9~X127ET8~X127EK4~X127EN6~X127EF8~X127EL5~X127FA5~X127EF9~X127EA0~X127FE6~X127EE2~X127EM4~X127FE7~X127FF5~X127ET4~X127ES1~X127EL2~X127EL4~X127EL8~X127FF6~X127FF7~X127ET5~X127EP6~X127EP7~X127EP8"
 
-basket_array = split(basket_list, "~")
+basket_list = "X127ER1~X127ER2~X127ER3~X127ER4~X127ER5~X127ER6"
+' basket_array = split(basket_list, "~")
 
-' call create_array_of_all_active_x_numbers_in_county(basket_array, two_digit_county_code)
+call create_array_of_all_active_x_numbers_in_county(basket_array, two_digit_county_code)
 
 Call back_to_SELF
 basket_count = Ubound(basket_array) + 1
@@ -136,15 +137,22 @@ ObjExcel.ActiveSheet.Name = basket_sheet_name
 
 ObjExcel.Cells(1,1).Value = "Basket"
 ObjExcel.Cells(1,2).Value = "Basket Name"
-ObjExcel.Cells(1,3).Value = "PND2 Pages"
-ObjExcel.Cells(1,4).Value = "PND2 Case Count"
-ObjExcel.Cells(1,5).Value = "PND1 Case Count"
+ObjExcel.Cells(1,3).Value = "Basket Supervisor"
+ObjExcel.Cells(1,4).Value = "PND2 Pages"
+ObjExcel.Cells(1,5).Value = "PND2 Case Count"
+ObjExcel.Cells(1,6).Value = "PND1 Case Count"
+ObjExcel.Cells(1,7).Value = "ACTV Pages"
+ObjExcel.Cells(1,8).Value = "ACTV Case Count"
+ObjExcel.Cells(1,9).Value = "REVS Pages"
+ObjExcel.Cells(1,10).Value = "REVS Case Count"
+
 ObjExcel.Rows(1).Font.Bold = TRUE
 
 excel_row = 2
 For each basket in basket_array
     Call back_to_SELF
     STATS_counter = STATS_counter + 1
+	save_basket_info = False
 
     Call navigate_to_MAXIS_screen("REPT", "PND2")
     EMWriteScreen basket, 21, 13
@@ -159,6 +167,10 @@ For each basket in basket_array
     basket_total_pages = trim(basket_total_pages)
     basket_total_pages = basket_total_pages * 1
     EMReadScreen basket_name, 40, 3, 11
+	EMSetCursor 21, 13
+	PF1
+	EMReadScreen basket_sup, 15, 22, 16
+	transmit
     pnd2_row = 7
     pnd2_count = 0
     Do
@@ -191,11 +203,13 @@ For each basket in basket_array
 
     ObjExcel.Cells(excel_row, 1).Value = basket
     ObjExcel.Cells(excel_row, 2).Value = trim(basket_name)
-    ObjExcel.Cells(excel_row, 3).Value = basket_total_pages
-    If basket_total_pages > 29 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 6
-    If basket_total_pages > 34 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 45
-    If basket_total_pages > 39 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 3
-    ObjExcel.Cells(excel_row, 4).Value = pnd2_count
+	ObjExcel.Cells(excel_row, 3).Value = trim(basket_sup)
+    ObjExcel.Cells(excel_row, 4).Value = basket_total_pages
+    If basket_total_pages > 29 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 4), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 6
+    If basket_total_pages > 34 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 4), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 45
+    If basket_total_pages > 39 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 4), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 3
+    ObjExcel.Cells(excel_row, 5).Value = pnd2_count
+	If pnd2_count <> 0 Then save_basket_info = True
 
     Call navigate_to_MAXIS_screen("REPT", "PND1")
     EMWriteScreen basket, 21, 13
@@ -217,12 +231,78 @@ For each basket in basket_array
             pnd1_row = 7
         End If
     Loop until case_nbr = ""
-    ObjExcel.Cells(excel_row, 5).Value = pnd1_count
+    ObjExcel.Cells(excel_row, 6).Value = pnd1_count
+	If pnd1_count <> 0 Then save_basket_info = True
 
-    excel_row = excel_row + 1
+    Call navigate_to_MAXIS_screen("REPT", "ACTV")
+    EMWriteScreen basket, 21, 13
+    transmit
+	EMReadScreen case_exists, 8, 7, 12
+	count = 1
+	If trim(case_exists) = "" Then
+		actv_page = 0
+		actv_count = 0
+	Else
+		Do
+			If count = 500 Then Exit DO
+			PF8
+			EMReadScreen end_of_list, 8, 19, 3
+			count = count + 1
+		Loop until end_of_list = "More:  -" or end_of_list = "        "
+		EMReadScreen actv_page, 4, 3, 76
+		actv_row = 18
+		Do
+			EMReadScreen actv_count, 5, actv_row, 5
+			actv_count = trim(actv_count)
+			actv_row = actv_row - 1
+		Loop until actv_count <> ""
+	End If
+	ObjExcel.Cells(excel_row, 7).Value = actv_page
+	ObjExcel.Cells(excel_row, 8).Value = actv_count
+	If count > 495 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 7), ObjExcel.Cells(excel_row, 8)).Interior.ColorIndex = 3
+	If actv_count <> 0 Then save_basket_info = True
+
+    Call navigate_to_MAXIS_screen("REPT", "REVS")
+    EMWriteScreen basket, 21, 6
+    transmit
+    EMReadScreen case_exists, 8, 7, 7
+    revs_count = 0
+	If trim(case_exists) = "" Then
+		revs_pages = 0
+	Else
+		revs_row = 7
+		revs_pages = 1
+		Do
+			EMReadScreen case_nbr, 8, revs_row, 7
+			EMReadScreen case_name, 10, revs_row, 16
+			case_name = trim(case_name)
+			If case_name <> "" Then revs_count = revs_count + 1
+
+			revs_row = revs_row + 1
+			If revs_row = 19 Then
+				' MsgBox pnd2_count
+				PF8
+				EMReadScreen end_of_list, 9, 24, 14
+				If end_of_list = "LAST PAGE" Then Exit Do
+				revs_row = 7
+				revs_pages = revs_pages + 1
+			End If
+		Loop until case_name = ""
+	End If
+
+	ObjExcel.Cells(excel_row, 9).Value = revs_pages
+	ObjExcel.Cells(excel_row, 10).Value = revs_count
+    If revs_pages > 39 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 9), ObjExcel.Cells(excel_row, 10)).Interior.ColorIndex = 6
+    If revs_pages > 44 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 9), ObjExcel.Cells(excel_row, 10)).Interior.ColorIndex = 45
+    If revs_pages > 49 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 9), ObjExcel.Cells(excel_row, 10)).Interior.ColorIndex = 3
+
+	If revs_count <> 0 Then save_basket_info = True
+
+
+    If save_basket_info = True Then excel_row = excel_row + 1
 Next
 
-For col_to_autofit = 1 to 5
+For col_to_autofit = 1 to 10
     ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
