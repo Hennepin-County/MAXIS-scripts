@@ -20455,8 +20455,43 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or 
 ' developer_mode = False
 If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"
 
+' Special handling for workers that do not have access to any programs in MAXIS other than Health Care
+' One of the primary issues is that these workers cannot access the MONY Function and the script will error if this is attempted.
+' The quickest resolution is to identify these workers and remove the ability of the script to review ELIG for any program other than HC. However, this is not a dynamic solution and will require upates.
+hc_access_only = False
+' If user_ID_for_validation = "" Then hc_access_only = True		'
+If user_ID_for_validation = "TIER002" Then hc_access_only = True		' Tim Erickson
+If user_ID_for_validation = "SASA003" Then hc_access_only = True		' Sarah Haigh
+If user_ID_for_validation = "X127J9Y" Then hc_access_only = True 		' Gawa Kalsang
+If user_ID_for_validation = "X127J9Z" Then hc_access_only = True 		' Anna Mahon
+If user_ID_for_validation = "X127K9E" Then hc_access_only = True 		' Diki Phuntsok
+If user_ID_for_validation = "X127K9F" Then hc_access_only = True 		' Kelly Quigley
+If user_ID_for_validation = "X127J9S" Then hc_access_only = True 		' Cornel Culp
+If user_ID_for_validation = "X127J9N" Then hc_access_only = True 		' Prophetia Castin
+If user_ID_for_validation = "X127J9R" Then hc_access_only = True 		' Mayra Cota
+If user_ID_for_validation = "X127K9J" Then hc_access_only = True 		' Tamrat Shulu
+If user_ID_for_validation = "X127150" Then hc_access_only = True 		' GioVauntai Stewart
+If user_ID_for_validation = "X127NC2" Then hc_access_only = True 		' Natalie Carlstrom
+If user_ID_for_validation = "X127HHA" Then hc_access_only = True 		' Hamdiya Abdullahi
+If user_ID_for_validation = "X127ZR1" Then hc_access_only = True 		' Z'Nia Richmond
+If user_ID_for_validation = "X127A1I" Then hc_access_only = True 		' Anna Inslee
+If user_ID_for_validation = "X127SP2" Then hc_access_only = True 		' Samuel Parenteau
+If user_ID_for_validation = "X127KT7" Then hc_access_only = True 		' Kia Thao
+If user_ID_for_validation = "X127MZ2" Then hc_access_only = True 		' Martha Zieman
+If user_ID_for_validation = "X127NA5" Then hc_access_only = True 		' Nafiso Awale
+If user_ID_for_validation = "X127LAH" Then hc_access_only = True 		' Maslah Mohamed
+If user_ID_for_validation = "X127MLQ" Then hc_access_only = True 		' Michelle Quevedo Nordin
+If user_ID_for_validation = "X127EMK" Then hc_access_only = True 		' Eileen Keswani
+If user_ID_for_validation = "X127FJF" Then hc_access_only = True 		' Fajah Ford
+If user_ID_for_validation = "X127YT1" Then hc_access_only = True 		' Yer Thao
+If user_ID_for_validation = "X127IG1" Then hc_access_only = True 		' Isabella Groulx
+If user_ID_for_validation = "X127K2A" Then hc_access_only = True 		' Karina Andrade
+If user_ID_for_validation = "X127FY2" Then hc_access_only = True 		' Francis Yang
+If user_ID_for_validation = "X127M5A" Then hc_access_only = True 		' Maria Ali
+If user_ID_for_validation = "X127G1C" Then hc_access_only = True 		' Grace Cushman
+
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
-If MAXIS_case_number = "2683408" Then allow_late_note = True
+' If MAXIS_case_number = "2683408" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
@@ -20511,10 +20546,9 @@ If First_footer <> CM_plus_1 Then
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 	EMReadScreen numb_EMER_versions, 1, 16, 40
 	numb_EMER_versions = trim(numb_EMER_versions)
-	' TEMPORARY WORKAROUND
-	' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
-	' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
-	If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then numb_EMER_versions = ""
+
+	' Skipping EMER versions for HC only workers
+	If hc_access_only = True Then numb_EMER_versions = ""
 End If
 
 const month_const 	= 0
@@ -20675,10 +20709,8 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
 
-	' TEMPORARY WORKAROUND
-	' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
-	' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
-	If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then
+	' Skipping Non-HC program versions for HC only workers
+	If hc_access_only = True Then
 		numb_DWP_versions = " "
 		numb_MFIP_versions = " "
 		numb_MSA_versions = " "
@@ -22141,10 +22173,8 @@ If first_GRH_approval <> "" Then enter_CNOTE_for_GRH = True
 If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 
-' TEMPORARY WORKAROUND
-' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
-' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
-If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then
+' Ensuring HC only workers do not CASE/NOTE for any program other than HC
+If hc_access_only = True Then
 	enter_CNOTE_for_DWP = False
 	enter_CNOTE_for_MFIP = False
 	enter_CNOTE_for_MSA = False
