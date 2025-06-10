@@ -1566,7 +1566,7 @@ If biweekly_report_run = True Then
 	email_body = email_body & "&emsp;" & "- " & "<a href=" & chr(34) & simple_comp_file_path & chr(34) & ">" & "Sampling List - " & curr_date_file_format & "</a>" & " Full list from the past 2 weeks (" & earliest_date & " - " & latest_date & ")." & "<br>" & "<br>"
 	email_body = email_body & "Worklists created by a BlueZone script to support case sampling."
 
-	Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+	Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 	'Now we blank out the reviews on the main list since they are saved on the copy sheet.
 	'This keeps this workbook quicker/more responsive
