@@ -107,63 +107,65 @@ section_g_comments_elig_worker_called = False
 function section_a_contact_info()
   dialog_count = 1
   section_a_contact_info_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
-    GroupBox 5, 5, 250, 190, "FROM (assessor/case manager/care coordinator's information)"
-    Text 10, 20, 155, 10, "Click here to fill information from SWKR Panel:"
-    ButtonGroup ButtonPressed
-      PushButton 165, 15, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
-    Text 10, 40, 70, 10, "Date Sent to Worker:"
-    EditBox 90, 35, 55, 15, section_a_date_form_sent
-    Text 10, 55, 40, 10, "Assessor:"
-    EditBox 90, 50, 150, 15, section_a_assessor
-    Text 10, 70, 50, 10, "Lead Agency:"
-    EditBox 90, 65, 150, 15, section_a_lead_agency
-    Text 10, 85, 55, 10, "Phone Number:"
-    EditBox 90, 80, 55, 15, section_a_phone_number
-    Text 10, 100, 55, 10, "Street Address:"
-    EditBox 90, 95, 150, 15, section_a_street_address
-    Text 10, 115, 20, 10, "City:"
-    EditBox 90, 110, 150, 15, section_a_city
-    Text 10, 130, 25, 10, "State:"
-    EditBox 90, 125, 25, 15, section_a_state
-    Text 10, 145, 35, 10, "Zip Code:"
-    EditBox 90, 140, 55, 15, section_a_zip_code
-    Text 10, 160, 55, 10, "Email Address:"
-    EditBox 90, 155, 150, 15, section_a_email_address
-    Text 10, 180, 145, 10, "Click button to add up to 2 add'l assessors:"
-    ButtonGroup ButtonPressed
-      PushButton 160, 175, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
-    GroupBox 5, 205, 250, 30, "Person's Information"
-    Text 10, 215, 70, 10, "Select HH Member:"
-    DropListBox 80, 215, 160, 15, HH_Memb_DropDown, hh_memb
-    ButtonGroup ButtonPressed
-      PushButton 215, 290, 55, 15, "Next", next_btn
-      CancelButton 270, 290, 50, 15
-      PushButton 5, 290, 55, 15, "Previous", previous_btn
-    GroupBox 260, 5, 60, 280, "Navigation"
-    Text 265, 15, 40, 10, "Section A"
-    Text 265, 45, 40, 10, "Section B"
-    Text 265, 105, 40, 10, "Section C"
-    Text 265, 150, 40, 10, "Section D"
-    Text 265, 180, 40, 10, "Section E"
-    Text 265, 210, 40, 10, "Section F"
-    Text 265, 255, 40, 10, "Section G"
-    ButtonGroup ButtonPressed
-      PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-      PushButton 265, 55, 50, 15, "Status", status_btn
-      PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-      PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-      PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-      PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-      PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-      PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-      PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-      PushButton 265, 235, 50, 15, "Changes", changes_btn
-      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
+BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
+  Text 10, 10, 45, 10, "Form Status:"
+  DropListBox 70, 5, 75, 15, "Select one:"+chr(9)+"Complete"+chr(9)+"Incomplete", form_status_dropdown
+  GroupBox 5, 25, 250, 190, "FROM (assessor/case manager/care coordinator's information)"
+  Text 10, 40, 155, 10, "Click here to fill information from SWKR Panel:"
+  ButtonGroup ButtonPressed
+    PushButton 165, 35, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
+  Text 10, 60, 70, 10, "Date Sent to Worker:"
+  EditBox 90, 55, 55, 15, section_a_date_form_sent
+  Text 10, 75, 40, 10, "Assessor:"
+  EditBox 90, 70, 150, 15, section_a_assessor
+  Text 10, 90, 50, 10, "Lead Agency:"
+  EditBox 90, 85, 150, 15, section_a_lead_agency
+  Text 10, 105, 55, 10, "Phone Number:"
+  EditBox 90, 100, 55, 15, section_a_phone_number
+  Text 10, 120, 55, 10, "Street Address:"
+  EditBox 90, 115, 150, 15, section_a_street_address
+  Text 10, 135, 20, 10, "City:"
+  EditBox 90, 130, 150, 15, section_a_city
+  Text 10, 150, 25, 10, "State:"
+  EditBox 90, 145, 25, 15, section_a_state
+  Text 10, 165, 35, 10, "Zip Code:"
+  EditBox 90, 160, 55, 15, section_a_zip_code
+  Text 10, 180, 55, 10, "Email Address:"
+  EditBox 90, 175, 150, 15, section_a_email_address
+  Text 10, 200, 145, 10, "Click button to add up to 2 add'l assessors:"
+  ButtonGroup ButtonPressed
+    PushButton 160, 195, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
+  GroupBox 5, 225, 250, 30, "Person's Information"
+  Text 10, 235, 70, 10, "Select HH Member:"
+  DropListBox 80, 235, 160, 15, "HH_Memb_DropDown", hh_memb
+  ButtonGroup ButtonPressed
+    PushButton 215, 290, 55, 15, "Next", next_btn
+    CancelButton 270, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+  GroupBox 260, 5, 60, 280, "Navigation"
+  Text 265, 15, 40, 10, "Section A"
+  Text 265, 45, 40, 10, "Section B"
+  Text 265, 105, 40, 10, "Section C"
+  Text 265, 150, 40, 10, "Section D"
+  Text 265, 180, 40, 10, "Section E"
+  Text 265, 210, 40, 10, "Section F"
+  Text 265, 255, 40, 10, "Section G"
+  ButtonGroup ButtonPressed
+    PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
+    PushButton 265, 55, 50, 15, "Status", status_btn
+    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
+    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
+    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
+    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
+    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
+    PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
+    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
+    PushButton 265, 235, 50, 15, "Changes", changes_btn
+    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
   EndDialog
 end function
 'To do - dim all the variables?
-Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb, form_status_dropdown
 
 function section_a_additional_assessors()
   dialog_count = 11
@@ -961,6 +963,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
     ButtonPressed = -1 Then
       If dialog_count = 1 then 
         If trim(section_a_date_form_sent) = "" OR IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
+        If form_status_dropdown = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must make a selection from the Form Status dropdown list." 
         If trim(section_a_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
         If trim(section_a_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
         If trim(section_a_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Phone Number field in the format ###-###-####." 
