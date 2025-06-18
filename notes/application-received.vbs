@@ -204,7 +204,7 @@ caseload_info.add "X127EK7", "Adults - Pending 4"
 caseload_info.add "X127EZ3", "Families - Pending 4"
 caseload_info.add "X127EZ4", "Families - Pending 4"
 'Active casebanks for Groves, not currently utilized for assignment
-caseload_info.add "X127ED8", "Adults Active 4" 
+
 caseload_info.add "X127EE1", "Adults Active 4"
 caseload_info.add "X127EE2", "Adults Active 4"
 caseload_info.add "X127EE3", "Adults Active 4"
@@ -225,7 +225,14 @@ caseload_info.add "X127ES6", "Families Active 4"
 caseload_info.add "X127ES7", "Families Active 4"
 caseload_info.add "X127ES8", "Families Active 4"
 caseload_info.add "X127ES9", "Families Active 4"
-
+'Healthcare Pending caseloads
+caseload_info.add "X127ED8", "Healthcare - Pending"
+caseload_info.add "X127ER1", "Healthcare - Pending"
+caseload_info.add "X127ER2", "Healthcare Only Active"
+caseload_info.add "X127ER3", "Healthcare Only Active"
+caseload_info.add "X127ER4", "Healthcare Mixed Active"
+caseload_info.add "X127ER5", "Healthcare Mixed Active"
+caseload_info.add "X127ER6", "Healthcare Mixed Active"
 'This is the casebank for DWP team
 caseload_info.add "X127EY9", "Families - Cash"
 ' caseload_info.add "X127EY8", "Families - Cash"		removed from assignment selection until additional process clarification can be identified. There are concerns with all cases being entered into a single basket with pending status.
@@ -482,6 +489,19 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 			population = "Families"
 		End If
 	End If
+    
+    'HC Pending cases
+    If correct_caseload_type = "" OR correct_caseload_type = "Adults - Pending" Then
+        If unknown_hc_pending = True Then
+            'pick the HC pending caseload at random
+            call get_caseload_array_by_type("Healthcare - Pending", available_caseload_array)
+            number_of_options = UBound(available_caseload_array)
+            If number_of_options > 0 Then
+                call select_random_index(number_of_options, caseload_index)
+                correct_caseload_type = available_caseload_array(caseload_index)
+            End If
+        End If 
+    End If
 
     'Adjust correct_caseload_type for correct Team
     If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND (case_active <> TRUE OR isnumeric(right(current_caseload_type, 1)) = False) Then random_team_needed = TRUE
