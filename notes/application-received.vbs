@@ -493,12 +493,13 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
     'HC Pending cases
     If correct_caseload_type = "" OR correct_caseload_type = "Adults - Pending" Then
         If unknown_hc_pending = True Then
+            correct_caseload_type = "Healthcare - Pending"
             'pick the HC pending caseload at random
             call get_caseload_array_by_type("Healthcare - Pending", available_caseload_array)
             number_of_options = UBound(available_caseload_array)
             If number_of_options > 0 Then
                 call select_random_index(number_of_options, caseload_index)
-                correct_caseload_type = available_caseload_array(caseload_index)
+                new_caseload = available_caseload_array(caseload_index)
             End If
         End If 
     End If
