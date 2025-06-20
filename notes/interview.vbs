@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/23/2025", "The CAF form question were updated by DHS. The script has been updated to align with this new CAF layout and question format.##~## ##~##NOTE - ANY INTERVIEW DETAILS SAVED PRIOR TO TODAY WILL NOT BE ABLE TO BE RESTORED.##~## ##~##The interview details restoration has been updated to ensure the same form and version were selected for the information to be restored.", "Casey Love, Hennepin County")
 call changelog_update("05/29/2025", "Condensed information displayed on EXPEDITED dialog to reduce risk of information extending past edges of dialog", "Mark Riegel, Hennepin County")
 call changelog_update("05/02/2025", "Updated button locations for verifications dialog", "Mark Riegel, Hennepin County")
 call changelog_update("01/27/2025", "Interview Updates:##~## - Added a 'Clear ALL' button to verifications.##~##   (New Interview - Verifications instruction document!)##~## - Remove entry of signature date as it is not necessary to document.##~## - Added information on the WIF and CASE/NOTE about verbal signature to align with policy.##~## - Updated some formatting and verbiage to align with different form types.##~## - Fixed bug in the Expedited information in the WIF.##~## ##~##These updates are far reaching and with a large script like the Interview script, there may be places where additional functionality or updates are needed. Please report anything you notice about these changes.##~##", "Casey Love, Hennepin County")
@@ -7280,7 +7281,7 @@ If vars_filled = True Then
 
 			form_version_date = "Unknown"
 			saved_form_version_date = "Unknown"
-			If DateDiff("d", #6/16/2025#, form_info_modified_date) >=0 Then
+			If DateDiff("d", #6/20/2025#, form_info_modified_date) >=0 Then
 				set node = xmlDoc.SelectSingleNode("//FormVersion")
 				saved_form_version_date = node.text
 			End If
