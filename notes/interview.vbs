@@ -387,7 +387,7 @@ function check_for_errors(interview_questions_clear)
 	End If
 
 	If EMER_on_CAF_checkbox = checked Then
-		If resident_emergency_yn = " " or trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
+		If trim(resident_emergency_yn) = "" or trim(emergency_type) = "" or emergency_type = "Select or Type" or trim(emergency_discussion) = "" or trim(emergency_amount) = "" or trim(emergency_deadline) = "" Then
 			err_msg = err_msg & "~!~" & emer_numb & "^* The resident indicated they are applying for EMER. The EMER Q fields must all be filled out."
 		End If
 	End If
@@ -1043,7 +1043,7 @@ function define_main_dialog()
 						Next
 						If yes_answer_count = 1 Or yes_answer_count = 2 Or yes_answer_count = 4 OR yes_answer_count = 5 then y_pos = y_pos + 10
 					End If
-					
+
 					If FORM_QUESTION_ARRAY(quest).write_in_info <> "" Then
 						Text 30, y_pos, 450, 10, "Write-In: " & FORM_QUESTION_ARRAY(quest).write_in_info
 						y_pos = y_pos + 10
@@ -1322,14 +1322,14 @@ function define_main_dialog()
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).dialog_page_numb = page_display Then
 					' If FORM_QUESTION_ARRAY(quest).dialog_order = display_count Then
-					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = true  Then
-						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
-						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_HOUSING_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_UTILITIES_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_ASSETS_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_MSA_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_STWK_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
+						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY)
 					End If
 				End If
 			Next
@@ -3190,6 +3190,7 @@ function save_your_work()
 			objTextStream.WriteLine "FORM -a16 - " & snap_reporting_type
 			objTextStream.WriteLine "FORM -b16 - " & next_revw_month
 			objTextStream.WriteLine "FORM - 17 - " & confirm_recap_read
+			objTextStream.WriteLine "FINAL SUMM - " & case_summary
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
 				race_a_info = ""
@@ -3559,6 +3560,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -a16 - " & snap_reporting_type
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -b16 - " & next_revw_month
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 17 - " & confirm_recap_read & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "FINAL SUMM - " & case_summary & vbCr & vbCr
 
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -4036,6 +4038,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 9) = "FORM -a16" Then snap_reporting_type = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM -b16" Then next_revw_month = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM - 17" Then confirm_recap_read = Mid(text_line, 13)
+					If left(text_line, 10) = "FINAL SUMM" Then case_summary = Mid(text_line, 14)
 					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 
 
@@ -4234,14 +4237,14 @@ function review_information()
 	End If
 
 	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
-		If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
+		If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
 		If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
-			If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), "")
-			If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_HOUSING_ARRAY)
-			If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_UTILITIES_ARRAY)
-			If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_ASSETS_ARRAY)
-			If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_MSA_ARRAY)
-			If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_STWK_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
+			If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY)
+			If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).store_dialog_entry(TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY)
 		End If
 	Next
 
@@ -5041,8 +5044,11 @@ function write_interview_CASE_NOTE()
 		FORM_QUESTION_ARRAY(each_question).enter_case_note()
 	Next
 
+	If disc_rent_amounts = "RESOLVED" or disc_yes_phone_no_expense = "RESOLVED" or disc_no_phone_yes_expense = "RESOLVED" or disc_utility_amounts = "RESOLVED" Then
+		CALL write_variable_in_CASE_NOTE("-----  Answer Clarifications  -----")
+	End If
 	If disc_rent_amounts = "RESOLVED" Then
-		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
+		CALL write_variable_in_CASE_NOTE("    HOUSING EXPENSE FORM DETAILS MAY NOT MATCH IN ALL QUESTIONS")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_rent_amounts_confirmation)
 	End If
 	If disc_yes_phone_no_expense = "RESOLVED" Then
@@ -5055,7 +5061,7 @@ function write_interview_CASE_NOTE()
 	End If
 
 	If disc_utility_amounts = "RESOLVED" Then
-		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
+		CALL write_variable_in_CASE_NOTE("    UTILITY EXPENSE FORM DETAILS NOT MATCH IN ALL QUESTIONS")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_utility_amounts_confirmation)
 	End If
 
@@ -5080,7 +5086,7 @@ function write_interview_CASE_NOTE()
             End If
 		Next
 	End If
-	CALL write_variable_in_CASE_NOTE("      EDRS Notes - " & edrs_notes_for_case)
+	If trim(edrs_notes_for_case) <> "" Then CALL write_variable_in_CASE_NOTE("      EDRS Notes - " & edrs_notes_for_case)
 
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No verifications were indicated at this time.")
@@ -6912,7 +6918,7 @@ Dim qual_numb, exp_num, last_num, emer_numb, discrep_num, verbal_sig_date, verba
 'R&R
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
 Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
-Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read
+Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read, case_summary
 Dim interested_in_job_assistance_now, interested_names_now, interested_in_job_assistance_future, interested_names_future
 Dim cash_request, snap_request, emer_request, grh_request
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
@@ -7248,6 +7254,12 @@ Call restore_your_work(vars_filled)			'looking for a 'restart' run
 Call run_from_GitHub(script_repository & "misc/interview-forms-classes.vbs" )
 EMWaitReady 0, 0
 
+caf_version_date = "03/25"
+mnbenefits_version_date = "11/16"
+huf_version_date = "03/22"
+sr_snap_version_date = "04/23"
+car_version_date = "04/23"
+
 If vars_filled = True Then
 
 	xmlPath = user_myDocs_folder & "interview_questions_" & MAXIS_case_number & ".xml"
@@ -7263,95 +7275,127 @@ If vars_filled = True Then
 			' Load the XML file
 			xmlDoc.load(xmlPath)
 
-			set node = xmlDoc.SelectSingleNode("//DHSNumber")
-			form_number = node.text
+			set form_detail_file = objFSO.GetFile(xmlPath)			'create file object
+			form_info_modified_date = form_detail_file.DateLastModified						'identify the file create date - which includes date and time
+
+			form_version_date = "Unknown"
+			saved_form_version_date = "Unknown"
+			If DateDiff("d", #6/16/2025#, form_info_modified_date) >=0 Then
+				set node = xmlDoc.SelectSingleNode("//FormVersion")
+				saved_form_version_date = node.text
+			End If
+
 			set node = xmlDoc.SelectSingleNode("//Name")
-			CAF_form = node.text
-			set node = xmlDoc.SelectSingleNode("//numbOfQuestions")
-			numb_of_quest = node.text
-			numb_of_quest = numb_of_quest * 1
-			set node = xmlDoc.SelectSingleNode("//lastPageOfQuestions")
-			last_page_of_questions = node.text
+			saved_CAF_form = node.text
 
-			set question_nodes = xmlDoc.SelectNodes("//question")
-			question_num = 0
+			correct_version = True
+			If Orig_CAF_form = "CAF (DHS-5223)" 							Then selected_form_version_date = caf_version_date
+			If Orig_CAF_form = "MNbenefits" 								Then selected_form_version_date = mnbenefits_version_date
+			If Orig_CAF_form = "HUF (DHS-8107)" 							Then selected_form_version_date = huf_version_date
+			If Orig_CAF_form = "SNAP App for Srs (DHS-5223F)" 				Then selected_form_version_date = sr_snap_version_date
+			If Orig_CAF_form = "Combined AR for Certain Pops (DHS-3727)" 	Then selected_form_version_date = car_version_date
+			If saved_form_version_date <> selected_form_version_date Then correct_version = False
+			If Orig_CAF_form <> saved_CAF_form Then correct_version = False
 
-			for each node in question_nodes
-				item_info_length = 0
-				ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "Combined AR for Certain Pops (DHS-3727)"
-				Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			If correct_version = False Then
+				not_restored_msg = MsgBox("The form or version does not match the saved information." & vbCr & vbCr & "INFORMATION HAS NOT BEEN RESTORED."& vbCr & vbCr &_
+										  "Form Selected: " & Orig_CAF_form & vbCr & "Version Supported: " & selected_form_version_date & vbCr & vbCr &_
+										  "Saved Form: " & saved_CAF_form & vbCr & "Version: " & saved_form_version_date & vbCr & vbCr &_
+										  "Press 'Cancel' to stop the script." & vbCr & "(Most helpful if you selected the wrong form.)", vbCritical + vbOkCancel, "Details could not be Restored")
+				If not_restored_msg = vbCancel then script_end_procedure_with_error_report("")
+			End If
 
-				call FORM_QUESTION_ARRAY(question_num).restore_info(node)
-				FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
-				FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-				If FORM_QUESTION_ARRAY(question_num).prefil_btn <> "" Then FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
-				If FORM_QUESTION_ARRAY(question_num).detail_array_exists = True Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
-				question_num = question_num + 1
-			next
-			set xmlDoc = nothing
+			If correct_version = True Then
+				CAF_form = saved_CAF_form
+				form_version_date = saved_form_version_date
+				set node = xmlDoc.SelectSingleNode("//DHSNumber")
+				form_number = node.text
 
-			ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
-			If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-			If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+				set node = xmlDoc.SelectSingleNode("//numbOfQuestions")
+				numb_of_quest = node.text
+				numb_of_quest = numb_of_quest * 1
+				set node = xmlDoc.SelectSingleNode("//lastPageOfQuestions")
+				last_page_of_questions = node.text
 
-			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
-				TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
-				TEMP_INFO_ARRAY(form_write_in_const, quest) = FORM_QUESTION_ARRAY(quest).write_in_info
-				TEMP_INFO_ARRAY(intv_notes_const, quest) = FORM_QUESTION_ARRAY(quest).interview_notes
-				TEMP_INFO_ARRAY(form_second_yn_const, quest) = FORM_QUESTION_ARRAY(quest).sub_answer
-				If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
-					If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
-						unea_1_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(0)
-						unea_2_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(1)
-						unea_3_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(2)
-						unea_4_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(3)
-						unea_5_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(4)
-						unea_6_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(5)
-						unea_7_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(6)
-						unea_8_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(7)
-						unea_9_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(8)
-						unea_1_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(0)
-						unea_2_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(1)
-						unea_3_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(2)
-						unea_4_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(3)
-						unea_5_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(4)
-						unea_6_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(5)
-						unea_7_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(6)
-						unea_8_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(7)
-						unea_9_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(8)
+				set question_nodes = xmlDoc.SelectNodes("//question")
+				question_num = 0
+
+				for each node in question_nodes
+					item_info_length = 0
+					ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "Combined AR for Certain Pops (DHS-3727)"
+					Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+
+					call FORM_QUESTION_ARRAY(question_num).restore_info(node)
+					FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+					FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+					If FORM_QUESTION_ARRAY(question_num).prefil_btn <> "" Then FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
+					If FORM_QUESTION_ARRAY(question_num).detail_array_exists = True Then FORM_QUESTION_ARRAY(question_num).add_to_array_btn	= 3000+question_num
+					question_num = question_num + 1
+				next
+				set xmlDoc = nothing
+
+				ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
+				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
+				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+
+				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
+					TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
+					TEMP_INFO_ARRAY(form_write_in_const, quest) = FORM_QUESTION_ARRAY(quest).write_in_info
+					TEMP_INFO_ARRAY(intv_notes_const, quest) = FORM_QUESTION_ARRAY(quest).interview_notes
+					TEMP_INFO_ARRAY(form_second_yn_const, quest) = FORM_QUESTION_ARRAY(quest).sub_answer
+					TEMP_INFO_ARRAY(form_second_ans_const, quest) = FORM_QUESTION_ARRAY(quest).detail_answer
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = true Then
+						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then
+							unea_1_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(0)
+							unea_2_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(1)
+							unea_3_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(2)
+							unea_4_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(3)
+							unea_5_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(4)
+							unea_6_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(5)
+							unea_7_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(6)
+							unea_8_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(7)
+							unea_9_amt = FORM_QUESTION_ARRAY(quest).item_detail_list(8)
+							unea_1_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(0)
+							unea_2_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(1)
+							unea_3_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(2)
+							unea_4_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(3)
+							unea_5_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(4)
+							unea_6_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(5)
+							unea_7_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(6)
+							unea_8_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(7)
+							unea_9_yn = FORM_QUESTION_ARRAY(quest).item_ans_list(8)
+						End If
+						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
+							For i = 0 to UBound(TEMP_HOUSING_ARRAY)
+								TEMP_HOUSING_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+							Next
+						End If
+						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
+							For i = 0 to UBound(TEMP_UTILITIES_ARRAY)
+								TEMP_UTILITIES_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+							Next
+						End If
+						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then
+							For i = 0 to UBound(TEMP_ASSETS_ARRAY)
+								TEMP_ASSETS_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+							Next
+						End If
+						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then
+							For i = 0 to UBound(TEMP_MSA_ARRAY)
+								TEMP_MSA_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+							Next
+						End If
+						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then
+							For i = 0 to UBound(TEMP_STWK_ARRAY)
+								TEMP_STWK_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
+							Next
+						End If
 					End If
-					If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then
-						For i = 0 to UBound(TEMP_HOUSING_ARRAY)
-							TEMP_HOUSING_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
-						Next
-					End If
-					If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then
-						For i = 0 to UBound(TEMP_UTILITIES_ARRAY)
-							TEMP_UTILITIES_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
-						Next
-					End If
-					If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then
-						For i = 0 to UBound(TEMP_ASSETS_ARRAY)
-							TEMP_ASSETS_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
-						Next
-					End If
-					If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then
-						For i = 0 to UBound(TEMP_MSA_ARRAY)
-							TEMP_MSA_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
-						Next
-					End If
-					If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then
-						For i = 0 to UBound(TEMP_STWK_ARRAY)
-							TEMP_STWK_ARRAY(i) = FORM_QUESTION_ARRAY(quest).item_ans_list(i)
-						Next
-					End If
-				End If
-			Next
+				Next
+			End If
 		End If
 	End With
 End If
-
-If Orig_CAF_form <> CAF_form Then MsgBox "You have selected " & Orig_CAF_form & " as the form submitted." & vbCr & vbCr & "You requested to restore details of a previous run and a different form was loaded." & vbCr & vbCr & "FORM CANNOT BE CHANGED. The script will operate using the form " & CAF_form & ". To change this, you must restart the script and lose any previous data."
 
 expedited_screening_on_form = True
 If CAF_form = "CAF (DHS-5223)" Then
@@ -10813,9 +10857,10 @@ objSelection.TypeText "Is anyone in your household currently violating a conditi
 objSelection.TypeText chr(9) & qual_question_five & vbCr
 If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
 
-If resident_emergency_yn <> " " or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
+resident_emergency_yn = trim(resident_emergency_yn)
+If resident_emergency_yn <> "" or (trim(emergency_type) <> "" and trim(emergency_type) <> "Select or Type") or trim(emergency_discussion) <> "" or trim(emergency_amount) <> "" or trim(emergency_deadline) <> "" Then
 	objSelection.TypeText "EMERGENCY QUESTIONS" & vbCr
-	If resident_emergency_yn <> " " Then
+	If resident_emergency_yn <> "" Then
 		objSelection.TypeText "Is the resident experiencing an emergency?" & vbCr
 		objSelection.TypeText chr(9) & resident_emergency_yn & vbCr
 	End If
