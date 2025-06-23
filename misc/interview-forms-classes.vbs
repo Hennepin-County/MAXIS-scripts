@@ -2996,7 +2996,7 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "CAF (DHS-5223)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 14
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household applied for or does anyone get any of the following type of income each month?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household applied for or does anyone get any unearned income each month?"
 			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q14.Does anyone have any unearned income?"
 			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 14. Does anyone in your household get money or expect to get money from sources other than work?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
