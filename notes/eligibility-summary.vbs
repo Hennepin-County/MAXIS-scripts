@@ -1094,6 +1094,7 @@ function define_mfip_elig_dialog()
 
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
+			Text 75, 5, 215, 10, "Months in Approval: " & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
 			GroupBox 5, 10, 285, 65, "Approval Detail"
 			Text 15, 20, 150, 10, "Monthly Need . . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_need
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = False Then Text 15, 30, 150, 10, "Unearned Income . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income & "  ( - )"
@@ -1103,11 +1104,19 @@ function define_mfip_elig_dialog()
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_deemed_income_exists = True Then PushButton 10, 38, 150, 12, "Deemed Income . . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deemed_income & "  ( - )", MFIP_UNIQUE_APPROVALS(btn_deem, approval_selected)
 
 			Text 15, 50, 150, 10, "Child Support Exclusion . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion & "  ( + )"
-			Text 15, 60, 150, 10, "Unmet Need . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need
 
 			Text 205, 20, 80, 10, " Result:   " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result
-			Text 165, 30, 120, 40, "Months in Approval: " & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
 
+			If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig Then
+				Text 15, 60, 150, 10, "Budget Month Total . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_month_total
+				Text 165, 30, 120, 40, "Prior Low . . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_prior_low
+
+				Text 165, 40, 120, 40, "MFIP Counted Income . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_counted_inc
+				Text 165, 50, 120, 40, "Unmet Need . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need
+			Else
+				Text 15, 60, 150, 10, "Unmet Need . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need
+				' Text 165, 30, 120, 40, "Months in Approval: " & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+			End If
 			GroupBox 5, 75, 140,  55, "Cash Amount Calculation"
 			Text 15, 85, 125, 10, "Cash Portion . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion
 			Text 15, 95, 125, 10, "Subsidy Reduction . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses & "  ( - )"
@@ -5228,16 +5237,19 @@ function mfip_elig_case_note()
 		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
 			If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 				beginning_text = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " "
+				second_line = False
 				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
 					Call write_variable_in_CASE_NOTE(beginning_text & "| Prorated from " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date)
 					beginning_text = "                              "
 				End If
 				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment <> "0.00" Then
+					If beginning_text = "                              " Then second_line = True
 					Call write_variable_in_CASE_NOTE(beginning_text & "| Recoupment: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment)
 					beginning_text = "                              "
 				End If
+				If beginning_text = "                              " Then second_line = True
 				Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
-				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month and second_line = True Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 			End If
 		Next
@@ -5326,19 +5338,19 @@ function mfip_elig_case_note()
 			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
@@ -5470,6 +5482,19 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion <> "0.00" Then
 			Call write_variable_in_CASE_NOTE("Exclsn: Child Supp. Income $" & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_cses_income&"        ", 8) & "| (+)Child Support Exclusion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion, 8))
 			Call write_variable_in_CASE_NOTE("        Child Count: " & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_child_count&"  ", 2) & "             |")
+		End If
+		If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig Then
+			Call write_variable_in_CASE_NOTE("                                    |         Budget Month Total: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_month_total, 8))
+			Call write_variable_in_CASE_NOTE("                               |------- UNMET NEED CALCULATION -------|")
+			Call write_variable_in_CASE_NOTE("                               |       Budget Month Total: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_month_total, 8)&" |")
+			Call write_variable_in_CASE_NOTE("                               |                Prior Low: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_prior_low, 8)&" |")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_month_total = MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_counted_inc Then
+				Call write_variable_in_CASE_NOTE("                               |              Income Used:    CURRENT |")
+			Else
+				Call write_variable_in_CASE_NOTE("                               |              Income Used:  PRIOR LOW |")
+			End if
+			Call write_variable_in_CASE_NOTE("                               |      MFIP Counted Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_counted_inc, 8)&" |")
+			Call write_variable_in_CASE_NOTE("                               |--------------------------------------|")
 		End If
 		Call write_variable_in_CASE_NOTE("                                    |                 Unmet Need: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need, 8))
 
@@ -5660,11 +5685,7 @@ function mfip_elig_case_note()
 	End If
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
-		If  DateDiff("d", #3/1/2025#, footer_month_date) >=0 and MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting = "MONTHLY" Then
-			Call write_variable_in_CASE_NOTE("Reporting Status will be SIX-MONTH as new policy is implemented.")
-		Else
-			Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting)
-		End If
+		Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_review_date)
 	End If
 	If MFIP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(process_for_note, unique_app))
@@ -10147,6 +10168,7 @@ class dwp_eligibility_detail
 end class
 
 class mfip_eligibility_detail
+	public six_month_budget_elig
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -10454,6 +10476,9 @@ class mfip_eligibility_detail
 	public mfip_case_budg_unearned_income
 	public mfip_case_budg_deemed_income
 	public mfip_case_budg_cses_exclusion
+	public mfip_case_budg_month_total
+	public mfip_case_budg_prior_low
+	public mfip_case_budg_counted_inc
 	public mfip_case_budg_unmet_need
 	public mfip_case_budg_unmet_need_food_potion
 	public mfip_case_budg_tribal_counted_income
@@ -10538,7 +10563,7 @@ class mfip_eligibility_detail
 	public mfip_case_last_approval_date
 	public mfip_case_current_prog_status
 	public mfip_case_eligibility_result
-	public mfip_case_hrf_reporting
+	public mfip_case_reporting_status
 	public mfip_case_source_of_info
 	public mfip_case_benefit_impact
 	public mfip_case_review_date
@@ -10616,6 +10641,10 @@ class mfip_eligibility_detail
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
+
+		six_month_budget_elig = False
+		first_of_footer_month = elig_footer_month & "/1/" & elig_footer_year
+		If DateDiff("d", #3/1/2025#, first_of_footer_month) >= 0 Then six_month_budget_elig = True
 
 		If approved_today = True Then
 			ReDim mfip_check_issue_date(0)
@@ -11410,22 +11439,44 @@ class mfip_eligibility_detail
 			EMReadScreen mfip_case_budg_unearned_income, 				10, 11, 32
 			EMReadScreen mfip_case_budg_deemed_income, 					10, 12, 32
 			EMReadScreen mfip_case_budg_cses_exclusion, 				10, 13, 32
-			EMReadScreen mfip_case_budg_unmet_need, 					10, 14, 32
-			EMReadScreen mfip_case_budg_unmet_need_food_potion, 		10, 15, 32
-			EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 16, 32
-			EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 17, 32
-			EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 18, 32
 
+			If six_month_budget_elig Then
+				EMReadScreen mfip_case_budg_month_total, 				10, 14, 32
+				EMReadScreen mfip_case_budg_prior_low, 					10, 15, 32
+				EMReadScreen mfip_case_budg_counted_inc, 				10, 16, 32
+				EMReadScreen mfip_case_budg_unmet_need, 				10, 17, 32
+				EMReadScreen mfip_case_budg_unmet_need_food_potion, 	10, 18, 32
 
-			EMReadScreen mfip_case_budg_net_food_portion, 			10, 5, 71
-			EMReadScreen mfip_case_budg_net_cash_portion, 			10, 6, 71
-			EMReadScreen mfip_case_budg_net_unmet_need, 			10, 7, 71
-			EMReadScreen mfip_case_budg_deduction_sanction_vendor, 	10, 8, 71
-			EMReadScreen mfip_case_budg_unmet_neet_subtotal, 		10, 9, 71
-			EMReadScreen mfip_case_budg_subtotal_food_portion, 		10, 11, 71
-			EMReadScreen mfip_case_budg_food_portion_deduction, 	10, 12, 71
-			EMReadScreen mfip_case_budg_entitlement_food_portion, 	10, 13, 71
-			EMReadScreen mfip_case_budg_entitlement_housing_grant, 	10, 15, 71
+				EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 7, 71
+				EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 8, 71
+				EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 9, 71
+
+				EMReadScreen mfip_case_budg_net_food_portion, 				10, 10, 71
+				EMReadScreen mfip_case_budg_net_cash_portion, 				10, 11, 71
+				EMReadScreen mfip_case_budg_net_unmet_need, 				10, 12, 71
+				EMReadScreen mfip_case_budg_deduction_sanction_vendor, 		10, 13, 71
+				EMReadScreen mfip_case_budg_unmet_neet_subtotal, 			10, 14, 71
+				EMReadScreen mfip_case_budg_subtotal_food_portion, 			10, 15, 71
+				EMReadScreen mfip_case_budg_food_portion_deduction, 		10, 16, 71
+				EMReadScreen mfip_case_budg_entitlement_food_portion, 		10, 17, 71
+				EMReadScreen mfip_case_budg_entitlement_housing_grant, 		10, 18, 71
+			Else
+				EMReadScreen mfip_case_budg_unmet_need, 					10, 14, 32
+				EMReadScreen mfip_case_budg_unmet_need_food_potion, 		10, 15, 32
+				EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 16, 32
+				EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 17, 32
+				EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 18, 32
+
+				EMReadScreen mfip_case_budg_net_food_portion, 			10, 5, 71
+				EMReadScreen mfip_case_budg_net_cash_portion, 			10, 6, 71
+				EMReadScreen mfip_case_budg_net_unmet_need, 			10, 7, 71
+				EMReadScreen mfip_case_budg_deduction_sanction_vendor, 	10, 8, 71
+				EMReadScreen mfip_case_budg_unmet_neet_subtotal, 		10, 9, 71
+				EMReadScreen mfip_case_budg_subtotal_food_portion, 		10, 11, 71
+				EMReadScreen mfip_case_budg_food_portion_deduction, 	10, 12, 71
+				EMReadScreen mfip_case_budg_entitlement_food_portion, 	10, 13, 71
+				EMReadScreen mfip_case_budg_entitlement_housing_grant, 	10, 15, 71
+			End If
 
 			mfip_case_budg_family_wage_level = trim(mfip_case_budg_family_wage_level)
 			mfip_case_budg_monthly_earned_income = trim(mfip_case_budg_monthly_earned_income)
@@ -11435,6 +11486,9 @@ class mfip_eligibility_detail
 			mfip_case_budg_unearned_income = trim(mfip_case_budg_unearned_income)
 			mfip_case_budg_deemed_income = trim(mfip_case_budg_deemed_income)
 			mfip_case_budg_cses_exclusion = trim(mfip_case_budg_cses_exclusion)
+			mfip_case_budg_month_total = trim(mfip_case_budg_month_total)
+			mfip_case_budg_prior_low = trim(mfip_case_budg_prior_low)
+			mfip_case_budg_counted_inc = trim(mfip_case_budg_counted_inc)
 			mfip_case_budg_unmet_need = trim(mfip_case_budg_unmet_need)
 			mfip_case_budg_unmet_need_food_potion = trim(mfip_case_budg_unmet_need_food_potion)
 			mfip_case_budg_tribal_counted_income = trim(mfip_case_budg_tribal_counted_income)
@@ -11866,7 +11920,7 @@ class mfip_eligibility_detail
 			EMReadScreen mfip_case_last_approval_date, 8, 5, 31
 			EMReadScreen mfip_case_current_prog_status, 12, 6, 31
 			EMReadScreen mfip_case_eligibility_result, 12, 7, 31
-			EMReadScreen mfip_case_hrf_reporting, 12, 8, 31
+			EMReadScreen mfip_case_reporting_status, 12, 8, 31
 			EMReadScreen mfip_case_source_of_info, 4, 9, 31
 			EMReadScreen mfip_case_benefit_impact, 12, 10, 31
 			EMReadScreen mfip_case_review_date, 8, 11, 31
@@ -11897,7 +11951,7 @@ class mfip_eligibility_detail
 
 			mfip_case_current_prog_status = trim(mfip_case_current_prog_status)
 			mfip_case_eligibility_result = trim(mfip_case_eligibility_result)
-			mfip_case_hrf_reporting = trim(mfip_case_hrf_reporting)
+			mfip_case_reporting_status = trim(mfip_case_reporting_status)
 			mfip_case_source_of_info = trim(mfip_case_source_of_info)
 			mfip_case_benefit_impact = trim(mfip_case_benefit_impact)
 
@@ -22849,6 +22903,9 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 	last_unearned_income = ""
 	last_deemed_income = ""
 	last_cses_exclusion = ""
+	last_budget_month = ""
+	last_prior_low = ""
+	last_counted_inc = ""
 	last_unmet_need_subtotal = ""
 	last_sanction_percent = ""
 	last_sanction_amount = ""
@@ -22884,6 +22941,9 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				last_unearned_income = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unearned_income
 				last_deemed_income = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deemed_income
 				last_cses_exclusion = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_cses_exclusion
+				last_budget_month = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_month_total
+				last_prior_low = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prior_low
+				last_counted_inc = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_counted_inc
 				last_unmet_need_subtotal = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal
 				last_sanction_percent = MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent
 				last_sanction_amount = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor
@@ -22904,6 +22964,9 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_unearned_income <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unearned_income Then match_last_benefit_amounts = False
 				If last_deemed_income <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deemed_income Then match_last_benefit_amounts = False
 				If last_cses_exclusion <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_cses_exclusion Then match_last_benefit_amounts = False
+				If last_budget_month <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_month_total Then match_last_benefit_amounts = False
+				If last_prior_low <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prior_low Then match_last_benefit_amounts = False
+				If last_counted_inc <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_counted_inc Then match_last_benefit_amounts = False
 				If last_unmet_need_subtotal <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal Then match_last_benefit_amounts = False
 				If last_sanction_percent <> MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent Then match_last_benefit_amounts = False
 				If last_sanction_amount <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor Then match_last_benefit_amounts = False
@@ -22936,6 +22999,9 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					last_unearned_income = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unearned_income
 					last_deemed_income = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deemed_income
 					last_cses_exclusion = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_cses_exclusion
+					last_budget_month = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_month_total
+					last_prior_low = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prior_low
+					last_counted_inc = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_counted_inc
 					last_unmet_need_subtotal = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal
 					last_sanction_percent = MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent
 					last_sanction_amount = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor
