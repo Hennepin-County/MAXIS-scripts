@@ -7281,7 +7281,7 @@ If vars_filled = True Then
 
 			form_version_date = "Unknown"
 			saved_form_version_date = "Unknown"
-			If DateDiff("d", #6/20/2025#, form_info_modified_date) >=0 Then
+			If DateDiff("d", #6/23/2025#, form_info_modified_date) >=0 Then
 				set node = xmlDoc.SelectSingleNode("//FormVersion")
 				saved_form_version_date = node.text
 			End If
