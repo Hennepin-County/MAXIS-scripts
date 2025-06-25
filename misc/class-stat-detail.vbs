@@ -6,6 +6,7 @@ class stat_detail
 	public no_stat_data
 	public children_on_case
 	public panels_not_verif_string
+	public cash_six_month_budget_elig
 
 	public stat_addr_homeless_yn
 	public stat_addr_residence_county
@@ -156,9 +157,10 @@ class stat_detail
 	public stat_jobs_one_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_one_snap_pic_ave_inc_per_pay()
 	public stat_jobs_one_snap_pic_prosp_monthly_inc()
-	public stat_jobs_one_grh_pic_pay_freq()
-	public stat_jobs_one_grh_pic_ave_inc_per_pay()
-	public stat_jobs_one_grh_pic_prosp_monthly_inc()
+	public stat_jobs_one_cash_pic_pay_freq()
+	public stat_jobs_one_cash_pic_ave_hrs_per_pay()
+	public stat_jobs_one_cash_pic_ave_inc_per_pay()
+	public stat_jobs_one_cash_pic_prosp_monthly_inc()
 	public stat_jobs_one_job_counted_for_mfip()
 	public stat_jobs_one_job_counted_for_dwp()
 	public stat_jobs_one_job_counted_for_ga()
@@ -190,9 +192,10 @@ class stat_detail
 	public stat_jobs_two_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_two_snap_pic_ave_inc_per_pay()
 	public stat_jobs_two_snap_pic_prosp_monthly_inc()
-	public stat_jobs_two_grh_pic_pay_freq()
-	public stat_jobs_two_grh_pic_ave_inc_per_pay()
-	public stat_jobs_two_grh_pic_prosp_monthly_inc()
+	public stat_jobs_two_cash_pic_pay_freq()
+	public stat_jobs_two_cash_pic_ave_hrs_per_pay()
+	public stat_jobs_two_cash_pic_ave_inc_per_pay()
+	public stat_jobs_two_cash_pic_prosp_monthly_inc()
 	public stat_jobs_two_job_counted_for_mfip()
 	public stat_jobs_two_job_counted_for_dwp()
 	public stat_jobs_two_job_counted_for_ga()
@@ -224,9 +227,10 @@ class stat_detail
 	public stat_jobs_three_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_three_snap_pic_ave_inc_per_pay()
 	public stat_jobs_three_snap_pic_prosp_monthly_inc()
-	public stat_jobs_three_grh_pic_pay_freq()
-	public stat_jobs_three_grh_pic_ave_inc_per_pay()
-	public stat_jobs_three_grh_pic_prosp_monthly_inc()
+	public stat_jobs_three_cash_pic_pay_freq()
+	public stat_jobs_three_cash_pic_ave_hrs_per_pay()
+	public stat_jobs_three_cash_pic_ave_inc_per_pay()
+	public stat_jobs_three_cash_pic_prosp_monthly_inc()
 	public stat_jobs_three_job_counted_for_mfip()
 	public stat_jobs_three_job_counted_for_dwp()
 	public stat_jobs_three_job_counted_for_ga()
@@ -258,9 +262,10 @@ class stat_detail
 	public stat_jobs_four_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_four_snap_pic_ave_inc_per_pay()
 	public stat_jobs_four_snap_pic_prosp_monthly_inc()
-	public stat_jobs_four_grh_pic_pay_freq()
-	public stat_jobs_four_grh_pic_ave_inc_per_pay()
-	public stat_jobs_four_grh_pic_prosp_monthly_inc()
+	public stat_jobs_four_cash_pic_pay_freq()
+	public stat_jobs_four_cash_pic_ave_hrs_per_pay()
+	public stat_jobs_four_cash_pic_ave_inc_per_pay()
+	public stat_jobs_four_cash_pic_prosp_monthly_inc()
 	public stat_jobs_four_job_counted_for_mfip()
 	public stat_jobs_four_job_counted_for_dwp()
 	public stat_jobs_four_job_counted_for_ga()
@@ -292,9 +297,10 @@ class stat_detail
 	public stat_jobs_five_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_five_snap_pic_ave_inc_per_pay()
 	public stat_jobs_five_snap_pic_prosp_monthly_inc()
-	public stat_jobs_five_grh_pic_pay_freq()
-	public stat_jobs_five_grh_pic_ave_inc_per_pay()
-	public stat_jobs_five_grh_pic_prosp_monthly_inc()
+	public stat_jobs_five_cash_pic_pay_freq()
+	public stat_jobs_five_cash_pic_ave_hrs_per_pay()
+	public stat_jobs_five_cash_pic_ave_inc_per_pay()
+	public stat_jobs_five_cash_pic_prosp_monthly_inc()
 	public stat_jobs_five_job_counted_for_mfip()
 	public stat_jobs_five_job_counted_for_dwp()
 	public stat_jobs_five_job_counted_for_ga()
@@ -1309,6 +1315,11 @@ class stat_detail
 			transmit
 		End If
 
+		cash_six_month_budget_elig = False
+		first_of_footer_month = footer_month & "/1/" & footer_year
+		If DateDiff("d", #3/1/2025#, first_of_footer_month) >= 0 Then cash_six_month_budget_elig = True
+
+
 		EMReadScreen stat_prog_cash_I_appl_date, 		8, 6, 33
 		EMReadScreen stat_prog_cash_I_elig_begin_date, 	8, 6, 44
 		EMReadScreen stat_prog_cash_I_interview_date, 	8, 6, 55
@@ -1467,9 +1478,10 @@ class stat_detail
 		ReDim stat_jobs_one_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_one_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_one_snap_pic_prosp_monthly_inc(0)
-		ReDim stat_jobs_one_grh_pic_pay_freq(0)
-		ReDim stat_jobs_one_grh_pic_ave_inc_per_pay(0)
-		ReDim stat_jobs_one_grh_pic_prosp_monthly_inc(0)
+		ReDim stat_jobs_one_cash_pic_pay_freq(0)
+		ReDim stat_jobs_one_cash_pic_ave_hrs_per_pay(0)
+		ReDim stat_jobs_one_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_jobs_one_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_one_job_counted_for_mfip(0)
 		ReDim stat_jobs_one_job_counted_for_dwp(0)
 		ReDim stat_jobs_one_job_counted_for_ga(0)
@@ -1501,9 +1513,10 @@ class stat_detail
 		ReDim stat_jobs_two_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_two_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_two_snap_pic_prosp_monthly_inc(0)
-		ReDim stat_jobs_two_grh_pic_pay_freq(0)
-		ReDim stat_jobs_two_grh_pic_ave_inc_per_pay(0)
-		ReDim stat_jobs_two_grh_pic_prosp_monthly_inc(0)
+		ReDim stat_jobs_two_cash_pic_pay_freq(0)
+		ReDim stat_jobs_two_cash_pic_ave_hrs_per_pay(0)
+		ReDim stat_jobs_two_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_jobs_two_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_two_job_counted_for_mfip(0)
 		ReDim stat_jobs_two_job_counted_for_dwp(0)
 		ReDim stat_jobs_two_job_counted_for_ga(0)
@@ -1535,9 +1548,10 @@ class stat_detail
 		ReDim stat_jobs_three_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_three_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_three_snap_pic_prosp_monthly_inc(0)
-		ReDim stat_jobs_three_grh_pic_pay_freq(0)
-		ReDim stat_jobs_three_grh_pic_ave_inc_per_pay(0)
-		ReDim stat_jobs_three_grh_pic_prosp_monthly_inc(0)
+		ReDim stat_jobs_three_cash_pic_pay_freq(0)
+		ReDim stat_jobs_three_cash_pic_ave_hrs_per_pay(0)
+		ReDim stat_jobs_three_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_jobs_three_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_three_job_counted_for_mfip(0)
 		ReDim stat_jobs_three_job_counted_for_dwp(0)
 		ReDim stat_jobs_three_job_counted_for_ga(0)
@@ -1569,9 +1583,10 @@ class stat_detail
 		ReDim stat_jobs_four_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_four_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_four_snap_pic_prosp_monthly_inc(0)
-		ReDim stat_jobs_four_grh_pic_pay_freq(0)
-		ReDim stat_jobs_four_grh_pic_ave_inc_per_pay(0)
-		ReDim stat_jobs_four_grh_pic_prosp_monthly_inc(0)
+		ReDim stat_jobs_four_cash_pic_pay_freq(0)
+		ReDim stat_jobs_four_cash_pic_ave_hrs_per_pay(0)
+		ReDim stat_jobs_four_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_jobs_four_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_four_job_counted_for_mfip(0)
 		ReDim stat_jobs_four_job_counted_for_dwp(0)
 		ReDim stat_jobs_four_job_counted_for_ga(0)
@@ -1603,9 +1618,10 @@ class stat_detail
 		ReDim stat_jobs_five_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_five_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_five_snap_pic_prosp_monthly_inc(0)
-		ReDim stat_jobs_five_grh_pic_pay_freq(0)
-		ReDim stat_jobs_five_grh_pic_ave_inc_per_pay(0)
-		ReDim stat_jobs_five_grh_pic_prosp_monthly_inc(0)
+		ReDim stat_jobs_five_cash_pic_pay_freq(0)
+		ReDim stat_jobs_five_cash_pic_ave_hrs_per_pay(0)
+		ReDim stat_jobs_five_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_jobs_five_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_five_job_counted_for_mfip(0)
 		ReDim stat_jobs_five_job_counted_for_dwp(0)
 		ReDim stat_jobs_five_job_counted_for_ga(0)
@@ -2646,9 +2662,10 @@ class stat_detail
 				ReDim preserve stat_jobs_one_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_one_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_jobs_one_snap_pic_prosp_monthly_inc(memb_count)
-				ReDim preserve stat_jobs_one_grh_pic_pay_freq(memb_count)
-				ReDim preserve stat_jobs_one_grh_pic_ave_inc_per_pay(memb_count)
-				ReDim preserve stat_jobs_one_grh_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_jobs_one_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_jobs_one_cash_pic_ave_hrs_per_pay(memb_count)
+				ReDim preserve stat_jobs_one_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_jobs_one_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_jobs_one_job_counted_for_mfip(memb_count)
 				ReDim preserve stat_jobs_one_job_counted_for_dwp(memb_count)
 				ReDim preserve stat_jobs_one_job_counted_for_ga(memb_count)
@@ -2680,9 +2697,10 @@ class stat_detail
 				ReDim preserve stat_jobs_two_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_two_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_jobs_two_snap_pic_prosp_monthly_inc(memb_count)
-				ReDim preserve stat_jobs_two_grh_pic_pay_freq(memb_count)
-				ReDim preserve stat_jobs_two_grh_pic_ave_inc_per_pay(memb_count)
-				ReDim preserve stat_jobs_two_grh_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_jobs_two_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_jobs_two_cash_pic_ave_hrs_per_pay(memb_count)
+				ReDim preserve stat_jobs_two_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_jobs_two_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_jobs_two_job_counted_for_mfip(memb_count)
 				ReDim preserve stat_jobs_two_job_counted_for_dwp(memb_count)
 				ReDim preserve stat_jobs_two_job_counted_for_ga(memb_count)
@@ -2714,9 +2732,10 @@ class stat_detail
 				ReDim preserve stat_jobs_three_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_three_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_jobs_three_snap_pic_prosp_monthly_inc(memb_count)
-				ReDim preserve stat_jobs_three_grh_pic_pay_freq(memb_count)
-				ReDim preserve stat_jobs_three_grh_pic_ave_inc_per_pay(memb_count)
-				ReDim preserve stat_jobs_three_grh_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_jobs_three_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_jobs_three_cash_pic_ave_hrs_per_pay(memb_count)
+				ReDim preserve stat_jobs_three_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_jobs_three_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_jobs_three_job_counted_for_mfip(memb_count)
 				ReDim preserve stat_jobs_three_job_counted_for_dwp(memb_count)
 				ReDim preserve stat_jobs_three_job_counted_for_ga(memb_count)
@@ -2748,9 +2767,10 @@ class stat_detail
 				ReDim preserve stat_jobs_four_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_four_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_jobs_four_snap_pic_prosp_monthly_inc(memb_count)
-				ReDim preserve stat_jobs_four_grh_pic_pay_freq(memb_count)
-				ReDim preserve stat_jobs_four_grh_pic_ave_inc_per_pay(memb_count)
-				ReDim preserve stat_jobs_four_grh_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_jobs_four_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_jobs_four_cash_pic_ave_hrs_per_pay(memb_count)
+				ReDim preserve stat_jobs_four_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_jobs_four_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_jobs_four_job_counted_for_mfip(memb_count)
 				ReDim preserve stat_jobs_four_job_counted_for_dwp(memb_count)
 				ReDim preserve stat_jobs_four_job_counted_for_ga(memb_count)
@@ -2782,9 +2802,10 @@ class stat_detail
 				ReDim preserve stat_jobs_five_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_five_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_jobs_five_snap_pic_prosp_monthly_inc(memb_count)
-				ReDim preserve stat_jobs_five_grh_pic_pay_freq(memb_count)
-				ReDim preserve stat_jobs_five_grh_pic_ave_inc_per_pay(memb_count)
-				ReDim preserve stat_jobs_five_grh_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_jobs_five_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_jobs_five_cash_pic_ave_hrs_per_pay(memb_count)
+				ReDim preserve stat_jobs_five_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_jobs_five_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_jobs_five_job_counted_for_mfip(memb_count)
 				ReDim preserve stat_jobs_five_job_counted_for_dwp(memb_count)
 				ReDim preserve stat_jobs_five_job_counted_for_ga(memb_count)
@@ -3957,18 +3978,26 @@ class stat_detail
 				PF3
 
 				Call write_value_and_transmit("X", 19, 71)
-				EMReadScreen stat_jobs_one_grh_pic_pay_freq(each_memb), 1, 3, 63
-				EMReadScreen stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
-				EMReadScreen stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				If cash_six_month_budget_elig = True Then
+					EMReadScreen stat_jobs_one_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_one_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_one_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
+					EMReadScreen stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
+				Else
+					EMReadScreen stat_jobs_one_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_one_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				End If
 
-				If stat_jobs_one_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_one_grh_pic_pay_freq(each_memb) = "Monthly"
-				If stat_jobs_one_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_one_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
-				If stat_jobs_one_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_one_grh_pic_pay_freq(each_memb) = "BiWeekly"
-				If stat_jobs_one_grh_pic_pay_freq(each_memb) = "4" Then stat_jobs_one_grh_pic_pay_freq(each_memb) = "Weekly"
+				If stat_jobs_one_cash_pic_pay_freq(each_memb) = "1" Then stat_jobs_one_cash_pic_pay_freq(each_memb) = "Monthly"
+				If stat_jobs_one_cash_pic_pay_freq(each_memb) = "2" Then stat_jobs_one_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+				If stat_jobs_one_cash_pic_pay_freq(each_memb) = "3" Then stat_jobs_one_cash_pic_pay_freq(each_memb) = "BiWeekly"
+				If stat_jobs_one_cash_pic_pay_freq(each_memb) = "4" Then stat_jobs_one_cash_pic_pay_freq(each_memb) = "Weekly"
 
-				stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb))
-				stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				stat_jobs_one_cash_pic_ave_hrs_per_pay(each_memb) = trim(stat_jobs_one_cash_pic_ave_hrs_per_pay(each_memb))
+				stat_jobs_one_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_one_cash_pic_ave_inc_per_pay(each_memb))
+				stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
 
 				Call write_value_and_transmit("X", 19, 48)
@@ -4059,19 +4088,27 @@ class stat_detail
 				PF3
 
 				Call write_value_and_transmit("X", 19, 71)
-				EMReadScreen stat_jobs_two_grh_pic_pay_freq(each_memb), 1, 3, 63
-				EMReadScreen stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
-				EMReadScreen stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				If cash_six_month_budget_elig = True Then
+					EMReadScreen stat_jobs_two_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_two_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_two_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
+					EMReadScreen stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
+				Else
+					EMReadScreen stat_jobs_two_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_two_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				End If
 
-				If stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
-				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "Monthly"
-				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
-				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "BiWeekly"
-				If stat_jobs_two_grh_pic_pay_freq(each_memb) = "4" Then stat_jobs_two_grh_pic_pay_freq(each_memb) = "Weekly"
+				If stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
+				If stat_jobs_two_cash_pic_pay_freq(each_memb) = "1" Then stat_jobs_two_cash_pic_pay_freq(each_memb) = "Monthly"
+				If stat_jobs_two_cash_pic_pay_freq(each_memb) = "2" Then stat_jobs_two_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+				If stat_jobs_two_cash_pic_pay_freq(each_memb) = "3" Then stat_jobs_two_cash_pic_pay_freq(each_memb) = "BiWeekly"
+				If stat_jobs_two_cash_pic_pay_freq(each_memb) = "4" Then stat_jobs_two_cash_pic_pay_freq(each_memb) = "Weekly"
 
-				stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb))
-				stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				stat_jobs_two_cash_pic_ave_hrs_per_pay(each_memb) = trim(stat_jobs_two_cash_pic_ave_hrs_per_pay(each_memb))
+				stat_jobs_two_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_cash_pic_ave_inc_per_pay(each_memb))
+				stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
 
 				Call write_value_and_transmit("X", 19, 48)
@@ -4162,18 +4199,26 @@ class stat_detail
 				PF3
 
 				Call write_value_and_transmit("X", 19, 71)
-				EMReadScreen stat_jobs_three_grh_pic_pay_freq(each_memb), 1, 3, 63
-				EMReadScreen stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
-				EMReadScreen stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				If cash_six_month_budget_elig = True Then
+					EMReadScreen stat_jobs_three_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_three_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_three_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
+					EMReadScreen stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
+				Else
+					EMReadScreen stat_jobs_three_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_three_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				End If
 
-				If stat_jobs_three_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_three_grh_pic_pay_freq(each_memb) = "Monthly"
-				If stat_jobs_three_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_three_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
-				If stat_jobs_three_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_three_grh_pic_pay_freq(each_memb) = "BiWeekly"
-				If stat_jobs_three_grh_pic_pay_freq(each_memb) = "4" Then stat_jobs_three_grh_pic_pay_freq(each_memb) = "Weekly"
+				If stat_jobs_three_cash_pic_pay_freq(each_memb) = "1" Then stat_jobs_three_cash_pic_pay_freq(each_memb) = "Monthly"
+				If stat_jobs_three_cash_pic_pay_freq(each_memb) = "2" Then stat_jobs_three_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+				If stat_jobs_three_cash_pic_pay_freq(each_memb) = "3" Then stat_jobs_three_cash_pic_pay_freq(each_memb) = "BiWeekly"
+				If stat_jobs_three_cash_pic_pay_freq(each_memb) = "4" Then stat_jobs_three_cash_pic_pay_freq(each_memb) = "Weekly"
 
-				stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb))
-				stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				stat_jobs_three_cash_pic_ave_hrs_per_pay(each_memb) = trim(stat_jobs_three_cash_pic_ave_hrs_per_pay(each_memb))
+				stat_jobs_three_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_cash_pic_ave_inc_per_pay(each_memb))
+				stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
 
 				Call write_value_and_transmit("X", 19, 48)
@@ -4263,18 +4308,26 @@ class stat_detail
 				PF3
 
 				Call write_value_and_transmit("X", 19, 71)
-				EMReadScreen stat_jobs_four_grh_pic_pay_freq(each_memb), 1, 3, 63
-				EMReadScreen stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
-				EMReadScreen stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				If cash_six_month_budget_elig = True Then
+					EMReadScreen stat_jobs_four_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_four_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_four_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
+					EMReadScreen stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
+				Else
+					EMReadScreen stat_jobs_four_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_four_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				End If
 
-				If stat_jobs_four_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_four_grh_pic_pay_freq(each_memb) = "Monthly"
-				If stat_jobs_four_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_four_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
-				If stat_jobs_four_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_four_grh_pic_pay_freq(each_memb) = "BiWeekly"
-				If stat_jobs_four_grh_pic_pay_freq(each_memb) = "4" Then stat_jobs_four_grh_pic_pay_freq(each_memb) = "Weekly"
+				If stat_jobs_four_cash_pic_pay_freq(each_memb) = "1" Then stat_jobs_four_cash_pic_pay_freq(each_memb) = "Monthly"
+				If stat_jobs_four_cash_pic_pay_freq(each_memb) = "2" Then stat_jobs_four_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+				If stat_jobs_four_cash_pic_pay_freq(each_memb) = "3" Then stat_jobs_four_cash_pic_pay_freq(each_memb) = "BiWeekly"
+				If stat_jobs_four_cash_pic_pay_freq(each_memb) = "4" Then stat_jobs_four_cash_pic_pay_freq(each_memb) = "Weekly"
 
-				stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb))
-				stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				stat_jobs_four_cash_pic_ave_hrs_per_pay(each_memb) = trim(stat_jobs_four_cash_pic_ave_hrs_per_pay(each_memb))
+				stat_jobs_four_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_cash_pic_ave_inc_per_pay(each_memb))
+				stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
 
 				Call write_value_and_transmit("X", 19, 48)
@@ -4364,18 +4417,26 @@ class stat_detail
 				PF3
 
 				Call write_value_and_transmit("X", 19, 71)
-				EMReadScreen stat_jobs_five_grh_pic_pay_freq(each_memb), 1, 3, 63
-				EMReadScreen stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb), 10, 16, 67
-				EMReadScreen stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				If cash_six_month_budget_elig = True Then
+					EMReadScreen stat_jobs_five_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_five_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_five_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
+					EMReadScreen stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
+				Else
+					EMReadScreen stat_jobs_five_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_jobs_five_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
+				End If
 
-				If stat_jobs_five_grh_pic_pay_freq(each_memb) = "1" Then stat_jobs_five_grh_pic_pay_freq(each_memb) = "Monthly"
-				If stat_jobs_five_grh_pic_pay_freq(each_memb) = "2" Then stat_jobs_five_grh_pic_pay_freq(each_memb) = "Semi-Monthly"
-				If stat_jobs_five_grh_pic_pay_freq(each_memb) = "3" Then stat_jobs_five_grh_pic_pay_freq(each_memb) = "BiWeekly"
-				If stat_jobs_five_grh_pic_pay_freq(each_memb) = "4" Then stat_jobs_five_grh_pic_pay_freq(each_memb) = "Weekly"
+				If stat_jobs_five_cash_pic_pay_freq(each_memb) = "1" Then stat_jobs_five_cash_pic_pay_freq(each_memb) = "Monthly"
+				If stat_jobs_five_cash_pic_pay_freq(each_memb) = "2" Then stat_jobs_five_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+				If stat_jobs_five_cash_pic_pay_freq(each_memb) = "3" Then stat_jobs_five_cash_pic_pay_freq(each_memb) = "BiWeekly"
+				If stat_jobs_five_cash_pic_pay_freq(each_memb) = "4" Then stat_jobs_five_cash_pic_pay_freq(each_memb) = "Weekly"
 
-				stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb))
-				stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				stat_jobs_five_cash_pic_ave_hrs_per_pay(each_memb) = trim(stat_jobs_five_cash_pic_ave_hrs_per_pay(each_memb))
+				stat_jobs_five_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_cash_pic_ave_inc_per_pay(each_memb))
+				stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
 
 				Call write_value_and_transmit("X", 19, 48)
@@ -5351,9 +5412,9 @@ class stat_detail
 				EMReadScreen stat_othr_one_count_snap(each_memb), 1, 12, 57
 				EMReadScreen stat_othr_one_count_hc(each_memb), 1, 12, 64
 				EMReadScreen stat_othr_one_count_iv_e(each_memb), 1, 12, 73
-				
+
 				EMReadScreen stat_othr_one_joint_owner(each_memb), 1, 13, 44
-				
+
 				EMReadScreen stat_othr_one_share_ratio(each_memb), 5, 15, 50
 			End If
 
@@ -5402,9 +5463,9 @@ class stat_detail
 				EMReadScreen stat_othr_two_count_snap(each_memb), 1, 12, 57
 				EMReadScreen stat_othr_two_count_hc(each_memb), 1, 12, 64
 				EMReadScreen stat_othr_two_count_iv_e(each_memb), 1, 12, 73
-				
+
 				EMReadScreen stat_othr_two_joint_owner(each_memb), 1, 13, 44
-				
+
 				EMReadScreen stat_othr_two_share_ratio(each_memb), 5, 15, 50
 			End If
 
@@ -5453,9 +5514,9 @@ class stat_detail
 				EMReadScreen stat_othr_three_count_snap(each_memb), 1, 12, 57
 				EMReadScreen stat_othr_three_count_hc(each_memb), 1, 12, 64
 				EMReadScreen stat_othr_three_count_iv_e(each_memb), 1, 12, 73
-				
+
 				EMReadScreen stat_othr_three_joint_owner(each_memb), 1, 13, 44
-				
+
 				EMReadScreen stat_othr_three_share_ratio(each_memb), 5, 15, 50
 			End If
 
@@ -5504,9 +5565,9 @@ class stat_detail
 				EMReadScreen stat_othr_four_count_snap(each_memb), 1, 12, 57
 				EMReadScreen stat_othr_four_count_hc(each_memb), 1, 12, 64
 				EMReadScreen stat_othr_four_count_iv_e(each_memb), 1, 12, 73
-				
+
 				EMReadScreen stat_othr_four_joint_owner(each_memb), 1, 13, 44
-				
+
 				EMReadScreen stat_othr_four_share_ratio(each_memb), 5, 15, 50
 			End If
 
@@ -5555,9 +5616,9 @@ class stat_detail
 				EMReadScreen stat_othr_five_count_snap(each_memb), 1, 12, 57
 				EMReadScreen stat_othr_five_count_hc(each_memb), 1, 12, 64
 				EMReadScreen stat_othr_five_count_iv_e(each_memb), 1, 12, 73
-				
+
 				EMReadScreen stat_othr_five_joint_owner(each_memb), 1, 13, 44
-				
+
 				EMReadScreen stat_othr_five_share_ratio(each_memb), 5, 15, 50
 			End If
 		Next
