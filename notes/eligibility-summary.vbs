@@ -1299,7 +1299,8 @@ function define_mfip_elig_dialog()
 		y_pos_2 = y_pos
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1308,7 +1309,8 @@ function define_mfip_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1317,7 +1319,8 @@ function define_mfip_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1326,7 +1329,8 @@ function define_mfip_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1335,7 +1339,8 @@ function define_mfip_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3076,7 +3081,7 @@ function define_grh_elig_dialog()
 		y_pos_2 = y_pos
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_grh(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3085,7 +3090,7 @@ function define_grh_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_grh(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3094,7 +3099,7 @@ function define_grh_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_grh(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3103,7 +3108,7 @@ function define_grh_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_grh(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3112,7 +3117,7 @@ function define_grh_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_grh(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -3286,7 +3291,7 @@ function define_hc_elig_dialog()
 					If STAT_INFORMATION(month_ind).no_stat_data = False Then
 						For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 							If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
-								' Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+								' Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 								Text 295, y_pos+25, 145, 10, "Emergency: " & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb)
 								Text 295, y_pos+35, 145, 10, "Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb)
 								If STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb) = "" Then Text 295, y_pos+45, 145, 10, "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb)
@@ -3795,7 +3800,7 @@ function define_hc_elig_dialog()
 					For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
 						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = inc_count_memb Then
 							If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 								If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 									Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 								Else
@@ -3804,7 +3809,7 @@ function define_hc_elig_dialog()
 								y_pos = y_pos + 20
 							End If
 							If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 								If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 									Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 								Else
@@ -3813,7 +3818,7 @@ function define_hc_elig_dialog()
 								y_pos = y_pos + 20
 							End If
 							If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
 								If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 									Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 								Else
@@ -3822,7 +3827,7 @@ function define_hc_elig_dialog()
 								y_pos = y_pos + 20
 							End If
 							If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
 								If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 									Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 								Else
@@ -3831,7 +3836,7 @@ function define_hc_elig_dialog()
 								y_pos = y_pos + 20
 							End If
 							If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+								Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
 								If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 									Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 								Else
@@ -5304,31 +5309,36 @@ function mfip_elig_case_note()
 
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
 				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
 				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
 				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
 				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = False Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
+				If MFIP_ELIG_APPROVALS(elig_ind).six_month_budget_elig = True Then job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
 				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 				earned_info = "|"
@@ -6913,27 +6923,27 @@ function grh_elig_case_note()
 				EARNED_info = "|      Earned Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_earned_income, 8)
 				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 					If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_grh(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
+						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
 						Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & EARNED_info)
 						EARNED_info = "|"
 					End If
 					If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_grh(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
+						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
 						Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & EARNED_info)
 						EARNED_info = "|"
 					End If
 					If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_grh(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
+						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
 						Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & EARNED_info)
 						EARNED_info = "|"
 					End If
 					If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_grh(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
+						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
 						Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & EARNED_info)
 						EARNED_info = "|"
 					End If
 					If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_grh(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
+						job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
 						Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & EARNED_info)
 						EARNED_info = "|"
 					End If
@@ -21378,8 +21388,11 @@ For each footer_month in MONTHS_ARRAY
 						End If
 					End if
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = False Then
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
+						End If
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21387,8 +21400,11 @@ For each footer_month in MONTHS_ARRAY
 						STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
 					End If
 					If STAT_INFORMATION(month_count).stat_jobs_two_exists(each_stat_memb) = True Then
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_retro_monthly_gross_wage(each_stat_memb)
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = False Then
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_retro_monthly_gross_wage(each_stat_memb)
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
+						End If
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21396,8 +21412,11 @@ For each footer_month in MONTHS_ARRAY
 						STAT_INFORMATION(month_count).stat_jobs_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
 					End If
 					If STAT_INFORMATION(month_count).stat_jobs_three_exists(each_stat_memb) = True Then
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_retro_monthly_gross_wage(each_stat_memb)
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = False Then
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_retro_monthly_gross_wage(each_stat_memb)
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
+						End If
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21405,8 +21424,11 @@ For each footer_month in MONTHS_ARRAY
 						STAT_INFORMATION(month_count).stat_jobs_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
 					End If
 					If STAT_INFORMATION(month_count).stat_jobs_four_exists(each_stat_memb) = True Then
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_retro_monthly_gross_wage(each_stat_memb)
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = False Then
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_retro_monthly_gross_wage(each_stat_memb)
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
+						End If
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21414,8 +21436,11 @@ For each footer_month in MONTHS_ARRAY
 						STAT_INFORMATION(month_count).stat_jobs_four_mfip_counted_amt(each_stat_memb) = the_counted_amount
 					End If
 					If STAT_INFORMATION(month_count).stat_jobs_five_exists(each_stat_memb) = True Then
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_retro_monthly_gross_wage(each_stat_memb)
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = False Then
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_retro_monthly_gross_wage(each_stat_memb)
+							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
+						End If
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
