@@ -4983,6 +4983,19 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             EMWriteScreen "X", 19, 71               'opening the GRH PIC
                             transmit
 
+							' NEW Panel codes and information for six month budgeting
+							' EMReadScreen cash_pic_hrs_per_week, 6, 6, 70
+							' EMReadScreen cash_pic_pay_per_hour, 8, 7, 70
+							' EMReadScreen cash_pic_actual_income, 8, 11, 70
+							' EMReadScreen cash_pic_ave_hrs_per_pay, 10, 15, 68
+							' EMReadScreen cash_pic_ave_inc_per_pay, 10, 16, 68
+							' EMReadScreen cash_pic_prosp_monthly_inc, 10, 17, 68
+
+							' Income LIST in Cash PIC
+							' EMReadScreen cash_pic_date_list, 8, 7, 9
+							' EMReadScreen cash_pic_amount_list, 8, 7, 21
+							' EMReadScreen cash_pic_hours_list, 6, 7, 31
+
                             list_row = 7                            'blanking out all previous information on the GRH PIC
                             beg_of_list_check = ""
                             Do
