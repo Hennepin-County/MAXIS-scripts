@@ -1141,8 +1141,7 @@ function define_main_dialog()
 				Text 15, 165, 450, 10, "ADDITIONAL QUESTIONS BEFORE ASSESMENT IS COMPLETE."
 				y_pos = 185
 			End If
-			' appears_expedited
-			' expedited_delay_info
+
 			If cash_request = True Then
 				If the_process_for_cash = "Renewal" Then Text 15, y_pos, 450, 10, "CASH Case at " & the_process_for_cash & " for " & next_cash_revw_mo & "/" & next_cash_revw_yr
 				If the_process_for_cash = "Application" Then Text 15, y_pos, 450, 10, "CASH Case at " & the_process_for_cash
@@ -6936,7 +6935,7 @@ Dim type_of_emer, the_process_for_emer
 Dim exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, heat_exp_checkbox, ac_exp_checkbox, electric_exp_checkbox, phone_exp_checkbox, none_exp_checkbox, exp_det_notes
 Dim expedited_determination_completed, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources
 Dim jobs_income_yn, busi_income_yn, unea_income_yn, cash_amount_yn, bank_account_yn, all_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, expedited_screening
-Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, caf_1_resources, caf_1_expenses
+Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, case_is_expedited, approval_date, caf_1_resources, caf_1_expenses
 ' Dim calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, CAF_datestamp, interview_date
 Dim applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four
 ' Dim applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four
@@ -10582,32 +10581,32 @@ If expedited_determination_needed = True Then
 	objSelection.Font.Bold = TRUE
 	objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
 	objSelection.Font.Bold = FALSE
-	If case_is_expedited = True Then
+	If is_elig_XFS = True Then
 		objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
 	Else
 		objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
 	End If
-	If run_by_interview_team = True Then
-		objSelection.TypeText chr(9) & "Income in the month of application: " & exp_det_income & vbCr
-		objSelection.TypeText chr(9) & "Assets in the month of application: " & exp_det_assets & vbCr
-		objSelection.TypeText chr(9) & "Expenses in the month of application: " & calculated_expenses & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & exp_det_housing & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & exp_det_utilities & vbCr
-		If trim(exp_det_notes) <> "" Then objSelection.TypeText chr(9) & "Additional Notes: " & exp_det_notes & vbCr
-	Else
-		objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
-		objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
-		objSelection.TypeText chr(9) & "Expenses in the month of application: " & app_month_expenses & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
-		objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
-		If case_is_expedited = True Then
-			If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
-				objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
-				objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
-				If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-				If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-				If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
-			End If
+	objSelection.TypeText chr(9) & "Income in the month of application: " & determined_income & vbCr
+	objSelection.TypeText chr(9) & "Assets in the month of application: " & determined_assets & vbCr
+	objSelection.TypeText chr(9) & "Expenses in the month of application: " & calculated_expenses & vbCr
+	objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & determined_shel & vbCr
+	objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & determined_utilities & vbCr
+	If trim(exp_det_notes) <> "" Then objSelection.TypeText chr(9) & "Additional Notes: " & exp_det_notes & vbCr
+	If trim(delay_explanation) <> "" Then
+		objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
+		line_start = chr(9) & chr(9) & "Detail: "
+		counter = 1
+		If InStr(delay_explanation, ";") = 0 Then
+			objSelection.TypeText line_start & counter & ". " & delay_explanation & vbCr
+			line_start = chr(9) & chr(9) & chr(9)
+		Else
+			delay_explain_array = Split(delay_explanation, ";")
+			For each delay_reason in delay_explain_array
+				delay_reason = trim(delay_reason)
+				objSelection.TypeText line_start & counter & ". " & delay_reason & vbCr
+				line_start = chr(9) & chr(9) & chr(9)
+				counter = counter + 1
+			Next
 		End If
 	End If
 
