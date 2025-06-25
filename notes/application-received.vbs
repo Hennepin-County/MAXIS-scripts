@@ -403,7 +403,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 
 	If correct_caseload_type = "" Then
-		If unknown_hc_pending = True or ma_case <> "INACTIVE" or msp_status <> "INACTIVE" Then
+		If unknown_hc_pending = True or ma_status <> "INACTIVE" or msp_status <> "INACTIVE" Then
 			If appears_ltc_checkbox = checked Then
 				correct_caseload_type = "LTC+ - General"
 				'MsgBox left(case_name, 1) & vbCr & InStr(alpha_split_two_m_z, left(case_name, 1))
@@ -494,8 +494,6 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
     If correct_caseload_type = "" OR correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending" Then
         If unknown_hc_pending = True OR ma_status <> "INACTIVE"  OR msp_status <> "INACTIVE" Then 
             correct_caseload_type = "Healthcare - Pending"
-            'pick the HC pending caseload at random
-            call get_caseload_array_by_type("Healthcare - Pending", available_caseload_array)
         End If 
     End If
 
