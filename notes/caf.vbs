@@ -1165,7 +1165,7 @@ function save_your_work()
                 box_two_info = ""
                 If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
                 box_one_info = ""
@@ -1572,7 +1572,7 @@ function save_your_work()
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
                 If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = unchecked Then box_one_info = "UNCHECKED"
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = unchecked Then box_two_info = "UNCHECKED"
-                script_run_lowdown = script_run_lowdown & vbCr & "ALL_JOBS_PANELS_ARRAY" & ": " &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                script_run_lowdown = script_run_lowdown & vbCr & "ALL_JOBS_PANELS_ARRAY" & ": " &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             script_run_lowdown = script_run_lowdown & vbCr & vbCr
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
@@ -2119,10 +2119,10 @@ function restore_your_work(vars_filled)
                             ALL_JOBS_PANELS_ARRAY(pic_prosp_income, known_jobs)     = array_info(15)
                             ALL_JOBS_PANELS_ARRAY(pic_calc_date, known_jobs)        = array_info(16)
                             ALL_JOBS_PANELS_ARRAY(EI_case_note, known_jobs)         = array_info(17)
-                            ALL_JOBS_PANELS_ARRAY(grh_calc_date, known_jobs)        = array_info(18)
-                            ALL_JOBS_PANELS_ARRAY(grh_pay_freq, known_jobs)         = array_info(19)
-                            ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, known_jobs)   = array_info(20)
-                            ALL_JOBS_PANELS_ARRAY(grh_prosp_income, known_jobs)     = array_info(21)
+                            ALL_JOBS_PANELS_ARRAY(cash_calc_date, known_jobs)        = array_info(18)
+                            ALL_JOBS_PANELS_ARRAY(cash_pay_freq, known_jobs)         = array_info(19)
+                            ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, known_jobs)   = array_info(20)
+                            ALL_JOBS_PANELS_ARRAY(cash_prosp_income, known_jobs)     = array_info(21)
                             ALL_JOBS_PANELS_ARRAY(start_date, known_jobs)           = array_info(25)
                             ALL_JOBS_PANELS_ARRAY(end_date, known_jobs)             = array_info(26)
                             If array_info(33) = "CHECKED" Then ALL_JOBS_PANELS_ARRAY(verif_checkbox, known_jobs) = checked
@@ -2139,7 +2139,7 @@ function restore_your_work(vars_filled)
                         '     box_two_info = ""
                         '     If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
                         '     If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                        '     objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                        '     objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
                         ' Next
                         If line_info(0) = "ALL_BUSI_PANELS_ARRAY" Then
                             array_info = line_info(1)
@@ -3583,17 +3583,35 @@ function read_JOBS_panel()
     IF GRH_PIC_check = "GRH" THEN
     	EMWriteScreen "X", 19, 71
     	transmit
-    	EMReadScreen GRH_JOBS_pay_amt, 8, 16, 69
-    	GRH_JOBS_pay_amt = trim(GRH_JOBS_pay_amt)
-        EMReadScreen GRH_JOBS_total_amt, 8, 17, 69
-        GRH_JOBS_total_amt = trim(GRH_JOBS_total_amt)
-    	EMReadScreen GRH_pay_frequency, 1, 3, 63
-    	EMReadScreen GRH_date_of_pic_calc, 8, 3, 30
-    	GRH_date_of_pic_calc = replace(GRH_date_of_pic_calc, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(grh_calc_date, job_count) = GRH_date_of_pic_calc
-        ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = GRH_pay_frequency
-        ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, job_count) = GRH_JOBS_pay_amt
-        ALL_JOBS_PANELS_ARRAY(grh_prosp_income, job_count) = GRH_JOBS_total_amt
+    	EMReadScreen CASH_JOBS_pay_amt, 8, 16, 69
+    	CASH_JOBS_pay_amt = trim(CASH_JOBS_pay_amt)
+        EMReadScreen CASH_JOBS_total_amt, 8, 17, 69
+        CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
+    	EMReadScreen CASH_pay_frequency, 1, 3, 63
+    	EMReadScreen CASH_date_of_pic_calc, 8, 3, 30
+    	CASH_date_of_pic_calc = replace(CASH_date_of_pic_calc, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_pic_calc
+        ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
+        ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
+    	PF3
+    END IF
+    'Navigats to CASH PIC - This is an update to the GRH pic and only one will exist at any time
+    EMReadscreen CASH_PIC_check, 4, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
+    IF CASH_PIC_check = "CASH" THEN
+    	EMWriteScreen "X", 19, 71
+    	transmit
+    	EMReadScreen CASH_JOBS_pay_amt, 10, 16, 68
+    	CASH_JOBS_pay_amt = trim(CASH_JOBS_pay_amt)
+        EMReadScreen CASH_JOBS_total_amt, 10, 17, 68
+        CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
+    	EMReadScreen CASH_pay_frequency, 1, 3, 63
+    	EMReadScreen CASH_date_of_pic_calc, 8, 3, 30
+    	CASH_date_of_pic_calc = replace(CASH_date_of_pic_calc, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_pic_calc
+        ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
+        ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
     	PF3
     END IF
     '  Reads the information on the retro side of JOBS
@@ -3649,10 +3667,10 @@ function read_JOBS_panel()
     If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Semi-Monthly"
     If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Monthly"
 
-    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Weekly"
-    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Biweekly"
-    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Semi-Monthly"
-    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Monthly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Monthly"
 
 end function
 
@@ -5304,13 +5322,13 @@ const pic_calc_date         = 16
 const expense_pro_cash      = 16         'for BUSI Array'
 const EI_case_note          = 17
 const cash_expense_verif    = 17         'for BUSI Array'
-const grh_calc_date         = 18
+const cash_calc_date        = 18							'UPDATE MADE FOR 07/01/25 JOBS changes - any cash_ was changed from grh_
 const income_ret_snap       = 18         'for BUSI Array'
-const grh_pay_freq          = 19
+const cash_pay_freq         = 19
 const income_pro_snap       = 19         'for BUSI Array'
-const grh_pay_day_income    = 20
+const cash_pay_day_income   = 20
 const snap_income_verif     = 20         'for BUSI Array'
-const grh_prosp_income      = 21
+const cash_prosp_income     = 21
 const expense_ret_snap      = 21         'for BUSI Array'
 const expense_pro_snap      = 22         'for BUSI Array'
 const snap_expense_verif    = 23         'for BUSI Array'
@@ -5917,103 +5935,130 @@ If vars_filled = False Then
 	MAXIS_footer_month = CM_mo
 	MAXIS_footer_year = CM_yr
 
-	If unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" or emer_status = "PENDING" Then
-		Call navigate_to_MAXIS_screen("STAT", "PROG")
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
 
-		'here we are going to read for the CAF date by reading each line of PROG and looking for the most recent date.
-		row = 6
-		Do
-			EMReadScreen appl_prog_date, 8, row, 33
-			If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
+	'here we are going to read for the CAF date by reading each line of PROG and looking for the most recent date.
+	'This will not consider if any program is pending or not - simply find the most recent application date
+	row = 6
+	Do														'first, read every application date on PROG and add to an array.
+		EMReadScreen appl_prog_date, 8, row, 33
+		If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
 
-			row = row + 1
-		Loop until row = 12
-		appl_prog_date_array = split(appl_prog_date_array)
-		PROG_CAF_datestamp = CDate(appl_prog_date_array(0))
-		for i = 0 to ubound(appl_prog_date_array) - 1
-			if CDate(appl_prog_date_array(i)) > PROG_CAF_datestamp then
-				PROG_CAF_datestamp = CDate(appl_prog_date_array(i))
-			End if
-		next
-		If isdate(PROG_CAF_datestamp) = True then
-			var_month = datepart("m", PROG_CAF_datestamp)
-			IF len(var_month) = 1 THEN var_month = "0" & var_month
-			var_day = datepart("d", PROG_CAF_datestamp)
-			IF len(var_day) = 1 THEN var_day = "0" & var_day
-			var_year = right(datepart("yyyy", PROG_CAF_datestamp), 2)
-			CAF_MAXIS_date = var_month & " " & var_day & " " & var_year
-			PROG_CAF_datestamp = cdate(PROG_CAF_datestamp) & ""
-		Else
-			PROG_CAF_datestamp = ""
+		row = row + 1
+	Loop until row = 12										'row 12 is the HC row and we do not read this line
+	appl_prog_date_array = split(appl_prog_date_array)		'make the dates into an array
+	PROG_CAF_datestamp = CDate(appl_prog_date_array(0))
+	for i = 0 to ubound(appl_prog_date_array) - 1			'Loop through the array to find the most recent application date listed on PROG. (the minus 1 ignores IVE app dates)
+		if CDate(appl_prog_date_array(i)) > PROG_CAF_datestamp then	'if the date from the array is AFTER the current prog date, then it is replaced
+			PROG_CAF_datestamp = CDate(appl_prog_date_array(i))
 		End if
+	next
 
-		cash_interview_missing = False          'defaulting to the interview date is NOT missing
-		emer_interview_missing = False
-		snap_interview_missing = False
-		'checking Cash lines - which included GRH
-		If cash_checkbox = checked Then
-			EMReadScreen prog_cash_1_form_date, 8, 6, 33
-			If prog_cash_1_form_date = CAF_MAXIS_date Then
-				EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
-				cash_interview_missing = True
-				If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
-					PROG_interview_date = replace(prog_cash_1_intvw_date, " ", "/") & " "
-					cash_interview_missing = False
-				End If
-			End If
-			EMReadScreen prog_cash_2_form_date, 8, 7, 33
-			If prog_cash_2_form_date = CAF_MAXIS_date Then
-				EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
-				cash_interview_missing = True
-				If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
-					PROG_interview_date = replace(prog_cash_2_intvw_date, " ", "/") & " "
-					cash_interview_missing = False
-				End If
-			End If
-		End If
-		If GRH_checkbox = checked Then
-			EMReadScreen prog_grh_form_date, 8, 9, 33
-			If prog_grh_form_date = CAF_MAXIS_date Then
-				EMReadScreen prog_grh_intvw_date, 8, 9, 55
-				cash_interview_missing = True
-				If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
-					PROG_interview_date = replace(prog_grh_intvw_date, " ", "/") & " "
-					cash_interview_missing = False
-				End If
-			End If
-		End If
-		'checking EMER lines
-		If EMER_checkbox = checked Then
-			EMReadScreen prog_emer_form_date, 8, 8, 33
-			If prog_emer_form_date = CAF_MAXIS_date Then
-				EMReadScreen prog_emer_intvw_date, 8, 8, 55
-				emer_interview_missing = True
-				If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
-					PROG_interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
-					emer_interview_missing = False
-                ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" Then
-                    'If other programs are pending besides EMER, then the script will proceed even if EMER interview has NOT been completed
-                    emer_interview_missing = False
-				End If
-			End If
-		End If
-		'Checking SNAP lines
-		If SNAP_checkbox = checked Then
-			EMReadScreen prog_snap_form_date, 8, 10, 33
-			If prog_snap_form_date = CAF_MAXIS_date Then
-				EMReadScreen prog_snap_intvw_date, 8, 10, 55
-				snap_interview_missing = True
-				If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
-					PROG_interview_date = replace(prog_snap_intvw_date, " ", "/") & " "
-					snap_interview_missing = False
-				End If
-			End If
-		End If
-		'If any interview dates are missing we blank out the interview date variable
-		If cash_interview_missing = True Then PROG_interview_date = ""
-		If emer_interview_missing = True Then PROG_interview_date = ""
-		If snap_interview_missing = True Then PROG_interview_date = ""
+	'Now we need to do some filtering for really old dates and cases still pending for the script to behave as expected
+	prog_pending = False									'this lets us know if SOMETHING is pending.
+	If unknown_cash_pending = True or ga_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" or emer_status = "PENDING" Then prog_pending = True
+	older_than_30_days = False								'defaulting to a current application (within 30 days)
+	If isdate(PROG_CAF_datestamp) = True then				'If a date was found on PROG - which it should have been
+		If DateDiff("d", PROG_CAF_datestamp, date) > 30 then older_than_30_days = True								'app older than 30 days may not be relevant - this is used to determine if we allow workers to 'UNTRACK' programs
+		If DateDiff("d", PROG_CAF_datestamp, date) > 180 and prog_pending = False then PROG_CAF_datestamp = ""		'applications older than 180 days and not currently pending are no longer supported.
 	End If
+
+	'now if there is still a PROG date that is relevant, we create a variable to make comparing the CAF dates on PROG easier.
+	If isdate(PROG_CAF_datestamp) = True then
+		var_month = datepart("m", PROG_CAF_datestamp)					'creating a string variable CAF_MAXIS_date with 'MM DD YY' for the next part reading for programs
+		IF len(var_month) = 1 THEN var_month = "0" & var_month
+		var_day = datepart("d", PROG_CAF_datestamp)
+		IF len(var_day) = 1 THEN var_day = "0" & var_day
+		var_year = right(datepart("yyyy", PROG_CAF_datestamp), 2)
+		CAF_MAXIS_date = var_month & " " & var_day & " " & var_year
+		PROG_CAF_datestamp = cdate(PROG_CAF_datestamp) & ""				'make the prog date readable in a dialog
+	Else
+		PROG_CAF_datestamp = ""
+	End if
+
+	cash_interview_missing = False          'defaulting to the interview date is NOT missing
+	emer_interview_missing = False
+	snap_interview_missing = False
+
+	'Now we read PROG again to determine which programs have a matching application date to the most recent PROG date.
+	'For each program, we read the prog appl date and compare it to the CAF_MAXIS_date variabl
+	'If it matches, the program is selected - if the program is not pending (checkbox is unchecked) and the appl date is more than 30 days,
+		'we allow the worker to UNSelect the program since it might be an old application.
+	'checking Cash lines - which included GRH
+	EMReadScreen prog_cash_1_form_date, 8, 6, 33
+	If prog_cash_1_form_date = CAF_MAXIS_date Then
+		If cash_checkbox = unchecked and older_than_30_days = True Then allow_CASH_untrack = True
+		cash_checkbox = checked
+		the_process_for_CASH = "Application"
+		EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
+		cash_interview_missing = True
+		If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
+			PROG_interview_date = replace(prog_cash_1_intvw_date, " ", "/") & " "
+			cash_interview_missing = False
+		End If
+	End If
+	EMReadScreen prog_cash_2_form_date, 8, 7, 33
+	If prog_cash_2_form_date = CAF_MAXIS_date Then
+		If cash_checkbox = unchecked and older_than_30_days = True Then allow_CASH_untrack = True
+		cash_checkbox = checked
+		the_process_for_CASH = "Application"
+		EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
+		cash_interview_missing = True
+		If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
+			PROG_interview_date = replace(prog_cash_2_intvw_date, " ", "/") & " "
+			cash_interview_missing = False
+		End If
+	End If
+
+	EMReadScreen prog_grh_form_date, 8, 9, 33
+	If prog_grh_form_date = CAF_MAXIS_date Then
+		If GRH_checkbox = unchecked and older_than_30_days = True Then allow_GRH_untrack = True
+		GRH_checkbox = checked
+		the_process_for_GRH = "Application"
+		EMReadScreen prog_grh_intvw_date, 8, 9, 55
+		cash_interview_missing = True
+		If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
+			PROG_interview_date = replace(prog_grh_intvw_date, " ", "/") & " "
+			cash_interview_missing = False
+		End If
+	End If
+
+	'checking EMER lines
+	EMReadScreen prog_emer_form_date, 8, 8, 33
+	If prog_emer_form_date = CAF_MAXIS_date Then
+		If EMER_checkbox = unchecked and older_than_30_days = True Then allow_EMER_untrack = True
+		EMER_checkbox = checked
+		the_process_for_EMER = "Application"
+		EMReadScreen prog_emer_intvw_date, 8, 8, 55
+		emer_interview_missing = True
+		If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
+			PROG_interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
+			emer_interview_missing = False
+		ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" Then
+			'If other programs are pending besides EMER, then the script will proceed even if EMER interview has NOT been completed
+			emer_interview_missing = False
+		End If
+	End If
+
+	'Checking SNAP lines
+	EMReadScreen prog_snap_form_date, 8, 10, 33
+	If prog_snap_form_date = CAF_MAXIS_date Then
+		If SNAP_checkbox = unchecked and older_than_30_days = True Then allow_SNAP_untrack = True
+		SNAP_checkbox = checked
+		the_process_for_SNAP = "Application"
+		EMReadScreen prog_snap_intvw_date, 8, 10, 55
+		snap_interview_missing = True
+		If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
+			PROG_interview_date = replace(prog_snap_intvw_date, " ", "/") & " "
+			snap_interview_missing = False
+		End If
+	End If
+
+	'If any interview dates are missing we blank out the interview date variable
+	If cash_interview_missing = True Then PROG_interview_date = ""
+	If emer_interview_missing = True Then PROG_interview_date = ""
+	If snap_interview_missing = True Then PROG_interview_date = ""
+	PROG_interview_date = PROG_CAF_datestamp									'REMOVE!!! -  TESTING FUNCTIONALITY $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &
 
 	multiple_CAF_dates = False
 	multiple_interview_dates = False
@@ -7314,15 +7359,12 @@ Do
                                                           EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
                                                       End If
-                                                      If grh_checkbox = checked Then
-                                                          Text 15, y_pos, 35, 10, "GRH PIC:"
-                                                          Text 65, y_pos, 60, 10, "Pay Date Amount: "
-                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
-                                                          Text 265, y_pos, 70, 10, "Prospective Amount:"
-                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(grh_prosp_income, each_job)
-                                                          Text 420, y_pos, 40, 10, "Calculated:"
-                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_calc_date, each_job)
+                                                      If grh_checkbox = checked OR cash_checkbox = checked Then
+                                                          Text 10, y_pos, 600, 10, "GRH/CASH PIC: Pay Date Amount:                                                                          Prospective Amount:                                               Calculated:"
+                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(cash_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(cash_pay_freq, each_job)
+                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(cash_prosp_income, each_job)
+                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_calc_date, each_job)
                                                           y_pos = y_pos + 20
                                                       End If
                                                       If ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
@@ -10041,7 +10083,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
 End If
 
 'If the verifs_needed has not been changed from what was initially generated, then no new case/note is needed. If it has, then a new case/note is needed
-If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed Then 
+If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed Then
     verifs_case_note_needed = True
 End If
 
@@ -10090,7 +10132,7 @@ If (trim(verifs_needed) <> "" AND verifications_requested_case_note_found = Fals
     Call write_variable_in_CASE_NOTE("List of all verifications requested:")
     For each verif_item in verifs_array
         verif_item = trim(verif_item)
-        If right(verif_item, 1) = "," Then verif_item = left(verif_item, len(verif_item) - 1) & "." 
+        If right(verif_item, 1) = "," Then verif_item = left(verif_item, len(verif_item) - 1) & "."
         If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
         verif_counter = verif_counter + 1
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
