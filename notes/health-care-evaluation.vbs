@@ -5548,7 +5548,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Call start_a_blank_case_note
 
 		'Add title to CASE NOTE
-		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
+		If ex_parte_determination = "Appears Ex Parte" AND mixed_household = True Then
+			CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - MIXED HOUSEHOLD ***")
+		Else
+			CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
+		End IF 
 
 		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
