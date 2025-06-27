@@ -223,6 +223,12 @@ Else
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 End if
 
+If effective_date > "06/30/2025" Then 
+	PWE_col = 70
+Else
+	PWE_col = 68
+End If 
+
 MAXIS_footer_month 	= right("0" & DatePart("m",   effective_date), 2)
 MAXIS_footer_year 	= right(      DatePart("yyyy",effective_date), 2)
 
@@ -240,7 +246,7 @@ IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_proc
 
 EMReadscreen wreg_panel, 1, 2, 78
 If wreg_panel = "0" then Call write_value_and_transmit("NN", 20, 79)
-EMReadscreen PWE_indicator, 1, 6, 70
+EMReadscreen PWE_indicator, 1, 6, PWE_col
 If PWE_indicator = "_" then EMWriteScreen "Y", 6, 70
 
 If ABAWD_selection = "Care of Child under 6" then
