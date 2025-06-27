@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2025", "Updated case note header to identify ex parte mixed households. Fixed a bug with SECU panel blank values.", "David Courtright, Hennepin County")
 call changelog_update("05/29/2025", "Added handling to pull details from the OTHR panel, added dialog field to CASE/NOTE burial assets noted on OTHR panels.", "Mark Riegel, Hennepin County")
 call changelog_update("10/24/2024", "BUG FIX - updated handling for BILS dialog.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Added a reminder to review Remedial Care for any person in a type 55 or 56 Facility.", "Casey Love, Hennepin County")
@@ -5995,7 +5996,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Call start_a_blank_case_note
 
 		'Add title to CASE NOTE
-		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
+		If ex_parte_determination = "Appears Ex Parte" AND mixed_household = True Then
+            CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - MIXED HOUSEHOLD ***")
+        Else
+            CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
+        End IF 
 
 		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
@@ -7004,8 +7009,13 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Tot
 
 	total_cash = round(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
 	total_accounts = round(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb))
-	total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
-
+	
+	If STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) = 0
+    If STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = 0
+    If STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = 0
+    total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+	total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+	
 	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
