@@ -2969,7 +2969,9 @@ If ex_parte_function = "Prep 1" Then
 
 					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 					objAVSlist = "SELECT * FROM ES.ES_AVSList"
-
+					'Hey dave work on this for next month
+					'on demand line 87
+					'objAVSList = Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'" 
 					objAVSRecordSet.Open objAVSList, objConnection
 					found_on_sql = False
 					Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
