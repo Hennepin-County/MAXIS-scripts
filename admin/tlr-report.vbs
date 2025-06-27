@@ -846,14 +846,20 @@ Function BULK_ABAWD_FSET_exemption_finder()
     
 		'----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
+		panel_date = cdate(MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+    	If panel_date > cdate("6/30/2025") Then
+        	ET_col = 78
+    	Else
+        	ET_col = 80
+    	End If
         Call write_value_and_transmit(member_number, 20, 76)
         PF9
 		EMWriteScreen best_wreg_code, 8, 50
 		EMWriteScreen best_abawd_code, 13, 50
 		If best_wreg_code = "30" then
-		    EmWriteScreen "N", 8, 80
+		    EmWriteScreen "N", 8, ET_col
 		Else
-		    EMWriteScreen "_", 8, 80
+		    EMWriteScreen "_", 8, ET_col
 		End if
 
         'Updating the ATR if the codes are already not updated for the CM      

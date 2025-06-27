@@ -655,9 +655,17 @@ If update_wreg_checkbox = 1 then
         Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
         EMReadScreen panel_exists, 1, 2, 78
+        panel_date = cdate(MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+        If panel_date > cdate("6/30/2025") Then
+            PWE_col = 70
+            ET_col = 78
+        Else
+            PWE_col = 68
+            ET_col = 80
+        End If
         If panel_exists = "0" then 
             Call write_value_and_transmit("NN", 20, 79) 'Adding new WREG panel 
-            EMWriteScreen "Y", 6, 68 'defaulting PWE to Y if blank panel 
+            EMWriteScreen "Y", 6, PWE_col 'defaulting PWE to Y if blank panel 
         Else 
             PF9
         End if 
@@ -666,12 +674,12 @@ If update_wreg_checkbox = 1 then
 	    EMWriteScreen best_abawd_code, 13, 50
 	    If best_wreg_code = "30" then
             If best_abawd_code = "09" then 
-                EMWriteScreen "Y", 8, 80
+                EMWriteScreen "Y", 8, ET_col
             Else 
-	            EMWriteScreen "N", 8, 80
+	            EMWriteScreen "N", 8, ET_col
             End if 
 	    Else
-	        EMWriteScreen "_", 8, 80
+	        EMWriteScreen "_", 8, ET_col
 	    End if
 	    
 	    EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!

@@ -105,13 +105,19 @@ other_notes = ""
 ' End If
 Do
     Call navigate_to_MAXIS_screen("STAT", "WREG")
+    panel_date = cdate(MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+    If panel_date > cdate("6/30/2025") Then
+        ET_col = 78
+    Else
+        ET_col = 80
+    End If
     EMWriteScreen HH_member_number, 20, 76
     transmit
 
     EMReadScreen new_fset_status, 2, 8, 50
     EMReadScreen new_abawd_status, 2, 13, 50
     EMReadScreen new_bm_tracker, 1, 14, 50
-    EMReadScreen new_fset_funds, 1, 8, 80
+    EMReadScreen new_fset_funds, 1, 8, ET_col
 
     If new_fset_status = "30" AND new_abawd_status = "13" Then
         other_notes = other_notes & " * " & MAXIS_footer_month & "/" & MAXIS_footer_year & " for MEMB " & HH_member_number & " is BANKED - Banked Month: " & new_bm_tracker & ".###"
