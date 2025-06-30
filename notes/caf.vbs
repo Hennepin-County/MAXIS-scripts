@@ -3575,8 +3575,8 @@ function read_JOBS_panel()
     ALL_JOBS_PANELS_ARRAY(pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
     EMReadScreen snap_pay_frequency, 1, 5, 64
     ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = snap_pay_frequency
-    EMReadScreen date_of_pic_calc, 8, 5, 34
-    ALL_JOBS_PANELS_ARRAY(pic_calc_date, job_count) = replace(date_of_pic_calc, " ", "/")
+    EMReadScreen date_of_SNAP_pic_calc, 8, 5, 34
+    ALL_JOBS_PANELS_ARRAY(pic_calc_date, job_count) = replace(date_of_SNAP_pic_calc, " ", "/")
     transmit
     'Navigats to GRH PIC
     EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
@@ -3588,9 +3588,9 @@ function read_JOBS_panel()
         EMReadScreen CASH_JOBS_total_amt, 8, 17, 69
         CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
     	EMReadScreen CASH_pay_frequency, 1, 3, 63
-    	EMReadScreen CASH_date_of_pic_calc, 8, 3, 30
-    	CASH_date_of_pic_calc = replace(CASH_date_of_pic_calc, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_pic_calc
+    	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
+    	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
         ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
         ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
         ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
@@ -3606,9 +3606,9 @@ function read_JOBS_panel()
         EMReadScreen CASH_JOBS_total_amt, 10, 17, 68
         CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
     	EMReadScreen CASH_pay_frequency, 1, 3, 63
-    	EMReadScreen CASH_date_of_pic_calc, 8, 3, 30
-    	CASH_date_of_pic_calc = replace(CASH_date_of_pic_calc, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_pic_calc
+    	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
+    	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
         ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
         ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
         ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
@@ -3952,14 +3952,35 @@ function read_UNEA_panel()
                 EMReadScreen retro_amt, 8, 18, 39
                 retro_amt = trim(retro_amt)
 
-                EMWriteScreen "X", 10, 26
-                transmit
+				EMReadscreen CASH_PIC_check, 8, 10, 45 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
+				If CASH_PIC_check = "CASH PIC" Then
+					If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
+				Else
+					If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				End If
                 EMReadScreen SNAP_UNEA_amt, 8, 18, 56
                 SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
                 EMReadScreen snap_pay_frequency, 1, 5, 64
-                EMReadScreen date_of_pic_calc, 8, 5, 34
-                date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
+                EMReadScreen date_of_SNAP_pic_calc, 8, 5, 34
+                date_of_SNAP_pic_calc = replace(date_of_SNAP_pic_calc, " ", "/")
                 transmit
+
+				CASH_UNEA_amt = ""
+				If CASH_PIC_check = "CASH PIC" Then
+					If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen CASH_UNEA_amt, 10, 19, 55
+					CASH_UNEA_amt = trim(CASH_UNEA_amt)
+					EMReadScreen cash_pay_frequency, 1, 5, 64
+					'stat_unea_one_cash_pic_pay_freq(each_memb),
+					'EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen date_of_CASH_pic_calc, 8, 5, 34
+					date_of_CASH_pic_calc = replace(date_of_CASH_pic_calc, " ", "/")
+					transmit
+
+					If CASH_UNEA_amt = "" Then CASH_UNEA_amt = 0
+					CASH_UNEA_amt = CASH_UNEA_amt * 1
+
+				End If
 
                 If prosp_amt = "" Then prosp_amt = 0
                 prosp_amt = prosp_amt * 1
@@ -3977,8 +3998,9 @@ function read_UNEA_panel()
                 variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
                 determined_unea_income = determined_unea_income + SNAP_UNEA_amt
 
-                If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
-                If retro_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
+                If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
+                If CASH_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
+				If retro_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
                 If prosp_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
                 'Leaving out HC income estimator if footer month is not Current month + 1
                 If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
@@ -3998,7 +4020,8 @@ function read_UNEA_panel()
                             'TODO - The NOTES area of the array here does not work well for a case that has a person with more than one RSDI panel. ENHANCEMENT
                             If income_type = "01" Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "RSDI is Disability Income.; "
                             If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
-                           UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If (CASH_checkbox = checked or GRH_checkbox = checked) and prosp_amt <> CASH_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "CASH budgeted Inomce =  $" & CASH_UNEA_amt & "; "
+                        	UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
                             If IsDate(UNEA_income_start_date) = TRUE Then
                                 If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
                             End If
@@ -4007,6 +4030,7 @@ function read_UNEA_panel()
                         If income_type = "03" Then
                             UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) + prosp_amt
                             If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
+                            If (CASH_checkbox = checked or GRH_checkbox = checked) and prosp_amt <> CASH_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "CASH budgeted Inomce =  $" & CASH_UNEA_amt & "; "
                             UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
                             If IsDate(UNEA_income_start_date) = TRUE Then
                                 If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
@@ -4081,8 +4105,9 @@ function read_UNEA_panel()
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", VA - " & income_detail
 
                     notes_on_VA_income = notes_on_VA_income & "; Member " & HH_member & "unearned income from VA (" & income_detail & "), verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
-                    If retro_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- Retrospective: $" & retro_UNEA_amt & " total; "
+                    If SNAP_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
+					If CASH_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
+					If retro_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- Retrospective: $" & retro_UNEA_amt & " total; "
                     If prosp_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- Prospective: $" & prosp_UNEA_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
                         If DateDiff("m", UNEA_income_start_date, date) < 6 Then notes_on_VA_income = notes_on_VA_income & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
@@ -4092,7 +4117,8 @@ function read_UNEA_panel()
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Worker's Comp"
 
                     notes_on_WC_income = notes_on_WC_income & "; Member " & HH_member & "unearned income from Worker's Comp, verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
+                    If SNAP_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
+					If CASH_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
                     If retro_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- Retrospective: $" & retro_UNEA_amt & " total; "
                     If prosp_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- Prospective: $" & prosp_UNEA_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
@@ -4125,7 +4151,8 @@ function read_UNEA_panel()
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", " & income_type
 
                     notes_on_other_UNEA = notes_on_other_UNEA & "; Member " & HH_member & "unearned income from " & income_type & ", verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
+                    If SNAP_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
+					If CASH_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
                     If retro_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
                     If prosp_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
