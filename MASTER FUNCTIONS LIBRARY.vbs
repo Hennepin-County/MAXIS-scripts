@@ -4903,7 +4903,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   		PF3
 
 	EmreadScreen read_WREG_status, 2, 8, 50
-	If read_WREG_status = "03" THEN  WREG_status = "WREG = incap"
+	If read_WREG_status = "03" THEN  WREG_status = "WREG = Unfit for Employment"
 	If read_WREG_status = "04" THEN  WREG_status = "WREG = resp for incap HH memb"
 	If read_WREG_status = "05" THEN  WREG_status = "WREG = age 60+"
 	If read_WREG_status = "06" THEN  WREG_status = "WREG = < age 16"
@@ -4928,26 +4928,26 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 	If read_WREG_status = "__" THEN  WREG_status = "WREG = blank"
 
 	EmreadScreen read_abawd_status, 2, 13, 50
-	If read_abawd_status = "01" THEN  abawd_status = "ABAWD = work reg exempt."
-    	If read_abawd_status = "02" THEN  abawd_status = "ABAWD = < age 18."
-	If read_abawd_status = "03" THEN  abawd_status = "ABAWD = age 50+."
-	If read_abawd_status = "04" THEN  abawd_status = "ABAWD = crgvr of minor child."
-	If read_abawd_status = "05" THEN  abawd_status = "ABAWD = pregnant."
-	If read_abawd_status = "06" THEN  abawd_status = "ABAWD = emp ave 20 hrs/wk."
-	If read_abawd_status = "07" THEN  abawd_status = "ABAWD = work exp participant."
-	If read_abawd_status = "08" THEN  abawd_status = "ABAWD = othr E & T service."
-	If read_abawd_status = "09" THEN  abawd_status = "ABAWD = reside in waiver area."
+	If read_abawd_status = "01" THEN  abawd_status = "TLR = work reg exempt."
+    	If read_abawd_status = "02" THEN  abawd_status = "TLR = < age 18."
+	If read_abawd_status = "03" THEN  abawd_status = "TLR = age 50+."
+	If read_abawd_status = "04" THEN  abawd_status = "TLR = minor child in unit."
+	If read_abawd_status = "05" THEN  abawd_status = "TLR = pregnant."
+	If read_abawd_status = "06" THEN  abawd_status = "TLR = emp ave 20 hrs/wk."
+	If read_abawd_status = "07" THEN  abawd_status = "TLR = work exp participant."
+	If read_abawd_status = "08" THEN  abawd_status = "TLR = other E & T service."
+	If read_abawd_status = "09" THEN  abawd_status = "TLR = reside in waiver area."
 	IF read_abawd_status = "10" AND abawd_counted_months = "0" THEN
-		abawd_status = "ABAWD = ABAWD & has used " & abawd_counted_months & " mo."
+		abawd_status = "TLR = TLR & has used " & abawd_counted_months & " mo."
 	Elseif read_abawd_status = "10" AND second_abawd_period = "0" THEN
-		abawd_status = "ABAWD = ABAWD & has used " & abawd_counted_months & " mo. Counted ABAWD months:" & abawd_info_list & ". Second set of ABAWD months used: " & second_abawd_period & "."
+		abawd_status = "TLR = TLR & has used " & abawd_counted_months & " mo. Counted TLR months:" & abawd_info_list & ". Second set of TLR months used: " & second_abawd_period & "."
 	Elseif read_abawd_status = "10" AND second_abawd_period <> "0" THEN
-		abawd_status = "ABAWD = ABAWD & has used " & abawd_counted_months & " mo. Counted ABAWD months:" & abawd_info_list & ". Second set of ABAWD months used: " & second_abawd_period & ". Counted second set months: " & second_set_info_list & "."
+		abawd_status = "TLR = TLR & has used " & abawd_counted_months & " mo. Counted TLR months:" & abawd_info_list & ". Second set of TLR months used: " & second_abawd_period & ". Counted second set months: " & second_set_info_list & "."
 	END IF
-	If read_abawd_status = "11" THEN  abawd_status = "ABAWD = Using second set of ABAWD months. Counted second set months: " & second_set_info_list & "."
-	If read_abawd_status = "12" THEN  abawd_status = "ABAWD = RCA or GA recip."
+	If read_abawd_status = "11" THEN  abawd_status = "TLR = Using second set of TLR months. Counted second set months: " & second_set_info_list & "."
+	If read_abawd_status = "12" THEN  abawd_status = "TLR = RCA recip."
 	'If read_abawd_status = "13" THEN  abawd_status = "ABAWD = ABAWD banked months."
-	If read_abawd_status = "__" THEN  abawd_status = "ABAWD = blank"
+	If read_abawd_status = "__" THEN  abawd_status = "TLR = blank"
 
 	variable_written_to = variable_written_to & "Member " & HH_member & "- " & WREG_status & ", " & abawd_status & "; "
      END IF
