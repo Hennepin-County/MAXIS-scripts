@@ -945,7 +945,8 @@ function define_dwp_elig_dialog()
 				End If
 
 				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb)
 					y_pos_2 = y_pos_2 + 10
 					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
 						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -953,7 +954,8 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
 					y_pos_2 = y_pos_2 + 10
 					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
 						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -961,7 +963,8 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
 					y_pos_2 = y_pos_2 + 10
 					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
 						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -969,7 +972,8 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
 					y_pos_2 = y_pos_2 + 10
 					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
 						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -977,7 +981,8 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+					If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
 					y_pos_2 = y_pos_2 + 10
 					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
 						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -1381,7 +1386,8 @@ function define_mfip_elig_dialog()
 			End If
 
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -1389,7 +1395,8 @@ function define_mfip_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -1397,7 +1404,8 @@ function define_mfip_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -1405,7 +1413,8 @@ function define_mfip_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -1413,7 +1422,8 @@ function define_mfip_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -5386,27 +5396,32 @@ function mfip_elig_case_note()
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
@@ -5458,23 +5473,28 @@ function mfip_elig_case_note()
 			End If
 
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_deemed_for_mfip(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_deemed_for_mfip(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_deemed_for_mfip(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_deemed_for_mfip(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_deemed_for_mfip(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
