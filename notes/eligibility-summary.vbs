@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/01/2025", "* * * MAXIS Cash Six-Month Functionality Updates * * *##~## ##~##Effective 03/25 MFIP, GA, and HS/GRH no longer have monthly reporting. To support this update, six-month budgeting functionality has been added to MAXIS.##~## ##~##Panels Updated:##~##- ELIG/MFIP##~##- JOBS##~##- UNEA##~## ##~##This script has been updated to support the PIC for CASH on these panels.", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "BUG FIX to resolve:##~##- Finding Retro approvals correctly.##~##- Emergency Exist test in EMA cases was missing.##~##These issues should now be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "BUG FIX for ELIG/Health Care to correctly read the tests since the panel has changed with the addition of new tests.##~##- AVSA cooperation tests added to MA and EMA types##~##- MNSure System test added to MSP types.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "Update to GRH Information to include payment approval type (Pre-pay, Post-pay, etc) in the CASE/NOTE header.##~##", "Casey Love, Hennepin County")
