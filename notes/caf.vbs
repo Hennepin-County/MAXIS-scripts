@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/01/2025", "* * * MAXIS Cash Six-Month Functionality Updates * * *##~## ##~##Effective 03/25 MFIP, GA, and HS/GRH no longer have monthly reporting. To support this update, six-month budgeting functionality has been added to MAXIS.##~## ##~##Panels Updated:##~##- JOBS##~##- UNEA##~## ##~##This script has been updated to support the PIC for CASH on these panels.", "Casey Love, Hennepin County")
 call changelog_update("03/20/2025", "Updated handling for previously requested verifications to ensure that new verifications requested generate a new CASE/NOTE.", "Mark Riegel, Hennepin County")
 call changelog_update("03/05/2025", "Extended the lookback period to 3 months to find REVW processes. This update is to support any clean-up efforts happening.", "Casey Love, Hennepin County")
 call changelog_update("09/18/2024", "Updated functionality to allow script to proceed if EMER is missing an interview date, but other programs are pending and have completed interviews.", "Mark Riegel, Hennepin County")
