@@ -1916,7 +1916,8 @@ function define_ga_elig_dialog()
 		y_pos_2 = 230
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1925,7 +1926,8 @@ function define_ga_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1934,7 +1936,8 @@ function define_ga_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1943,7 +1946,8 @@ function define_ga_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1952,7 +1956,8 @@ function define_ga_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
@@ -1993,7 +1998,8 @@ function define_ga_elig_dialog()
 			End If
 
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2001,7 +2007,8 @@ function define_ga_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2009,7 +2016,8 @@ function define_ga_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2017,7 +2025,8 @@ function define_ga_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2025,7 +2034,8 @@ function define_ga_elig_dialog()
 				End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -6345,9 +6355,10 @@ function ga_elig_case_note()
 		BUSI_info = "| Self Employmnt Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then
-				pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb), ".") <> 0 Then
-					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then pay_info = STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(pay_info, ".") <> 0 Then
+					job_amt_array = split(pay_info, ".")
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
@@ -6358,9 +6369,10 @@ function ga_elig_case_note()
 				JOBS_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then
-				pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb), ".") <> 0 Then
-					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then pay_info = STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(pay_info, ".") <> 0 Then
+					job_amt_array = split(pay_info, ".")
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
@@ -6371,9 +6383,10 @@ function ga_elig_case_note()
 				JOBS_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then
-				pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb), ".") <> 0 Then
-					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then pay_info = STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(pay_info, ".") <> 0 Then
+					job_amt_array = split(pay_info, ".")
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
@@ -6384,9 +6397,10 @@ function ga_elig_case_note()
 				JOBS_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then
-				pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb), ".") <> 0 Then
-					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then pay_info = STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(pay_info, ".") <> 0 Then
+					job_amt_array = split(pay_info, ".")
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
@@ -6397,9 +6411,10 @@ function ga_elig_case_note()
 				JOBS_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then
-				pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb), ".") <> 0 Then
-					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then pay_info = STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(pay_info, ".") <> 0 Then
+					job_amt_array = split(pay_info, ".")
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
@@ -6468,9 +6483,10 @@ function ga_elig_case_note()
 		unearned_info = "|   Net Unearned Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_unearned_income, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
-				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb), ".") <> 0 Then
-					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(list_unea_amt, ".") <> 0 Then
+					unea_amt_array = split(list_unea_amt, ".")
 					list_unea_amt = unea_amt_array(0)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
@@ -6478,9 +6494,10 @@ function ga_elig_case_note()
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
-				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb), ".") <> 0 Then
-					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(list_unea_amt, ".") <> 0 Then
+					unea_amt_array = split(list_unea_amt, ".")
 					list_unea_amt = unea_amt_array(0)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
@@ -6488,9 +6505,10 @@ function ga_elig_case_note()
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
-				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb), ".") <> 0 Then
-					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(list_unea_amt, ".") <> 0 Then
+					unea_amt_array = split(list_unea_amt, ".")
 					list_unea_amt = unea_amt_array(0)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
@@ -6498,9 +6516,10 @@ function ga_elig_case_note()
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
-				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb), ".") <> 0 Then
-					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(list_unea_amt, ".") <> 0 Then
+					unea_amt_array = split(list_unea_amt, ".")
 					list_unea_amt = unea_amt_array(0)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
@@ -6508,9 +6527,10 @@ function ga_elig_case_note()
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
-				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb)
-				If InStr(STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb), ".") <> 0 Then
-					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb), ".")
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
+				If InStr(list_unea_amt, ".") <> 0 Then
+					unea_amt_array = split(list_unea_amt, ".")
 					list_unea_amt = unea_amt_array(0)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
