@@ -509,6 +509,9 @@ class stat_detail
 	public stat_unea_one_snap_pic_pay_freq()
 	public stat_unea_one_snap_pic_ave_inc_per_pay()
 	public stat_unea_one_snap_pic_prosp_monthly_inc()
+	public stat_unea_one_cash_pic_pay_freq()
+	public stat_unea_one_cash_pic_ave_inc_per_pay()
+	public stat_unea_one_cash_pic_prosp_monthly_inc()
 	Public stat_unea_one_mfip_gross_amt()
 	Public stat_unea_one_ga_gross_amt()
 	Public stat_unea_one_notes()
@@ -532,6 +535,9 @@ class stat_detail
 	public stat_unea_two_snap_pic_pay_freq()
 	public stat_unea_two_snap_pic_ave_inc_per_pay()
 	public stat_unea_two_snap_pic_prosp_monthly_inc()
+	public stat_unea_two_cash_pic_pay_freq()
+	public stat_unea_two_cash_pic_ave_inc_per_pay()
+	public stat_unea_two_cash_pic_prosp_monthly_inc()
 	Public stat_unea_two_mfip_gross_amt()
 	Public stat_unea_two_ga_gross_amt()
 	Public stat_unea_two_notes()
@@ -555,6 +561,9 @@ class stat_detail
 	public stat_unea_three_snap_pic_pay_freq()
 	public stat_unea_three_snap_pic_ave_inc_per_pay()
 	public stat_unea_three_snap_pic_prosp_monthly_inc()
+	public stat_unea_three_cash_pic_pay_freq()
+	public stat_unea_three_cash_pic_ave_inc_per_pay()
+	public stat_unea_three_cash_pic_prosp_monthly_inc()
 	Public stat_unea_three_mfip_gross_amt()
 	Public stat_unea_three_ga_gross_amt()
 	Public stat_unea_three_notes()
@@ -578,6 +587,9 @@ class stat_detail
 	public stat_unea_four_snap_pic_pay_freq()
 	public stat_unea_four_snap_pic_ave_inc_per_pay()
 	public stat_unea_four_snap_pic_prosp_monthly_inc()
+	public stat_unea_four_cash_pic_pay_freq()
+	public stat_unea_four_cash_pic_ave_inc_per_pay()
+	public stat_unea_four_cash_pic_prosp_monthly_inc()
 	Public stat_unea_four_mfip_gross_amt()
 	Public stat_unea_four_ga_gross_amt()
 	Public stat_unea_four_notes()
@@ -601,6 +613,9 @@ class stat_detail
 	public stat_unea_five_snap_pic_pay_freq()
 	public stat_unea_five_snap_pic_ave_inc_per_pay()
 	public stat_unea_five_snap_pic_prosp_monthly_inc()
+	public stat_unea_five_cash_pic_pay_freq()
+	public stat_unea_five_cash_pic_ave_inc_per_pay()
+	public stat_unea_five_cash_pic_prosp_monthly_inc()
 	Public stat_unea_five_mfip_gross_amt()
 	Public stat_unea_five_ga_gross_amt()
 	Public stat_unea_five_notes()
@@ -1905,6 +1920,9 @@ class stat_detail
 		ReDim stat_unea_one_snap_pic_pay_freq(0)
 		ReDim stat_unea_one_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_one_snap_pic_prosp_monthly_inc(0)
+		ReDim stat_unea_one_cash_pic_pay_freq(0)
+		ReDim stat_unea_one_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_unea_one_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_two_exists(0)
 		ReDim stat_unea_two_counted_for_snap(0)
 		ReDim stat_unea_two_counted_for_mfip(0)
@@ -1930,6 +1948,9 @@ class stat_detail
 		ReDim stat_unea_two_snap_pic_pay_freq(0)
 		ReDim stat_unea_two_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_two_snap_pic_prosp_monthly_inc(0)
+		ReDim stat_unea_two_cash_pic_pay_freq(0)
+		ReDim stat_unea_two_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_unea_two_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_three_exists(0)
 		ReDim stat_unea_three_counted_for_snap(0)
 		ReDim stat_unea_three_counted_for_mfip(0)
@@ -1955,6 +1976,9 @@ class stat_detail
 		ReDim stat_unea_three_snap_pic_pay_freq(0)
 		ReDim stat_unea_three_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_three_snap_pic_prosp_monthly_inc(0)
+		ReDim stat_unea_three_cash_pic_pay_freq(0)
+		ReDim stat_unea_three_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_unea_three_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_four_exists(0)
 		ReDim stat_unea_four_counted_for_snap(0)
 		ReDim stat_unea_four_counted_for_mfip(0)
@@ -1980,6 +2004,9 @@ class stat_detail
 		ReDim stat_unea_four_snap_pic_pay_freq(0)
 		ReDim stat_unea_four_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_four_snap_pic_prosp_monthly_inc(0)
+		ReDim stat_unea_four_cash_pic_pay_freq(0)
+		ReDim stat_unea_four_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_unea_four_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_five_exists(0)
 		ReDim stat_unea_five_counted_for_snap(0)
 		ReDim stat_unea_five_counted_for_mfip(0)
@@ -2005,6 +2032,9 @@ class stat_detail
 		ReDim stat_unea_five_snap_pic_pay_freq(0)
 		ReDim stat_unea_five_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_five_snap_pic_prosp_monthly_inc(0)
+		ReDim stat_unea_five_cash_pic_pay_freq(0)
+		ReDim stat_unea_five_cash_pic_ave_inc_per_pay(0)
+		ReDim stat_unea_five_cash_pic_prosp_monthly_inc(0)
 		ReDim stat_cash_asset_panel_exists(0)
 		ReDim stat_cash_exists(0)
 		ReDim stat_cash_balance(0)
@@ -3089,6 +3119,9 @@ class stat_detail
 				ReDim preserve stat_unea_one_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_unea_one_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_unea_one_snap_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_unea_one_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_unea_one_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_unea_one_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_unea_two_exists(memb_count)
 				ReDim preserve stat_unea_two_counted_for_snap(memb_count)
 				ReDim preserve stat_unea_two_counted_for_mfip(memb_count)
@@ -3114,6 +3147,9 @@ class stat_detail
 				ReDim preserve stat_unea_two_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_unea_two_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_unea_two_snap_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_unea_two_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_unea_two_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_unea_two_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_unea_three_exists(memb_count)
 				ReDim preserve stat_unea_three_counted_for_snap(memb_count)
 				ReDim preserve stat_unea_three_counted_for_mfip(memb_count)
@@ -3139,6 +3175,9 @@ class stat_detail
 				ReDim preserve stat_unea_three_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_unea_three_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_unea_three_snap_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_unea_three_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_unea_three_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_unea_three_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_unea_four_exists(memb_count)
 				ReDim preserve stat_unea_four_counted_for_snap(memb_count)
 				ReDim preserve stat_unea_four_counted_for_mfip(memb_count)
@@ -3164,6 +3203,9 @@ class stat_detail
 				ReDim preserve stat_unea_four_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_unea_four_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_unea_four_snap_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_unea_four_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_unea_four_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_unea_four_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_unea_five_exists(memb_count)
 				ReDim preserve stat_unea_five_counted_for_snap(memb_count)
 				ReDim preserve stat_unea_five_counted_for_mfip(memb_count)
@@ -3189,6 +3231,9 @@ class stat_detail
 				ReDim preserve stat_unea_five_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_unea_five_snap_pic_ave_inc_per_pay(memb_count)
 				ReDim preserve stat_unea_five_snap_pic_prosp_monthly_inc(memb_count)
+				ReDim preserve stat_unea_five_cash_pic_pay_freq(memb_count)
+				ReDim preserve stat_unea_five_cash_pic_ave_inc_per_pay(memb_count)
+				ReDim preserve stat_unea_five_cash_pic_prosp_monthly_inc(memb_count)
 				ReDim preserve stat_cash_asset_panel_exists(memb_count)
 				ReDim preserve stat_cash_exists(memb_count)
 				ReDim preserve stat_cash_balance(memb_count)
@@ -4840,6 +4885,7 @@ class stat_detail
 
 		Next
 
+		cash_six_month_budget_elig = False
 		call navigate_to_MAXIS_screen("STAT", "UNEA")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4929,7 +4975,8 @@ class stat_detail
 				stat_unea_one_counted_for_deny(each_memb) = stat_unea_one_counted_for_snap(each_memb)
 				stat_unea_one_counted_for_emer(each_memb) = stat_unea_one_counted_for_snap(each_memb)
 
-				Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
 				EMReadScreen stat_unea_one_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_one_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
 				EMReadScreen stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), 10, 18, 52
@@ -4942,6 +4989,22 @@ class stat_detail
 				stat_unea_one_snap_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_one_snap_pic_ave_inc_per_pay(each_memb))
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
+
+				If cash_six_month_budget_elig = True Then
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen stat_unea_one_cash_pic_pay_freq(each_memb), 1, 5, 64
+					EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen stat_unea_one_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+
+					If stat_unea_one_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_one_cash_pic_pay_freq(each_memb) = ""
+					If stat_unea_one_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_one_cash_pic_pay_freq(each_memb) = "Monthly"
+					If stat_unea_one_cash_pic_pay_freq(each_memb) = "2" Then stat_unea_one_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+					If stat_unea_one_cash_pic_pay_freq(each_memb) = "3" Then stat_unea_one_cash_pic_pay_freq(each_memb) = "BiWeekly"
+					If stat_unea_one_cash_pic_pay_freq(each_memb) = "4" Then stat_unea_one_cash_pic_pay_freq(each_memb) = "Weekly"
+					stat_unea_one_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_one_cash_pic_ave_inc_per_pay(each_memb))
+					stat_unea_one_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_cash_pic_prosp_monthly_inc(each_memb))
+					PF3
+				End If
 
 				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
@@ -5033,7 +5096,8 @@ class stat_detail
 				stat_unea_two_counted_for_deny(each_memb) = stat_unea_two_counted_for_snap(each_memb)
 				stat_unea_two_counted_for_emer(each_memb) = stat_unea_two_counted_for_snap(each_memb)
 
-				Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
 				EMReadScreen stat_unea_two_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_two_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
 				EMReadScreen stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), 10, 18, 52
@@ -5046,6 +5110,22 @@ class stat_detail
 				stat_unea_two_snap_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_two_snap_pic_ave_inc_per_pay(each_memb))
 				stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
+
+				If cash_six_month_budget_elig = True Then
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen stat_unea_two_cash_pic_pay_freq(each_memb), 1, 5, 64
+					EMReadScreen stat_unea_two_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen stat_unea_two_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+
+					If stat_unea_two_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_two_cash_pic_pay_freq(each_memb) = ""
+					If stat_unea_two_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_two_cash_pic_pay_freq(each_memb) = "Monthly"
+					If stat_unea_two_cash_pic_pay_freq(each_memb) = "2" Then stat_unea_two_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+					If stat_unea_two_cash_pic_pay_freq(each_memb) = "3" Then stat_unea_two_cash_pic_pay_freq(each_memb) = "BiWeekly"
+					If stat_unea_two_cash_pic_pay_freq(each_memb) = "4" Then stat_unea_two_cash_pic_pay_freq(each_memb) = "Weekly"
+					stat_unea_two_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_two_cash_pic_ave_inc_per_pay(each_memb))
+					stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_cash_pic_prosp_monthly_inc(each_memb))
+					PF3
+				End If
 
 				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
@@ -5138,7 +5218,8 @@ class stat_detail
 				stat_unea_three_counted_for_deny(each_memb) = stat_unea_three_counted_for_snap(each_memb)
 				stat_unea_three_counted_for_emer(each_memb) = stat_unea_three_counted_for_snap(each_memb)
 
-				Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
 				EMReadScreen stat_unea_three_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_three_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
 				EMReadScreen stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), 10, 18, 52
@@ -5151,6 +5232,22 @@ class stat_detail
 				stat_unea_three_snap_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_three_snap_pic_ave_inc_per_pay(each_memb))
 				stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
+
+				If cash_six_month_budget_elig = True Then
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen stat_unea_three_cash_pic_pay_freq(each_memb), 1, 5, 64
+					EMReadScreen stat_unea_three_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen stat_unea_three_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+
+					If stat_unea_three_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_three_cash_pic_pay_freq(each_memb) = ""
+					If stat_unea_three_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_three_cash_pic_pay_freq(each_memb) = "Monthly"
+					If stat_unea_three_cash_pic_pay_freq(each_memb) = "2" Then stat_unea_three_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+					If stat_unea_three_cash_pic_pay_freq(each_memb) = "3" Then stat_unea_three_cash_pic_pay_freq(each_memb) = "BiWeekly"
+					If stat_unea_three_cash_pic_pay_freq(each_memb) = "4" Then stat_unea_three_cash_pic_pay_freq(each_memb) = "Weekly"
+					stat_unea_three_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_three_cash_pic_ave_inc_per_pay(each_memb))
+					stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_cash_pic_prosp_monthly_inc(each_memb))
+					PF3
+				End If
 
 				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
@@ -5242,7 +5339,8 @@ class stat_detail
 				stat_unea_four_counted_for_deny(each_memb) = stat_unea_four_counted_for_snap(each_memb)
 				stat_unea_four_counted_for_emer(each_memb) = stat_unea_four_counted_for_snap(each_memb)
 
-				Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
 				EMReadScreen stat_unea_four_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_four_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
 				EMReadScreen stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), 10, 18, 52
@@ -5255,6 +5353,22 @@ class stat_detail
 				stat_unea_four_snap_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_four_snap_pic_ave_inc_per_pay(each_memb))
 				stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
+
+				If cash_six_month_budget_elig = True Then
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen stat_unea_four_cash_pic_pay_freq(each_memb), 1, 5, 64
+					EMReadScreen stat_unea_four_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen stat_unea_four_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+
+					If stat_unea_four_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_four_cash_pic_pay_freq(each_memb) = ""
+					If stat_unea_four_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_four_cash_pic_pay_freq(each_memb) = "Monthly"
+					If stat_unea_four_cash_pic_pay_freq(each_memb) = "2" Then stat_unea_four_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+					If stat_unea_four_cash_pic_pay_freq(each_memb) = "3" Then stat_unea_four_cash_pic_pay_freq(each_memb) = "BiWeekly"
+					If stat_unea_four_cash_pic_pay_freq(each_memb) = "4" Then stat_unea_four_cash_pic_pay_freq(each_memb) = "Weekly"
+					stat_unea_four_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_four_cash_pic_ave_inc_per_pay(each_memb))
+					stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_cash_pic_prosp_monthly_inc(each_memb))
+					PF3
+				End If
 
 				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
@@ -5346,7 +5460,8 @@ class stat_detail
 				stat_unea_five_counted_for_deny(each_memb) = stat_unea_five_counted_for_snap(each_memb)
 				stat_unea_five_counted_for_emer(each_memb) = stat_unea_five_counted_for_snap(each_memb)
 
-				Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+				If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
 				EMReadScreen stat_unea_five_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_five_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
 				EMReadScreen stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), 10, 18, 52
@@ -5360,10 +5475,27 @@ class stat_detail
 				stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If cash_six_month_budget_elig = True Then
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen stat_unea_five_cash_pic_pay_freq(each_memb), 1, 5, 64
+					EMReadScreen stat_unea_five_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
+					EMReadScreen stat_unea_five_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+
+					If stat_unea_five_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_five_cash_pic_pay_freq(each_memb) = ""
+					If stat_unea_five_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_five_cash_pic_pay_freq(each_memb) = "Monthly"
+					If stat_unea_five_cash_pic_pay_freq(each_memb) = "2" Then stat_unea_five_cash_pic_pay_freq(each_memb) = "Semi-Monthly"
+					If stat_unea_five_cash_pic_pay_freq(each_memb) = "3" Then stat_unea_five_cash_pic_pay_freq(each_memb) = "BiWeekly"
+					If stat_unea_five_cash_pic_pay_freq(each_memb) = "4" Then stat_unea_five_cash_pic_pay_freq(each_memb) = "Weekly"
+					stat_unea_five_cash_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_five_cash_pic_ave_inc_per_pay(each_memb))
+					stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_cash_pic_prosp_monthly_inc(each_memb))
+					PF3
+				End If
+
 				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 		Next
+		cash_six_month_budget_elig = True
 
 		call navigate_to_MAXIS_screen("STAT", "OTHR")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
