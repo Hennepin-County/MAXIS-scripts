@@ -3354,67 +3354,76 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
 '--- This function adds STAT/UNEA data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ UNEA_variable: the variable used by the editbox you wish to autofill.
 '===== Keywords: MAXIS, autofill, UNEA
-  EMReadScreen UNEA_month, 5, 20, 55
-  UNEA_month = replace(UNEA_month, " ", "/")
-  EMReadScreen UNEA_type, 16, 5, 40
-  If UNEA_type = "Unemployment Ins" then UNEA_type = "UC"
-  If UNEA_type = "Disbursed Child " then UNEA_type = "CS"
-  If UNEA_type = "Disbursed CS Arr" then UNEA_type = "CS arrears"
-  UNEA_type = trim(UNEA_type)
-  EMReadScreen UNEA_ver, 1, 5, 65
-  EMReadScreen UNEA_income_end_date, 8, 7, 68
-  If UNEA_income_end_date <> "__ __ __" then UNEA_income_end_date = replace(UNEA_income_end_date, " ", "/")
-  If IsDate(UNEA_income_end_date) = True then
-    variable_name_for_UNEA = variable_name_for_UNEA & UNEA_type & " (ended " & UNEA_income_end_date & "); "
-  Else
-    EMReadScreen UNEA_amt, 8, 18, 68
-    UNEA_amt = trim(UNEA_amt)
-      EMWriteScreen "X", 10, 26
-      transmit
-      EMReadScreen SNAP_UNEA_amt, 8, 17, 56
-      SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
-      EMReadScreen snap_pay_frequency, 1, 5, 64
-	EMReadScreen date_of_pic_calc, 8, 5, 34
-	date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
-      transmit
-      EMReadScreen retro_UNEA_amt, 8, 18, 39
-      retro_UNEA_amt = trim(retro_UNEA_amt)
-	EMReadScreen prosp_UNEA_amt, 8, 18, 68
-	prosp_UNEA_amt = trim(prosp_UNEA_amt)
-      EMWriteScreen "X", 6, 56
-      transmit
-      EMReadScreen HC_UNEA_amt, 8, 9, 65
-      HC_UNEA_amt = trim(HC_UNEA_amt)
-      EMReadScreen pay_frequency, 1, 10, 63
-      transmit
-      If HC_UNEA_amt = "________" then
-        EMReadScreen HC_UNEA_amt, 8, 18, 68
-        HC_UNEA_amt = trim(HC_UNEA_amt)
-        pay_frequency = "mo budgeted prospectively"
-    End If
-    If pay_frequency = "1" then pay_frequency = "monthly"
-    If pay_frequency = "2" then pay_frequency = "semimonthly"
-    If pay_frequency = "3" then pay_frequency = "biweekly"
-    If pay_frequency = "4" then pay_frequency = "weekly"
-    If pay_frequency = "_" then pay_frequency = "non-monthly"
-    IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
-    IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
-    IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
-    IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
-    IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
-    variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
-    If SNAP_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
-    If retro_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
-    If prosp_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
-    'Leaving out HC income estimator if footer month is not Current month + 1
-    current_month_for_hc_est = dateadd("m", "1", date)
-    current_month_for_hc_est = datepart("m", current_month_for_hc_est)
-    IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
-    IF MAXIS_footer_month = current_month_for_hc_est THEN
-    	If HC_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- HC Inc Est: $" & HC_UNEA_amt & "/" & pay_frequency & "; "
-    END IF
-    If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
-  End if
+	EMReadScreen UNEA_month, 5, 20, 55
+	UNEA_month = replace(UNEA_month, " ", "/")
+	EMReadScreen UNEA_type, 16, 5, 40
+	If UNEA_type = "Unemployment Ins" then UNEA_type = "UC"
+	If UNEA_type = "Disbursed Child " then UNEA_type = "CS"
+	If UNEA_type = "Disbursed CS Arr" then UNEA_type = "CS arrears"
+	UNEA_type = trim(UNEA_type)
+	EMReadScreen UNEA_ver, 1, 5, 65
+	EMReadScreen UNEA_income_end_date, 8, 7, 68
+	If UNEA_income_end_date <> "__ __ __" then UNEA_income_end_date = replace(UNEA_income_end_date, " ", "/")
+	If IsDate(UNEA_income_end_date) = True then
+		variable_name_for_UNEA = variable_name_for_UNEA & UNEA_type & " (ended " & UNEA_income_end_date & "); "
+	Else
+		EMReadScreen UNEA_amt, 8, 18, 68
+		UNEA_amt = trim(UNEA_amt)
+
+		EMReadScreen cash_pic_exists, 4, 10 45		'in footer month 03/25, a CASH PIC was added to UNEA - moving the SNAP PIC selection field
+		If cash_pic_exists = "CASH" Then Call write_value_and_transmit("X", 10, 25)
+		If cash_pic_exists <> "CASH" Then Call write_value_and_transmit("X", 10, 26)
+
+		EMReadScreen SNAP_UNEA_amt, 8, 17, 56
+		SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
+		EMReadScreen snap_pay_frequency, 1, 5, 64
+		EMReadScreen date_of_pic_calc, 8, 5, 34
+		date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
+		transmit		'back to the main panel
+
+		EMReadScreen retro_UNEA_amt, 8, 18, 39
+		retro_UNEA_amt = trim(retro_UNEA_amt)
+		EMReadScreen prosp_UNEA_amt, 8, 18, 68
+		prosp_UNEA_amt = trim(prosp_UNEA_amt)
+
+		Call write_value_and_transmit("X", 6, 56)
+		EMReadScreen HC_UNEA_amt, 8, 9, 65
+		HC_UNEA_amt = trim(HC_UNEA_amt)
+		EMReadScreen pay_frequency, 1, 10, 63
+		transmit
+
+		If HC_UNEA_amt = "________" then
+			EMReadScreen HC_UNEA_amt, 8, 18, 68
+			HC_UNEA_amt = trim(HC_UNEA_amt)
+			pay_frequency = "mo budgeted prospectively"
+		End If
+
+		If pay_frequency = "1" then pay_frequency = "monthly"
+		If pay_frequency = "2" then pay_frequency = "semimonthly"
+		If pay_frequency = "3" then pay_frequency = "biweekly"
+		If pay_frequency = "4" then pay_frequency = "weekly"
+		If pay_frequency = "_" then pay_frequency = "non-monthly"
+		IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
+		IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
+		IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
+		IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
+		IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
+
+		'define the string in the variable
+		variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
+		If SNAP_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
+		If retro_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
+		If prosp_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
+
+		'Leaving out HC income estimator if footer month is not Current month + 1
+		current_month_for_hc_est = dateadd("m", "1", date)
+		current_month_for_hc_est = datepart("m", current_month_for_hc_est)
+		IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
+		IF MAXIS_footer_month = current_month_for_hc_est THEN
+			If HC_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- HC Inc Est: $" & HC_UNEA_amt & "/" & pay_frequency & "; "
+		END IF
+		If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
+	End if
 end function
 
 function assess_button_pressed()
