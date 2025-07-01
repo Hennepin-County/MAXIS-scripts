@@ -7014,7 +7014,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Tot
     If STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = 0
     If STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = 0
     total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
-	total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+	
 	
 	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
