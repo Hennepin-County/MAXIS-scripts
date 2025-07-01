@@ -5398,7 +5398,7 @@ function mfip_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Other Income:                  |---------------------------------|")
 
 		unearned_info = "| (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8)
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = True Then Call write_variable_in_CASE_NOTE(left(" Unearned Income: " & spaces_30, 36) & "| (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deemed_income, 8))
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = True Then Call write_variable_in_CASE_NOTE(left(" Unearned Income: " & spaces_30, 36) & "| (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8))
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
@@ -11439,6 +11439,7 @@ class mfip_eligibility_detail
 			PF3
 
 			transmit			'MFBF
+
 			mfbf_row = 7
 			Do
 				EMReadScreen ref_numb, 2, mfbf_row, 3
@@ -11752,7 +11753,8 @@ class mfip_eligibility_detail
 			mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
 			transmit
 
-			Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
+			If NOT six_month_budget_elig Then Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
+			If six_month_budget_elig Then Call write_value_and_transmit("X", 7, 44)		' member specific TRIBAL INCOME
 			EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
 			EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
 			EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
@@ -11804,7 +11806,8 @@ class mfip_eligibility_detail
 			Loop
 			transmit                  ''back to MFB1
 
-			Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
+			If NOT six_month_budget_elig Then Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
+			If six_month_budget_elig Then Call write_value_and_transmit("X", 9, 44)		' member specific SUBSIDY
 			EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
 			EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
 			EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
@@ -11840,7 +11843,8 @@ class mfip_eligibility_detail
 
 			transmit                 	'back to MFB1
 
-			Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
+			If NOT six_month_budget_elig Then Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
+			If six_month_budget_elig Then Call write_value_and_transmit("X", 13, 44)		'Sanction and Vendor
 			EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
 			EMReadScreen mfip_case_budg_unmet_need_after_pre_vndr_sanc, 10, 8, 55
 			EMReadScreen mfip_case_budg_sanc_calc_food_portion, 		10, 9, 55
@@ -11856,7 +11860,8 @@ class mfip_eligibility_detail
 			mfip_case_budg_30_perc_sanc = trim(mfip_case_budg_30_perc_sanc)
 			transmit
 
-			Call write_value_and_transmit("X", 12, 44)		'Food portion Deduction
+			If NOT six_month_budget_elig Then Call write_value_and_transmit("X", 12, 44)		'Food portion Deduction
+			If six_month_budget_elig Then Call write_value_and_transmit("X", 16, 44)		'Food portion Deduction
 			EMReadScreen mfip_case_budg_non_citzn_fs_inelig_pers_count, 1, 10, 17
 			EMReadScreen mfip_case_budg_non_citzn_fs_inelig_amt, 		10, 10, 45
 			EMReadScreen mfip_case_budg_other_fs_inelig_pers_count, 	1, 12, 17
@@ -21428,7 +21433,7 @@ For each footer_month in MONTHS_ARRAY
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
 						End If
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_cash_pic_prosp_monthly_inc(each_stat_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21440,7 +21445,7 @@ For each footer_month in MONTHS_ARRAY
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_retro_monthly_gross_wage(each_stat_memb)
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
 						End If
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_cash_pic_prosp_monthly_inc(each_stat_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21452,7 +21457,7 @@ For each footer_month in MONTHS_ARRAY
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_retro_monthly_gross_wage(each_stat_memb)
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
 						End If
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_cash_pic_prosp_monthly_inc(each_stat_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21464,7 +21469,7 @@ For each footer_month in MONTHS_ARRAY
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_retro_monthly_gross_wage(each_stat_memb)
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
 						End If
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_cash_pic_prosp_monthly_inc(each_stat_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
@@ -21476,7 +21481,7 @@ For each footer_month in MONTHS_ARRAY
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_retro_monthly_gross_wage(each_stat_memb)
 							If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
 						End If
-						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).six_month_budget_elig = True Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_cash_pic_prosp_monthly_inc(each_stat_memb)
 
 						the_counted_amount = ""
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
