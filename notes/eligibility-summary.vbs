@@ -16903,6 +16903,7 @@ end class
 
 
 class snap_eligibility_detail
+	public six_month_budget_elig
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -17150,6 +17151,11 @@ class snap_eligibility_detail
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
+
+		six_month_budget_elig = False
+		first_of_footer_month = elig_footer_month & "/1/" & elig_footer_year
+		If DateDiff("d", #3/1/2025#, first_of_footer_month) >= 0 Then six_month_budget_elig = True
+
 		If approved_today = True Then
 			row = 7
 			elig_memb_count = 0
@@ -17344,14 +17350,16 @@ class snap_eligibility_detail
 			snap_case_voltry_quit_test = trim(snap_case_voltry_quit_test)
 			snap_case_work_reg_test = trim(snap_case_work_reg_test)
 
-			Call write_value_and_transmit("X", 14, 4)		''Fail to File Detail
-			EMReadScreen snap_fail_file_hrf, 6, 10, 32
-			EMReadScreen snap_fail_file_sr, 6, 11, 32
-			transmit
-			snap_fail_file_hrf = trim(snap_fail_file_hrf)
-			snap_fail_file_sr = trim(snap_fail_file_sr)
+			If NOT six_month_budget_elig Then
+				Call write_value_and_transmit("X", 14, 4)		''Fail to File Detail
+				EMReadScreen snap_fail_file_hrf, 6, 10, 32
+				EMReadScreen snap_fail_file_sr, 6, 11, 32
+				transmit
+				snap_fail_file_hrf = trim(snap_fail_file_hrf)
+				snap_fail_file_sr = trim(snap_fail_file_sr)
+			End If
 
-			Call write_value_and_transmit("X", 14, 4)		''Resource Detail
+			Call write_value_and_transmit("X", 9, 44)		''Resource Detail
 			EMReadScreen snap_resource_cash, 	10, 8, 47
 			EMReadScreen snap_resource_acct, 	10, 9, 47
 			EMReadScreen snap_resource_secu, 	10, 10, 47
