@@ -1166,7 +1166,7 @@ function save_your_work()
                 box_two_info = ""
                 If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
                 box_one_info = ""
@@ -1573,7 +1573,7 @@ function save_your_work()
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
                 If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = unchecked Then box_one_info = "UNCHECKED"
                 If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = unchecked Then box_two_info = "UNCHECKED"
-                script_run_lowdown = script_run_lowdown & vbCr & "ALL_JOBS_PANELS_ARRAY" & ": " &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                script_run_lowdown = script_run_lowdown & vbCr & "ALL_JOBS_PANELS_ARRAY" & ": " &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             script_run_lowdown = script_run_lowdown & vbCr & vbCr
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
@@ -2115,15 +2115,15 @@ function restore_your_work(vars_filled)
                             ALL_JOBS_PANELS_ARRAY(job_prosp_income, known_jobs)     = array_info(10)
                             ALL_JOBS_PANELS_ARRAY(retro_hours, known_jobs)          = array_info(11)
                             ALL_JOBS_PANELS_ARRAY(prosp_hours, known_jobs)          = array_info(12)
-                            ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, known_jobs)  = array_info(13)
-                            ALL_JOBS_PANELS_ARRAY(pic_pay_freq, known_jobs)         = array_info(14)
-                            ALL_JOBS_PANELS_ARRAY(pic_prosp_income, known_jobs)     = array_info(15)
-                            ALL_JOBS_PANELS_ARRAY(pic_calc_date, known_jobs)        = array_info(16)
+                            ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, known_jobs)  = array_info(13)
+                            ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, known_jobs)         = array_info(14)
+                            ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, known_jobs)     = array_info(15)
+                            ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, known_jobs)        = array_info(16)
                             ALL_JOBS_PANELS_ARRAY(EI_case_note, known_jobs)         = array_info(17)
-                            ALL_JOBS_PANELS_ARRAY(cash_calc_date, known_jobs)        = array_info(18)
-                            ALL_JOBS_PANELS_ARRAY(cash_pay_freq, known_jobs)         = array_info(19)
-                            ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, known_jobs)   = array_info(20)
-                            ALL_JOBS_PANELS_ARRAY(cash_prosp_income, known_jobs)     = array_info(21)
+                            ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, known_jobs)        = array_info(18)
+                            ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, known_jobs)         = array_info(19)
+                            ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, known_jobs)   = array_info(20)
+                            ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, known_jobs)     = array_info(21)
                             ALL_JOBS_PANELS_ARRAY(start_date, known_jobs)           = array_info(25)
                             ALL_JOBS_PANELS_ARRAY(end_date, known_jobs)             = array_info(26)
                             If array_info(33) = "CHECKED" Then ALL_JOBS_PANELS_ARRAY(verif_checkbox, known_jobs) = checked
@@ -2140,7 +2140,7 @@ function restore_your_work(vars_filled)
                         '     box_two_info = ""
                         '     If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
                         '     If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                        '     objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                        '     objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
                         ' Next
                         If line_info(0) = "ALL_BUSI_PANELS_ARRAY" Then
                             array_info = line_info(1)
@@ -3571,13 +3571,13 @@ function read_JOBS_panel()
     EMWriteScreen "X", 19, 38
     transmit
     EMReadScreen SNAP_JOBS_amt, 8, 17, 56
-    ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, job_count) = trim(SNAP_JOBS_amt)
+    ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, job_count) = trim(SNAP_JOBS_amt)
     EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
-    ALL_JOBS_PANELS_ARRAY(pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
+    ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
     EMReadScreen snap_pay_frequency, 1, 5, 64
-    ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = snap_pay_frequency
+    ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = snap_pay_frequency
     EMReadScreen date_of_SNAP_pic_calc, 8, 5, 34
-    ALL_JOBS_PANELS_ARRAY(pic_calc_date, job_count) = replace(date_of_SNAP_pic_calc, " ", "/")
+    ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, job_count) = replace(date_of_SNAP_pic_calc, " ", "/")
     transmit
     'Navigats to GRH PIC
     EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
@@ -3588,31 +3588,32 @@ function read_JOBS_panel()
     	CASH_JOBS_pay_amt = trim(CASH_JOBS_pay_amt)
         EMReadScreen CASH_JOBS_total_amt, 8, 17, 69
         CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
-    	EMReadScreen CASH_pay_frequency, 1, 3, 63
+    	EMReadScreen cash_pic_pay_frequency, 1, 3, 63
     	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
     	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
-        ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
-        ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
-        ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
+        ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = cash_pic_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, job_count) = CASH_JOBS_pay_amt
+        ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, job_count) = CASH_JOBS_total_amt
     	PF3
     END IF
     'Navigats to CASH PIC - This is an update to the GRH pic and only one will exist at any time
     EMReadscreen CASH_PIC_check, 4, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
     IF CASH_PIC_check = "CASH" THEN
+		cash_six_month_budgeting_month = True
     	EMWriteScreen "X", 19, 71
     	transmit
     	EMReadScreen CASH_JOBS_pay_amt, 10, 16, 68
     	CASH_JOBS_pay_amt = trim(CASH_JOBS_pay_amt)
         EMReadScreen CASH_JOBS_total_amt, 10, 17, 68
         CASH_JOBS_total_amt = trim(CASH_JOBS_total_amt)
-    	EMReadScreen CASH_pay_frequency, 1, 3, 63
+    	EMReadScreen cash_pic_pay_frequency, 1, 3, 63
     	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
     	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(cash_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
-        ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = CASH_pay_frequency
-        ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, job_count) = CASH_JOBS_pay_amt
-        ALL_JOBS_PANELS_ARRAY(cash_prosp_income, job_count) = CASH_JOBS_total_amt
+        ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = cash_pic_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, job_count) = CASH_JOBS_pay_amt
+        ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, job_count) = CASH_JOBS_total_amt
     	PF3
     END IF
     '  Reads the information on the retro side of JOBS
@@ -3663,15 +3664,15 @@ function read_JOBS_panel()
     If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Semi-Monthly"
     If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Monthly"
 
-    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Weekly"
-    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Biweekly"
-    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Semi-Monthly"
-    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Monthly"
+    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Monthly"
 
-    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Weekly"
-    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Biweekly"
-    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Semi-Monthly"
-    If ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(cash_pay_freq, job_count) = "Monthly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Monthly"
 
 end function
 
@@ -3955,9 +3956,9 @@ function read_UNEA_panel()
 
 				EMReadscreen CASH_PIC_check, 8, 10, 45 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
 				If CASH_PIC_check = "CASH PIC" Then
-					If cash_six_month_budget_elig = True Then Call write_value_and_transmit("X", 10, 25)
+					Call write_value_and_transmit("X", 10, 25)
 				Else
-					If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 26)
+					Call write_value_and_transmit("X", 10, 26)
 				End If
                 EMReadScreen SNAP_UNEA_amt, 8, 18, 56
                 SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
@@ -3968,19 +3969,19 @@ function read_UNEA_panel()
 
 				CASH_UNEA_amt = ""
 				If CASH_PIC_check = "CASH PIC" Then
-					If cash_six_month_budget_elig = False Then Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen CASH_UNEA_amt, 10, 19, 55
+					Call write_value_and_transmit("X", 10, 43)
+					EMReadScreen CASH_UNEA_amt, 10, 17, 67
 					CASH_UNEA_amt = trim(CASH_UNEA_amt)
-					EMReadScreen cash_pay_frequency, 1, 5, 64
-					'stat_unea_one_cash_pic_pay_freq(each_memb),
+					EMReadScreen cash_pic_pay_frequency, 1, 3, 63
+					'stat_unea_one_cash_snap_pic_pay_freq(each_memb),
 					'EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen date_of_CASH_pic_calc, 8, 5, 34
+					EMReadScreen date_of_CASH_pic_calc, 8, 3, 30
 					date_of_CASH_pic_calc = replace(date_of_CASH_pic_calc, " ", "/")
 					transmit
 
 					If CASH_UNEA_amt = "" Then CASH_UNEA_amt = 0
 					CASH_UNEA_amt = CASH_UNEA_amt * 1
-
+					PF3
 				End If
 
                 If prosp_amt = "" Then prosp_amt = 0
@@ -5340,23 +5341,23 @@ const retro_hours           = 11
 const min_wg_prosp_hrs      = 11         'for BUSI Array'
 const prosp_hours           = 12
 const income_ret_cash       = 12         'for BUSI Array'
-const pic_pay_date_income   = 13
+const snap_pic_pay_date_income   = 13
 const income_pro_cash       = 13         'for BUSI Array'
-const pic_pay_freq          = 14
+const snap_pic_pay_freq          = 14
 const cash_income_verif     = 14         'for BUSI Array'
-const pic_prosp_income      = 15
+const snap_pic_prosp_income      = 15
 const expense_ret_cash      = 15         'for BUSI Array'
-const pic_calc_date         = 16
+const snap_pic_calc_date         = 16
 const expense_pro_cash      = 16         'for BUSI Array'
 const EI_case_note          = 17
 const cash_expense_verif    = 17         'for BUSI Array'
-const cash_calc_date        = 18							'UPDATE MADE FOR 07/01/25 JOBS changes - any cash_ was changed from grh_
+const cash_pic_calc_date        = 18							'UPDATE MADE FOR 07/01/25 JOBS changes - any cash_ was changed from grh_
 const income_ret_snap       = 18         'for BUSI Array'
-const cash_pay_freq         = 19
+const cash_pic_pay_freq         = 19
 const income_pro_snap       = 19         'for BUSI Array'
-const cash_pay_day_income   = 20
+const cash_pic_pay_day_income   = 20
 const snap_income_verif     = 20         'for BUSI Array'
-const cash_prosp_income     = 21
+const cash_pic_prosp_income     = 21
 const expense_ret_snap      = 21         'for BUSI Array'
 const expense_pro_snap      = 22         'for BUSI Array'
 const snap_expense_verif    = 23         'for BUSI Array'
@@ -6991,6 +6992,7 @@ If vars_filled = False Then
     'call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 
     job_count = 0
+	cash_six_month_budgeting_month = False
     call navigate_to_MAXIS_screen("STAT", "JOBS")
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check <> "0 Of 0" Then
@@ -7004,6 +7006,7 @@ If vars_filled = False Then
                     ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, job_count)
                     ALL_JOBS_PANELS_ARRAY(memb_numb, job_count) = HH_member
                     ALL_JOBS_PANELS_ARRAY(info_month, job_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
+
                     call read_JOBS_panel
 
                     EMReadScreen JOBS_panel_current, 1, 2, 73
@@ -7320,14 +7323,14 @@ Do
                                             jobs_grp_len = 80
                                             length_factor = 80
                                             If snap_checkbox = checked Then length_factor = length_factor + 20
-                                            If grh_checkbox = checked Then length_factor = length_factor + 20
+                                            If grh_checkbox = checked or cash_checkbox = checked Then length_factor = length_factor + 20
                                             If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
                                                 dlg_len = 100
                                             Else
                                                 If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
                                                     dlg_len = 325
                                                     If snap_checkbox = checked Then dlg_len = dlg_len + 60
-                                                    If grh_checkbox = checked Then dlg_len = dlg_len + 60
+                                                    If grh_checkbox = checked or cash_checkbox = checked Then dlg_len = dlg_len + 60
                                                     'jobs_grp_len = 315
                                                 Else
                                                     dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + dlg_len
@@ -7335,7 +7338,7 @@ Do
                                                 End If
                                             End If
                                             If snap_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
-                                            If grh_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                                            If grh_checkbox = checked or cash_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
                                             ' each_job = loop_start
                                             ' Do
                                             '     dlg_len = dlg_len + 100
@@ -7381,18 +7384,18 @@ Do
                                                       y_pos = y_pos + 20
                                                       If snap_checkbox = checked Then
                                                           Text 15, y_pos, 600, 10, "SNAP PIC:   * Pay Date Amount:                                                                          * Prospective Amount:                                               Calculated:"
-                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
-                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
+                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job)
+                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)
+                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
                                                       End If
-                                                      If grh_checkbox = checked OR cash_checkbox = checked Then
+                                                      If grh_checkbox = checked OR (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then
                                                           Text 10, y_pos, 600, 10, "GRH/CASH PIC: Pay Date Amount:                                                                          Prospective Amount:                                               Calculated:"
-                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pay_day_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(cash_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(cash_pay_freq, each_job)
-                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(cash_prosp_income, each_job)
-                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_calc_date, each_job)
+                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job)
+                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, each_job)
+                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
                                                       End If
                                                       If ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
@@ -7986,7 +7989,7 @@ Do
                                     cs_counter = 0
                                     For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                         If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
-                                            If cs_counter >= loop_start Then dlg_four_len = dlg_four_len + 70
+                                            If cs_counter >= loop_start Then dlg_four_len = dlg_four_len + 75
                                             ' MsgBox "Counter - " & cs_counter & vbNewLine & "Limit - " & cs_limit & vbNewLine & "Loop start - " & loop_start & vbNewLine & "Dlg len - " & dlg_four_len
                                             cs_counter = cs_counter + 1
                                         End If
@@ -8744,14 +8747,14 @@ Do
                         If first_time_to_exp_det = True Then
                             determined_income = 0
                             For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                                If ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) <> "" Then
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = True Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                                ElseIf ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) <> "" Then
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = True Then
-                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Semi-Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2
-                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Biweekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2.15
-                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Weekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*4.3
+                                If ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job) <> "" Then
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)) = True Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)
+                                ElseIf ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job) <> "" Then
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)) = True Then
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Semi-Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)*2
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Biweekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)*2.15
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Weekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)*4.3
                                     End If
                                 End If
                             Next
@@ -8947,9 +8950,9 @@ Do
                                     End If
                                 End If
                                 If SNAP_checkbox = checked Then
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY DATE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
-                                    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PROSPECTIVE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY DATE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PROSPECTIVE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
                                 End If
                             End If
                         End If
@@ -10304,8 +10307,9 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
         Call write_bullet_and_variable_in_CASE_NOTE("Verification", ALL_JOBS_PANELS_ARRAY(verif_explain, each_job))
         If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income: $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
         If ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income: $" & ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job) & " hours.")
-        If snap_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("SNAP Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job))
-        If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("About Budget: " & ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
+        If snap_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("SNAP Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, each_job))
+        If grh_checkbox = checked OR (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then Call write_variable_with_indent_in_CASE_NOTE("CASH Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, each_job))
+		If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("About Budget: " & ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
     Next
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("JOBS", notes_on_jobs)
@@ -10435,6 +10439,7 @@ End If
 Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", notes_on_cses)
 
 'UNEA
+Call write_variable_in_CASE_NOTE("--- Unearned Income ---")
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
     If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
         rsdi_income_det = ""
