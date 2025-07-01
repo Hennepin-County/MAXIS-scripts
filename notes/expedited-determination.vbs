@@ -2013,8 +2013,10 @@ If maxis_updated_yn = "Yes" Then
 			EMReadScreen panel_earner, 25, 4, 36
 			EMReadScreen panel_unea_type, 2, 5, 37
 
-			EMWriteScreen "X", 10, 26
-			transmit
+			EMReadScreen cash_pic_exists, 4, 10, 45		'in footer month 03/25, a CASH PIC was added to UNEA - moving the SNAP PIC selection field
+			If cash_pic_exists = "CASH" Then Call write_value_and_transmit("X", 10, 25)
+			If cash_pic_exists <> "CASH" Then Call write_value_and_transmit("X", 10, 26)
+
 			EMReadScreen panel_unea_frequency, 1, 5, 64
 			EMReadScreen panel_unea_monthly_wage, 8, 18, 56
 			If panel_unea_frequency = "4" Then
