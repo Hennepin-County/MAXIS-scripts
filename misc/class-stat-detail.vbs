@@ -4885,7 +4885,6 @@ class stat_detail
 
 		Next
 
-		cash_six_month_budget_elig = False
 		call navigate_to_MAXIS_screen("STAT", "UNEA")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -4989,12 +4988,11 @@ class stat_detail
 				stat_unea_one_snap_pic_ave_inc_per_pay(each_memb) = trim(stat_unea_one_snap_pic_ave_inc_per_pay(each_memb))
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
-
 				If cash_six_month_budget_elig = True Then
 					Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen stat_unea_one_cash_pic_pay_freq(each_memb), 1, 5, 64
-					EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen stat_unea_one_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+					EMReadScreen stat_unea_one_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_unea_one_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
 					If stat_unea_one_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_one_cash_pic_pay_freq(each_memb) = ""
 					If stat_unea_one_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_one_cash_pic_pay_freq(each_memb) = "Monthly"
@@ -5113,9 +5111,9 @@ class stat_detail
 
 				If cash_six_month_budget_elig = True Then
 					Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen stat_unea_two_cash_pic_pay_freq(each_memb), 1, 5, 64
-					EMReadScreen stat_unea_two_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen stat_unea_two_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+					EMReadScreen stat_unea_two_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_unea_two_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_unea_two_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
 					If stat_unea_two_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_two_cash_pic_pay_freq(each_memb) = ""
 					If stat_unea_two_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_two_cash_pic_pay_freq(each_memb) = "Monthly"
@@ -5235,9 +5233,9 @@ class stat_detail
 
 				If cash_six_month_budget_elig = True Then
 					Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen stat_unea_three_cash_pic_pay_freq(each_memb), 1, 5, 64
-					EMReadScreen stat_unea_three_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen stat_unea_three_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+					EMReadScreen stat_unea_three_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_unea_three_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_unea_three_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
 					If stat_unea_three_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_three_cash_pic_pay_freq(each_memb) = ""
 					If stat_unea_three_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_three_cash_pic_pay_freq(each_memb) = "Monthly"
@@ -5356,9 +5354,9 @@ class stat_detail
 
 				If cash_six_month_budget_elig = True Then
 					Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen stat_unea_four_cash_pic_pay_freq(each_memb), 1, 5, 64
-					EMReadScreen stat_unea_four_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen stat_unea_four_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+					EMReadScreen stat_unea_four_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_unea_four_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_unea_four_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
 					If stat_unea_four_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_four_cash_pic_pay_freq(each_memb) = ""
 					If stat_unea_four_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_four_cash_pic_pay_freq(each_memb) = "Monthly"
@@ -5477,9 +5475,9 @@ class stat_detail
 
 				If cash_six_month_budget_elig = True Then
 					Call write_value_and_transmit("X", 10, 43)
-					EMReadScreen stat_unea_five_cash_pic_pay_freq(each_memb), 1, 5, 64
-					EMReadScreen stat_unea_five_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
-					EMReadScreen stat_unea_five_cash_pic_prosp_monthly_inc(each_memb), 10, 19, 55
+					EMReadScreen stat_unea_five_cash_pic_pay_freq(each_memb), 1, 3, 63
+					EMReadScreen stat_unea_five_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 67
+					EMReadScreen stat_unea_five_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 67
 
 					If stat_unea_five_cash_pic_pay_freq(each_memb) = "_" Then stat_unea_five_cash_pic_pay_freq(each_memb) = ""
 					If stat_unea_five_cash_pic_pay_freq(each_memb) = "1" Then stat_unea_five_cash_pic_pay_freq(each_memb) = "Monthly"
