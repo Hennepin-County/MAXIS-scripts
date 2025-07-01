@@ -5493,7 +5493,6 @@ class stat_detail
 			End If
 
 		Next
-		cash_six_month_budget_elig = True
 
 		call navigate_to_MAXIS_screen("STAT", "OTHR")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
