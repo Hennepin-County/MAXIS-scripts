@@ -3370,7 +3370,7 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
 		EMReadScreen UNEA_amt, 8, 18, 68
 		UNEA_amt = trim(UNEA_amt)
 
-		EMReadScreen cash_pic_exists, 4, 10 45		'in footer month 03/25, a CASH PIC was added to UNEA - moving the SNAP PIC selection field
+		EMReadScreen cash_pic_exists, 4, 10, 45		'in footer month 03/25, a CASH PIC was added to UNEA - moving the SNAP PIC selection field
 		If cash_pic_exists = "CASH" Then Call write_value_and_transmit("X", 10, 25)
 		If cash_pic_exists <> "CASH" Then Call write_value_and_transmit("X", 10, 26)
 
