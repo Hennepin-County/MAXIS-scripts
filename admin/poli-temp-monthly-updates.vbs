@@ -83,7 +83,7 @@ Do
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-    
+
 Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
@@ -93,43 +93,43 @@ Do
     total_code = trim(objExcel.cells(excel_row, 2).value)
     error_message = trim(objExcel.cells(excel_row, 4).value)
     If total_code = "" then exit do     'If all codes have been completed
-    If error_message = "" then 
+    If error_message = "" then
         Temp_updates = "Original,Revised"
         Temp_array = split(Temp_updates, ",")
-    
+
         Call back_to_SELF
         For each update in temp_array
             'Setting up footer month/year based on which version we're looking at. CM - 2 since DHS will update changes in CM and CM + 1. And sometimes they report changes for one month in another month (June changes in July.)
             If update = "Original" then
-                MAXIS_footer_month = CM_minus_3_mo
-                MAXIS_footer_year = CM_minus_3_yr
+                MAXIS_footer_month = CM_minus_2_mo
+                MAXIS_footer_year = CM_minus_2_yr
             Elseif update = "Revised" then
                 MAXIS_footer_month = CM_plus_1_mo
                 MAXIS_footer_year = CM_plus_1_yr
             End if
-    
+
             Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
-            
+
             Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
             EMWriteScreen "TEMP", 5, 40     'Writes TEMP
             Call write_value_and_transmit("TABLE", 21, 71)
             policy_info = "POLI/TEMP"
-        
+
             'Writing information and navigating in TEMP/TABLE
             Call write_value_and_transmit(total_code, 3, 21)
             EMReadScreen section_found, 18, 6, 54
             section_found = trim(section_found)
             If section_found <> total_code Then
                 objExcel.cells(excel_row, 4).value = "The POLI/TEMP table reference: " & total_code & " could not be found."
-            Else 
+            Else
                 EMReadScreen poli_title, 46, 6, 8
                 poli_title = trim(poli_title)
                 EmReadscreen poli_update_yr, 4, 6, 74   'This will be used to name the files
                 EmReadscreen poli_update_mo, 2, 6, 79
                 Call write_value_and_transmit("X", 6, 4)
-            
+
                 policy_info = policy_info & ": " & total_code
-            
+
                 'Creates the Word doc
                 Set objWord = CreateObject("Word.Application")
                 objWord.Visible = False 'setting visibility to false to support stabilization - poor connectivity can create an issue here.
@@ -147,7 +147,7 @@ Do
                 objSelection.TypeParagraph()
                 objSelection.Font.Size = "10"
                 objSelection.ParagraphFormat.SpaceAfter = 0
-            
+
                 notice_length = 0
                 page_nbr = 2
                 'Reading TEMP reference title and information
@@ -172,35 +172,35 @@ Do
                     PF8
                     notice_length = notice_length + 1
                 Loop until current_page = end_of_poli
-        
+
                 objSelection.TypeText poli_wording  'exporting temp verbiage to Word
                 'adding closing message to document about when information was collected.
                 objSelection.TypeParagraph()
-            
+
                 '----------------------------------------------------------------------------------------------------File information coding
                 If right(poli_title, 1) = "." then poli_title = left(poli_title, len(poli_title) - 1) 'sometimes there is an extra period in the title.
-            
+
                 'These characters will not allow the file to save. Replacing them based on the character found.
                 poli_title = replace(poli_title, ":", " ")
                 poli_title = replace(poli_title, "/", " ")
                 poli_title = replace(poli_title, "?", " ")
                 poli_title = replace(poli_title, "<", "Under ")
                 poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
-            
+
                 'folder paths
                 compare_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\Comparison Files"
                 diff_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
-            
+
                 'Creating file names
                 poli_update_date = " " & poli_update_yr & " - " & poli_update_mo
                 file_name = "\" & total_code & " " & new_poli & poli_title & poli_update_date & ".docx"
                 If update = "Original" then original_file = file_name   'changes the file name to be compared below
                 If update = "Revised" then revised_file = file_name     'ditto
-            
+
                 objDoc.SaveAs(compare_file_path & file_name)
                 objWord.Visible = True  'Setting visibility back to true prior to quit. Does not need to be before the save.
                 objWord.Quit
-            
+
                 'blanking out the variables
                 'total_code = ""
                 poli_title = ""
@@ -209,27 +209,27 @@ Do
                 poli_update_date = ""
                 file_name = ""
             End if
-        Next  
+        Next
         '----------------------------------------------------------------------------------------------------Comparing the two files and creating a new file to be saved w/ changes tracked.
         If trim(objExcel.cells(excel_row, 4).value) = "" then
             'Creating single variable to compare below
             old_poli_file = compare_file_path & original_file
             new_poli_file = compare_file_path & revised_file
-                    
+
             Set objWord = CreateObject("Word.Application")  'set application object
             objWord.Documents.Open old_poli_file            'opening old file - original temp file
             objWord.ActiveDocument.Compare new_poli_file    'comparing the new file - revised temp file
             objWord.Visible = True
-                    
+
             Set objDoc = objWord.ActiveDocument             'set document object
             objDoc.SaveAs(diff_file_path & revised_file)
             objWord.Quit
-                
+
             STATS_counter = STATS_counter + 1
             Call File_Exists(new_poli_file, does_file_exist)
             If does_file_exist = True then objExcel.cells(excel_row, 4).value = "Diff file created."
-        End if 
-    End if 
+        End if
+    End if
     excel_row = excel_row + 1
 Loop until trim(objExcel.cells(excel_row, 2).value) = ""
 

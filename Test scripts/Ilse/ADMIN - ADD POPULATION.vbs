@@ -29,7 +29,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		END IF
 	ELSE
 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
-		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject"
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
 		fso_command.Close
@@ -98,7 +98,13 @@ Do
     If basket_number = "X127EG9" then suggested_population = "1800"
     If basket_number = "X127EG0" then suggested_population = "1800"
 
-    If basket_number = "X127ED8" then suggested_population = "Adults"
+    If basket_number = "X127ED8" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER1" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER2" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER3" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER4" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER5" then suggested_population = "ABD Plus"
+
     If basket_number = "X127EE1" then suggested_population = "Adults"
     If basket_number = "X127EE2" then suggested_population = "Adults"
     If basket_number = "X127EE3" then suggested_population = "Adults"
