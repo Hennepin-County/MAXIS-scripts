@@ -337,8 +337,8 @@ function read_case_details_for_mrsr_report(incrementor_var)
 				If family_cash_case = True or adult_cash_case = True or grh_case = True then
 					'read the CASH review information
 					Call write_value_and_transmit("X", 5, 35) 'CASH Review Information
-					EmReadscreen cash_review_popup, 11, 5, 35
-					If cash_review_popup = "GRH Reports" then
+					EmReadscreen cash_review_popup, 12, 5, 35
+					If cash_review_popup = "CASH Reports" then
 					'The script will now read the CSR MO/YR and the Recert MO/YR
 						EMReadScreen CSR_mo, 2, 9, 26
 						EMReadScreen CSR_yr, 2, 9, 32
@@ -372,8 +372,8 @@ function read_case_details_for_mrsr_report(incrementor_var)
 				If snap_case = True then
 					'read the SNAP review information
 					Call write_value_and_transmit("X", 5, 58) 'SNAP Review Information
-					EmReadscreen food_review_popup, 20, 5, 30
-					If food_review_popup = "Food Support Reports" then
+					EmReadscreen food_review_popup, 12, 5, 33
+					If food_review_popup = "SNAP REPORTS" then
 					'The script will now read the CSR MO/YR and the Recert MO/YR
 						EMReadScreen CSR_mo, 2, 9, 26
 						EMReadScreen CSR_yr, 2, 9, 32
