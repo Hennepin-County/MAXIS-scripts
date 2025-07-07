@@ -20573,35 +20573,35 @@ If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"
 ' The quickest resolution is to identify these workers and remove the ability of the script to review ELIG for any program other than HC. However, this is not a dynamic solution and will require upates.
 hc_access_only = False
 ' If user_ID_for_validation = "" Then hc_access_only = True		'
-If user_ID_for_validation = "TIER002" Then hc_access_only = True		' Tim Erickson
-If user_ID_for_validation = "SASA003" Then hc_access_only = True		' Sarah Haigh
-If user_ID_for_validation = "X127J9Y" Then hc_access_only = True 		' Gawa Kalsang
-If user_ID_for_validation = "X127J9Z" Then hc_access_only = True 		' Anna Mahon
-If user_ID_for_validation = "X127K9E" Then hc_access_only = True 		' Diki Phuntsok
-If user_ID_for_validation = "X127K9F" Then hc_access_only = True 		' Kelly Quigley
-If user_ID_for_validation = "X127J9S" Then hc_access_only = True 		' Cornel Culp
-If user_ID_for_validation = "X127J9N" Then hc_access_only = True 		' Prophetia Castin
-If user_ID_for_validation = "X127J9R" Then hc_access_only = True 		' Mayra Cota
-If user_ID_for_validation = "X127K9J" Then hc_access_only = True 		' Tamrat Shulu
-If user_ID_for_validation = "X127150" Then hc_access_only = True 		' GioVauntai Stewart
-If user_ID_for_validation = "X127NC2" Then hc_access_only = True 		' Natalie Carlstrom
-If user_ID_for_validation = "X127HHA" Then hc_access_only = True 		' Hamdiya Abdullahi
-If user_ID_for_validation = "X127ZR1" Then hc_access_only = True 		' Z'Nia Richmond
-If user_ID_for_validation = "X127A1I" Then hc_access_only = True 		' Anna Inslee
-If user_ID_for_validation = "X127SP2" Then hc_access_only = True 		' Samuel Parenteau
-If user_ID_for_validation = "X127KT7" Then hc_access_only = True 		' Kia Thao
-If user_ID_for_validation = "X127MZ2" Then hc_access_only = True 		' Martha Zieman
-If user_ID_for_validation = "X127NA5" Then hc_access_only = True 		' Nafiso Awale
-If user_ID_for_validation = "X127LAH" Then hc_access_only = True 		' Maslah Mohamed
-If user_ID_for_validation = "X127MLQ" Then hc_access_only = True 		' Michelle Quevedo Nordin
-If user_ID_for_validation = "X127EMK" Then hc_access_only = True 		' Eileen Keswani
-If user_ID_for_validation = "X127FJF" Then hc_access_only = True 		' Fajah Ford
-If user_ID_for_validation = "X127YT1" Then hc_access_only = True 		' Yer Thao
-If user_ID_for_validation = "X127IG1" Then hc_access_only = True 		' Isabella Groulx
-If user_ID_for_validation = "X127K2A" Then hc_access_only = True 		' Karina Andrade
-If user_ID_for_validation = "X127FY2" Then hc_access_only = True 		' Francis Yang
-If user_ID_for_validation = "X127M5A" Then hc_access_only = True 		' Maria Ali
-If user_ID_for_validation = "X127G1C" Then hc_access_only = True 		' Grace Cushman
+If user_ID_for_validation = "TIER002" Then hc_access_only = True		' TE
+If user_ID_for_validation = "SASA003" Then hc_access_only = True		' SH
+If user_ID_for_validation = "HAAB003" Then hc_access_only = True 		' HA
+If user_ID_for_validation = "MAAL004" Then hc_access_only = True 		' MA
+If user_ID_for_validation = "KAAN002" Then hc_access_only = True 		' KA
+If user_ID_for_validation = "NAAW001" Then hc_access_only = True 		' NA
+If user_ID_for_validation = "NACA001" Then hc_access_only = True 		' NC
+If user_ID_for_validation = "PRCA002" Then hc_access_only = True 		' PC
+If user_ID_for_validation = "MACO010" Then hc_access_only = True 		' MC
+If user_ID_for_validation = "COCU002" Then hc_access_only = True 		' CC
+If user_ID_for_validation = "GRCU001" Then hc_access_only = True 		' GC
+If user_ID_for_validation = "FAFO001" Then hc_access_only = True 		' FF
+If user_ID_for_validation = "ISGR001" Then hc_access_only = True 		' IG
+If user_ID_for_validation = "ANIN001" Then hc_access_only = True 		' AI
+If user_ID_for_validation = "GAKA002" Then hc_access_only = True 		' GK
+If user_ID_for_validation = "EIKE001" Then hc_access_only = True 		' EK
+If user_ID_for_validation = "ANMA009" Then hc_access_only = True 		' AM
+If user_ID_for_validation = "MAMO002" Then hc_access_only = True 		' MM
+If user_ID_for_validation = "SAPA001" Then hc_access_only = True 		' SP
+If user_ID_for_validation = "MIQU001" Then hc_access_only = True 		' MQ
+If user_ID_for_validation = "KEQU002" Then hc_access_only = True 		' KQ
+If user_ID_for_validation = "ZNRI001" Then hc_access_only = True 		' ZR
+If user_ID_for_validation = "TASH002" Then hc_access_only = True 		' TS
+If user_ID_for_validation = "GIST001" Then hc_access_only = True 		' GS
+If user_ID_for_validation = "KITH002" Then hc_access_only = True 		' KT
+If user_ID_for_validation = "YETH001" Then hc_access_only = True 		' YT
+If user_ID_for_validation = "DIWA002" Then hc_access_only = True 		' DP
+If user_ID_for_validation = "FRYA001" Then hc_access_only = True 		' FY
+If user_ID_for_validation = "MAZI002" Then hc_access_only = True 		' MZ
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 ' If MAXIS_case_number = "2683408" Then allow_late_note = True
