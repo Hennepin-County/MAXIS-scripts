@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2025", "The functionality to Complete Your List has been updated to evaluate the dates entered. The script will reject dates prior to the date the assignment worklist was created or dates in the future.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/12/2025", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -818,20 +819,42 @@ If operation_selection = "DATA LOCK - Clear" Then			'This will unlock the data i
 End If
 
 worker_list_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\"
+all_workers_list_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\worker_list.txt"
 If operation_selection = "Create Assignment for Another Worker" or operation_selection = "Complete Assignment for Another Worker" Then
 	worker_selection_droplist = "Select One..."
 	' If operation_selection = "Complete Assignment for Another Worker" Then worker_selection_droplist = worker_selection_droplist+chr(9)+"ALL"			'TODO - add this functionality
+	If operation_selection = "Create Assignment for Another Worker" Then
+		With (CreateObject("Scripting.FileSystemObject"))
+			If .FileExists(all_workers_list_path) = True then
+				'Setting the object to open the text file for reading the data already in the file
+				Set objTextStream = .OpenTextFile(all_workers_list_path, ForReading)
 
-	Set objFolder = objFSO.GetFolder(worker_list_folder)										'Creates an oject of the whole my documents folder
-	Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
-	For Each objFile in colFiles																'looping through each file
-		this_file_name = objFile.Name															'Grabing the file name
-		this_file_type = objFile.Type															'Grabing the file type
-		If this_file_type = "Microsoft Excel Worksheet" Then
-			' worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
-			If left(this_file_name, 2) <> "~$" Then worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
-		End If
-	Next
+				'Reading the entire text file into a string
+				every_line_in_text_file = objTextStream.ReadAll
+
+				'Splitting the text file contents into an array which will be sorted
+				worker_name_list = split(every_line_in_text_file, vbNewLine)
+
+				For Each text_line in worker_name_list
+					worker_info = split(trim(text_line))
+					worker_selection_droplist = worker_selection_droplist+chr(9)+worker_info(0)+" "+left(worker_info(1), 1)
+				Next
+			End If
+		End With
+	End If
+
+	If operation_selection = "Complete Assignment for Another Worker" Then
+		Set objFolder = objFSO.GetFolder(worker_list_folder)										'Creates an oject of the whole my documents folder
+		Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+		For Each objFile in colFiles																'looping through each file
+			this_file_name = objFile.Name															'Grabing the file name
+			this_file_type = objFile.Type															'Grabing the file type
+			If this_file_type = "Microsoft Excel Worksheet" Then
+				' worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
+				If left(this_file_name, 2) <> "~$" Then worker_selection_droplist = worker_selection_droplist+chr(9)+replace(this_file_name, " Assignment.xlsx", "")
+			End If
+		Next
+	End If
 
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 211, 75, "ADMIN Worker Selection"
@@ -853,6 +876,10 @@ If operation_selection = "Create Assignment for Another Worker" or operation_sel
 	If worker_selected <> "ALL" Then
 		indv_worklist_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\" & worker_selected & " Assignment.xlsx"
 		indv_worklist_open_file_path = t_drive & "\Eligibility Support\Assignments\ADS Health Care\~$" & worker_selected & " Assignment.xlsx"
+		worker_detail_info = split(worker_selected)
+
+		first_name = worker_detail_info(0)
+		last_name = worker_detail_info(1)
 
 		If operation_selection = "Create Assignment for Another Worker" Then operation_selection = "Individual Worker Assignment Creation"
 		If operation_selection = "Complete Assignment for Another Worker" Then operation_selection = "Complete Individual Worklist"
@@ -1596,7 +1623,7 @@ If run_list_management = True Then
 		objWorkbook.Save()		'saving the excel
 	End If
 
-
+	assignment_space = 14		'time between recurrent assignments for overdue cases
 	case_to_assign_count = 0
 	pri_1_case_count = 0
 	pri_2_case_count = 0
@@ -1649,12 +1676,11 @@ If run_list_management = True Then
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Currently_Assigned_col), on_assignment)
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, Assigned_to_ADMIN_col), assigned_to_manager)
 
-
 			worked_recently = False
 			If IsDate(Last_Assingment_Date) = True Then
 				Last_Assingment_Date = DateAdd("d", 0, Last_Assingment_Date)
 				days_since_last_work = DateDiff("d", Last_Assingment_Date, date)
-				If days_since_last_work < 29 Then worked_recently = True
+				If days_since_last_work =< assignment_space Then worked_recently = True
 			End If
 			If on_assignment = True Then
 				case_on_assign_count = case_on_assign_count + 1
@@ -1696,7 +1722,7 @@ If run_list_management = True Then
 						End If
 
 
-						If days_since_last_assignment > 27 Then
+						If days_since_last_assignment > assignment_space Then
 							verifs_are_due = False
 							If IsDate(Verif_requested_date) = True Then
 								If DateDiff("d", Verif_requested_date, date) >= 10 Then verifs_are_due = True
@@ -2033,6 +2059,9 @@ If run_assignment_selection = True Then
 
 	'If yes:
 	If objFSO.FileExists(indv_worklist_file_path) Then
+		set worker_file = objFSO.GetFile(indv_worklist_file_path)			'create file object
+		worklist_created = worker_file.DateCreated						'identify the file create date - which includes date and time
+
 		'Open the sheet
 		Call excel_open(indv_worklist_file_path, visible_stat, False, ObjWrkrExcel, objWrkrWorkbook)
 
@@ -2042,6 +2071,9 @@ If run_assignment_selection = True Then
 		total_pending = 0
 		worklist_count = 0
 		cases_to_reassign = " "
+		completed_date_in_past = False
+		completed_date_in_future = False
+
 		excel_row = 2
 		Do
 			worklist_count = worklist_count + 1
@@ -2052,12 +2084,32 @@ If run_assignment_selection = True Then
 				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Approved" Then total_approved = total_approved + 1
 				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Denied" Then total_denied = total_denied + 1
 				If trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_stat_col).Value) = "Pending" Then total_pending = total_pending + 1
+				If DateDiff("d", worklist_created, completed_date) < 0 Then completed_date_in_past = True
+				If DateDiff("d", completed_date, date) < 0 Then completed_date_in_future = True
 			End If
 			If IsDate(completed_date) = False Then cases_to_reassign = cases_to_reassign & trim(ObjWrkrExcel.Cells(excel_row, wrkr_case_numb_col).Value) & " "
 
 			excel_row = excel_row + 1
 			next_case_numb = trim(ObjWrkrExcel.Cells(excel_row, wrkr_assign_hsr_col).Value)
 		Loop until next_case_numb = ""
+
+		If completed_date_in_past = True or completed_date_in_future = True Then
+			ObjWrkrExcel.Visible = True					'set to visible and maximize the window
+			ObjWrkrExcel.WindowState = -4137			'Excel Ennumeration can be found here -  https://docs.microsoft.com/en-us/office/vba/api/excel.xlwindowstate
+
+			ObjExcel.ActiveWorkbook.Close
+			ObjExcel.Application.Quit
+			ObjExcel.Quit
+			Call release_data_lock("HOLD")
+
+			end_early_msg = "The Assignment Completed information on your spreadsheet are invalid." & vbCr & vbCr
+			If completed_date_in_past = True Then end_early_msg = end_early_msg & "Completed dates cannot be prior to the list being created." & vbCr & "* Only record cases you have reviewed/worked." & vbCr & vbCr
+			If completed_date_in_future = True Then end_early_msg = end_early_msg & "Completed dates cannot be in the future." & vbCr & "* Record an assignment completed the day you have done all work possible at the time." & vbCr & vbCr
+			end_early_msg = end_early_msg & vbCr & vbCr & "Remember the assignment completed date indicates that day you have done all you can for the case at the time. It is meant to indicate that nothing else can/should be done on the case at this time and is not an indicator of application completeness."
+			end_early_msg = end_early_msg & vbCr & vbCr & "The script will now end, fix the assignment completed dates and retry the script."
+
+			call script_end_procedure_with_error_report(end_early_msg)
+		End If
 
 		cases_to_reassign = trim(cases_to_reassign)
 		If cases_to_reassign <> "" Then reassign_array = split(cases_to_reassign)
