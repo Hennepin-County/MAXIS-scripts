@@ -139,7 +139,7 @@ NEXT
 excel_row = 2
 EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 transmit
-EMREADScreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
+EMREADScreen tracking_record_check, 15, 4, 39  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
 If tracking_record_check <> "Tracking Record" then script_end_procedure("Unable to enter ABAWD tracking record of member.")
 bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
 bene_yr_row = 10
