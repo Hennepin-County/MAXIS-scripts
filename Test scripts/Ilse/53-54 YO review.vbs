@@ -58,7 +58,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
     If wreg_memb <> member_number then CALL write_value_and_transmit(member_number, 20, 76)
     Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'
     EMWaitReady 0, 0
-    EMReadscreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
+    EMReadscreen tracking_record_check, 15, 4, 39  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
     EMWaitReady 0,0
     If tracking_record_check <> "Tracking Record" then
 		report_notes = report_notes & "Error accessing ATR. "
