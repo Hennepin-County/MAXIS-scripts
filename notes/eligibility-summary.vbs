@@ -330,7 +330,7 @@ function gather_supervisor_email(script_user_email, supervisor_email)
 	SQL_table = "SELECT * FROM  ES.V_ESAllStaff WHERE EmpStateLogOnID = '" & supervisor_x_number & "'"
 
 	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
@@ -21114,8 +21114,7 @@ For each footer_month in MONTHS_ARRAY
 			Set objRecordSet = CreateObject("ADODB.Recordset")
 
 			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objConnection.Open db_full_string
 			objRecordSet.Open objSQL, objConnection
 			number_of_rows = objRecordSet(0).value
 			number_of_rows = number_of_rows*1
@@ -26730,7 +26729,7 @@ If cancel_out_of_hc = False Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'This is the file path for the statistics Access database.
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 		End If
 	End If
@@ -26749,7 +26748,7 @@ If cancel_out_of_hc = False Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'This is the file path for the statistics Access database.
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 		End If
 
