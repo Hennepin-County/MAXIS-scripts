@@ -59,6 +59,17 @@ all_users_select_a_worker = True
 'If the above is False, we need a list of workers who do use the "select a worker" nav scripts.
 users_using_select_a_user = array()
 
+'DATABASE SETTINGS AND DETAILS=========================
+
+'specific settings for the database schema and tables to use.
+db_provider = "SQLOLEDB.1"
+db_data_source = "hssqlpw139"
+db_catalog = "BlueZone_Statistics"
+db_security = "SSPI"
+db_translate = "False"
+
+'string to use for database calls in scripts.
+db_full_string = "Provider = " & db_provider & ";Data Source= " & db_data_source & ";Initial Catalog= " & db_catalog & "; Integrated Security=" & db_security & ";Auto Translate=" & db_translate & ";"
 
 'COLLECTING STATISTICS=========================
 
@@ -69,7 +80,8 @@ collecting_statistics = true
 using_SQL_database = true
 
 'This is the file path for the statistics Access database.
-stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+stats_database_path = db_data_source & ";Initial Catalog= " & db_catalog & "; Integrated Security=" & db_security & ";Auto Translate=" & db_translate & ";"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
 STATS_enhanced_db = true
