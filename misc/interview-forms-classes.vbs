@@ -1509,10 +1509,11 @@ class form_questions
 			If entirely_blank = "-1" Then entirely_blank = True
 		End If
 		Set subNode = node.SelectSingleNode("detailArrayExists")
+		detail_array_exists = False
 		If Not subNode Is Nothing Then
-			detail_array_exists = subNode.Text
-			If detail_array_exists = "0" Then detail_array_exists = False
-			If detail_array_exists = "-1" Then detail_array_exists = True
+			temp_node_info = subNode.Text
+			If temp_node_info = "0" Then detail_array_exists = False
+			If temp_node_info = "-1" Then detail_array_exists = True
 		End If
 		Set subNode = node.SelectSingleNode("detailSource")
 		If Not subNode Is Nothing Then detail_source = subNode.Text
