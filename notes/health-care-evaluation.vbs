@@ -1279,14 +1279,14 @@ function define_main_dialog()
 			grp_len = grp_len - 80
 			GroupBox 10, 80, 465, grp_len, "Assets"
 			' GroupBox 10, 10, 465, grp_len, "Vehicles and Real Estate"
-			
+
 			Text 510, 77, 55, 13, "Assets"
 			grp_len = y_pos
 			grp_len = grp_len - 80
 			GroupBox 10, y_pos, 465, grp_len, "Other Assets (OTHR Panel)"
 			y_pos = y_pos + 10
 			othr_burial_assets = ""
-			
+
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_othr_one_exists(each_memb) = True Then
 					othr_panels_exist = true
@@ -1297,7 +1297,7 @@ function define_main_dialog()
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_one_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_info(each_memb) & ")"
 						Text 320, y_pos, 160, 10, "Amt Owed: " & trim(STAT_INFORMATION(month_ind).stat_othr_one_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_one_cash_value_verif_info(each_memb) & ")"
 						y_pos = y_pos + 10
-						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_one_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_one_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_one_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_one_count_iv_e(each_memb) 
+						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_one_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_one_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_one_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_one_count_iv_e(each_memb)
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_one_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_one_share_ratio(each_memb)
 						If STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_one_property_type_code(each_memb) = "9" Then othr_burial_assets = True
@@ -1308,7 +1308,7 @@ function define_main_dialog()
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_two_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_info(each_memb) & ")"
 						Text 320, y_pos, 160, 10, "Amt Owed: " & trim(STAT_INFORMATION(month_ind).stat_othr_two_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_two_cash_value_verif_info(each_memb) & ")"
 						y_pos = y_pos + 10
-						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_two_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_two_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_two_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_two_count_iv_e(each_memb) 
+						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_two_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_two_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_two_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_two_count_iv_e(each_memb)
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_two_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_two_share_ratio(each_memb)
 						If STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_two_property_type_code(each_memb) = "9" Then othr_burial_assets = True
@@ -1319,7 +1319,7 @@ function define_main_dialog()
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_three_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_info(each_memb) & ")"
 						Text 320, y_pos, 160, 10, "Amt Owed: " & trim(STAT_INFORMATION(month_ind).stat_othr_three_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_three_cash_value_verif_info(each_memb) & ")"
 						y_pos = y_pos + 10
-						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_three_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_three_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_three_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_three_count_iv_e(each_memb) 
+						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_three_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_three_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_three_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_three_count_iv_e(each_memb)
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_three_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_three_share_ratio(each_memb)
 						If STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_three_property_type_code(each_memb) = "9" Then othr_burial_assets = True
@@ -1330,7 +1330,7 @@ function define_main_dialog()
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_four_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_info(each_memb) & ")"
 						Text 320, y_pos, 160, 10, "Amt Owed: " & trim(STAT_INFORMATION(month_ind).stat_othr_four_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_four_cash_value_verif_info(each_memb) & ")"
 						y_pos = y_pos + 10
-						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_four_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_four_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_four_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_four_count_iv_e(each_memb) 
+						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_four_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_four_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_four_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_four_count_iv_e(each_memb)
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_four_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_four_share_ratio(each_memb)
 						If STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_four_property_type_code(each_memb) = "9" Then othr_burial_assets = True
@@ -1341,7 +1341,7 @@ function define_main_dialog()
 						Text 160, y_pos, 160, 10, "Cash Value: " & trim(STAT_INFORMATION(month_ind).stat_othr_five_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_info(each_memb) & ")"
 						Text 320, y_pos, 160, 10, "Amt Owed: " & trim(STAT_INFORMATION(month_ind).stat_othr_five_cash_value(each_memb)) & " (Ver: " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_code(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_othr_five_cash_value_verif_info(each_memb) & ")"
 						y_pos = y_pos + 10
-						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_five_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_five_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_five_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_five_count_iv_e(each_memb) 
+						Text 25, y_pos, 125, 10, "Count: " & "Cash: " & STAT_INFORMATION(month_ind).stat_othr_five_count_cash(each_memb) & " SNAP: " & STAT_INFORMATION(month_ind).stat_othr_five_count_snap(each_memb) & " HC: " & STAT_INFORMATION(month_ind).stat_othr_five_count_hc(each_memb) & " IV-E: " & STAT_INFORMATION(month_ind).stat_othr_five_count_iv_e(each_memb)
 						Text 160, y_pos, 50, 10, "Joint Owner: " & STAT_INFORMATION(month_ind).stat_othr_five_joint_owner(each_memb)
 						Text 220, y_pos, 115, 10, "Share Ratio: " & STAT_INFORMATION(month_ind).stat_othr_five_share_ratio(each_memb)
 						If STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "1" OR STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "2" OR STAT_INFORMATION(month_ind).stat_othr_five_property_type_code(each_memb) = "9" Then othr_burial_assets = True
@@ -1357,10 +1357,10 @@ function define_main_dialog()
 			Else
 				Text 25, y_pos+5, 50, 10, "Asset Notes:"
 				EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_othr_notes)
-				If othr_burial_assets = True Then 
+				If othr_burial_assets = True Then
 					Text 25, y_pos+20, 80, 10, "Burial Asset (Yes/No):"
 					DropListBox 105, y_pos + 20, 60, 20, "Select one:"+chr(9)+"Yes"+chr(9)+"No", burial_asset_droplist
-				End If	
+				End If
 			End If
 		ElseIf page_display = show_cars_rest_page Then															'Cars ad Real Estate Page
 			cars_exists = False
@@ -4457,8 +4457,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'This is the file path for the statistics Access database.
-		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
@@ -5961,7 +5960,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'This is the file path for the statistics Access database.
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			Else
 				MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
@@ -6000,7 +5999,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - MIXED HOUSEHOLD ***")
         Else
             CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
-        End IF 
+        End IF
 
 		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
@@ -6227,7 +6226,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'This is the file path for the statistics Access database.
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			Else
 				MsgBox "This is where the update would happen" & vbCr & vbCr & "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_after_phase_2 - " & ex_parte_after_phase_2 & vbCr & "phase_1_changes_summary - " & phase_1_changes_summary
@@ -7009,13 +7008,13 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Tot
 
 	total_cash = round(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
 	total_accounts = round(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb))
-	
+
 	If STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) = 0
     If STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) = 0
     If STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) = 0
     total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
-	
-	
+
+
 	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
