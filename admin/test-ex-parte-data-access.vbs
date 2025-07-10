@@ -239,7 +239,7 @@ If user_ID = "CALO001" Then
 	SQL_table = "SELECT * from usage_log WHERE SDATE > '2024-01-01'"				'identifying the table that stores the ES Staff user information
 
 	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	count = 0
@@ -292,7 +292,7 @@ End If
 ' SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
 
 ' 'This is the file path the data tables
-' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' objConnection.Open db_full_string
 ' objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 ' Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
@@ -357,9 +357,8 @@ review_date = DateAdd("d", 0, review_date)
 ' Set objRecordSet = CreateObject("ADODB.Recordset")
 
 ' 'This is the file path for the statistics Access database.
-' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-' 'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 'objConnection.Open db_full_string
+' objConnection.Open db_full_string
 ' objRecordSet.Open objSQL, objConnection
 ' ' row_count = objRecordSet(0).value
 
@@ -426,7 +425,6 @@ Loop until are_we_passworded_out = False
 ' closing_message = replace(closing_message, "'", "")
 
 ' 'Opening DB
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 ' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
 
 ' objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
@@ -458,10 +456,9 @@ Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+'objConnection.Open db_full_string
 'THIS USES THE STAGE AREA - NOT PRODUCTION
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objConnection.Open db_full_string
 objRecordSet.Open objSQL, objConnection
 
 Do While NOT objRecordSet.Eof
@@ -491,10 +488,9 @@ Do While NOT objRecordSet.Eof
 	Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	'objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	'objELIGConnection.Open db_full_string
 	'THIS USES THE STAGE AREA - NOT PRODUCTION
-	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objELIGConnection.Open db_full_string
 	objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 	Do While NOT objELIGRecordSet.Eof
@@ -595,10 +591,9 @@ Do While NOT objRecordSet.Eof
 	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	'objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	'objIncomeConnection.Open db_full_string
 	'THIS USES THE STAGE AREA - NOT PRODUCTION
-	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objIncomeConnection.Open db_full_string
 	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 	Do While NOT objIncomeRecordSet.Eof
@@ -790,9 +785,9 @@ Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
 
-'objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+'objUpdateConnection.Open db_full_string
 'THIS USES THE STAGE AREA - NOT PRODUCTION
-objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objUpdateConnection.Open db_full_string
 objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 Call find_user_name(assigned_worker)
