@@ -83,12 +83,11 @@ changelog_display
 Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
-' Connection_String = "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' Connection_String = db_full_string
 SQL_Rows = "SELECT Count (*) from ES.ES_OnDemandCashAndSnap"
 
 'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objConnection.Open db_full_string
 objRecordSet.Open SQL_Rows, objConnection
 number_of_rows = objRecordSet(0).value
 
@@ -450,7 +449,7 @@ Set objWorkConnection = CreateObject("ADODB.Connection")
 Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objWorkConnection.Open db_full_string
 objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
 'pulling the date changed from the first record in the working list.
@@ -471,8 +470,7 @@ If first_item_date <> date Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Setting a starting value for a list of cases so that every case is bracketed by * on both sides.
@@ -1108,7 +1106,7 @@ If first_item_date <> date Then
 	Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objWorkConnection.Open db_full_string
 	' objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
 	objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed", objWorkConnection, adOpenStatic, adLockOptimistic
@@ -1129,7 +1127,7 @@ If first_item_date <> date Then
 	Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objWorkConnection.Open db_full_string
 
 	For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 		' If ALL_PENDING_CASES_ARRAY(line_update_date, case_entry) <> date and ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = False Then
@@ -1436,7 +1434,7 @@ Set objWorkConnection = CreateObject("ADODB.Connection")
 Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objWorkConnection.Open db_full_string
 objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
 
@@ -2292,7 +2290,7 @@ Set objWorkConnection = CreateObject("ADODB.Connection")
 Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objWorkConnection.Open db_full_string
 ' objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
 objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed", objWorkConnection, adOpenStatic, adLockOptimistic
@@ -2313,7 +2311,7 @@ Set objWorkConnection = CreateObject("ADODB.Connection")
 Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objWorkConnection.Open db_full_string
 working_list_count = UBound(WORKING_LIST_CASES_ARRAY, 2)+1
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	' If WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) <> date and WORKING_LIST_CASES_ARRAY(priv_case, case_entry) = False Then
