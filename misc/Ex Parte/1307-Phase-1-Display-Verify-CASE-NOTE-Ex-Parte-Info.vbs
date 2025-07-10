@@ -123,8 +123,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
@@ -151,8 +150,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objELIGConnection.Open db_full_string
 	objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 	Do While NOT objELIGRecordSet.Eof
@@ -207,8 +205,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objIncomeConnection.Open db_full_string
 	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 	Do While NOT objIncomeRecordSet.Eof
@@ -691,7 +688,7 @@ If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" T
 	Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objUpdateConnection.Open db_full_string
 	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 Else
 	MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
