@@ -939,7 +939,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
@@ -992,7 +992,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objELIGConnection.Open db_full_string
 		objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 		person_found = False		'setting the default of if we have found a person in the list
@@ -1203,7 +1203,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objIncomeConnection.Open db_full_string
 		objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 		'This will create an array of all of the income listed in SQL - which is what this report uses to complete the evaluation.
@@ -1403,7 +1403,7 @@ If ex_parte_function = "ADMIN Review" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'Opening the SQL data path for Ex Parte
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'This array is to maintain a list of workers that are processing Ex Parte
@@ -1546,7 +1546,7 @@ If ex_parte_function = "ADMIN Review" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
@@ -1749,7 +1749,7 @@ If ex_parte_function = "ADMIN Review" Then
 			Set objRecordSet = CreateObject("ADODB.Recordset")
 
 			'Opening the SQL data path for Ex Parte
-			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objConnection.Open db_full_string
 			objRecordSet.Open objSQL, objConnection
 
 			Do While NOT objRecordSet.Eof		'here is where we look at all of the cases to count where everything is at and determine the workers
@@ -1820,7 +1820,7 @@ If ex_parte_function = "FIX LIST" Then
 	' Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	' 'opening the connections and data table
-	' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objConnection.Open db_full_string
 	' objRecordSet.Open objSQL, objConnection
 
 	' 'Loop through each item on the CASE LIST Table
@@ -1847,7 +1847,7 @@ If ex_parte_function = "FIX LIST" Then
 	' 		' Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 	' 		' 'opening the connections and data table
-	' 		' objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' 		' objUpdateConnection.Open db_full_string
 	' 		' objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 	' 	Else
 	' 		ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)							'Reset this array to blank at the beginning of each loop for each case.
@@ -2355,7 +2355,7 @@ If ex_parte_function = "FIX LIST" Then
 	' Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	' 'opening the connections and data table
-	' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objConnection.Open db_full_string
 	' objRecordSet.Open objSQL, objConnection
 
 	' Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
@@ -2437,7 +2437,7 @@ If ex_parte_function = "Prep 1" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		'Loop through each item on the CASE LIST Table
@@ -2451,7 +2451,7 @@ If ex_parte_function = "Prep 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 			objRecordSet.MoveNext			'move to the next item in the table
@@ -2591,7 +2591,7 @@ If ex_parte_function = "Prep 1" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
@@ -2623,7 +2623,7 @@ If ex_parte_function = "Prep 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
@@ -2638,7 +2638,7 @@ If ex_parte_function = "Prep 1" Then
 			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objELIGConnection.Open db_full_string
 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 			person_found = False		'setting the default of if we have found a person in the list
@@ -2937,7 +2937,7 @@ If ex_parte_function = "Prep 1" Then
 			Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objIncomeConnection.Open db_full_string
 			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 			'looping through each row in this case
@@ -3058,7 +3058,7 @@ If ex_parte_function = "Prep 1" Then
 					Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 					'opening the connections and data table
-					objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					objIncomeConnection.Open db_full_string
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 					'If there is RR income listed from the SQL table and NOT from UNEA - it is going to save any member with RR income listed on SQL to the RR array for the verif list
@@ -3203,7 +3203,7 @@ If ex_parte_function = "Prep 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 		End If
@@ -3270,7 +3270,7 @@ If ex_parte_function = "Prep 1" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Open The CASE LIST Table
@@ -3326,7 +3326,7 @@ If ex_parte_function = "Prep 2" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		'Loop through each item on the CASE LIST Table
@@ -3340,7 +3340,7 @@ If ex_parte_function = "Prep 2" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 			objRecordSet.MoveNext			'move to the next item in the table
@@ -3400,7 +3400,7 @@ If ex_parte_function = "Prep 2" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Loop through each item on the CASE LIST Table
@@ -3433,7 +3433,7 @@ If ex_parte_function = "Prep 2" Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 			'Here is functionality to be sure the case is able to be updated
@@ -3737,7 +3737,7 @@ If ex_parte_function = "Prep 2" Then
 					Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 					'opening the connections and data table
-					objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					objIncomeConnection.Open db_full_string
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 					Call back_to_SELF
@@ -4152,7 +4152,7 @@ If ex_parte_function = "Prep 2" Then
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
 						'opening the connections and data table
-						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 
 					End If
@@ -4167,7 +4167,7 @@ If ex_parte_function = "Prep 2" Then
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
 						'opening the connections and data table
-						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 
 					End If
@@ -4182,7 +4182,7 @@ If ex_parte_function = "Prep 2" Then
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
 						'opening the connections and data table
-						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 
 						objTextStream.WriteLine MAXIS_case_number & "| NAME: " & MEMBER_INFO_ARRAY(memb_name_const, each_memb) & "|" & "SSN: " &  MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) & "| QURY FINISH: " & qury_finish
@@ -4272,7 +4272,7 @@ If ex_parte_function = "Prep 2" Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
@@ -4306,7 +4306,7 @@ If ex_parte_function = "Prep 2" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Open The CASE LIST Table
@@ -4475,7 +4475,7 @@ If ex_parte_function = "Phase 1" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		'Loop through each item on the CASE LIST Table
@@ -4489,7 +4489,7 @@ If ex_parte_function = "Phase 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 			objRecordSet.MoveNext			'move to the next item in the table
@@ -4508,7 +4508,7 @@ If ex_parte_function = "Phase 1" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Loop through each item on the CASE LIST Table
@@ -4531,7 +4531,7 @@ If ex_parte_function = "Phase 1" Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 			'first we check for access
@@ -4561,7 +4561,7 @@ If ex_parte_function = "Phase 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			Else
 				'if the case has not been determined to be 'kicked off' we can look closer into the case information
@@ -4844,7 +4844,7 @@ If ex_parte_function = "Phase 1" Then
 							Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 							'opening the connections and data table
-							objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+							objIncomeConnection.Open db_full_string
 							objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 
@@ -5113,7 +5113,7 @@ If ex_parte_function = "Phase 1" Then
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
 						'opening the connections and data table
-						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 					End If
 				Next
@@ -5211,7 +5211,7 @@ If ex_parte_function = "Phase 1" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 			End If
@@ -5235,7 +5235,7 @@ If ex_parte_function = "Phase 1" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Open The CASE LIST Table
@@ -5292,7 +5292,7 @@ If ex_parte_function = "Phase 2" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'opening the connections and data table
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		'Loop through each item on the CASE LIST Table
@@ -5306,7 +5306,7 @@ If ex_parte_function = "Phase 2" Then
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 			objRecordSet.MoveNext			'move to the next item in the table
@@ -5338,8 +5338,7 @@ If ex_parte_function = "Phase 2" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Loop through each item on the CASE LIST Table
@@ -5359,11 +5358,11 @@ If ex_parte_function = "Phase 2" Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-			
+
 			'Need to make sure we get to SUMM
-			Do 
+			Do
 				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
 				If is_this_priv = True Then exit do
 				EMReadScreen summ_check, 4, 2, 46
@@ -5390,7 +5389,7 @@ If ex_parte_function = "Phase 2" Then
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 		End If
@@ -5412,7 +5411,7 @@ If ex_parte_function = "Phase 2" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	'Open The CASE LIST Table
@@ -5487,7 +5486,7 @@ If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open objSQL, objConnection
 
 	Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
@@ -5702,7 +5701,7 @@ If ex_parte_function = "DHS Data Validation" Then
 			Set objRecordSet = CreateObject("ADODB.Recordset")
 
 			'This is the file path for the statistics Access database.
-			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objConnection.Open db_full_string
 			objRecordSet.Open objSQL, objConnection
 			found_on_sql = False
 
@@ -5763,7 +5762,7 @@ If ex_parte_function = "DHS Data Validation" Then
 				Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 				'This is the file path for the statistics Access database.
-				objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objELIGConnection.Open db_full_string
 				objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 				Do While NOT objELIGRecordSet.Eof								'finding all of the information from ELIG lists
@@ -5997,7 +5996,7 @@ If ex_parte_function = "DHS Data Validation" Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'This is the file path for the statistics Access database.
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		Do While NOT objRecordSet.Eof										'adding all of the cases that are on SQL and NOT on the Excel sheet
@@ -6282,7 +6281,7 @@ If ex_parte_function = "Evaluate DHS Error List" Then
 	' 	Set objTheRecord = CreateObject("ADODB.Recordset")
 
 	' 	'opening the connections and data table
-	' 	objConnect.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' 	objConnect.Open db_full_string
 	' 	objTheRecord.Open objLIST, objConnect
 
 	' 	Do While NOT objTheRecord.Eof 					'Loop through each item on the CASE LIST Table
