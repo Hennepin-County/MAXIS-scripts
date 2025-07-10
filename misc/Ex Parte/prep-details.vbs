@@ -259,8 +259,7 @@ Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objConnection.Open db_full_string
 objRecordSet.Open objSQL, objConnection
 
 all_hc_is_ABD = ""
@@ -287,7 +286,7 @@ Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
 ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objELIGConnection.Open db_full_string
 objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 Do While NOT objELIGRecordSet.Eof
@@ -388,8 +387,7 @@ Set objIncomeConnection = CreateObject("ADODB.Connection")
 Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objIncomeConnection.Open db_full_string
 objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 Do While NOT objIncomeRecordSet.Eof
