@@ -93,8 +93,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 closing_message = replace(closing_message, "'", "")
 
 'Opening DB
-stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+objConnection.Open db_full_string
 
 objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
 "VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & trial_name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
