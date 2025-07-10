@@ -207,7 +207,7 @@ If ButtonPressed = reset_HSS_List Then
 	SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
 
 	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open db_full_string
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
@@ -374,7 +374,7 @@ If run_spotchecks_list = True Then
 		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
 
 		'This is the file path the data tables
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 		Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
