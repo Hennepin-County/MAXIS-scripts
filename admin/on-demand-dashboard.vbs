@@ -274,7 +274,7 @@ function assess_worklist_to_finish_day()
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objConnection.Open db_full_string
     objRecordSet.Open objSQL, objConnection
 
     Do While NOT objRecordSet.Eof
@@ -315,7 +315,7 @@ function assign_a_case()
             Set objRecordSet = CreateObject("ADODB.Recordset")
 
             'This is the file path for the statistics Access database.
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            objConnection.Open db_full_string
             objRecordSet.Open objSQL, objConnection
 
             'Read the whole table
@@ -348,7 +348,7 @@ function assign_a_case()
             Set objRecordSet = CreateObject("ADODB.Recordset")
 
             'This is the file path for the statistics Access database.
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            objConnection.Open db_full_string
             objRecordSet.Open "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed WHERE CaseNumber = '" & resume_case_number & "'", objConnection
 
             set_variables_from_SQL
@@ -399,7 +399,7 @@ function assign_a_case()
         Set objRecordSet = CreateObject("ADODB.Recordset")
 
         'This is the BZST connection to SQL Database'
-        objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+        objConnection.Open db_full_string
 
         'delete a record if the case number matches
         objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', " &_
@@ -591,7 +591,7 @@ function complete_admin_functions()
                 Set objRecordSet = CreateObject("ADODB.Recordset")
 
                 'This is the file path for the statistics Access database.
-                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+                objConnection.Open db_full_string
                 objRecordSet.Open objSQL, objConnection
 
                 Do While NOT objRecordSet.Eof
@@ -643,7 +643,7 @@ function complete_admin_functions()
 					Set objRecordSet = CreateObject("ADODB.Recordset")
 
 					'This is the BZST connection to SQL Database'
-					objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					objConnection.Open db_full_string
 
 					'delete a record if the case number matches
 					objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_tracking_notes & "' WHERE CaseNumber = '" & worklist_case_number & "'", objConnection
@@ -718,7 +718,7 @@ function create_assignment_report()
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objConnection.Open db_full_string
     objRecordSet.Open objSQL, objConnection
 
 	'we are going to add each case on the TABLE that was completed by the worker running the script and adding the information to the array
@@ -800,7 +800,7 @@ function create_assignment_report()
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 				'This is the BZST connection to SQL Database'
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateConnection.Open db_full_string
 
 				'delete a record if the case number matches
 				objUpdateRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objUpdateConnection
@@ -924,7 +924,7 @@ function merge_worklist_to_SQL()
 	Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
-	objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objWorkConnection.Open db_full_string
 	' objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
 	objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed", objWorkConnection, 3, 3
@@ -965,7 +965,7 @@ function merge_worklist_to_SQL()
                 Set objRecordSet = CreateObject("ADODB.Recordset")
 
                 'This is the BZST connection to SQL Database'
-                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+                objConnection.Open db_full_string
 
                 'delete a record if the case number matches
                 ' objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
@@ -1124,7 +1124,7 @@ function test_sql_access()
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objConnection.Open db_full_string
     objRecordSet.Open objSQL, objConnection
 
     Do While NOT objRecordSet.Eof
@@ -1149,7 +1149,7 @@ function test_sql_access()
     Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objWorkConnection.Open db_full_string
     objWorkRecordSet.Open objWorkSQL, objWorkConnection
 
     'pulling the date changed from the first record in the working list.
@@ -1313,7 +1313,7 @@ If local_demo = False Then
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objConnection.Open db_full_string
     objRecordSet.Open objSQL, objConnection
 
     'Determine the LOAD Date to identify if the BULK Run was completed
@@ -1418,7 +1418,7 @@ If local_demo = False Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'This is the file path for the statistics Access database.
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		Do While NOT objRecordSet.Eof			'this is the loop
@@ -1550,7 +1550,7 @@ If local_demo = False Then
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
 		'This is the file path for the statistics Access database.
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objConnection.Open db_full_string
 		objRecordSet.Open objSQL, objConnection
 
 		Do While NOT objRecordSet.Eof
@@ -2032,7 +2032,7 @@ If worker_on_task = True Then
         Set objRecordSet = CreateObject("ADODB.Recordset")
 
         'This is the BZST connection to SQL Database'
-        objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+        objConnection.Open db_full_string
 
         'delete a record if the case number matches
         objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', " &_
