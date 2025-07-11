@@ -3110,99 +3110,112 @@ function add_JOBS_to_variable(variable_name_for_JOBS)
 '--- This function adds STAT/JOBS data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ JOBS_variable: the variable used by the editbox you wish to autofill.
 '===== Keywords: MAXIS, autofill, JOBS
-  EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
-  JOBS_month = replace(JOBS_month, " ", "/")					'Cleans up the read number by putting a / in place of the blank space between MM YY
-  EMReadScreen JOBS_type, 30, 7, 42										'Reads up name of the employer and then cleans it up
-  JOBS_type = replace(JOBS_type, "_", ""	)
-  JOBS_type = trim(JOBS_type)
-  JOBS_type = split(JOBS_type)
-  For each JOBS_part in JOBS_type											'Correcting case on the name of the employer as it reads in all CAPS
-    If JOBS_part <> "" then
-      first_letter = ucase(left(JOBS_part, 1))
-      other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
-      new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
-    End if
-  Next
-  EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
-  jobs_hourly_wage = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
-' Navigates to the FS PIC
-    EMWriteScreen "X", 19, 38
-    transmit
-    EMReadScreen SNAP_JOBS_amt, 8, 17, 56
-    SNAP_JOBS_amt = trim(SNAP_JOBS_amt)
-		EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
-		jobs_SNAP_prospective_amt = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
-    EMReadScreen snap_pay_frequency, 1, 5, 64
+	EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
+	JOBS_month = replace(JOBS_month, " ", "/")					'Cleans up the read number by putting a / in place of the blank space between MM YY
+	EMReadScreen JOBS_type, 30, 7, 42										'Reads up name of the employer and then cleans it up
+	JOBS_type = replace(JOBS_type, "_", ""	)
+	JOBS_type = trim(JOBS_type)
+
+	JOBS_type = split(JOBS_type)
+	For each JOBS_part in JOBS_type											'Correcting case on the name of the employer as it reads in all CAPS
+		If JOBS_part <> "" then
+			first_letter = ucase(left(JOBS_part, 1))
+			other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
+			new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
+		End if
+	Next
+
+	EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
+	jobs_hourly_wage = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
+
+	' Navigates to the FS PIC
+	EMWriteScreen "X", 19, 38
+	transmit
+	EMReadScreen SNAP_JOBS_pay, 8, 17, 56
+	EMReadScreen SNAP_JOBS_amt, 8, 18, 56
+	SNAP_JOBS_pay = trim(SNAP_JOBS_pay)
+	SNAP_JOBS_amt = trim(SNAP_JOBS_amt)
+	EMReadScreen snap_pay_frequency, 1, 5, 64
 	EMReadScreen date_of_pic_calc, 8, 5, 34
 	date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
-    transmit
-'Navigats to GRH PIC
-	EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
-	IF GRH_PIC_check = "GRH" THEN
-		EMWriteScreen "X", 19, 71
-		transmit
-		EMReadScreen GRH_JOBS_amt, 8, 16, 69
-		GRH_JOBS_amt = trim(GRH_JOBS_amt)
-		EMReadScreen GRH_pay_frequency, 1, 3, 63
-		EMReadScreen GRH_date_of_pic_calc, 8, 3, 30
-		GRH_date_of_pic_calc = replace(GRH_date_of_pic_calc, " ", "/")
+	transmit
+
+	'Navigats to GRH PIC
+	EMReadscreen CASH_GRH_PIC_check, 4, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
+	CASH_GRH_PIC_check = trim(CASH_GRH_PIC_check)
+	IF CASH_GRH_PIC_check = "GRH" or CASH_GRH_PIC_check = "CASH" THEN
+		Call write_value_and_transmit("X", 19, 71)
+		If CASH_GRH_PIC_check = "GRH" Then
+			EMReadScreen CASH_JOBS_pay, 8, 16, 69
+			EMReadScreen CASH_JOBS_amt, 8, 17, 69
+		ElseIf CASH_GRH_PIC_check = "CASH" Then
+			EMReadScreen CASH_JOBS_pay, 10, 16, 68
+			EMReadScreen CASH_JOBS_amt, 10, 17, 68
+		End If
+		CASH_JOBS_pay = trim(CASH_JOBS_pay)
+		CASH_JOBS_amt = trim(CASH_JOBS_amt)
+		EMReadScreen CASH_pay_frequency, 1, 3, 63
+		EMReadScreen CASH_date_of_pic_calc, 8, 3, 30
+		CASH_date_of_pic_calc = replace(CASH_date_of_pic_calc, " ", "/")
 		PF3
 	END IF
-'  Reads the information on the retro side of JOBS
-    EMReadScreen retro_JOBS_amt, 8, 17, 38
-    retro_JOBS_amt = trim(retro_JOBS_amt)
-'  Reads the information on the prospective side of JOBS
+	'  Reads the information on the retro side of JOBS
+	EMReadScreen retro_JOBS_amt, 8, 17, 38
+	retro_JOBS_amt = trim(retro_JOBS_amt)
+	'  Reads the information on the prospective side of JOBS
 	EMReadScreen prospective_JOBS_amt, 8, 17, 67
 	prospective_JOBS_amt = trim(prospective_JOBS_amt)
-'  Reads the information about health care off of HC Income Estimator
-    EMReadScreen pay_frequency, 1, 18, 35
+	'  Reads the information about health care off of HC Income Estimator
+	EMReadScreen pay_frequency, 1, 18, 35
 	EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
 	IF HC_income_est_check = "Est" Then 'this is the old position
 		EMWriteScreen "X", 19, 54
 	ELSE								'this is the new position
 		EMWriteScreen "X", 19, 48
 	END IF
-    transmit
-    EMReadScreen HC_JOBS_amt, 8, 11, 63
-    HC_JOBS_amt = trim(HC_JOBS_amt)
-    transmit
+	transmit
+	EMReadScreen HC_JOBS_amt, 8, 11, 63
+	HC_JOBS_amt = trim(HC_JOBS_amt)
+	transmit
 
-  EMReadScreen JOBS_ver, 1, 6, 38
-  EMReadScreen JOBS_income_end_date, 8, 9, 49
+	EMReadScreen JOBS_ver, 1, 6, 38
+	EMReadScreen JOBS_income_end_date, 8, 9, 49
 	'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
-  If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
-  If IsDate(JOBS_income_end_date) = True then
-    variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
-  Else
-    If pay_frequency = "1" then pay_frequency = "monthly"
-    If pay_frequency = "2" then pay_frequency = "semimonthly"
-    If pay_frequency = "3" then pay_frequency = "biweekly"
-    If pay_frequency = "4" then pay_frequency = "weekly"
-    If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
-    IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
-    IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
-    IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
-    IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
-    IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
-	If GRH_pay_frequency = "1" then GRH_pay_frequency = "monthly"
-    If GRH_pay_frequency = "2" then GRH_pay_frequency = "semimonthly"
-    If GRH_pay_frequency = "3" then GRH_pay_frequency = "biweekly"
-    If GRH_pay_frequency = "4" then GRH_pay_frequency = "weekly"
-    variable_name_for_JOBS = variable_name_for_JOBS & "EI from " & trim(new_JOBS_type) & ", " & JOBS_month  & " amts:; "
-    If SNAP_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- SNAP PIC: $" & SNAP_JOBS_amt & "/" & snap_pay_frequency & ", SNAP PIC Prospective: $" & jobs_SNAP_prospective_amt & ", calculated " & date_of_pic_calc & "; "
-    If GRH_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- GRH PIC: $" & GRH_JOBS_amt & "/" & GRH_pay_frequency & ", calculated " & GRH_date_of_pic_calc & "; "
-	If retro_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- Retrospective: $" & retro_JOBS_amt & " total; "
-    IF prospective_JOBS_amt <> "" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Prospective: $" & prospective_JOBS_amt & " total; "
-    IF isnumeric(jobs_hourly_wage) THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Hourly Wage: $" & jobs_hourly_wage & "; "
-    'Leaving out HC income estimator if footer month is not Current month + 1
-    current_month_for_hc_est = dateadd("m", "1", date)
-    current_month_for_hc_est = datepart("m", current_month_for_hc_est)
-    IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
-    IF MAXIS_footer_month = current_month_for_hc_est THEN
-	IF HC_JOBS_amt <> "________" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- HC Inc Est: $" & HC_JOBS_amt & "/" & pay_frequency & "; "
-    END IF
-	If JOBS_ver = "N" or JOBS_ver = "?" then variable_name_for_JOBS = variable_name_for_JOBS & "- No proof provided for this panel; "
-  End if
+	If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
+	If IsDate(JOBS_income_end_date) = True then
+		variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
+	Else
+		If pay_frequency = "1" then pay_frequency = "monthly"
+		If pay_frequency = "2" then pay_frequency = "semimonthly"
+		If pay_frequency = "3" then pay_frequency = "biweekly"
+		If pay_frequency = "4" then pay_frequency = "weekly"
+		If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
+		IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
+		IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
+		IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
+		IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
+		IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
+		If CASH_pay_frequency = "1" then CASH_pay_frequency = "monthly"
+		If CASH_pay_frequency = "2" then CASH_pay_frequency = "semimonthly"
+		If CASH_pay_frequency = "3" then CASH_pay_frequency = "biweekly"
+		If CASH_pay_frequency = "4" then CASH_pay_frequency = "weekly"
+
+		variable_name_for_JOBS = variable_name_for_JOBS & " at " & trim(new_JOBS_type) & " (Footer Month " & JOBS_month  & "):; "
+		If SNAP_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- SNAP Budgeted Amount: $" & SNAP_JOBS_amt & ";   ($" & SNAP_JOBS_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_pic_calc & "; "
+		If CASH_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- CASH Budgeted Amount: $" & CASH_JOBS_amt & ";   ($" & CASH_JOBS_pay & "/" & cash_pay_frequency & ") calculated on " & CASH_date_of_pic_calc & "; "
+		If retro_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- Retrospective: $" & retro_JOBS_amt & " total; "
+		IF prospective_JOBS_amt <> "" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Prospective: $" & prospective_JOBS_amt & " total; "
+		IF isnumeric(jobs_hourly_wage) THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Hourly Wage: $" & jobs_hourly_wage & "; "
+
+		'Leaving out HC income estimator if footer month is not Current month + 1
+		current_month_for_hc_est = dateadd("m", "1", date)
+		current_month_for_hc_est = datepart("m", current_month_for_hc_est)
+		IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
+		IF MAXIS_footer_month = current_month_for_hc_est THEN
+			IF HC_JOBS_amt <> "________" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- HC Inc Est: $" & HC_JOBS_amt & "/" & pay_frequency & "; "
+		END IF
+		If JOBS_ver = "N" or JOBS_ver = "?" then variable_name_for_JOBS = variable_name_for_JOBS & "- No proof provided for this panel; "
+	End if
 end function
 
 function add_OTHR_to_variable(OTHR_variable)
@@ -4539,7 +4552,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       transmit
       EMReadScreen JOBS_total, 1, 2, 78
       If JOBS_total <> 0 then
-        variable_written_to = variable_written_to & "Member " & HH_member & "- "
+        variable_written_to = variable_written_to & "MEMB " & HH_member
         Do
           call add_JOBS_to_variable(variable_written_to)
           EMReadScreen JOBS_panel_current, 1, 2, 73
