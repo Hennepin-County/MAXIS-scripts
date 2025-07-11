@@ -3371,14 +3371,28 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
 		UNEA_amt = trim(UNEA_amt)
 
 		EMReadScreen cash_pic_exists, 4, 10, 45		'in footer month 03/25, a CASH PIC was added to UNEA - moving the SNAP PIC selection field
-		If cash_pic_exists = "CASH" Then Call write_value_and_transmit("X", 10, 25)
+		If cash_pic_exists = "CASH" Then
+			Call write_value_and_transmit("X", 10, 43)			'Open the CASH PIC
+			EMReadScreen CASH_UNEA_pay, 8, 16, 69
+			EMReadScreen CASH_UNEA_amt, 8, 17, 69
+			CASH_UNEA_pay = trim(CASH_UNEA_pay)
+			CASH_UNEA_amt = trim(CASH_UNEA_amt)
+			EMReadScreen cash_pay_frequency, 1, 3, 63
+			EMReadScreen date_of_cash_pic_calc, 8, 3, 30
+			date_of_cash_pic_calc = replace(date_of_cash_pic_calc, " ", "/")
+			PF3				'back to the main panel
+
+			Call write_value_and_transmit("X", 10, 25)
+		End If
 		If cash_pic_exists <> "CASH" Then Call write_value_and_transmit("X", 10, 26)
 
-		EMReadScreen SNAP_UNEA_amt, 8, 17, 56
+		EMReadScreen SNAP_UNEA_pay, 10, 17, 54
+		EMReadScreen SNAP_UNEA_amt, 10, 18, 54
+		SNAP_UNEA_pay = trim(SNAP_UNEA_pay)
 		SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
 		EMReadScreen snap_pay_frequency, 1, 5, 64
-		EMReadScreen date_of_pic_calc, 8, 5, 34
-		date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
+		EMReadScreen date_of_snap_pic_calc, 8, 5, 34
+		date_of_snap_pic_calc = replace(date_of_snap_pic_calc, " ", "/")
 		transmit		'back to the main panel
 
 		EMReadScreen retro_UNEA_amt, 8, 18, 39
@@ -3408,12 +3422,19 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
 		IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
 		IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
 		IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
+		IF cash_pay_frequency = "1" THEN cash_pay_frequency = "monthly"
+		IF cash_pay_frequency = "2" THEN cash_pay_frequency = "semimonthly"
+		IF cash_pay_frequency = "3" THEN cash_pay_frequency = "biweekly"
+		IF cash_pay_frequency = "4" THEN cash_pay_frequency = "weekly"
+		IF cash_pay_frequency = "5" THEN cash_pay_frequency = "non-monthly"
+
 
 		'define the string in the variable
-		variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
-		If SNAP_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
-		If retro_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
-		If prosp_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
+		variable_name_for_UNEA = variable_name_for_UNEA & " from " & trim(UNEA_type) & " (Footer Month " & UNEA_month & "):; "
+		If SNAP_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- SNAP Budgeted Amount: $" & SNAP_UNEA_amt & ";   ($" & SNAP_UNEA_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_snap_pic_calc & "; "
+		If CASH_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- CASH Budgeted Amount: $" & CASH_UNEA_amt & ";   ($" & CASH_UNEA_pay & "/" & cash_pay_frequency & ") calculated on " & date_of_cash_pic_calc & "; "
+		If retro_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- " & UNEA_month & " Retrospective: $" & retro_UNEA_amt & " total; "
+		If prosp_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- " & UNEA_month & " Prospective: $" & prosp_UNEA_amt & " total; "
 
 		'Leaving out HC income estimator if footer month is not Current month + 1
 		current_month_for_hc_est = dateadd("m", "1", date)
@@ -4841,7 +4862,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       transmit
       EMReadScreen UNEA_total, 1, 2, 78
       If UNEA_total <> 0 then
-        variable_written_to = variable_written_to & "Member " & HH_member & "- "
+        variable_written_to = variable_written_to & "MEMB " & HH_member
         Do
           call add_UNEA_to_variable(variable_written_to)
           EMReadScreen UNEA_panel_current, 1, 2, 73
