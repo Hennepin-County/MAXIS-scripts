@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/11/2025", "Added MFIP and GA to CSR Program Selection to support new CSR processing on these programs.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2022", "Removed Paperless IR and Health Care Programs selections during Public Health Emergency.", "Ilse Ferris, Hennepin County") '#863
 call changelog_update("05/26/2022", "Fixed bug that did not recognize CSR status as mandatory. Made background stability updates.", "Ilse Ferris, Hennepin County") '#863
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris")
@@ -77,28 +78,26 @@ Call check_for_MAXIS(False)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-'BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
-BeginDialog Dialog1, 0, 0, 171, 140, "Case number"
-  Text 20, 10, 45, 10, "Case number:"
-  EditBox 70, 5, 65, 15, MAXIS_case_number
-  EditBox 70, 25, 30, 15, MAXIS_footer_month
-  EditBox 105, 25, 30, 15, MAXIS_footer_year
-  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
-  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
-  'CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-  'CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
-  EditBox 70, 95, 95, 15, Worker_signature
+BeginDialog Dialog1, 0, 0, 246, 120, "CSR Evaluation Case Number Dialog"
+  EditBox 70, 10, 65, 15, MAXIS_case_number
+  EditBox 70, 30, 30, 15, MAXIS_footer_month
+  EditBox 105, 30, 30, 15, MAXIS_footer_year
+  CheckBox 155, 25, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 200, 25, 35, 10, "MFIP", MFIP_checkbox
+  CheckBox 155, 40, 35, 10, "GRH", GRH_checkbox
+  CheckBox 200, 40, 35, 10, "GA", GA_checkbox
+  EditBox 70, 75, 165, 15, Worker_signature
   ButtonGroup ButtonPressed
-	OkButton 60, 115, 50, 15
-	CancelButton 115, 115, 50, 15
-  Text 5, 30, 65, 10, "Footer month/year:"
-  GroupBox 10, 45, 155, 30, "Programs recertifying"
-  Text 10, 100, 60, 10, "Worker Signature"
-  'GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
-  'Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
-  'Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-
+    OkButton 130, 95, 50, 15
+    CancelButton 185, 95, 50, 15
+    PushButton 70, 50, 65, 15, "Instructions", script_instructions_btn
+  Text 20, 15, 45, 10, "Case number:"
+  Text 5, 35, 65, 10, "Footer month/year:"
+  GroupBox 145, 10, 90, 50, "Programs recertifying"
+  Text 10, 80, 60, 10, "Worker Signature"
+  Text 10, 100, 50, 10, "NOTES - CSR"
 EndDialog
+
 'Showing the case number dialog
 Do
 	DO
@@ -107,9 +106,22 @@ Do
 		cancel_without_confirmation
 	    Call validate_MAXIS_case_number(err_msg, "*")
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-        If SNAP_checkbox = 0 and GRH_checkbox = 0 then err_msg = err_msg & vbCr & "* Select at least one program."
+
+		program_selected = False
+		If SNAP_checkbox = checked Then program_selected = True
+		If GRH_checkbox = checked Then program_selected = True
+		If MFIP_checkbox = checked Then program_selected = True
+		If GA_checkbox = checked Then program_selected = True
+		If program_selected = False Then err_msg = err_msg & vbCr & "* Select at least one program."
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE***" & vbCr & err_msg & vbCr & vbCr & "Resolve the following items for the script to continue."
+
+		If ButtonPressed = script_instructions_btn Then
+			script_instr_url = "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CSR.docx?"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & script_instr_url
+			err_msg = "LOOP"
+		End If
+
+		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE***" & vbCr & err_msg & vbCr & vbCr & "Resolve the following items for the script to continue."
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -151,9 +163,11 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 '-----------------Creating text for case note
 'Programs recertifying case noting info into variable
-If GRH_checkbox = 1 then programs_recertifying = programs_recertifying & "GRH, "
-If HC_checkbox = 1 then programs_recertifying = programs_recertifying & "HC, "
-If SNAP_checkbox = 1 then programs_recertifying = programs_recertifying & "SNAP, "
+If MFIP_checkbox = 1 Then programs_recertifying = programs_recertifying & "MFIP, "
+If GRH_checkbox = 1 Then programs_recertifying = programs_recertifying & "GRH, "
+If GA_checkbox = 1 Then programs_recertifying = programs_recertifying & "GA, "
+If SNAP_checkbox = 1 Then programs_recertifying = programs_recertifying & "SNAP, "
+
 programs_recertifying = trim(programs_recertifying)
 if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
 
@@ -398,7 +412,7 @@ else
     script_end_procedure("")
 End if
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -406,11 +420,16 @@ End if
 '--Tab orders reviewed & confirmed----------------------------------------------05/26/2022
 '--Mandatory fields all present & Reviewed--------------------------------------05/26/2022
 '--All variables in dialog match mandatory fields-------------------------------05/26/2022
+'Review dialog names for content and content fit in dialog----------------------07/11/2025
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------07/11/2025
+'--Create a button to reference instructions------------------------------------07/11/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------05/26/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------07/11/2025
 '--CASE:NOTE Header doesn't look funky------------------------------------------05/26/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/26/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------07/11/2025
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/26/2022
@@ -429,13 +448,14 @@ End if
 '--BULK - remove 1 incrementor at end of script reviewed------------------------05/26/2022------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------05/26/2022
-'--comment Code-----------------------------------------------------------------05/26/2022
-'--Update Changelog for release/update------------------------------------------05/26/2022
-'--Remove testing message boxes-------------------------------------------------05/26/2022
-'--Remove testing code/unnecessary code-----------------------------------------05/26/2022
-'--Review/update SharePoint instructions----------------------------------------05/26/2022
+'--Confirm all GitHub tasks are complete----------------------------------------07/11/2025
+'--comment Code-----------------------------------------------------------------07/11/2025
+'--Update Changelog for release/update------------------------------------------07/11/2025
+'--Remove testing message boxes-------------------------------------------------07/11/2025
+'--Remove testing code/unnecessary code-----------------------------------------07/11/2025
+'--Review/update SharePoint instructions----------------------------------------07/11/2025
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/26/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/26/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/26/2022
 '--Complete misc. documentation (if applicable)---------------------------------05/26/2022
 '--Update project team/issue contact (if applicable)----------------------------05/26/2022
