@@ -6,6 +6,14 @@ STATS_manualtime = 13                      'manual run time in seconds
 STATS_denomination = "C"       							'C is for each CASE
 'END OF stats block==============================================================================================
 
+If db_full_string = "" Then
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -104,6 +112,7 @@ controller_open_hc_pending_excel = t_drive & "\Eligibility Support\Assignments\A
 snapshot_hc_pending_excel = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\HC Pending Snapshot Data.xlsx"
 pending_hc_update_cookie = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\PendingHCUpdate.txt"
 
+'IF YOU CHANGE THIS UPDATE THE SUPPORT DOCUMENT
 exclude_list = ""
 exclude_list = exclude_list & "X127EN6" 			' TEFRA"
 exclude_list = exclude_list & "~X127FG1" 			' Foster Care / IV-E"
@@ -632,7 +641,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 SQL_table = "SELECT * from ES.V_ESAllStaff WHERE EmpLogOnID = '" & windows_user_ID & "'"				'identifying the table that stores the ES Staff user information
 
 'This is the file path the data tables
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objConnection.Open db_full_string
 objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
@@ -1962,6 +1971,24 @@ If run_list_management = True Then
 		objExcel.ActiveWorkbook.Close
 		objExcel.Application.Quit
 		objExcel.Quit
+
+		email_from = ""
+		If windows_user_ID = "CALO001" Then email_from = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+		email_recip = "jacob.arco@hennepin.us; ilse.ferris@hennepin.us; ben.teskey@hennepin.us"
+		email_recip_CC = ""
+		email_subject = "HC Snapshot Information Recorded"
+		email_body = "A script has been run to review Health Care Pending cases.<br><br>"
+		email_body = email_body & "This script run excludes baskets identified as LTC baskets so counts do not include any cases in LTC baskets. However the script does not limit the baskets otherwise and all of the HC Pending cases from any other Hennepin basket will be selected.<br><br>"
+		email_body = email_body & "Counts" & "<br>"
+		email_body = email_body & "Total Pending: " & total_pnd_case_count & "<br>"
+		email_body = email_body & "Overdue Cases: " & overdue_count & "<br>"
+		email_body = email_body & "(more than 60 days)<br><br>"
+		email_body = email_body & "Cases pending SMRT and pending over 60 days: " & smrt_60_plus_count & "<br><br>"
+		email_body = email_body & "Additional details and past snapshots can be viewed in and Excel file.<br>"
+		email_body = email_body & "Historical Snapshot Records: <" & snapshot_hc_pending_excel & "><br><br>"
+		email_body = email_body & "Let us know if you have any questions or updates needed for this report or communication.<br><br>Script Team"
+		'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
+		Call create_outlook_email(email_from, email_recip, email_recip_CC, "", 			    email_subject, 1, 				 False, 	   email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				      email_attachment_array, True)
 	End If
 
 	hc_pend_worklist_run_time = timer-worklist_start_time
@@ -2620,6 +2647,24 @@ If operation_selection = "Review Completed Assignments" Then
 	Const Completed_Notes_COL 			= 19
 	Const file_name_col					= 20
 
+	earliest_work_dated = date
+	latest_work_dated = date
+	const wrkr_name_const 		= 00
+	const supr_name_const		= 01
+	const supr_email_const		= 02
+	const wrk_date_const 		= 03
+	const complt_count_const	= 04
+	const incmplt_count_const	= 05
+	const pend_count_const 		= 06
+	const app_count_const 		= 07
+	const deny_count_const		= 08
+	const end_numb_const 		= 20
+	Dim COMPLETED_ASSIGNMENT_ARRAY()
+	ReDim COMPLETED_ASSIGNMENT_ARRAY(end_numb_const, 0)
+
+	Dim WORKER_TOTAL_ARRAY()
+	ReDim WORKER_TOTAL_ARRAY(end_numb_const, 0)
+
 	assignments_completed_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews"
 	assignments_recorded_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\Recorded"
 	Set objFolder = objFSO.GetFolder(assignments_completed_folder)										'Creates an oject of the whole my documents folder
@@ -2636,12 +2681,17 @@ If operation_selection = "Review Completed Assignments" Then
 
 		excel_row = excel_row + 1
 	Loop until trim(ObjExcel.Cells(excel_row, HSR_completed_COL).Value) = ""
-	excel_row = excel_row - 1
+	' excel_row = excel_row - 1
 	all_known_file_names = trim(all_known_file_names)
 	ALL_KNOW_FILES_ARRAY = split(all_known_file_names)
 
 	Set xmlDoc = CreateObject("Microsoft.XMLDOM")
 	Set xml = CreateObject("Msxml2.DOMDocument")
+	assign_count = 0
+	worker_count = 0
+	recorded_review_count = 0
+	known_review_count = 0
+	end_msg = end_msg & vbCr & "Worker Completed Reviews have been recorded to the Excel SpreadSheet."
 
 	For Each objFile in colFiles								'looping through each file
 		file_type = objFile.Type
@@ -2655,6 +2705,7 @@ If operation_selection = "Review Completed Assignments" Then
 					file_recorded = True
 					With (CreateObject("Scripting.FileSystemObject"))
 						If .FileExists(assignments_recorded_folder & "\" & quack) = False Then
+							known_review_count = known_review_count + 1
 							.MoveFile xmlPath , assignments_recorded_folder & "\" & quack
 						End If
 					End With
@@ -2669,15 +2720,19 @@ If operation_selection = "Review Completed Assignments" Then
 					If .FileExists(xmlPath) = True then
 						save_for_notes = ""
 						xmlDoc.Async = False
+						recorded_review_count = recorded_review_count + 1
 
 						' Load the XML file
 						xmlDoc.load(xmlPath)
 
 						set node = xmlDoc.SelectSingleNode("//AssignedHSR")
 						ObjExcel.Cells(excel_row, HSR_completed_COL).Value  			= node.text
+						temp_hsr_name = node.text
 
 						set node = xmlDoc.SelectSingleNode("//AssignedDate")
 						ObjExcel.Cells(excel_row, Assigned_On_Date_COL).Value  			= node.text
+						temp_assign_date = node.text
+						temp_assign_date = DateAdd("d", 0, temp_assign_date)
 
 						set node = xmlDoc.SelectSingleNode("//CaseNumber")
 						ObjExcel.Cells(excel_row, Completed_Case_Number_COL).Value  	= node.text
@@ -2701,9 +2756,10 @@ If operation_selection = "Review Completed Assignments" Then
 						ObjExcel.Cells(excel_row, Completed_Day_60_COL).Value  			= node.text
 
 						set node = xmlDoc.SelectSingleNode("//AssignmentCompleted")
-
+						temp_compl_date = node.text
 						If IsDate(node.text) Then
 							ObjExcel.Cells(excel_row, Assignment_Completed_Date_COL).Value  = node.text
+							temp_compl_date = DateAdd("d", 0, temp_compl_date)
 						Else
 							ObjExcel.Cells(excel_row, Assignment_Incomplete_COL).Value  = "True"
 							save_for_notes = node.text
@@ -2711,6 +2767,7 @@ If operation_selection = "Review Completed Assignments" Then
 						End If
 						set node = xmlDoc.SelectSingleNode("//CaseStatus")
 						ObjExcel.Cells(excel_row, Case_Status_after_Assign_COL).Value  	= node.text
+						temp_case_stat = node.text
 
 						set node = xmlDoc.SelectSingleNode("//SMRTStart")
 						If Not node Is Nothing Then ObjExcel.Cells(excel_row, SMRT_Start_Date_COL).Value = node.text
@@ -2735,12 +2792,261 @@ If operation_selection = "Review Completed Assignments" Then
 
 						ObjExcel.Cells(excel_row, file_name_col).Value  				= quack
 						excel_row = excel_row + 1
+
+						name_date_found = False
+						name_only_found = False
+						known_instance = ""
+						for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
+							If IsDate(temp_compl_date) Then
+								If COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow) = temp_hsr_name and COMPLETED_ASSIGNMENT_ARRAY(wrk_date_const, cow) = temp_compl_date Then
+									name_date_found = True
+									known_instance = cow
+								End If
+							Else
+								If COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow) = temp_hsr_name and COMPLETED_ASSIGNMENT_ARRAY(wrk_date_const, cow) = temp_assign_date Then
+									name_date_found = True
+									known_instance = cow
+								End If
+							End If
+						next
+						for pig = 0 to UBound(WORKER_TOTAL_ARRAY, 2)
+							If WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = temp_hsr_name Then
+								name_only_found	= True
+								If IsDate(temp_compl_date) Then
+									WORKER_TOTAL_ARRAY(complt_count_const, pig) = WORKER_TOTAL_ARRAY(complt_count_const, pig) + 1
+									If temp_case_stat = "Pending" Then WORKER_TOTAL_ARRAY(pend_count_const, pig) = WORKER_TOTAL_ARRAY(pend_count_const, pig) + 1
+									If temp_case_stat = "Approved" Then WORKER_TOTAL_ARRAY(app_count_const, pig) = WORKER_TOTAL_ARRAY(app_count_const, pig) + 1
+									If temp_case_stat = "Denied" Then WORKER_TOTAL_ARRAY(deny_count_const, pig) = WORKER_TOTAL_ARRAY(deny_count_const, pig) + 1
+								Else
+									WORKER_TOTAL_ARRAY(incmplt_count_const, pig) = WORKER_TOTAL_ARRAY(incmplt_count_const, pig) + 1
+								End If
+							End If
+						next
+
+						If name_date_found = True Then
+							If IsDate(temp_compl_date) Then
+								COMPLETED_ASSIGNMENT_ARRAY(complt_count_const, known_instance) = COMPLETED_ASSIGNMENT_ARRAY(complt_count_const, known_instance) + 1
+								If temp_case_stat = "Pending" Then COMPLETED_ASSIGNMENT_ARRAY(pend_count_const, known_instance) = COMPLETED_ASSIGNMENT_ARRAY(pend_count_const, known_instance) + 1
+								If temp_case_stat = "Approved" Then COMPLETED_ASSIGNMENT_ARRAY(app_count_const, known_instance) = COMPLETED_ASSIGNMENT_ARRAY(app_count_const, known_instance) + 1
+								If temp_case_stat = "Denied" Then COMPLETED_ASSIGNMENT_ARRAY(deny_count_const, known_instance) = COMPLETED_ASSIGNMENT_ARRAY(deny_count_const, known_instance) + 1
+								If DateDiff("d", temp_compl_date, earliest_work_dated) > 0 Then earliest_work_dated = temp_compl_date
+								If DateDiff("d", latest_work_dated, temp_compl_date) > 0 Then latest_work_dated = temp_compl_date
+							Else
+								COMPLETED_ASSIGNMENT_ARRAY(incmplt_count_const, known_instance) = COMPLETED_ASSIGNMENT_ARRAY(incmplt_count_const, known_instance) + 1
+								If DateDiff("d", temp_assign_date, earliest_work_dated) > 0 Then earliest_work_dated = temp_assign_date
+								If DateDiff("d", latest_work_dated, temp_assign_date) > 0 Then latest_work_dated = temp_assign_date
+							End If
+						Else
+							ReDim preserve COMPLETED_ASSIGNMENT_ARRAY(end_numb_const, assign_count)
+							COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, assign_count) = temp_hsr_name
+
+							COMPLETED_ASSIGNMENT_ARRAY(pend_count_const, assign_count) = 0
+							COMPLETED_ASSIGNMENT_ARRAY(app_count_const, assign_count) = 0
+							COMPLETED_ASSIGNMENT_ARRAY(deny_count_const, assign_count) = 0
+							If IsDate(temp_compl_date) Then
+								COMPLETED_ASSIGNMENT_ARRAY(wrk_date_const, assign_count) = temp_compl_date
+								COMPLETED_ASSIGNMENT_ARRAY(complt_count_const, assign_count) = 1
+								COMPLETED_ASSIGNMENT_ARRAY(incmplt_count_const, assign_count) = 0
+								If temp_case_stat = "Pending" Then COMPLETED_ASSIGNMENT_ARRAY(pend_count_const, assign_count) = 1
+								If temp_case_stat = "Approved" Then COMPLETED_ASSIGNMENT_ARRAY(app_count_const, assign_count) = 1
+								If temp_case_stat = "Denied" Then COMPLETED_ASSIGNMENT_ARRAY(deny_count_const, assign_count) = 1
+								If DateDiff("d", temp_compl_date, earliest_work_dated) > 0 Then earliest_work_dated = temp_compl_date
+								If DateDiff("d", latest_work_dated, temp_compl_date) > 0 Then latest_work_dated = temp_compl_date
+							Else
+								COMPLETED_ASSIGNMENT_ARRAY(wrk_date_const, assign_count) = temp_assign_date
+								COMPLETED_ASSIGNMENT_ARRAY(incmplt_count_const, assign_count) = 1
+								COMPLETED_ASSIGNMENT_ARRAY(complt_count_const, assign_count) = 0
+								If DateDiff("d", temp_assign_date, earliest_work_dated) > 0 Then earliest_work_dated = temp_assign_date
+								If DateDiff("d", latest_work_dated, temp_assign_date) > 0 Then latest_work_dated = temp_assign_date
+							End If
+							assign_count = assign_count + 1
+						End If
+						If name_only_found = False Then
+							ReDim preserve WORKER_TOTAL_ARRAY(end_numb_const, worker_count)
+
+							WORKER_TOTAL_ARRAY(wrkr_name_const, worker_count) = temp_hsr_name
+
+							WORKER_TOTAL_ARRAY(pend_count_const, worker_count) = 0
+							WORKER_TOTAL_ARRAY(app_count_const, worker_count) = 0
+							WORKER_TOTAL_ARRAY(deny_count_const, worker_count) = 0
+							If IsDate(temp_compl_date) Then
+								WORKER_TOTAL_ARRAY(complt_count_const, worker_count) = 1
+								WORKER_TOTAL_ARRAY(incmplt_count_const, worker_count) = 0
+								If temp_case_stat = "Pending" Then WORKER_TOTAL_ARRAY(pend_count_const, worker_count) = 1
+								If temp_case_stat = "Approved" Then WORKER_TOTAL_ARRAY(app_count_const, worker_count) = 1
+								If temp_case_stat = "Denied" Then WORKER_TOTAL_ARRAY(deny_count_const, worker_count) = 1
+							Else
+								WORKER_TOTAL_ARRAY(incmplt_count_const, worker_count) = 1
+								WORKER_TOTAL_ARRAY(complt_count_const, worker_count) = 0
+							End If
+							worker_count = worker_count + 1
+
+						End If
+
 					End If
 				End With
 			End If
 		End If
 	Next
 	objWorkbook.Save()
+	end_msg = end_msg & vbCr & "Reviews from " & earliest_work_dated & " to " & latest_work_dated & " recorded."
+	end_msg = end_msg & vbCr & "Reviews Recorded into Spreadsheet: " & recorded_review_count
+	end_msg = end_msg & vbCr & "Reviews Already Known and XML moved to Archive: " & known_review_count & vbCr
+
+	supervisor_string = "~"
+
+	for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
+
+		temp_worker_name = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
+		name_array = split(temp_worker_name)
+
+		If name_array(0) = "Khadra" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Khadra Abdallah"
+		If name_array(0) = "Maria" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Maria Ali"
+		If name_array(0) = "Rahma" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Rahma Ali"
+		If name_array(0) = "Karina" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Karina Andrade"
+		If name_array(0) = "Nicole" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Nicole Arm"
+		If name_array(0) = "Nafiso" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Nafiso Awale"
+		If name_array(0) = "Abdullahi" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Abdullahi Berka"
+		If name_array(0) = "Hannah" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Hannah Broman"
+		If name_array(0) = "Natalie" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Carlstrom"
+		If name_array(0) = "Grace" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Grace Cushman"
+		If name_array(0) = "Susan" and name_array(1) = "E" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Susan Eeten"
+		If name_array(0) = "Fajah" and name_array(1) = "F" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Fajah Ford"
+		If name_array(0) = "Isabella" and name_array(1) = "G" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Isabella Groulx"
+		If name_array(0) = "Sarah" and name_array(1) = "H" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Sarah Haigh"
+		If name_array(0) = "Molly" and name_array(1) = "H" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Molly Hasbrook"
+		If name_array(0) = "Sartu" and name_array(1) = "H" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Sartu Hassan"
+		If name_array(0) = "Anna" and name_array(1) = "I" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Anna Inslee"
+		If name_array(0) = "Eileen" and name_array(1) = "K" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Eileen Keswani"
+		If name_array(0) = "Maslah" and name_array(1) = "M" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Maslah Mohamed"
+		If name_array(0) = "Samuel" and name_array(1) = "P" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Samuel Parenteau"
+		If name_array(0) = "Michelle" and name_array(1) = "Q" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Michelle Quevedo"
+		If name_array(0) = "Znia" and name_array(1) = "R" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Znia Richmond"
+		If name_array(0) = "Trenita" and name_array(1) = "R" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Trenita Rodgers"
+		If name_array(0) = "Kia" and name_array(1) = "T" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Kia Thao"
+		If name_array(0) = "Yer" and name_array(1) = "T" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Yer Thao"
+		If name_array(0) = "Staci" and name_array(1) = "U" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Staci Ulmen"
+		If name_array(0) = "Natalie" and name_array(1) = "V" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Vue"
+		If name_array(0) = "Beverly" and name_array(1) = "W" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Beverly Wyka"
+		If name_array(0) = "Francis" and name_array(1) = "Y" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Francis Yang"
+		If name_array(0) = "Martha" and name_array(1) = "Z" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Martha Zieman"
+
+		temp_worker_name = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
+		name_array = split(temp_worker_name)
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim WHERE EmpFullName like '%" & name_array(0) & "%'"				'identifying the table that stores the ES Staff user information
+
+		'This is the file path the data tables
+		objConnection.Open db_full_string
+		objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+		Do While NOT objRecordSet.Eof
+			first_name_found = False
+			temp_table_name = objRecordSet("EmpFullName")
+			If left(temp_table_name, len(name_array(1))) = name_array(1) Then
+				table_name_array = split(temp_table_name)
+				for each duck in table_name_array
+					If duck = name_array(0) Then first_name_found = True
+				next
+				If first_name_found = True Then
+					COMPLETED_ASSIGNMENT_ARRAY(supr_name_const, cow) = objRecordSet("L1Manager")
+					If InStr(supervisor_string, "~"&objRecordSet("L1Manager")&"~") = 0 Then supervisor_string = supervisor_string & objRecordSet("L1Manager") & "~"
+					' COMPLETED_ASSIGNMENT_ARRAY(supr_email_const, cow) = objRecordSet()
+				End If
+			End If
+			objRecordSet.MoveNext											'Going to the next row in the table
+		Loop
+		'Now we disconnect from the table and close the connections
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+
+	Next
+	supervisor_string = right(supervisor_string, len(supervisor_string)-1)
+	supervisor_string = left(supervisor_string, len(supervisor_string)-1)
+	supervisor_array = split(supervisor_string, "~")
+
+	for pig = 0 to UBound(WORKER_TOTAL_ARRAY, 2)
+		for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
+			If WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = left(COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow), len(WORKER_TOTAL_ARRAY(wrkr_name_const, pig))) Then
+				WORKER_TOTAL_ARRAY(supr_name_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(supr_name_const, cow)
+				WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
+				Exit For
+			End If
+		next
+	next
+
+	end_msg = end_msg & vbCr & "Emails sent to Supervisors:" & vbCr
+	For each horse in supervisor_array
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim WHERE EmpFullName like '%" & horse & "%'"				'identifying the table that stores the ES Staff user information
+
+		objConnection.Open db_full_string
+		'objConnection.Open db_full_string
+		objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+		Do While NOT objRecordSet.Eof
+			email_recip = objRecordSet("EmployeeEmail")
+			email_recip_CC = "ben.teskey@hennepin.us"
+			send_email = True
+			email_subject = "HC Pending Work Report for " & date
+			email_body = "HC Pending Assignments are recorded through use of the worklist functionality in the script Health Care Pending Assignments. This information is intended to provide a summary of the work assigned and completed by HSRs through this script process.<br><br>"
+			email_body = email_body & "Incomplete assignments are not concerning as they only indicate cases that could not be processed during the processing shift.<br>"
+			email_body = email_body & "The goal is to ensure sufficient completed assignments have been worked for the amount of assigned processing time.<br><br>"
+			email_body = email_body & "The following work assignments were completed during the time period " & earliest_work_dated & " - " & latest_work_dated & ".<br><br>"
+
+			email_body = email_body & "Worker Assignment Information:<br>"
+
+			for pig = 0 to UBound(WORKER_TOTAL_ARRAY, 2)
+				If WORKER_TOTAL_ARRAY(supr_name_const, pig) = horse Then
+					email_body = email_body & "&emsp;<b>" & chr(149) & " " & WORKER_TOTAL_ARRAY(wrkr_name_const, pig) & ":</b>"
+					email_body = email_body & "&emsp;&emsp;TOTAL:&ensp;Complete: " & WORKER_TOTAL_ARRAY(complt_count_const, pig)
+					email_body = email_body & "&emsp;-&emsp;Incomplete: " & WORKER_TOTAL_ARRAY(incmplt_count_const, pig) & "<br>"
+
+					work_date = earliest_work_dated
+					Do
+						work_found = False
+						for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
+							If WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow) and DateDiff("d", work_date, COMPLETED_ASSIGNMENT_ARRAY(wrk_date_const, cow)) = 0 Then
+								work_found = True
+								email_body = email_body & "&emsp;&emsp;- " & WeekdayName(Weekday(work_date)) & ", " & work_date & ":&emsp;"
+								email_body = email_body & "Complete: " & COMPLETED_ASSIGNMENT_ARRAY(complt_count_const, cow)
+								email_body = email_body & "&emsp;-&emsp;Incomplete: " & COMPLETED_ASSIGNMENT_ARRAY(incmplt_count_const, cow) & "<br>"
+							End If
+						next
+						If work_found = False and Weekday(work_date) > 1 and Weekday(work_date) < 7 Then
+							email_body = email_body & "&emsp;&emsp;- " & WeekdayName(Weekday(work_date)) & ", " & work_date & ":&emsp;"
+							email_body = email_body & "No assignments found.<br>"
+						End If
+						work_date = DateAdd("d", 1, work_date)
+					Loop until DateDiff("d", latest_work_dated, work_date) > 0
+					email_body = email_body & "<br>"
+				End If
+			next
+
+			email_body = email_body & "For additional details or specific cases, please respond to this email with specifics about what is needed."
+			'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+			Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
+
+			end_msg = end_msg & "Email sent to " & trim(horse) & " of completed work." & vbCr
+			Exit Do
+			objRecordSet.MoveNext											'Going to the next row in the table
+		Loop
+		'Now we disconnect from the table and close the connections
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+
+	Next
 
 End If
 
