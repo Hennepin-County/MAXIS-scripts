@@ -6,6 +6,14 @@ STATS_manualtime = 1200                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
+If db_full_string = "" Then
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
     IF on_the_desert_island = TRUE Then
         FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
@@ -50,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/16/2025", "Display of unearned income and job information updated in line with the changes to these panels in allowing the inclusion of information from the CASH PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "UPDATE to Date of Application handling to allow for noting of programs no longer pending. It is strongly advised to RUN THE CAF SCRIPT PRIOR TO APPROVAL but occasionally it is necessary to use the CAF after an approval.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "* * * MAXIS Cash Six-Month Functionality Updates * * *##~## ##~##Effective 03/25 MFIP, GA, and HS/GRH no longer have monthly reporting. To support this update, six-month budgeting functionality has been added to MAXIS.##~## ##~##Panels Updated:##~##- JOBS##~##- UNEA##~## ##~##This script has been updated to support the PIC for CASH on these panels.", "Casey Love, Hennepin County")
 call changelog_update("03/20/2025", "Updated handling for previously requested verifications to ensure that new verifications requested generate a new CASE/NOTE.", "Mark Riegel, Hennepin County")
@@ -3576,7 +3585,7 @@ function read_JOBS_panel()
     EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
     ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
     EMReadScreen snap_pay_frequency, 1, 5, 64
-    ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = snap_pay_frequency
+    ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = replace(trim(snap_pay_frequency), "_", "")
     EMReadScreen date_of_SNAP_pic_calc, 8, 5, 34
     ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, job_count) = replace(date_of_SNAP_pic_calc, " ", "/")
     transmit
@@ -3593,7 +3602,7 @@ function read_JOBS_panel()
     	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
     	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
         ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
-        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = cash_pic_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = replace(trim(cash_pic_pay_frequency), "_", "")
         ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, job_count) = CASH_JOBS_pay_amt
         ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, job_count) = CASH_JOBS_total_amt
     	PF3
@@ -3612,7 +3621,7 @@ function read_JOBS_panel()
     	EMReadScreen CASH_date_of_SNAP_pic_calc, 8, 3, 30
     	CASH_date_of_SNAP_pic_calc = replace(CASH_date_of_SNAP_pic_calc, " ", "/")
         ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, job_count) = CASH_date_of_SNAP_pic_calc
-        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = cash_pic_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = replace(trim(cash_pic_pay_frequency), "_", "")
         ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, job_count) = CASH_JOBS_pay_amt
         ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, job_count) = CASH_JOBS_total_amt
     	PF3
@@ -3669,11 +3678,13 @@ function read_JOBS_panel()
     If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Biweekly"
     If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Semi-Monthly"
     If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Monthly"
+	If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "" Then ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, job_count) = "Type or Select"
 
     If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Weekly"
     If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Biweekly"
     If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Semi-Monthly"
     If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Monthly"
+	If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "" Then ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, job_count) = "Type or Select"
 
 end function
 
@@ -3961,25 +3972,28 @@ function read_UNEA_panel()
 				Else
 					Call write_value_and_transmit("X", 10, 26)
 				End If
-                EMReadScreen SNAP_UNEA_amt, 8, 18, 56
-                SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
-                EMReadScreen snap_pay_frequency, 1, 5, 64
+				EMReadScreen SNAP_UNEA_pay, 10, 17, 54
+				EMReadScreen SNAP_UNEA_amt, 10, 18, 54
+				SNAP_UNEA_pay = trim(SNAP_UNEA_pay)
+				SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
+				EMReadScreen snap_pay_frequency, 1, 5, 64
                 EMReadScreen date_of_SNAP_pic_calc, 8, 5, 34
                 date_of_SNAP_pic_calc = replace(date_of_SNAP_pic_calc, " ", "/")
                 transmit
 
-				CASH_UNEA_amt = ""
+				CASH_UNEA_amt = 0
 				If CASH_PIC_check = "CASH PIC" Then
 					Call write_value_and_transmit("X", 10, 43)
 					EMReadScreen CASH_UNEA_amt, 10, 17, 67
+					EMReadScreen CASH_UNEA_pay, 10, 16, 67
 					CASH_UNEA_amt = trim(CASH_UNEA_amt)
+					CASH_UNEA_pay = trim(CASH_UNEA_pay)
 					EMReadScreen cash_pic_pay_frequency, 1, 3, 63
 					'stat_unea_one_cash_snap_pic_pay_freq(each_memb),
 					'EMReadScreen stat_unea_one_cash_pic_ave_inc_per_pay(each_memb), 10, 18, 55
 					EMReadScreen date_of_CASH_pic_calc, 8, 3, 30
 					date_of_CASH_pic_calc = replace(date_of_CASH_pic_calc, " ", "/")
 					transmit
-
 					If CASH_UNEA_amt = "" Then CASH_UNEA_amt = 0
 					CASH_UNEA_amt = CASH_UNEA_amt * 1
 					PF3
@@ -3998,13 +4012,15 @@ function read_UNEA_panel()
                 IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
                 IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
 
-                variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
                 determined_unea_income = determined_unea_income + SNAP_UNEA_amt
 
-                If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
-                If CASH_UNEA_amt <> "" THEN variable_name_for_UNEA = variable_name_for_UNEA & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
-				If retro_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
-                If prosp_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
+				variable_name_for_UNEA = variable_name_for_UNEA & "MEMB " & HH_member
+				variable_name_for_UNEA = variable_name_for_UNEA & " from " & trim(UNEA_type) & " (Footer Month " & UNEA_month & "):; "
+				If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- SNAP Budgeted Amount: $" & SNAP_UNEA_amt & ";   ($" & SNAP_UNEA_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_snap_pic_calc & "; "
+				If CASH_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- CASH Budgeted Amount: $" & CASH_UNEA_amt & ";   ($" & CASH_UNEA_pay & "/" & cash_pay_frequency & ") calculated on " & date_of_cash_pic_calc & "; "
+				If retro_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- " & UNEA_month & " Retrospective: $" & retro_amt & " total; "
+				If prosp_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- " & UNEA_month & " Prospective: $" & prosp_amt & " total; "
+
                 'Leaving out HC income estimator if footer month is not Current month + 1
                 If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
 
@@ -4106,24 +4122,24 @@ function read_UNEA_panel()
                     If income_type = "38" Then income_detail = "Aid & Attendance"
 
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", VA - " & income_detail
-
-                    notes_on_VA_income = notes_on_VA_income & "; Member " & HH_member & "unearned income from VA (" & income_detail & "), verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
-					If CASH_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
-					If retro_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- Retrospective: $" & retro_UNEA_amt & " total; "
-                    If prosp_UNEA_amt <> "" THEN notes_on_VA_income = notes_on_VA_income & "- Prospective: $" & prosp_UNEA_amt & " total; "
+					notes_on_VA_income = notes_on_VA_income & "; MEMB " & HH_member & " unearned income from VA (" & income_detail & ") - (Footer Month " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & "):; "
+					notes_on_VA_income = notes_on_VA_income & "Verif: " & UNEA_ver & "; "
+					If SNAP_UNEA_amt <> 0 THEN notes_on_VA_income = notes_on_VA_income & "- SNAP Budgeted Amount: $" & SNAP_UNEA_amt & ";   ($" & SNAP_UNEA_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_snap_pic_calc & "; "
+					If CASH_UNEA_amt <> 0 THEN notes_on_VA_income = notes_on_VA_income & "- CASH Budgeted Amount: $" & CASH_UNEA_amt & ";   ($" & CASH_UNEA_pay & "/" & cash_pay_frequency & ") calculated on " & date_of_cash_pic_calc & "; "
+					If retro_amt <> 0 THEN notes_on_VA_income = notes_on_VA_income & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Retrospective: $" & retro_amt & " total; "
+					If prosp_amt <> 0 THEN notes_on_VA_income = notes_on_VA_income & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Prospective: $" & prosp_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
                         If DateDiff("m", UNEA_income_start_date, date) < 6 Then notes_on_VA_income = notes_on_VA_income & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
                     End If
                     If IsDate(UNEA_income_end_date) = True then notes_on_VA_income = notes_on_VA_income & "Income ended " & UNEA_income_end_date & "; "
                 ElseIf income_type = "15" Then
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Worker's Comp"
-
-                    notes_on_WC_income = notes_on_WC_income & "; Member " & HH_member & "unearned income from Worker's Comp, verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
-					If CASH_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
-                    If retro_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- Retrospective: $" & retro_UNEA_amt & " total; "
-                    If prosp_UNEA_amt <> "" THEN notes_on_WC_income = notes_on_WC_income & "- Prospective: $" & prosp_UNEA_amt & " total; "
+					notes_on_WC_income = notes_on_WC_income & "; MEMB " & HH_member & " unearned income from Worker's Comp - (Footer Month " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & "):; "
+					notes_on_WC_income = notes_on_WC_income & "Verif: " & UNEA_ver & "; "
+					If SNAP_UNEA_amt <> 0 THEN notes_on_WC_income = notes_on_WC_income & "- SNAP Budgeted Amount: $" & SNAP_UNEA_amt & ";   ($" & SNAP_UNEA_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_snap_pic_calc & "; "
+					If CASH_UNEA_amt <> 0 THEN notes_on_WC_income = notes_on_WC_income & "- CASH Budgeted Amount: $" & CASH_UNEA_amt & ";   ($" & CASH_UNEA_pay & "/" & cash_pay_frequency & ") calculated on " & date_of_cash_pic_calc & "; "
+					If retro_amt <> 0 THEN notes_on_WC_income = notes_on_WC_income & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Retrospective: $" & retro_amt & " total; "
+					If prosp_amt <> 0 THEN notes_on_WC_income = notes_on_WC_income & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Prospective: $" & prosp_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
                         If DateDiff("m", UNEA_income_start_date, date) < 6 Then notes_on_WC_income = notes_on_WC_income & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
                     End If
@@ -4152,12 +4168,12 @@ function read_UNEA_panel()
                     If income_type = "49" Then income_type = "Non-Recurring"
 
                     UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", " & income_type
-
-                    notes_on_other_UNEA = notes_on_other_UNEA & "; Member " & HH_member & "unearned income from " & income_type & ", verif: " & UNEA_ver & ", " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " amts:; "
-                    If SNAP_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- SNAP PIC: $" & SNAP_UNEA_amt & ", calculated " & date_of_SNAP_pic_calc & "; "
-					If CASH_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- CASH PIC: $" & CASH_UNEA_amt & ", calculated " & date_of_CASH_pic_calc & "; "
-                    If retro_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
-                    If prosp_UNEA_amt <> "" THEN notes_on_other_UNEA = notes_on_other_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
+					notes_on_other_UNEA = notes_on_other_UNEA & "; MEMB " & HH_member & " unearned income from " & income_type & " - (Footer Month " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & "):; "
+					notes_on_other_UNEA = notes_on_other_UNEA & "Verif: " & UNEA_ver & "; "
+					If SNAP_UNEA_amt <> 0 THEN notes_on_other_UNEA = notes_on_other_UNEA & "- SNAP Budgeted Amount: $" & SNAP_UNEA_amt & ";   ($" & SNAP_UNEA_pay & "/" & snap_pay_frequency & ") calculated on " & date_of_snap_pic_calc & "; "
+					If CASH_UNEA_amt <> 0 THEN notes_on_other_UNEA = notes_on_other_UNEA & "- CASH Budgeted Amount: $" & CASH_UNEA_amt & ";   ($" & CASH_UNEA_pay & "/" & cash_pay_frequency & ") calculated on " & date_of_cash_pic_calc & "; "
+					If retro_amt <> 0 THEN notes_on_other_UNEA = notes_on_other_UNEA & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Retrospective: $" & retro_amt & " total; "
+					If prosp_amt <> 0 THEN notes_on_other_UNEA = notes_on_other_UNEA & "- " & UNEA_INCOME_ARRAY(UNEA_month, unea_array_counter) & " Prospective: $" & prosp_amt & " total; "
                     If IsDate(UNEA_income_start_date) = TRUE Then
                         If DateDiff("m", UNEA_income_start_date, date) < 6 Then notes_on_other_UNEA = notes_on_other_UNEA & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
                     End If
@@ -5529,6 +5545,7 @@ Dim R_R_checkbox, E_and_T_checkbox, elig_req_explained_checkbox, benefit_payment
 Dim adult_cash_count, child_cash_count, pregnant_caregiver_checkbox, adult_snap_count, child_snap_count, adult_emer_count, child_emer_count, EATS, relationship_detail, income_review_completed
 Dim jobs_income_yn, busi_income_yn, unea_income_yn, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount
 Dim tax_amount, room_amount, garage_amount, subsidy_amount, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities, do_we_have_applicant_id
+Dim cash_six_month_budgeting_month
 
 full_determination_done = False
 first_time_to_exp_det = True
@@ -7108,6 +7125,14 @@ If vars_filled = False Then
     ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
     Call read_UNEA_panel
+	If left(notes_on_VA_income, 1) = ";" Then notes_on_VA_income = right(notes_on_VA_income, len(notes_on_VA_income)-1)
+	If left(notes_on_WC_income, 1) = ";" Then notes_on_WC_income = right(notes_on_WC_income, len(notes_on_WC_income)-1)
+	If left(other_uc_income_notes, 1) = ";" Then other_uc_income_notes = right(other_uc_income_notes, len(other_uc_income_notes)-1)
+	If left(notes_on_other_UNEA, 1) = ";" Then notes_on_other_UNEA = right(notes_on_other_UNEA, len(notes_on_other_UNEA)-1)
+	notes_on_VA_income = trim(notes_on_VA_income)
+	notes_on_WC_income = trim(notes_on_WC_income)
+	other_uc_income_notes = trim(other_uc_income_notes)
+	notes_on_other_UNEA = trim(notes_on_other_UNEA)
 
     call read_WREG_panel
     call update_wreg_and_abawd_notes
@@ -7324,14 +7349,14 @@ Do
                                             jobs_grp_len = 80
                                             length_factor = 80
                                             If snap_checkbox = checked Then length_factor = length_factor + 20
-                                            If grh_checkbox = checked or cash_checkbox = checked Then length_factor = length_factor + 20
+                                            If grh_checkbox = checked or (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then length_factor = length_factor + 20
                                             If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
                                                 dlg_len = 100
                                             Else
                                                 If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
                                                     dlg_len = 325
                                                     If snap_checkbox = checked Then dlg_len = dlg_len + 60
-                                                    If grh_checkbox = checked or cash_checkbox = checked Then dlg_len = dlg_len + 60
+                                                    If grh_checkbox = checked or (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then dlg_len = dlg_len + 60
                                                     'jobs_grp_len = 315
                                                 Else
                                                     dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + dlg_len
@@ -7339,7 +7364,7 @@ Do
                                                 End If
                                             End If
                                             If snap_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
-                                            If grh_checkbox = checked or cash_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                                            If grh_checkbox = checked or (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then jobs_grp_len = jobs_grp_len + 20
                                             ' each_job = loop_start
                                             ' Do
                                             '     dlg_len = dlg_len + 100
@@ -7386,7 +7411,7 @@ Do
                                                       If snap_checkbox = checked Then
                                                           Text 15, y_pos, 600, 10, "SNAP PIC:   * Pay Date Amount:                                                                          * Prospective Amount:                                               Calculated:"
                                                           EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or Select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job)
                                                           EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)
                                                           EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(snap_pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
@@ -7394,7 +7419,7 @@ Do
                                                       If grh_checkbox = checked OR (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then
                                                           Text 10, y_pos, 600, 10, "GRH/CASH PIC: Pay Date Amount:                                                                          Prospective Amount:                                               Calculated:"
                                                           EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or Select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job)
                                                           EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, each_job)
                                                           EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(cash_pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
@@ -8952,8 +8977,13 @@ Do
                                 End If
                                 If SNAP_checkbox = checked Then
                                     If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY DATE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
-                                    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If ALL_JOBS_PANELS_ARRAY(snap_pic_pay_freq, each_job) = "Type or Select" Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
                                     If IsNumeric(ALL_JOBS_PANELS_ARRAY(snap_pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PROSPECTIVE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                End If
+                                If grh_checkbox = checked OR (cash_checkbox = checked and cash_six_month_budgeting_month = True) Then
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(cash_pic_pay_day_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* CASH/GRH PIC - PAY DATE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If ALL_JOBS_PANELS_ARRAY(cash_pic_pay_freq, each_job) = "Type or Select" Then full_err_msg = full_err_msg & "~!~" & "2^* CASH/GRH PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(cash_pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* CASH/GRH PIC - PROSPECTIVE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
                                 End If
                             End If
                         End If
