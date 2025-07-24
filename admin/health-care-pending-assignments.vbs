@@ -1985,7 +1985,9 @@ If run_list_management = True Then
 		email_body = email_body & "(more than 60 days)<br><br>"
 		email_body = email_body & "Cases pending SMRT and pending over 60 days: " & smrt_60_plus_count & "<br><br>"
 		email_body = email_body & "Additional details and past snapshots can be viewed in and Excel file.<br>"
-		email_body = email_body & "Historical Snapshot Records: <" & snapshot_hc_pending_excel & "><br><br>"
+		email_body = email_body & "Historical Snapshot Records: "
+		email_body = email_body & "<a href=" & chr(34) & snapshot_hc_pending_excel & chr(34) & ">HC Pending Snapshot Data</a><br><br>"
+
 		email_body = email_body & "Let us know if you have any questions or updates needed for this report or communication.<br><br>Script Team"
 		'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
 		Call create_outlook_email(email_from, email_recip, email_recip_CC, "", 			    email_subject, 1, 				 False, 	   email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				      email_attachment_array, True)
