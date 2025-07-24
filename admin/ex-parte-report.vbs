@@ -2971,23 +2971,11 @@ If ex_parte_function = "Prep 1" Then
 					Set objAVSConnection = CreateObject("ADODB.Connection")
 
 					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-					'objAVSlist = "SELECT * FROM ES.ES_AVSList"
-					'Hey dave work on this for next month
-					'on demand line 87
+					'Find out if the case number and SMI exists in the SQL table
 					AVSrow = "Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
 					objAVSRecordSet.Open AVSrow, objConnection
 					number_of_rows = objAVSRecordSet(0).value
 					If number_of_rows = 0 Then found_on_sql = False Else found_on_sql = True		'if there are no rows, we will set the variable to false	
-					'Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
-					'	sql_case_number = objAVSRecordSet("CaseNumber")
-					'	sql_smi = objAVSRecordSet("SMI")
-					'	If MAXIS_case_number = sql_case_number and sql_smi = memb_smi Then							'if we find the case number from Excel in SQL, we will update some information on the Excel
-					'		found_on_sql = True
-					'		Exit Do
-					'	End If
-					'	objAVSRecordSet.MoveNext
-					'Loop
-
 					objAVSRecordSet.Close			'Closing all the data connections
 					'objConnection.Close
 					If found_on_sql = True Then 'Existing case record
