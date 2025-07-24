@@ -2955,34 +2955,38 @@ If ex_parte_function = "Prep 1" Then
 									status_string = status_string & form_status
 								End If
 							Next
-							If instr(status_string, "I") > 0 OR instr(status_string, "R") > 0 Then
-								AVSFormValid = 0		'if there is an I or R, we set asset_test to False	
+							If instr(status_string, "I") > 0 THEN 
+								AVSFormValid = "I"
+							ElseIF instr(status_string, "R") > 0 Then
+								AVSFormValid = "R"		
 							Else
-								AVSFormValid = 1		'if there is no V, we set asset_test to True
+								AVSFormValid = 1		
 							End If
 						End If
-						'if panel exists, step through lines and look for V, E, W? Or maybe just record the status and put it into sql?
-					End IF
+					Else
+						AVSFormValid = 0		'no panel means No AVS form
+					End If
 					'Check the table for existing member line, update asset_test if found. 
 					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
 					Set objAVSConnection = CreateObject("ADODB.Connection")
 
 					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-					objAVSlist = "SELECT * FROM ES.ES_AVSList"
+					'objAVSlist = "SELECT * FROM ES.ES_AVSList"
 					'Hey dave work on this for next month
 					'on demand line 87
-					'objAVSList = Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'" 
-					objAVSRecordSet.Open objAVSList, objConnection
-					found_on_sql = False
-					Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
-						sql_case_number = objAVSRecordSet("CaseNumber")
-						sql_smi = objAVSRecordSet("SMI")
-						If MAXIS_case_number = sql_case_number and sql_smi = memb_smi Then							'if we find the case number from Excel in SQL, we will update some information on the Excel
-							found_on_sql = True
-							Exit Do
-						End If
-						objAVSRecordSet.MoveNext
-					Loop
+					AVSrow = "Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
+					objAVSRecordSet.Open AVSrow, objConnection
+					number_of_rows = objAVSRecordSet(0).value
+					If number_of_rows = 0 Then found_on_sql = False Else found_on_sql = True		'if there are no rows, we will set the variable to false	
+					'Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
+					'	sql_case_number = objAVSRecordSet("CaseNumber")
+					'	sql_smi = objAVSRecordSet("SMI")
+					'	If MAXIS_case_number = sql_case_number and sql_smi = memb_smi Then							'if we find the case number from Excel in SQL, we will update some information on the Excel
+					'		found_on_sql = True
+					'		Exit Do
+					'	End If
+					'	objAVSRecordSet.MoveNext
+					'Loop
 
 					objAVSRecordSet.Close			'Closing all the data connections
 					'objConnection.Close
