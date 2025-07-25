@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/25/2025", "Update the determination of Eligibility Review to have more accuracy in determining the difference between an SR and ER. This script is not intended for use to process Six-Month Reviews and is built to attempt to ignore these types of REVW processes. This determination can be challenging and any cases that do not function properly should be reported.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/16/2025", "Display of unearned income and job information updated in line with the changes to these panels in allowing the inclusion of information from the CASH PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "UPDATE to Date of Application handling to allow for noting of programs no longer pending. It is strongly advised to RUN THE CAF SCRIPT PRIOR TO APPROVAL but occasionally it is necessary to use the CAF after an approval.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "* * * MAXIS Cash Six-Month Functionality Updates * * *##~## ##~##Effective 03/25 MFIP, GA, and HS/GRH no longer have monthly reporting. To support this update, six-month budgeting functionality has been added to MAXIS.##~## ##~##Panels Updated:##~##- JOBS##~##- UNEA##~## ##~##This script has been updated to support the PIC for CASH on these panels.", "Casey Love, Hennepin County")
@@ -5679,6 +5680,7 @@ If vars_filled = False Then
 	For each month_date in date_array
 		get_dates = False
 		Call convert_date_into_MAXIS_footer_month(month_date, MAXIS_footer_month, MAXIS_footer_year)
+		footer_mo_mx_format = MAXIS_footer_month & " 01 " & MAXIS_footer_year
 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
 
@@ -5686,26 +5688,48 @@ If vars_filled = False Then
 		EMReadScreen snap_revw_code, 1, 7, 60
 		EMReadScreen hc_revw_code, 1, 7, 73
 		If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" or cash_revw_code = "T" Then
-			get_dates = True
 			If family_cash_case = True or adult_cash_case = True or grh_case = False Then
-				the_process_for_cash = "Recertification"
-				cash_recert_mo = MAXIS_footer_month
-				cash_recert_yr = MAXIS_footer_year
+				the_review_is_ER = False
+				EMReadScreen next_revw_process, 2, 9, 46
+				EMReadScreen next_revw_dt, 8, 9, 37
+				If next_revw_process = "SR" and next_revw_dt <> footer_mo_mx_format Then
+					the_review_is_ER = True
+				Else
+					Call write_value_and_transmit("X", 5, 35)
+					EMReadScreen er_date_month, 2, 9, 64
+					EMReadScreen sr_date_month, 2, 9, 26
+					If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
+					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+					PF3
+				End If
+				If msa_status = "ACTIVE" Then the_review_is_ER = True
 				If cash_revw_code = "T" Then cash_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
-				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_CASH_untrack = True
+				If the_review_is_ER = True Then
+					get_dates = True
+					the_process_for_cash = "Recertification"
+					cash_recert_mo = MAXIS_footer_month
+					cash_recert_yr = MAXIS_footer_year
+					If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_CASH_untrack = True
+					If processing_footer_month = "" Then
+						processing_footer_month = MAXIS_footer_month
+						processing_footer_year = MAXIS_footer_year
+					End If
+				End If
 			End If
 			If grh_case = True Then
 				the_review_is_ER = False
 				EMReadScreen next_revw_process, 2, 9, 46
+				EMReadScreen next_revw_dt, 8, 9, 37
 				grh_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-				If next_revw_process = "SR" Then the_review_is_ER = True
-				If next_revw_process = "ER" Then
+				If next_revw_process = "SR" and next_revw_dt <> footer_mo_mx_format Then
+					the_review_is_ER = True
+				Else
 					Call write_value_and_transmit("X", 5, 35)
-					EMReadScreen sr_date_month, 2, 9, 26
-					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
 					EMReadScreen er_date_month, 2, 9, 64
+					EMReadScreen sr_date_month, 2, 9, 26
 					If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
+					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
 					PF3
 				End If
 				If the_review_is_ER = True Then
@@ -5713,23 +5737,30 @@ If vars_filled = False Then
 					grh_recert_mo = MAXIS_footer_month
 					grh_recert_yr = MAXIS_footer_year
 					If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
+					If processing_footer_month = "" Then
+						processing_footer_month = MAXIS_footer_month
+						processing_footer_year = MAXIS_footer_year
+					End If
 				End If
 				' MsgBox "next_revw_process - " & next_revw_process & vbCr & "sr_date_month - " & sr_date_month & vbCr & "er_date_month - " & er_date_month & vbCr & "the_review_is_ER - " & the_review_is_ER & vbCr & "the_process_for_grh - " & the_process_for_grh
 			End If
 			If mfip_case = True Then snap_with_mfip = True
-			If processing_footer_month = "" Then
-				processing_footer_month = MAXIS_footer_month
-				processing_footer_year = MAXIS_footer_year
-			End If
 		End If
 		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" or snap_revw_code = "T" Then
 			the_review_is_ER = False
-			Call write_value_and_transmit("X", 5, 58)
-			EMReadScreen er_date_month, 2, 9, 64
-			If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
+			EMReadScreen next_revw_process, 2, 9, 66
+			EMReadScreen next_revw_dt, 8, 9, 57
+			If next_revw_process = "SR" and next_revw_dt <> footer_mo_mx_format Then
+				the_review_is_ER = True
+			Else
+				Call write_value_and_transmit("X", 5, 58)
+				EMReadScreen er_date_month, 2, 9, 64
+				EMReadScreen sr_date_month, 2, 9, 26
+				If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
+				If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+				PF3
+			End If
 			If snap_revw_code = "T" Then snap_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-
-			PF3
 
 			If the_review_is_ER = True Then
 				get_dates = True
