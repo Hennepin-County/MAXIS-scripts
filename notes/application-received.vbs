@@ -132,14 +132,14 @@ set caseload_info = CreateObject("Scripting.Dictionary")
 
 caseload_info.add "X127FA5", "YET"
 ' caseload_info.add "X127F3P", "Families - General"		- this is MAEPD
-'Team 1 Clifton 
+'Team 1 Clifton
 caseload_info.add "X127EK8", "Adults - Pending 1"
 caseload_info.add "X127EH1", "Adults - Pending 1"
 caseload_info.add "X127EP1", "Adults - Pending 1"
 caseload_info.add "X127EZ6", "Families - Pending 1"
 caseload_info.add "X127EZ8", "Families - Pending 1"
 'Active casebanks for Clifton
-caseload_info.add "X127EQ5", "Adults Active 1" 
+caseload_info.add "X127EQ5", "Adults Active 1"
 caseload_info.add "X127EQ6", "Adults Active 1"
 caseload_info.add "X127EQ7", "Adults Active 1"
 caseload_info.add "X127EQ8", "Adults Active 1"
@@ -335,7 +335,7 @@ function get_caseload_array_by_type(caseload_type, available_caseload_array)
 		    	temp_array(counter) = things(i)
 		    	counter = counter + 1
 		    End If
-        End If 
+        End If
 	Next
 	available_caseload_array = temp_array
 end function
@@ -489,12 +489,12 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 			population = "Families"
 		End If
 	End If
-    
+
     'HC Pending cases 'cases that are HC pending or have active HC programs with pending SNAP/CASH not to a specific team go to pending HC caseload
     If correct_caseload_type = "" OR correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending" Then
-        If unknown_hc_pending = True OR ma_status <> "INACTIVE"  OR msp_status <> "INACTIVE" Then 
+        If unknown_hc_pending = True OR ma_status <> "INACTIVE"  OR msp_status <> "INACTIVE" Then
             correct_caseload_type = "Healthcare - Pending"
-        End If 
+        End If
     End If
 
     'Adjust correct_caseload_type for correct Team
@@ -505,14 +505,14 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
             correct_caseload_type = "Adults - Pending " & right(current_caseload_type, 1)
         Else
             correct_caseload_type = "Adults - Pending ?" 'making correct length if current_caseload_type = ""
-        End If 
-    ElseIf correct_caseload_type = "Families - Pending" Then 
+        End If
+    ElseIf correct_caseload_type = "Families - Pending" Then
         If isnumeric(right(current_caseload_type, 1)) = True Then
             correct_caseload_type = "Families - Pending " & right(current_caseload_type, 1)
         Else
             correct_caseload_type = "Families - Pending ?" 'making correct length if current_caseload_type = ""
         End If
-    End If 
+    End If
 
 	If correct_caseload_type = current_caseload_type Then transfer_needed = False
 	' MsgBox "correct_caseload_type - " & correct_caseload_type & vbCr & "current_caseload_type - " & current_caseload_type & vbCr & "transfer_needed - " & transfer_needed
@@ -540,7 +540,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	' emer_status
 	' emer_type
 	If transfer_needed = True and new_caseload = "" Then
-        
+
         Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
 		number_of_options = UBound(available_caseload_array)
 		Do
@@ -554,7 +554,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
             If pnd2_disp_limit = "Display Limit" Then
 				pnd2_limit_issue = True
 			Else
-				EMReadScreen total_pages, 2, 3, 79
+				EMReadScreen total_pages, 3, 3, 78
 				total_pages = trim(total_pages)
 				total_pages = total_pages * 1
 				if total_pages > 34 Then pnd2_limit_issue = True
@@ -1755,15 +1755,15 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an appoint
 END IF
 'If this is an emer app, send the informational notice about rent-help hennepin
 If emer_status = "PENDING" Then
-    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True) 
-    Call write_variable_in_SPEC_Memo("You recently applied for Emergency Assistance through Hennepin County.") 
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
+    Call write_variable_in_SPEC_Memo("You recently applied for Emergency Assistance through Hennepin County.")
     Call write_variable_in_SPEC_Memo("If you are seeking emergency rent assistance (help for past due rent and associated expenses) please access using the RentHelp Hennepin application at:")
     Call write_variable_in_SPEC_Memo("                        ")
     Call write_variable_in_SPEC_Memo("              renthelphennepin.hdsallita.com ")
     Call write_variable_in_SPEC_Memo("                        ")
     Call write_variable_in_SPEC_Memo("Emergency rent assistance for Hennepin County residents is no longer accessed through MNBenefits or the Combined Application Form. Emergency Assistance and Emergency General Assistance programs continue to be available for emergencies not related to past due rent.")
      PF4
-End IF 
+End IF
 'THIS IS FUNCTIONALITY WE WILL NEED TO ADD BACK IN WHEN WE RETURN TO IN PERSON.
 'removal of in person functionality during the COVID-19 PEACETIME STATE OF EMERGENCY'
 'IF same_day_offered = TRUE and how_application_rcvd = "Office" THEN
