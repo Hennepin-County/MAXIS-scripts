@@ -75,6 +75,7 @@ basket_list = "X127EE2~X127EN5~X127EG4~X127ED8~X127EH8~X127EQ3~X127EQ2~X127ET9~X
 basket_list = "X127EQ3~X127EH8~X127EK9~X127ES8~X127ES3~X127EG4~X127EN5~X127ED8~X127EQ2~X127ET9~X127ET8~X127EK4~X127EN6~X127EF8~X127EL5~X127FA5~X127EF9~X127EA0~X127FE6~X127EE2~X127EM4~X127FE7~X127FF5~X127ET4~X127ES1~X127EL2~X127EL4~X127EL8~X127FF6~X127FF7~X127ET5~X127EP6~X127EP7~X127EP8"
 
 basket_list = "X127ER1~X127ER2~X127ER3~X127ER4~X127ER5~X127ER6"
+basket_list = "X127EK4~X127EK9"
 ' basket_array = split(basket_list, "~")
 
 call create_array_of_all_active_x_numbers_in_county(basket_array, two_digit_county_code)
@@ -163,7 +164,7 @@ For each basket in basket_array
     EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
     If row <> 0 Then transmit
 
-    EMReadScreen basket_total_pages, 2, 3, 79
+    EMReadScreen basket_total_pages, 3, 3, 78
     basket_total_pages = trim(basket_total_pages)
     basket_total_pages = basket_total_pages * 1
     EMReadScreen basket_name, 40, 3, 11
