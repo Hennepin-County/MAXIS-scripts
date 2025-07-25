@@ -1082,7 +1082,7 @@ If run_list_management = True Then
 
 			'TODO add handling to read for an additional app line so that we are sure we are reading the correct line for days pending and cash program
 			'Skips workers with no info
-			EMReadScreen has_content_check, 6, 3, 74
+			EMReadScreen has_content_check, 6, 3, 73
 			If has_content_check <> "0 Of 0" then
 				'Grabbing each case number on screen
 				Do
