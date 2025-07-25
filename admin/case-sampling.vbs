@@ -1001,7 +1001,7 @@ If run_review_selection = True Then
 
 
 			'Skips workers with no info
-			EMReadScreen has_content_check, 6, 3, 74
+			EMReadScreen has_content_check, 6, 3, 73
 			If has_content_check <> "0 Of 0" then
 				'Grabbing each case number on screen
 				Do
