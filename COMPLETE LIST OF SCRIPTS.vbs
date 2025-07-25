@@ -4764,6 +4764,7 @@ script_array(script_num).tags                   = array("BZ", "DWP", "EMER", "He
 script_array(script_num).dlg_keys               = array("Up", "Cn", "Sm", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #07/25/2025#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
