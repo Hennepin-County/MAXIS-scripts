@@ -5733,6 +5733,7 @@ If vars_filled = False Then
 					PF3
 				End If
 				If the_review_is_ER = True Then
+					get_dates = True
 					the_process_for_grh = "Recertification"
 					grh_recert_mo = MAXIS_footer_month
 					grh_recert_yr = MAXIS_footer_year
