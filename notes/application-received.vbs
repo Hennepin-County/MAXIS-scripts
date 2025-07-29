@@ -557,7 +557,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 				EMReadScreen total_pages, 3, 3, 78
 				total_pages = trim(total_pages)
 				total_pages = total_pages * 1
-				if total_pages > 34 Then pnd2_limit_issue = True
+				if total_pages > 195 Then pnd2_limit_issue = True
 			End If
 
 
