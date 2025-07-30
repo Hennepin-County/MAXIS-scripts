@@ -2873,7 +2873,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 					ASSETS_ARRAY(ast_instance, asset_counter) = "0" & ACCT_instance
 					If ACCT_type = "SV" Then ASSETS_ARRAY(ast_type, asset_counter) = "SV - Savings"
 					If ACCT_type = "CK" Then ASSETS_ARRAY(ast_type, asset_counter) = "CK - Checking"
-					If ACCT_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Cert of Deposit"
+					If ACCT_type = "CE" Then ASSETS_ARRAY(ast_type, asset_counter) = "CE - Cert of Deposit"
 					If ACCT_type = "MM" Then ASSETS_ARRAY(ast_type, asset_counter) = "MM - Money market"
 					If ACCT_type = "DC" Then ASSETS_ARRAY(ast_type, asset_counter) = "DC - Debit Card"
 					If ACCT_type = "KO" Then ASSETS_ARRAY(ast_type, asset_counter) = "KO - Keogh Account"
