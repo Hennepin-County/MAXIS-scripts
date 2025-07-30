@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/30/2025", "Corrected a bug that caused the script to stop on CE - Certificate of Deposit panels.", "Dave Courtright, Hennepin County")
 call changelog_update("06/09/2025", "Incorporated functionality from ACTIONS - SHELTER EXPENSE VERIF RECEIVED into the Shelter dialog.", "Mark Riegel, Hennepin County")
 call changelog_update("12/05/2024", "Updated Shelter dialog to include additional fields.", "Megan Geissler, Hennepin County")
 call changelog_update("10/01/2024", "Restructured the dialog to be form-based instead of free-text based, unique document date for each form, and added additional forms", "Megan Geissler, Hennepin County")
@@ -2873,7 +2874,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 					ASSETS_ARRAY(ast_instance, asset_counter) = "0" & ACCT_instance
 					If ACCT_type = "SV" Then ASSETS_ARRAY(ast_type, asset_counter) = "SV - Savings"
 					If ACCT_type = "CK" Then ASSETS_ARRAY(ast_type, asset_counter) = "CK - Checking"
-					If ACCT_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Cert of Deposit"
+					If ACCT_type = "CE" Then ASSETS_ARRAY(ast_type, asset_counter) = "CE - Cert of Deposit"
 					If ACCT_type = "MM" Then ASSETS_ARRAY(ast_type, asset_counter) = "MM - Money market"
 					If ACCT_type = "DC" Then ASSETS_ARRAY(ast_type, asset_counter) = "DC - Debit Card"
 					If ACCT_type = "KO" Then ASSETS_ARRAY(ast_type, asset_counter) = "KO - Keogh Account"
