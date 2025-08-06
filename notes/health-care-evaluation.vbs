@@ -5674,7 +5674,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
 					Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
-					Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+					Text 10, 35, 100, 10, "- Income Renewal Date:"
 					Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
 					Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
 					Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
@@ -5717,17 +5717,17 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 
 						EMReadScreen check_elig_renewal_date, 8, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_income_renewal_date, 8, 8, 71
+						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
 						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
-						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
 						elig_renewal_date = replace(elig_renewal_date, " ", "/")
 						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						check_income_renewal_date = DateAdd("d", 0, check_income_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
@@ -5771,7 +5771,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
 					Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
-					Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+					Text 10, 35, 300, 10, "- Income Renewal Date: Should not be changed and should match Elig Renewal Date."
 					Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
 					Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
 					Text 10, 115, 255, 10, "- ExParte (Y/N): Enter Y/N accordingly for each member"
@@ -5805,16 +5805,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						EMReadScreen check_income_renewal_date, 8, 8, 27
 						EMReadScreen check_elig_renewal_date, 8, 9, 27
 						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 71
 						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
-						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
 						elig_renewal_date = replace(elig_renewal_date, " ", "/")
 						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						check_income_renewal_date = DateAdd("d", 0, check_income_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
@@ -5862,7 +5862,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					PushButton 205, 115, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
 				Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
-				Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+				Text 10, 35, 300, 10, "- Income Renewal Date: Should not be changed and should match Elig Renewal Date."
 				Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
 				Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
 				Text 10, 80, 145, 10, "- ExParte (Y/N): Enter N"
@@ -5903,16 +5903,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						EMReadScreen check_income_renewal_date, 8, 8, 27
 						EMReadScreen check_elig_renewal_date, 8, 9, 27
 						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 71
 						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
-						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
 						elig_renewal_date = replace(elig_renewal_date, " ", "/")
 						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						check_income_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 						'Now run through HCMI and check coding
