@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("08/08/2025", "Updated logic for selecting application date to ignore CCAP only app dates prior to other program applications.", "Dave Courtright, Hennepin County.")
 Call changelog_update("09/27/2024", "Fixed an isssue with identifying case status when a second cash program is pending. New functionality will be more reliable in these situations.##~##", "Casey Love, Hennepin County.")
 Call changelog_update("08/08/2024", "Update to the CA Transfer process to transfer GRH/HS cases less often to maintain the caseload structure the GRH team uses. Additionally adds a separation of adult vs family GRH cases.", "Casey Love, Hennepin County.")
 Call changelog_update("05/23/2024", "Added contracted caseload selection for HCMC and North Memorial.", "Casey Love, Hennepin County.")
