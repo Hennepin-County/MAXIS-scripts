@@ -681,15 +681,23 @@ Else
 		Call script_end_procedure_with_error_report("This script - Application Received - cannot read this case on REPT/PND2. This is likely because PND2 for the caseload " & too_big_basket & " has reached the MAXIS display limit and the case is not displayed on the page. Transfer this case to a caseload with fewer cases in PND2 status for this script to operate.")
 	End If
 End If
+EMReadScreen original_app_ccap, 27, pnd2_row, 54 'Read for CCAP only as first app, if it is CCAP only, we will not count it as an application date for this script.
+If original_app_ccap = "_       _     _   _       P" Then
+    EMReadScreen additional_application_check, 14, pnd2_row + 1, 17   
+    If additional_application_check = "ADDITIONAL APP" Then pnd2_row = pnd2_row + 1
+End If
+
 
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
 oldest_app_date = application_date
+
 EMReadScreen CA_1_code, 1, pnd2_row, 54                                         'reading the pending codes by program for the application date line.
 EMReadScreen FS_1_code, 1, pnd2_row, 62
 EMReadScreen HC_1_code, 1, pnd2_row, 65
 EMReadScreen EA_1_code, 1, pnd2_row, 68
 EMReadScreen GR_1_code, 1, pnd2_row, 72
+
 
 'This section checks to see if the case has multiple application dates
 'it will ignore any dates that are for CCAP only as those are not pertinent to our work.
