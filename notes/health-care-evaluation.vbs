@@ -5913,7 +5913,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-						check_income_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						check_income_renewal_date = DateAdd("d", 0, check_income_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 						'Now run through HCMI and check coding
