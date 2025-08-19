@@ -676,6 +676,7 @@ admin_run = False
 If windows_user_ID = "CALO001" Then admin_run = true
 If windows_user_ID = "DACO003" Then admin_run = true
 If windows_user_ID = "MARI001" Then admin_run = true
+If windows_user_ID = "WFX901"  Then admin_run = true	'Faughn Ramisch-Church
 If windows_user_ID = "BETE001" Then admin_run = true	'Ben Teskey
 If windows_user_ID = "WFC041"  Then admin_run = true	'Kerry Walsh
 If windows_user_ID = "YEYA001" Then admin_run = true	'Yeng Yang
@@ -1974,7 +1975,7 @@ If run_list_management = True Then
 
 		email_from = ""
 		If windows_user_ID = "CALO001" Then email_from = "HSPH.EWS.BlueZoneScripts@hennepin.us"
-		email_recip = "jacob.arco@hennepin.us; ilse.ferris@hennepin.us; ben.teskey@hennepin.us"
+		email_recip = "jacob.arco@hennepin.us; ilse.ferris@hennepin.us; ben.teskey@hennepin.us; faughn.ramisch-church@hennepin.us; vickie.goulette@hennepin.us"
 		email_recip_CC = ""
 		email_subject = "HC Snapshot Information Recorded"
 		email_body = "A script has been run to review Health Care Pending cases.<br><br>"
@@ -2997,7 +2998,7 @@ If operation_selection = "Review Completed Assignments" Then
 
 		Do While NOT objRecordSet.Eof
 			email_recip = objRecordSet("EmployeeEmail")
-			email_recip_CC = "ben.teskey@hennepin.us"
+			email_recip_CC = "ben.teskey@hennepin.us; faughn.ramisch-church@hennepin.us"
 			send_email = True
 			email_subject = "HC Pending Work Report for " & date
 			email_body = "HC Pending Assignments are recorded through use of the worklist functionality in the script Health Care Pending Assignments. This information is intended to provide a summary of the work assigned and completed by HSRs through this script process.<br><br>"
