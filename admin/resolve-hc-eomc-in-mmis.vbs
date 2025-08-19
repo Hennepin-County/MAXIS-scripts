@@ -1651,23 +1651,26 @@ EOMC_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvemen
 file_name = CM_plus_1_mo & "-" & CM_plus_1_yr & " Closures - EOMC workslist.xlsx"
 objExcel.ActiveWorkbook.SaveAs EOMC_folder & file_name
 
-email_subject = "HC End of Month Closures list is Ready"
+email_subject = "HC End of Month Closures list has been run"
 
-email_body = "Hello QI!" & "<br>" & "<br>"
-email_body = email_body & vbCr & "The Excel file has been created to review HC cases that are set to close for " & CM_plus_1_mo & "/" & CM_plus_1_yr & "." & "<br>"
-email_body = email_body & vbCr & "This list is here:" & "<br>"
-email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & file_name & chr(34) & ">" & file_name & "</a><br>" & "<br>"
+email_body = "Health Care EOMC Reports/Information<br><br>"
+
+email_body = email_body & vbCr & "A script has been run to align MMIS to the closures completed for the coming month for HC in MAXIS.<br>"
+email_body = email_body & vbCr & "The Excel file has been created to review HC cases that are set to close for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ", including script actions/span closures in MMIS. "
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\HC Discrepancy\EOMC\" & CM_plus_1_mo & "-20" & CM_plus_1_yr & " Change Run - " & file_friendly_date & ".xlsx" & chr(34) & ">" & CM_plus_1_mo & "-20" & CM_plus_1_yr & " Change Run - " & file_friendly_date & ".xlsx" & "</a><br>" & "<br>"
 
 email_body = email_body & vbCr & vbCr & "This script has attempted to align MMIS to the MAXIS HC eligibility, but some cases need manual review/action." & "<br>"
+email_body = email_body & vbCr & "Manual work/review list::" & "<br>"
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & file_name & chr(34) & ">" & file_name & "</a><br>" & "<br>"
 email_body = email_body & vbCr & "There is an instruction document here:" & "<br>"
 email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & "EOMC Work List Instructions.docx" & chr(34) & ">" & "EOMC Work List Instructions.docx" & "</a><br>" & "<br>"
 
-email_body = email_body & vbCr & "Please reach out to Jen with questions about this assignment." & "<br>"
+email_body = email_body & vbCr & "Casey and the rest of the script team is operating the automated part of this process with some possible future work to ensure reduction in MAXIS/MMIS discrepancies. No action needs to be taken at this time, this is mostly informative. " & "<br>"
 email_body = email_body & vbCr & vbCr & "Thank you!"
 
 
-'function labels		  email_from, 							  email_recip, 				 email_recip_CC, 		    email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
-Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Jennifer.Frey@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
+'function labels		  email_from, 							  email_recip, 				email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
+Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "Jacob.Arco@hennepin.us", "", 			"", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, False)
 
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
