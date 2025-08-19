@@ -64,7 +64,9 @@ users_using_select_a_user = array()
 'specific settings for the database schema and tables to use.
 db_provider = "SQLOLEDB.1"
 db_data_source = "hssqlpw139"
+' db_data_source = "hssqldw202"
 db_catalog = "BlueZone_Statistics"
+' db_catalog = "BlueZone_Statistics_Dev"
 db_security = "SSPI"
 db_translate = "False"
 
