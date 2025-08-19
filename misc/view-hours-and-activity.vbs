@@ -257,6 +257,14 @@ hide_excel_button = 5001
 'Defining the excel files for when running the script
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
 
+If user_ID_for_validation = "DACO003" Then
+	t_drive_excel_file_path = excel_file_path & "\Dave Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Dave Time Tracking.xlsx"
+End If
+If user_ID_for_validation = "TRFA001" Then
+	t_drive_excel_file_path = excel_file_path & "\Travis Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Travis Time Tracking.xlsx"
+End If
 If user_ID_for_validation = "ILFE001" Then
 	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking.xlsx"
 	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking.xlsx"
@@ -272,10 +280,6 @@ End If
 If user_ID_for_validation = "MARI001" Then
 	t_drive_excel_file_path = excel_file_path & "\Mark Time Tracking.xlsx"
 	my_docs_excel_file_path = user_myDocs_folder & "Mark Time Tracking.xlsx"
-End If
-If user_ID_for_validation = "DACO003" Then
-	t_drive_excel_file_path = excel_file_path & "\Dave Time Tracking.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Dave Time Tracking.xlsx"
 End If
 
 If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
@@ -858,7 +862,7 @@ If added_end_time_row_list <> "" then
 	Next
 End If
 objWorkbook.Save									'saving the file to 'My Documents'
-If user_ID_for_validation <> "DACO003" Then objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 ObjExcel.Quit		'Closing the Excel file.
 
 If view_excel = False Then leave_excel_open_checkbox = unchecked
