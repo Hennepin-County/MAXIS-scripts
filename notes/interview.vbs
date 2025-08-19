@@ -8415,10 +8415,12 @@ Do
 									"Press 'Yes' to confinue to the final part of the interivew (forms)." & vbCr &_
 									"Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Interview Completed")
 			If proceed_confirm = vbCancel then cancel_confirmation
+			If proceed_confirm = vbNo then leave_loop = False
 		End If
 		If ButtonPressed = incomplete_interview_btn Then proceed_confirm = vbYes
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
+    leave_loop = False      'resetting this boolean so the main dialog does not try to exit every time if looped back.
 Loop until are_we_passworded_out = FALSE
 
 If run_by_interview_team = True and developer_mode = False Then
