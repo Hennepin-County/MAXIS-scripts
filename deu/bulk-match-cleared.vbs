@@ -45,7 +45,7 @@ Function IEVP_looping(ievp_panel)
             IEVP_panel = True
         Else
             EMReadScreen MISC_error_check,  74, 24, 02
-            match_based_array(comments_const, item) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
+            match_based_array(comments_const, match_based_arrays) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
             'msgbox "1. IN IEVP LOOPING" & trim(MISC_error_check)
             IEVP_panel = False
         End IF
@@ -212,7 +212,7 @@ Do 'purpose is to read each excel row and to add into each excel array '
     IF MAXIS_case_number = "" THEN EXIT DO
 	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
         IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) = "" THEN
-			match_based_array(comments_const, item) = "No resolution status could be found."
+			match_based_array(comments_const, match_based_arrays) = "No resolution status could be found."
 	    ELSE
 		    add_to_array = TRUE
      	    ReDim Preserve match_based_array(comments_const, entry_record)	'This resizes the array based on the number of cases
@@ -242,10 +242,10 @@ Loop
 If entry_record = 0 then script_end_procedure_with_error_report("No information could be found on the Excel template. Please review/update the Excel workbook and run the script again. The script will now end.")
 
 'Loading of cases is complete. Reviewing the cases in the array.
-For item = 0 to UBound(match_based_array, 2)
-	MAXIS_case_number = match_based_array(maxis_case_number_const, item)
+For match_based_arrays = 0 to UBound(match_based_array, 2)
+	MAXIS_case_number = match_based_array(maxis_case_number_const, match_based_arrays)
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit(match_based_array(client_ssn_const, item), 3, 63)
+	CALL write_value_and_transmit(match_based_array(client_ssn_const, match_based_arrays), 3, 63)
 	CALL write_value_and_transmit("IEVP", 20, 71) 'this comes after to avoid moving away from IEVP'
 	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 	EMReadScreen agreement_check, 9, 2, 24
@@ -278,11 +278,11 @@ For item = 0 to UBound(match_based_array, 2)
 			days_pending = replace(days_pending, ")", "")
 			IF IsNumeric(days_pending) = TRUE THEN
                 If ievp_match_type = "" THEN
-                    match_based_array(comments_const, item) = "Unable to match the IEVS types."
+                    match_based_array(comments_const, match_based_arrays) = "Unable to match the IEVS types."
                     'msgbox "2. Unable to match the IEVS types."
                     exit do
-                Elseif ievp_match_type = match_based_array(numb_match_type_const, item) THEN
-	    			IF trim(match_based_array(period_const, item)) = IEVS_period THEN
+                Elseif ievp_match_type = match_based_array(numb_match_type_const, match_based_arrays) THEN
+	    			IF trim(match_based_array(period_const, match_based_arrays)) = IEVS_period THEN
                         pending_match_found = True
                     	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
@@ -303,18 +303,18 @@ For item = 0 to UBound(match_based_array, 2)
 						income_amount = trim(income_amount)
                         income_amount = income_amount *1 'this is so the amount wil be read as a number'
 
-	                   	IF income_source = match_based_array(income_source_const, item) THEN
-                        	IF income_amount = match_based_array(amount_const, item) THEN
+	                   	IF income_source = match_based_array(income_source_const, match_based_arrays) THEN
+                        	IF income_amount = match_based_array(amount_const, match_based_arrays) THEN
 							   	EXIT DO
 	    				   	ELSE
-							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
-                                'msgbox "3. Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
+							  	match_based_array(comments_const, match_based_arrays) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, match_based_arrays) & "~"
+                                'msgbox "3. Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, match_based_arrays) & "~"
                             	PF3 ' to leave match
 							  	EXIT DO
 							END IF
                         Else
-							match_based_array(comments_const, item) = "Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
-                            'msgbox "4. Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
+							match_based_array(comments_const, match_based_arrays) = "Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, match_based_arrays) & "~"
+                            'msgbox "4. Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, match_based_arrays) & "~"
                             Call IEVP_looping(ievp_panel)
                             If IEVP_panel = False then
                                 EXIT DO
@@ -339,14 +339,14 @@ For item = 0 to UBound(match_based_array, 2)
 		LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
 	ELSE
 		EMReadScreen MISC_error_check,  74, 24, 02
-    	match_based_array(comments_const, item) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
+    	match_based_array(comments_const, match_based_arrays) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
         'msgbox "6. " & trim(MISC_error_check)
 	END IF
 
-    If pending_match_found = False then match_based_array(comments_const, item) = "Unable to find a pending match to match the match type and/or the match period. Review manually."
+    If pending_match_found = False then match_based_array(comments_const, match_based_arrays) = "Unable to find a pending match to match the match type and/or the match period. Review manually."
 
 	'--------------------------------------------------------------------clearing the match IULA much of this is just for the case note
-    IF trim(match_based_array(comments_const, item)) = "" then
+    IF trim(match_based_array(comments_const, match_based_arrays)) = "" then
      	IF match_type = "WAGE" THEN
     		EMReadScreen select_quarter, 1, 8, 14
     		EMReadScreen IEVS_year, 4, 8, 22
@@ -384,31 +384,31 @@ For item = 0 to UBound(match_based_array, 2)
     	END IF
 
 		'-------------------------------------------------------------------------------------------RESOLVING THE MATCH
-    	EMReadScreen match_based_array(notice_sent_const,   item), 1, 14, 37
-		IF match_based_array(notice_sent_const,   item) = "Y" THEN
-			EMReadScreen match_based_array(notice_sent_date_const,   item), 8, 14, 68
-			match_based_array(notice_sent_date_const,   item) = replace(match_based_array(notice_sent_date_const,   item), " ", "/")
+    	EMReadScreen match_based_array(notice_sent_const,   match_based_arrays), 1, 14, 37
+		IF match_based_array(notice_sent_const,   match_based_arrays) = "Y" THEN
+			EMReadScreen match_based_array(notice_sent_date_const,   match_based_arrays), 8, 14, 68
+			match_based_array(notice_sent_date_const,   match_based_arrays) = replace(match_based_array(notice_sent_date_const,   match_based_arrays), " ", "/")
 		END IF
     	EMReadScreen cleared_code, 2, 12, 58
-		IF cleared_code <> "__" THEN match_based_array(resolution_status_const, item) = "CLEARED - "  & cleared_code'default to false unless something happens to make it not'
+		IF cleared_code <> "__" THEN match_based_array(resolution_status_const, match_based_arrays) = "CLEARED - "  & cleared_code'default to false unless something happens to make it not'
 		EMwriteScreen "10", 12, 46	    'resolved notes depending on the resolution_status
-	   	EMwritescreen match_based_array(resolution_status_const,  item), 12, 58
+	   	EMwritescreen match_based_array(resolution_status_const,  match_based_arrays), 12, 58
 		TRANSMIT 'Going to IULB
 	 	'----------------------------------------------------------------------------------------writing the note on IULB
-		IF match_based_array(resolution_status_const,  item) = "CB" THEN IULB_notes = "CB-Ovrpmt And Future Save"
-		IF match_based_array(resolution_status_const,  item) = "CC" THEN IULB_notes = "CC-Overpayment Only"
-		IF match_based_array(resolution_status_const,  item) = "CF" THEN IULB_notes = "CF-Future Save"
-		IF match_based_array(resolution_status_const,  item) = "CA" THEN IULB_notes = "CA-Excess Assets"
-		IF match_based_array(resolution_status_const,  item) = "CI" THEN IULB_notes = "CI-Benefit Increase"
-		IF match_based_array(resolution_status_const,  item) = "CP" THEN IULB_notes = "CP-Applicant Only Savings"
-		IF match_based_array(resolution_status_const,  item) = "BC" THEN IULB_notes = "BC-Case Closed"
-		IF match_based_array(resolution_status_const,  item) = "BE" THEN IULB_notes = "BE-No Change"
-		IF match_based_array(resolution_status_const,  item) = "BI" THEN IULB_notes = "BI-Interface Prob"
-		IF match_based_array(resolution_status_const,  item) = "BN" THEN IULB_notes = "BN-Already Known-No Savings"
-		IF match_based_array(resolution_status_const,  item) = "BP" THEN IULB_notes = "BP-Wrong Person"
-		IF match_based_array(resolution_status_const,  item) = "BU" THEN IULB_notes = "BU-Unable To Verify"
-		IF match_based_array(resolution_status_const,  item) = "BO" THEN IULB_notes = "BO-Other"
-		IF match_based_array(resolution_status_const,  item) = "NC" THEN IULB_notes = "NC-Non Cooperation"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CB" THEN IULB_notes = "CB-Ovrpmt And Future Save"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CC" THEN IULB_notes = "CC-Overpayment Only"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CF" THEN IULB_notes = "CF-Future Save"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CA" THEN IULB_notes = "CA-Excess Assets"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CI" THEN IULB_notes = "CI-Benefit Increase"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "CP" THEN IULB_notes = "CP-Applicant Only Savings"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BC" THEN IULB_notes = "BC-Case Closed"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BE" THEN IULB_notes = "BE-No Change"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BI" THEN IULB_notes = "BI-Interface Prob"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BN" THEN IULB_notes = "BN-Already Known-No Savings"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BP" THEN IULB_notes = "BP-Wrong Person"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BU" THEN IULB_notes = "BU-Unable To Verify"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "BO" THEN IULB_notes = "BO-Other"
+		IF match_based_array(resolution_status_const,  match_based_arrays) = "NC" THEN IULB_notes = "NC-Non Cooperation"
 
 		EMReadScreen panel_name, 4, 02, 52
 	    IF panel_name = "IULB" THEN
@@ -449,18 +449,18 @@ For item = 0 to UBound(match_based_array, 2)
 	    	days_pending = trim(days_pending)
 
 	    	IF IsNumeric(days_pending) = TRUE THEN
-				match_based_array(date_cleared_const, item) = days_pending
+				match_based_array(date_cleared_const, match_based_arrays) = days_pending
 			ELSE
-				match_based_array(match_cleared_const, item) = TRUE 'match has now changed from match cleared False to True
-				match_based_array(date_cleared_const, item) = date
+				match_based_array(match_cleared_const, match_based_arrays) = TRUE 'match has now changed from match cleared False to True
+				match_based_array(date_cleared_const, match_based_arrays) = date
                 stats_counter = stats_counter + 1 'Increment for stats counter this will only count if true
 			END IF
    		ELSE
-			match_based_array(comments_const, item) = "Did not clear on IULB."
+			match_based_array(comments_const, match_based_arrays) = "Did not clear on IULB."
             'msgbox "7. Did not clear on IULB."
 		END IF
 
-        If match_based_array(match_cleared_const, item) = TRUE then
+        If match_based_array(match_cleared_const, match_based_arrays) = TRUE then
 	 	    'Going to the MISC panel to add claim referral tracking information
 	        '----------------------------------------------------------------------------------------------------CASE NOTE
 		    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
@@ -469,11 +469,11 @@ For item = 0 to UBound(match_based_array, 2)
 		    case_invalid_error = trim(case_invalid_error)
 		    IF priv_check = TRUE THEN  'PRIV cases
 		        EMReadscreen priv_worker, 26, 24, 46
-		        match_based_array(other_note_const, item) = "PRIV - Unable to case note "
+		        match_based_array(other_note_const, match_based_arrays) = "PRIV - Unable to case note "
 		    ELSEIf county_code <> worker_county_code THEN
-		      	match_based_array(other_note_const, item) = "OUT OF COUNTY CASE. Unable to case note."
+		      	match_based_array(other_note_const, match_based_arrays) = "OUT OF COUNTY CASE. Unable to case note."
 		    ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
-		        match_based_array(other_note_const, item) = case_invalid_error & ". Unable to case note."
+		        match_based_array(other_note_const, match_based_arrays) = case_invalid_error & ". Unable to case note."
 		    ELSE
 		    	'-------------------------------------------------------------------for the case note
                 IF match_type = "BEER" THEN match_type_letter = "B"
@@ -489,11 +489,11 @@ For item = 0 to UBound(match_based_array, 2)
                 IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 
 		    	programs = ""
-		        IF instr(match_based_array(program_const, item), "D") THEN programs = programs & "DWP, "
-		        IF instr(match_based_array(program_const, item), "F") THEN programs = programs & "Food Support, "
-		        IF instr(match_based_array(program_const, item), "H") THEN programs = programs & "Health Care, "
-		        IF instr(match_based_array(program_const, item), "M") THEN programs = programs & "Medical Assistance, "
-		        IF instr(match_based_array(program_const, item), "S") THEN programs = programs & "MFIP, "
+		        IF instr(match_based_array(program_const, match_based_arrays), "D") THEN programs = programs & "DWP, "
+		        IF instr(match_based_array(program_const, match_based_arrays), "F") THEN programs = programs & "Food Support, "
+		        IF instr(match_based_array(program_const, match_based_arrays), "H") THEN programs = programs & "Health Care, "
+		        IF instr(match_based_array(program_const, match_based_arrays), "M") THEN programs = programs & "Medical Assistance, "
+		        IF instr(match_based_array(program_const, match_based_arrays), "S") THEN programs = programs & "MFIP, "
 		        'trims excess spaces of programs
 		        programs = trim(programs)
 		        'takes the last comma off of programs when autofilled into dialog
@@ -502,18 +502,18 @@ For item = 0 to UBound(match_based_array, 2)
     	        PF9
                 'Case note header options based on the match type
     	        IF match_type = "WAGE" THEN
-                    CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+                    CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  match_based_arrays) & "-----")
                 Elseif match_type = "BNDX" THEN
-		    		CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+		    		CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  match_based_arrays) & "-----")
                 ELSE
-                	CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+                	CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  match_based_arrays) & "-----")
     	    	END IF
-    	        CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, item))
+    	        CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, match_based_arrays))
     	        CALL write_bullet_and_variable_in_case_note("Programs on Match", programs)
 				CALL write_bullet_and_variable_in_case_note("Active Programs", list_active_programs)
 				CALL write_bullet_and_variable_in_case_note("Pending Programs", list_pending_programs)
-    	        CALL write_bullet_and_variable_in_case_note("Source of income", match_based_array(income_source_const, item))
-    	        CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", match_based_array(notice_sent_date_const, item))
+    	        CALL write_bullet_and_variable_in_case_note("Source of income", match_based_array(income_source_const, match_based_arrays))
+    	        CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", match_based_array(notice_sent_date_const, match_based_arrays))
     	        IF IULB_notes = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
     	        IF IULB_notes = "CF-Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
     	        IF IULB_notes = "CA-Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
@@ -533,7 +533,7 @@ For item = 0 to UBound(match_based_array, 2)
     	        CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 				CALL write_variable_in_case_note(worker_signature)
     	        PF3 'to save casenote'
-    	    	match_based_array(comments_const, item) = "Match Cleared and Case Noted."
+    	    	match_based_array(comments_const, match_based_arrays) = "Match Cleared and Case Noted."
                 'msgbox "8. Match Cleared and Case Noted."
 		    END IF
         END IF
@@ -566,11 +566,11 @@ objExcel.Cells(1, 22).Value    = "COMMENTS"		    'V Comments
 
 MsgBox "Writing to excel- please dont touch the keyboard until list is fully updated. You'll receive a closing success message." 'this is working as a ready wait'
 
-For item = 0 to UBound(match_based_array, 2)
- 	excel_row = match_based_array(excel_row_const, item)
- 	objExcel.Cells(excel_row, excel_col_comments).Value 	= match_based_array(comments_const, item)
-	objExcel.Cells(excel_row, excel_date_notice_sent).Value	= match_based_array(notice_sent_date_const, item)
-	objExcel.Cells(excel_row, excel_col_date_cleared).Value = match_based_array(date_cleared_const, item)
+For match_based_arrays = 0 to UBound(match_based_array, 2)
+ 	excel_row = match_based_array(excel_row_const, match_based_arrays)
+ 	objExcel.Cells(excel_row, excel_col_comments).Value 	= match_based_array(comments_const, match_based_arrays)
+	objExcel.Cells(excel_row, excel_date_notice_sent).Value	= match_based_array(notice_sent_date_const, match_based_arrays)
+	objExcel.Cells(excel_row, excel_col_date_cleared).Value = match_based_array(date_cleared_const, match_based_arrays)
 Next
 
 FOR i = 1 to 23		'formatting the cells

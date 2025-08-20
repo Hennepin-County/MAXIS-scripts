@@ -9994,9 +9994,9 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         				delay_explain_array = Split(delay_explanation, ";")
         			End If
         			counter = 1
-        			For each item in delay_explain_array
-        				item = trim(item)
-        				Call write_variable_with_indent_in_CASE_NOTE(counter & ". " & item)
+        			For each delay_explain in delay_explain_array
+        				delay_explain = trim(delay_explain)
+        				Call write_variable_with_indent_in_CASE_NOTE(counter & ". " & delay_explain)
         				counter = counter + 1
         			Next
         		End If

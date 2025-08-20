@@ -124,7 +124,7 @@ Call MAXIS_footer_month_confirmation    'Ensuring we're in the right footer mont
 
 Dim faci_array()                        'Delcaring array
 ReDim faci_array(faci_out_const, 0)     'Resizing the array to size of last const
-Dim item
+Dim faci_arrays
 
 const vendor_number_const   = 0         'creating array constants
 const faci_name_const       = 1
@@ -220,9 +220,9 @@ Do
             'Evaluate multiple faci panels
             faci_out_dates_string = ""                  'setting up blank string to increment
             current_faci_found = False                  'defaulting to false - this boolean will determine if evaluation of the last date is needed. Will become true statement if open-ended faci panel is detected.
-            For item = 1 to FACI_total_check
+            For faci_arrays = 1 to FACI_total_check
 
-                Call write_value_and_transmit("0" & item, 20, 79)   'Entering the item's faci panel via direct navigation field on FACI panel.
+                Call write_value_and_transmit("0" & faci_arrays, 20, 79)   'Entering the item's faci panel via direct navigation field on FACI panel.
                 row = 18
                 Do
                     EMReadScreen faci_out, 10, row, 71      'faci out date
@@ -278,12 +278,12 @@ Do
                 last_date = faci_out_dates(UBOUND(faci_out_dates))
 
                 'finding the most recent date if none of the dates are open-ended
-                For item = 0 to Ubound(faci_array, 2)
-                    If faci_array(faci_out_const, item) = last_date then
-                        vendor_number   = faci_array(vendor_number_const, item)
-                        faci_name       = faci_array(faci_name_const, item)
-                        faci_in         = faci_array(faci_in_const, item)
-                        faci_out        = faci_array(faci_out_const, item)
+                For faci_arrays = 0 to Ubound(faci_array, 2)
+                    If faci_array(faci_out_const, faci_arrays) = last_date then
+                        vendor_number   = faci_array(vendor_number_const, faci_arrays)
+                        faci_name       = faci_array(faci_name_const, faci_arrays)
+                        faci_in         = faci_array(faci_in_const, faci_arrays)
+                        faci_out        = faci_array(faci_out_const, faci_arrays)
                     End if
                 Next
             End if

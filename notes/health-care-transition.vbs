@@ -213,9 +213,9 @@ Elseif initial_option = "1. Non-MAGI referral" then
         Text 5, 80, 40, 10, "Other notes:"
         EditBox 50, 75, 215, 15, other_notes
         x = 0
-        FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            Text 10, (110 + (x * 15)), 140, 10, transition_array(member_name_const, item)
-            If transition_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 55, 15, "Select One:"+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, item)
+        FOR transition_arrays = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            Text 10, (110 + (x * 15)), 140, 10, transition_array(member_name_const, transition_arrays)
+            If transition_array(member_name_const, transition_arrays) <> "" then DropListBox 160, (110 + (x * 15)), 55, 15, "Select One:"+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, transition_arrays)
             x = x + 1
         NEXT
         GroupBox 5, 95, 260, (20 + (x * 12)), "Client Information and current METS coverage:"
@@ -236,8 +236,8 @@ Elseif initial_option = "1. Non-MAGI referral" then
             IF service_requested = "Select One:" then err_msg = err_msg & vbcr & "* Enter the service request reason."
             If service_requested = "Other" and trim(other_notes) = "" then err_msg = err_msg & vbcr & "* Enter a description of the service requested in the other notes field."
             'HC_type
-            For item = 0 to ubound(transition_array, 2)
-            	If (transition_array(hc_type_const, item)) = "Select One:"then err_msg = err_msg & vbCr & "* Select a health care type for each member."
+            For transition_arrays = 0 to ubound(transition_array, 2)
+            	If (transition_array(hc_type_const, transition_arrays)) = "Select One:"then err_msg = err_msg & vbCr & "* Select a health care type for each member."
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -255,8 +255,8 @@ else
     End if
        Text 140, 10, 120, 10, mets_pr_option & " " & METS_OR_PR_number
       	x = 0
-      FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-          Text 10, (40 + (x * 15)), 100, 10, transition_array(member_name_const, item)
+      FOR transition_arrays = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+          Text 10, (40 + (x * 15)), 100, 10, transition_array(member_name_const, transition_arrays)
           x = x + 1
       NEXT
       GroupBox 5, 25, 260, (25 + (x * 10)), "Client(s) name"

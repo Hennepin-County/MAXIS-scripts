@@ -6471,11 +6471,11 @@ function convert_array_to_droplist_items(array_to_convert, output_droplist_box)
 '~~~~~ array_to_convert: name of the array
 '~~~~~ output_droplist_box: name of droplist variant/variable
 '===== Keywords: MAXIS, PRISM, production, array, droplist
-	For each item in array_to_convert
+	For each thingamajig in array_to_convert
 		If output_droplist_box = "" then
-			output_droplist_box = item
+			output_droplist_box = thingamajig
 		Else
-			output_droplist_box = output_droplist_box & chr(9) & item
+			output_droplist_box = output_droplist_box & chr(9) & thingamajig
 		End if
 	Next
 end function

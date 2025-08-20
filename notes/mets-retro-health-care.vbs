@@ -189,11 +189,11 @@ If initial_option = "Initial Request" then
     ButtonGroup ButtonPressed
     Text 10, 125, 35, 10, "Scenario"
     x = 0
-    For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
-            DropListBox 65, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", HC_array(retro_months_const, item)
-            Text 130, (145 + (x * 15)), 165, 10, HC_array(member_name_const, item)
+    For HC_arrays = 0 to Ubound(HC_array, 2)
+        If HC_array(member_name_const, HC_arrays) <> "" then
+            DropListBox 10, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, HC_arrays)
+            DropListBox 65, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", HC_array(retro_months_const, HC_arrays)
+            Text 130, (145 + (x * 15)), 165, 10, HC_array(member_name_const, HC_arrays)
             x = x + 1
         End if
     Next
@@ -220,12 +220,12 @@ If initial_option = "Initial Request" then
             End if
             IF trim(forms_needed) = "SELECT OR TYPE" then err_msg = err_msg & vbcr & "* Enter or select the verifications and/or forms needed."
             'retro scenario
-            For item = 0 to ubound(HC_array, 2)
-            	If (HC_array(retro_scenario_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
+            For HC_arrays = 0 to ubound(HC_array, 2)
+            	If (HC_array(retro_scenario_const, HC_arrays)) = "Select:" and hc_array(member_name_const, HC_arrays) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, HC_arrays)
             Next
             'amt of retro months
-            For item = 0 to ubound(HC_array, 2)
-                If (HC_array(retro_months_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select amount of retro months requested for " & hc_array(member_name_const, item)
+            For HC_arrays = 0 to ubound(HC_array, 2)
+                If (HC_array(retro_months_const, HC_arrays)) = "Select:" and hc_array(member_name_const, HC_arrays) <> "" then err_msg = err_msg & vbCr & "* Select amount of retro months requested for " & hc_array(member_name_const, HC_arrays)
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -241,10 +241,10 @@ If initial_option = "Proofs Received" then
     BeginDialog Dialog1, 0, 0, 296, (125 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
     Text 10, 20, 30, 10, "Scenario"
     x = 0
-    For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (35 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
-            Text 75, (35 + (x * 15)), 200, 10, HC_array(member_name_const, item)
+    For HC_arrays = 0 to Ubound(HC_array, 2)
+        If HC_array(member_name_const, HC_arrays) <> "" then
+            DropListBox 10, (35 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, HC_arrays)
+            Text 75, (35 + (x * 15)), 200, 10, HC_array(member_name_const, HC_arrays)
             x = x + 1
         End if
     Next
@@ -266,8 +266,8 @@ If initial_option = "Proofs Received" then
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
             Dialog Dialog1
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
-            For item = 0 to Ubound(HC_array, 2)
-                If (HC_array(retro_scenario_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
+            For HC_arrays = 0 to Ubound(HC_array, 2)
+                If (HC_array(retro_scenario_const, HC_arrays)) = "Select:" and hc_array(member_name_const, HC_arrays) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, HC_arrays)
             NEXT
             If verifs_checkbox = 0 then err_msg = err_msg & vbNewLine & "* All verifications and forms must be receieved."
             IF worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
@@ -283,11 +283,11 @@ If initial_option = "Retro Determination" then
 	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 356, (130 + (HC_membs * 15)), "Retro Determination for #" & MAXIS_case_number
     x = 0
-    For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (30 + (x * 15)), 50, 15, "Select:"+chr(9)+"Approved"+chr(9)+"Denied", HC_array(retro_status_const, item)
-            Editbox 75, (30 + (x * 15)), 180, 15, HC_array(retro_reason_const, item)
-            Text 270, (35 + (x * 15)), 130, 10, HC_array(member_name_const, item)
+    For HC_arrays = 0 to Ubound(HC_array, 2)
+        If HC_array(member_name_const, HC_arrays) <> "" then
+            DropListBox 10, (30 + (x * 15)), 50, 15, "Select:"+chr(9)+"Approved"+chr(9)+"Denied", HC_array(retro_status_const, HC_arrays)
+            Editbox 75, (30 + (x * 15)), 180, 15, HC_array(retro_reason_const, HC_arrays)
+            Text 270, (35 + (x * 15)), 130, 10, HC_array(member_name_const, HC_arrays)
             x = x + 1
         End if
     Next
@@ -312,12 +312,12 @@ If initial_option = "Retro Determination" then
             Dialog Dialog1
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             'retro determination
-            For item = 0 to ubound(HC_array, 2)
-                If (HC_array(retro_status_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro determination for " & hc_array(member_name_const, item)
+            For HC_arrays = 0 to ubound(HC_array, 2)
+                If (HC_array(retro_status_const, HC_arrays)) = "Select:" and hc_array(member_name_const, HC_arrays) <> "" then err_msg = err_msg & vbCr & "* Select a retro determination for " & hc_array(member_name_const, HC_arrays)
             NEXT
             'approved months or denial reason
-            For item = 0 to ubound(HC_array, 2)
-                If trim((HC_array(retro_reason_const, item))) = "" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Enter approved months or denial reason(s) for " & hc_array(member_name_const, item)
+            For HC_arrays = 0 to ubound(HC_array, 2)
+                If trim((HC_array(retro_reason_const, HC_arrays))) = "" and hc_array(member_name_const, HC_arrays) <> "" then err_msg = err_msg & vbCr & "* Enter approved months or denial reason(s) for " & hc_array(member_name_const, HC_arrays)
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect

@@ -357,12 +357,12 @@ objConnection.Open "Provider = SQLOLEDB.1;Data Source= hssqlpw139;Initial Catalo
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
 
 'Export information to Excel re: case status
-For item = 0 to UBound(DAIL_array, 2)
-    worker             = DAIL_array(worker_const, item)
-    MAXIS_case_number  = DAIL_array(maxis_case_number_const, item)
-    dail_type          = DAIL_array(dail_type_const, item)
-    dail_month         = DAIL_array(dail_month_const, item)
-    dail_msg           = DAIL_array(dail_msg_const, item)
+For DAIL_arrays = 0 to UBound(DAIL_array, 2)
+    worker             = DAIL_array(worker_const, DAIL_arrays)
+    MAXIS_case_number  = DAIL_array(maxis_case_number_const, DAIL_arrays)
+    dail_type          = DAIL_array(dail_type_const, DAIL_arrays)
+    dail_month         = DAIL_array(dail_month_const, DAIL_arrays)
+    dail_msg           = DAIL_array(dail_msg_const, DAIL_arrays)
 
     If instr(dail_msg, "'") then dail_msg = replace(dail_msg, "'", " ") 'SQL will not allow for an apostrophe
     If instr(dail_msg, "*") then dail_msg = replace(dail_msg, "*", " ") 'SQL will not allow for an apostrophe

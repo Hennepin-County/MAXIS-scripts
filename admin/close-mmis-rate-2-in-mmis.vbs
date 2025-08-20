@@ -205,14 +205,14 @@ back_to_self
 call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 excel_row = 2
 
-For item = 0 to UBound(Update_MMIS_array, 2)
+For Update_MMIS_arrays = 0 to UBound(Update_MMIS_array, 2)
 
-	MAXIS_case_number = Update_MMIS_array(case_number ,item)	'Case number is set for each loop as it is used in the FuncLib functions'
+	MAXIS_case_number = Update_MMIS_array(case_number ,Update_MMIS_arrays)	'Case number is set for each loop as it is used in the FuncLib functions'
 	call navigate_to_MAXIS_screen("STAT", "PROG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 	If PRIV_check = "PRIV" then
-		Update_MMIS_array(rate_two, item) = False
-		Update_MMIS_array(case_status, item) = "PRIV case, cannot access/update."
+		Update_MMIS_array(rate_two, Update_MMIS_arrays) = False
+		Update_MMIS_array(case_status, Update_MMIS_arrays) = "PRIV case, cannot access/update."
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 		Do
 			back_to_self
@@ -224,21 +224,21 @@ For item = 0 to UBound(Update_MMIS_array, 2)
     Else
         EMReadscreen current_county, 4, 21, 21
         If current_county <> worker_county_code then
-            Update_MMIS_array(rate_two, item) = False
-            Update_MMIS_array(case_status, item) = "Out-of-county case."
+            Update_MMIS_array(rate_two, Update_MMIS_arrays) = False
+            Update_MMIS_array(case_status, Update_MMIS_arrays) = "Out-of-county case."
         Else
-            Update_MMIS_array(rate_two, item) = True
+            Update_MMIS_array(rate_two, Update_MMIS_arrays) = True
         End if
     End if
 
 	Call HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
 
-	If Update_MMIS_array(rate_two, item) = True then
+	If Update_MMIS_array(rate_two, Update_MMIS_arrays) = True then
         Call navigate_to_MAXIS_screen("STAT", "MEMB")   'STAT/MEMB to gather PMI and create 8 digit PMI number
         EMReadScreen client_PMI, 8, 4, 46
         client_PMI = trim(client_PMI)
         client_PMI = right("00000000" & client_pmi, 8)
-        Update_MMIS_array(clt_PMI, item) = client_pmi
+        Update_MMIS_array(clt_PMI, Update_MMIS_arrays) = client_pmi
 
         '----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the ssrt dates match.
         Call navigate_to_MAXIS_screen ("STAT", "SSRT")
@@ -249,14 +249,14 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 
         EMReadScreen SSRT_total_check, 1, 2, 78
         If SSRT_total_check = "0" then
-            Update_MMIS_array(rate_two, item) = False
-            Update_MMIS_array(case_status, item) = "Case is not Rate 2."
+            Update_MMIS_array(rate_two, Update_MMIS_arrays) = False
+            Update_MMIS_array(case_status, Update_MMIS_arrays) = "Case is not Rate 2."
         elseif instr(SSRT_vendor_name, "ANDREW RESIDENCE") then
-            Update_MMIS_array(rate_two, item) = False
-            Update_MMIS_array(case_status, item) = "Andrew Residence facilities do not get loaded into MMIS."
+            Update_MMIS_array(rate_two, Update_MMIS_arrays) = False
+            Update_MMIS_array(case_status, Update_MMIS_arrays) = "Andrew Residence facilities do not get loaded into MMIS."
         elseif SSRT_total_check = "1" then
             'Single SSRT panel cases
-            Update_MMIS_array(rate_two, item) = True
+            Update_MMIS_array(rate_two, Update_MMIS_arrays) = True
             EMReadScreen NPI_number, 10, 7, 43
             row = 14        'starting at the bottom of the list of service dates to find the most recent date spans
         	Do
@@ -278,7 +278,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                         row = row - 1   'no ssrt info on this row
                     else
                         If ssrt_in <> "" then
-                            Update_MMIS_array(closing_date, item) = last_day_of_month   'Using last day of the month as resident still in ssrt, but GRH is closing at EOM
+                            Update_MMIS_array(closing_date, Update_MMIS_arrays) = last_day_of_month   'Using last day of the month as resident still in ssrt, but GRH is closing at EOM
                             exit do    'open ended ssrt found
                         End if
                     End if
@@ -288,7 +288,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                         EMReadScreen ssrt_day, 2, row, 74
                         EMReadScreen ssrt_yr, 2, row, 79
                         closed_date = ssrt_mo & "/" & ssrt_day & "/" & ssrt_yr
-                        Update_MMIS_array(closing_date, item) = closed_date         'if closed date is listed, this is used to close the agreement in MMIS.
+                        Update_MMIS_array(closing_date, Update_MMIS_arrays) = closed_date         'if closed date is listed, this is used to close the agreement in MMIS.
                         exit do    'most recent ssrt span identified
                     End if
         		End if
@@ -322,7 +322,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                         else
                             If ssrt_in <> "" then
                                 current_ssrt_found = True   'Condition is met so date evaluation via ssrt_array is not needed.
-                                Update_MMIS_array(closing_date, item) = last_day_of_month   'Using last day of the month as resident still in ssrt, but GRH is closing at EOM
+                                Update_MMIS_array(closing_date, Update_MMIS_arrays) = last_day_of_month   'Using last day of the month as resident still in ssrt, but GRH is closing at EOM
                                 exit do    'open ended ssrt found
                             End if
                         End if
@@ -349,7 +349,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                 first_date = ssrt_out_dates(0)                              'setting the first and last check dates
                 last_date = ssrt_out_dates(UBOUND(ssrt_out_dates))
 
-                Update_MMIS_array(closing_date, item) = last_date         'if closed date is listed, this is used to close the agreement in MMIS.
+                Update_MMIS_array(closing_date, Update_MMIS_arrays) = last_date         'if closed date is listed, this is used to close the agreement in MMIS.
             End if
         End if
     End if
@@ -358,17 +358,17 @@ For item = 0 to UBound(Update_MMIS_array, 2)
     ssrt_out = ""
     closed_date = ""
 
-    If Update_MMIS_array(rate_two, item) = True then
+    If Update_MMIS_array(rate_two, Update_MMIS_arrays) = True then
 		'----------------------------------------------------------------------------------------------------DISA: ensuring that client is not on a waiver. If they are, they should not be rate 2.
         Call navigate_to_MAXIS_screen("STAT", "DISA")
 		Call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01.
 		EMReadScreen waiver_type, 1, 14, 59
 		If waiver_type <> "_" then
-			Update_MMIS_array(case_status, item) = "Client is active on a waiver. Should not be Rate 2."
-			Update_MMIS_array(rate_two, item) = False
+			Update_MMIS_array(case_status, Update_MMIS_arrays) = "Client is active on a waiver. Should not be Rate 2."
+			Update_MMIS_array(rate_two, Update_MMIS_arrays) = False
 		End if
 	End if
-    objExcel.Cells(excel_row, 6).Value = Update_MMIS_array(clt_PMI, item)
+    objExcel.Cells(excel_row, 6).Value = Update_MMIS_array(clt_PMI, Update_MMIS_arrays)
     excel_row = excel_row + 1
 Next
 
@@ -379,23 +379,23 @@ NEXT
 
 excel_row = 2
 '----------------------------------------------------------------------------------------------------MMIS portion of the script
-For item = 0 to UBound(Update_MMIS_array, 2)
-	If Update_MMIS_array(rate_two, item) = True then
+For Update_MMIS_arrays = 0 to UBound(Update_MMIS_array, 2)
+	If Update_MMIS_array(rate_two, Update_MMIS_arrays) = True then
         Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
 		Call MMIS_panel_confirmation("AKEY", 51)				'ensuring we are on the right MMIS screen
-	    EmWriteScreen Update_MMIS_array(clt_PMI, item), 10, 36
+	    EmWriteScreen Update_MMIS_array(clt_PMI, Update_MMIS_arrays), 10, 36
 	    EmReadscreen PMI_check, 8, 10, 36
-        If trim(PMI_check) <> Update_MMIS_array(clt_PMI, item) then
+        If trim(PMI_check) <> Update_MMIS_array(clt_PMI, Update_MMIS_arrays) then
             continue_update = False
-            Update_MMIS_array(update_MMIS, item) = False
-            Update_MMIS_array(case_status, item) = "Unable to pass the AKEY screen. Review manually."   'This has not come up, but we'll keep it here just in case.
+            Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
+            Update_MMIS_array(case_status, Update_MMIS_arrays) = "Unable to pass the AKEY screen. Review manually."   'This has not come up, but we'll keep it here just in case.
         else
             Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
             EMReadScreen active_agreement, 12, 24, 2
 	        If active_agreement = "NO DOCUMENTS" then
                 continue_update = False
-                Update_MMIS_array(update_MMIS, item) = False
-                Update_MMIS_array(case_status, item) = "Agreement for this PMI not found in MMIS."  'No agreements exist in MMIS
+                Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
+                Update_MMIS_array(case_status, Update_MMIS_arrays) = "Agreement for this PMI not found in MMIS."  'No agreements exist in MMIS
             Else
 		    	EMReadScreen AGMT_status, 31, 3, 19
 		    	AGMT_status = trim(AGMT_status)
@@ -403,17 +403,17 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     EMReadScreen agreement_status, 1, 6, 60
                     EMReadScreen ASEL_start_date, 6, 6, 63
                     If agreement_status = "D" then
-                        Update_MMIS_array(update_MMIS, item) = False
+                        Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
                         continue_update = false
-                        Update_MMIS_array(case_status, item) = "Most recent agreement was denied. Review case and update manually." 'most recent denial requires manaual review.
+                        Update_MMIS_array(case_status, Update_MMIS_arrays) = "Most recent agreement was denied. Review case and update manually." 'most recent denial requires manaual review.
                         PF3
                     Else
                         continue_update = true
                         Call write_value_and_transmit ("X", 6, 3)
                         EmReadscreen error_code, 6, 24, 2
                         If error_code = "PLEASE" then
-                            Update_MMIS_array(update_MMIS, item) = False
-                            Update_MMIS_array(case_status, item) = "Unable to update case in MMIS. Please process manually."    'can be any number of errors. Manual review required.
+                            Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
+                            Update_MMIS_array(case_status, Update_MMIS_arrays) = "Unable to update case in MMIS. Please process manually."    'can be any number of errors. Manual review required.
                             PF3
                         End if
                     End if
@@ -437,23 +437,23 @@ For item = 0 to UBound(Update_MMIS_array, 2)
             EMReadScreen end_year, 2, 4, 75
             agreement_end_date = end_month & "/" & end_day & "/" & end_year
 
-            total_units = datediff("d", agreement_start_date, Update_MMIS_array(closing_date, item)) + 1
-            'msgbox "total_units: " & total_units & vbcr & agreement_start_date & vbcr & agreement_end_date & vbcr & "Closing date: " & Update_MMIS_array(closing_date, item)
+            total_units = datediff("d", agreement_start_date, Update_MMIS_array(closing_date, Update_MMIS_arrays)) + 1
+            'msgbox "total_units: " & total_units & vbcr & agreement_start_date & vbcr & agreement_end_date & vbcr & "Closing date: " & Update_MMIS_array(closing_date, Update_MMIS_arrays)
 
             If total_units = "" or total_units = 0 or total_units > 366 then
                 PF6
                 continue_update = False
-                Update_MMIS_array(update_MMIS, item) = False
-                Update_MMIS_array(case_status, item) = "SSRT agreement date span not found. Review agreements."      'ssrt changes can occur that cause this message to occur. MAXIS and MMIS actions required.
+                Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
+                Update_MMIS_array(case_status, Update_MMIS_arrays) = "SSRT agreement date span not found. Review agreements."      'ssrt changes can occur that cause this message to occur. MAXIS and MMIS actions required.
             else
                 EMReadScreen ASA1_end_date, 6, 4, 71
-                write_close_date = replace(Update_MMIS_array(closing_date, item), "/", "")
-                'msgbox "array date: " & Update_MMIS_array(closing_date, item) & vbcr & "write_close_date: " & write_close_date & vbcr & "ASA1_end_date: " & ASA1_end_date
+                write_close_date = replace(Update_MMIS_array(closing_date, Update_MMIS_arrays), "/", "")
+                'msgbox "array date: " & Update_MMIS_array(closing_date, Update_MMIS_arrays) & vbcr & "write_close_date: " & write_close_date & vbcr & "ASA1_end_date: " & ASA1_end_date
                 If ASA1_end_date = write_close_date then
                     continue_update = False
-                    Update_MMIS_array(update_MMIS, item) = False
+                    Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
                     PF6
-                    Update_MMIS_array(case_status, item) = "MMIS already updated accurately for closure."   'Correct date. No manual updates required.
+                    Update_MMIS_array(case_status, Update_MMIS_arrays) = "MMIS already updated accurately for closure."   'Correct date. No manual updates required.
                 Else
                     continue_update = true
                     Call write_value_and_transmit(write_close_date, 4, 71)      'entering agreement date of closure from MAXIS.
@@ -471,19 +471,19 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     EMReadscreen approval_message, 16, 24, 2    'Any number of issues (duplicate PMI, ssrt charged more units than stay, etc.). These cases require manual review if error occurs.
 
                     If approval_message = "ACTION COMPLETED" then
-                        Update_MMIS_array(update_MMIS, item) = True
-                        Update_MMIS_array(case_status, item) = "SSR end date in MMIS updated to " & Update_MMIS_array(closing_date, item)
+                        Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = True
+                        Update_MMIS_array(case_status, Update_MMIS_arrays) = "SSR end date in MMIS updated to " & Update_MMIS_array(closing_date, Update_MMIS_arrays)
                     Else
                         PF6
-                        Update_MMIS_array(update_MMIS, item) = False
-                        If Update_MMIS_array(case_status, item) = "" then Update_MMIS_array(case_status, item) = "Check case in MMIS. May not have updated, review manually."
+                        Update_MMIS_array(update_MMIS, Update_MMIS_arrays) = False
+                        If Update_MMIS_array(case_status, Update_MMIS_arrays) = "" then Update_MMIS_array(case_status, Update_MMIS_arrays) = "Check case in MMIS. May not have updated, review manually."
                     End if
                 End if
             End if
         End if
     End if
 
-	objExcel.Cells(excel_row, 7).Value = Update_MMIS_array(case_status, item)
+	objExcel.Cells(excel_row, 7).Value = Update_MMIS_array(case_status, Update_MMIS_arrays)
 	excel_row = excel_row + 1
 Next
 

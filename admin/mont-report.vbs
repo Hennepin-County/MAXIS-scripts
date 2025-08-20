@@ -1084,74 +1084,74 @@ If report_option = "Create MRSR Report" then
     excel_row = 2          'resetting excel_row to output the array information
 
     'DO 'Loops until there are no more cases in the Excel list
-    For item = 0 to Ubound(mont_array, 2)
-    	MAXIS_case_number = mont_array(case_number_const, item)
+    For mont_arrays = 0 to Ubound(mont_array, 2)
+    	MAXIS_case_number = mont_array(case_number_const, mont_arrays)
 
 		If new_run_radio = checked Then
-			Call read_case_details_for_mrsr_report(item)
+			Call read_case_details_for_mrsr_report(mont_arrays)
 
 	        '----------------------------------------------------------------------------------------------------Excel Output
-	        ObjExcel.Cells(excel_row,  3).value = mont_array(cash_hrf_const,        item)     'COL C
-	        ObjExcel.Cells(excel_row,  4).value = mont_array(snap_hrf_const,        item)     'COL D
-	        ObjExcel.Cells(excel_row,  5).value = mont_array(MFIP_status_const,     item)     'COL F
-	        ObjExcel.Cells(excel_row,  6).value = mont_array(DWP_status_const,      item)     'COL G
-	        ObjExcel.Cells(excel_row,  7).value = mont_array(GA_status_const,       item)     'COL H
-	        ObjExcel.Cells(excel_row,  8).value = mont_array(MSA_status_const,      item)     'COL I
-	        ObjExcel.Cells(excel_row,  9).value = mont_array(GRH_status_const,      item)     'COL J
-	        ObjExcel.Cells(excel_row, 10).value = mont_array(CASH_next_SR_const,    item)     'COL K
-	        ObjExcel.Cells(excel_row, 11).value = mont_array(CASH_next_ER_const,    item)     'COL L
-	        ObjExcel.Cells(excel_row, 12).value = mont_array(SNAP_status_const,     item)     'COL M
-	        ObjExcel.Cells(excel_row, 13).value = mont_array(SNAP_next_SR_const,    item)     'COL N
-	        ObjExcel.Cells(excel_row, 14).value = mont_array(SNAP_next_ER_const,    item)     'COL O
-	        ObjExcel.Cells(excel_row, 15).value = mont_array(MA_status_const,       item)     'COL P
-	        ObjExcel.Cells(excel_row, 16).value = mont_array(MSP_status_const,      item)     'COL Q
-	        ObjExcel.Cells(excel_row, 17).value = mont_array(HC_next_SR_const,      item)     'COL R
-	        ObjExcel.Cells(excel_row, 18).value = mont_array(HC_next_ER_const,      item)     'COL S
-	        ObjExcel.Cells(excel_row, 19).value = mont_array(notes_const,           item)     'COL Y
+	        ObjExcel.Cells(excel_row,  3).value = mont_array(cash_hrf_const,        mont_arrays)     'COL C
+	        ObjExcel.Cells(excel_row,  4).value = mont_array(snap_hrf_const,        mont_arrays)     'COL D
+	        ObjExcel.Cells(excel_row,  5).value = mont_array(MFIP_status_const,     mont_arrays)     'COL F
+	        ObjExcel.Cells(excel_row,  6).value = mont_array(DWP_status_const,      mont_arrays)     'COL G
+	        ObjExcel.Cells(excel_row,  7).value = mont_array(GA_status_const,       mont_arrays)     'COL H
+	        ObjExcel.Cells(excel_row,  8).value = mont_array(MSA_status_const,      mont_arrays)     'COL I
+	        ObjExcel.Cells(excel_row,  9).value = mont_array(GRH_status_const,      mont_arrays)     'COL J
+	        ObjExcel.Cells(excel_row, 10).value = mont_array(CASH_next_SR_const,    mont_arrays)     'COL K
+	        ObjExcel.Cells(excel_row, 11).value = mont_array(CASH_next_ER_const,    mont_arrays)     'COL L
+	        ObjExcel.Cells(excel_row, 12).value = mont_array(SNAP_status_const,     mont_arrays)     'COL M
+	        ObjExcel.Cells(excel_row, 13).value = mont_array(SNAP_next_SR_const,    mont_arrays)     'COL N
+	        ObjExcel.Cells(excel_row, 14).value = mont_array(SNAP_next_ER_const,    mont_arrays)     'COL O
+	        ObjExcel.Cells(excel_row, 15).value = mont_array(MA_status_const,       mont_arrays)     'COL P
+	        ObjExcel.Cells(excel_row, 16).value = mont_array(MSP_status_const,      mont_arrays)     'COL Q
+	        ObjExcel.Cells(excel_row, 17).value = mont_array(HC_next_SR_const,      mont_arrays)     'COL R
+	        ObjExcel.Cells(excel_row, 18).value = mont_array(HC_next_ER_const,      mont_arrays)     'COL S
+	        ObjExcel.Cells(excel_row, 19).value = mont_array(notes_const,           mont_arrays)     'COL Y
 		End If
 
 		If restart_run_radio = checked Then
-			If item < starting_array_position Then
+			If mont_arrays < starting_array_position Then
 				'----------------------------------------------------------------------------------------------------Excel Output
-				mont_array(cash_hrf_const,        item) = ObjExcel.Cells(excel_row,  3).value      'COL C
-				mont_array(snap_hrf_const,        item) = ObjExcel.Cells(excel_row,  4).value      'COL D
-				mont_array(MFIP_status_const,     item) = ObjExcel.Cells(excel_row,  5).value      'COL F
-				mont_array(DWP_status_const,      item) = ObjExcel.Cells(excel_row,  6).value      'COL G
-				mont_array(GA_status_const,       item) = ObjExcel.Cells(excel_row,  7).value      'COL H
-				mont_array(MSA_status_const,      item) = ObjExcel.Cells(excel_row,  8).value      'COL I
-				mont_array(GRH_status_const,      item) = ObjExcel.Cells(excel_row,  9).value      'COL J
-				mont_array(CASH_next_SR_const,    item) = ObjExcel.Cells(excel_row, 10).value      'COL K
-				mont_array(CASH_next_ER_const,    item) = ObjExcel.Cells(excel_row, 11).value      'COL L
-				mont_array(SNAP_status_const,     item) = ObjExcel.Cells(excel_row, 12).value      'COL M
-				mont_array(SNAP_next_SR_const,    item) = ObjExcel.Cells(excel_row, 13).value      'COL N
-				mont_array(SNAP_next_ER_const,    item) = ObjExcel.Cells(excel_row, 14).value      'COL O
-				mont_array(MA_status_const,       item) = ObjExcel.Cells(excel_row, 15).value      'COL P
-				mont_array(MSP_status_const,      item) = ObjExcel.Cells(excel_row, 16).value      'COL Q
-				mont_array(HC_next_SR_const,      item) = ObjExcel.Cells(excel_row, 17).value      'COL R
-				mont_array(HC_next_ER_const,      item) = ObjExcel.Cells(excel_row, 18).value      'COL S
-				mont_array(notes_const,           item) = ObjExcel.Cells(excel_row, 19).value      'COL Y
+				mont_array(cash_hrf_const,        mont_arrays) = ObjExcel.Cells(excel_row,  3).value      'COL C
+				mont_array(snap_hrf_const,        mont_arrays) = ObjExcel.Cells(excel_row,  4).value      'COL D
+				mont_array(MFIP_status_const,     mont_arrays) = ObjExcel.Cells(excel_row,  5).value      'COL F
+				mont_array(DWP_status_const,      mont_arrays) = ObjExcel.Cells(excel_row,  6).value      'COL G
+				mont_array(GA_status_const,       mont_arrays) = ObjExcel.Cells(excel_row,  7).value      'COL H
+				mont_array(MSA_status_const,      mont_arrays) = ObjExcel.Cells(excel_row,  8).value      'COL I
+				mont_array(GRH_status_const,      mont_arrays) = ObjExcel.Cells(excel_row,  9).value      'COL J
+				mont_array(CASH_next_SR_const,    mont_arrays) = ObjExcel.Cells(excel_row, 10).value      'COL K
+				mont_array(CASH_next_ER_const,    mont_arrays) = ObjExcel.Cells(excel_row, 11).value      'COL L
+				mont_array(SNAP_status_const,     mont_arrays) = ObjExcel.Cells(excel_row, 12).value      'COL M
+				mont_array(SNAP_next_SR_const,    mont_arrays) = ObjExcel.Cells(excel_row, 13).value      'COL N
+				mont_array(SNAP_next_ER_const,    mont_arrays) = ObjExcel.Cells(excel_row, 14).value      'COL O
+				mont_array(MA_status_const,       mont_arrays) = ObjExcel.Cells(excel_row, 15).value      'COL P
+				mont_array(MSP_status_const,      mont_arrays) = ObjExcel.Cells(excel_row, 16).value      'COL Q
+				mont_array(HC_next_SR_const,      mont_arrays) = ObjExcel.Cells(excel_row, 17).value      'COL R
+				mont_array(HC_next_ER_const,      mont_arrays) = ObjExcel.Cells(excel_row, 18).value      'COL S
+				mont_array(notes_const,           mont_arrays) = ObjExcel.Cells(excel_row, 19).value      'COL Y
 			Else
 				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-				Call read_case_details_for_mrsr_report(item)
+				Call read_case_details_for_mrsr_report(mont_arrays)
 
 		        '----------------------------------------------------------------------------------------------------Excel Output
-		        ObjExcel.Cells(excel_row,  3).value = mont_array(cash_hrf_const,        item)     'COL C
-		        ObjExcel.Cells(excel_row,  4).value = mont_array(snap_hrf_const,    	item)     'COL D
-		        ObjExcel.Cells(excel_row,  5).value = mont_array(MFIP_status_const,     item)     'COL F
-		        ObjExcel.Cells(excel_row,  6).value = mont_array(DWP_status_const,      item)     'COL G
-		        ObjExcel.Cells(excel_row,  7).value = mont_array(GA_status_const,       item)     'COL H
-		        ObjExcel.Cells(excel_row,  8).value = mont_array(MSA_status_const,      item)     'COL I
-		        ObjExcel.Cells(excel_row,  9).value = mont_array(GRH_status_const,      item)     'COL J
-		        ObjExcel.Cells(excel_row, 10).value = mont_array(CASH_next_SR_const,    item)     'COL K
-		        ObjExcel.Cells(excel_row, 11).value = mont_array(CASH_next_ER_const,    item)     'COL L
-		        ObjExcel.Cells(excel_row, 12).value = mont_array(SNAP_status_const,     item)     'COL M
-		        ObjExcel.Cells(excel_row, 13).value = mont_array(SNAP_next_SR_const,    item)     'COL N
-		        ObjExcel.Cells(excel_row, 14).value = mont_array(SNAP_next_ER_const,    item)     'COL O
-		        ObjExcel.Cells(excel_row, 15).value = mont_array(MA_status_const,       item)     'COL P
-		        ObjExcel.Cells(excel_row, 16).value = mont_array(MSP_status_const,      item)     'COL Q
-		        ObjExcel.Cells(excel_row, 17).value = mont_array(HC_next_SR_const,      item)     'COL R
-		        ObjExcel.Cells(excel_row, 18).value = mont_array(HC_next_ER_const,      item)     'COL S
-		        ObjExcel.Cells(excel_row, 19).value = mont_array(notes_const,           item)     'COL Y
+		        ObjExcel.Cells(excel_row,  3).value = mont_array(cash_hrf_const,        mont_arrays)     'COL C
+		        ObjExcel.Cells(excel_row,  4).value = mont_array(snap_hrf_const,    	mont_arrays)     'COL D
+		        ObjExcel.Cells(excel_row,  5).value = mont_array(MFIP_status_const,     mont_arrays)     'COL F
+		        ObjExcel.Cells(excel_row,  6).value = mont_array(DWP_status_const,      mont_arrays)     'COL G
+		        ObjExcel.Cells(excel_row,  7).value = mont_array(GA_status_const,       mont_arrays)     'COL H
+		        ObjExcel.Cells(excel_row,  8).value = mont_array(MSA_status_const,      mont_arrays)     'COL I
+		        ObjExcel.Cells(excel_row,  9).value = mont_array(GRH_status_const,      mont_arrays)     'COL J
+		        ObjExcel.Cells(excel_row, 10).value = mont_array(CASH_next_SR_const,    mont_arrays)     'COL K
+		        ObjExcel.Cells(excel_row, 11).value = mont_array(CASH_next_ER_const,    mont_arrays)     'COL L
+		        ObjExcel.Cells(excel_row, 12).value = mont_array(SNAP_status_const,     mont_arrays)     'COL M
+		        ObjExcel.Cells(excel_row, 13).value = mont_array(SNAP_next_SR_const,    mont_arrays)     'COL N
+		        ObjExcel.Cells(excel_row, 14).value = mont_array(SNAP_next_ER_const,    mont_arrays)     'COL O
+		        ObjExcel.Cells(excel_row, 15).value = mont_array(MA_status_const,       mont_arrays)     'COL P
+		        ObjExcel.Cells(excel_row, 16).value = mont_array(MSP_status_const,      mont_arrays)     'COL Q
+		        ObjExcel.Cells(excel_row, 17).value = mont_array(HC_next_SR_const,      mont_arrays)     'COL R
+		        ObjExcel.Cells(excel_row, 18).value = mont_array(HC_next_ER_const,      mont_arrays)     'COL S
+		        ObjExcel.Cells(excel_row, 19).value = mont_array(notes_const,           mont_arrays)     'COL Y
 			End If
 		End If
 		excel_row = excel_row + 1

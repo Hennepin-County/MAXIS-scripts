@@ -249,22 +249,22 @@ For each worker in worker_array
 	LOOP
 Next
 
-For item = 0 to Ubound(DAIL_array, 2)
-    MAXIS_case_number = DAIL_array(maxis_case_number_const, item)
+For DAIL_arrays = 0 to Ubound(DAIL_array, 2)
+    MAXIS_case_number = DAIL_array(maxis_case_number_const, DAIL_arrays)
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     EmReadscreen worker_county, 4, 21, 14
     If is_this_priv = True then
-        DAIL_array(case_status_const, item) = "Privilged Case."
+        DAIL_array(case_status_const, DAIL_arrays) = "Privilged Case."
     Elseif worker_county <> worker_county_code then
-        DAIL_array(case_status_const, item) = "Out-of-County Case."
+        DAIL_array(case_status_const, DAIL_arrays) = "Out-of-County Case."
     Else
 		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         'Determinging if the MEMO's need to be sent or not. Only SNAP active only cases require a memo.
         If snap_case = True then
             If snap_status <> "ACTIVE" then
-                DAIL_array(case_status_const, item) = "SNAP is " & snap_status & "."
+                DAIL_array(case_status_const, DAIL_arrays) = "SNAP is " & snap_status & "."
             Else
-                If case_pending = True then DAIL_array(case_status_const, item) = "Pending program."
+                If case_pending = True then DAIL_array(case_status_const, DAIL_arrays) = "Pending program."
                 'If other programs are active/pending then no notice is necessary
                 If  ga_case = True OR _
                     msa_case = True OR _
@@ -273,20 +273,20 @@ For item = 0 to Ubound(DAIL_array, 2)
                     grh_case = True OR _
                     ma_case = True OR _
                     msp_case = True then
-                        DAIL_array(other_programs_present_const, item) = True
-                        DAIL_array(case_status_const, item) = "Other programs present."
+                        DAIL_array(other_programs_present_const, DAIL_arrays) = True
+                        DAIL_array(case_status_const, DAIL_arrays) = "Other programs present."
                 Else
-                    DAIL_array(other_programs_present_const, item) = False
-                    DAIL_array(send_memo_const, item) = True
+                    DAIL_array(other_programs_present_const, DAIL_arrays) = False
+                    DAIL_array(send_memo_const, DAIL_arrays) = True
                 End if
             End if
         Else
-            DAIL_array(case_status_const, item) = "SNAP not active."
+            DAIL_array(case_status_const, DAIL_arrays) = "SNAP not active."
         End if
-        DAIL_array(snap_status_const, item) = snap_status
+        DAIL_array(snap_status_const, DAIL_arrays) = snap_status
     End if
 
-    If DAIL_array(send_memo_const, item) = True then
+    If DAIL_array(send_memo_const, DAIL_arrays) = True then
         MAXIS_background_check
         stats_counter = stats_counter + 1
         Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
@@ -299,7 +299,7 @@ For item = 0 to Ubound(DAIL_array, 2)
         PF4
         EmReadscreen memo_confirmation, 26, 24, 2
         If memo_confirmation <> "NEW MEMO CREATE SUCCESSFUL" then
-            DAIL_array(case_status_const, item) = "Unable to send MEMO. Process Manually."
+            DAIL_array(case_status_const, DAIL_arrays) = "Unable to send MEMO. Process Manually."
         Else
             'THE CASE NOTE
             stats_counter = stats_counter + 1
@@ -309,15 +309,15 @@ For item = 0 to Ubound(DAIL_array, 2)
             Call write_variable_in_CASE_NOTE("---")
             Call write_variable_in_CASE_NOTE(worker_signature)
             PF3 'save CASE:NOTE
-            DAIL_array(case_status_const, item) = "Success! MEMO sent."
+            DAIL_array(case_status_const, DAIL_arrays) = "Success! MEMO sent."
             memo_count = memo_count + 1
         End if
     End if
 
-    objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(send_memo_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(case_status_const, item)
+    objExcel.Cells(DAIL_array(excel_row_const, DAIL_arrays), 6).Value = DAIL_array(snap_status_const, DAIL_arrays)
+    objExcel.Cells(DAIL_array(excel_row_const, DAIL_arrays), 7).Value = DAIL_array(other_programs_present_const, DAIL_arrays)
+    objExcel.Cells(DAIL_array(excel_row_const, DAIL_arrays), 8).Value = DAIL_array(send_memo_const, DAIL_arrays)
+    objExcel.Cells(DAIL_array(excel_row_const, DAIL_arrays), 9).Value = DAIL_array(case_status_const, DAIL_arrays)
 Next
 
 STATS_counter = STATS_counter - 1
