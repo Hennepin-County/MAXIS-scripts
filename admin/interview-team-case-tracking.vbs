@@ -50,7 +50,36 @@ call changelog_update("01/13/2025", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function keep_MX_passworded_in()
+    ' MsgBox running_stopwatch & vbNewLine & timer
+    If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
+        Call navigate_to_MAXIS_screen("REPT", "ACTV")      'Going to MMIS'
+        Call back_to_SELF
+		'MsgBox "In MMIS"
+        ' Call navigate_to_MAXIS(maxis_area)                       'going back to MAXIS'
+        'MsgBox "Back to MAXIS"
+        running_stopwatch = timer                                       'resetting the stopwatch'
+    End If
+end function
+
 'TODO  - NEED DIALOG AND REGION TESTING
+Do
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 181, 55, "ADMIN LD Team Interview Tracking"
+		ButtonGroup ButtonPressed
+			OkButton 120, 10, 50, 15
+			CancelButton 120, 30, 50, 15
+		Text 10, 10, 100, 30, "This script gathers details about cases that were interviewed by the LD Team."
+	EndDialog
+
+	dialog Dialog1
+	cancel_without_confirmation
+
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
+running_stopwatch = timer
+Call back_to_SELF
 
 If NOT IsArray(interviewer_array) Then
 	Dim tester_array()
@@ -147,7 +176,9 @@ For Each objFile in colFiles								'looping through each file
 			If duck = quack Then
 				file_recorded = True
 				With (CreateObject("Scripting.FileSystemObject"))
-					.MoveFile xmlPath , loged_tracking_records & "\" & quack & ".xml"
+					If .FileExists(loged_tracking_records & "\" & quack) = False Then
+						.MoveFile xmlPath , loged_tracking_records & "\" & quack
+					End If
 				End With
 
 				Exit For
@@ -177,7 +208,7 @@ For Each objFile in colFiles								'looping through each file
 						set node = xmlDoc.SelectSingleNode("//WorkerName")
 						worker_name = node.text
 
-						set node = xmlDoc.SelectSingleNode("//WindowsUserID")
+	 					set node = xmlDoc.SelectSingleNode("//WindowsUserID")
 						worker_user_id = node.text
 
 						Set node = xmlDoc.SelectSingleNode("//InterviewLength")
@@ -250,6 +281,7 @@ For Each objFile in colFiles								'looping through each file
 			End With
 		End If
 	End If
+	call keep_MX_passworded_in
 Next
 
 'Looking at each xml in the folder for the Interview Team completion
@@ -307,6 +339,8 @@ For Each objFile in colFiles								'looping through each file
 			End With
 		End If
 	End If
+	call keep_MX_passworded_in
+
 Next
 objWorkbook.Save()		'saving the excel
 
