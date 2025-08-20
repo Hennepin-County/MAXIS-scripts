@@ -1436,7 +1436,8 @@ If CSES_messages = 1 Then
                                                 CSES_case_details_array(case_processing_notes_const, case_count) = CSES_case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                                 CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
-                                                EMReadScreen vers_number, 1, status_row, 23
+												EMWriteScreen "   ", 18, 54				'blank out the version first - cause if it's double digit - everything is bad
+												EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 Call write_value_and_transmit("FSSM", 19, 70)
 
@@ -1596,6 +1597,7 @@ If CSES_messages = 1 Then
                                                 CSES_case_details_array(processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
                                                 'View approved eligibility results
+												EMWriteScreen "   ", 18, 54				'blank out the version first - cause if it's double digit - everything is bad
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 'Navigate to MFSM panel to read the eligibility review date
@@ -4472,7 +4474,8 @@ If HIRE_messages = 1 Then
                                                 End If
                                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
-                                                EMReadScreen vers_number, 1, status_row, 23
+												EMWriteScreen "   ", 18, 54				'blank out the version first - cause if it's double digit - everything is bad
+												EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 Call write_value_and_transmit("FSSM", 19, 70)
 
@@ -4643,6 +4646,7 @@ If HIRE_messages = 1 Then
                                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
                                                 'Check for earned income
+												EMWriteScreen "   ", 18, 54				'blank out the version first - cause if it's double digit - everything is bad
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 'Navigate to MFSM panel to verify earned income total
@@ -4763,6 +4767,7 @@ If HIRE_messages = 1 Then
                                                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
                                             Elseif app_status = "APPROVED" then
                                                 'Check for earned income
+												EMWriteScreen "   ", 18, 54				'blank out the version first - cause if it's double digit - everything is bad
                                                 EMReadScreen vers_number, 1, status_row, 23
                                                 Call write_value_and_transmit(vers_number, 18, 54)
                                                 'Navigate to GAB1 panel to verify earned income total
