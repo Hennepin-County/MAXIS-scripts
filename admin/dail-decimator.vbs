@@ -1015,12 +1015,12 @@ FOR i = 1 to 5		'formatting the cells'
 NEXT
 
 'Export information to Excel re: case status
-For item = 0 to UBound(DAIL_array, 2)
-	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
-	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
-    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
-	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
-    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
+For DAIL_arrays = 0 to UBound(DAIL_array, 2)
+	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, DAIL_arrays)
+	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, DAIL_arrays)
+    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, DAIL_arrays)
+	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, DAIL_arrays)
+    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, DAIL_arrays)
 	excel_row = excel_row + 1
 Next
 

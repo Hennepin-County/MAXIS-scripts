@@ -1219,92 +1219,92 @@ If renewal_option = "Create Renewal Report" then
     excel_row = 2          'resetting excel_row to output the array information
 
     'DO 'Loops until there are no more cases in the Excel list
-    For item = 0 to Ubound(review_array, 2)
-    	MAXIS_case_number = review_array(case_number_const, item)
+    For review_arrays = 0 to Ubound(review_array, 2)
+    	MAXIS_case_number = review_array(case_number_const, review_arrays)
 
 		If new_run_radio = checked Then
-			Call read_case_details_for_review_report(item)
+			Call read_case_details_for_review_report(review_arrays)
 
 	        '----------------------------------------------------------------------------------------------------Excel Output
-	        ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       item)     'COL C
-	        ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    item)     'COL D
-	        ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      item)     'COL E
-	        ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     item)     'COL F
-	        ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      item)     'COL G
-	        ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       item)     'COL H
-	        ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      item)     'COL I
-	        ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      item)     'COL J
-	        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    item)     'COL K
-	        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    item)     'COL L
-	        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     item)     'COL M
-	        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    item)     'COL N
-	        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    item)     'COL O
-	        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       item)     'COL P
-	        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      item)     'COL Q
-	        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      item)     'COL R
-	        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      item)     'COL S
-	        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        item)     'COL T
-	        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     item)     'COL U
-	        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         item)     'COL V
-	        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         item)     'COL W
-	        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         item)     'COL X
-	        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           item)     'COL Y
+	        ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       review_arrays)     'COL C
+	        ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    review_arrays)     'COL D
+	        ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      review_arrays)     'COL E
+	        ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     review_arrays)     'COL F
+	        ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      review_arrays)     'COL G
+	        ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       review_arrays)     'COL H
+	        ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      review_arrays)     'COL I
+	        ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      review_arrays)     'COL J
+	        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    review_arrays)     'COL K
+	        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    review_arrays)     'COL L
+	        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     review_arrays)     'COL M
+	        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    review_arrays)     'COL N
+	        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    review_arrays)     'COL O
+	        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       review_arrays)     'COL P
+	        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      review_arrays)     'COL Q
+	        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      review_arrays)     'COL R
+	        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      review_arrays)     'COL S
+	        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        review_arrays)     'COL T
+	        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     review_arrays)     'COL U
+	        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         review_arrays)     'COL V
+	        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         review_arrays)     'COL W
+	        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         review_arrays)     'COL X
+	        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           review_arrays)     'COL Y
 		End If
 
 		If restart_run_radio = checked Then
-			If item < starting_array_position Then
+			If review_arrays < starting_array_position Then
 				'----------------------------------------------------------------------------------------------------Excel Output
-				review_array(interview_const,       item) = ObjExcel.Cells(excel_row,  3).value      'COL C
-				review_array(no_interview_const,    item) = ObjExcel.Cells(excel_row,  4).value      'COL D
-				review_array(current_SR_const,      item) = ObjExcel.Cells(excel_row,  5).value      'COL E
-				review_array(MFIP_status_const,     item) = ObjExcel.Cells(excel_row,  6).value      'COL F
-				review_array(DWP_status_const,      item) = ObjExcel.Cells(excel_row,  7).value      'COL G
-				review_array(GA_status_const,       item) = ObjExcel.Cells(excel_row,  8).value      'COL H
-				review_array(MSA_status_const,      item) = ObjExcel.Cells(excel_row,  9).value      'COL I
-				review_array(GRH_status_const,      item) = ObjExcel.Cells(excel_row, 10).value      'COL J
-				review_array(CASH_next_SR_const,    item) = ObjExcel.Cells(excel_row, 11).value      'COL K
-				review_array(CASH_next_ER_const,    item) = ObjExcel.Cells(excel_row, 12).value      'COL L
-				review_array(SNAP_status_const,     item) = ObjExcel.Cells(excel_row, 13).value      'COL M
-				review_array(SNAP_next_SR_const,    item) = ObjExcel.Cells(excel_row, 14).value      'COL N
-				review_array(SNAP_next_ER_const,    item) = ObjExcel.Cells(excel_row, 15).value      'COL O
-				review_array(MA_status_const,       item) = ObjExcel.Cells(excel_row, 16).value      'COL P
-				review_array(MSP_status_const,      item) = ObjExcel.Cells(excel_row, 17).value      'COL Q
-				review_array(HC_next_SR_const,      item) = ObjExcel.Cells(excel_row, 18).value      'COL R
-				review_array(HC_next_ER_const,      item) = ObjExcel.Cells(excel_row, 19).value      'COL S
-				review_array(Language_const,        item) = ObjExcel.Cells(excel_row, 20).value      'COL T
-				review_array(Interpreter_const,     item) = ObjExcel.Cells(excel_row, 21).value      'COL U
-				review_array(phone_1_const,         item) = ObjExcel.Cells(excel_row, 22).value      'COL V
-				review_array(phone_2_const,         item) = ObjExcel.Cells(excel_row, 23).value      'COL W
-				review_array(phone_3_const,         item) = ObjExcel.Cells(excel_row, 24).value      'COL X
-				review_array(notes_const,           item) = ObjExcel.Cells(excel_row, 25).value      'COL Y
+				review_array(interview_const,       review_arrays) = ObjExcel.Cells(excel_row,  3).value      'COL C
+				review_array(no_interview_const,    review_arrays) = ObjExcel.Cells(excel_row,  4).value      'COL D
+				review_array(current_SR_const,      review_arrays) = ObjExcel.Cells(excel_row,  5).value      'COL E
+				review_array(MFIP_status_const,     review_arrays) = ObjExcel.Cells(excel_row,  6).value      'COL F
+				review_array(DWP_status_const,      review_arrays) = ObjExcel.Cells(excel_row,  7).value      'COL G
+				review_array(GA_status_const,       review_arrays) = ObjExcel.Cells(excel_row,  8).value      'COL H
+				review_array(MSA_status_const,      review_arrays) = ObjExcel.Cells(excel_row,  9).value      'COL I
+				review_array(GRH_status_const,      review_arrays) = ObjExcel.Cells(excel_row, 10).value      'COL J
+				review_array(CASH_next_SR_const,    review_arrays) = ObjExcel.Cells(excel_row, 11).value      'COL K
+				review_array(CASH_next_ER_const,    review_arrays) = ObjExcel.Cells(excel_row, 12).value      'COL L
+				review_array(SNAP_status_const,     review_arrays) = ObjExcel.Cells(excel_row, 13).value      'COL M
+				review_array(SNAP_next_SR_const,    review_arrays) = ObjExcel.Cells(excel_row, 14).value      'COL N
+				review_array(SNAP_next_ER_const,    review_arrays) = ObjExcel.Cells(excel_row, 15).value      'COL O
+				review_array(MA_status_const,       review_arrays) = ObjExcel.Cells(excel_row, 16).value      'COL P
+				review_array(MSP_status_const,      review_arrays) = ObjExcel.Cells(excel_row, 17).value      'COL Q
+				review_array(HC_next_SR_const,      review_arrays) = ObjExcel.Cells(excel_row, 18).value      'COL R
+				review_array(HC_next_ER_const,      review_arrays) = ObjExcel.Cells(excel_row, 19).value      'COL S
+				review_array(Language_const,        review_arrays) = ObjExcel.Cells(excel_row, 20).value      'COL T
+				review_array(Interpreter_const,     review_arrays) = ObjExcel.Cells(excel_row, 21).value      'COL U
+				review_array(phone_1_const,         review_arrays) = ObjExcel.Cells(excel_row, 22).value      'COL V
+				review_array(phone_2_const,         review_arrays) = ObjExcel.Cells(excel_row, 23).value      'COL W
+				review_array(phone_3_const,         review_arrays) = ObjExcel.Cells(excel_row, 24).value      'COL X
+				review_array(notes_const,           review_arrays) = ObjExcel.Cells(excel_row, 25).value      'COL Y
 			Else
 				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-				Call read_case_details_for_review_report(item)
+				Call read_case_details_for_review_report(review_arrays)
 
 		        '----------------------------------------------------------------------------------------------------Excel Output
-		        ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       item)     'COL C
-		        ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    item)     'COL D
-		        ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      item)     'COL E
-		        ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     item)     'COL F
-		        ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      item)     'COL G
-		        ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       item)     'COL H
-		        ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      item)     'COL I
-		        ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      item)     'COL J
-		        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    item)     'COL K
-		        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    item)     'COL L
-		        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     item)     'COL M
-		        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    item)     'COL N
-		        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    item)     'COL O
-		        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       item)     'COL P
-		        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      item)     'COL Q
-		        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      item)     'COL R
-		        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      item)     'COL S
-		        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        item)     'COL T
-		        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     item)     'COL U
-		        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         item)     'COL V
-		        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         item)     'COL W
-		        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         item)     'COL X
-		        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           item)     'COL Y
+		        ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       review_arrays)     'COL C
+		        ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    review_arrays)     'COL D
+		        ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      review_arrays)     'COL E
+		        ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     review_arrays)     'COL F
+		        ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      review_arrays)     'COL G
+		        ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       review_arrays)     'COL H
+		        ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      review_arrays)     'COL I
+		        ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      review_arrays)     'COL J
+		        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    review_arrays)     'COL K
+		        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    review_arrays)     'COL L
+		        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     review_arrays)     'COL M
+		        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    review_arrays)     'COL N
+		        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    review_arrays)     'COL O
+		        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       review_arrays)     'COL P
+		        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      review_arrays)     'COL Q
+		        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      review_arrays)     'COL R
+		        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      review_arrays)     'COL S
+		        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        review_arrays)     'COL T
+		        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     review_arrays)     'COL U
+		        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         review_arrays)     'COL V
+		        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         review_arrays)     'COL W
+		        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         review_arrays)     'COL X
+		        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           review_arrays)     'COL Y
 			End If
 		End If
 		excel_row = excel_row + 1

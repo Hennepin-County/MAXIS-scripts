@@ -242,14 +242,14 @@ For each worker in worker_array
 	LOOP
 Next
 
-For item = 0 to Ubound(DAIL_array, 2)
-    MAXIS_case_number = DAIL_array(maxis_case_number_const, item)
+For DAIL_arrays = 0 to Ubound(DAIL_array, 2)
+    MAXIS_case_number = DAIL_array(maxis_case_number_const, DAIL_arrays)
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     EmReadscreen worker_county, 4, 21, 14
     If is_this_priv = True then
-        DAIL_array(case_status_const, item) = "Privilged Case."
+        DAIL_array(case_status_const, DAIL_arrays) = "Privilged Case."
     Elseif worker_county <> worker_county_code then
-        DAIL_array(case_status_const, item) = "Out-of-County Case."
+        DAIL_array(case_status_const, DAIL_arrays) = "Out-of-County Case."
     Else
         MAXIS_background_check
         Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
@@ -265,7 +265,7 @@ For item = 0 to Ubound(DAIL_array, 2)
         PF4
         EmReadscreen memo_confirmation, 26, 24, 2
         If memo_confirmation <> "NEW MEMO CREATE SUCCESSFUL" then
-            DAIL_array(case_status_const, item) = "Unable to send MEMO. Process Manually."
+            DAIL_array(case_status_const, DAIL_arrays) = "Unable to send MEMO. Process Manually."
         Else
             'THE CASE NOTE
             Call start_a_blank_CASE_NOTE
@@ -275,12 +275,12 @@ For item = 0 to Ubound(DAIL_array, 2)
             Call write_variable_in_case_note(worker_signature)
 
             PF3 'save CASE:NOTE
-            DAIL_array(case_status_const, item) = "Success! MEMO sent."
+            DAIL_array(case_status_const, DAIL_arrays) = "Success! MEMO sent."
             memo_count = memo_count + 1
         End if
     End if
 
-    objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(case_status_const, item)
+    objExcel.Cells(DAIL_array(excel_row_const, DAIL_arrays), 6).Value = DAIL_array(case_status_const, DAIL_arrays)
 Next
 
 STATS_counter = STATS_counter - 1

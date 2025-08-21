@@ -36,7 +36,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'END FUNCTIONS LIBRARY BLOCK================================================================================================ 
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
@@ -626,10 +626,10 @@ If update_wreg_checkbox = 1 then
 
     Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
     
-    For item = 0 to ubound(footer_month_array)
-	    MAXIS_footer_month = datepart("m", footer_month_array(item)) 'Need to assign footer month / year each time through
+    For footer_months = 0 to ubound(footer_month_array)
+	    MAXIS_footer_month = datepart("m", footer_month_array(footer_months)) 'Need to assign footer month / year each time through
 	    If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-	    MAXIS_footer_year = right(datepart("YYYY", footer_month_array(item)), 2)
+	    MAXIS_footer_year = right(datepart("YYYY", footer_month_array(footer_months)), 2)
 	    footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
         Call MAXIS_background_check

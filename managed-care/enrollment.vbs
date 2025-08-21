@@ -470,21 +470,21 @@ EMReadScreen RCIN_check, 4, 1, 49
 If RCIN_check = "RCIN" Then PF6
 Call get_to_RKEY
 
-item = 0
+MMIS_clients_arrays = 0
 
 For each member in HH_member_array
-	ReDim Preserve MMIS_clients_array(enrol_sucs, item)
+	ReDim Preserve MMIS_clients_array(enrol_sucs, MMIS_clients_arrays)
 	EMWriteScreen "I", 2, 19
 	EMWriteScreen member, 4, 19
 	EMWriteScreen "        ", 9, 19
 	transmit
-	MMIS_clients_array (client_pmi, item) = member
+	MMIS_clients_array (client_pmi, MMIS_clients_arrays) = member
 	EMReadScreen last_name, 18, 3, 2
 	EMReadScreen first_name, 12, 3, 20
 	last_name = trim(last_name)
 	first_name = trim(first_name)
-	MMIS_clients_array (client_name, item) = last_name & ", " & first_name
-	MMIS_clients_array(manual_enrollment, item) = FALSE
+	MMIS_clients_array (client_name, MMIS_clients_arrays) = last_name & ", " & first_name
+	MMIS_clients_array(manual_enrollment, MMIS_clients_arrays) = FALSE
 
 	'check RPOL to see if there is other insurance available, if so worker processes manually
 	'EMWriteScreen "X", 11, 2
@@ -521,7 +521,7 @@ For each member in HH_member_array
 
 	EMWriteScreen "RPPH", 1, 8
 	excl_code = ""
-	MMIS_clients_array(enroll_allow, item) = True
+	MMIS_clients_array(enroll_allow, MMIS_clients_arrays) = True
 	transmit
 	row = 1
 	col = 1
@@ -537,58 +537,58 @@ For each member in HH_member_array
 			EMReadScreen excl_code, 2, row, 56
 			EMReadScreen hp_curr_start_date, 8, row, 63
 		End If
-		MMIS_clients_array(current_plan_date, item) = hp_curr_start_date
+		MMIS_clients_array(current_plan_date, MMIS_clients_arrays) = hp_curr_start_date
 
-		If excl_code <> "AA" AND excl_code <> "HH" AND excl_code <> "YY" AND excl_code <> "" Then MMIS_clients_array(enroll_allow, item) = False
+		If excl_code <> "AA" AND excl_code <> "HH" AND excl_code <> "YY" AND excl_code <> "" Then MMIS_clients_array(enroll_allow, MMIS_clients_arrays) = False
 
-		If excl_code = "AA" Then MMIS_clients_array(current_plan, item) = "XCL - Adoption Assistance"
-		If excl_code = "AB" Then MMIS_clients_array(current_plan, item) = "XCL - Part A or B Only"
-		If excl_code = "BB" Then MMIS_clients_array(current_plan, item) = "XCL - Blind/Disabled under 65 years"
-		If excl_code = "CC" Then MMIS_clients_array(current_plan, item) = "XCL - Child Protection Case"
-		If excl_code = "CD" Then MMIS_clients_array(current_plan, item) = "XCL - Chemical Dependant Pilot"
-		If excl_code = "CS" Then MMIS_clients_array(current_plan, item) = "XCL - Condumer Support Grant"
-		If excl_code = "CV" Then MMIS_clients_array(current_plan, item) = "XCL - Center for Victims of Torture"
-		If excl_code = "DD" Then MMIS_clients_array(current_plan, item) = "XCL - Communicable Disease"
-		If excl_code = "DO" Then MMIS_clients_array(current_plan, item) = "XCL - Diability Opt Out"
-		If excl_code = "EE" Then MMIS_clients_array(current_plan, item) = "XCL - SED/SPMI"
-		If excl_code = "FF" Then MMIS_clients_array(current_plan, item) = "XCL - Child in Foster Care"
-		If excl_code = "GG" THen MMIS_clients_array(current_plan, item) = "XCL - Geographic Exclusion"
-		If excl_code = "HH" Then MMIS_clients_array(current_plan, item) = "XCL - Private HMO Coverage"
-		If excl_code = "II" Then MMIS_clients_array(current_plan, item) = "XCL - Breast/Cervical Cancer"
-		If excl_code = "IP" THen MMIS_clients_array(current_plan, item) = "XCL - Insurance Pending"
-		If excl_code = "KK" Then MMIS_clients_array(current_plan, item) = "XCL - Elderly Waiver"
-		If excl_code = "LL" Then MMIS_clients_array(current_plan, item) = "XCL - Personal Care Attendent"
-		If excl_code = "MD" Then MMIS_clients_array(current_plan, item) = "XCL - MA Delay"
-		If excl_code = "MM" Then MMIS_clients_array(current_plan, item) = "XCL - Native American on Reservation"
-		If excl_code = "MS" Then MMIS_clients_array(current_plan, item) = "XCL - MNSURE Tracking"
-		If excl_code = "PC" Then MMIS_clients_array(current_plan, item) = "XCL - Payment County"
-		If excl_code = "QQ" Then MMIS_clients_array(current_plan, item) = "XCL - QMB/SLMB Eligibility"
-		If excl_code = "RR" Then MMIS_clients_array(current_plan, item) = "XCL - Refugee/EMA/EGA"
-		If excl_code = "SS" Then MMIS_clients_array(current_plan, item) = "XCL - Medical Spenddown"
-		If excl_code = "TT" Then MMIS_clients_array(current_plan, item) = "XCL - Terminal Illness"
-		If excl_code = "UU" Then MMIS_clients_array(current_plan, item) = "XCL - Limited Disability"
-		If excl_code = "WW" Then MMIS_clients_array(current_plan, item) = "XCL - Delayed Nursing Home"
-		If excl_code = "YY" Then MMIS_clients_array(current_plan, item) = "XCL - Delayed Decision"
-		If excl_code = "ZZ" Then MMIS_clients_array(current_plan, item) = "XCL - RTC/IMD Resident"
+		If excl_code = "AA" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Adoption Assistance"
+		If excl_code = "AB" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Part A or B Only"
+		If excl_code = "BB" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Blind/Disabled under 65 years"
+		If excl_code = "CC" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Child Protection Case"
+		If excl_code = "CD" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Chemical Dependant Pilot"
+		If excl_code = "CS" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Condumer Support Grant"
+		If excl_code = "CV" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Center for Victims of Torture"
+		If excl_code = "DD" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Communicable Disease"
+		If excl_code = "DO" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Diability Opt Out"
+		If excl_code = "EE" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - SED/SPMI"
+		If excl_code = "FF" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Child in Foster Care"
+		If excl_code = "GG" THen MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Geographic Exclusion"
+		If excl_code = "HH" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Private HMO Coverage"
+		If excl_code = "II" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Breast/Cervical Cancer"
+		If excl_code = "IP" THen MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Insurance Pending"
+		If excl_code = "KK" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Elderly Waiver"
+		If excl_code = "LL" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Personal Care Attendent"
+		If excl_code = "MD" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - MA Delay"
+		If excl_code = "MM" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Native American on Reservation"
+		If excl_code = "MS" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - MNSURE Tracking"
+		If excl_code = "PC" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Payment County"
+		If excl_code = "QQ" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - QMB/SLMB Eligibility"
+		If excl_code = "RR" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Refugee/EMA/EGA"
+		If excl_code = "SS" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Medical Spenddown"
+		If excl_code = "TT" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Terminal Illness"
+		If excl_code = "UU" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Limited Disability"
+		If excl_code = "WW" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Delayed Nursing Home"
+		If excl_code = "YY" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - Delayed Decision"
+		If excl_code = "ZZ" Then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "XCL - RTC/IMD Resident"
 	Else
 		EMReadScreen hp_code, 10, row, 23
 
-		If hp_code = "A585713900" then MMIS_clients_array(current_plan, item) = "Health Partners"
-		If hp_code = "A565813600" then MMIS_clients_array(current_plan, item) = "Ucare"
-		If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica"
-		If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "Blue Plus"
-		If hp_code = "A168407400" then MMIS_clients_array(current_plan, item) = "United Healthcare"
-		If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
-		If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
+		If hp_code = "A585713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Health Partners"
+		If hp_code = "A565813600" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Ucare"
+		If hp_code = "A405713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Medica"
+		If hp_code = "A065813800" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Blue Plus"
+		If hp_code = "A168407400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "United Healthcare"
+		If hp_code = "A836618200" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Hennepin Health PMAP"
+		If hp_code = "A965713400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Hennepin Health SNBC"
 		EMReadScreen hp_curr_start_date, 8, row, 5
-		MMIS_clients_array(current_plan_date, item) = hp_curr_start_date
+		MMIS_clients_array(current_plan_date, MMIS_clients_arrays) = hp_curr_start_date
 	End If
-	MMIS_clients_array(new_plan,     item) = health_plan
-	MMIS_clients_array(change_rsn,   item) = change_reason
-	MMIS_clients_array(disenrol_rsn, item) = disenrollment_reason
+	MMIS_clients_array(new_plan,     MMIS_clients_arrays) = health_plan
+	MMIS_clients_array(change_rsn,   MMIS_clients_arrays) = change_reason
+	MMIS_clients_array(disenrol_rsn, MMIS_clients_arrays) = disenrollment_reason
 	PF6
 	EMWaitReady 0, 0
-	item = item + 1
+	MMIS_clients_arrays = MMIS_clients_arrays + 1
 Next
 
 x = 0

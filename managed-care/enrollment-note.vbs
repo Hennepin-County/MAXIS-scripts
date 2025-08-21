@@ -223,7 +223,7 @@ const case_note_checkbox = 12
 Dim MMIS_clients_array
 ReDim MMIS_clients_array (12, 0)
 
-item = 0
+MMIS_clients_arrays = 0
 
 For each member in HH_member_array
 
@@ -231,18 +231,18 @@ For each member in HH_member_array
     If RCIN_check = "RCIN" Then PF6
     Call get_to_RKEY
 
-	ReDim Preserve MMIS_clients_array(12, item)
+	ReDim Preserve MMIS_clients_array(12, MMIS_clients_arrays)
 	EMWriteScreen "I", 2, 19
 	EMWriteScreen member, 4, 19
 	EMWriteScreen "        ", 9, 19
 	transmit
-	MMIS_clients_array (client_pmi, item) = member
+	MMIS_clients_array (client_pmi, MMIS_clients_arrays) = member
 	EMReadScreen last_name, 18, 3, 2
 	EMReadScreen first_name, 12, 3, 20
 	last_name = trim(last_name)
 	first_name = trim(first_name)
-	MMIS_clients_array (client_name, item) = last_name & ", " & first_name
-    MMIS_clients_array (first_name_ini, item) = first_name & " " & left(last_name, 1) & "."
+	MMIS_clients_array (client_name, MMIS_clients_arrays) = last_name & ", " & first_name
+    MMIS_clients_array (first_name_ini, MMIS_clients_arrays) = first_name & " " & left(last_name, 1) & "."
 
     EMWriteScreen "RPPH", 1, 8
 	transmit
@@ -255,43 +255,43 @@ For each member in HH_member_array
         EMReadScreen begin_enrollment, 8, row, 5
 
         If begin_enrollment = enrollment_date Then
-            MMIS_clients_array(case_note_checkbox, item) = checked
+            MMIS_clients_array(case_note_checkbox, MMIS_clients_arrays) = checked
 
             EMReadScreen hp_code, 10, row, 23
 
-            If hp_code = "A585713900" then MMIS_clients_array(current_plan, item) = "HealthPartners"
-            If hp_code = "A565813600" then MMIS_clients_array(current_plan, item) = "Ucare"
-            If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica"
-            If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "BluePlus"
-			If hp_code = "A168407400" then MMIS_clients_array(current_plan, item) = "United Healthcare"
-            If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
-            If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
+            If hp_code = "A585713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "HealthPartners"
+            If hp_code = "A565813600" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Ucare"
+            If hp_code = "A405713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Medica"
+            If hp_code = "A065813800" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "BluePlus"
+			If hp_code = "A168407400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "United Healthcare"
+            If hp_code = "A836618200" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Hennepin Health PMAP"
+            If hp_code = "A965713400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Hennepin Health SNBC"
 
             EMReadScreen plan_id, 5, row, 34
 
-            MMIS_clients_array(contract_code, item) = plan_id
+            MMIS_clients_array(contract_code, MMIS_clients_arrays) = plan_id
 
             EMReadScreen chg_rsn_code, 2, row, 71
 
-            If chg_rsn_code = "AP" Then MMIS_clients_array(change_rsn, item) = "Appeal"
-            If chg_rsn_code = "FY" Then MMIS_clients_array(change_rsn, item) = "First year change option"
-            If chg_rsn_code = "HP" Then MMIS_clients_array(change_rsn, item) = "Health plan contract end"
-            If chg_rsn_code = "IN" Then MMIS_clients_array(change_rsn, item) = "Initial enrollment"
-            If chg_rsn_code = "MV" Then MMIS_clients_array(change_rsn, item) = "Move"
-            If chg_rsn_code = "NT" Then MMIS_clients_array(change_rsn, item) = "Ninety Day change option"
-            If chg_rsn_code = "OE" Then MMIS_clients_array(change_rsn, item) = "Open enrollment"
-            If chg_rsn_code = "OT" Then MMIS_clients_array(change_rsn, item) = "Other"
-            If chg_rsn_code = "PM" Then MMIS_clients_array(change_rsn, item) = "PMI merge"
-            If chg_rsn_code = "RE" Then MMIS_clients_array(change_rsn, item) = "Reenrollment"
-            If chg_rsn_code = "RS" Then MMIS_clients_array(change_rsn, item) = "Reinstatement"
-            If chg_rsn_code = "SE" Then MMIS_clients_array(change_rsn, item) = "Service Ending"
-            If chg_rsn_code = "VL" Then MMIS_clients_array(change_rsn, item) = "Voluntary"
+            If chg_rsn_code = "AP" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Appeal"
+            If chg_rsn_code = "FY" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "First year change option"
+            If chg_rsn_code = "HP" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Health plan contract end"
+            If chg_rsn_code = "IN" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Initial enrollment"
+            If chg_rsn_code = "MV" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Move"
+            If chg_rsn_code = "NT" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Ninety Day change option"
+            If chg_rsn_code = "OE" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Open enrollment"
+            If chg_rsn_code = "OT" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Other"
+            If chg_rsn_code = "PM" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "PMI merge"
+            If chg_rsn_code = "RE" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Reenrollment"
+            If chg_rsn_code = "RS" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Reinstatement"
+            If chg_rsn_code = "SE" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Service Ending"
+            If chg_rsn_code = "VL" Then MMIS_clients_array(change_rsn, MMIS_clients_arrays) = "Voluntary"
 
         End If
 
     End If
 
-    item = item + 1
+    MMIS_clients_arrays = MMIS_clients_arrays + 1
     PF3
 
 Next

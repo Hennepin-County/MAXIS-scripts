@@ -393,10 +393,10 @@ IF paris_action = "Yes, send the notice" then
     CALL write_bullet_and_variable_in_CASE_NOTE("Resident Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
     'formatting for multiple states
-    For item = 0 to Ubound(state_array, 2)
-    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
+    For state_arrays = 0 to Ubound(state_array, 2)
+    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, state_arrays) & " -----")
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, state_arrays))
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, state_arrays))
     NEXT
     CALL write_variable_in_CASE_NOTE ("-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Resident accessing benefits in other state", bene_other_state)
@@ -504,10 +504,10 @@ Else
 	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 	Call write_bullet_and_variable_in_case_note("Period", INTM_period)
 	'formatting for multiple states
-    For item = 0 to Ubound(state_array, 2)
-    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
+    For state_arrays = 0 to Ubound(state_array, 2)
+    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, state_arrays) & " -----")
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, state_arrays))
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, state_arrays))
     NEXT
     CALL write_variable_in_CASE_NOTE ("-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Resident accessing benefits in other state", bene_other_state)

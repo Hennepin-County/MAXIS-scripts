@@ -140,19 +140,19 @@ EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
-For item = 0 to UBound(CBO_array, 2)
-	MAXIS_case_number = CBO_array(case_number, item)
-	client_SSN = CBO_array(clt_SSN, item)
+For CBO_arrays = 0 to UBound(CBO_array, 2)
+	MAXIS_case_number = CBO_array(case_number, CBO_arrays)
+	client_SSN = CBO_array(clt_SSN, CBO_arrays)
 
 	If client_SSN <> "" then
-		CBO_array(make_referral, item) = False
+		CBO_array(make_referral, CBO_arrays) = False
 		call navigate_to_MAXIS_screen("pers", "____")
 
 		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
 		If len(client_SSN) < 9 then
-			CBO_array(make_referral, item) = False
-			CBO_array(ref_status, item) = "Error"
-			CBO_array(error_reason, item) = "SSN not valid."		'Explanation for the rejected report'
+			CBO_array(make_referral, CBO_arrays) = False
+			CBO_array(ref_status, CBO_arrays) = "Error"
+			CBO_array(error_reason, CBO_arrays) = "SSN not valid."		'Explanation for the rejected report'
 		Elseif len(client_SSN) = 9 then
 			left_SSN = Left(client_SSN, 3)
 			mid_SSN = mid(client_SSN, 4, 2)
@@ -160,16 +160,16 @@ For item = 0 to UBound(CBO_array, 2)
 			client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
 		END IF
 
-		IF CBO_array(ref_status, item) = True then
+		IF CBO_array(ref_status, CBO_arrays) = True then
 		    EMWriteScreen left_SSN, 14, 36
 		    EMWriteScreen mid_SSN, 14, 40
 		    EMWriteScreen right_SSN, 14, 43
 		    Transmit
 		    EMReadscreen DSPL_confirmation, 4, 2, 51
 		    If DSPL_confirmation <> "DSPL" then
-		    	CBO_array(make_referral, item) = False
-		    	CBO_array(ref_status, item) = "Error"
-		    	CBO_array(error_reason, item) = "Unable to find person in SSN search."		'Explanation for the rejected report'
+		    	CBO_array(make_referral, CBO_arrays) = False
+		    	CBO_array(ref_status, CBO_arrays) = "Error"
+		    	CBO_array(error_reason, CBO_arrays) = "Unable to find person in SSN search."		'Explanation for the rejected report'
 		    Else
 		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
 		    	Transmit
@@ -180,8 +180,8 @@ For item = 0 to UBound(CBO_array, 2)
 		    		If current_case = "Current" then
 		    			EMReadscreen MAXIS_case_number, 8, MAXIS_row, 6
 		    			MAXIS_case_number = trim(MAXIS_case_number)
-		    			CBO_array(case_number, item) = MAXIS_case_number
-		    			CBO_array(make_referral, item) = true
+		    			CBO_array(case_number, CBO_arrays) = MAXIS_case_number
+		    			CBO_array(make_referral, CBO_arrays) = true
 		    			Exit do
 		    		Else
 		    			MAXIS_row = MAXIS_row + 1
@@ -192,30 +192,30 @@ For item = 0 to UBound(CBO_array, 2)
 		    			EMReadScreen last_page_check, 21, 24, 2
 		    		END IF
 		    	LOOP until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "THIS IS THE ONLY PAGE"
-		    	If CBO_array(make_referral, item) = False then
-		    		CBO_array(make_referral, item) = False
-		    		CBO_array(ref_status, item) = "SNAP Inactive"
+		    	If CBO_array(make_referral, CBO_arrays) = False then
+		    		CBO_array(make_referral, CBO_arrays) = False
+		    		CBO_array(ref_status, CBO_arrays) = "SNAP Inactive"
 				END IF
 		    END IF
 		END IF
 	Else
-	 	CBO_array(make_referral, item) = True
+	 	CBO_array(make_referral, CBO_arrays) = True
 		needs_PMI = true
 	End if
 
-	If CBO_array(make_referral, item) = True then
+	If CBO_array(make_referral, CBO_arrays) = True then
 	    'Checking the SNAP status
 	    Call navigate_to_MAXIS_screen("STAT", "PROG")
 		EMReadscreen county_code, 2, 21, 23
 		If county_code <> "27" then
-			CBO_array(make_referral, item) = False
-			CBO_array(ref_status, item) = "Error"
-			CBO_array(error_reason, item) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
+			CBO_array(make_referral, CBO_arrays) = False
+			CBO_array(ref_status, CBO_arrays) = "Error"
+			CBO_array(error_reason, CBO_arrays) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
 		Else
 	        EMReadscreen SNAP_active, 4, 10, 74
 	        If SNAP_active <> "ACTV" then
-	        	CBO_array(make_referral, item) = False
-	        	CBO_array(ref_status, item) = "SNAP Inactive"
+	        	CBO_array(make_referral, CBO_arrays) = False
+	        	CBO_array(ref_status, CBO_arrays) = "SNAP Inactive"
 	        Else
 	        	Call navigate_to_MAXIS_screen("STAT", "MEMB")
 				if needs_PMI = true then
@@ -228,28 +228,28 @@ For item = 0 to UBound(CBO_array, 2)
 						EMReadScreen MEMB_error, 5, 24, 2
 					Loop until MEMB_error = "ENTER"
 					If HH_count = 1 then
-						CBO_array(memb_number, item) = member_number
-						CBO_array(make_referral, item) = True
+						CBO_array(memb_number, CBO_arrays) = member_number
+						CBO_array(make_referral, CBO_arrays) = True
 					Else
-						CBO_array(make_referral, item) = False
-						CBO_array(ref_status, item) = "Error"
-						CBO_array(error_reason, item) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
+						CBO_array(make_referral, CBO_arrays) = False
+						CBO_array(ref_status, CBO_arrays) = "Error"
+						CBO_array(error_reason, CBO_arrays) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
 					End if
 				Else
 	        	    Do
 	        	    	EMReadscreen member_SSN, 11, 7, 42
 		    	    	member_SSN = replace(member_SSN, " ", "")
-	        	    	If member_SSN = CBO_array(clt_SSN, item) then
+	        	    	If member_SSN = CBO_array(clt_SSN, CBO_arrays) then
 	        	    		EMReadscreen member_number, 2, 4, 33
-	        	    		CBO_array(memb_number, item) = member_number
-	        	    		CBO_array(make_referral, item) = True
+	        	    		CBO_array(memb_number, CBO_arrays) = member_number
+	        	    		CBO_array(make_referral, CBO_arrays) = True
 	        	    		exit do
 	        	    	Else
 	        	    		transmit
-							CBO_array(make_referral, item) = False
+							CBO_array(make_referral, CBO_arrays) = False
 		    	    	END IF
                         EMReadScreen MEMB_error, 5, 24, 2
-	        	    Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
+	        	    Loop until member_SSN = CBO_array(clt_SSN, CBO_arrays) or MEMB_error = "ENTER"
 				End if
 
 				'STAT WREG PORTION
@@ -260,28 +260,28 @@ For item = 0 to UBound(CBO_array, 2)
 				EMReadScreen abawd_code, 2, 13, 50
 				WREG_codes = fset_code & "-" & abawd_code
 				If WREG_codes = "30-11" then
-					CBO_array(make_referral, item) = True
-					CBO_array(ABAWD_status, item) = "Mandatory - 2nd Set"
+					CBO_array(make_referral, CBO_arrays) = True
+					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - 2nd Set"
 				Elseif WREG_codes = "30-10" then
-					CBO_array(make_referral, item) = True
-					CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
+					CBO_array(make_referral, CBO_arrays) = True
+					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - ABAWD"
 				Elseif WREG_codes = "30-13" then
-					CBO_array(make_referral, item) = True
-					CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
+					CBO_array(make_referral, CBO_arrays) = True
+					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - Banked Months"
 				Else
-					CBO_array(make_referral, item) = True
-					CBO_array(ABAWD_status, item) = "Exempt"
+					CBO_array(make_referral, CBO_arrays) = True
+					CBO_array(ABAWD_status, CBO_arrays) = "Exempt"
 				End if
 	        END IF
 		End if
 
-		If CBO_array(make_referral, item) = True then
+		If CBO_array(make_referral, CBO_arrays) = True then
 		    'Manual referral creation if banked months are used
 		    Call navigate_to_MAXIS_screen("INFC", "WF1M")				'navigates to WF1M to create the manual referral'
 		    EMWriteScreen "01", 4, 47									'this is the manual referral code that DHS has approved
 		    EMWriteScreen "FS", 8, 46									'this is a program for ABAWD's for SNAP is the only option for banked months
-		    EMWriteScreen CBO_array(memb_number, item), 8, 9							'enters member number
-		    EMWriteScreen "Working with CBO: " & CBO_array(CBO_name, item), 17, 6		'enters notes for E & T regarding the name of the CBO
+		    EMWriteScreen CBO_array(memb_number, CBO_arrays), 8, 9							'enters member number
+		    EMWriteScreen "Working with CBO: " & CBO_array(CBO_name, CBO_arrays), 17, 6		'enters notes for E & T regarding the name of the CBO
 		    EMWriteScreen "x", 8, 53																				'selects the ES provider
 		    transmit																												'navigates to the ES provider selection screen
 		    EMWriteScreen "x", 5, 9									'selects the 1st option'
@@ -289,19 +289,19 @@ For item = 0 to UBound(CBO_array, 2)
 		    PF3														'saves referral
 		    EMWriteScreen "Y", 11, 64								'Y to confirm save
 		    transmit												'confirms saving the referral
-		    CBO_array(ref_status, item) = "Referral Made"
+		    CBO_array(ref_status, CBO_arrays) = "Referral Made"
 		    STATS_counter = STATS_counter + 1						'adds 1 count to the stats_counter
 		End if
 	END IF
 Next
 
 'Updating the Excel spreadsheet based on what's happening in MAXIS----------------------------------------------------------------------------------------------------
-For item = 0 to UBound(CBO_array, 2)
-	excel_row = CBO_array(excel_num, item)
-	objExcel.cells(excel_row, 3).Value = CBO_array(case_number,		item)
-	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		item)
-	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	item)
-	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	item)
+For CBO_arrays = 0 to UBound(CBO_array, 2)
+	excel_row = CBO_array(excel_num, CBO_arrays)
+	objExcel.cells(excel_row, 3).Value = CBO_array(case_number,		CBO_arrays)
+	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		CBO_arrays)
+	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	CBO_arrays)
+	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	CBO_arrays)
 Next
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
