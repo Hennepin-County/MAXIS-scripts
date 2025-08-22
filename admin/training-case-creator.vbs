@@ -98,19 +98,10 @@ function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 			call navigate_to_MAXIS_screen("STAT", "ABPS")
 		End If
 		call create_panel_if_nonexistent
-		abps_child_list = split(child_list, ",")
-		row = 15
-		for each abps_child in abps_child_list
-			EMWriteScreen abps_child, row, 35
-			EMWriteScreen "2", row, 53
-			EMWriteScreen "1", row, 67
-			row = row + 1
-			If row = 18 then
-				PF8
-				row = 15
-			End If
-		next
-		IF abps_act_date <> "" THEN call create_MAXIS_friendly_date_with_YYYY(date, 0, 18, 38)
+
+        this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+        this_month = DateAdd("d", 0, this_month)
+        call create_MAXIS_friendly_date_with_YYYY(this_month, 0, 18, 38)
 		EMWriteScreen reference_number, 4, 47		'Enters the reference_number
 		If abps_supp_coop <> "" then
 			abps_supp_coop = ucase(abps_supp_coop)
@@ -120,6 +111,19 @@ function write_panel_to_MAXIS_ABPS(abps_supp_coop,abps_gc_status)
 		If abps_gc_status <> "" then
 			EMWriteScreen abps_gc_status, 5, 47
 		End If
+
+		abps_child_list = split(child_list, ",")
+		row = 15
+		for each abps_child in abps_child_list
+			EMWriteScreen abps_child, row, 35
+			EMWriteScreen "2", row, 53
+			EMWriteScreen "1", row, 67
+			row = row + 1
+			If row = 18 then
+				PF20
+				row = 15
+			End If
+		next
 		transmit
 	End If
 end function
@@ -406,8 +410,7 @@ function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 			Emwritescreen busi_type, 5, 37  'enters self employment type
 			call create_MAXIS_friendly_date(busi_start_date, 0, 5, 54)  'enters self employment start date in MAXIS friendly format mm/dd/yy
 			IF busi_end_date <> "" THEN call create_MAXIS_friendly_date(busi_end_date, 0, 5, 71)  'enters self employment start date in MAXIS friendly format mm/dd/yy
-			Emwritescreen "x", 7, 26  'this enters into the gross income calculator
-			Transmit
+            Call write_value_and_transmit("X", 7, 26)       'this enters into the gross income calculator
 			Do
 				Emreadscreen busi_gross_income_check, 12, 06, 35  'This checks to see if the gross income calculator has actually opened.
 			LOOP UNTIL busi_gross_income_check = "Gross Income"
@@ -444,8 +447,7 @@ function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 			Emwritescreen busi_type, 5, 37  'enters self employment type
 			call create_MAXIS_friendly_date(busi_start_date, 0, 5, 55)  'enters self employment start date in MAXIS friendly format mm/dd/yy
 			IF busi_end_date <> "" THEN call create_MAXIS_friendly_date(busi_end_date, 0, 5, 72)  'enters self employment start date in MAXIS friendly format mm/dd/yy
-			Emwritescreen "x", 6, 26  'this enters into the gross income calculator
-			Transmit
+            Call write_value_and_transmit("X", 6, 26)       'this enters into the gross income calculator
 			Do
 				Emreadscreen busi_gross_income_check, 12, 06, 35  'This checks to see if the gross income calculator has actually opened.
 			LOOP UNTIL busi_gross_income_check = "Gross Income"
@@ -492,8 +494,7 @@ function write_panel_to_MAXIS_BUSI(busi_type, busi_start_date, busi_end_date, bu
 			EMWriteScreen "01", 16, 53
 			CALL create_MAXIS_friendly_date(#02/01/2015#, 0, 16, 63)
 			'---Going into the HC Income Estimate
-			EMWriteScreen "X", 17, 27
-			transmit
+            Call write_value_and_transmit("X", 17, 27)
 			DO
 				EMReadScreen hc_income, 9, 4, 42
 			LOOP UNTIL hc_income = "HC Income"
@@ -594,8 +595,7 @@ function write_panel_to_MAXIS_COEX(retro_support, prosp_support, support_verif, 
 		PF9
 		'---...if the script is PF9'ing, it is doing so to enter information into the HC Expense sub-menu
 		'Opening the HC Expenses Sub-menu
-		EMWriteScreen "X", 18, 44
-		transmit
+        Call write_value_and_transmit("X", 18, 44)
 
 		DO
 			EMReadScreen hc_expense_est, 14, 4, 30
@@ -671,8 +671,7 @@ function write_panel_to_MAXIS_DCEX(DCEX_provider, DCEX_reason, DCEX_subsidy, DCE
 		PF9
 		'---...if the script is PF9'ing, it is ONLY because it is going to enter information in the HC Expense sub-menu.
 		'---Writing in the HC Expenses Est
-		EMWriteScreen "X", 17, 55
-		transmit
+		Call write_value_and_transmit("X", 17, 55)
 
 		DO			'---Waiting to make sure the HC Expense Est window has opened.
 			EMReadScreen hc_expense_est, 10, 4, 41
@@ -940,8 +939,7 @@ function write_panel_to_MAXIS_EMPS(EMPS_orientation_date, EMPS_orientation_atten
 	IF ucase(left(EMPS_under1, 1)) = "Y" THEN
 		EMReadScreen month_to_use, 2, 20, 55
 		EMReadScreen start_year, 2, 20, 58
-		Emwritescreen "x", 12, 39
-		Transmit
+        Call write_value_and_transmit("X", 12, 39)
 		EMReadScreen check_for_blank, 2, 7, 22 'makes sure the popup isn't already filled out
 		month_to_use = cint(month_to_use)
 		start_year = cint("20" & start_year)
@@ -1167,41 +1165,6 @@ function write_panel_to_MAXIS_FMED(FMED_medical_mileage, FMED_1_type, FMED_1_ver
 	transmit
 end function
 
-function write_panel_to_MAXIS_HCRE(hcre_appl_addnd_date_input,hcre_retro_months_input,hcre_recvd_by_service_date_input)
-'--- This function writes to MAXIS in Krabappel only
-'~~~~~ hcre_appl_addnd_date_input,hcre_retro_months_input,hcre_recvd_by_service_date_input: parameters for the training case creator to work
-'===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT","HCRE")
-	EMReadScreen panel_check, 4, 2, 50
-	If panel_check <> "HCRE" Then
-		MAXIS_background_check
-		call navigate_to_MAXIS_screen("STAT", "HCRE")
-	End If
-	call create_panel_if_nonexistent
-	'Converting the Appl Addendum Date into a usable format
-	call MAXIS_dater(hcre_appl_addnd_date_input, hcre_appl_addnd_date_output, "HCRE Addendum Date")
-	'Converting the Received by service date into a usable format
-	call MAXIS_dater(hcre_recvd_by_service_date_input, hcre_recvd_by_service_date_output, "received by Service Date")
-	'Converts Retro Months Input into a negative
-	hcre_retro_months_input = (Abs(hcre_retro_months_input)*(-1))
-	call add_months(hcre_retro_months_input,hcre_appl_addnd_date_output,hcre_retro_date_output)
-	row = 1
-	col = 1
-	EMSearch "* " & reference_number, row, col
-		'Appl Addendum Request Date
-	EMWriteScreen left(hcre_appl_addnd_date_output,2)		, row, col + 29
-	EMWriteScreen mid(hcre_recvd_by_service_date_input,4,2)	, row, col + 32
-	EMWriteScreen right(hcre_appl_addnd_date_output,2)		, row, col + 35
-		'Coverage Request Date
-	EMWriteScreen left(hcre_retro_date_output,2)	, row, col + 42
-	EMWriteScreen right(hcre_retro_date_output,2)	, row, col + 45
-		'Recv By Sv Date
-	EMWriteScreen left(hcre_recvd_by_service_date_output,2)	, row, col + 51
-	EMWriteScreen mid(hcre_recvd_by_service_date_output,4,2), row, col + 54
-	EMWriteScreen right(hcre_recvd_by_service_date_output,2), row, col + 57
-	transmit
-end function
-
 function write_panel_to_MAXIS_HEST(HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro)
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ HEST_FS_choice_date, HEST_first_month, HEST_heat_air_retro, HEST_electric_retro, HEST_phone_retro, HEST_heat_air_pro, HEST_electric_pro, HEST_phone_pro: parameters for the training case creator to work
@@ -1342,12 +1305,11 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 	EMWriteScreen jobs_pay_freq, 18, 35
 
 	'===== navigates to the SNAP PIC to update the PIC =====
-	EMWriteScreen "X", 19, 38
-	transmit
+    Call write_value_and_transmit("X", 19, 38)
 	DO
 		EMReadScreen at_snap_pic, 12, 3, 22
 	LOOP UNTIL at_snap_pic = "Food Support"
-	EMReadScreen jobs_pic_wages_per_pp, 7, 17, 57
+	EMReadScreen jobs_snap_pic_wages_per_pp, 7, 17, 57
 	EMReadScreen pic_info_exists, 8, 18, 57
 	pic_info_exists = trim(pic_info_exists)
 	IF pic_info_exists = "" THEN
@@ -1357,10 +1319,28 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 		EMWriteScreen jobs_hrly_wage, 9, 66
 		transmit
 		transmit
-		EMReadScreen jobs_pic_hrs_per_pp, 6, 16, 51
-		EMReadScreen jobs_pic_wages_per_pp, 7, 17, 57
+		EMReadScreen jobs_snap_pic_hrs_per_pp, 6, 16, 51
+		EMReadScreen jobs_snap_pic_wages_per_pp, 7, 17, 57
 	END IF
 	transmit		'<=====navigates out of the PIC
+
+    '=====Navigates to the CASH PIC for UNEA=====
+    call write_value_and_transmit("X", 19, 71)
+
+    EMReadScreen pic_info_exists, 6, 17, 72		'---Deteremining if PIC info exists. If it does, the script will just back out.
+	pic_info_exists = trim(pic_info_exists)
+	If pic_info_exists = "" Then
+		call create_MAXIS_friendly_date(date, 0, 3, 30)
+		EMWriteScreen jobs_pay_freq, 3, 63
+		EMWriteScreen jobs_wkly_hrs, 6, 70
+		EMWriteScreen jobs_hrly_wage, 7, 70
+		transmit
+		transmit
+		EMReadScreen jobs_cash_pic_hrs_per_pp, 6, 16, 51
+		EMReadScreen jobs_cash_pic_wages_per_pp, 7, 17, 57
+        transmit
+    End If
+    PF3
 
 	'=====the following bit is for the retrospective & prospective pay dates=====
 	EMReadScreen bene_month, 2, 20, 55
@@ -1377,11 +1357,11 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 
 	IF pic_info_exists = "" THEN 		'---If the PIC is blank, the information needs to be added to the main JOBS panel as well.
 		EMWriteScreen "05", 12, 28
-		EMWriteScreen jobs_pic_wages_per_pp, 12, 38
+		EMWriteScreen jobs_snap_pic_wages_per_pp, 12, 38
 		EMWriteScreen "05", 12, 57
-		EMWriteScreen jobs_pic_wages_per_pp, 12, 67
-		EMWriteScreen Int(jobs_pic_hrs_per_pp), 18, 43
-		EMWriteScreen Int(jobs_pic_hrs_per_pp), 18, 72
+		EMWriteScreen jobs_snap_pic_wages_per_pp, 12, 67
+		EMWriteScreen Int(jobs_snap_pic_hrs_per_pp), 18, 43
+		EMWriteScreen Int(jobs_snap_pic_hrs_per_pp), 18, 72
 	END IF
 
 	IF jobs_pay_freq = 2 OR jobs_pay_freq = 3 THEN
@@ -1392,11 +1372,11 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 
 		IF pic_info_exists = "" THEN
 			EMWriteScreen "19", 13, 28
-			EMWriteScreen jobs_pic_wages_per_pp, 13, 38
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 13, 38
 			EMWriteScreen "19", 13, 57
-			EMWriteScreen jobs_pic_wages_per_pp, 13, 67
-			EMWriteScreen Int(2 * jobs_pic_hrs_per_pp), 18, 43
-			EMWriteScreen Int(2 * jobs_pic_hrs_per_pp), 18, 72
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 13, 67
+			EMWriteScreen Int(2 * jobs_snap_pic_hrs_per_pp), 18, 43
+			EMWriteScreen Int(2 * jobs_snap_pic_hrs_per_pp), 18, 72
 		END IF
 	ELSEIF jobs_pay_freq = 4 THEN
 		EMWriteScreen retro_month, 13, 25
@@ -1414,23 +1394,23 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 
 		IF pic_info_exists = "" THEN
 			EMWriteScreen "12", 13, 28
-			EMWriteScreen jobs_pic_wages_per_pp, 13, 38
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 13, 38
 			EMWriteScreen "19", 14, 28
-			EMWriteScreen jobs_pic_wages_per_pp, 14, 38
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 14, 38
 			EMWriteScreen "26", 15, 28
-			EMWriteScreen jobs_pic_wages_per_pp, 15, 38
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 15, 38
 			EMWriteScreen "12", 13, 57
-			EMWriteScreen jobs_pic_wages_per_pp, 13, 67
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 13, 67
 			EMWriteScreen "19", 14, 57
-			EMWriteScreen jobs_pic_wages_per_pp, 14, 67
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 14, 67
 			EMWriteScreen "26", 15, 57
-			EMWriteScreen jobs_pic_wages_per_pp, 15, 67
-			EMWriteScreen Int(4 * jobs_pic_hrs_per_pp), 18, 43
-			EMWriteScreen Int(4 * jobs_pic_hrs_per_pp), 18, 72
+			EMWriteScreen jobs_snap_pic_wages_per_pp, 15, 67
+			EMWriteScreen Int(4 * jobs_snap_pic_hrs_per_pp), 18, 43
+			EMWriteScreen Int(4 * jobs_snap_pic_hrs_per_pp), 18, 72
 		END IF
 	END IF
 
-	'=====determines if the benefit month is current month + 1 and dumps information into the HC income estimator
+    '=====determines if the benefit month is current month + 1 and dumps information into the HC income estimator
 	IF (bene_month * 1) = (datepart("M", DATE) + 1) THEN		'<===== "bene_month * 1" is needed to convert bene_month from a string to numeric.
 		EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
 		IF HC_income_est_check = "Est" Then 'this is the old position
@@ -1444,7 +1424,7 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 			EMReadScreen hc_inc_est, 9, 9, 43
 		LOOP UNTIL hc_inc_est = "HC Income"
 
-		EMWriteScreen jobs_pic_wages_per_pp, 11, 63
+		EMWriteScreen jobs_snap_pic_wages_per_pp, 11, 63
 		transmit
 		transmit
 	END IF
@@ -1684,8 +1664,7 @@ function write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregar
 	'Other Unearned Income Deduction
 	If pded_unea_income_deduction_reason <> "" and pded_unea_income_deduction_value <> "" then
 		EMWriteScreen pded_unea_income_deduction_value, 10, 62
-		EMWriteScreen "X", 10, 25
-		Transmit
+		Call write_value_and_transmit("X", 10, 25)
 		EMWriteScreen pded_unea_income_deduction_reason, 10, 51
 		Transmit
 		PF3
@@ -1694,8 +1673,7 @@ function write_panel_to_MAXIS_PDED(PDED_wid_deduction, PDED_adult_child_disregar
 	'Other Earned Income Deduction
 	If pded_earned_income_deduction_reason <> "" and pded_earned_income_deduction_value <> "" then
 		EMWriteScreen pded_earned_income_deduction_value, 11, 62
-		EMWriteScreen "X", 11, 27
-		Transmit
+		Call write_value_and_transmit("X", 11, 27)
 		EMWriteScreen pded_earned_income_deduction_reason, 10, 51
 		Transmit
 		PF3
@@ -2154,116 +2132,6 @@ function write_panel_to_MAXIS_STWK(STWK_empl_name, STWK_wrk_stop_date, STWK_wrk_
 	Transmit
 end function
 
-function write_panel_to_MAXIS_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt)
-'--- This function writes to MAXIS in Krabappel only
-'~~~~~ appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt: parameters for the training case creator to work
-'===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT", "TYPE")
-	EMReadScreen panel_check, 4, 2, 48
-	If panel_check <> "TYPE" Then
-		MAXIS_background_check
-		call navigate_to_MAXIS_screen("STAT", "TYPE")
-	End If
-	IF reference_number = "01" THEN
-		EMWriteScreen "NN", 20, 79
-		transmit
-		EMWriteScreen type_cash_yn, 6, 28
-		EMWriteScreen type_hc_yn, 6, 37
-		EMWriteScreen type_fs_yn, 6, 46
-		EMWriteScreen "N", 6, 55
-		EMWriteScreen "N", 6, 64
-		EMWriteScreen "N", 6, 73
-		type_row = 7
-		DO				'<=====this DO/LOOP populates "N" for all other HH members on TYPE so the script can get past TYPE when the reference number = "01"
-			EMReadScreen type_does_hh_memb_exist, 2, type_row, 3
-			IF type_does_hh_memb_exist <> "  " THEN
-				EMWriteScreen "N", type_row, 28
-				EMWriteScreen "N", type_row, 37
-				EMWriteScreen "N", type_row, 46
-				EMWriteScreen "N", type_row, 55
-				type_row = type_row + 1
-			ELSE
-				EXIT DO
-			END IF
-		LOOP WHILE type_does_hh_memb_exist <> "  "
-	ELSE
-		PF9
-		type_row = 7
-		DO
-			EMReadScreen type_does_hh_memb_exist, 2, type_row, 3
-			IF type_does_hh_memb_exist = reference_number THEN
-				EMWriteScreen type_cash_yn, type_row, 28
-				EMWriteScreen type_hc_yn, type_row, 37
-				EMWriteScreen type_fs_yn, type_row, 46
-				EMWriteScreen "N", type_row, 55
-				exit do
-			ELSE
-				type_row = type_row + 1
-			END IF
-		LOOP UNTIL type_does_hh_memb_exist = reference_number
-	END IF
-	transmit		'<===== when reference_number = "01" this transmit will navigate to PROG, else, it will navigate to STAT/WRAP
-
-	IF reference_number = "01" THEN		'<===== only accesses PROG & REVW if reference_number = "01"
-		call navigate_to_MAXIS_screen("STAT", "PROG")
-		EMWriteScreen "NN", 20, 71
-		transmit
-			IF type_cash_yn = "Y" THEN
-				call create_MAXIS_friendly_date(appl_date, 0, 6, 33)
-				call create_MAXIS_friendly_date(appl_date, 0, 6, 44)
-				call create_MAXIS_friendly_date(appl_date, 0, 6, 55)
-			END IF
-			IF type_fs_yn = "Y" THEN
-				call create_MAXIS_friendly_date(appl_date, 0, 10, 33)
-				call create_MAXIS_friendly_date(appl_date, 0, 10, 44)
-				call create_MAXIS_friendly_date(appl_date, 0, 10, 55)
-			END IF
-			IF type_hc_yn = "Y" THEN
-				call create_MAXIS_friendly_date(appl_date, 0, 12, 33)
-				call create_MAXIS_friendly_date(appl_date, 0, 12, 55)
-			END IF
-			EMWriteScreen mig_worker, 18, 67
-			transmit
-			EMWriteScreen mig_worker, 18, 67
-			transmit
-
-		call navigate_to_MAXIS_screen("STAT", "REVW")
-		EMWriteScreen "NN", 20, 71
-		transmit
-			IF type_cash_yn = "Y" THEN
-				cash_review_date = dateadd("YYYY", 1, appl_date)
-				call create_MAXIS_friendly_date(cash_review_date, 0, 9, 37)
-			END IF
-			IF type_fs_yn = "Y" THEN
-				EMWriteScreen "X", 5, 58
-				transmit
-				DO
-					EMReadScreen food_support_reports, 20, 5, 30
-				LOOP UNTIL food_support_reports = "FOOD SUPPORT REPORTS"
-				fs_csr_date = dateadd("M", 6, appl_date)
-				fs_er_date = dateadd("M", 12, appl_date)
-				call create_MAXIS_friendly_date(fs_csr_date, 0, 9, 26)
-				call create_MAXIS_friendly_date(fs_er_date, 0, 9, 64)
-				transmit
-			END IF
-			IF type_hc_yn = "Y" THEN
-				EMWriteScreen "X", 5, 71
-				transmit
-				DO
-					EMReadScreen health_care_renewals, 20, 4, 32
-				LOOP UNTIL health_care_renewals = "HEALTH CARE RENEWALS"
-				IF revw_ar_or_ir = "AR" THEN
-					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 71)
-				ELSEIF revw_ar_or_ir = "IR" THEN
-					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 27)
-				END IF
-				call create_MAXIS_friendly_date((dateadd("M", 12, appl_date)), 0, 9, 27)
-				EMWriteScreen revw_exempt, 9, 71
-				transmit
-			END IF
-	END IF
-end function
-
 function write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last)
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ unea_number, unea_inc_type, unea_inc_verif, unea_claim_suffix, unea_start_date, unea_pay_freq, unea_inc_amount, ssn_first, ssn_mid, ssn_last: parameters for the training case creator to work
@@ -2293,13 +2161,13 @@ function write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 		PF9
 	END IF
 
-	'=====Navigates to the PIC for UNEA=====
-	EMWriteScreen "X", 10, 26
-	transmit
+	'=====Navigates to the SNAP PIC for UNEA=====
+    call write_value_and_transmit("X", 10, 25)
 	EMReadScreen pic_info_exists, 6, 18, 58		'---Deteremining if PIC info exists. If it does, the script will just back out.
 	pic_info_exists = trim(pic_info_exists)
-	IF pic_info_exists = "" THEN
+	If pic_info_exists = "" Then
 		EMWriteScreen unea_pay_freq, 5, 64
+        call clear_line_of_text(8, 66)
 		EMWriteScreen unea_inc_amount, 8, 66
 		calc_month = datepart("M", date)
 		IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
@@ -2314,9 +2182,37 @@ function write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
             EmReadscreen PIC_Check, 16, 3, 28
             IF PIC_check <> "SNAP Prospective" then exit do
         Loop
-	ELSE
+    Else
 		PF3
-	END IF
+	End If
+
+	'=====Navigates to the CASH PIC for UNEA=====
+    call write_value_and_transmit("X", 10, 43)
+    row = 1
+    col = 1
+    EMSearch "CASH Prospective Income Calculation", row, col    '---Searching for the CASH PIC - determining if it exists
+	' EMReadScreen pic_info_exists, 6, 17, 71		'---Deteremining if PIC info exists. If it does, the script will just back out.
+	' pic_info_exists = trim(pic_info_exists)
+	If row <> 0 Then
+		EMWriteScreen unea_pay_freq, 3, 63
+        call clear_line_of_text(6, 65)
+		EMWriteScreen unea_inc_amount, 6, 65
+		calc_month = datepart("M", date)
+		IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
+		calc_day = datepart("D", date)
+		IF len(calc_day) = 1 THEN calc_day = "0" & calc_day
+        calc_year = right( DatePart("yyyy",date), 2)
+		EMWriteScreen calc_month, 3, 30
+		EMWriteScreen calc_day, 3, 33
+		EMWriteScreen calc_year, 3, 36
+        transmit
+        PF3
+        EMReadScreen PIC_check, 16, 2, 24
+        Do While PIC_check = "CASH Prospective"	    '---This loop will continue until the PIC closed
+            PF3
+            EMReadScreen PIC_check, 16, 2, 24
+        Loop
+	End If
 
 	'=====the following bit is for the retrospective & prospective pay dates=====
 	EMReadScreen bene_month, 2, 20, 55
@@ -2382,8 +2278,7 @@ function write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 
 	'=====determines if the benefit month is current month + 1 and dumps information into the HC income estimator
 	IF (bene_month * 1) = (datepart("M", date) + 1) THEN		'<===== "bene_month * 1" is needed to convert bene_month from a string to a useable number
-		EMWriteScreen "X", 6, 56
-		transmit
+		Call write_value_and_transmit("X", 6, 56)
 		EMWriteScreen "________", 9, 65
 		EMWriteScreen unea_inc_amount, 9, 65
 		EMWriteScreen unea_pay_freq, 10, 63
@@ -2459,8 +2354,7 @@ function write_panel_to_MAXIS_WKEX(program, fed_tax_retro, fed_tax_prosp, fed_ta
 		PF9
 		'---If the script is editing an existing WKEX page, it would be doing so ONLY to update the HC Expense sub-menu.
 		'---Adding to the HC Expenses
-		EMWriteScreen "X", 18, 57
-		transmit
+		Call write_value_and_transmit("X", 18, 57)
 
 		EMReadScreen current_month, 17, 20, 51
 		IF current_month = "CURRENT MONTH + 1" THEN
@@ -2500,9 +2394,15 @@ function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	End If
 	call create_panel_if_nonexistent
 
-	EMWriteScreen wreg_fs_pwe, 6, 68
+    wreg_move = False
+    this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    If DateDiff("d", #7/1/2025#, this_month) >= 0 Then wreg_move = True
+
+    If wreg_move = False Then EMWriteScreen wreg_fs_pwe, 6, 68
+	If wreg_move = True Then EMWriteScreen wreg_fs_pwe, 6, 70
 	EMWriteScreen wreg_fset_status, 8, 50
-	EMWriteScreen wreg_defer_fs, 8, 80
+	If wreg_move = False Then EMWriteScreen wreg_defer_fs, 8, 80
+	If wreg_move = True Then EMWriteScreen wreg_defer_fs, 8, 78
 	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
     IF wreg_fset_sanction_date <> "" then
         sanc_mo = right("0" & DatePart("m",    wreg_fset_sanction_date), 2)
@@ -2516,6 +2416,54 @@ function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	EMWriteScreen wreg_abawd_status, 13, 50
 	EMWriteScreen wreg_ga_basis, 15, 50
 	transmit
+end function
+
+function check_REVW_panel(appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt)
+    call navigate_to_MAXIS_screen("STAT", "REVW")
+    change_to_snap = False				'Effective footer month 03/25 - the popup title changed from 'Food Support Reports' to 'SNAP REPORTS' - this handles for this change
+    If DateDiff("d", #3/1/2025#, appl_date) >= 0 Then change_to_snap = True
+    EMReadScreen revw_panels_count, 1, 2, 78
+    If revw_panels_count = "0" Then
+        EMWriteScreen "NN", 20, 71
+        transmit
+    Else
+        PF9
+    End If
+
+    IF type_cash_yn = "Y" THEN
+        Call write_value_and_transmit("X", 5, 35)
+        cash_review_date = dateadd("YYYY", 1, appl_date)
+        call create_MAXIS_friendly_date(cash_review_date, 0, 9, 64)
+        cash_sr_review_date = dateadd("M", 6, appl_date)
+        call create_MAXIS_friendly_date(cash_sr_review_date, 0, 9, 26)
+        PF3
+    END IF
+    IF type_fs_yn = "Y" THEN
+        Call write_value_and_transmit("X", 5, 58)
+        DO
+            If change_to_snap = False Then EMReadScreen food_support_reports, 20, 5, 33
+            If change_to_snap = True Then EMReadScreen food_support_reports, 12, 5, 33
+        LOOP UNTIL food_support_reports = "SNAP REPORTS" or food_support_reports = "Food Support Reports"
+        fs_csr_date = dateadd("M", 6, appl_date)
+        fs_er_date = dateadd("M", 12, appl_date)
+        call create_MAXIS_friendly_date(fs_csr_date, 0, 9, 26)
+        call create_MAXIS_friendly_date(fs_er_date, 0, 9, 64)
+        transmit
+    END IF
+    IF type_hc_yn = "Y" THEN
+        Call write_value_and_transmit("X", 5, 71)
+        DO
+            EMReadScreen health_care_renewals, 20, 4, 32
+        LOOP UNTIL health_care_renewals = "HEALTH CARE RENEWALS"
+        IF revw_ar_or_ir = "AR" THEN
+            call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 71)
+        ELSEIF revw_ar_or_ir = "IR" THEN
+            call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 27)
+        END IF
+        call create_MAXIS_friendly_date((dateadd("M", 12, appl_date)), 0, 9, 27)
+        EMWriteScreen revw_exempt, 9, 71
+        transmit
+    END IF
 end function
 
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -2593,20 +2541,17 @@ Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 		EMWriteScreen "SPEC", 16, 43
 		EMWriteScreen "________", 18, 43
 		EMWriteScreen MAXIS_case_number, 18, 43
-		EMWriteScreen "XFER", 21, 70
-		transmit
+		Call write_value_and_transmit("XFER", 21, 70)
 
 		'Now to transfer the cases.
 		If county_to_county_XFER = False then
-			EMWriteScreen "x", 7, 16
-			transmit
+			Call write_value_and_transmit("X", 7, 16)
 			PF9
 			EMWriteScreen transfer_array(x, 1), 18, 61
 			transmit
 			transmit
 		Else
-			EMWriteScreen "x", 9, 16
-			transmit
+			Call write_value_and_transmit("X", 9, 16)
 			PF9
 			call create_MAXIS_friendly_date(date, 0, 4, 28)
 			call create_MAXIS_friendly_date(date, 0, 4, 61)
@@ -2844,10 +2789,16 @@ For cases_to_make = 1 to how_many_cases_to_make
 	EMWriteScreen APPL_last_name, 7, 30
 	EMWriteScreen APPL_first_name, 7, 63
 	EMWriteScreen APPL_middle_initial, 7, 79
-	transmit
+
+    MEMI_marriage_date = DateAdd("yyyy", -2, APPL_date)
+    MEMI_marriage_date = DateAdd("m", -3, MEMI_marriage_date)
+    MEMI_marriage_date = DateAdd("d", 15, MEMI_marriage_date)
+
+    transmit
 
 	'Uses a for...next to enter each HH member's info
 	For current_memb = 1 to total_membs
+        Blank_IMIG = False        'Resets the undocumented variable for each HH member
 		current_excel_col = current_memb + 2							'There's two columns before the first HH member, so we have to add 2 to get the current excel col
 		reference_number = ObjExcel.Cells(2, current_excel_col).Value	'Always in the second row. This is the HH member number
 
@@ -2866,7 +2817,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMB_interpreter_yn = ObjExcel.Cells(MEMB_starting_excel_row + 10, current_excel_col).Value
 		MEMB_alias_yn = ObjExcel.Cells(MEMB_starting_excel_row + 11, current_excel_col).Value
 		MEMB_hisp_lat_yn = ObjExcel.Cells(MEMB_starting_excel_row + 12, current_excel_col).Value
-		If ObjExcel.Cells(345, current_excel_col).Value = "28 - Undocumented" Then Blank_IMIG = TRUE 	'Setting a variable for different process for undocumented
+		If ObjExcel.Cells(346, current_excel_col).Value = "28 - Undocumented" Then Blank_IMIG = TRUE 	'Setting a variable for different process for undocumented
 
 		'Gets MEMI info from spreadsheet
 		MEMI_starting_excel_row = 19
@@ -2876,7 +2827,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 		MEMI_cit_yn = ObjExcel.Cells(MEMI_starting_excel_row + 3, current_excel_col).Value
 
 		DO	'This DO-LOOP is to check that the CL's SSN created via random number generation is unique. If the SSN matches an SSN on file, the script creates a new SSN and re-enters the CL's information on MEMB. The checking for duplicates part is on the bottom, as that occurs when the worker presses transmit.
-			IF Blank_IMIG <> True Then		'Non-undocumented client creation will have a SSN
+			IF NOT Blank_IMIG Then		'Non-undocumented client creation will have a SSN
 				DO
 					Randomize
 					ssn_first = Rnd
@@ -2906,7 +2857,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen ssn_mid, 7, 46
 			EMWriteScreen ssn_end, 7, 49
 			EMWriteScreen "P", 7, 68			'All SSNs should pend in the training region
-			If Blank_IMIG = TRUE Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
+			If Blank_IMIG Then EMWriteScreen "N", 7, 68		'If client is listed as undocumneted, no verif of a blank SSN
 			'Generating the DOB
 				year_of_birth = datepart("yyyy", date_of_app) - abs(MEMB_age)		'using date of application as the age listed should be age at appl
 				IF MEMB_dob_mm_dd = "" THEN
@@ -2925,39 +2876,36 @@ For cases_to_make = 1 to how_many_cases_to_make
 			EMWriteScreen MEMB_spoken_lang, 13, 42
 			EMWriteScreen MEMB_interpreter_yn, 14, 68
 			EMWriteScreen MEMB_alias_yn, 15, 42
-			IF MEMI_cit_yn = "N" AND Blank_IMIG <> TRUE THEN		'No Alien ID numbers for undocumneted
+			IF MEMI_cit_yn = "N" AND NOT Blank_IMIG THEN		'No Alien ID numbers for undocumneted
 				MEMB_alien_ID = "A" & ssn_first & ssn_mid & ssn_end
 				EMWriteScreen MEMB_alien_ID, 15, 68
 			END IF
 			EMWriteScreen MEMB_hisp_lat_yn, 16, 68
-			EMWriteScreen "X", 17, 34			'Enters race as unknown at this time
-			transmit
+			Call write_value_and_transmit("X", 17, 34)          'Enters race as unknown at this time
 			DO				'Does this as a loop based on Robert's suggestion that there may be issues in loading without one. It's a small popup window.
 				EMReadScreen race_mini_box, 18, 5, 12
 				IF race_mini_box = "X AS MANY AS APPLY" THEN
-					EMWriteScreen "X", 15, 12
-					transmit
+					Call write_value_and_transmit("X", 15, 12)
 					transmit
 				END IF
 			LOOP UNTIL race_mini_box = "X AS MANY AS APPLY"
 			cl_ssn = ssn_first & "-" & ssn_mid & "-" & ssn_end
 			EMReadScreen ssn_match, 11, 8, 7
-			IF cl_ssn <> ssn_match OR Blank_IMIG = TRUE THEN
+			IF cl_ssn <> ssn_match OR Blank_IMIG THEN
 				PF8
 				PF8
 				PF5
 			ELSE
 				PF3
 			END IF
-		LOOP UNTIL cl_ssn <> ssn_match  OR Blank_IMIG = TRUE
+		LOOP UNTIL cl_ssn <> ssn_match  OR Blank_IMIG
 		EMWaitReady 0, 0
 		EMWriteScreen "Y", 6, 67
 		transmit
 
-		Blank_IMIG = ""		'Blanking out for the next client
-
 		'Updates MEMI with the info
 		EMWriteScreen MEMI_marital_status, 7, 40
+        If MEMI_marital_status = "M" or MEMI_marital_status = "S" or MEMI_marital_status = "L" Then Call create_MAXIS_friendly_date(MEMI_marriage_date, 0, 8, 40)
 		EMWriteScreen MEMI_spouse, 9, 49
 		EMWriteScreen MEMI_last_grade_completed, 10, 49
 		EMWriteScreen MEMI_cit_yn, 11, 49
@@ -3081,11 +3029,6 @@ For each MAXIS_case_number in case_number_array
 		TYPE_hc_yn = objExcel.Cells(TYPE_starting_excel_row + 1, current_excel_col).Value
 		TYPE_fs_yn = objExcel.Cells(TYPE_starting_excel_row + 2, current_excel_col).Value
 
-		HCRE_starting_excel_row = 337
-		HCRE_appl_addnd_date_input = ObjExcel.Cells(HCRE_starting_excel_row, current_excel_col).Value
-		HCRE_retro_months_input = ObjExcel.Cells(HCRE_starting_excel_row + 1, current_excel_col).Value
-		HCRE_recvd_by_service_date_input = ObjExcel.Cells(HCRE_starting_excel_row + 2, current_excel_col).Value
-
 		'Writing the info
 		EMWriteScreen TYPE_cash_yn, current_MAXIS_row, 28
 		EMWriteScreen TYPE_hc_yn, current_MAXIS_row, 37
@@ -3146,15 +3089,19 @@ For each MAXIS_case_number in case_number_array
 
 	'Adds cash dates
 	If cash_application = true then
-		EMWriteScreen one_year_month, 9, 37
-		EMWriteScreen one_year_year, 9, 43
+		Call write_value_and_transmit("X", 5, 35)
+		EMWriteScreen six_month_month, 9, 26
+		EMWriteScreen six_month_year, 9, 32
+		EMWriteScreen one_year_month, 9, 64
+		EMWriteScreen one_year_year, 9, 70
+		transmit
+		transmit
 	End if
 
 	'Adds SNAP dates and info
 	If SNAP_application = true then
 		EMWriteScreen "N", 15, 75		'Phone interview field
-		EMWriteScreen "x", 5, 58
-		transmit
+		Call write_value_and_transmit("X", 5, 58)
 		EMWriteScreen six_month_month, 9, 26
 		EMWriteScreen six_month_year, 9, 32
 		EMWriteScreen one_year_month, 9, 64
@@ -3165,8 +3112,7 @@ For each MAXIS_case_number in case_number_array
 
 	'Adds HC dates and info
 	If HC_application = true then
-		EMWriteScreen "x", 5, 71
-		transmit
+		Call write_value_and_transmit("X", 5, 71)
 		If REVW_ar_or_ir = "IR" then
 			EMWriteScreen six_month_month, 8, 27
 			EMWriteScreen six_month_year, 8, 33
@@ -3183,7 +3129,6 @@ For each MAXIS_case_number in case_number_array
 		transmit
 		transmit
 	End if
-
 	transmit
 	transmit
 	STATS_manualtime = STATS_manualtime + 40   'adding manualtime for processing PROG/REVW
@@ -3209,6 +3154,8 @@ For each MAXIS_case_number in case_number_array
 	EMReadScreen SELF_check, 4, 2, 50
 	EMReadScreen ERRR_check, 4, 2, 52	'Extra err handling in case the case was in background
 	If ERRR_check = "ERRR" then transmit
+
+    call check_REVW_panel(appl_date, type_cash_yn, type_hc_yn, type_fs_yn, prog_mig_worker, revw_ar_or_ir, revw_exempt)
 
 	'Uses a for...next to enter each HH member's info (person based panels only
 	For current_memb = 1 to total_membs
@@ -4295,7 +4242,6 @@ For each MAXIS_case_number in case_number_array
 	For each each_month in date_array
 	' DO
 		Call convert_date_into_MAXIS_footer_month(each_month, MAXIS_footer_month, MAXIS_footer_year)
-
 		PF3		'---Navigates to STAT/WRAP
 		EMReadScreen at_wrap, 4, 2, 46
 
@@ -4310,11 +4256,11 @@ For each MAXIS_case_number in case_number_array
 			EMReadScreen footer_month_check, 2, 20, 55
 			EMReadScreen footer_year_check, 2, 20, 58
 
-			If SUMM_check <> "SUMM" or footer_month_check <> MAXIS_footer_month or footer_month_check <> MAXIS_footer_month Then
+			If SUMM_check <> "SUMM" or footer_month_check <> MAXIS_footer_month or footer_year_check <> MAXIS_footer_year Then
 				Call back_to_SELF
 				MAXIS_background_check
 			End If
-		Loop until SUMM_check = "SUMM" and footer_month_check = MAXIS_footer_month and footer_month_check = MAXIS_footer_month
+		Loop until SUMM_check = "SUMM" and footer_month_check = MAXIS_footer_month and footer_year_check = MAXIS_footer_year
 
 		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
 		For current_memb = 1 to total_membs
@@ -4667,11 +4613,11 @@ FOR EACH MAXIS_case_number IN case_number_array
 							EMWriteScreen "x", work_row, 47
 							work_row = work_row + 1
 						LOOP UNTIL WORK_ref_nbr = "  "
-					transmit
-						DO 'Pulling up the ES provider screen, and choosing the first option for each member
-						EMReadScreen ES_provider_screen, 2, 2, 37
-						EMWriteScreen "x", 5, 9
-						transmit
+    					transmit
+
+                        DO 'Pulling up the ES provider screen, and choosing the first option for each member
+	    					EMReadScreen ES_provider_screen, 2, 2, 37
+		    				Call write_value_and_transmit("X", 5, 9)
 						LOOP UNTIL ES_provider_screen <> "ES"
 					transmit
 					transmit
@@ -4679,8 +4625,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 				transmit
 			END IF
 		END IF
-		'============ DWP APPROVAL ====================
-'============ DWP APPROVAL ====================
+
+        '============ DWP APPROVAL ====================
 		IF cash_type = "DWP" then
 			DO 'We need to put this all in a loop because MAXIS likes to have an error at the end that causes us to start over.
 				'===== Needs to send a WF1 referral before approval can be done =======
@@ -4696,8 +4642,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					DO 'Pulling up the ES provider screen, and choosing the first option for each member
 						EMReadScreen ES_provider_screen, 2, 2, 37
-						EMWriteScreen "x", 5, 9
-						transmit
+						Call write_value_and_transmit("X", 5, 9)
 					LOOP UNTIL ES_provider_screen <> "ES"
 					transmit 'This transmit pulls up the "do you want to send" box
 					DO
@@ -4725,12 +4670,13 @@ FOR EACH MAXIS_case_number IN case_number_array
 					EMWriteScreen "DWSM", 20, 71
 					transmit
 					DO
-					EMWriteScreen "APP", 20, 71
-					STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
-					transmit
+                        EMWriteScreen "APP", 20, 71
+                        STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
+                        transmit
 						EMReadScreen not_allowed, 11, 24, 18
 						EMReadScreen locked_by_background, 6, 24, 19
 					LOOP UNTIL not_allowed <> "NOT ALLOWED" AND locked_by_background <> "LOCKED"
+
 					'====== Now on vendor payment screen, the script does not set up any vendoring. ======
 					'====== This loop takes it through vendor screens for all months in package, and scans the screen for the various package popups  =====
 					'====== and REI screens.  It will exit the loop upon finding a final approval screen. ========
@@ -4765,12 +4711,13 @@ FOR EACH MAXIS_case_number IN case_number_array
 						END IF
 						'This checks for the final package approval if in a combined DWP / MFIP screen
 						EMReadScreen combined_package_check, 7, 4, 59
-						IF combined_package_check = "PACKAGE" THEN
+						IF combined_package_check = "PACKAGE" or combined_package_check = " PACKAG" THEN
 							DO 'This gets to the last screen of the package
 								EMReadScreen next_screen_check, 1, 14, 33
 								IF next_screen_check = "+" THEN PF8
 							LOOP UNTIL next_screen_check <> "+"
 							EMWriteScreen "Y", 16, 51
+							EMWriteScreen "Y", 16, 52
 							Transmit
 							Transmit
 							EXIT DO
@@ -4789,9 +4736,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 						LOOP UNTIL WORK_ref_nbr = "  "
 						transmit
 						DO 'Pulling up the ES provider screen, and choosing the first option for each member
-						EMReadScreen ES_provider_screen, 2, 2, 37
-						EMWriteScreen "x", 5, 9
-						transmit
+                            EMReadScreen ES_provider_screen, 2, 2, 37
+                            Call write_value_and_transmit("X", 5, 9)
 						LOOP UNTIL ES_provider_screen <> "ES"
 						transmit
 						transmit
@@ -4866,8 +4812,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 				ga_months = ga_months + 1
 				DO
 					EMWriteScreen "10", 4, 34
-					EMWriteScreen "x", 12, 22
-					transmit
+					Call write_value_and_transmit("X", 12, 22)
 					EMReadScreen gasp, 4, 3, 56
 				LOOP UNTIL gasp = "GASP"
 				DO
@@ -4879,12 +4824,13 @@ FOR EACH MAXIS_case_number IN case_number_array
 					END IF
 					EMWriteScreen "x", 19, 27
 					EMWriteScreen "x", 19, 50
-					EMWriteScreen "x", 19, 70
-						transmit 'Takes it to case results
-					EMReadScreen gacr, 4, 3, 45
+                    Call write_value_and_transmit("X", 19, 70)      'Takes it to case results
+
+                    EMReadScreen gacr, 4, 3, 45
 				LOOP UNTIL gacr = "GACR"
 				transmit
-				DO
+
+                DO
 					EMReadScreen GAB1, 4, 3, 52
 				LOOP UNTIL GAB1 = "GAB1"
 				EMWriteScreen "GASM", 20, 70
@@ -4985,8 +4931,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 					transmit
 					DO
 						EMWriteScreen "22", 4, 34
-						EMWriteScreen "X", 14, 22
-						transmit
+						Call write_value_and_transmit("X", 14, 22)
 						EMReadScreen error_message, 20, 24, 2
 						error_message = trim(error_message)
 						EMReadScreen ffsl, 4, 3, 52
@@ -4994,8 +4939,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 
 					EMWriteScreen "X", 6, 5
 					EMWriteScreen "X", 16, 5
-					EMWriteScreen "X", 17, 5
-					transmit		'takes the script to FFPR
+                    Call write_value_and_transmit("X", 17, 5)       'takes the script to FFPR
 					DO
 						EMReadScreen ffpr, 4, 3, 47
 					LOOP UNTIL ffpr = "FFPR"
@@ -5011,8 +4955,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 					DO
 						EMReadScreen ffb1, 4, 3, 51
 					LOOP UNTIL ffb1 = "FFB1"
-					EMWriteScreen "X", 10, 5
-					transmit
+					Call write_value_and_transmit("X", 10, 5)
 					EMWriteScreen "         ", 9, 23     'clearing variable as sometimes GA gets budgetted into SNAP already.
 					EMWriteScreen ga_array(i, 1), 9, 23
 					DO
@@ -5169,7 +5112,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 		END IF
 	End if
 
-	If HC_application = True AND (HCRE_retro_months_input = "" OR HCRE_retro_months_input = "0") then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
+	If HC_application = True then			'IF the case is requesting retro, it should not approve. That is a scenario that needn't be auto-approved.
 		'Approve HC, please.
 		Do				'Need to make sure the case has come all the way through background
 			call navigate_to_MAXIS_screen ("STAT", "SUMM")		'Otherwise occasionally the FIATING getts messed up with the MNSURE FIAT part
@@ -5192,8 +5135,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 			EMReadScreen hc_status, 5, hhmm_row, 68
 			IF hc_requested = "M" AND hc_status = "UNAPP" THEN
 				DO						'===== This DO/LOOP is for the check to determine the case is not stuck in ELIG. If it is, it will not let you FIAT Elig Standard.
-					EMWriteScreen "X", hhmm_row, 26
-					transmit				'===== Navigates to BSUM for the HH member
+					Call write_value_and_transmit("X", hhmm_row, 26)                '===== Navigates to BSUM for the HH member
 
 					'The script now reads the budget method for each month in the period.
 					EMReadScreen budg_mthd_mo1, 1, 13, 21
@@ -5291,14 +5233,12 @@ FOR EACH MAXIS_case_number IN case_number_array
 						LOOP UNTIL back_to_bsum = "BSUM"
 						'---Now the script needs to determine if the case passes income test for cert period
 						EMReadScreen clt_ref_num, 2, 5, 16
-						EMWriteScreen "X", 18, 3
-						Transmit
+						Call write_value_and_transmit("X", 18, 3)
 						For spddn_row = 6 to 18
 							EMReadScreen spenddown_type, 12, spddn_row, 39
 							EMReadScreen listed_clt, 2, spddn_row, 6
 							IF spenddown_type <> "NO SPENDDOWN" AND listed_clt = clt_ref_num Then
-								EMWriteScreen "X", spddn_row, 3
-								transmit
+								Call write_value_and_transmit("X", spddn_row, 3)
 								EMWriteScreen " ", 5, 14
 								Transmit
 								Transmit
@@ -5307,8 +5247,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 							End If
 							If spddn_row = 18 then PF3
 						Next
-						EMWriteScreen "X", 18, 34
-						transmit		'---Opens the Cert Period Amount sub-menu
+						Call write_value_and_transmit("X", 18, 34)          '---Opens the Cert Period Amount sub-menu
 						DO
 							EMReadScreen at_cert_period_screen, 13, 5, 13
 						LOOP UNTIL at_cert_period_screen = "Certification"
@@ -5321,8 +5260,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 							EMWriteScreen "X", 7, 39
 							EMWriteScreen "X", 7, 50
 							EMWriteScreen "X", 7, 61
-							EMWriteScreen "X", 7, 72
-							transmit
+                            Call write_value_and_transmit("X", 7, 72)
 							DO
 								EMReadScreen mapt_check, 4, 3, 51
 								EMReadScreen mobl_check, 4, 3, 49
@@ -5336,8 +5274,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 									For spdwn_row = 6 to 18
 										EMReadScreen spdwn_check, 9, spdwn_row, 39
 										IF spdwn_check = "SPENDDOWN" Then
-											EMWriteScreen "X", spdwn_row, 3
-											transmit
+											Call write_value_and_transmit("X", spdwn_row, 3)
 											EMWriteScreen "_", 5, 14
 											transmit
 											transmit
@@ -5393,8 +5330,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 				EMReadScreen hc_status, 5, hhmm_row, 68
 				IF hc_requested = "M" AND hc_status = "UNAPP" THEN
 					DO						'===== This DO/LOOP is for the check to determine the case is not stuck in ELIG. If it is, it will not let you FIAT Elig Standard.
-						EMWriteScreen "X", hhmm_row, 26
-						transmit				'===== Navigates to BSUM for the HH member
+						Call write_value_and_transmit("X", hhmm_row, 26)            '===== Navigates to BSUM for the HH member
 
 						'The script now reads the budget method for each month in the period.
 						EMReadScreen budg_mthd_mo1, 1, 13, 21
@@ -5492,14 +5428,12 @@ FOR EACH MAXIS_case_number IN case_number_array
 							LOOP UNTIL back_to_bsum = "BSUM"
 							'---Now the script needs to determine if the case passes income test for cert period
 							EMReadScreen clt_ref_num, 2, 5, 16
-							EMWriteScreen "X", 18, 3
-							Transmit
+							Call write_value_and_transmit("X", 18, 3)
 							For spddn_row = 6 to 18
 								EMReadScreen spenddown_type, 12, spddn_row, 39
 								EMReadScreen listed_clt, 2, spddn_row, 6
 								IF spenddown_type <> "NO SPENDDOWN" AND listed_clt = clt_ref_num Then
-									EMWriteScreen "X", spddn_row, 3
-									transmit
+									Call write_value_and_transmit("X", spddn_row, 3)
 									EMWriteScreen " ", 5, 14
 									Transmit
 									Transmit
@@ -5508,8 +5442,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 								End If
 								If spddn_row = 18 then PF3
 							Next
-							EMWriteScreen "X", 18, 34
-							transmit		'---Opens the Cert Period Amount sub-menu
+							Call write_value_and_transmit("X", 18, 34)          '---Opens the Cert Period Amount sub-menu
 							DO
 								EMReadScreen at_cert_period_screen, 13, 5, 13
 							LOOP UNTIL at_cert_period_screen = "Certification"
@@ -5523,8 +5456,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 								EMWriteScreen "X", 7, 50
 								EMWriteScreen "X", 7, 61
 								EMWriteScreen "X", 7, 72
-								EMWriteScreen "X", 18, 3
-								transmit
+                                Call write_value_and_transmit("X", 18, 3)
 								DO
 									EMReadScreen mapt_check, 4, 3, 51
 									EMReadScreen mobl_check, 4, 3, 49
@@ -5538,10 +5470,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 										For spdwn_row = 6 to 18
 											EMReadScreen spdwn_check, 9, spdwn_row, 39
 											IF spdwn_check = "SPENDDOWN" Then
-												EMWriteScreen "X", spdwn_row, 3
-												transmit
-												EMWriteScreen "_", 5, 14
-												transmit
+												Call write_value_and_transmit("X", spdwn_row, 3)
+                                                Call write_value_and_transmit("_", 5, 14)
 												transmit
 											End If
 										Next
@@ -5582,8 +5512,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 			EMReadScreen hc_requested, 1, hhmm_row, 28
 			EMReadScreen hc_status, 5, hhmm_row, 68
 			IF (hc_requested = "M" OR hc_requested = "S" OR hc_requested = "Q") AND hc_status = "UNAPP" THEN
-				EMWriteScreen "X", hhmm_row, 26
-				transmit
+				Call write_value_and_transmit("X", hhmm_row, 26)
 				DO
 					EMReadScreen bhsm, 4, 3, 55
 					EMReadScreen mesm, 4, 3, 56
@@ -5629,37 +5558,6 @@ FOR EACH MAXIS_case_number IN case_number_array
 			hhmm_row = hhmm_row + 1
 		LOOP UNTIL hc_requested = " "			'===== Loops until there are no more HC versions to review
 
-
-		'Here's the case noting bit.
-		'
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-		'
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
-		'
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
-		'CALL autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
-		'
-		'
-		'CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-		'PF9
-		'IF cash_application = True THEN all_programs = all_programs & "CASH/"
-		'IF SNAP_application = True THEN all_programs = all_programs & "SNAP/"
-		'IF HC_application = True THEN all_programs = all_programs & "HC/"
-		'all_programs = left(all_programs, len(all_programs) - 1)
-		'CALL write_variable_in_CASE_NOTE("~~~APPROVED: " & all_programs & "~~~")
-		'CALL write_bullet_and_variable_in_case_note("Earned Income", earned_income)
-		'CALL write_bullet_and_variable_in_case_note("Unearned Income", unearned_income)
-		'CALL write_bullet_and_variable_in_case_note("Shelter Expenses", SHEL_HEST)
-		'
-		''Reseting the variables for the next time.
-		'HH_member_array = ""
-		'earned_income = ""
-		'unearned_income = ""
-		'SHEL_HEST = ""
-		'all_programs = ""
-		'ButtonPressed = ""
 	End if
 
 
@@ -5680,8 +5578,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 		LOOP UNTIL empty_space = " "
 		transmit
 		FOR i = 1 TO wf_count
-			EMWriteScreen "X", 5, 9
-			transmit
+			Call write_value_and_transmit("X", 5, 9)
 		NEXT
 		transmit
 		transmit
