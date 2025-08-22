@@ -2655,7 +2655,7 @@ If ex_parte_function = "Prep 1" Then
 				person_found = True																	'indicating that there was a person in the list for this case
 				memb_known = False																	'sets that we don't know if we have already looked at this person
 				'Check if this is a PRIV case
-				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)	
+				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
 				'now we loop through all of the people we have already found for this case - we only want 1 array instance per person.
 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'If the PMI matches one in the array, we are going to set the information to that array instance
@@ -2752,7 +2752,7 @@ If ex_parte_function = "Prep 1" Then
 			'If we did not find people in the ELIG list, we are going to check ELIG/HC
 			If person_found = False Then
 				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)		'Creating new ELIG results
-				If is_this_priv = False Then 
+				If is_this_priv = False Then
 					'Send the case through background
 					Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
 					EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
@@ -2920,7 +2920,7 @@ If ex_parte_function = "Prep 1" Then
 						End If
 					Next
 					If at_least_one_hc_active = False Then appears_ex_parte = False			'if no one is on HC, this cannot be Ex Parte
-				End If 
+				End If
 			End If
 			For case_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2) 'looking through household to see if anyone is still ex parte
 				If MEMBER_INFO_ARRAY(memb_appears_ex_parte, case_memb) = True Then appears_ex_parte = True
@@ -2933,7 +2933,7 @@ If ex_parte_function = "Prep 1" Then
 						'This updates AVS SQL table for each member's status
 			'Connect to the table
 
-			'Step through each household member 
+			'Step through each household member
 			For this_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 				If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then 'only need AVS entries for active HC peeps
 				'set member's AVS need status based on age
@@ -2942,13 +2942,13 @@ If ex_parte_function = "Prep 1" Then
 						memb_asset_test = 1
 					Else
 						memb_asset_test = 0
-					End If 
+					End If
 					member_smi = MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb)
 					this_month = datepart("M", date)
 					If len(this_month) = 1 Then this_month = "0" & this_month
 					year_month = datepart("YYYY", date) & this_month
 
-					IF memb_asset_test = 1 THEN 'we need to go to STAT/AVSA for members that have an asset test	
+					IF memb_asset_test = 1 THEN 'we need to go to STAT/AVSA for members that have an asset test
 						Call navigate_to_MAXIS_screen("STAT", "AVSA")		'Navigate to STAT/AVSA
 						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb), 20, 76)		'write the member number to the screen
 						EMReadScreen panel_exists, 1, 2, 78 ' check for panel
@@ -2957,24 +2957,24 @@ If ex_parte_function = "Prep 1" Then
 							status_string = ""
 							For status_line = 9 to 14
 								EMReadScreen form_status, 1, status_line, 76
-								If form_status = "_" Then 
+								If form_status = "_" Then
 									exit for
 								Else
 									status_string = status_string & form_status
 								End If
 							Next
-							If instr(status_string, "I") > 0 THEN 
+							If instr(status_string, "I") > 0 THEN
 								AVSFormValid = "I"
 							ElseIF instr(status_string, "R") > 0 Then
-								AVSFormValid = "R"		
+								AVSFormValid = "R"
 							Else
-								AVSFormValid = 1		
+								AVSFormValid = 1
 							End If
 						End If
 					Else
 						AVSFormValid = 0		'no panel means No AVS form
 					End If
-					'Check the table for existing member line, update asset_test if found. 
+					'Check the table for existing member line, update asset_test if found.
 					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
 					Set objAVSConnection = CreateObject("ADODB.Connection")
 
@@ -2983,7 +2983,7 @@ If ex_parte_function = "Prep 1" Then
 					AVSrow = "Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
 					objAVSRecordSet.Open AVSrow, objConnection
 					number_of_rows = objAVSRecordSet(0).value
-					If number_of_rows = 0 Then found_on_sql = False Else found_on_sql = True		'if there are no rows, we will set the variable to false	
+					If number_of_rows = 0 Then found_on_sql = False Else found_on_sql = True		'if there are no rows, we will set the variable to false
 					objAVSRecordSet.Close			'Closing all the data connections
 					'objConnection.Close
 					If found_on_sql = True Then 'Existing case record
@@ -3006,12 +3006,12 @@ If ex_parte_function = "Prep 1" Then
 
 						'Opening and inserting the values
 						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						objinsertRecordSet.Open objAVSinsert, objUpdateConnection	
+						objinsertRecordSet.Open objAVSinsert, objUpdateConnection
 						'MsGbox "Updated " & MAXIS_case_number & " " & Member_SMI
 						'objinsertRecordSet.Close
-					End If 
+					End If
 					'msgbox "updated " & MAXIS_case_number & " " & MEMBER_INFO_ARRAY(memb_name_const, this_memb) & " SMI: " & MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb) & " Asset Test: " & memb_asset_test & " AVS Form Valid: " & AVSFormValid
-				End If 
+				End If
 			Next
 
 
@@ -4394,7 +4394,7 @@ If ex_parte_function = "Prep 2" Then
 	email_header = "Ex Parte Members with a Date of Death is SVES"
 	email_body = "Hello, " & vbCr & vbCr & "Here is the list of persons from cases on the " & ep_revw_mo & "-" & ep_revw_yr & " Ex Parte list that have a date of death listed in the TPQY response." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
 	email_attachment_array = Array(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "ben.teskey@hennepin.us", "ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us", email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
+	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "faughn.ramisch-church@hennepin.us", "ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us", email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
 
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
