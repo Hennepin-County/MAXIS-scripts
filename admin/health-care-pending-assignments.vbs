@@ -2668,8 +2668,11 @@ If operation_selection = "Review Completed Assignments" Then
 	Dim WORKER_TOTAL_ARRAY()
 	ReDim WORKER_TOTAL_ARRAY(end_numb_const, 0)
 
+    ' "T:\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews"
+
 	assignments_completed_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews"
 	assignments_recorded_folder = t_drive & "\Eligibility Support\Assignments\ADS Health Care\Functional Data\Completed Reviews\Recorded"
+    ' MsgBox "assignments_completed_folder - " & assignments_completed_folder & vbCr & "assignments_recorded_folder - " & assignments_recorded_folder
 	Set objFolder = objFSO.GetFolder(assignments_completed_folder)										'Creates an oject of the whole my documents folder
 	Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
@@ -2698,11 +2701,12 @@ If operation_selection = "Review Completed Assignments" Then
 
 	For Each objFile in colFiles								'looping through each file
 		file_type = objFile.Type
-		If file_type = "XML Source File" Then
+        ' MsgBox "objFile.Name - " & objFile.Name & vbCr & "file_type - " & file_type
+		If file_type = "XML Source File" or file_type = "xmlfile" Then
 			quack = objFile.Name
 			file_recorded = False
 			xmlPath = objFile.Path												'identifying the current file
-
+            ' MsgBox "xmlPath - " & xmlPath
 			For each duck in ALL_KNOW_FILES_ARRAY
 				If duck = quack Then
 					file_recorded = True
@@ -2731,6 +2735,7 @@ If operation_selection = "Review Completed Assignments" Then
 						set node = xmlDoc.SelectSingleNode("//AssignedHSR")
 						ObjExcel.Cells(excel_row, HSR_completed_COL).Value  			= node.text
 						temp_hsr_name = node.text
+                        ' MsgBox "temp_hsr_name - " & temp_hsr_name & vbCr & xmlPath
 
 						set node = xmlDoc.SelectSingleNode("//AssignedDate")
 						ObjExcel.Cells(excel_row, Assigned_On_Date_COL).Value  			= node.text
@@ -2901,6 +2906,7 @@ If operation_selection = "Review Completed Assignments" Then
 	for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
 
 		temp_worker_name = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
+        ' MsgBox "temp_worker_name - " & temp_worker_name
 		name_array = split(temp_worker_name)
 
 		If name_array(0) = "Khadra" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Khadra Abdallah"
