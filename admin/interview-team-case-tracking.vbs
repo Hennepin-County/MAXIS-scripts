@@ -167,7 +167,7 @@ xml_case_numbs = "*"
 For Each objFile in colFiles								'looping through each file
 	file_type = objFile.Type
 
-	If file_type = "XML Source File" Then
+	If file_type = "XML Source File" or file_type = "xmlfile" Then
 		quack = objFile.Name
 		file_recorded = False
 		xmlPath = objFile.Path												'identifying the current file
@@ -288,7 +288,7 @@ Next
 For Each objFile in colFiles								'looping through each file
 	file_type = objFile.Type
 
-	If file_type = "XML Source File" Then
+	If file_type = "XML Source File" or file_type = "xmlfile" Then
 		quack = objFile.Name
 		file_recorded = False
 		xmlPath = objFile.Path												'identifying the current file
