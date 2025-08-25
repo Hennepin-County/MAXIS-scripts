@@ -482,6 +482,7 @@ For Each objFile in colFiles																'looping through each file
 	correct_file_type = False
 	If this_file_type = "Text Document" 	Then correct_file_type = True
 	If this_file_type = "XML Source File" 	Then correct_file_type = True
+	If this_file_type = "xmlfile" 	        Then correct_file_type = True
 	If correct_file_type = False 								Then delete_this_file = False		'We do NOT want to delete files that are NOT TXT file types
 	If DateDiff("d", this_file_created_date, date) < 8 			Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
 
