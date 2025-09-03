@@ -1051,6 +1051,8 @@ If run_review_selection = True Then
 						If SNAP_status <> "" then add_case_info_to_ARRAY = True
 						If cash_status <> "" then add_case_info_to_ARRAY = True
 
+						If Trim(APPL_date) = "" then add_case_info_to_ARRAY = False		'If appl date is blank then we don't want to add it. This is due to a MAXIS error.
+
 						If add_case_info_to_ARRAY = True then
 							ReDim Preserve TODAYS_PENDING_CASES_ARRAY(last_pend_array_const, case_count)
 							TODAYS_PENDING_CASES_ARRAY(case_number_const, case_count)  		= MAXIS_case_number
