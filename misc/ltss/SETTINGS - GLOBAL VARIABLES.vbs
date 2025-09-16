@@ -49,43 +49,34 @@
 
 'COLLECTING STATISTICS========================= OPTIONAL SETTINGS ======================
 
+'DATABASE SETTINGS AND DETAILS=========================
+
+'specific settings for the database schema and tables to use.
+db_provider = "SQLOLEDB.1"
+db_data_source = "hssqlpw202"
+db_catalog = "BlueZone_Statistics"
+db_security = "SSPI"
+db_translate = "False"
+
+'string to use for database calls in scripts.
+db_full_string = "Provider = " & db_provider & ";Data Source= " & db_data_source & ";Initial Catalog= " & db_catalog & "; Integrated Security=" & db_security & ";Auto Translate=" & db_translate & ";"
+
+'COLLECTING STATISTICS=========================
+
 'This is used for determining whether script_end_procedure will also log usage info in an Access table.
-collecting_statistics = False
+collecting_statistics = true
 
 'This is a variable used to determine if the agency is using a SQL database or not. Set to true if you're using SQL. Otherwise, set to false.
-using_SQL_database = False
+using_SQL_database = true
 
 'This is the file path for the statistics Access database.
-stats_database_path = script_repository & "Databases for script usage\usage statistics.accdb"
+stats_database_path = db_data_source & ";Initial Catalog= " & db_catalog & "; Integrated Security=" & db_security & ";Auto Translate=" & db_translate & ";"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
-STATS_enhanced_db = false
+STATS_enhanced_db = true
 
-
-'ABAWD BANKED MONTHS TRACKING CONFIG================ OPTIONAL SETTINGS ======================
-
-'This determines whether-or-not banked months tracking happens at all
-'banked_months_db_tracking = true
-
-'Add the path to the database file using banked_month_database_path, replacing this path with wherever you have the file installed
-'banked_month_database_path = "C:\Users\Public\Documents\BlueZone\Scripts\State of Minnesota\MAXIS Scripts\Databases for script usage\banked month tracking.accdb"
-
-
-'TRAINING CASE SCENARIO SETTINGS========== OPTIONAL SETTINGS ======================
-
-'This is a variable which decides the default location of training case scenario Excel sheets
-'training_case_creator_excel_file_path = script_repository & "SETTINGS - TRAINING CASE SCENARIOS.xlsx"
-
-
-
-
-
-
-
-
-
-
-
+'If set to true, the case number will be collected and input into the database
+collect_MAXIS_case_number = true
 
 
 ' ############################  DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING ###################################
@@ -145,3 +136,5 @@ END IF
 'If run locally is set to "True", the scripts will totally bypass GitHub and run locally.
 IF run_locally = TRUE THEN script_repository = "C:\MAXIS-Scripts\"
 
+'----------------------------------------------------------------------------------------------------Change Log
+'09/16/2025: Added stats collection coding. Removed banked months and training case creator coding as this is not applicable to LTSS business line.
