@@ -44,7 +44,7 @@ END IF
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
-
+call changelog_update("09/16/2025", "Added statistics collection.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/14/2025", "Initial scripts set up in Hennepin County.", "Casey Love, Hennepin County" )
 '("10/16/2019", "All infrastructure changed to run locally and stored in BlueZone Scripts ccm. MNIT @ DHS)
 '(12/09/2024", Added code to blankout previous current an planned services data. Also added code to fill in the second page "ADD3"
@@ -172,8 +172,7 @@ Function searchForMenuItemAndSelect(menuItem)
 	Loop until scrY >= 24
 
 	If scrY = 24 Then
-		MsgBox "ERROR: '" & menuItem & "' was not found!  Aborting.."
-		stopscript
+		call script_end_procedure("ERROR: '" & menuItem & "' was not found!  Aborting..")
 	End If
 End Function
 
@@ -188,8 +187,7 @@ Function findValueInArray(fieldName, fieldValues)
 	z = z + 1
 	loop
 	If currFieldName <> fieldName Then
-		MsgBox "ERROR: '" & fieldName & "' was not found in array!  Aborting.."
-		stopscript
+		call script_end_procedure("ERROR: '" & fieldName & "' was not found in array!  Aborting..")
 	End If
 End Function
 
@@ -213,8 +211,7 @@ Function writeValueOnScreen(fieldName, fieldValue, offSet)
 	Loop until scrX >= 24
 
 	If scrX = 24 Then
-		MsgBox "ERROR: '" & fieldName & "' was not found on current screen!  Aborting.."
-		stopscript
+		call script_end_procedure("ERROR: '" & fieldName & "' was not found on current screen!  Aborting..")
 	End If
 End Function
 
@@ -358,10 +355,10 @@ Function checkForErrors()
 								  "RECIPIENT ID: " & currFieldValue & vbCrlf & "ERR MSG:      " & trim(errLine) & vbCrlf &_
 								  "SCREEN ERR:   " & trim(scrError)
 		ObjErrorLogfile.Close
-		MsgBox errWording & vbCrlf & vbCrlf & "ERROR: '" & trim(scrLine) & "'" &_
-			   vbCrlf & vbCrlf & "Error Report Created:" & vbCRlf & logFilename, 0, "DD Script Error"
+		closing_msg = errWording & vbCrlf & vbCrlf & "ERROR: '" & trim(scrLine) & "'" &_
+			   vbCrlf & vbCrlf & "Error Report Created:" & vbCRlf & logFilename
 		PF6
-		StopScript
+		call script_end_procedure(closing_msg)
 	End IF
 	EMReadScreen scrLine, 80, 24, 1
 End Function
@@ -418,9 +415,9 @@ Function checkForExceptions()
 		ObjErrorLogfile.WriteLine ""
 		ObjErrorLogfile.WriteLine currEdits
 		ObjErrorLogfile.Close
-		MsgBox excWording & vbCrlf & vbCrlf & currEdits & vbCrlf & vbCrlf &_
-			   "Exception Report created:" & Vbcrlf & logFilename, 0, "Exceptions"
-		StopScript
+		closing_msg = excWording & vbCrlf & vbCrlf & currEdits & vbCrlf & vbCrlf &_
+			   "Exception Report created:" & Vbcrlf & logFilename
+		call script_end_procedure(closing_msg)
 	Loop
 End Function
 
@@ -437,9 +434,9 @@ ObjFile.close
 CALL findValueInArray("DOCUMENT TYPE", scrngArray)
 
 If currFieldValue <> "D" Then
-	MsgBox """" & xmlPath & """ is not a DD Document." & vbCrlf & vbCrlf &_
-	"Please select a valid DD XML document and try the script again.", 0, "DD Script Error"
-	StopScript
+	closing_msg =  """" & xmlPath & """ is not a DD Document." & vbCrlf & vbCrlf &_
+	"Please select a valid DD XML document and try the script again."
+	call script_end_procedure(closing_msg)
 End If
 
 EMReadScreen scrCheck, 80, 1, 1
@@ -450,8 +447,7 @@ End If
 EMReadScreen scrCheck, 80, 1, 1
 If InStr(CStr(scrCheck), "MMIS MAIN MENU - MAIN") = 0 Then
 	If InStr(CStr(scrCheck), "MMIS SCRNG KEY PANEL-ASCR") = 0 Then
-		MsgBox "This script must start on MAIN or SCREENINGS.", 0, "DD Script Error"
-		StopScript
+		call script_end_procedure("This script must start on MAIN or SCREENINGS.")
 	End If
 End If
 
@@ -460,8 +456,7 @@ CALL writeValueOnScreen("ACTION CODE", " ", 1) 'check for timeout
 Transmit 'check for timeout
 EMReadScreen scrCheck, 80, 1, 1
 If InStr(CStr(scrCheck), "MMIS SCRNG KEY PANEL-ASCR") = 0 Then
-	MsgBox "This script must start on MAIN or SCREENINGS.", 0, "DD Script Error"
-	StopScript
+	call script_end_procedure("This script must start on MAIN or SCREENINGS.")
 End If
 CALL writeValueOnScreen("ACTION CODE", "A", 1)
 CALL findValueInArray("DOCUMENT TYPE", scrngArray)
@@ -793,5 +788,5 @@ CALL checkForErrors()
 CALL checkForExceptions()
 
 'Happy Path
-MsgBox "No errors.  No exceptions.  Saving document.."
+call script_end_procedure("No errors.  No exceptions.  Saving document..")
 'PF3

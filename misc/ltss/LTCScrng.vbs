@@ -45,6 +45,7 @@ END IF
 'Starts by defining a changelog array
 changelog = array()
 
+call changelog_update("09/16/2025", "Added statistics collection.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2025", "Added most recent updates from MN.IT script release. Updates include ALT screen checks and updated field clearning functionality.", "Ilse Ferris, Hennepin County" )
 call changelog_update("03/14/2025", "Initial scripts set up in Hennepin County.", "Casey Love, Hennepin County" )
 '("10/16/2019", "All infrastructure changed to run locally and stored in BlueZone Scripts ccm. MNIT @ DHS)
@@ -106,8 +107,7 @@ scrX = scrX + 1
 Loop until scrX >= 24
 
 If scrX = 24 Then
-MsgBox "ERROR: '" & menuItem & "' was not found!  Aborting.."
-stopscript
+	call script_end_procedure("ERROR: '" & menuItem & "' was not found!  Aborting..")
 End If
 End Function
 
@@ -121,8 +121,7 @@ End If
 z = z + 1
 loop
 If currFieldName <> fieldName Then
-MsgBox "ERROR: '" & fieldName & "' was not found in array!  Aborting.."
-stopscript
+	call script_end_procedure("ERROR: '" & fieldName & "' was not found in array!  Aborting..")
 End If
 End Function
 
@@ -145,8 +144,7 @@ scrX = scrX + 1
 Loop until scrX >= 24
 
 If scrX = 24 Then
-MsgBox "ERROR: '" & fieldName & "' was not found on current screen!  Aborting.."
-stopscript
+	call script_end_procedure("ERROR: '" & fieldName & "' was not found on current screen!  Aborting..")
 End If
 End Function
 
@@ -223,10 +221,10 @@ Function checkForErrors()
 								  "RECIPIENT ID: " & currFieldValue & vbCrlf & "ERR MSG:      " & trim(errLine) & vbCrlf &_
 								  "SCREEN ERR:   " & trim(scrError)
 		ObjErrorLogfile.Close
-		MsgBox errWording & vbCrlf & vbCrlf & "ERROR: '" & trim(scrLine) & "'" &_
-			   vbCrlf & vbCrlf & "Error Report Created:" & vbCRlf & logFilename, 0, "LTC Script Error"
+		error_msg = errWording & vbCrlf & vbCrlf & "ERROR: '" & trim(scrLine) & "'" &_
+			   vbCrlf & vbCrlf & "Error Report Created:" & vbCRlf & logFilename
 		PF6
-		StopScript
+		call script_end_procedure(error_msg)
 	End IF
 	EMReadScreen scrLine, 80, 24, 1
 End Function
@@ -283,9 +281,9 @@ Function checkForExceptions()
 		ObjErrorLogfile.WriteLine ""
 		ObjErrorLogfile.WriteLine currEdits
 		ObjErrorLogfile.Close
-		MsgBox excWording & vbCrlf & vbCrlf & currEdits & vbCrlf & vbCrlf &_
-			   "Exception Report created:" & Vbcrlf & logFilename, 0, "Exceptions"
-		StopScript
+		closing_msg = excWording & vbCrlf & vbCrlf & currEdits & vbCrlf & vbCrlf &_
+			   "Exception Report created:" & Vbcrlf & logFilename
+		Call script_end_procedure(closing_msg)
 	Loop
 End Function
 
@@ -294,9 +292,8 @@ ObjFile.close
 CALL findValueInArray("DOCUMENT TYPE", scrngArray)
 
 If currFieldValue <> "L" Then
-MsgBox """" & xmlPath & """ is not an LTC Document." & vbCrlf & vbCrlf &_
-"Please select a valid LTC XML document and try the script again.", 0, "LTC Script Error"
-StopScript
+	closing_msg = """" & xmlPath & """ is not an LTC Document." & vbCrlf & vbCrlf & "Please select a valid LTC XML document and try the script again.")
+	Call script_end_procedure(closing_msg)
 End If
 
 EMconnect ""
@@ -943,6 +940,6 @@ Call checkForErrors()
 
 End Function
 
-StopScript
+Call script_end_procedure("End of Script")
 'PF3
 'StopScript
