@@ -766,8 +766,8 @@ DO
 			If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "MARI001" Then allow_bulk_run_use = True
-			If user_ID_for_validation = "MEGE001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
+            If user_ID_for_validation = "TRFA001" Then allow_bulk_run_use = True
 
 			'stopping the script run if someone else tries to run the script for the bulk options.
 			If allow_bulk_run_use = False Then script_end_procedure("Ex Parte Report functionality for completing Ex Parte actions and list review is locked. The script will now end.")
@@ -876,14 +876,16 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 
 	'This functionality is locked down and only available for use by certain staff.
 	allow_admin_use = False
-	If user_ID_for_validation = "CALO001" Then allow_admin_use = True
-	If user_ID_for_validation = "ILFE001" Then allow_admin_use = True
-	If user_ID_for_validation = "MARI001" Then allow_admin_use = True
-	If user_ID_for_validation = "MEGE001" Then allow_admin_use = True
-	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
-	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
-	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
-	If user_ID_for_validation = "DACO003" Then allow_admin_use = True
+	If user_ID_for_validation = "CALO001"   Then allow_admin_use = True
+	If user_ID_for_validation = "ILFE001"   Then allow_admin_use = True
+	If user_ID_for_validation = "MARI001"   Then allow_admin_use = True
+	If user_ID_for_validation = "DACO003"   Then allow_admin_use = True
+	If user_ID_for_validation = "TRFA001"   Then allow_admin_use = True
+	If user_ID_for_validation = "WFX901"    Then allow_admin_use = True     'FRC
+    If user_ID_for_validation = "WFC041"    Then allow_admin_use = true	    'KW
+    If user_ID_for_validation = "YEYA001"   Then allow_admin_use = true	    'YY
+    If user_ID_for_validation = "WFH136"    Then allow_admin_use = true	    'RZ
+
 
 	'Ending the script run if someone else tries to run it
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
@@ -1372,14 +1374,15 @@ If ex_parte_function = "ADMIN Review" Then
 
 	'This functionality is locked down and only available for use by certain staff.
 	allow_admin_use = False
-	If user_ID_for_validation = "CALO001" Then allow_admin_use = True
-	If user_ID_for_validation = "ILFE001" Then allow_admin_use = True
-	If user_ID_for_validation = "MARI001" Then allow_admin_use = True
-	If user_ID_for_validation = "MEGE001" Then allow_admin_use = True
-	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
-	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
-	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
-	If user_ID_for_validation = "DACO003" Then allow_admin_use = True
+	If user_ID_for_validation = "CALO001"   Then allow_admin_use = True
+	If user_ID_for_validation = "ILFE001"   Then allow_admin_use = True
+	If user_ID_for_validation = "MARI001"   Then allow_admin_use = True
+	If user_ID_for_validation = "DACO003"   Then allow_admin_use = True
+	If user_ID_for_validation = "TRFA001"   Then allow_admin_use = True
+	If user_ID_for_validation = "WFX901"    Then allow_admin_use = True     'FRC
+    If user_ID_for_validation = "WFC041"    Then allow_admin_use = true	    'KW
+    If user_ID_for_validation = "YEYA001"   Then allow_admin_use = true	    'YY
+    If user_ID_for_validation = "WFH136"    Then allow_admin_use = true	    'RZ
 
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
 
@@ -1806,8 +1809,9 @@ bz_user = False
 If user_ID_for_validation = "CALO001" Then bz_user = True
 If user_ID_for_validation = "ILFE001" Then bz_user = True
 If user_ID_for_validation = "MARI001" Then bz_user = True
-If user_ID_for_validation = "MEGE001" Then bz_user = True
 If user_ID_for_validation = "DACO003" Then bz_user = True
+If user_ID_for_validation = "TRFA001" Then bz_user = True
+
 If bz_user = False Then script_end_procedure("This script functionality can only be operated by the BlueZone Script Team. The script will now end.")
 
 If ex_parte_function = "FIX LIST" Then
