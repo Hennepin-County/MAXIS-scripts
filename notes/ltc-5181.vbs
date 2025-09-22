@@ -59,17 +59,8 @@ changelog_display
 
 'Buttons Defined
 '--Navigation buttons
-section_a_contact_info_btn              = 201
-section_b_contact_info_btn              = 202
-status_btn                              = 203
-initial_assessment_btn                  = 204
-MA_req_app_btn                          = 205
-exit_reasons_btn                        = 206
-other_changes_btn                       = 207
-section_d_comments_btn                  = 208
-MA_status_determination_btn             = 209
-changes_btn                             = 210  
-section_g_comments_btn                  = 211
+continue_btn                            = 210
+return_btn                              = 211
 next_btn                                = 212
 previous_btn                            = 213
 complete_btn                            = 214
@@ -89,17 +80,14 @@ skip_panel_updates_btn                  = 225
 
 'Defining variables
 dialog_count = ""
+incomplete_fields = ""
 section_a_contact_info_called = False
 section_a_additional_assessors_called = False
-section_b_assess_results_current_status_called = False
-section_b_assess_results_MA_requests_apps_changes_called = False
-section_c_comm_elig_worker_exit_reasons_called = False
-section_c_other_changes_section_d_comments_called = False
+section_b_called = False
+section_c_d_called = False
 section_e_contact_info_called = False
 section_e_additional_assessors_called = False
-section_f_medical_assistance_called = False
-section_f_medical_assistance_changes_called = False
-section_g_comments_elig_worker_called = False
+section_f_g_called = False
 
 'DEFINING FUNCTIONS===========================================================================
 
@@ -107,10 +95,10 @@ section_g_comments_elig_worker_called = False
 function section_a_contact_info()
   dialog_count = 1
   section_a_contact_info_called = True
-  BeginDialog Dialog1, 0, 0, 261, 300, "1 - Section A: Contact Information"
+  BeginDialog Dialog1, 0, 0, 261, 300, "Section A"
     Text 5, 5, 110, 10, "SECTION A: Contact information"
     Text 5, 25, 45, 10, "Form Status: "
-    DropListBox 55, 20, 60, 15, "Complete"+chr(9)+"Incomplete", section_a_form_status_dropdown
+    DropListBox 55, 20, 60, 15, "Select one:"+chr(9)+"Complete"+chr(9)+"Incomplete", section_a_form_status_dropdown
     GroupBox 5, 40, 250, 190, "FROM (assessor/case manager/care coordinator's information)"
     Text 10, 55, 155, 10, "Click here to fill information from SWKR Panel:"
     ButtonGroup ButtonPressed
@@ -145,13 +133,14 @@ function section_a_contact_info()
       PushButton 5, 280, 55, 15, "Previous", previous_btn
   EndDialog
 end function
-'To do - dim all the variables?
-Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb, form_status_dropdown
+'Dim all the variables in function
+Dim section_a_form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
 
+'Dialog 2 (optional) - Adding additional assessors
 function section_a_additional_assessors()
-  dialog_count = 11
+  dialog_count = 2
   section_a_additional_assessors_called = True
-  BeginDialog Dialog1, 0, 0, 256, 310, "Section A: Contact Info (Add'l Assessors)"
+  BeginDialog Dialog1, 0, 0, 256, 310, "Section A"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
     EditBox 90, 15, 150, 15, section_a_assessor_2
@@ -194,10 +183,10 @@ end function
 'Dim all variables in function
 Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
 
-'Dialog 2 - Section B: Assessment Results - Current Status
-function section_b_assess_results_current_status()
-  dialog_count = 2
-  section_b_assess_results_current_status_called = True
+'Dialog 3 - Section B
+function section_b()
+  dialog_count = 3
+  section_b_called = True
   BeginDialog Dialog1, 0, 0, 301, 400, "Section B"
     Text 5, 5, 225, 10, "SECTION B: Assessment Information (to be completed by assessor)"
     GroupBox 5, 15, 285, 50, "Status"
@@ -239,12 +228,12 @@ function section_b_assess_results_current_status()
   EndDialog
 end function
 'Dim all variables in function
-Dim section_g_person_requesting_already_enrolled_LTC, section_g_person_will_reside_institution_checkbox, section_b_program_type, section_b_diversion_checkbox, section_b_conversion_checkbox, section_b_admission_date, section_b_facility, section_b_institution_phone_number, section_b_institution_street_address, section_b_institution_city, section_b_institution_state, section_b_institution_zip_code
+Dim section_b_person_requesting_services_enrolled_checkbox, section_b_reside_institution_checkbox, section_b_initial_MnA_assessment_date, section_b_assessment_determination_date, section_b_assess_not_LOC_req_checkbox, section_b_meets_LOC_req_checkbox, section_b_meets_criteria_PCA_CFSS_checkbox, section_b_waiver_ac_ecs_yes_checkbox, section_b_waiver_ac_ecs_no_checkbox, section_b_case_mgr_yes_me_checkbox, section_b_case_mgr_yes_someone_checkbox, section_b_case_mgr_no_checkbox, section_b_applied_ma_checkbox, section_b_ma_enrollee_checkbox, section_b_completed_DHS_forms_attached_checkbox, section_b_completed_DHS_forms_checkbox, section_b_send_3543_6696A_checkbox, section_b_send_3531_checkbox, section_b_send_3340_checkbox, section_b_not_instit_loc_checkbox, section_b_enroll_different_program_checkbox
 
-'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
-function section_c_comm_elig_worker_exit_reasons()
-  dialog_count = 5
-  section_c_comm_elig_worker_exit_reasons_called = True
+'Dialog 4 - Sections C & D
+function section_c_d()
+  dialog_count = 4
+  section_c_d_called = True
   BeginDialog Dialog1, 0, 0, 300, 295, "Sections C and Section D"
     Text 5, 5, 275, 10, "SECTION C: Case manager or care coordinator communication to eligibility worker"
     GroupBox 5, 20, 290, 30, "Exit reasons"
@@ -278,14 +267,14 @@ function section_c_comm_elig_worker_exit_reasons()
   EndDialog
 end function
 ' Dim all variables in function
-Dim section_c_exited_waiver_program_checkbox, section_c_date_waiver_exit, section_c_hospital_admission_checkbox, section_c_nursing_facility_admission_checkbox, section_c_person_informed_choice_checkbox, section_c_residential_treatment_admission_checkbox, section_c_person_deceased_checkbox, section_c_date_of_death, section_c_person_moved_out_of_state_checkbox, section_c_date_of_move, section_c_exited_for_other_reasons_checkbox, section_c_exited_for_other_reasons_explanation
+Dim section_c_person_exited_waiver_checkbox, section_c_ac_checkbox, section_c_bi_checkbox, section_c_cac_checkbox, section_c_cadi_checkbox, section_c_dd_checkbox, section_c_ew_checkbox, section_c_ecs_checkbox, section_c_pca_cfss_checkbox, section_c_diversion_checkbox, section_c_conversion_checkbox, section_c_new_address_checkbox, section_c_new_legal_rep_checkbox, section_c_returning_comm_checkbox, section_c_other_changes_checkbox, section_d_comments
 
-'Dialog 7 - Section E: Contact Information
+'Dialog 5 - Section E
 function section_e_contact_info()
   first_name = replace(first_name, "_", "")
   last_name = replace(last_name, "_", "")
   ref_nbr = left(hh_memb, 2)
-  dialog_count = 7
+  dialog_count = 5
   section_e_contact_info_called = True
   BeginDialog Dialog1, 0, 0, 261, 325, "Section E"
     Text 10, 5, 105, 10, "SECTION E: Contact information"
@@ -331,9 +320,9 @@ end function
 ' Dim all variables in function
 Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, first_name, last_name, ref_nbr
 
-'Dialog 7 - Section E: Contact Information
+'Dialog 6 (optional) - Section E - Add additional assessors
 function section_e_additional_assessors()
-  dialog_count = 12
+  dialog_count = 6
   section_e_additional_assessors_called = True
   BeginDialog Dialog1, 0, 0, 256, 310, "Section E: Contact Info (Add'l Assessors)"
     GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
@@ -378,10 +367,10 @@ end function
 ' Dim all functions in variable
 Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3,  section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
 
-'Dialog 8 - Section F: Medical Assistance
-function section_f_medical_assistance()
-  dialog_count = 8
-  section_f_medical_assistance_called = True
+'Dialog 7 - Sections F and G
+function section_f_g()
+  dialog_count = 7
+  section_f_g_called = True
   BeginDialog Dialog1, 0, 0, 300, 390, "Sections F and G"
     Text 10, 5, 290, 10, "SECTION F: Medical Assistance (MA)"
     GroupBox 5, 15, 290, 65, "MA status for long-term supports and services (select all that apply)"
@@ -395,18 +384,18 @@ function section_f_medical_assistance()
     CheckBox 15, 105, 95, 10, "Certification of disability", section_f_disability_cert_checkbox
     CheckBox 15, 115, 95, 10, "MA coverage approved", section_f_ma_approved_checkbox
     CheckBox 15, 125, 110, 10, "Basic MA medical spenddown", section_f_ma_spenddown_checkbox
-    CheckBox 15, 135, 110, 10, "MA-LTC open on specific date", section_f_ma-ltc_open_checkbox
-    CheckBox 15, 145, 195, 10, "MA-LTC spenddown or waiver obligation for initial month", section_f_ma-ltc_spenddown_checkbox
+    CheckBox 15, 135, 110, 10, "MA-LTC open on specific date", section_f_ma_ltc_open_checkbox
+    CheckBox 15, 145, 195, 10, "MA-LTC spenddown or waiver obligation for initial month", section_f_ma_ltc_spenddown_checkbox
     CheckBox 15, 155, 50, 10, "MA denied", section_f_ma_denied_checkbox
-    CheckBox 15, 165, 65, 10, "MA-LTC denied", section_f_ma-ltc_denied_checkbox
-    CheckBox 15, 175, 170, 10, "Person is ineligible for MA-LTC until specific date", section_f_ma-ltc_ineligible_checkbox
+    CheckBox 15, 165, 65, 10, "MA-LTC denied", section_f_ma_ltc_denied_checkbox
+    CheckBox 15, 175, 170, 10, "Person is ineligible for MA-LTC until specific date", section_f_ma_ltc_ineligible_checkbox
     CheckBox 15, 185, 135, 10, "Basic MA continues until specific date", section_f_basic_ma_cont_checkbox
     CheckBox 15, 195, 195, 10, "Results from the asset assessment were sent to person", section_f_asset_assess_sent_checkbox
     GroupBox 10, 215, 285, 100, "Changes (select all that apply)"
-    CheckBox 15, 230, 145, 10, "MA-LTC spenddown or waiver obligation", section_f_ma-ltc_spenddown_waiver_checkbox
+    CheckBox 15, 230, 145, 10, "MA-LTC spenddown or waiver obligation", section_f_ma_ltc_spenddown_waiver_checkbox
     CheckBox 15, 240, 145, 10, "MA terminated (basic MA and MA-LTC)", section_f_ma_terminated_checkbox
     CheckBox 15, 250, 115, 10, "Basic MA spenddown changed", section_f_ma_spenddown_changed_checkbox
-    CheckBox 15, 260, 205, 10, "MA-LTC terminated on specific date; basic MA remains open", section_f_ma-ltc_terminated_checkbox
+    CheckBox 15, 260, 205, 10, "MA-LTC terminated on specific date; basic MA remains open", section_f_ma_ltc_terminated_checkbox
     CheckBox 15, 270, 85, 10, "Person is deceased", section_f_person_deceased_checkbox
     CheckBox 15, 280, 115, 10, "Person moved to an institution", section_f_moved_institution_checkbox
     CheckBox 15, 290, 115, 10, "Person has a new address", section_f_new_address_checkbox
@@ -421,41 +410,53 @@ function section_f_medical_assistance()
   EndDialog
 end function
 ' Dim all functions in variable
-Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_date, section_f_dhs_3543_sent_checkbox, section_f_dhs_3543_sent_date, section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments, section_f_dhs_3543_3531_not_returned_checkbox, section_f_ma_opened_checkbox, section_f_ma_opened_date, section_f_basic_ma_medical_spenddown_checkbox, section_f_basic_ma_medical_spenddown, section_f_ma_LTC_services_checkbox, section_f_ma_LTC_services_date, section_f_LTC_spenddown_initial_month_checkbox, section_f_LTC_spenddown_date, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_payment_denied_checkbox, section_f_ma_payment_LTC_date, section_f_inelig_for_MA_payment_checkbox, section_f_inelig_for_MA_payment_date, section_f_basic_ma_continues_checkbox, section_f_basic_ma_continues_date, section_f_asset_assessment_results_checkbox, section_f_results_from_asset_assessment_sent_date
+Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, section_f_dhs_3543_6696a_sent_checkbox, section_f_dhs_3543_6696a_3531_returned_checkbox, section_f_dhs_3543_6696a_3531_not_returned_checkbox, section_f_smrt_referral_checkbox, section_f_disability_cert_checkbox, section_f_ma_approved_checkbox, section_f_ma_spenddown_checkbox, section_f_ma_ltc_open_checkbox, section_f_ma_ltc_spenddown_checkbox, section_f_ma_denied_checkbox, section_f_ma_ltc_denied_checkbox, section_f_ma_ltc_ineligible_checkbox, section_f_basic_ma_cont_checkbox, section_f_asset_assess_sent_checkbox, section_f_ma_ltc_spenddown_waiver_checkbox, section_f_ma_terminated_checkbox, section_f_ma_spenddown_changed_checkbox, section_f_ma_ltc_terminated_checkbox, section_f_person_deceased_checkbox, section_f_moved_institution_checkbox, section_f_new_address_checkbox, section_f_other_change_checkbox, section_g_additional_comments
+
+'Error dialog alerting user of incomplete fields
+function incomplete_dialog_fields()
+  BeginDialog Dialog1, 0, 0, 196, 130, "Dialog not filled out completely"
+    Text 5, 5, 185, 25, "Not all fields in the previous dialog were filled out. You should fill out each dialog as completely as possible using the information from the submitted form."
+    Text 5, 40, 175, 20, "To return to the previous dialog and fill out the empty fields, click the button below:"
+    ButtonGroup ButtonPressed
+      PushButton 5, 60, 90, 15, "Return to previous dialog", return_btn
+    Text 5, 90, 175, 20, "To continue to the next dialog without updating the previous dialog, click the button below:"
+    ButtonGroup ButtonPressed
+      PushButton 5, 110, 90, 15, "Continue to next dialog", continue_btn
+  EndDialog
+end function
 
 Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
   If dialog_selected = 1 then call section_a_contact_info()
-  If dialog_selected = 2 then call section_b_assess_results_current_status()
-  If dialog_selected = 3 then call section_b_assess_results_initial_assess_case_manager()
-  If dialog_selected = 4 then call section_b_assess_results_MA_requests_apps_changes()
-  If dialog_selected = 5 then call section_c_comm_elig_worker_exit_reasons()
-  If dialog_selected = 6 then call section_c_other_changes_section_d_comments()
-  If dialog_selected = 7 then call section_e_contact_info()
-  If dialog_selected = 8 then call section_f_medical_assistance()
-  If dialog_selected = 9 then call section_f_medical_assistance_changes()
-  If dialog_selected = 10 then call section_g_comments_elig_worker()
-  If dialog_selected = 11 then call section_a_additional_assessors()
-  If dialog_selected = 12 then call section_e_additional_assessors()
+  If dialog_selected = 2 then call section_a_additional_assessors()
+  If dialog_selected = 3 then call section_b()
+  If dialog_selected = 4 then call section_c_d()
+  If dialog_selected = 5 then call section_e_contact_info()
+  If dialog_selected = 6 then call section_e_additional_assessors()
+  If dialog_selected = 7 then call section_f_g()
 End Function
 
 function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
-	If err_msg = "" AND ButtonPressed = next_btn Then dialog_count = dialog_count + 1 'If next is selected, it will go to the next dialog
-	If err_msg = "" AND ButtonPressed = previous_btn Then dialog_count = dialog_count - 1	'If previous is selected, it will go to the previous dialog
-  If err_msg = "" AND ButtonPressed = -1 then dialog_count = dialog_count + 1   'If enter is pressed, then move to next dialog if no errors
-  If err_msg = "" and ButtonPressed = section_a_contact_info_btn then dialog_count = 1
-  If err_msg = "" AND ButtonPressed = status_btn then dialog_count = 2
-  If err_msg = "" AND ButtonPressed = initial_assessment_btn then dialog_count = 3
-  If err_msg = "" AND ButtonPressed = MA_req_app_btn then dialog_count = 4
-  If err_msg = "" AND ButtonPressed = exit_reasons_btn then dialog_count = 5
-  If err_msg = "" AND ButtonPressed = other_changes_btn then dialog_count = 6
-  If err_msg = "" AND ButtonPressed = section_d_comments_btn then dialog_count = 6
-  If err_msg = "" AND ButtonPressed = section_b_contact_info_btn then dialog_count = 7
-  If err_msg = "" AND ButtonPressed = MA_status_determination_btn then dialog_count = 8
-  If err_msg = "" AND ButtonPressed = changes_btn then dialog_count = 9
-  If err_msg = "" AND ButtonPressed = section_g_comments_btn then dialog_count = 10
-  If err_msg = "" AND ButtonPressed = section_a_add_assessor_btn then dialog_count = 11
-  If err_msg = "" AND ButtonPressed = section_e_add_assessor_btn then dialog_count = 12
+  'Navigate to next dialog with next button (and pressing enter) but skip adding additional assessors dialogs
+	If err_msg = "" AND (ButtonPressed = next_btn or ButtonPressed = -1) Then 
+    If dialog_count = 1 or dialog_count = 5 then 
+      dialog_count = dialog_count + 2
+    Else
+      dialog_count = dialog_count + 1
+    End If
+  End If
+  'Navigate to previous dialog with previous button but skip adding additional assessors dialogs
+	If err_msg = "" AND ButtonPressed = previous_btn Then 
+    If dialog_count = 3 or dialog_count = 7 then 
+      dialog_count = dialog_count - 2
+    Else
+      dialog_count = dialog_count - 1
+    End If
+  End If
+  'Handling for optional dialogs to add additional assessors
+  If err_msg = "" AND ButtonPressed = section_a_add_assessor_btn then dialog_count = 2
+  If err_msg = "" AND ButtonPressed = section_e_add_assessor_btn then dialog_count = 6
   If err_msg = "" AND ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
+  If err_msg = "" AND ButtonPressed = section_e_assessor_return_btn then dialog_count = 5
   If ButtonPressed = section_a_assessor_return_no_save_btn then 
     'Reset all Add'l Assessor variables
     section_a_assessor_2 = ""
@@ -474,10 +475,9 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_a_state_3 = ""
     section_a_zip_code_3 = ""
     section_a_email_address_3 = ""
-
+    
     dialog_count = 1
   End If 
-  If err_msg = "" AND ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
   If ButtonPressed = section_e_assessor_return_no_save_btn then 
     'Reset all Add'l Assessor variables
     section_e_assessor_2 = ""
@@ -497,8 +497,10 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_e_zip_code_3 = ""
     section_e_email_address_3 = ""
     
-    dialog_count = 7
+    dialog_count = 5
   End If
+
+  'Handling to pull details from SWKR panel to autopopulate
   If ButtonPressed = section_a_fill_SWKR_btn Then
     Call navigate_to_MAXIS_screen("STAT", "SWKR")
     'creates a new panel if one doesn't exist, and will needs new if there is not one
@@ -525,6 +527,7 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
     END IF
   End If
+  'Handling to pull details from SWKR panel to autopopulate
   If ButtonPressed = section_e_fill_SWKR_btn Then
     Call navigate_to_MAXIS_screen("STAT", "SWKR")
     'creates a new panel if one doesn't exist, and will needs new if there is not one
@@ -553,38 +556,26 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     'End at STAT/MEMB
     Call navigate_to_MAXIS_screen("STAT", "MEMB")
   End If
-
 end function
 
 function dialog_specific_error_handling()	'Error handling for main dialog of forms
   'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
-  'To do - need these?
-	If dialog_count = 11 Then
-    If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return to Contact Info' or the 'Return to Contact Info WITHOUT Saving Assessor Info' buttons."
+
+  'Ensure the user presses either the CANCEL or SAVE button when adding additional assessors
+	If dialog_count = 2 OR dialog_count = 6 Then
+    If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'CANCEL addition of assessor(s)' or the 'SAVE additional assessor(s)' button."
   End If
 
-  If dialog_count = 12 Then
-    If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return to Contact Info' or the 'Return to Contact Info WITHOUT Saving Assessor Info' buttons."
-  End If
 
-	If ButtonPressed = section_a_contact_info_btn OR _
-    ButtonPressed = status_btn OR _
-    ButtonPressed = initial_assessment_btn OR _
-    ButtonPressed = MA_req_app_btn OR _
-    ButtonPressed = exit_reasons_btn OR _
-    ButtonPressed = other_changes_btn OR _
-    ButtonPressed = section_d_comments_btn OR _
-    ButtonPressed = section_b_contact_info_btn OR _  
-    ButtonPressed = MA_status_determination_btn OR _
-    ButtonPressed = changes_btn OR _  
-    ButtonPressed = section_g_comments_btn OR _
-    ButtonPressed = next_btn OR _
+	If ButtonPressed = next_btn OR _
     ButtonPressed = previous_btn OR _
-    ButtonPressed = instructions_btn OR _
     ButtonPressed = section_a_assessor_return_btn OR _
     ButtonPressed = section_e_assessor_return_btn OR _
     ButtonPressed = -1 Then
       If dialog_count = 1 then 
+        If section_a_form_status_dropdown = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must indicate the Form Status from the dropdown list." 
+        
+      
         If trim(section_a_date_form_sent) = "" OR IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY." 
         If form_status_dropdown = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must make a selection from the Form Status dropdown list." 
         If trim(section_a_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
@@ -831,28 +822,138 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
   End If
   If ButtonPressed = complete_btn Then
     If section_a_contact_info_called = False OR _
-    section_b_assess_results_current_status_called = False OR _
-    section_b_assess_results_MA_requests_apps_changes_called = False OR _
-    section_c_comm_elig_worker_exit_reasons_called = False OR _
-    section_c_other_changes_section_d_comments_called = False OR _
+    section_b_called = False OR _
+    section_c_d_called = False OR _
     section_e_contact_info_called = False OR _
-    section_f_medical_assistance_called = False OR _
-    section_f_medical_assistance_changes_called = False OR _
-    section_g_comments_elig_worker_called = False Then
+    section_f_g_called = False = False Then
       err_msg = err_msg & vbNewLine & "* All dialogs must be viewed/completed. Please review the following dialogs:"
     End If
 
     If section_a_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section A: Contact Info"
-    If section_b_assess_results_current_status_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Status"
-    If section_b_assess_results_MA_requests_apps_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Initial Assess."
-    If section_c_comm_elig_worker_exit_reasons_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Exit Reasons"
-    If section_c_other_changes_section_d_comments_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Other Changes"
+    If section_b_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Status"
+    If section_c_d_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Exit Reasons"
     If section_e_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section E: Contact Info"
-    If section_f_medical_assistance_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: MA Status/Det"
-    If section_f_medical_assistance_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: Changes"
-    If section_g_comments_elig_worker_called = False Then err_msg = err_msg & vbNewLine & "--> Section G: Comments"
+    If section_f_g_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: MA Status/Det"
   End If
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+end function
+
+function incomplete_dialog_handling()	'Error handling for main dialog of forms
+  'Dialog will display incomplete fields from previous dialog to encourage user to fill out completely. This will be used in lieu of error handling that prevents user from proceeding since forms are not always fully completed when submitted, even if they are considered complete. 
+
+	If ButtonPressed = next_btn OR _
+    ButtonPressed = previous_btn OR _
+    ButtonPressed = section_a_assessor_return_btn OR _
+    ButtonPressed = section_e_assessor_return_btn OR _
+    ButtonPressed = -1 Then
+      If dialog_count = 1 then 
+        If trim(section_a_date_form_sent) = "" OR _
+          trim(section_a_assessor) = "" OR _
+          trim(section_a_lead_agency) = "" OR _ 
+          trim(section_a_phone_number) = "" OR _  
+          trim(section_a_street_address) = "" OR _ 
+          trim(section_a_city) = "" OR _
+          trim(section_a_state) = "" OR _
+          trim(section_a_zip_code) = "" OR _  
+          trim(section_a_email_address) = "" Then 
+            incomplete_fields = True
+        End If 
+      End If
+      
+      If dialog_count = 2 then 
+        If trim(section_a_assessor_2) = "" OR _  
+        trim(section_a_lead_agency_2) = "" OR _ 
+        trim(section_a_phone_number_2) = "" OR _
+        trim(section_a_street_address_2) = "" OR _ 
+        trim(section_a_city_2) = "" OR _ 
+        trim(section_a_state_2) = "" OR _ 
+        trim(section_a_zip_code_2) = "" OR _ 
+        trim(section_a_email_address_2) = "" OR _ 
+        trim(section_a_assessor_3) = "" OR _ 
+        trim(section_a_lead_agency_3) = "" OR _ 
+        trim(section_a_phone_number_3) = "" OR _
+        trim(section_a_street_address_3) = "" OR _ 
+        trim(section_a_city_3) = "" OR _ 
+        trim(section_a_state_3) = "" OR _  
+        trim(section_a_zip_code_3) = "" OR _  
+        trim(section_a_email_address_3) = "" Then
+          incomplete_fields = True
+        End If 
+      End If
+
+      If dialog_count = 3 then 
+
+        If section_b_person_requesting_services_enrolled_checkbox + section_b_reside_institution_checkbox = 0 OR _
+        trim(section_b_initial_MnA_assessment_date) = "" OR _
+        trim(section_b_assessment_determination_date) = "" OR _
+        section_b_assess_not_LOC_req_checkbox + section_b_meets_LOC_req_checkbox + section_b_meets_criteria_PCA_CFSS_checkbox = 0 OR _
+        section_b_waiver_ac_ecs_yes_checkbox + section_b_waiver_ac_ecs_no_checkbox = 0 OR _
+        section_b_case_mgr_yes_me_checkbox + section_b_case_mgr_yes_someone_checkbox + section_b_case_mgr_no_checkbox = 0 OR _
+        section_b_applied_ma_checkbox + section_b_ma_enrollee_checkbox + section_b_completed_DHS_forms_attached_checkbox + section_b_completed_DHS_forms_checkbox + section_b_send_3543_6696A_checkbox + section_b_send_3531_checkbox + section_b_send_3340_checkbox = 0 OR _
+        section_b_not_instit_loc_checkbox + section_b_enroll_different_program_checkbox = 0 Then
+          incomplete_fields = True
+        End If
+      End if 
+
+      If dialog_count = 4 then 
+        If section_c_person_exited_waiver_checkbox = 0 OR _
+          section_c_ac_checkbox + section_c_ecs_checkbox + section_c_pca_cfss_checkbox + section_c_bi_checkbox + section_c_cac_checkbox + section_c_cadi_checkbox + section_c_dd_checkbox + section_c_ew_checkbox = 0 OR _
+          section_c_diversion_checkbox + section_c_conversion_checkbox = 0 OR _
+          section_c_new_address_checkbox + section_c_new_legal_rep_checkbox + section_c_returning_comm_checkbox + section_c_other_changes_checkbox = 0 OR _
+          trim(section_d_comments) = "" Then
+            incomplete_fields = True
+        End If
+      End if 
+      
+
+      If dialog_count = 5 then
+        If trim(section_e_date_form_sent) = "" OR _
+          trim(section_e_assessor) = "" OR _
+          trim(section_e_lead_agency) = "" OR _ 
+          trim(section_e_phone_number) = "" OR _  
+          trim(section_e_street_address) = "" OR _ 
+          trim(section_e_city) = "" OR _
+          trim(section_e_state) = "" OR _
+          trim(section_e_zip_code) = "" OR _  
+          trim(section_e_email_address) = "" Then 
+            incomplete_fields = True
+        End If 
+      End If
+
+      If dialog_count = 6 then
+        If trim(section_e_assessor_2) = "" OR _  
+        trim(section_e_lead_agency_2) = "" OR _ 
+        trim(section_e_phone_number_2) = "" OR _
+        trim(section_e_street_address_2) = "" OR _ 
+        trim(section_e_city_2) = "" OR _ 
+        trim(section_e_state_2) = "" OR _ 
+        trim(section_e_zip_code_2) = "" OR _ 
+        trim(section_e_email_address_2) = "" OR _ 
+        trim(section_e_assessor_3) = "" OR _ 
+        trim(section_e_lead_agency_3) = "" OR _ 
+        trim(section_e_phone_number_3) = "" OR _
+        trim(section_e_street_address_3) = "" OR _ 
+        trim(section_e_city_3) = "" OR _ 
+        trim(section_e_state_3) = "" OR _  
+        trim(section_e_zip_code_3) = "" OR _  
+        trim(section_e_email_address_3) = "" Then
+          incomplete_fields = True
+        End If
+      End if 
+
+
+      If dialog_count = 7 then
+        If section_f_person_applied_MA_checkbox + section_f_dhs_3531_sent_checkbox + section_f_dhs_3543_6696a_sent_checkbox + section_f_dhs_3543_6696a_3531_returned_checkbox + section_f_dhs_3543_6696a_3531_not_returned_checkbox = 0 OR _
+        section_f_smrt_referral_checkbox + section_f_disability_cert_checkbox + section_f_ma_approved_checkbox + section_f_ma_spenddown_checkbox + section_f_ma_ltc_open_checkbox + section_f_ma_ltc_spenddown_checkbox + section_f_ma_denied_checkbox + section_f_ma_ltc_denied_checkbox + section_f_ma_ltc_ineligible_checkbox + section_f_basic_ma_cont_checkbox + section_f_asset_assess_sent_checkbox = 0 OR _
+        section_f_ma_ltc_spenddown_waiver_checkbox + section_f_ma_terminated_checkbox + section_f_ma_spenddown_changed_checkbox + section_f_ma_ltc_terminated_checkbox + section_f_person_deceased_checkbox + section_f_moved_institution_checkbox + section_f_new_address_checkbox + section_f_other_change_checkbox = 0 OR _
+        trim(section_g_additional_comments) = "" Then
+          incomplete_fields = True
+        End If
+      End if 
+  End If
+
+	If incomplete_fields = True Then 
+    'Add handling here to call the missing info dialog box and include handling to move forward or backward based on user selection
 end function
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
