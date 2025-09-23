@@ -25056,7 +25056,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 														email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
 														email_recip = "jacob.arco@hennepin.us"
-														email_recip_CC = "ben.teskey@hennepin.us"
+                                                        email_recip_CC = ""
 														Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 													End If
 													script_end_procedure_with_error_report("Eligibility Summary has ended because you have indicated the HC Budget needs to be Repaired to include a Remedial Care amount.")
@@ -27709,7 +27709,7 @@ If QCR_HC_Remedial_Care_Review_Needed = True Then
 	email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
     email_recip = "jacob.arco@hennepin.us"
-    email_recip_CC = "ben.teskey@hennepin.us"
+    email_recip_CC = ""
 	Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
