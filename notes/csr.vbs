@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/23/2025", "Returned the Health Care Programs option for CSR Processing.##~##(It had previously been removed during the PHE.)", "Casey Love, Hennepin County")
 call changelog_update("07/11/2025", "Added MFIP and GA to CSR Program Selection to support new CSR processing on these programs.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2022", "Removed Paperless IR and Health Care Programs selections during Public Health Emergency.", "Ilse Ferris, Hennepin County") '#863
 call changelog_update("05/26/2022", "Fixed bug that did not recognize CSR status as mandatory. Made background stability updates.", "Ilse Ferris, Hennepin County") '#863
@@ -86,6 +87,7 @@ BeginDialog Dialog1, 0, 0, 246, 120, "CSR Evaluation Case Number Dialog"
   CheckBox 200, 25, 35, 10, "MFIP", MFIP_checkbox
   CheckBox 155, 40, 35, 10, "GRH", GRH_checkbox
   CheckBox 200, 40, 35, 10, "GA", GA_checkbox
+  CheckBox 155, 55, 35, 10, "HC", HC_checkbox
   EditBox 70, 75, 165, 15, Worker_signature
   ButtonGroup ButtonPressed
     OkButton 130, 95, 50, 15
@@ -93,7 +95,7 @@ BeginDialog Dialog1, 0, 0, 246, 120, "CSR Evaluation Case Number Dialog"
     PushButton 70, 50, 65, 15, "Instructions", script_instructions_btn
   Text 20, 15, 45, 10, "Case number:"
   Text 5, 35, 65, 10, "Footer month/year:"
-  GroupBox 145, 10, 90, 50, "Programs recertifying"
+  GroupBox 145, 10, 90, 60, "Programs recertifying"
   Text 10, 80, 60, 10, "Worker Signature"
   Text 10, 100, 50, 10, "NOTES - CSR"
 EndDialog
@@ -112,6 +114,7 @@ Do
 		If GRH_checkbox = checked Then program_selected = True
 		If MFIP_checkbox = checked Then program_selected = True
 		If GA_checkbox = checked Then program_selected = True
+		If HC_checkbox = checked Then program_selected = True
 		If program_selected = False Then err_msg = err_msg & vbCr & "* Select at least one program."
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 
@@ -167,6 +170,7 @@ If MFIP_checkbox = 1 Then programs_recertifying = programs_recertifying & "MFIP,
 If GRH_checkbox = 1 Then programs_recertifying = programs_recertifying & "GRH, "
 If GA_checkbox = 1 Then programs_recertifying = programs_recertifying & "GA, "
 If SNAP_checkbox = 1 Then programs_recertifying = programs_recertifying & "SNAP, "
+If HC_checkbox = 1 Then programs_recertifying = programs_recertifying & "HC, "
 
 programs_recertifying = trim(programs_recertifying)
 if right(programs_recertifying, 1) = "," then programs_recertifying = left(programs_recertifying, len(programs_recertifying) - 1)
