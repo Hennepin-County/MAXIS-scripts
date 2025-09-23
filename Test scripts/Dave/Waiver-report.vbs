@@ -129,13 +129,13 @@ If resume_check = 1 Then
 	    LOOP until isnumeric(excel_row) = true and excel_row > 1
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-End If 
+End If
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
 'Checking for MAXIS
 Call check_for_MAXIS(True)
-If resume_check <> checked Then 
+If resume_check <> checked Then
 	'Opening the Excel file
 	Set objExcel = CreateObject("Excel.Application")
 	objExcel.Visible = True
@@ -155,7 +155,7 @@ If resume_check <> checked Then
 	FOR i = 1 to 9	'formatting the cells'
 		objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	NEXT
-	ObjExcel.ActiveWorkbook.SaveAs "C:\MAXIS-scripts\AVS Panel Report.xlsx"
+	ObjExcel.ActiveWorkbook.SaveAs "C:\MAXIS-scripts\waiverReport2.xlsx"
 	'Constants
 
 
@@ -208,7 +208,7 @@ If resume_check <> checked Then
 		worker = trim(ucase(worker))					'Formatting the worker so there are no errors
 		back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 		'Exclude caseloads that shouldn't have assets to save time
-		If worker <> "X127EN6" and worker <> "X127EZ5" and worker <> "X127FG2" and worker <> "X127EW4" and worker <> "X1274EC" and worker <> "X127FG1" and worker <> "X127F3K" and worker <> "X127F3P" and worker <> "X127F3F" and worker <> "X127F4E" and worker <> "X127CCL" Then
+		'If worker <> "X127EN6" and worker <> "X127EZ5" and worker <> "X127FG2" and worker <> "X127EW4" and worker <> "X1274EC" and worker <> "X127FG1" and worker <> "X127F3K" and worker <> "X127F3P" and worker <> "X127F3F" and worker <> "X127F4E" and worker <> "X127CCL" Then
 			Call navigate_to_MAXIS_screen("rept", "actv")
 			EMWriteScreen worker, 21, 13
 			TRANSMIT
@@ -252,7 +252,7 @@ If resume_check <> checked Then
 						If MAXIS_case_number = "" Then Exit Do			'Exits do if we reach the end
 
 						'Using if...thens to decide if a case should be added (status isn't blank or inactive and respective box is checked)
-						If HC_status <> " " and HC_status <> "I" and HC_status <> "P" then 
+						If HC_status <> " " and HC_status <> "I" and HC_status <> "P" then
 							add_case_info_to_Excel = True
 							Call write_value_and_transmit("X", MAXIS_row, 3)	'Writing to the HC status field to get the status
 							EMReadScreen popup_check, 6, 2, 41 'Make sure we aren't still on the REPT screen
@@ -263,7 +263,7 @@ If resume_check <> checked Then
 										EMReadScreen memb_pmi, 7, memb_row, 9
 										EMReadScreen memb_name, 25, memb_row, 18
 										EMReadScreen memb_programs, 20, memb_row, 50	'Reading programs
-										If trim(memb_programs) <>"IMD" then 
+										If trim(memb_programs) <>"IMD" then
 											'Write the info to excel
 											ObjExcel.Cells(excel_row, 1).Value = worker
 											ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
@@ -276,10 +276,10 @@ If resume_check <> checked Then
 										End If
 									End if
 								next
-								PF3 'Pop back to the REPT/ACTV screen 
+								PF3 'Pop back to the REPT/ACTV screen
 								MAXIS_row = 7	'Resetting the row to the first one
-							End if 
-						End If 
+							End if
+						End If
 
 						MAXIS_row = MAXIS_row + 1
 						add_case_info_to_Excel = ""	'Blanking out variable
@@ -289,12 +289,12 @@ If resume_check <> checked Then
 					PF8
 				Loop until last_page_check = "THIS IS THE LAST PAGE"
 			END IF
-		End If
+	'	End If
 
-	next 
+	next
 	ObjExcel.ActiveWorkbook.Save
 	excel_row = 2 ''Resetting the excel row to 2, as we are going to be checking the cases now
-End If 
+End If
 'If collect_COLA_stats = True then 'Replace this with logic to choose existing file, resume, etc.
 
 
@@ -317,8 +317,8 @@ Do
 		transmit
 	End If
 	For hc_row = 8 to 19
-		EMReadScreen ref_numb, 2, hc_row, 3	'Reading reference number 
-		If ref_numb = memb_number Then 
+		EMReadScreen ref_numb, 2, hc_row, 3	'Reading reference number
+		If ref_numb = memb_number Then
 			EMReadScreen prog_status, 3, hc_row, 68
 			If prog_status <> "APP" Then                        'Finding the approved version
 				EMReadScreen total_versions, 2, hc_row, 64
@@ -336,7 +336,7 @@ Do
 						EMReadScreen prog_status, 3, hc_row, 68
 						If prog_status = "APP" Then
 							exit for
-						Else 
+						Else
 							EMReadScreen total_versions, 2, hc_row, 64
 							If total_versions <> "01" Then
 								For current_version = right(total_versions, 1) to 1 step -1
@@ -344,12 +344,12 @@ Do
 									EmReadScreen prog_status, 3, hc_row, 68
 									If prog_status = "APP" Then exit for
 								Next
-							End IF 		
-						End If 	
-						If prog_status = "APP" Then exit for 'If we find the approved version, we can exit the loop						
-					Next 
-				End if 
-			End if 
+							End IF
+						End If
+						If prog_status = "APP" Then exit for 'If we find the approved version, we can exit the loop
+					Next
+				End if
+			End if
 			'We should be on the approved version now, so we can check for the eligibility type
 			approved_progs_string = ""	'Blanking out the approved programs string
 			EMReadScreen major_prog, 4, hc_row, 28	'Reading eligibility type
@@ -360,14 +360,14 @@ Do
                    EMREadScreen waiver_type, 1, 13, 76
 				approved_progs_string = approved_progs_string & " " & major_prog & "/" & Elig_type	'Adding the approved program to the string
 				PF3
-			End If 
+			End If
 			For i = 1 to 5 'checking for additional progs with this loop
-				EMReadScreen check_progs, 2, hc_row + i, 3							
+				EMReadScreen check_progs, 2, hc_row + i, 3
 				If check_progs <> "  " Then
 					 Exit For	'Exit loop at next member
-				Else 
+				Else
 					EmReadScreen prog_status, 3, hc_row + i, 68
-					If prog_status = "APP" Then 
+					If prog_status = "APP" Then
 						EMReadScreen major_prog, 4, hc_row + i, 28	'Reading eligibility type
 						If trim(major_prog) <> "MA" Then approved_progs_string = approved_progs_string & " " & trim(major_prog)	'Adding the approved program to the string
 					Else
@@ -376,18 +376,18 @@ Do
 							For current_version = right(total_versions, 1) to 1 step -1
 								Call write_value_and_transmit(current_version, hc_row, 59)	'Writing the current version to the screen
 								EmReadScreen prog_status, 3, hc_row, 68
-								If prog_status = "APP" Then 
+								If prog_status = "APP" Then
 									EMReadScreen major_prog, 4, hc_row + i, 28	'Reading eligibility type
 									If trim(major_prog) <> "MA" Then approved_progs_string = approved_progs_string & " " & trim(major_prog)	'Adding the approved program to the string
 									exit for
-								End If 
+								End If
 							Next
-						End IF 		
-					End If 	
+						End IF
+					End If
 				End If
-			NExt 	
-		End if 
-	Next 
+			NExt
+		End if
+	Next
 	'Put the status on the excel sheet
 		ObjExcel.Cells(excel_row, status_col).Value = waiver_type
 	ObjExcel.Cells(excel_row, elig_col).Value = approved_progs_string	'Adding the approved programs to the excel sheet
