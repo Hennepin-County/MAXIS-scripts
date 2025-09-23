@@ -117,7 +117,6 @@ class jobs_income
 	public verif_date
 	public verif_explain
 	public selection_rsn
-	public not_30_explanation
 	public income_excluded_cash_reason
 	public hc_budg_notes
 	public hc_retro
@@ -131,7 +130,6 @@ class jobs_income
     public budget_confirmed
 	public SNAP_list_of_excluded_pay_dates
 	public CASH_list_of_excluded_pay_dates
-	public using_30_days
 	public pay_weekday
 	public income_received
 	public all_pay_in_app_month
@@ -148,7 +146,6 @@ class jobs_income
 	public pick_one
 	public days_to_add
 	public months_to_add
-	public spread_of_pay_dates
 
 	public first_check
 	public last_check
@@ -284,20 +281,23 @@ class jobs_income
 				err_msg = ""
 				save_check = False
 				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 246, 110,  "Enter Check Info"
-					GroupBox 10, 10, 225, 70, "Actual Check Details"
-					Text 20, 30, 35, 10, "Pay Date:"
-					EditBox 55, 25, 50, 15, pay_date_fld
+				BeginDialog Dialog1, 0, 0, 246, 165,  "Enter Check Info"
+                    Text 55, 10, 225, 10, "***  Add the basic check details here.  ***"
+					GroupBox 10, 20, 225, 70, "Actual Check Details"
+					Text 20, 40, 35, 10, "Pay Date:"
+					EditBox 55, 35, 50, 15, pay_date_fld
 					Text 115, 30, 60, 10, "Gross Amount: $"
-					EditBox 175, 25, 50, 15, pay_amt_fld
-					Text 125, 50, 45, 10, "Total Hours:"
-					EditBox 175, 45, 50, 15, hours_fld
-					Text 55, 40, 50, 10, "(MM/DD/YY)"
-					CheckBox 55, 65, 205, 10, "Check Here if this is a BONUS CHECK", bonus_checkbox
+					EditBox 175, 35, 50, 15, pay_amt_fld
+					Text 125, 60, 45, 10, "Total Hours:"
+					EditBox 175, 55, 50, 15, hours_fld
+					Text 55, 50, 50, 10, "(MM/DD/YY)"
+					CheckBox 55, 75, 205, 10, "Check Here if this is a BONUS CHECK", bonus_checkbox
 					'TODO - maybe add a 'DONE' selection
+                    Text 10, 95, 230, 30, "Once you save the initial check information here, a new dialog will open. Details including pay splits and exclusions can be entered on the next dialog. Remember that checks do NOT need to be entered in order."
 					ButtonGroup ButtonPressed
-						PushButton 160, 85, 75, 15, "Next", next_check_btn
-						PushButton 10, 85, 90, 15, "Cancel / Delete", cancel_check_btn
+						PushButton 145, 145, 90, 15, "Save and Add Details", next_check_btn
+						PushButton 10, 130, 90, 15, "Cancel This Check", cancel_check_btn                       'This button exists in two different forms for clarity to users but really they both mean 'I'm done with this now'
+						PushButton 10, 145, 130, 15, "Done Adding Checks / See Check List", cancel_check_btn
 				EndDialog
 
 				dialog Dialog1
@@ -369,20 +369,7 @@ class jobs_income
 
         gross_max_string_len = 0
 		If actual_checks_provided Then
-			spread_of_pay_dates = DateDiff("d", first_check, last_check)          'this is how many days are between the 1st and last check - because 30 days of verif is still a thing
-			using_30_days = TRUE        'this defaults to true
 			paycheck_list_title = "Paychecks Provided for Determination:"
-
-			If pay_freq = "1 - One Time Per Month" Then       'each pay frequency has a specific number of days that indicate 30 days of income has been reached
-				If spread_of_pay_dates > 30 Then using_30_days = FALSE                              'spoiler alert - it is not always 30 days ... because of course not
-			ElseIf pay_freq = "2 - Two Times Per Month" Then
-				If spread_of_pay_dates > 30 Then using_30_days = FALSE
-				If spread_of_pay_dates < 13 Then using_30_days = FALSE
-			ElseIf pay_freq = "3 - Every Other Week" Then
-				If spread_of_pay_dates <> 28 Then using_30_days = FALSE
-			ElseIf pay_freq = "4 - Every Week" Then
-				If spread_of_pay_dates <> 28 Then using_30_days = FALSE
-			End If
 
 			If IsNumeric(pay_per_hr) Then
 				hourly_wage = pay_per_hr
@@ -558,29 +545,34 @@ class jobs_income
 			snap_ave_hrs_per_pay = FormatNumber(snap_ave_hrs_per_pay, 2,,0)
 			snap_ave_inc_per_pay = FormatNumber(snap_ave_inc_per_pay, 2,,0)
 
-			snap_hrs_per_wk = 0
-			'determining the number of hours per week for SNAP
-			If pay_freq = "1 - One Time Per Month" Then snap_hrs_per_wk = snap_ave_hrs_per_pay/4.3
-			If pay_freq = "2 - Two Times Per Month" Then snap_hrs_per_wk = (snap_ave_hrs_per_pay*2)/4.3
-			If pay_freq = "3 - Every Other Week" Then snap_hrs_per_wk = snap_ave_hrs_per_pay/2
-			If pay_freq = "4 - Every Week" Then snap_hrs_per_wk = snap_ave_hrs_per_pay
-			snap_hrs_per_wk = FormatNumber(snap_hrs_per_wk, 2,,0)
+            If display_hrs_per_wk = "" Then
+                snap_hrs_per_wk = 0
+                'determining the number of hours per week for SNAP
+                If pay_freq = "1 - One Time Per Month" Then snap_hrs_per_wk = snap_ave_hrs_per_pay/4.3
+                If pay_freq = "2 - Two Times Per Month" Then snap_hrs_per_wk = (snap_ave_hrs_per_pay*2)/4.3
+                If pay_freq = "3 - Every Other Week" Then snap_hrs_per_wk = snap_ave_hrs_per_pay/2
+                If pay_freq = "4 - Every Week" Then snap_hrs_per_wk = snap_ave_hrs_per_pay
 
-			cash_hrs_per_wk = 0
-			'determining the number of hours per week for SNAP
-			If pay_freq = "1 - One Time Per Month" Then cash_hrs_per_wk = cash_ave_hrs_per_pay/4.3
-			If pay_freq = "2 - Two Times Per Month" Then cash_hrs_per_wk = (cash_ave_hrs_per_pay*2)/4.3
-			If pay_freq = "3 - Every Other Week" Then cash_hrs_per_wk = cash_ave_hrs_per_pay/2
-			If pay_freq = "4 - Every Week" Then cash_hrs_per_wk = cash_ave_hrs_per_pay
-			cash_hrs_per_wk = FormatNumber(cash_hrs_per_wk, 2,,0)
+                cash_hrs_per_wk = 0
+                'determining the number of hours per week for SNAP
+                If pay_freq = "1 - One Time Per Month" Then cash_hrs_per_wk = cash_ave_hrs_per_pay/4.3
+                If pay_freq = "2 - Two Times Per Month" Then cash_hrs_per_wk = (cash_ave_hrs_per_pay*2)/4.3
+                If pay_freq = "3 - Every Other Week" Then cash_hrs_per_wk = cash_ave_hrs_per_pay/2
+                If pay_freq = "4 - Every Week" Then cash_hrs_per_wk = cash_ave_hrs_per_pay
 
-			hrs_per_wk = 0
-			'determining the number of hours per week for non-SNAP
-			If pay_freq = "1 - One Time Per Month" Then hrs_per_wk = ave_hrs_per_pay/4.3
-			If pay_freq = "2 - Two Times Per Month" Then hrs_per_wk = (ave_hrs_per_pay*2)/4.3
-			If pay_freq = "3 - Every Other Week" Then hrs_per_wk = ave_hrs_per_pay/2
-			If pay_freq = "4 - Every Week" Then hrs_per_wk = ave_hrs_per_pay
-			hrs_per_wk = FormatNumber(hrs_per_wk, 2,,0)
+                hrs_per_wk = 0
+                'determining the number of hours per week for non-SNAP
+                If pay_freq = "1 - One Time Per Month" Then hrs_per_wk = ave_hrs_per_pay/4.3
+                If pay_freq = "2 - Two Times Per Month" Then hrs_per_wk = (ave_hrs_per_pay*2)/4.3
+                If pay_freq = "3 - Every Other Week" Then hrs_per_wk = ave_hrs_per_pay/2
+                If pay_freq = "4 - Every Week" Then hrs_per_wk = ave_hrs_per_pay
+            Else
+                snap_hrs_per_wk = hrs_per_wk
+                cash_hrs_per_wk = hrs_per_wk
+            End If
+            snap_hrs_per_wk = FormatNumber(snap_hrs_per_wk, 2,,0)
+            cash_hrs_per_wk = FormatNumber(cash_hrs_per_wk, 2,,0)
+            hrs_per_wk = FormatNumber(hrs_per_wk, 2,,0)
 
 			monthly_income = ""
 			CASH_monthly_income = ""
@@ -610,8 +602,6 @@ class jobs_income
 		End If
 
 		If pick_one = use_estimate Then
-			using_30_days = TRUE            'there is no need to explain if an estimate is being used
-
 			'setting the wording for the CONFIRM BUDGET Dialog
 			paycheck_list_title = "Anticipated Paychecks for " & initial_month_mo & "/" & initial_month_yr & ":"
 			the_initial_month = DateValue(initial_month_mo & "/1/" & initial_month_yr)
@@ -802,8 +792,6 @@ class jobs_income
             Call write_bullet_and_variable_in_CASE_NOTE("Received Date", verif_date)
             Call write_bullet_and_variable_in_CASE_NOTE("Type Received", verif_type)
             If verif_explain <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Explanation of Verification: " & verif_explain)
-            Call write_bullet_and_variable_in_CASE_NOTE("Days covered by check stubs", spread_of_pay_dates)
-            If using_30_days = FALSE Then Call write_variable_with_indent_in_CASE_NOTE("Days Used Explaination: " & not_30_explanation)
 
             Call write_bullet_and_variable_in_CASE_NOTE("Conversation with", spoke_with)
             If convo_detail <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Conversation Details: " & convo_detail)
@@ -1887,19 +1875,16 @@ class jobs_income
 		budget_correct_btn						= 220
 
 		pay_frequency_tips_and_tricks_btn 		= 1001
-		not_thirty_days_tips_and_tricks_btn 	= 1002
+        cm_budg_btn                             = 1002
 		confirm_snap_budget_tips_and_tricks_btn = 1003
 		confirm_cash_budget_tips_and_tricks_btn = 1004
 		hc_retro_budget_tips_and_tricks_btn 	= 1005
 		confirm_hc_budget_tips_and_tricks_btn 	= 1006
-		confirm_grh_budget_tips_and_tricks_btn 	= 1007
 
 		Do
 			err_msg = ""
 
 			dlg_len = 120        'starting with this dialog
-
-            If using_30_days = FALSE Then dlg_len = dlg_len + 25
 
 			If pay_freq = "2 - Two Times Per Month" Then
 				dlg_len = dlg_len + 20
@@ -1964,17 +1949,14 @@ class jobs_income
                 Text 260, y_pos + 10, 170, 10, "Average Hours per Check: " & ave_hrs_per_pay
                 Text 260, y_pos + 20, 170, 10, "Average Paycheck: $ " & ave_inc_per_pay '& "   -   Monthly Income: $ " & monthly_income
 				y_pos = y_pos + 35
-				If pick_one = use_actual Then Text 10, y_pos, 400, 10, "Income provided covers the period " & first_check & " to " & last_check & ". This income covers " & spread_of_pay_dates & " days."
-				If pick_one = use_estimate Then Text 10, y_pos, 400, 10, "Income is based on anticipated hours and rate of pay."
-				y_pos = y_pos + 10
-				If using_30_days = True Then y_pos = y_pos + 5
-				If using_30_days = FALSE Then
-					n30tnt_y_pos = y_pos - 5
+				' y_pos = y_pos + 15
 
-                    Text 10, y_pos, 175, 10, "It appears this is not 30 days of income. Explain:"
-					ComboBox 10, y_pos+10, 400, 15, "Type or Select"+chr(9)+"Income has just started and this is all that has been received."+chr(9)+"Hours Reduction - this is all the income since the change."+chr(9)+"Hours Increase - this is all the income since the change."+chr(9)+"Wage Reduction - this is all the income since the change."+chr(9)+"Wage Increase - this is all the income since the change."+chr(9)+"Due to how work is scheduled, this is the best representation of expected ongoing income."+chr(9)+"Client stated this income is consistent."+chr(9)+not_30_explanation, not_30_explanation
-					y_pos = y_pos + 30
-				End If
+                Text 10, y_pos, 215, 10, " * ! * ! * CHECK CM 22.03.01    FOR BUDGETING POLICY * ! * ! * "
+                cm_budg_y_pos = y_pos
+
+                If pick_one = use_actual Then Text 225, y_pos, 200, 10, "Income provided covers the period " & first_check & " to " & last_check & "."
+				If pick_one = use_estimate Then Text 225, y_pos, 200, 10, "Income is based on anticipated hours and rate of pay."
+				y_pos = y_pos + 15
 
 				If apply_to_SNAP = checked Then
 					GroupBox 5, y_pos, 410, grp_len, "SNAP Budget - ENTERED ON SNAP PIC"
@@ -2117,11 +2099,10 @@ class jobs_income
 					PushButton 395, 5, 15, 15, "!", pay_frequency_tips_and_tricks_btn
 
 					If apply_to_SNAP = checked Then PushButton 340, csbtnt_y_pos, 15, 15, "!", confirm_snap_budget_tips_and_tricks_btn
-					If apply_to_SNAP = checked and using_30_days = FALSE Then PushButton 385, n30tnt_y_pos, 15, 15, "!", not_thirty_days_tips_and_tricks_btn
+                    PushButton 60, cm_budg_y_pos-3, 47, 13, "CM 22.03.01", cm_budg_btn
 					If apply_to_CASH = checked Then PushButton 340, ccbtnt_y_pos, 15, 15, "!", confirm_cash_budget_tips_and_tricks_btn
 					If apply_to_HC = checked Then PushButton 320, hcrtnt_y_pos, 15, 15, "!", hc_retro_budget_tips_and_tricks_btn
 					If apply_to_HC = checked Then PushButton 240, chbtnt_y_pos, 15, 15, "!", confirm_hc_budget_tips_and_tricks_btn
-					If apply_to_GRH = checked Then PushButton 340, cgbtnt_y_pos, 15, 15, "!", confirm_grh_budget_tips_and_tricks_btn
 
 					PushButton 10, y_pos, 100, 15, "Go Back to Check List", back_to_checks_btn
 					PushButton 265, y_pos, 100, 15, "Budget is Accurate", budget_correct_btn
@@ -2141,30 +2122,26 @@ class jobs_income
 			End If
 
 			If apply_to_SNAP = unchecked Then SNAP_accurate_checkbox = checked
-			If apply_to_SNAP = unchecked Then using_30_days = TRUE
-			If apply_to_CASH = unchecked Then CASH_accurate_checkbox = checked
+			If apply_to_CASH = unchecked and apply_to_GRH = unchecked Then CASH_accurate_checkbox = checked
 			If apply_to_HC = unchecked Then HC_accurate_checkbox = checked
-			If apply_to_GRH = unchecked Then GRH_accurate_checkbox = checked
-			not_30_explanation = trim(not_30_explanation)
-
 
 			If confirm_pay_freq_checkbox = unchecked Then err_msg = err_msg & vbCr & "* Review the pay frequency and confirm."
 			If SNAP_accurate_checkbox = unchecked Then err_msg = err_msg & "*** SNAP Budget not confirmed. ***" & vbCr & " - Review details of SNAP budget, return to checks entry if inaccurate." & vbCr
-			If using_30_days = FALSE Then                   'if checks do not span 30 days and SNAP is selected, there must be an explanation
-                If not_30_explanation = "" OR not_30_explanation = "Type or Select" Then err_msg = err_msg & vbCr & "** Since income received is not 30 days of income for SNAP, it must be explained why we are accepting more or less." & vbCr
+			If CASH_accurate_checkbox = unchecked Then
+                err_progs = ""
+                If apply_to_CASH = checked Then err_progs = err_progs & "CASH "
+                If apply_to_GRH = checked Then err_progs = err_progs & "GRH "
+                err_progs = replace(trim(err_progs), " ", " and ")
+                err_msg = err_msg & vbCr & "*** " & err_progs & " Budget not confirmed***" & vbCr & " - Review details of " & replace(err_progs, "and", "/") & " budget, return to checks entry if inaccurate." & vbCr
             End If
-			If CASH_accurate_checkbox = unchecked Then err_msg = err_msg & vbCr & "*** CASH Budget not confirmed***" & vbCr & " - Review details of CASH budget, return to checks entry if inaccurate." & vbCr
-
             If HC_accurate_checkbox = unchecked Then err_msg = err_msg & vbCr & "*** HC Budget not confirmed ***" & vbCr & " - Review details of HC budget, return to checks entry if inaccurate." & vbCr
-			If GRH_accurate_checkbox = unchecked Then err_msg = err_msg & vbCr & "*** GRH Budget not confirmed***" & vbCr & " - Review details of GRH budget, return to checks entry if inaccurate." & vbCr
 
 			If ButtonPressed = pay_frequency_tips_and_tricks_btn		Then tips_and_tricks_msg = MsgBox(pay_freq_2_msg_text, vbInformation, "Tips and Tricks")
-			If ButtonPressed = not_thirty_days_tips_and_tricks_btn 		Then tips_and_tricks_msg = MsgBox(not_thirty_msg_text, vbInformation, "Tips and Tricks")
+            If ButtonPressed = cm_budg_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00220301"
 			If ButtonPressed = confirm_snap_budget_tips_and_tricks_btn 	Then tips_and_tricks_msg = MsgBox(confirm_snap_msg_text, vbInformation, "Tips and Tricks")
 			If ButtonPressed = confirm_cash_budget_tips_and_tricks_btn 	Then tips_and_tricks_msg = MsgBox(confirm_cash_msg_text, vbInformation, "Tips and Tricks")
 			If ButtonPressed = hc_retro_budget_tips_and_tricks_btn 		Then tips_and_tricks_msg = MsgBox(hc_retro_msg_text, vbInformation, "Tips and Tricks")
 			If ButtonPressed = confirm_hc_budget_tips_and_tricks_btn 	Then tips_and_tricks_msg = MsgBox(confirm_hc_msg_text, vbInformation, "Tips and Tricks")
-			If ButtonPressed = confirm_grh_budget_tips_and_tricks_btn 	Then tips_and_tricks_msg = MsgBox(confirm_grh_msg_text, vbInformation, "Tips and Tricks")
 
 			If ButtonPressed > 1000 Then err_msg = "LOOP"
 
@@ -2780,24 +2757,32 @@ class jobs_income
 				total_hours = total_hours + hours(all_checks)
 				If NOT exclude_entirely(all_checks) Then
 					there_are_counted_checks = TRUE
-					If exclude_from_SNAP(check_count) = unchecked Then
+					If exclude_from_SNAP(all_checks) = unchecked Then
 						snap_check_count = snap_check_count + 1
-						If exclude_SNAP_amount(check_count) = "" Then
+						If exclude_SNAP_amount(all_checks) = "" Then
 							snap_budgeted_total = snap_budgeted_total + gross_amount(all_checks)
 							snap_hours = snap_hours + hours(all_checks)
-						Else
+                        ElseIf IsNumeric(exclude_SNAP_amount(all_checks)) Then
 							snap_budgeted_total = snap_budgeted_total + gross_amount(all_checks) - exclude_SNAP_amount(all_checks)
-							' ??? snap_hours = snap_hours + hours(all_checks)
+							snap_hours = snap_hours + hours(all_checks)
+                            If IsNumeric(exclude_SNAP_hours(all_checks)) Then snap_hours = snap_hours - exclude_SNAP_hours(all_checks)
+                        Else
+                            snap_budgeted_total = snap_budgeted_total + gross_amount(all_checks)
+                            snap_hours = snap_hours + hours(all_checks)
 						End If
 					End If
-					If exclude_from_CASH(check_count) = unchecked Then
+					If exclude_from_CASH(all_checks) = unchecked Then
 						cash_check_count = cash_check_count + 1
-						If exclude_CASH_amount(check_count) = "" Then
+						If exclude_CASH_amount(all_checks) = "" Then
 							cash_budgeted_total = cash_budgeted_total + gross_amount(all_checks)
 							cash_hours = cash_hours + hours(all_checks)
-						Else
+						ElseIf IsNumeric(exclude_CASH_amount(all_checks)) Then
 							cash_budgeted_total = cash_budgeted_total + gross_amount(all_checks) - exclude_CASH_amount(all_checks)
-							' ??? cash_hours = cash_hours + hours(all_checks)
+							cash_hours = cash_hours + hours(all_checks)
+                            If IsNumeric(exclude_CASH_hours(all_checks)) Then cash_hours = cash_hours - exclude_CASH_hours(all_checks)
+                        Else
+                            cash_budgeted_total = cash_budgeted_total + gross_amount(all_checks)
+                            snacash_hoursp_hours = cash_hours + hours(all_checks)
 						End If
 					End If
 				End If
@@ -3310,7 +3295,6 @@ class jobs_income
         If header = "verif_date"                        Then Call read_txt_value(verif_date,                info, "String")
         If header = "verif_explain"                     Then Call read_txt_value(verif_explain,             info, "String")
         If header = "selection_rsn"                     Then Call read_txt_value(selection_rsn,             info, "String")
-        If header = "not_30_explanation"                Then Call read_txt_value(not_30_explanation,        info, "String")
         If header = "income_excluded_cash_reason"       Then Call read_txt_value(income_excluded_cash_reason, info, "String")
         If header = "hc_budg_notes"                     Then Call read_txt_value(hc_budg_notes,             info, "String")
         If header = "hc_retro"                          Then Call read_txt_value(hc_retro,                  info, "Boolean")
@@ -3322,7 +3306,6 @@ class jobs_income
         If header = "budget_confirmed"                  Then Call read_txt_value(budget_confirmed,          info, "Boolean")
         If header = "SNAP_list_of_excluded_pay_dates"   Then Call read_txt_value(SNAP_list_of_excluded_pay_dates,   info, "String")
         If header = "CASH_list_of_excluded_pay_dates"   Then Call read_txt_value(CASH_list_of_excluded_pay_dates,   info, "String")
-        If header = "using_30_days"                     Then Call read_txt_value(using_30_days,             info, "Boolean")
         If header = "pay_weekday"                       Then Call read_txt_value(pay_weekday,               info, "String")
         If header = "income_received"                   Then Call read_txt_value(income_received,           info, "Boolean")
         If header = "all_pay_in_app_month"              Then Call read_txt_value(all_pay_in_app_month,      info, "Boolean")
@@ -3338,7 +3321,6 @@ class jobs_income
         If header = "pick_one"                          Then Call read_txt_value(pick_one,                  info, "Number")
         If header = "days_to_add"                       Then Call read_txt_value(days_to_add,               info, "Number")
         If header = "months_to_add"                     Then Call read_txt_value(months_to_add,             info, "Number")
-        If header = "spread_of_pay_dates"               Then Call read_txt_value(spread_of_pay_dates,       info, "Number")
         If header = "first_check"                       Then Call read_txt_value(first_check,               info, "Date")
         If header = "last_check"                        Then Call read_txt_value(last_check,                info, "Date")
         If header = "order_ubound"                      Then Call read_txt_value(order_ubound,              info, "Number")
@@ -3887,7 +3869,6 @@ class jobs_income
 	    objTextStream.WriteLine "verif_date~%~%~%~%~" & verif_date
 	    objTextStream.WriteLine "verif_explain~%~%~%~%~" & verif_explain
 	    objTextStream.WriteLine "selection_rsn~%~%~%~%~" & selection_rsn
-	    objTextStream.WriteLine "not_30_explanation~%~%~%~%~" & not_30_explanation
 	    objTextStream.WriteLine "income_excluded_cash_reason~%~%~%~%~" & income_excluded_cash_reason
 	    objTextStream.WriteLine "hc_budg_notes~%~%~%~%~" & hc_budg_notes
 	    objTextStream.WriteLine "hc_retro~%~%~%~%~" & hc_retro
@@ -3899,7 +3880,6 @@ class jobs_income
         objTextStream.WriteLine "budget_confirmed~%~%~%~%~" & budget_confirmed
 	    objTextStream.WriteLine "SNAP_list_of_excluded_pay_dates~%~%~%~%~" & SNAP_list_of_excluded_pay_dates
 	    objTextStream.WriteLine "CASH_list_of_excluded_pay_dates~%~%~%~%~" & CASH_list_of_excluded_pay_dates
-	    objTextStream.WriteLine "using_30_days~%~%~%~%~" & using_30_days
 	    objTextStream.WriteLine "pay_weekday~%~%~%~%~" & pay_weekday
 	    objTextStream.WriteLine "income_received~%~%~%~%~" & income_received
 	    objTextStream.WriteLine "all_pay_in_app_month~%~%~%~%~" & all_pay_in_app_month
@@ -3915,7 +3895,6 @@ class jobs_income
 	    objTextStream.WriteLine "pick_one~%~%~%~%~" & pick_one
 	    objTextStream.WriteLine "days_to_add~%~%~%~%~" & days_to_add
 	    objTextStream.WriteLine "months_to_add~%~%~%~%~" & months_to_add
-	    objTextStream.WriteLine "spread_of_pay_dates~%~%~%~%~" & spread_of_pay_dates
 	    objTextStream.WriteLine "first_check~%~%~%~%~" & first_check
 	    objTextStream.WriteLine "last_check~%~%~%~%~" & last_check
 	    objTextStream.WriteLine "order_ubound~%~%~%~%~" & order_ubound
@@ -5686,16 +5665,6 @@ confirm_hc_msg_text		= "*** Tips and Tricks ***" & vbNewLine & "----------------
 						  "CONFIRMING THE HC INCOME ESTIMATION AND BUDGET IS CORRECT"  & vbNewLine & vbNewLine &_
 						  "The health care budget is determined by the check dates and the calculated amount of the HC Income Estimate."  & vbNewLine & vbNewLine &_
 						  "The HC Income Estimate is based on the average of the provided checks."  & vbNewLine & vbNewLine &_
-						  "----------------------------------------"  & vbNewLine &_
-						  "If the budget looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
-						  "Some of the opptions for ways to change the budget:" & vbNewLine &_
-						  "  - Ensuring all checks have been listed." & vbNewLine &_
-						  "  - Checking the dates and gross amounts entered." & vbNewLine & vbNewLine &_
-						  "IT IS VITAL THAT WE ARE REVIEWING THE BUDGET HERE BECUASE THE SCRIPT WILL UPDATE JOBS NEXT."
-
-confirm_grh_msg_text	= "*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
-						  "CONFIRMING THE CHECKS FOR THE GRH BUDGET IS CORRECT"  & vbNewLine & vbNewLine &_
-						  "The script uses these budget details to update the main JOBS panel and the GRH pop-up."  & vbNewLine & vbNewLine &_
 						  "----------------------------------------"  & vbNewLine &_
 						  "If the budget looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
 						  "Some of the opptions for ways to change the budget:" & vbNewLine &_
