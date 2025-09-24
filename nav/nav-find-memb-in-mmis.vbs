@@ -246,28 +246,38 @@ function navigate_to_MAXIS_environment(maxis_mode)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
 '===== Keywords: MAXIS, navigate
     maxis_mode = UCASE(maxis_mode)
-    If maxis_mode = "PRODUCTION" Then mai_code = "1"
-    If maxis_mode = "INQUIRY DB" Then mai_code = "2"
-    If maxis_mode = "TRAINING" Then mai_code = "3"
+    If maxis_mode = "PRODUCTION" Then
+        mai_code = "1"
+        mai_row = 6
+    End If
+    If maxis_mode = "INQUIRY DB" Then
+        mai_code = "2"
+        mai_row = 7
+    End If
+    If maxis_mode = "TRAINING" Then
+        mai_code = "3"
+        mai_row = 8
+    End If
+
     attn
     Do
         EMReadScreen MAI_check, 3, 1, 33
         If MAI_check <> "MAI" then EMWaitReady 1, 1
     Loop until MAI_check = "MAI"
 
-    EMReadScreen prod_check, 7, 6, 15
+    EMReadScreen prod_check, 7, mai_row, 15
     IF prod_check = "RUNNING" THEN
         Call write_value_and_transmit(mai_code, 2, 15)
     ELSE
         EMConnect"A"
         attn
-        EMReadScreen prod_check, 7, 6, 15
+        EMReadScreen prod_check, 7, mai_row, 15
         IF prod_check = "RUNNING" THEN
             Call write_value_and_transmit(mai_code, 2, 15)
         ELSE
             EMConnect"B"
             attn
-            EMReadScreen prod_check, 7, 6, 15
+            EMReadScreen prod_check, 7, mai_row, 15
             IF prod_check = "RUNNING" THEN
                 Call write_value_and_transmit(mai_code, 2, 15)
             Else
