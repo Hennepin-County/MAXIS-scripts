@@ -8387,6 +8387,10 @@ Do
 				save_your_work
 				cancel_confirmation
 
+                'This sets the button pressed to a non-button incase 'Cancel' is pressed but the script is not actually cancelled.
+                'This is important because otherwise the script thinks the button is a non-existant 'prefil_btn' from the forms class
+	            If ButtonPressed = 0 then ButtonPressed = 15000
+
 				Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
 				Call review_for_discrepancies
