@@ -6,7 +6,7 @@
 'Execute text_from_the_other_script
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "LTSS - DD SCREENING"
+name_of_script = "LTSS - DD SCREENING.vbs"
 start_time = timer
 STATS_counter = 0                          'sets the stats counter at one
 STATS_manualtime = 300                      'manual run time in seconds
