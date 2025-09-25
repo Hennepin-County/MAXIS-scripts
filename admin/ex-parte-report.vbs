@@ -2982,7 +2982,7 @@ If ex_parte_function = "Prep 1" Then
 					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
 					Set objAVSConnection = CreateObject("ADODB.Connection")
 
-					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					objAVSConnection.Open db_full_string
 					'Find out if the case number and SMI exists in the SQL table
 					AVSrow = "Select count(*) FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
 					objAVSRecordSet.Open AVSrow, objConnection
