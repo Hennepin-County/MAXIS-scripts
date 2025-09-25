@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/24/2025", "The script will now end on RSUM of MEMB 01 instead of RELG.", "Casey Love, Hennepin County")
 call changelog_update("12/11/2024", "Updated script to navigate from MAXIS training to MMIS training region. ", "Mark Riegel, Hennepin County")
 call changelog_update("01/31/2019", "Streamlined script to navigate to MMIS more effectively.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -66,11 +67,11 @@ MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
 EMReadScreen HC_app_check, 16, 3, 33
 If HC_app_check = "Approval Package" then script_end_procedure("The script needs to be on the previous or next screen to process this.")
 
-'Navigate to MMIS 
+'Navigate to MMIS
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
-EMWriteScreen "I", 2, 19    'enter into case in MMIS in INQUIRY mode 
+EMWriteScreen "I", 2, 19    'enter into case in MMIS in INQUIRY mode
 Call write_value_and_transmit(MAXIS_case_number, 9, 19)
 
 EMReadscreen RKEY_check, 4, 1, 52
@@ -78,8 +79,8 @@ If RKEY_check = "RKEY" then script_end_procedure("A correct case number was not 
 
 'Now it gets to RELG for member 01 of this case.
 Call write_value_and_transmit("RCIN", 1, 8)
-EMWriteScreen "X", 11, 2                            'selecting MEMB 01 on the case 
-Call write_value_and_transmit("RELG", 1, 8)
+EMWriteScreen "X", 11, 2                            'selecting MEMB 01 on the case
+Call write_value_and_transmit("RSUM", 1, 8)
 
 script_end_procedure("Success! Script has navigated to MMIS.")
 

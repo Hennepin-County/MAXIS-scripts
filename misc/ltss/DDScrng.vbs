@@ -1,13 +1,17 @@
-'LOADING GLOBAL VARIABLES--------------------------------------------------------------------
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Access Aging & Disability Services\Scripts\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
+''LOADING GLOBAL VARIABLES--------------------------------------------------------------------
+'Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+'Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Access Aging & Disability Services\Scripts\LTSS Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
+'text_from_the_other_script = fso_command.ReadAll
+'fso_command.Close
+'Execute text_from_the_other_script
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-'name_of_script = ""
-'start_time = timer
+name_of_script = "LTSS - DD SCREENING"
+start_time = timer
+STATS_counter = 0                          'sets the stats counter at one
+STATS_manualtime = 300                      'manual run time in seconds
+STATS_denomination = "M"       			   'C is for each CASE
+'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once

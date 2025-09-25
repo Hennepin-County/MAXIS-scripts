@@ -44,78 +44,12 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("09/24/2025", "Update to increase the ease of use.##~## - Allows the script to work for cases in other counties.##~## - Allows the script to work from Inquiry.##~## - Update the person selection to make it easier to select only 1 person.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("08/13/2024", "Initial version.", "Casey Love, Hennepin County") 'REPLACE with release date and your name.
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'THE SCRIPT==================================================================================================================
-EMConnect "" 'Connects to BlueZone
-
-CALL check_for_MAXIS(True)										'Checks to see if in MAXIS
-CALL MAXIS_case_number_finder(MAXIS_case_number)    			'Grabs the MAXIS case number automatically
-Call back_to_SELF                                               'starting at the SELF panel
-EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
-MX_environment = trim(MX_environment)
-Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        	'Going to MMIS'
-Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
-
-MAXIS_footer_month = CM_mo									'Directly assigns a footer month based on the current month
-MAXIS_footer_year = CM_yr
-
-Dialog1 = "" 'blanking out dialog name
-BeginDialog Dialog1, 0, 0, 191, 80, "NAV - Find MEMB in MMIS Case Number Dialog"
-  EditBox 60, 10, 50, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 135, 40, 50, 15
-    CancelButton 135, 60, 50, 15
-    PushButton 135, 5, 50, 15, "Instructions", script_instructions_btn
-  Text 10, 15, 50, 10, "Case Number:"
-  Text 10, 40, 120, 35, "Script will allow you to select a single member and find any open Health Care Span in MMIS for the current month."
-EndDialog
-
-'Shows dialog ----------------------------------
-DO
-    Do
-        err_msg = ""    'This is the error message handling
-        Dialog Dialog1
-        cancel_without_confirmation
-        'Add in all of your mandatory field handling from your dialog here.
-        Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
-		If ButtonPressed = script_instructions_btn Then
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NAVIGATION/NAVIGATION%20SCRIPTS.docx"	'copy the instructions URL here
-			err_msg = "LOOP"
-		End If
-        IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
-    'Add to all dialogs where you need to work within BLUEZONE
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-'End dialog section-----------------------------------------------------------------------------------------------
-
-'Reset to SELF to check the MAXIS region
-'This is also helpful to ensure we are not starting in a CASE/NOTE or something
-Call back_to_SELF
-Call clear_line_of_text(18, 43) 					'clear and rewrite the CASE Number. This is optional but can help the worker not to lose the case number.
-EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
-
-'PRIV Handling
-Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
-
-'Out of County Handling
-'There are a few reasons to allow a script to run on an out of county case - so review if this is needed.
-EMReadScreen pw_county_code, 2, 21, 16
-If pw_county_code <> "27" Then script_end_procedure("This case is not in Hennepin County and cannot be updated. The script will now end.")
-
-Do
-	Call HH_member_custom_dialog(HH_member_array)
-	If UBound(HH_member_array) > 0 Then MsgBox "* * * NOTICE * * * " & vbCr & vbCr & "Search can only be completed for 1 person, please check only one person to search."
-Loop until UBound(HH_member_array) = 0
-
-MEMB_ref_numb = HH_member_array(0)
-Call find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_name, MEMB_first_name, MEMB_dob, MEMB_PMI_ARRAY)
 
 function find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_name, MEMB_first_name, MEMB_dob, MEMB_PMI_ARRAY)
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -223,27 +157,6 @@ function find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_na
 	MEMB_PMI_ARRAY = split(PMIs_String)
 End Function
 
-STATS_counter = UBound(MEMB_PMI_ARRAY)+1
-
-const MMIS_case_numb_const 		= 0
-const MMIS_pmi_const 			= 1
-const DUPLICATE_pmi_const		= 2
-const MMIS_ssn_const 			= 3
-const MMIS_name_const			= 4
-const MMIS_hc_prog_const		= 5
-const MMIS_hc_elig_type_const	= 6
-const MMIS_span_start_date_const= 7
-const MMIS_span_status_const	= 8
-const MMIS_span_end_date_const	= 9
-const string_id_const			= 10
-const MX_ref_numb_const 		= 11
-const MMIS_last_const			= 12
-
-Dim MMIS_HC_SPANS_ARRAY()
-ReDim MMIS_HC_SPANS_ARRAY(MMIS_last_const, 0)
-
-Call find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMIS_pmi_const, DUPLICATE_pmi_const, MMIS_ssn_const, MMIS_name_const, MMIS_hc_prog_const, MMIS_hc_elig_type_const, MMIS_span_start_date_const, MMIS_span_status_const, MMIS_span_end_date_const, string_id_const, MX_ref_numb_const, MMIS_last_const, MMIS_HC_SPANS_ARRAY)
-
 function find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMIS_pmi_const, DUPLICATE_pmi_const, MMIS_ssn_const, MMIS_name_const, MMIS_hc_prog_const, MMIS_hc_elig_type_const, MMIS_span_start_date_const, MMIS_span_status_const, MMIS_span_end_date_const, string_id_const, MX_ref_numb_const, MMIS_last_const, MMIS_HC_SPANS_ARRAY)
 	first_of_this_month = DatePart("m", date) & "/1/" & DatePart("yyyy", date)
 	first_of_this_month = DateAdd("d", 0, first_of_this_month)
@@ -326,7 +239,202 @@ function find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMI
 		Loop
 	Next
 End Function
-Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
+
+function navigate_to_MAXIS_environment(maxis_mode)
+'VARIATION of FuncLib function to navigate to specifc MAXIS environment
+'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
+'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
+'===== Keywords: MAXIS, navigate
+    maxis_mode = UCASE(maxis_mode)
+    If maxis_mode = "PRODUCTION" Then
+        mai_code = "1"
+        mai_row = 6
+    End If
+    If maxis_mode = "INQUIRY DB" Then
+        mai_code = "2"
+        mai_row = 7
+    End If
+    If maxis_mode = "TRAINING" Then
+        mai_code = "3"
+        mai_row = 8
+    End If
+
+    attn
+    Do
+        EMReadScreen MAI_check, 3, 1, 33
+        If MAI_check <> "MAI" then EMWaitReady 1, 1
+    Loop until MAI_check = "MAI"
+
+    EMReadScreen prod_check, 7, mai_row, 15
+    IF prod_check = "RUNNING" THEN
+        Call write_value_and_transmit(mai_code, 2, 15)
+    ELSE
+        EMConnect"A"
+        attn
+        EMReadScreen prod_check, 7, mai_row, 15
+        IF prod_check = "RUNNING" THEN
+            Call write_value_and_transmit(mai_code, 2, 15)
+        ELSE
+            EMConnect"B"
+            attn
+            EMReadScreen prod_check, 7, mai_row, 15
+            IF prod_check = "RUNNING" THEN
+                Call write_value_and_transmit(mai_code, 2, 15)
+            Else
+                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+            END IF
+        END IF
+    END IF
+end function
+
+'THE SCRIPT==================================================================================================================
+EMConnect "" 'Connects to BlueZone
+
+CALL check_for_MAXIS(True)										'Checks to see if in MAXIS
+CALL MAXIS_case_number_finder(MAXIS_case_number)    			'Grabs the MAXIS case number automatically
+Call back_to_SELF                                               'starting at the SELF panel
+EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
+MX_environment = trim(MX_environment)
+If MX_environment = "TRAINING" Then Call script_end_procedure("You are in the MAXIS Training environment. This script only works in Production or Inquiry. The script will now end.")
+Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        	'Going to MMIS'
+Call navigate_to_MAXIS_environment(MX_environment)                          'going back to MAXIS
+
+MAXIS_footer_month = CM_mo									'Directly assigns a footer month based on the current month
+MAXIS_footer_year = CM_yr
+
+Dialog1 = "" 'blanking out dialog name
+BeginDialog Dialog1, 0, 0, 191, 80, "NAV - Find MEMB in MMIS Case Number Dialog"
+  EditBox 60, 10, 50, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    OkButton 135, 40, 50, 15
+    CancelButton 135, 60, 50, 15
+    PushButton 135, 5, 50, 15, "Instructions", script_instructions_btn
+  Text 10, 15, 50, 10, "Case Number:"
+  Text 10, 40, 120, 35, "Script will allow you to select a single member and find any open Health Care Span in MMIS for the current month."
+EndDialog
+
+'Shows dialog ----------------------------------
+DO
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_without_confirmation
+        'Add in all of your mandatory field handling from your dialog here.
+        Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
+		If ButtonPressed = script_instructions_btn Then
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NAVIGATION/NAVIGATION%20SCRIPTS.docx"	'copy the instructions URL here
+			err_msg = "LOOP"
+		End If
+        IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    'Add to all dialogs where you need to work within BLUEZONE
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+'End dialog section-----------------------------------------------------------------------------------------------
+
+'Reset to SELF to check the MAXIS region
+'This is also helpful to ensure we are not starting in a CASE/NOTE or something
+Call back_to_SELF
+Call clear_line_of_text(18, 43) 					'clear and rewrite the CASE Number. This is optional but can help the worker not to lose the case number.
+EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
+
+'PRIV Handling
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
+
+'This block replaces HH_member_custom_dialog because we want a radio button selection instead of checkboxes
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+transmit
+
+Do								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+    EMReadscreen ref_nbr, 3, 4, 33
+    EMReadScreen access_denied_check, 13, 24, 2
+    'MsgBox access_denied_check
+    If access_denied_check = "ACCESS DENIED" Then
+        PF10
+        EMWaitReady 0, 0
+        last_name = "UNABLE TO FIND"
+        first_name = " - Access Denied"
+        mid_initial = ""
+    Else
+        EMReadscreen last_name, 25, 6, 30
+        EMReadscreen first_name, 12, 6, 63
+        EMReadscreen mid_initial, 1, 6, 79
+        last_name = trim(replace(last_name, "_", "")) & " "
+        first_name = trim(replace(first_name, "_", "")) & " "
+        mid_initial = replace(mid_initial, "_", "")
+    End If
+    client_string = ref_nbr & last_name & first_name & mid_initial
+    client_array = client_array & client_string & "|"
+    transmit
+    Emreadscreen edit_check, 7, 24, 2
+Loop until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+client_array = TRIM(client_array)
+test_array = split(client_array, "|")
+total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+DIM all_client_array()
+ReDim all_clients_array(total_clients, 1)
+
+For x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+    Interim_array = split(client_array, "|")
+    all_clients_array(x, 0) = Interim_array(x)
+    all_clients_array(x, 1) = 1
+Next
+
+BeginDialog HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+    Text 10, 5, 105, 10, "Household members to look at:"
+    OptionGroup RadioGroupMEMB
+        For i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            If all_clients_array(i, 0) <> "" THEN OptionButton 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)
+        Next
+    ButtonGroup ButtonPressed
+        OkButton 185, 10, 50, 15
+        CancelButton 185, 30, 50, 15
+EndDialog
+
+'runs the dialog that has been dynamically created. Streamlined with new functions.
+Dialog HH_memb_dialog
+Cancel_without_confirmation
+check_for_maxis(True)
+
+HH_member_array = ""
+
+For i = 0 to total_clients
+    If all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+        If all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+            'msgbox all_clients_
+            MEMB_ref_numb = left(all_clients_array(i, 0), 2)
+        End If
+    End If
+Next
+
+Call find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_name, MEMB_first_name, MEMB_dob, MEMB_PMI_ARRAY)
+
+STATS_counter = UBound(MEMB_PMI_ARRAY)+1
+
+const MMIS_case_numb_const 		= 0
+const MMIS_pmi_const 			= 1
+const DUPLICATE_pmi_const		= 2
+const MMIS_ssn_const 			= 3
+const MMIS_name_const			= 4
+const MMIS_hc_prog_const		= 5
+const MMIS_hc_elig_type_const	= 6
+const MMIS_span_start_date_const= 7
+const MMIS_span_status_const	= 8
+const MMIS_span_end_date_const	= 9
+const string_id_const			= 10
+const MX_ref_numb_const 		= 11
+const MMIS_last_const			= 12
+
+Dim MMIS_HC_SPANS_ARRAY()
+ReDim MMIS_HC_SPANS_ARRAY(MMIS_last_const, 0)
+
+Call find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMIS_pmi_const, DUPLICATE_pmi_const, MMIS_ssn_const, MMIS_name_const, MMIS_hc_prog_const, MMIS_hc_elig_type_const, MMIS_span_start_date_const, MMIS_span_status_const, MMIS_span_end_date_const, string_id_const, MX_ref_numb_const, MMIS_last_const, MMIS_HC_SPANS_ARRAY)
+
+Call navigate_to_MAXIS_environment(MX_environment)                          'going back to MAXIS
 
 Dialog1 = ""
 If MMIS_HC_SPANS_ARRAY(MMIS_name_const, 0) <> "" Then
