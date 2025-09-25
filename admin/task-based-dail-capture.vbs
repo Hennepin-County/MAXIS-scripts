@@ -6,6 +6,15 @@ STATS_manualtime = 30
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
+'Check for database string variable file and load it if it doesn't exist
+If db_full_string = "" Then
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -69,7 +78,7 @@ Call check_for_MAXIS(False)
 families_checkbox = 1
 adults_checkbox = 1
 
-'Creating 10-day/10-day variable to determine which dates to create list of DAILs to capture 
+'Creating 10-day/10-day variable to determine which dates to create list of DAILs to capture
 IF CM_mo = "01" AND CM_yr = "25" THEN
     ten_day_10_day = #01/21/2025#
 ELSEIF CM_mo = "02" AND CM_yr = "25" THEN
@@ -94,16 +103,16 @@ ELSEIF CM_mo = "11" AND CM_yr = "25" THEN
     ten_day_10_day = #11/18/2025#
 ELSEIF CM_mo = "12" AND CM_yr = "25" THEN
     ten_day_10_day = #12/19/2025#
-END IF 
+END IF
 
-'last day of the month logic 
+'last day of the month logic
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/1/" & DatePart("YYYY", next_month)
 last_day_of_month = dateadd("d", -1, next_month)
 
 'Defaulting auto-checks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
 If (DateDiff("d", date, ten_day_10_day) < 0 and DateDiff("d", date, ten_day_cutoff_date) > 0) then
-    'TIKLs issued out only after 10-day/10-day through the day before 10-day cut off. 
+    'TIKLs issued out only after 10-day/10-day through the day before 10-day cut off.
     tikl_check = 1
 ElseIf (DateDiff("d", date, ten_day_cutoff_date) > 0 or date = last_day_of_month) then
     'Defaulting these DAIL types prior to 10-day/10-day and on the last day of the month for 1st of month processing.
@@ -272,7 +281,7 @@ For each worker in worker_array
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
 
-            'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties. 
+            'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties.
             If instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then actionable_dail = False
 
             IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
@@ -317,7 +326,7 @@ For each worker in worker_array
 			End if
 
             dail_row = dail_row + 1
-            'Checking for the last DAIL message. If it just processed the final message, the DAIL will appear blank but there is actually an invisible '_' at 6, 3. Handling to check for this and then navigate to the next page if needed. If it is on the last page, then it will exit the do loop 
+            'Checking for the last DAIL message. If it just processed the final message, the DAIL will appear blank but there is actually an invisible '_' at 6, 3. Handling to check for this and then navigate to the next page if needed. If it is on the last page, then it will exit the do loop
 			EMReadScreen next_dail_check, 7, dail_row, 3
 			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
 				'Attempt to navigate to the next page
@@ -351,7 +360,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 'user id: your username.
 'password: um, your password. ;)
 
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open db_full_string
 
 'Deleting ALL data fom DAIL table prior to loading new DAIL messages.
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
