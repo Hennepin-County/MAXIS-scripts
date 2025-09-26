@@ -234,11 +234,11 @@ Dim section_b_person_requesting_services_enrolled_checkbox, section_b_reside_ins
 function section_c_d()
   dialog_count = 4
   section_c_d_called = True
-  BeginDialog Dialog1, 0, 0, 300, 295, "Sections C and Section D"
+  BeginDialog Dialog1, 0, 0, 301, 295, "Sections C and Section D"
     Text 5, 5, 275, 10, "SECTION C: Case manager or care coordinator communication to eligibility worker"
     GroupBox 5, 20, 290, 30, "Exit reasons"
     CheckBox 10, 30, 130, 15, "The person exited a waiver program", section_c_person_exited_waiver_checkbox
-    GroupBox 5, 55, 290, 85, "Other changes"
+    GroupBox 5, 55, 290, 90, "Other changes"
     Text 10, 70, 50, 10, "Program type"
     Text 10, 85, 235, 10, "Program the person is requesting or is already enrolled in (select one):"
     CheckBox 15, 95, 20, 15, "AC", section_c_ac_checkbox
@@ -306,11 +306,11 @@ function section_e_contact_info()
     GroupBox 5, 230, 245, 60, "Person's Information"
     Text 10, 245, 105, 10, "Information entered previously:"
     Text 15, 255, 40, 10, "First name:"
-    Text 70, 255, 170, 10, "first_name"
+    Text 70, 255, 170, 10, first_name
     Text 15, 265, 40, 10, "Last name:"
-    Text 70, 265, 170, 10, "last_name"
+    Text 70, 265, 170, 10, last_name
     Text 15, 275, 45, 10, "Ref Number:"
-    Text 70, 275, 75, 10, "ref_nbr"
+    Text 70, 275, 75, 10, ref_nbr
     ButtonGroup ButtonPressed
       PushButton 140, 300, 55, 15, "Next", next_btn
       CancelButton 195, 300, 50, 15
@@ -625,7 +625,6 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_a_state_3) <> "" and len(trim(section_a_state_3)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State (3) field in the two character format, ex. MN." 
         If trim(section_a_zip_code_3) <> "" and len(trim(section_a_zip_code_3)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code (3) field in a five number format." 
       End If
-    End If
   End If
 
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
@@ -745,8 +744,32 @@ function incomplete_dialog_handling()	'Error handling for main dialog of forms
       End if 
   End If
 
-	If incomplete_fields = True Then 
-    'Add handling here to call the missing info dialog box and include handling to move forward or backward based on user selection
+	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
+    'Open the incomplete fields dialog
+    Dialog1 = "" 'Blanking out previous dialog detail
+    Call incomplete_dialog_fields()
+    incomplete_fields = False
+
+    DO
+      dialog Dialog1				'main dialog
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    If ButtonPressed = return_btn Then 
+      'Return to the previous dialog
+      'Need to add handling for dialogs 2 and 5
+      If dialog_count = 3 Then
+        dialog_count = 1
+      ElseIf dialog_count = 7 Then
+        dialog_count = 5
+      Else
+        dialog_count = dialog_count - 1
+      End If
+    End If 
+  ElseIf incomplete_fields = True and ButtonPressed = previous_btn Then
+    'If the user pressed previous, then reset incomplete_fields and do not show the warning message since they will have to visit dialog again
+    incomplete_fields = False
+  End If
 end function
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
@@ -754,6 +777,9 @@ end function
 EMConnect ""
 call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = "" 'Blanking out previous dialog detail
+Call incomplete_dialog_fields()
 
 'Initial Dialog - Instructions
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -806,10 +832,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
         dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
         cancel_confirmation
-        Call dialog_specific_error_handling	'function for error handling of main dialog of forms
-        Call button_movement()				'function to move throughout the dialogs
+        Call dialog_specific_error_handling()	  'function for error handling of main dialog of forms
+        Call button_movement()				        'function to move throughout the dialogs
+        Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
       Loop until err_msg = ""
-    Loop until ButtonPressed = complete_btn
+    Loop until ButtonPressed = complete_btn OR (ButtonPressed = -1 and dialog_count = 8)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -1278,22 +1305,29 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
   'THE CASE NOTE----------------------------------------------------------------------------------------------------
   Call start_a_blank_CASE_NOTE
-  'Information from DHS 5181 Dialog 1
-  'Contact information
-  Call write_variable_in_case_note("~~~DHS-5181 Received~~~")
-  Call write_variable_in_case_note("Section A - Contact Info")
+  'Information from Dialog 1 - Section A
+  '->Contact information
+  Call write_variable_in_case_note("~~~" & section_a_form_status_dropdown & " DHS-5181 Received~~~")
+  Call write_bullet_and_variable_in_case_note("Form Status", section_a_form_status_dropdown)
+  Call write_variable_in_case_note("Section A")
   Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", section_a_date_form_sent)
   Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor)
   Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency)
   Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number)
-  Call write_bullet_and_variable_in_case_note("Address", section_a_street_address & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
+  If section_a_street_address <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_a_street_address & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
   Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address)
+  
+  '->Person's information from Dialog 1
+  Call write_variable_in_case_note("Person's Information")
+  Call write_bullet_and_variable_in_case_note("Name", replace(first_name, "_", "") & " " & replace(last_name, "_", "") & "(" & ref_nbr & ")")
+  
+  'Information from Dialog 2 - Additional Asessors 2 and 3 if provided
   If section_a_assessor_2 <> "" Then
     Call write_variable_in_case_note("Additional Assessor (2)")
     Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_2)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_2)
     Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_2)
-    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
+    If section_a_street_address_2 <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
     Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_2)
   End If
   If section_a_assessor_3 <> "" Then
@@ -1301,130 +1335,103 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_3)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_3)
     Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_3)
-    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
+    If section_a_street_address_3 <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
     Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_3)
   End If
-  'Person's information
-  Call write_variable_in_case_note("Person's Information")
-  Call write_bullet_and_variable_in_case_note("Name", replace(first_name, "_", "") & " " & replace(last_name, "_", "") & "(" & ref_nbr & ")")
 
-  'Information from Dialog 2
-  Call write_variable_in_case_note("Section B - Assessment Results")
-  Call write_variable_in_case_note("Status")
-  If section_g_person_requesting_already_enrolled_LTC = 1 Then Call write_bullet_and_variable_in_case_note("Person's current status", "The person currently is requesting services or already enrolled in long-term care services or program")
-  If section_g_person_will_reside_institution_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person's current status", "The person resides in or will reside in an institution")
-  If section_b_diversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_b_program_type & " (Diversion)")
-  ElseIf section_b_conversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_b_program_type & " (Conversion)")
-  Else
-    Call write_bullet_and_variable_in_case_note("Program requested", section_b_program_type)
-  End If
-  Call write_variable_in_case_note("Institution")
-  Call write_bullet_and_variable_in_case_note("Admission date", section_b_admission_date)
-  Call write_bullet_and_variable_in_case_note("Facility", section_b_facility)
-  Call write_bullet_and_variable_in_case_note("Phone Number", section_b_institution_phone_number)
-  Call write_bullet_and_variable_in_case_note("Address", section_b_institution_street_address & ", " & section_b_institution_city & ", " & section_b_institution_state & ", " & section_b_institution_zip_code)
+  'Information from Dialog 3 - Section B
+  Call write_variable_in_case_note("Section B")
+  '->Status
+  If section_b_person_requesting_services_enrolled_checkbox = 1 OR section_b_reside_institution_checkbox = 1 Then Call write_variable_in_case_note("--Status--") 
+  If section_b_person_requesting_services_enrolled_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person's current status", "Requesting services or already enrolled")
+  If section_b_reside_institution_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person's current status", "Resides in or will reside in an institution")
+  '->Initial Assessment
+  If section_b_initial_MnA_assessment_date <> "" OR section_b_assessment_determination_date <> "" OR section_b_assess_not_LOC_req_checkbox = 1 OR section_b_meets_LOC_req_checkbox = 1 OR section_b_meets_criteria_PCA_CFSS_checkbox = 1 OR section_b_waiver_ac_ecs_yes_checkbox = 1 OR section_b_waiver_ac_ecs_no_checkbox = 1 Then Call write_variable_in_case_note("--Initial Assessment--") 
+  If section_b_initial_MnA_assessment_date <> "" Then Call write_bullet_and_variable_in_case_note("Initial MnA system assessment date", section_b_initial_MnA_assessment_date)
+  If section_b_assessment_determination_date <> "" Then Call write_bullet_and_variable_in_case_note("Assessment determination date", section_b_assessment_determination_date)
+  If section_b_assess_not_LOC_req_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Assessment determination", "Does not meet institutional level of care requirement")
+  If section_b_meets_LOC_req_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Assessment determination", "Meets institutional level of care requirement")
+  If section_b_meets_criteria_PCA_CFSS_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Assessment determination", "Meets needs criteria for PCA or CFSS")
+  If section_b_waiver_ac_ecs_yes_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to a waiver, AC, or ECS?", "Yes")
+  If section_b_waiver_ac_ecs_no_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to a waiver, AC, or ECS?", "No")
+  '->Case manager
+  If section_b_case_mgr_yes_me_checkbox = 1 OR section_b_case_mgr_yes_someone_checkbox = 1 OR section_b_case_mgr_no_checkbox = 1 Then Call write_variable_in_case_note("--Case Manager--")  
+  If section_b_case_mgr_yes_me_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - I am the case manager")
+  If section_b_case_mgr_yes_someone_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - Someone else is the case manager")
+  If section_b_case_mgr_no_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "No")
+  '->Medical Assistance requests and applications
+  If section_b_applied_ma_checkbox = 1 OR _
+    section_b_ma_enrollee_checkbox = 1 OR _
+    section_b_completed_DHS_forms_attached_checkbox = 1 OR _
+    section_b_completed_DHS_forms_checkbox = 1 OR _
+    section_b_send_3543_6696A_checkbox = 1 OR _
+    section_b_send_3531_checkbox = 1 OR _
+    section_b_send_3340_checkbox = 1 Then
+      Call write_variable_in_case_note("--MA requests and applications--")
+  End If  
+  If section_b_applied_ma_checkbox = 1 Then Call write_variable_in_case_note("Personal applied for MA or MA-LTC")
+  section_b_ma_enrollee_checkbox = 1 Then Call write_variable_in_case_note("Person is an MA enrollee")
+  section_b_completed_DHS_forms_attached_checkbox = 1 Then Call write_variable_in_case_note("Person completed DHS-3543, DHS-6696A or DHS-3531 and it is attached")
+  section_b_completed_DHS_forms_checkbox = 1 Then Call write_variable_in_case_note("Person completed DHS-3543, DHS-6696A or DHS-3531")
+  section_b_send_3543_6696A_checkbox = 1 Then Call write_variable_in_case_note("Send DHS-3543 to person (MAXIS MA enrollee) or DHS-6696A (METS MA enrollee)")
+  section_b_send_3531_checkbox = 1 Then Call write_variable_in_case_note("Send DHS-3531 to person (Not MA enrollee)")
+  section_b_send_3340_checkbox = 1 Then Call write_variable_in_case_note("Send DHS-3340 to person (asset assessment needed)")
+  '->Changes completed by reassessor at reassessment
+  If section_b_not_instit_loc_checkbox = 1 OR section_b_enroll_different_program_checkbox = 1 Then Call write_variable_in_case_note("--Changes completed by assessor at reassessment--")
+  If section_b_not_instit_loc_checkbox = 1 Then Call write_variable_in_case_note("Person no longer meets institutional level of care")
+  If section_b_enroll_different_program_checkbox = 1 Then Call write_variable_in_case_note("Person chooses to enroll in another program")
 
-  'Information from Dialog 3
-  Call write_variable_in_case_note("Initial Assessment")
-  Call write_bullet_and_variable_in_case_note("Assessment date", section_b_assessment_date)
-  Call write_bullet_and_variable_in_case_note("Determination", section_b_assessment_determination)
-  If section_b_open_to_waiver_yes_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "Yes")
-  If section_b_open_to_waiver_no_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "No")
-  Call write_bullet_and_variable_in_case_note("Estimated monthly waiver/AC costs", section_b_monthly_waiver_costs)
-  Call write_bullet_and_variable_in_case_note("Anticipated effective date", section_b_waiver_effective_date)
-  Call write_variable_in_case_note("Case Manager")
-  If section_b_yes_case_manager = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - I am the case manager")
-  If section_b_yes_someone_else_case_manager = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - someone else is the manager")
-  If section_b_no_case_manager = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Case manager?", "No")
-    Call write_bullet_and_variable_in_case_note("Case manager name", section_b_case_manager_name)
-    Call write_bullet_and_variable_in_case_note("Phone number", section_b_case_manager_phone_number)
-  End If 
+  'Information from Dialog 4 - Sections C and D
+  Call write_variable_in_case_note("Section C")
+  '->Exit Reasons
+  If section_c_person_exited_waiver_checkbox = 1 Then 
+    Call write_variable_in_case_note("--Exit Reasons--")
+    write_variable_in_case_note("Exit reasons: The person exited a waiver program")
+  End If
+  '->Other changes
+  If section_c_ac_checkbox = 1 OR _
+    section_c_bi_checkbox = 1 OR _
+    section_c_cac_checkbox = 1 OR _
+    section_c_cadi_checkbox = 1 OR _
+    section_c_dd_checkbox = 1 OR _
+    section_c_ew_checkbox = 1 OR _
+    section_c_ecs_checkbox = 1 OR _
+    section_c_pca_cfss_checkbox = 1 OR _
+    section_c_diversion_checkbox = 1 OR _
+    section_c_conversion_checkbox = 1 Then
+      Call write_variable_in_case_note("--Other changes--")
+  End If
+  If section_c_ac_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: AC")
+  If section_c_bi_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: BI")
+  If section_c_cac_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: CAC")
+  If section_c_cadi_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: CADI")
+  If section_c_dd_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: DD")
+  If section_c_ew_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: EW")
+  If section_c_ecs_checkbox = 1 Then write_variable_in_case_note("Program person is requesting/enrolled in: ECS")
+  If section_c_pca_cfss_checkbox = 1 then write_variable_in_case_note("Program person is requesting/enrolled in: PCA/CFSS")
+  If section_c_diversion_checkbox = 1 Then write_variable_in_case_note("-> Diversion")
+  If section_c_conversion_checkbox = 1 Then write_variable_in_case_note("-> Conversion")
 
-  'Information from Dialog 4
-  Call write_variable_in_case_note("Medical Assistance Requests/Applications")
-  If section_b_applied_MA_LTC_checkbox = 1 Then Call write_variable_in_case_note("Person applied for MA/MA-LTC")
-  If section_b_ma_enrollee_checkbox = 1 Then 
-    Call write_variable_in_case_note("Person is an MA enrollee")
-    Call write_bullet_and_variable_in_case_note("Date assessor provided DHS-3543", section_b_date_dhs_3543_provided)
-  End If
-  If section_b_completed_dhs_3543_3531_attached_checkbox = 1 Then Call write_variable_in_case_note("Person completed DHS-3543 or DHS-3531 and is attached")
-  If section_b_completed_dhs_3543_3531_checkbox = 1 Then 
-    Call write_variable_in_case_note("Person completed DHS-3543 or DHS-3531 and is attached")
-    Call write_bullet_and_variable_in_case_note("Date sent to county", section_b_dhs_3543_3531_sent_to_county_date)
-  End If
-  If section_b_send_dhs_3543_checkbox = 1 Then Call write_variable_in_case_note("Send DHS-3543 to person (MA enrollee)")
-  If section_b_send_dhs_3531_checkbox = 1 Then 
-    Call write_variable_in_case_note("Send DHS-3531 to person (not MA enrollee)")
-    Call write_bullet_and_variable_in_case_note("Address", section_b_send_dhs_3531_address & ", " & section_b_send_dhs_3531_city & ", " & section_b_send_dhs_3531_state & " " & section_b_send_dhs_3531_zip)
-  End If
-  If section_b_send_dhs_3340_checkbox = 1 Then 
-    Call write_variable_in_case_note("Send DHS-3340 to person (asset assessment needed)")
-    Call write_bullet_and_variable_in_case_note("Address", section_b_send_dhs_3340_address & ", " & section_b_send_dhs_3340_city & ", " & section_b_send_dhs_3340_state & " " & section_b_send_dhs_3340_zip)
-  End If
-  Call write_variable_in_case_note("Changes completed by assessor at reassessment")
-  If section_b_person_no_longer_institutional_LOC_checkbox = 1 Then 
-    Call write_variable_in_case_note("Person no longer meets institutional LOC")
-    Call write_bullet_and_variable_in_case_note("Effective date of waiver exit no sooner than", section_b_date_waiver_exit)
-  End If
-  If section_b_person_enroll_another_program = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Person chooses to enroll in another program", section_b_enroll_another_program_list)
-  End If
+  '->Additional notes or comments
+  Call write_variable_in_case_note("Section D")
+  If trim(section_d_comments) <> "" Then Call write_bullet_and_variable_in_case_note("Additional notes or comments", section_d_comments)
 
-  'Information from Dialog 5
-  Call write_variable_in_case_note("Exit Reasons")
-  If section_c_exited_waiver_program_checkbox = 1 Then 
-    Call write_variable_in_case_note("Person exited waiver program")
-    Call write_bullet_and_variable_in_case_note("Effective date of waiver exit", section_c_date_waiver_exit)
-  End If
-  Call write_variable_in_case_note("   Reasons for exit")
-  'Create the list of exit reasons as a variable
-  exit_reasons = ""
-  If section_c_hospital_admission_checkbox = 1 Then exit_reasons = exit_reasons & "hospital admission, "
-  If section_c_nursing_facility_admission_checkbox = 1 Then exit_reasons = exit_reasons & "nursing facility admission, "
-  If section_c_person_informed_choice_checkbox = 1 Then exit_reasons = exit_reasons & "person's informed choice, "
-  If section_c_person_deceased_checkbox = 1 Then exit_reasons = exit_reasons & "person is deceased" & " (DOD: " & section_c_date_of_death & ")"
-  If section_c_person_moved_out_of_state_checkbox = 1 Then exit_reasons = exit_reasons & "person moved out of state" & " (date of move: " & section_c_date_of_move & ")"
-  If section_c_exited_for_other_reasons_checkbox = 1 Then exit_reasons = exit_reasons & "exited for other reasons: " & section_c_exited_for_other_reasons_explanation
-
-  'Information from Dialog 6
-  Call write_variable_in_case_note("Other Changes")
-  If section_c_diversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type & " (Diversion)")
-  ElseIf section_c_conversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type & " (Conversion)")
-  Else
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type)
-  End If
-  If section_c_person_moved_new_address_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Date address changed", section_c_date_address_changed)
-    Call write_bullet_and_variable_in_case_note("Address", section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
-  End If
-  If section_c_new_legal_rep_checkbox = 1 Then
-    Call write_bullet_and_variable_in_case_note("Person has new legal representative", section_c_legal_rep_first_name & " " & section_c_legal_rep_last_name & "(" & section_c_legal_rep_phone_number & ")")
-    Call write_bullet_and_variable_in_case_note("Legal rep address", section_c_legal_rep_street_address & ", " & section_c_legal_rep_city & ", " & section_c_legal_rep_state & " " & section_c_legal_rep_zip_code)
-  End If
-  If section_c_person_return_to_community_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person returning to community w/in 121 days of qual admission", "Effective date: " & section_c_qual_admission_eff_date)
-  If section_c_other_changes_program_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Other changes related to program/service elig", section_c_other_changes_program)
-  Call write_variable_in_case_note("Comments - Assessor, case manager, or care coordinator")
-  If trim(section_d_additional_comments) <> "" Then Call write_bullet_and_variable_in_case_note("Additional notes or comments", section_d_additional_comments)
-  'Information from Dialog 7
-  'Contact information
+  'Information from Dialog 5 - Section E
   Call write_variable_in_case_note("Section E")
   Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", section_e_date_form_sent)
   Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor)
   Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency)
   Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number)
-  Call write_bullet_and_variable_in_case_note("Address", section_e_street_address & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
+  If section_e_street_address <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_e_street_address & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
   Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address)
-  If section_e_assessor_2 <> "" Then
+
+  'Information from Dialog 6 - Additional Asessors 2 and 3 if provided
+    If section_e_assessor_2 <> "" Then
     Call write_variable_in_case_note("Additional Assessor (2)")
     Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_2)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_2)
     Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_2)
-    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
+    If section_e_street_address_2 <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
     Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_2)
   End If
   If section_e_assessor_3 <> "" Then
@@ -1432,62 +1439,82 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_3)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_3)
     Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_3)
-    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
+    If section_e_street_address_3 <> "" Then Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
     Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_3)
   End If
 
-  'Information from Dialog 8
-  Call write_variable_in_case_note("Section F - Medical Assistance")
-  Call write_variable_in_case_note("MA status for long-term supports and services")
-  If section_f_person_applied_MA_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person applied for MA/MA-LTC", section_f_person_applied_date)
-  If section_f_dhs_3531_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3531 sent to person", section_f_dhs_3531_sent_date)
-  If section_f_dhs_3543_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543 sent to person", section_f_dhs_3543_sent_date)
-  If section_f_dhs_3543_3531_returned_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/3531 returned; elig. determ. pending", section_f_dhs_3543_3531_returned_comments)
-  If section_f_dhs_3543_3531_not_returned_checkbox = 1 Then Call write_variable_in_case_note("DHS-3543/DHS-3531 has not been returned")
-  Call write_variable_in_case_note("Determination")
-  If section_f_ma_opened_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA opened (effective date)", section_f_ma_opened_date)
-  If section_f_basic_ma_medical_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA medical spenddown", section_f_basic_ma_medical_spenddown)
-  If section_f_ma_LTC_services_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA for LTC services open on specific date", section_f_ma_LTC_services_date)
-  If section_f_LTC_spenddown_initial_month_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("LTC spenddown/waiver olbig. for initial month", section_f_LTC_spenddown_date)
-  If section_f_ma_denied_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA denied", section_f_ma_denied_date)
-  If section_f_ma_payment_denied_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA payment of LTC services denied", section_f_ma_payment_LTC_date)
-  If section_f_inelig_for_MA_payment_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person inelig for MA payment of LTSS services until specific date", section_f_inelig_for_MA_payment_date)
-  If section_f_basic_ma_continues_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA continues until specific date", section_f_basic_ma_continues_date)
-  If section_f_asset_assessment_results_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Results from asset assessment sent to person", section_f_results_from_asset_assessment_sent_date)
+  'Information from Dialog 7
+  Call write_variable_in_case_note("Section F")
+  '->MA applications and requests
+  If section_f_person_applied_MA_checkbox = 1 OR _
+    section_f_dhs_3531_sent_checkbox = 1 OR _
+    section_f_dhs_3543_6696a_sent_checkbox = 1 OR _
+    section_f_dhs_3543_6696a_3531_returned_checkbox = 1 OR _
+    section_f_dhs_3543_6696a_3531_not_returned_checkbox = 1 Then
+      Call write_variable_in_case_note("--MA applications and requests--")
+  End If
+  If section_f_person_applied_MA_checkbox = 1 Then Call write_variable_in_case_note("Person applied for MA/MA-LTC")
+  If section_f_dhs_3531_sent_checkbox = 1 Then Call write_variable_in_case_note("DHS-3531 sent to person")
+  If section_f_dhs_3543_6696a_sent_checkbox = 1 Then Call write_variable_in_case_note("DHS-3543 or DHS-6696A sent to person")
+  If section_f_dhs_3543_6696a_3531_returned_checkbox = 1 Then Call write_variable_in_case_note("DHS-3543, DHS-6696A, or DHS-3531 returned; elig determ pending")
+  If section_f_dhs_3543_6696a_3531_not_returned_checkbox = 1 Then Call write_variable_in_case_note("DHS-3543, DHS-6696A, or DHS-3531 not returned by due date")
 
-  'Information from Dialog 9
-  Call write_variable_in_case_note("Changes")
-  If section_f_LTC_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("LTC spenddown/waiver obligation", section_f_LTC_spenddown_amount)
-  If section_f_MA_terminated_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA terminated - basic MA & payment of LTSS services", section_f_ma_terminated_eff_date)
-  If section_f_basic_ma_spenddown_change_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA spenddown changed", section_f_basic_ma_spenddown_change_amount)
-  If section_f_ma_payment_terminated_basic_open_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Date terminated", section_f_ma_payment_terminated_term_date)
-    Call write_bullet_and_variable_in_case_note("Date inelig. through", section_f_ma_payment_terminated_date_inelig_thru)
+  '->Determination
+  If section_f_smrt_referral_checkbox = 1 OR _
+    section_f_disability_cert_checkbox = 1 OR _
+    section_f_ma_approved_checkbox = 1 OR _
+    section_f_ma_spenddown_checkbox = 1 OR _
+    section_f_ma_ltc_open_checkbox = 1 OR _
+    section_f_ma_ltc_spenddown_checkbox = 1 OR _
+    section_f_ma_denied_checkbox = 1 OR _
+    section_f_ma_ltc_denied_checkbox = 1 OR _
+    section_f_ma_ltc_ineligible_checkbox = 1 OR _
+    section_f_basic_ma_cont_checkbox = 1 OR _
+    section_f_asset_assess_sent_checkbox Then
+      Call write_variable_in_case_note("--Determination--")
   End If
-  If section_f_person_deceased_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person is deceased", section_f_person_deceased_date_of_death)
-  If section_f_person_moved_institution_checkbox = 1 Then
-    Call write_variable_in_case_note("Person moved to an institution") 
-    Call write_bullet_and_variable_in_case_note("Date of admission", section_f_person_moved_institution_admit_date)
-    Call write_bullet_and_variable_in_case_note("Facility name and phone number", section_f_person_moved_institution_facility_name & "(" & section_f_person_moved_institution_phone_number & ")")
-    Call write_bullet_and_variable_in_case_note("Address", section_f_person_moved_institution_address & ", " & section_f_person_moved_institution_city & ", " & section_f_person_moved_institution_state & " " & section_f_person_moved_institution_zip)
-  End If
-  If section_f_person_new_address_checkbox = 1 Then 
-    Call write_variable_in_case_note("Person has a new address")
-    Call write_bullet_and_variable_in_case_note("Date of address change", section_f_person_new_address_date_changed)
-    If section_f_person_new_address_new_phone_number <> "" Then Call write_bullet_and_variable_in_case_note("New phone number", section_f_person_new_address_new_phone_number)
-    Call write_bullet_and_variable_in_case_note("Address", section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
-  End If
-  If section_f_other_change_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Other change", section_f_person_other_change_description)
+  If section_f_smrt_referral_checkbox = 1 Then Call write_variable_in_case_note("SMRT referral sent")
+  If section_f_disability_cert_checkbox = 1 Then Call write_variable_in_case_note("Certification of disability")
+  If section_f_ma_approved_checkbox = 1 Then Call write_variable_in_case_note("MA coverage approved")
+  If section_f_ma_spenddown_checkbox = 1 Then Call write_variable_in_case_note("Basic MA medical spenddown")
+  If section_f_ma_ltc_open_checkbox = 1 Then Call write_variable_in_case_note("MA-LTC open on specific date")
+  If section_f_ma_ltc_spenddown_checkbox = 1 Then Call write_variable_in_case_note("MA-LTC spenddown or waiver obligation for initial month")
+  If section_f_ma_denied_checkbox = 1 Then Call write_variable_in_case_note("MA denied")
+  If section_f_ma_ltc_denied_checkbox = 1 Then Call write_variable_in_case_note("MA-LTC denied")
+  If section_f_ma_ltc_ineligible_checkbox = 1 Then Call write_variable_in_case_note("Person ineligible for MA-LTC until specific date")
+  If section_f_basic_ma_cont_checkbox = 1 Then Call write_variable_in_case_note("Basic MA continues until specific date")
+  If section_f_asset_assess_sent_checkbox Then Call write_variable_in_case_note("Results from asset assessment sent to person")
 
-  'Info from Dialog 10
-  Call write_variable_in_case_note("Section G: Comments from eligibility worker")
-  If section_g_elig_comments <> "" Then Call write_bullet_and_variable_in_case_note("Additional comments", section_g_elig_comments)
+  '->Changes
+  If section_f_ma_ltc_spenddown_waiver_checkbox = 1 OR _
+  section_f_ma_terminated_checkbox = 1 OR _
+  section_f_ma_spenddown_changed_checkbox = 1 OR _
+  section_f_ma_ltc_terminated_checkbox = 1 OR _
+  section_f_person_deceased_checkbox = 1 OR _
+  section_f_moved_institution_checkbox = 1 OR _
+  section_f_new_address_checkbox = 1 OR _
+  section_f_other_change_checkbox Then
+    Call write_variable_in_case_note("--Changes--")
+  End If
+  If section_f_ma_ltc_spenddown_waiver_checkbox = 1 Then Call write_variable_in_case_note("MA-LTC spenddown/waiver obligation")
+  section_f_ma_terminated_checkbox = 1 Then Call write_variable_in_case_note("MA termainated (basic MA and MA-LTC)")
+  section_f_ma_spenddown_changed_checkbox = 1 Then Call write_variable_in_case_note("Basic MA spenddown changed")
+  section_f_ma_ltc_terminated_checkbox = 1 Then Call write_variable_in_case_note("MA-LTC terminated on specific date; basic MA remains open")
+  section_f_person_deceased_checkbox = 1 Then Call write_variable_in_case_note("Person is deceased")
+  section_f_moved_institution_checkbox = 1 Then Call write_variable_in_case_note("Person moved to an institution")
+  section_f_new_address_checkbox = 1 Then Call write_variable_in_case_note("Person has a new address")
+  section_f_other_change_checkbox Then Call write_variable_in_case_note("Other change")
+  
+  'Section F
+  Call write_variable_in_case_note("Section F")
+  If trim(section_g_additional_comments) <> "" Then Call write_bullet_and_variable_in_case_note("Additional notes or comments", section_g_additional_comments)
 
   'Add worker signature
   Call write_variable_in_case_note ("---")
   call write_variable_in_case_note (worker_signature)
 
   script_end_procedure_with_error_report("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+
 ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
   'Update the panels here
 
