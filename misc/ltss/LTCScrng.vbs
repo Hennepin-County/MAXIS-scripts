@@ -296,7 +296,7 @@ ObjFile.close
 CALL findValueInArray("DOCUMENT TYPE", scrngArray)
 
 If currFieldValue <> "L" Then
-	closing_msg = """" & xmlPath & """ is not an LTC Document." & vbCrlf & vbCrlf & "Please select a valid LTC XML document and try the script again.")
+	closing_msg = xmlPath & """ is not an LTC Document." & vbCrlf & vbCrlf & "Please select a valid LTC XML document and try the script again."
 	Call script_end_procedure(closing_msg)
 End If
 
