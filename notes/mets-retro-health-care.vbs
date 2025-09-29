@@ -378,27 +378,13 @@ Next
 
 additional_content = ""
 If trim(other_notes) <> "" then additional_content = additional_content & vbcr & "Other Notes: " & other_notes
-If trim(forms_needed) <> "" OR trim(forms_needed_2) <> "" then
-    verifs_output = ""
-    If trim(forms_needed) <> "" and trim(forms_needed_2) <> "" then
-        verifs_output = forms_needed & "; " & forms_needed_2
-    ElseIf trim(forms_needed) <> "" then
-        verifs_output = forms_needed
-    ElseIf trim(forms_needed_2) <> "" then
-        verifs_output = forms_needed_2
-    End If
-    additional_content = additional_content & vbcr & "Verifs/forms needed: " & verifs_output
-End If
+If trim(forms_needed) <> "" OR trim(forms_needed_2) <> "" then additional_content = additional_content & vbcr & "Verifs/forms needed: " & forms_needed & "; " & forms_needed_2
 If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* All verifications and/or forms received."
 
 email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
-If trim(forms_needed_2) <> "" Then
-    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed & "; " & forms_needed_2)
-Else
-    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed)
-End If
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 IF send_email = True THEN CALL create_outlook_email("", "HSPH.EWS.Team." & team_email, "", "", email_header, 1, False, "", "", False, "", body_of_email, False, "", True)
 
 '------------------------------------------------------------------------------------Case Note
