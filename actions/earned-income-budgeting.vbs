@@ -286,7 +286,7 @@ class jobs_income
 					GroupBox 10, 20, 225, 70, "Actual Check Details"
 					Text 20, 40, 35, 10, "Pay Date:"
 					EditBox 55, 35, 50, 15, pay_date_fld
-					Text 115, 30, 60, 10, "Gross Amount: $"
+					Text 115, 40, 60, 10, "Gross Amount: $"
 					EditBox 175, 35, 50, 15, pay_amt_fld
 					Text 125, 60, 45, 10, "Total Hours:"
 					EditBox 175, 55, 50, 15, hours_fld
@@ -4274,7 +4274,7 @@ class jobs_income
 					End If
 					If dlg_factor = 0 Then dlg_factor = 1
 					PushButton 5, (dlg_factor * 10) + 100, 75, 13, "Add More Checks", add_another_check_btn
-					PushButton 85, (dlg_factor * 10) + 100, 200, 13, "Insert Check using YTD caclulation from surrounding checks", ytd_calculator_btn
+					PushButton 85, (dlg_factor * 10) + 100, 200, 13, "Insert Check using YTD calculation from surrounding checks", ytd_calculator_btn
 
 					Text 22, (dlg_factor * 10) + 130, 185, 20, "List ALL known/reported/verified checks with gross amounts, even if not used to create a prospective budget."
 					Text 545, (dlg_factor * 10) + 105, 85, 10, "Initial Month to Update:"
@@ -5238,7 +5238,7 @@ function offer_new_panel_creation()
 	Do
 		'THIS VARIABLE SET TO FALSE WILL CAUSE THE SCRIPT TO END AFTER THIS LOOP
 		y_pos = 25              'setting coordinates for the dialog to be created - this is the vertical position in the dialog
-		dlg_len = 15 * UBOUND(JOBS_PANELS) + 15 * UBOUND(HH_member_array) + 125       'creating the height of the dialog
+		dlg_len = 15 * UBOUND(JOBS_PANELS) + 15 * (Round(UBOUND(HH_member_array) / 4)+1) + 125       'creating the height of the dialog
 
 		'ASK TO ADD NEW PANEL Dailog - lists all current panels, Yes/No question about adding another
 		Dialog1 = ""
@@ -5263,12 +5263,19 @@ function offer_new_panel_creation()
 			y_pos = y_pos + 5     'now we move down a little more in the dialog
 			Text 5, y_pos, 295, 10, "These are all the panels that are currently known in MAXIS for these Household Members:" 'listing all the household members we looked at in gathering panel information
 			y_pos = y_pos + 15
+            x_pos = 20
 			For each member in HH_member_array
-				Text 10, y_pos, 45, 10, "Member " & member
-				y_pos = y_pos + 15
+				Text x_pos, y_pos, 45, 10, "MEMB " & member
+                x_pos = x_pos + 75
+                If x_pos > 250 Then
+                    x_pos = 20
+                    y_pos = y_pos + 15
+                End If
+				' y_pos = y_pos + 15
 				'Text 10, 75, 45, 10, "MEMBER 01"
 			Next
-			y_pos = y_pos - 10
+            If ((UBOUND(HH_member_array)+1) Mod 4) <> 0 Then y_pos = y_pos + 15
+			' y_pos = y_pos - 10
 			' Text 80, y_pos, 160, 10, "Do you need to add a new JOBS or BUSI panel?"     'FUTURE FUNCTIONALITY - Saving this for when BUSI is added
 			Text 115, y_pos, 160, 10, "Do you need to add a new JOBS panel?"
 			ButtonGroup ButtonPressed             'NO CANCEL button on this dialog - pressing the 'X' in the corner will default to the 'No' button pressed
