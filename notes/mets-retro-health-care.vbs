@@ -378,7 +378,17 @@ Next
 
 additional_content = ""
 If trim(other_notes) <> "" then additional_content = additional_content & vbcr & "Other Notes: " & other_notes
-If trim(forms_needed) <> "" OR trim(forms_needed_2) <> "" then additional_content = additional_content & vbcr & "Verifs/forms needed: " & forms_needed & "; " & forms_needed_2
+If trim(forms_needed) <> "" OR trim(forms_needed_2) <> "" then
+    verifs_output = ""
+    If trim(forms_needed) <> "" and trim(forms_needed_2) <> "" then
+        verifs_output = forms_needed & "; " & forms_needed_2
+    ElseIf trim(forms_needed) <> "" then
+        verifs_output = forms_needed
+    ElseIf trim(forms_needed_2) <> "" then
+        verifs_output = forms_needed_2
+    End If
+    additional_content = additional_content & vbcr & "Verifs/forms needed: " & verifs_output
+End If
 If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* All verifications and/or forms received."
 
 email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
@@ -394,7 +404,12 @@ Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Application", application_date)
 'doesn't add due date if no changes are reported. This case can be worked on now.
 If forms_needed <> "Client verbally attested - No changes" and trim(due_date) <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed & "; " & forms_needed_2)
+If trim(forms_needed_2) <> "" Then
+    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed & "; " & forms_needed_2)
+Else
+    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed)
+End If
+
 Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
 'HH member array output
 For i = 0 to ubound(HC_array, 2)
