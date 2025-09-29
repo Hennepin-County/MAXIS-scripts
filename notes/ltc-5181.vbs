@@ -1278,23 +1278,23 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
   'Start at the first dialog
   dialog_count = 1
 
-  Do
     Do
-      Do
-        Dialog1 = "" 'Blanking out previous dialog detail
-        Call dialog_selection(dialog_count)
+        Do
+            Do
+                Dialog1 = "" 'Blanking out previous dialog detail
+                Call dialog_selection(dialog_count)
 
-        'Blank out variables on each new dialog
-        err_msg = ""
+                'Blank out variables on each new dialog
+                err_msg = ""
 
-        dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-        cancel_confirmation
-        Call dialog_specific_error_handling	'function for error handling of main dialog of forms
-        Call button_movement()				'function to move throughout the dialogs
-      Loop until err_msg = ""
-    Loop until ButtonPressed = complete_btn
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
+                dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+                cancel_confirmation
+                Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+                Call button_movement()				'function to move throughout the dialogs
+            Loop until err_msg = ""
+        Loop until ButtonPressed = complete_btn
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
   call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
   'Start at SELF
