@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/26/2025", "Added a 2nd verifs field and an option to choose medical bills for a spenddown as a verif option.", "Dave Courtright, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("02/27/2023", "Added MS Word output of case note to copy/paste in METS case note.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated team emails from 601 to team 603 for retro processing. Added FIAT checkbox for retro determination option.", "Ilse Ferris, Hennepin County")
@@ -180,12 +181,14 @@ If initial_option = "Initial Request" then
     Text 180, 15, 70, 10, "Verification Due Date:"
     EditBox 255, 10, 50, 15, due_date
     Text 10, 40, 70, 10, "Verifs/Forms Needed:"
-    ComboBox 85, 35, 220, 15, "SELECT OR TYPE"+chr(9)+"Client verbally attested - No changes"+chr(9)+"DHS-3960 - Request for Information"+chr(9)+"Income for requested retro months", forms_needed
-    Text 40, 60, 45, 10, "Other Notes:"
-    EditBox 85, 55, 220, 15, other_notes
-    CheckBox 10, 80, 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
-    CheckBox 10, 95, 185, 10, "Request to APPL use form created/sent.", useform_checkbox
-    CheckBox 195, 95, 110, 10, "Task created for retro request.", task_checkbox
+    Text 10, 55, 70, 10, "Verifs/Forms Needed:"
+    ComboBox 85, 35, 220, 15, "SELECT OR TYPE"+chr(9)+"Client verbally attested - No changes"+chr(9)+"DHS-3960 - Request for Information"+chr(9)+"Income for requested retro months"+chr(9)+"Medical Bills for FCA with a spenddown", forms_needed
+    ComboBox 85, 50, 220, 15, "SELECT OR TYPE"+chr(9)+"Client verbally attested - No changes"+chr(9)+"DHS-3960 - Request for Information"+chr(9)+"Income for requested retro months"+chr(9)+"Medical Bills for FCA with a spenddown", forms_needed_2
+    Text 40, 70, 45, 10, "Other Notes:"
+    EditBox 85, 65, 220, 15, other_notes
+    CheckBox 10, 85, 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
+    CheckBox 10, 100, 185, 10, "Request to APPL use form created/sent.", useform_checkbox
+    CheckBox 195, 100, 110, 10, "Task created for retro request.", task_checkbox
     ButtonGroup ButtonPressed
     Text 10, 125, 35, 10, "Scenario"
     x = 0
@@ -216,7 +219,7 @@ If initial_option = "Initial Request" then
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(application_date) = false  then err_msg = err_msg & vbcr & "* Enter a valid application date."
             If forms_needed <> "Client verbally attested - No changes" then
-                If isdate(due_date) = false then err_msg = err_msg & vbcr & "* Enter a valid verificaiton due date."
+                If isdate(due_date) = false then err_msg = err_msg & vbcr & "* Enter a valid verification due date."
             End if
             IF trim(forms_needed) = "SELECT OR TYPE" then err_msg = err_msg & vbcr & "* Enter or select the verifications and/or forms needed."
             'retro scenario
@@ -339,7 +342,8 @@ member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
 If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len(member_numbers) - 1) 'takes the last comma off of member_numbers
 
 memb_info = " for Memb " & member_numbers ' for the case note
-
+'Clear out the 2nd verifs/forms needed if left as SELECT OR TYPE
+If trim(forms_needed_2) = "SELECT OR TYPE" then forms_needed_2 = ""
 '----------------------------------------------------------------------------------------------------Outlook's time to shine
 email_content = ""
 
@@ -374,7 +378,17 @@ Next
 
 additional_content = ""
 If trim(other_notes) <> "" then additional_content = additional_content & vbcr & "Other Notes: " & other_notes
-If trim(forms_needed) <> "" then additional_content = additional_content & vbcr & "Verifs/forms needed: " & forms_needed
+If trim(forms_needed) <> "" OR trim(forms_needed_2) <> "" then
+    verifs_output = ""
+    If trim(forms_needed) <> "" and trim(forms_needed_2) <> "" then
+        verifs_output = forms_needed & "; " & forms_needed_2
+    ElseIf trim(forms_needed) <> "" then
+        verifs_output = forms_needed
+    ElseIf trim(forms_needed_2) <> "" then
+        verifs_output = forms_needed_2
+    End If
+    additional_content = additional_content & vbcr & "Verifs/forms needed: " & verifs_output
+End If
 If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* All verifications and/or forms received."
 
 email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
@@ -390,7 +404,12 @@ Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Application", application_date)
 'doesn't add due date if no changes are reported. This case can be worked on now.
 If forms_needed <> "Client verbally attested - No changes" and trim(due_date) <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed)
+If trim(forms_needed_2) <> "" Then
+    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed & "; " & forms_needed_2)
+Else
+    Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed)
+End If
+
 Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
 'HH member array output
 For i = 0 to ubound(HC_array, 2)
