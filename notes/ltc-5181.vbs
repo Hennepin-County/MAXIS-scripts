@@ -107,71 +107,50 @@ section_g_comments_elig_worker_called = False
 function section_a_contact_info()
   dialog_count = 1
   section_a_contact_info_called = True
-BeginDialog Dialog1, 0, 0, 326, 310, "1 - Section A: Contact Information"
-  Text 10, 10, 45, 10, "Form Status:"
-  DropListBox 70, 5, 75, 15, "Select one:"+chr(9)+"Complete"+chr(9)+"Incomplete", form_status_dropdown
-  GroupBox 5, 25, 250, 190, "FROM (assessor/case manager/care coordinator's information)"
-  Text 10, 40, 155, 10, "Click here to fill information from SWKR Panel:"
-  ButtonGroup ButtonPressed
-    PushButton 165, 35, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
-  Text 10, 60, 70, 10, "Date Sent to Worker:"
-  EditBox 90, 55, 55, 15, section_a_date_form_sent
-  Text 10, 75, 40, 10, "Assessor:"
-  EditBox 90, 70, 150, 15, section_a_assessor
-  Text 10, 90, 50, 10, "Lead Agency:"
-  EditBox 90, 85, 150, 15, section_a_lead_agency
-  Text 10, 105, 55, 10, "Phone Number:"
-  EditBox 90, 100, 55, 15, section_a_phone_number
-  Text 10, 120, 55, 10, "Street Address:"
-  EditBox 90, 115, 150, 15, section_a_street_address
-  Text 10, 135, 20, 10, "City:"
-  EditBox 90, 130, 150, 15, section_a_city
-  Text 10, 150, 25, 10, "State:"
-  EditBox 90, 145, 25, 15, section_a_state
-  Text 10, 165, 35, 10, "Zip Code:"
-  EditBox 90, 160, 55, 15, section_a_zip_code
-  Text 10, 180, 55, 10, "Email Address:"
-  EditBox 90, 175, 150, 15, section_a_email_address
-  Text 10, 200, 145, 10, "Click button to add up to 2 add'l assessors:"
-  ButtonGroup ButtonPressed
-    PushButton 160, 195, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
-  GroupBox 5, 225, 250, 30, "Person's Information"
-  Text 10, 235, 70, 10, "Select HH Member:"
-  DropListBox 80, 235, 160, 15, HH_Memb_DropDown, hh_memb
-  ButtonGroup ButtonPressed
-    PushButton 215, 290, 55, 15, "Next", next_btn
-    CancelButton 270, 290, 50, 15
-    PushButton 5, 290, 55, 15, "Previous", previous_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  ButtonGroup ButtonPressed
-    PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-    PushButton 265, 55, 50, 15, "Status", status_btn
-    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-    PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-    PushButton 265, 235, 50, 15, "Changes", changes_btn
-    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
+  BeginDialog Dialog1, 0, 0, 270, 310, "1 - Section A: Contact Information"
+    Text 10, 10, 45, 10, "Form Status:"
+    DropListBox 65, 5, 75, 15, "Select one:"+chr(9)+"Complete"+chr(9)+"Incomplete", form_status_dropdown
+    Text 10, 25, 155, 10, "Click here to fill information from SWKR Panel:"
+    ButtonGroup ButtonPressed
+      PushButton 170, 20, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
+    GroupBox 5, 40, 260, 170, "FROM (assessor/case manager/care coordinator's information)"
+    Text 10, 55, 70, 10, "Date Sent to Worker:"
+    EditBox 90, 50, 55, 15, section_a_date_form_sent
+    Text 10, 70, 40, 10, "Assessor:"
+    EditBox 90, 65, 150, 15, section_a_assessor
+    Text 10, 85, 50, 10, "Lead Agency:"
+    EditBox 90, 80, 150, 15, section_a_lead_agency
+    Text 10, 100, 55, 10, "Phone Number:"
+    EditBox 90, 95, 55, 15, section_a_phone_number
+    Text 10, 115, 55, 10, "Street Address:"
+    EditBox 90, 110, 150, 15, section_a_street_address
+    Text 10, 130, 20, 10, "City:"
+    EditBox 90, 125, 150, 15, section_a_city
+    Text 10, 145, 25, 10, "State:"
+    EditBox 90, 140, 25, 15, section_a_state
+    Text 10, 160, 35, 10, "Zip Code:"
+    EditBox 90, 155, 55, 15, section_a_zip_code
+    Text 10, 175, 55, 10, "Email Address:"
+    EditBox 90, 170, 150, 15, section_a_email_address
+    Text 10, 195, 145, 10, "Click button to add up to 2 add'l assessors:"
+    ButtonGroup ButtonPressed
+      PushButton 160, 190, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
+    GroupBox 5, 220, 260, 30, "Person's Information"
+    Text 10, 230, 70, 10, "Select HH Member:"
+    DropListBox 80, 230, 160, 15, HH_Memb_DropDown, hh_memb
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
   EndDialog
 end function
 'To do - dim all the variables?
-Dim section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb, form_status_dropdown
+Dim form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb, form_status_dropdown
 
 function section_a_additional_assessors()
   dialog_count = 11
   section_a_additional_assessors_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "Section A: Contact Info (Add'l Assessors)"
-    GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section A: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
     EditBox 90, 15, 150, 15, section_a_assessor_2
     Text 10, 35, 50, 10, "Lead Agency:"
@@ -188,7 +167,7 @@ function section_a_additional_assessors()
     EditBox 90, 105, 55, 15, section_a_zip_code_2
     Text 10, 125, 55, 10, "Email Address:"
     EditBox 90, 120, 150, 15, section_a_email_address_2
-    GroupBox 5, 150, 245, 135, "Additional Assessor (3) - Leave all fields blank if unneeded"
+    GroupBox 5, 150, 260, 135, "Additional Assessor (3)"
     Text 10, 165, 40, 10, "Assessor:"
     EditBox 90, 160, 150, 15, section_a_assessor_3
     Text 10, 180, 50, 10, "Lead Agency:"
@@ -206,8 +185,8 @@ function section_a_additional_assessors()
     Text 10, 270, 55, 10, "Email Address:"
     EditBox 90, 265, 150, 15, section_a_email_address_3
     ButtonGroup ButtonPressed
-      PushButton 195, 290, 130, 15, "Save Info and Return to Contact Info", section_a_assessor_return_btn
-      PushButton 5, 290, 185, 15, "Return to Contact Info WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
+      PushButton 160, 290, 105, 15, "SAVE Info and Return", section_a_assessor_return_btn
+      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
   EndDialog
 end function
 'Dim all variables in function
@@ -215,251 +194,157 @@ Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, sec
 
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
-    dialog_count = 2
-    section_b_assess_results_current_status_called = True
-    BeginDialog Dialog1, 0, 0, 325, 310, "Section B: Assessment Results - Current Status"
-        GroupBox 10, 5, 245, 245, "What is the person's current status? (check second if both apply)"
-        CheckBox 20, 20, 205, 10, "The person is requesting services or already enrolled", section_g_person_requesting_already_enrolled_LTC
-        GroupBox 25, 35, 220, 55, "Program Type"
-        Text 30, 45, 185, 10, "Program person is requesting or is currently enrolled in:"
-        DropListBox 30, 55, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
-        Text 30, 75, 85, 10, "Check one (if applicable):"
-        CheckBox 120, 70, 45, 15, "Diversion", section_b_diversion_checkbox
-        CheckBox 170, 70, 50, 15, "Conversion", section_b_conversion_checkbox
-        CheckBox 20, 100, 195, 10, "The person resides in or will reside in an institution", section_g_person_will_reside_institution_checkbox
-        GroupBox 25, 115, 220, 125, "Institution"
-        Text 30, 130, 60, 10, "Admission Date:"
-        EditBox 95, 125, 95, 15, section_b_admission_date
-        Text 30, 145, 60, 10, "Facility:"
-        EditBox 95, 140, 95, 15, section_b_facility
-        Text 30, 160, 60, 10, "Phone Number:"
-        EditBox 95, 155, 95, 15, section_b_institution_phone_number
-        Text 30, 175, 60, 10, "Street Address:"
-        EditBox 95, 170, 95, 15, section_b_institution_street_address
-        Text 30, 190, 60, 10, "City:"
-        EditBox 95, 185, 95, 15, section_b_institution_city
-        Text 30, 205, 60, 10, "State:"
-        EditBox 95, 200, 95, 15, section_b_institution_state
-        Text 30, 220, 60, 10, "Zip Code:"
-        EditBox 95, 215, 95, 15, section_b_institution_zip_code
-        ButtonGroup ButtonPressed
-            PushButton 215, 290, 55, 15, "Next", next_btn
-            CancelButton 270, 290, 50, 15
-            PushButton 5, 290, 55, 15, "Previous", previous_btn
-        GroupBox 260, 5, 60, 280, "Navigation"
-        Text 265, 15, 40, 10, "Section A"
-        Text 265, 45, 40, 10, "Section B"
-        Text 265, 105, 40, 10, "Section C"
-        Text 265, 150, 40, 10, "Section D"
-        Text 265, 180, 40, 10, "Section E"
-        Text 265, 210, 40, 10, "Section F"
-        Text 265, 255, 40, 10, "Section G"
-        ButtonGroup ButtonPressed
-            PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
-            PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-            PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-            PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-            PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-            PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-            PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
-            PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-            PushButton 265, 235, 50, 15, "Changes", changes_btn
-            PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-        Text 280, 60, 25, 10, "Status"
-    EndDialog
+  dialog_count = 2
+  section_b_assess_results_current_status_called = True
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section B: Assessment Results - Current Status"
+    GroupBox 5, 5, 260, 245, "What is the person's current status? (check second if both apply)"
+    CheckBox 15, 20, 205, 10, "The person is requesting services or already enrolled", section_g_person_requesting_already_enrolled_LTC
+    GroupBox 20, 35, 235, 55, "Program Type"
+    Text 25, 45, 185, 10, "Program person is requesting or is currently enrolled in:"
+    DropListBox 25, 55, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+    Text 25, 75, 85, 10, "Check one (if applicable):"
+    CheckBox 115, 70, 45, 15, "Diversion", section_b_diversion_checkbox
+    CheckBox 165, 70, 50, 15, "Conversion", section_b_conversion_checkbox
+    CheckBox 15, 100, 195, 10, "The person resides in or will reside in an institution", section_g_person_will_reside_institution_checkbox
+    GroupBox 20, 115, 235, 125, "Institution"
+    Text 25, 130, 60, 10, "Admission Date:"
+    EditBox 90, 125, 95, 15, section_b_admission_date
+    Text 25, 145, 60, 10, "Facility:"
+    EditBox 90, 140, 95, 15, section_b_facility
+    Text 25, 160, 60, 10, "Phone Number:"
+    EditBox 90, 155, 95, 15, section_b_institution_phone_number
+    Text 25, 175, 60, 10, "Street Address:"
+    EditBox 90, 170, 95, 15, section_b_institution_street_address
+    Text 25, 190, 60, 10, "City:"
+    EditBox 90, 185, 95, 15, section_b_institution_city
+    Text 25, 205, 60, 10, "State:"
+    EditBox 90, 200, 95, 15, section_b_institution_state
+    Text 25, 220, 60, 10, "Zip Code:"
+    EditBox 90, 215, 95, 15, section_b_institution_zip_code
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
 end function
 'Dim all variables in function
 Dim section_g_person_requesting_already_enrolled_LTC, section_g_person_will_reside_institution_checkbox, section_b_program_type, section_b_diversion_checkbox, section_b_conversion_checkbox, section_b_admission_date, section_b_facility, section_b_institution_phone_number, section_b_institution_street_address, section_b_institution_city, section_b_institution_state, section_b_institution_zip_code
 
 'Dialog 3 - Section B: Assessment Results - Initial Assessment & Case Manager
 function section_b_assess_results_initial_assess_case_manager()
-    dialog_count = 3
-    section_b_assess_results_initial_assess_case_manager_called = True
-    BeginDialog Dialog1, 0, 0, 326, 310, "Section B: Assessment Results - Initial Assessment & Case Manager"
-        GroupBox 5, 5, 240, 115, "Initial Assessment"
-        Text 15, 20, 115, 10, "Initial assessment date from MnA:"
-        EditBox 135, 15, 55, 15, section_b_initial_MnA_assessment_date
-        Text 15, 35, 55, 10, "Assessment on"
-        EditBox 75, 30, 55, 15, section_b_assessment_determination_date
-        Text 135, 35, 95, 10, "determined that the person:"
-        DropListBox 10, 50, 200, 20, "Select one:"+chr(9)+"Does not meet institutional LOC requirement"+chr(9)+"Meets institutional LOC requirement"+chr(9)+"Meets need criteria for PCA/CFSS", section_b_assessment_determination
-        Text 15, 70, 135, 10, "Will the person open to waiver/AC/ECS?"
-        CheckBox 160, 65, 25, 15, "Yes", section_b_open_to_waiver_yes_checkbox
-        CheckBox 190, 65, 25, 15, "No", section_b_open_to_waiver_no_checkbox
-        Text 15, 85, 120, 10, "Estimated monthly waiver/AC costs:"
-        EditBox 160, 80, 70, 15, section_b_monthly_waiver_costs
-        Text 15, 100, 90, 10, "Anticipated effective date:"
-        EditBox 160, 95, 70, 15, section_b_waiver_effective_date
-        GroupBox 5, 125, 240, 105, "Case Manager"
-        Text 15, 140, 220, 10, "Does the person have a case manager? (select ONE option below)"
-        CheckBox 20, 155, 105, 10, "Yes - I am the case manager", section_b_yes_case_manager
-        CheckBox 20, 170, 190, 10, "Yes - Someone else is the manager (enter info below):", section_b_yes_someone_else_case_manager
-        Text 40, 185, 75, 10, "Case Manager Name:"
-        EditBox 115, 180, 125, 15, section_b_case_manager_name
-        Text 40, 200, 60, 10, "Phone Number:"
-        EditBox 115, 195, 70, 15, section_b_case_manager_phone_number
-        CheckBox 25, 215, 25, 10, "No", section_b_no_case_manager
-        ButtonGroup ButtonPressed
-            PushButton 215, 290, 55, 15, "Next", next_btn
-            CancelButton 270, 290, 50, 15
-            PushButton 5, 290, 55, 15, "Previous", previous_btn
-        GroupBox 260, 5, 60, 280, "Navigation"
-        Text 265, 15, 40, 10, "Section A"
-        ButtonGroup ButtonPressed
-            PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
-        Text 265, 45, 40, 10, "Section B"
-        ButtonGroup ButtonPressed
-            PushButton 265, 55, 50, 15, "Status", status_btn
-        Text 270, 75, 45, 10, "Initial Assess"
-        ButtonGroup ButtonPressed
-            PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-        Text 265, 105, 40, 10, "Section C"
-        ButtonGroup ButtonPressed
-            PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-            PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-        Text 265, 150, 40, 10, "Section D"
-        ButtonGroup ButtonPressed
-            PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-        Text 265, 180, 40, 10, "Section E"
-        ButtonGroup ButtonPressed
-            PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
-        Text 265, 210, 40, 10, "Section F"
-        ButtonGroup ButtonPressed
-            PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-            PushButton 265, 235, 50, 15, "Changes", changes_btn
-        Text 265, 255, 40, 10, "Section G"
-        ButtonGroup ButtonPressed
-            PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-    EndDialog
+  dialog_count = 3
+  section_b_assess_results_initial_assess_case_manager_called = True
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section B: Assessment Results - Initial Assessment & Case Manager"
+    GroupBox 5, 5, 260, 115, "Initial Assessment"
+    Text 15, 20, 115, 10, "Initial assessment date from MnA:"
+    EditBox 135, 15, 55, 15, section_b_initial_MnA_assessment_date
+    Text 15, 35, 55, 10, "Assessment on"
+    EditBox 75, 30, 55, 15, section_b_assessment_determination_date
+    Text 135, 35, 95, 10, "determined that the person:"
+    DropListBox 10, 50, 200, 20, "Select one:"+chr(9)+"Does not meet institutional LOC requirement"+chr(9)+"Meets institutional LOC requirement"+chr(9)+"Meets need criteria for PCA/CFSS", section_b_assessment_determination
+    Text 15, 70, 135, 10, "Will the person open to waiver/AC/ECS?"
+    CheckBox 160, 65, 25, 15, "Yes", section_b_open_to_waiver_yes_checkbox
+    CheckBox 190, 65, 25, 15, "No", section_b_open_to_waiver_no_checkbox
+    Text 15, 85, 120, 10, "Estimated monthly waiver/AC costs:"
+    EditBox 160, 80, 70, 15, section_b_monthly_waiver_costs
+    Text 15, 100, 90, 10, "Anticipated effective date:"
+    EditBox 160, 95, 70, 15, section_b_waiver_effective_date
+    GroupBox 5, 125, 260, 105, "Case Manager"
+    Text 15, 140, 220, 10, "Does the person have a case manager? (select ONE option below)"
+    CheckBox 20, 155, 105, 10, "Yes - I am the case manager", section_b_yes_case_manager
+    CheckBox 20, 170, 190, 10, "Yes - Someone else is the manager (enter info below):", section_b_yes_someone_else_case_manager
+    Text 40, 185, 75, 10, "Case Manager Name:"
+    EditBox 115, 180, 125, 15, section_b_case_manager_name
+    Text 40, 200, 60, 10, "Phone Number:"
+    EditBox 115, 195, 70, 15, section_b_case_manager_phone_number
+    CheckBox 25, 215, 25, 10, "No", section_b_no_case_manager
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
 end function
 'Dim all variables in function
-Dim section_b_assessment_date, section_b_assessment_determination, section_b_open_to_waiver_yes_checkbox, section_b_open_to_waiver_no_checkbox, section_b_monthly_waiver_costs, section_b_waiver_effective_date, section_b_yes_case_manager, section_b_yes_someone_else_case_manager, section_b_no_case_manager, section_b_case_manager_name, section_b_case_manager_phone_number
-
+Dim section_b_initial_MnA_assessment_date, section_b_assessment_determination_date, section_b_assessment_determination, section_b_open_to_waiver_yes_checkbox, section_b_open_to_waiver_no_checkbox, section_b_monthly_waiver_costs, section_b_waiver_effective_date, section_b_yes_case_manager, section_b_yes_someone_else_case_manager, section_b_case_manager_name, section_b_case_manager_phone_number, section_b_no_case_manager
 
 'Dialog 4 - Section B: Assessment Results - MA Requests/Apps & Changes
 function section_b_assess_results_MA_requests_apps_changes()
-    dialog_count = 4
-    section_b_assess_results_MA_requests_apps_changes_called = True
-    BeginDialog Dialog1, 0, 0, 326, 310, "4 - Section B: Assess. Results - MA Requests/Apps and Changes"
-        GroupBox 5, 5, 250, 200, "Medical Assistance requests/applications (select all that apply):"
-        CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_LTC_checkbox
-        CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
-        Text 30, 40, 170, 10, "What date did the assessor provide the DHS-3543?"
-        EditBox 205, 35, 40, 15, section_b_date_dhs_3543_provided
-        CheckBox 15, 55, 205, 10, "Person completed DHS-3543 or DHS-3531 and it is attached", section_b_completed_dhs_3543_3531_attached_checkbox
-        CheckBox 15, 70, 150, 10, "Person completed DHS-3543 or DHS-3531", section_b_completed_dhs_3543_3531_checkbox
-        Text 30, 80, 80, 10, "Date sent to the county:"
-        EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county_date
-        CheckBox 15, 100, 145, 10, "Send DHS-3543 to person (MA Enrollee)", section_b_send_dhs_3543_checkbox
-        CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
-        EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
-        EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
-        EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
-        EditBox 190, 125, 40, 15, section_b_send_dhs_3531_zip
-        Text 50, 140, 175, 10, "Address                          City              State        Zip"
-        CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
-        EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
-        EditBox 105, 170, 60, 15, section_b_send_dhs_3340_city
-        EditBox 165, 170, 25, 15, section_b_send_dhs_3340_state
-        EditBox 190, 170, 40, 15, section_b_send_dhs_3340_zip
-        Text 50, 185, 175, 10, "Address                          City              State        Zip"
-        GroupBox 5, 215, 250, 55, "Changes completed by assessor at reassessment (select all that apply)"
-        CheckBox 15, 225, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
-        Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
-        EditBox 205, 230, 45, 15, section_b_date_waiver_exit
-        CheckBox 15, 250, 155, 10, "Person chooses to enroll in another program", section_b_person_enroll_another_program
-        DropListBox 180, 250, 70, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
-        ButtonGroup ButtonPressed
-        PushButton 215, 290, 55, 15, "Next", next_btn
-        CancelButton 270, 290, 50, 15
-        PushButton 5, 290, 55, 15, "Previous", previous_btn
-        GroupBox 260, 5, 60, 280, "Navigation"
-        Text 265, 15, 40, 10, "Section A"
-        Text 265, 45, 40, 10, "Section B"
-        Text 265, 105, 40, 10, "Section C"
-        Text 265, 150, 40, 10, "Section D"
-        Text 265, 180, 40, 10, "Section E"
-        Text 265, 210, 40, 10, "Section F"
-        Text 265, 255, 40, 10, "Section G"
-        ButtonGroup ButtonPressed
-        PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-        PushButton 265, 55, 50, 15, "Status", status_btn
-        PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-        PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-        PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-        PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-        PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-        PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-        PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-        PushButton 265, 235, 50, 15, "Changes", changes_btn
-        PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-    EndDialog
+  dialog_count = 4
+  section_b_assess_results_MA_requests_apps_changes_called = True
+  BeginDialog Dialog1, 0, 0, 271, 310, "4 - Section B: Assess. Results - MA Requests/Apps and Changes"
+    GroupBox 5, 5, 260, 200, "Medical Assistance requests/applications (select all that apply):"
+    CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_MA_LTC_checkbox
+    CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
+    Text 30, 40, 170, 10, "Date assessor provided the DHS-3543/DHS-6696A:"
+    EditBox 205, 35, 40, 15, section_b_date_dhs_3543_provided
+    CheckBox 15, 55, 235, 10, "Person completed DHS-3543, DHS-6696A or DHS-3531; it is attached", section_b_completed_dhs_3543_3531_attached_checkbox
+    CheckBox 15, 70, 190, 10, "Person completed DHS-3543, DHS-6696A or DHS-3531", section_b_completed_dhs_3543_3531_checkbox
+    Text 30, 80, 80, 10, "Date sent to the county:"
+    EditBox 110, 80, 40, 15, section_b_dhs_3543_3531_sent_to_county
+    CheckBox 15, 100, 235, 10, "Send DHS-3543 (MAXIS MA enrollee)/DHS-6696A (METS MA enrollee)", section_b_send_dhs_3543_checkbox
+    CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
+    EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
+    EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
+    EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
+    EditBox 190, 125, 40, 15, section_b_send_dhs_3531_zip
+    Text 50, 140, 175, 10, "Address                          City              State        Zip"
+    CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
+    EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
+    EditBox 105, 170, 60, 15, section_b_send_dhs_3340_city
+    EditBox 165, 170, 25, 15, section_b_send_dhs_3340_state
+    EditBox 190, 170, 40, 15, section_b_send_dhs_3340_zip
+    Text 50, 185, 175, 10, "Address                          City              State        Zip"
+    GroupBox 5, 215, 260, 55, "Changes completed by assessor at reassessment (select all that apply)"
+    CheckBox 15, 225, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
+    Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
+    EditBox 205, 230, 45, 15, section_b_date_waiver_exit
+    CheckBox 15, 250, 155, 10, "Person chooses to enroll in another program", section_b_enroll_different_program_checkbox
+    DropListBox 180, 250, 70, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
 end function
 'Dim all variables in function
-Dim section_b_applied_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b_date_dhs_3543_provided, section_b_completed_dhs_3543_3531_attached_checkbox, section_b_completed_dhs_3543_3531_checkbox, section_b_dhs_3543_3531_sent_to_county_date, section_b_send_dhs_3543_checkbox, section_b_send_dhs_3531_checkbox, section_b_send_dhs_3531_address, section_b_send_dhs_3531_city, section_b_send_dhs_3531_state, section_b_send_dhs_3531_zip, section_b_send_dhs_3340_checkbox, section_b_send_dhs_3340_address, section_b_send_dhs_3340_city, section_b_send_dhs_3340_state, section_b_send_dhs_3340_zip, section_b_person_no_longer_institutional_LOC_checkbox, section_b_date_waiver_exit, section_b_person_enroll_another_program, section_b_enroll_another_program_list
+Dim section_b_applied_MA_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b_date_dhs_3543_provided, section_b_completed_dhs_3543_3531_attached_checkbox, section_b_completed_dhs_3543_3531_checkbox, section_b_dhs_3543_3531_sent_to_county, section_b_send_dhs_3543_checkbox, section_b_send_dhs_3531_checkbox, section_b_send_dhs_3531_address, section_b_send_dhs_3531_city, section_b_send_dhs_3531_state, section_b_send_dhs_3531_zip, section_b_send_dhs_3340_checkbox, section_b_send_dhs_3340_address, section_b_send_dhs_3340_city, section_b_send_dhs_3340_state, section_b_send_dhs_3340_zip, section_b_person_no_longer_institutional_LOC_checkbox, section_b_date_waiver_exit, section_b_enroll_different_program_checkbox, section_b_enroll_another_program_list
 
 'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
 function section_c_comm_elig_worker_exit_reasons()
-    dialog_count = 5
-    section_c_comm_elig_worker_exit_reasons_called = True
-    BeginDialog Dialog1, 0, 0, 325, 310, "Section C: Communication to eligibility worker - Exit Reasons"
-        GroupBox 5, 5, 245, 280, "Exit Reasons"
-        CheckBox 15, 15, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
-        Text 35, 30, 95, 10, "Effective date of waiver exit:"
-        EditBox 135, 25, 50, 15, section_c_date_waiver_exit
-        Text 20, 45, 175, 10, "Reason - Check reason for exit (select all that apply)"
-        CheckBox 25, 60, 75, 10, "Hospital admission", section_c_hospital_admission_checkbox
-        EditBox 35, 70, 110, 15, section_c_hospital_name
-        EditBox 145, 70, 65, 15, section_c_hospital_admit_date
-        Text 55, 85, 150, 10, "Hospital Name                       Admission Date"
-        CheckBox 25, 95, 95, 10, "Nursing facility admission", section_c_nursing_facility_admission_checkbox
-        EditBox 35, 105, 110, 15, section_c_nursing_facility_name
-        EditBox 145, 105, 65, 15, section_c_nursing_facility_admit_date
-        Text 55, 120, 150, 10, "Facility Name                          Admission Date"
-        CheckBox 25, 130, 115, 10, "Residential treatment admission", section_c_residential_treatment_admission_checkbox
-        EditBox 35, 140, 110, 15, section_c_residential_facility_name
-        EditBox 145, 140, 65, 15, section_c_residential_facility_admit_date
-        Text 55, 155, 150, 10, "Facility Name                          Admission Date"
-        CheckBox 25, 165, 100, 10, "Person's informed choice", section_c_person_informed_choice_checkbox
-        CheckBox 25, 180, 85, 10, "Person is deceased", section_c_person_deceased_checkbox
-        Text 40, 195, 50, 10, "Date of death:"
-        EditBox 90, 190, 40, 15, section_c_date_of_death
-        CheckBox 25, 205, 110, 10, "Person moved out of state", section_c_person_moved_out_of_state_checkbox
-        Text 40, 220, 50, 10, "Date of move:"
-        EditBox 90, 215, 40, 15, section_c_date_of_move
-        CheckBox 25, 235, 205, 10, "Exited for other reasons (not including LOC) - explain below:", section_c_exited_for_other_reasons_checkbox
-        EditBox 35, 250, 200, 15, section_c_exited_for_other_reasons_explanation
-        ButtonGroup ButtonPressed
-            PushButton 215, 290, 55, 15, "Next", next_btn
-            CancelButton 270, 290, 50, 15
-            PushButton 5, 290, 55, 15, "Previous", previous_btn
-        GroupBox 260, 5, 60, 280, "Navigation"
-        Text 265, 15, 40, 10, "Section A"
-        ButtonGroup ButtonPressed
-            PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
-        Text 265, 45, 40, 10, "Section B"
-        ButtonGroup ButtonPressed
-            PushButton 265, 55, 50, 15, "Status", status_btn
-            PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-            PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-        Text 265, 105, 40, 10, "Section C"
-        Text 270, 120, 45, 10, "Exit Reasons"
-        ButtonGroup ButtonPressed
-            PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-        Text 265, 150, 40, 10, "Section D"
-        ButtonGroup ButtonPressed
-            PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-        Text 265, 180, 40, 10, "Section E"
-        ButtonGroup ButtonPressed
-            PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
-        Text 265, 210, 40, 10, "Section F"
-        ButtonGroup ButtonPressed
-            PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-            PushButton 265, 235, 50, 15, "Changes", changes_btn
-        Text 265, 255, 40, 10, "Section G"
-        ButtonGroup ButtonPressed
-            PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-    EndDialog
+  dialog_count = 5
+  section_c_comm_elig_worker_exit_reasons_called = True
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section C: Communication to eligibility worker - Exit Reasons"
+    GroupBox 5, 5, 260, 280, "Exit Reasons"
+    CheckBox 15, 15, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
+    Text 35, 30, 95, 10, "Effective date of waiver exit:"
+    EditBox 135, 25, 50, 15, section_c_date_waiver_exit
+    Text 20, 45, 175, 10, "Reason - Check reason for exit (select all that apply)"
+    CheckBox 25, 60, 75, 10, "Hospital admission", section_c_hospital_admission_checkbox
+    EditBox 35, 70, 110, 15, section_c_hospital_name
+    EditBox 145, 70, 65, 15, section_c_hospital_admit_date
+    Text 55, 85, 150, 10, "Hospital Name                       Admission Date"
+    CheckBox 25, 95, 95, 10, "Nursing facility admission", section_c_nursing_facility_admission_checkbox
+    EditBox 35, 105, 110, 15, section_c_nursing_facility_name
+    EditBox 145, 105, 65, 15, section_c_nursing_facility_admit_date
+    Text 55, 120, 150, 10, "Facility Name                          Admission Date"
+    CheckBox 25, 130, 115, 10, "Residential treatment admission", section_c_residential_treatment_admission_checkbox
+    EditBox 35, 140, 110, 15, section_c_residential_facility_name
+    EditBox 145, 140, 65, 15, section_c_residential_facility_admit_date
+    Text 55, 155, 150, 10, "Facility Name                          Admission Date"
+    CheckBox 25, 165, 100, 10, "Person's informed choice", section_c_person_informed_choice_checkbox
+    CheckBox 25, 180, 85, 10, "Person is deceased", section_c_person_deceased_checkbox
+    Text 40, 195, 50, 10, "Date of death:"
+    EditBox 90, 190, 40, 15, section_c_date_of_death
+    CheckBox 25, 205, 110, 10, "Person moved out of state", section_c_person_moved_out_of_state_checkbox
+    Text 40, 220, 50, 10, "Date of move:"
+    EditBox 90, 215, 40, 15, section_c_date_of_move
+    CheckBox 25, 235, 205, 10, "Exited for other reasons (not including LOC) - explain below:", section_c_exited_for_other_reasons_checkbox
+    EditBox 35, 250, 200, 15, section_c_exited_for_other_reasons_explanation
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
 end function
 ' Dim all variables in function
 Dim section_c_exited_waiver_program_checkbox, section_c_date_waiver_exit, section_c_hospital_admission_checkbox, section_c_nursing_facility_admission_checkbox, section_c_person_informed_choice_checkbox, section_c_residential_treatment_admission_checkbox, section_c_person_deceased_checkbox, section_c_date_of_death, section_c_person_moved_out_of_state_checkbox, section_c_date_of_move, section_c_exited_for_other_reasons_checkbox, section_c_exited_for_other_reasons_explanation
@@ -468,65 +353,45 @@ Dim section_c_exited_waiver_program_checkbox, section_c_date_waiver_exit, sectio
 function section_c_other_changes_section_d_comments()
     dialog_count = 6
     section_c_other_changes_section_d_comments_called = True
-    BeginDialog Dialog1, 0, 0, 325, 310, "Section C: Other Changes & Section D: Comments"
-        GroupBox 5, 5, 250, 235, "Other changes"
-        Text 15, 20, 50, 10, "Program type"
-        DropListBox 70, 15, 65, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
-        Text 20, 30, 90, 10, "Choose one (if applicable)"
-        CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
-        CheckBox 170, 30, 50, 10, "Conversion", section_c_conversion_checkbox
-        Text 15, 45, 100, 10, "Changes (select all that apply)"
-        CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
-        Text 35, 75, 80, 10, "Date address changed:"
-        EditBox 120, 70, 30, 15, section_c_date_address_changed
-        EditBox 25, 90, 70, 15, section_c_street_address
-        EditBox 95, 90, 50, 15, section_c_city
-        EditBox 145, 90, 25, 15, section_c_state
-        EditBox 170, 90, 40, 15, section_c_zip_code
-        CheckBox 15, 115, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
-        EditBox 25, 125, 80, 15, section_c_legal_rep_first_name
-        EditBox 105, 125, 80, 15, section_c_legal_rep_last_name
-        EditBox 185, 125, 55, 15, section_c_legal_rep_phone_number
-        EditBox 25, 150, 70, 15, section_c_legal_rep_street_address
-        EditBox 95, 150, 50, 15, section_c_legal_rep_city
-        EditBox 145, 150, 25, 15, section_c_legal_rep_state
-        EditBox 170, 150, 40, 15, section_c_legal_rep_zip_code
-        CheckBox 15, 175, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
-        Text 40, 190, 50, 10, "Effective date:"
-        EditBox 95, 185, 30, 15, section_c_qual_admission_eff_date
-        CheckBox 15, 205, 225, 10, "Other changes related to program/service elig. (describe changes)", section_c_other_changes_program_checkbox
-        EditBox 25, 220, 225, 15, section_c_other_changes_program
-        GroupBox 5, 245, 250, 40, "Section D: Comments from assessor, case manager or care coordinator"
-        Text 15, 255, 215, 10, "Enter any additional notes or comments"
-        EditBox 15, 265, 225, 15, section_d_additional_comments
-        ButtonGroup ButtonPressed
-            PushButton 215, 290, 55, 15, "Next", next_btn
-            CancelButton 270, 290, 50, 15
-            PushButton 5, 290, 55, 15, "Previous", previous_btn
-        GroupBox 260, 5, 60, 280, "Navigation"
-        Text 265, 15, 40, 10, "Section A"
-        Text 265, 45, 40, 10, "Section B"
-        Text 265, 105, 40, 10, "Section C"
-        Text 265, 150, 40, 10, "Section D"
-        Text 265, 180, 40, 10, "Section E"
-        Text 265, 210, 40, 10, "Section F"
-        Text 265, 255, 40, 10, "Section G"
-        ButtonGroup ButtonPressed
-            PushButton 265, 25, 50, 15, "Contact Info", contact_info_btn
-            PushButton 265, 55, 50, 15, "Status", status_btn
-            PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-            PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-            PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-            PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-            PushButton 265, 190, 50, 15, "Contact Info", contact_info_btn
-            PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-            PushButton 265, 235, 50, 15, "Changes", changes_btn
-            PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-        Text 35, 140, 215, 10, "First name                         Last name                  Phone number"
-        Text 35, 165, 165, 10, "Address                       City                State       Zip"
-        Text 35, 105, 165, 10, "Address                       City                State       Zip"
-        Text 265, 130, 50, 10, "Other Changes"
-    EndDialog
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section C: Other Changes & Section D: Comments"
+    GroupBox 5, 5, 260, 235, "Other changes"
+    Text 15, 20, 50, 10, "Program type"
+    DropListBox 70, 15, 65, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+    Text 20, 30, 90, 10, "Choose one (if applicable)"
+    CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
+    CheckBox 170, 30, 50, 10, "Conversion", section_c_conversion_checkbox
+    Text 15, 45, 100, 10, "Changes (select all that apply)"
+    CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
+    Text 35, 75, 80, 10, "Date address changed:"
+    EditBox 120, 70, 30, 15, section_c_date_address_changed
+    EditBox 25, 90, 70, 15, section_c_street_address
+    EditBox 95, 90, 50, 15, section_c_city
+    EditBox 145, 90, 25, 15, section_c_state
+    EditBox 170, 90, 40, 15, section_c_zip_code
+    Text 35, 105, 165, 10, "Address                       City                State       Zip"
+    CheckBox 15, 115, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
+    EditBox 25, 125, 80, 15, section_c_legal_rep_first_name
+    EditBox 105, 125, 80, 15, section_c_legal_rep_last_name
+    EditBox 185, 125, 55, 15, section_c_legal_rep_phone_number
+    Text 35, 140, 215, 10, "First name                         Last name                  Phone number"
+    EditBox 25, 150, 70, 15, section_c_legal_rep_street_address
+    EditBox 95, 150, 50, 15, section_c_legal_rep_city
+    EditBox 145, 150, 25, 15, section_c_legal_rep_state
+    EditBox 170, 150, 40, 15, section_c_legal_rep_zip_code
+    Text 35, 165, 165, 10, "Address                       City                State       Zip"
+    CheckBox 15, 175, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
+    Text 40, 190, 50, 10, "Effective date:"
+    EditBox 95, 185, 30, 15, section_c_qual_admission_eff_date
+    CheckBox 15, 205, 225, 10, "Other changes related to program/service elig. (describe changes)", section_c_other_changes_program_checkbox
+    EditBox 25, 220, 225, 15, section_c_other_changes_program
+    GroupBox 5, 245, 260, 40, "Section D: Comments from assessor, case manager or care coordinator"
+    Text 15, 255, 215, 10, "Enter any additional notes or comments"
+    EditBox 15, 265, 225, 15, section_d_additional_comments
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
 end function
 'Dim the variables in function
 Dim section_c_program_type_list, section_c_diversion_checkbox, section_c_conversion_checkbox, section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code, section_c_new_legal_rep_checkbox, section_c_legal_rep_first_name, section_c_legal_rep_last_name, section_c_legal_rep_phone_number, section_c_legal_rep_street_address, section_c_legal_rep_city, section_c_legal_rep_state, section_c_legal_rep_zip_code, section_c_person_return_to_community_checkbox, section_c_qual_admission_eff_date, section_c_other_changes_program_checkbox, section_c_other_changes_program, section_d_additional_comments
@@ -538,10 +403,10 @@ function section_e_contact_info()
   ref_nbr = left(hh_memb, 2)
   dialog_count = 7
   section_e_contact_info_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "7 - Section E: Contact Information"
+  BeginDialog Dialog1, 0, 0, 271, 310, "7 - Section E: Contact Information"
+    GroupBox 5, 5, 260, 200, "TO (assessor/case manager/care coordinator's information)"
     Text 10, 25, 180, 10, "Date Sent to assessor/case manager/care coordinator:"
     EditBox 195, 20, 55, 15, section_e_date_form_sent
-    GroupBox 5, 5, 250, 200, "TO (assessor/case manager/care coordinator's information)"
     Text 10, 45, 155, 10, "Click here to fill information from SWKR Panel:"
     ButtonGroup ButtonPressed
       PushButton 165, 40, 75, 15, "Fill from SWKR", section_e_fill_SWKR_btn
@@ -564,38 +429,18 @@ function section_e_contact_info()
     Text 10, 190, 145, 10, "Click button to add up to 2 add'l assessors:"
     ButtonGroup ButtonPressed
       PushButton 160, 185, 85, 15, "Add/Update Assessor", section_e_add_assessor_btn
-    GroupBox 5, 215, 245, 60, "Person's Information"
+    GroupBox 5, 215, 260, 60, "Person's Information"
     Text 10, 230, 105, 10, "Information entered previously:"
     Text 15, 240, 40, 10, "First name:"
-    Text 70, 240, 170, 10, first_name
+    Text 70, 240, 170, 10, "first_name"
     Text 15, 250, 40, 10, "Last name:"
-    Text 70, 250, 170, 10, last_name
+    Text 70, 250, 170, 10, "last_name"
     Text 15, 260, 45, 10, "Ref Number:"
-    Text 70, 260, 75, 10, ref_nbr
+    Text 70, 260, 75, 10, "ref_nbr"
     ButtonGroup ButtonPressed
-      PushButton 215, 290, 55, 15, "Next", next_btn
-      CancelButton 270, 290, 50, 15
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
       PushButton 5, 290, 55, 15, "Previous", previous_btn
-    GroupBox 260, 5, 60, 280, "Navigation"
-    Text 265, 15, 40, 10, "Section A"
-    Text 265, 45, 40, 10, "Section B"
-    Text 265, 105, 40, 10, "Section C"
-    Text 265, 150, 40, 10, "Section D"
-    Text 265, 180, 40, 10, "Section E"
-    Text 265, 210, 40, 10, "Section F"
-    Text 265, 255, 40, 10, "Section G"
-    ButtonGroup ButtonPressed
-      PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-      PushButton 265, 55, 50, 15, "Status", status_btn
-      PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-      PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-      PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-      PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-      PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-      PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-      PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-      PushButton 265, 235, 50, 15, "Changes", changes_btn
-      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
   EndDialog
 end function
 ' Dim all variables in function
@@ -605,8 +450,8 @@ Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section
 function section_e_additional_assessors()
   dialog_count = 12
   section_e_additional_assessors_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "Section E: Contact Info (Add'l Assessors)"
-    GroupBox 5, 5, 245, 135, "Additional Assessor (2)"
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section E: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
     EditBox 90, 15, 150, 15, section_e_assessor_2
     Text 10, 35, 50, 10, "Lead Agency:"
@@ -623,7 +468,7 @@ function section_e_additional_assessors()
     EditBox 90, 105, 55, 15, section_e_zip_code_2
     Text 10, 125, 55, 10, "Email Address:"
     EditBox 90, 120, 150, 15, section_e_email_address_2
-    GroupBox 5, 150, 245, 135, "Additional Assessor (3) - Leave blank if unneeded"
+    GroupBox 5, 150, 260, 135, "Additional Assessor (3) - Leave blank if unneeded"
     Text 10, 165, 40, 10, "Assessor:"
     EditBox 90, 160, 150, 15, section_e_assessor_3
     Text 10, 180, 50, 10, "Lead Agency:"
@@ -641,8 +486,8 @@ function section_e_additional_assessors()
     Text 10, 270, 55, 10, "Email Address:"
     EditBox 90, 265, 150, 15, section_e_email_address_3
     ButtonGroup ButtonPressed
-      PushButton 195, 290, 130, 15, "Save Info and Return to Contact Info", section_e_assessor_return_btn
-      PushButton 5, 290, 185, 15, "Return to Contact Info WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
+      PushButton 170, 290, 95, 15, "Save Info and Return", section_e_assessor_return_btn
+      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
   EndDialog
 end function
 ' Dim all functions in variable
@@ -652,176 +497,108 @@ Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, sec
 function section_f_medical_assistance()
   dialog_count = 8
   section_f_medical_assistance_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "8 - Section F: Medical Assistance"
-  CheckBox 15, 20, 175, 10, "Person applied for MA/MA-LTC (enter date applied)", section_f_person_applied_MA_checkbox
-  CheckBox 15, 35, 150, 10, "DHS-3531 sent to person (enter date sent)", section_f_dhs_3531_sent_checkbox
-  EditBox 195, 15, 30, 15, section_f_person_applied_date
-  EditBox 195, 30, 30, 15, section_f_dhs_3531_sent_date
-  CheckBox 15, 50, 150, 10, "DHS-3543 sent to person (enter date sent)", section_f_dhs_3543_sent_checkbox
-  EditBox 195, 45, 30, 15, section_f_dhs_3543_sent_date
-  CheckBox 15, 65, 200, 10, "DHS-3543/DHS-3531 returned; elig determination pending", section_f_dhs_3543_3531_returned_checkbox
-  Text 30, 80, 40, 10, "Comments:"
-  EditBox 70, 75, 160, 15, section_f_dhs_3543_3531_returned_comments
-  CheckBox 15, 95, 155, 10, "DHS-3543/DHS-3531 has not been returned", section_f_dhs_3543_3531_not_returned_checkbox
-  GroupBox 5, 5, 250, 105, "MA status for long-term supports and services (select all that apply)"
-  ButtonGroup ButtonPressed
-    CancelButton 270, 290, 50, 15
-    PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-    PushButton 265, 55, 50, 15, "Status", status_btn
-    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-    PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-    PushButton 265, 235, 50, 15, "Changes", changes_btn
-    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  GroupBox 5, 115, 250, 160, "Determination (select all that apply)"
-  CheckBox 10, 130, 100, 10, "MA opened (enter eff. date)", section_f_ma_opened_checkbox
-  EditBox 210, 125, 30, 15, section_f_ma_opened_date
-  CheckBox 10, 145, 165, 10, "Basic MA medical spenddown (enter amount $)", section_f_basic_ma_medical_spenddown_checkbox
-  EditBox 210, 140, 30, 15, section_f_basic_ma_medical_spenddown
-  CheckBox 10, 160, 200, 10, "MA for LTC services open on specific date (enter eff. date)", section_f_ma_LTC_services_checkbox
-  EditBox 210, 155, 30, 15, section_f_ma_LTC_services_date
-  CheckBox 10, 175, 195, 10, "LTC spenddown/waiver oblig. for initial month (eff. date)", section_f_LTC_spenddown_initial_month_checkbox
-  EditBox 210, 170, 30, 15, section_f_LTC_spenddown_date
-  CheckBox 10, 190, 95, 10, "MA denied (enter eff. date)", section_f_ma_denied_checkbox
-  EditBox 210, 185, 30, 15, section_f_ma_denied_date
-  CheckBox 10, 205, 180, 10, "MA payment of LTC services denied (enter eff. date)", section_f_ma_payment_denied_checkbox
-  EditBox 210, 200, 30, 15, section_f_ma_payment_LTC_date
-  CheckBox 10, 220, 10, 10, "", section_f_inelig_for_MA_payment_checkbox
-  EditBox 210, 225, 30, 15, section_f_inelig_for_MA_payment_date
-  CheckBox 10, 245, 175, 10, "Basic MA continues until specific date (enter date)", section_f_basic_ma_continues_checkbox
-  EditBox 210, 240, 30, 15, section_f_basic_ma_continues_date
-  CheckBox 10, 260, 185, 15, "Results from asset assess. sent to person (date sent)", section_f_asset_assessment_results_checkbox
-  EditBox 210, 255, 30, 15, section_f_results_from_asset_assessment_sent_date
-  Text 20, 220, 185, 20, "Person inelig for MA payment of LTSS services until specific date (Enter date inelig. until)"
-  ButtonGroup ButtonPressed
-    PushButton 220, 290, 50, 15, "Next", next_btn
-    PushButton 5, 290, 50, 15, "Previous", previous_btn
+  BeginDialog Dialog1, 0, 0, 271, 370, "8 - Section F: Medical Assistance"
+    GroupBox 5, 5, 260, 105, "MA status for long-term supports and services (select all that apply)"
+    CheckBox 15, 20, 175, 10, "Person applied for MA/MA-LTC (enter date applied)", section_f_person_applied_MA_checkbox
+    EditBox 215, 15, 30, 15, section_f_person_applied_date
+    CheckBox 15, 35, 150, 10, "DHS-3531 sent to person (enter date sent)", section_f_dhs_3531_sent_checkbox
+    EditBox 215, 30, 30, 15, section_f_dhs_3531_sent_date
+    CheckBox 15, 50, 185, 10, "DHS-3543/DHS-6696A sent to person (enter date sent)", section_f_dhs_3543_sent_checkbox
+    EditBox 215, 45, 30, 15, section_f_dhs_3543_sent_date
+    CheckBox 15, 65, 220, 10, "DHS-3543/DHS-6696A/DHS-3531 returned; elig. determ. pending", section_f_dhs_3543_3531_returned_checkbox
+    Text 30, 80, 40, 10, "Comments:"
+    EditBox 75, 75, 170, 15, section_f_dhs_3543_3531_returned_comments
+    CheckBox 15, 95, 180, 10, "DHS-3543/6696A/3531 not returned (enter due date)", section_f_dhs_3543_3531_not_returned_checkbox
+    EditBox 215, 90, 30, 15, section_f_dhs_3543_3531_not_returned_date
+    GroupBox 5, 110, 260, 235, "Determination (select all that apply)"
+    CheckBox 15, 125, 130, 10, "SMRT referral sent (enter date sent)", section_f_smrt_referral_sent
+    EditBox 215, 120, 30, 15, section_f_smrt_referral_date
+    CheckBox 15, 140, 90, 10, "Certification of disability", section_f_disability_cert
+    EditBox 25, 150, 50, 15, section_f_basic_disability_eff_date
+    DropListBox 85, 150, 65, 15, "Select one:"+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Withdrawn"+chr(9)+"Appealed", section_f_disability_status_list
+    EditBox 170, 150, 75, 15, section_f_disability_notes
+    Text 30, 165, 185, 10, "Effective date                 Status                                 Notes"
+    CheckBox 10, 180, 155, 10, "MA coverage approved (enter effective date)", section_f_ma_coverage_approved_checkbox
+    EditBox 215, 175, 30, 15, section_f_ma_coverage_eff_date
+    CheckBox 10, 195, 165, 10, "Basic MA medical spenddown (enter amount $)", section_f_basic_MA_med_spenddown_checkbox
+    EditBox 215, 190, 30, 15, section_f_basic_MA_med_spenddown_amount
+    CheckBox 10, 210, 180, 10, "MA-LTC open on specific date (enter effective date)", section_f_MA_LTC_open_date_checkbox
+    EditBox 215, 205, 30, 15, section_f_MA_LTC_open_date
+    CheckBox 10, 225, 195, 10, "MA-LTC spenddown or waiver obligation for initial month", section_f_MA_LTC_spenddown_waiver_checkbox
+    EditBox 25, 235, 40, 15, section_f_MA_LTC_spenddown_waiver_eff_date
+    EditBox 125, 235, 55, 15, section_f_MA_LTC_spenddown_waiver_amount
+    Text 25, 250, 200, 10, "Effective date            Spenddown/waiver obligation amount"
+    CheckBox 10, 270, 115, 10, "MA denied (enter effective date)", section_f_ma_denied_checkbox
+    EditBox 215, 265, 30, 15, section_f_ma_denied_date
+    CheckBox 10, 285, 130, 10, "MA-LTC denied (enter effective date)", section_f_ma_ltc_denied_checkbox
+    EditBox 215, 280, 30, 15, section_f_ma_ltc_denied_date
+    CheckBox 10, 300, 200, 10, "Person ineligible for MA-LTC until specific date (enter date)", section_f_inelig_MA_LTC_date_checkbox
+    EditBox 215, 295, 30, 15, section_f_inelig_MA_LTC_date
+    CheckBox 10, 315, 175, 10, "Basic MA continues until specific date (enter date)", section_f_basic_ma_continues_date_checkbox
+    EditBox 215, 310, 30, 15, section_f_basic_ma_continues_date
+    CheckBox 10, 330, 195, 10, "Results from asset assess. sent to person (enter date)", section_f_asset_asses_results_sent_checkbox
+    EditBox 215, 325, 30, 15, section_f_asset_asses_results_sent_date
+    ButtonGroup ButtonPressed
+      PushButton 165, 350, 50, 15, "Next", next_btn
+      CancelButton 215, 350, 50, 15
+      PushButton 5, 350, 50, 15, "Previous", previous_btn
   EndDialog
 end function
 ' Dim all functions in variable
-Dim section_f_person_applied_MA_checkbox, section_f_dhs_3531_sent_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_date, section_f_dhs_3543_sent_checkbox, section_f_dhs_3543_sent_date, section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments, section_f_dhs_3543_3531_not_returned_checkbox, section_f_ma_opened_checkbox, section_f_ma_opened_date, section_f_basic_ma_medical_spenddown_checkbox, section_f_basic_ma_medical_spenddown, section_f_ma_LTC_services_checkbox, section_f_ma_LTC_services_date, section_f_LTC_spenddown_initial_month_checkbox, section_f_LTC_spenddown_date, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_payment_denied_checkbox, section_f_ma_payment_LTC_date, section_f_inelig_for_MA_payment_checkbox, section_f_inelig_for_MA_payment_date, section_f_basic_ma_continues_checkbox, section_f_basic_ma_continues_date, section_f_asset_assessment_results_checkbox, section_f_results_from_asset_assessment_sent_date
+Dim section_f_person_applied_MA_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_checkbox, section_f_dhs_3531_sent_date, section_f_dhs_3543_sent_checkbox, section_f_dhs_3543_sent_date, section_f_dhs_3543_3531_returned_checkbox, section_f_dhs_3543_3531_returned_comments, section_f_dhs_3543_3531_not_returned_checkbox, section_f_dhs_3543_3531_not_returned_date, section_f_smrt_referral_sent, section_f_smrt_referral_date, section_f_disability_cert, section_f_basic_disability_eff_date, section_f_disability_status_list, section_f_disability_notes, section_f_ma_coverage_approved_checkbox, section_f_ma_coverage_eff_date, section_f_basic_MA_med_spenddown_checkbox, section_f_basic_MA_med_spenddown_amount, section_f_MA_LTC_open_date_checkbox, section_f_MA_LTC_open_date, section_f_MA_LTC_spenddown_waiver_checkbox, section_f_MA_LTC_spenddown_waiver_eff_date, section_f_MA_LTC_spenddown_waiver_amount, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_ltc_denied_checkbox, section_f_ma_ltc_denied_date, section_f_inelig_MA_LTC_date_checkbox, section_f_inelig_MA_LTC_date, section_f_basic_ma_continues_date_checkbox, section_f_basic_ma_continues_date, section_f_asset_asses_results_sent_checkbox, section_f_asset_asses_results_sent_date
 
 'Dialog 9 - Section F: Medical Assistance
 function section_f_medical_assistance_changes()
   dialog_count = 9
   section_f_medical_assistance_changes_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "9 - Section F: Medical Assistance - Changes"
-    GroupBox 5, 5, 250, 275, "Changes (select all that apply)"
+  BeginDialog Dialog1, 0, 0, 271, 340, "Section F: Medical Assistance - Changes"
+    GroupBox 5, 5, 260, 275, "Changes (select all that apply)"
     CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
-    EditBox 210, 20, 30, 15, section_f_LTC_spenddown_amount
-    CheckBox 15, 40, 10, 10, "", section_f_MA_terminated_checkbox
-    Text 25, 40, 170, 20, "MA terminated - basic MA and MA payment of LTSS services (enter eff. date)"
-    EditBox 210, 40, 30, 15, section_f_ma_terminated_eff_date
-    CheckBox 15, 60, 180, 10, "Basic MA spenddown changed (enter spenddown $)", section_f_basic_ma_spenddown_change_checkbox
-    EditBox 210, 60, 30, 15, section_f_basic_ma_spenddown_change_amount
-    CheckBox 15, 80, 230, 10, "MA payment of LTSS services terminated; basic MA remains open", section_f_ma_payment_terminated_basic_open_checkbox
-    Text 30, 95, 60, 10, "Date terminated:"
-    EditBox 90, 90, 30, 15, section_f_ma_payment_terminated_term_date
-    Text 140, 95, 70, 10, "Date inelig. through:"
-    EditBox 210, 90, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
-    CheckBox 15, 110, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
-    EditBox 210, 110, 30, 15, section_f_person_deceased_date_of_death
-    CheckBox 15, 125, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
-    EditBox 25, 135, 45, 15, section_f_person_moved_institution_admit_date
-    EditBox 70, 135, 95, 15, section_f_person_moved_institution_facility_name
-    EditBox 165, 135, 70, 15, section_f_person_moved_institution_phone_number
-    EditBox 25, 160, 75, 15, section_f_person_moved_institution_address
-    EditBox 100, 160, 75, 15, section_f_person_moved_institution_city
-    EditBox 175, 160, 25, 15, section_f_person_moved_institution_state
-    EditBox 200, 160, 35, 15, section_f_person_moved_institution_zip
-    CheckBox 15, 190, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
-    EditBox 25, 200, 75, 15, section_f_person_new_address_date_changed
-    EditBox 100, 200, 135, 15, section_f_person_new_address_new_phone_number
-    EditBox 25, 225, 75, 15, section_f_person_new_address_address
-    EditBox 100, 225, 75, 15, section_f_person_new_address_city
-    EditBox 175, 225, 25, 15, section_f_person_new_address_state
-    EditBox 200, 225, 35, 15, section_f_person_new_address_zip_code
-    CheckBox 15, 250, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
-    EditBox 25, 260, 225, 15, section_f_person_other_change_description
+    EditBox 210, 15, 30, 15, section_f_LTC_spenddown_amount
+    CheckBox 15, 35, 185, 10, "MA terminated (basic MA and MA-LTC) (enter eff. date)", section_f_ma_terminated
+    EditBox 210, 30, 30, 15, section_f_ma_terminated_eff_date
+    CheckBox 15, 50, 180, 10, "Basic MA spenddown changed (enter spenddown $)", section_f_basic_ma_spenddown_change_checkbox
+    EditBox 210, 45, 30, 15, section_f_basic_ma_spenddown_change_amount
+    CheckBox 15, 65, 205, 10, "MA-LTC terminated on specific date; basic MA remains open", section_f_ma_payment_terminated
+    Text 30, 80, 60, 10, "Termination date:"
+    EditBox 90, 75, 30, 15, section_f_ma_payment_terminated_term_date
+    Text 130, 80, 70, 10, "Date inelig. through:"
+    EditBox 210, 75, 30, 15, section_f_ma_payment_terminated_date_inelig_thru
+    CheckBox 15, 95, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
+    EditBox 210, 90, 30, 15, section_f_person_deceased_date_of_death
+    CheckBox 15, 110, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
+    EditBox 25, 120, 45, 15, section_f_person_moved_institution_admit_date
+    EditBox 70, 120, 95, 15, section_f_person_moved_institution_facility_name
+    EditBox 165, 120, 75, 15, section_f_person_moved_institution_phone_number
+    Text 30, 135, 205, 10, "Admit date              Facility name                   Phone number"
+    EditBox 25, 150, 75, 15, section_f_person_moved_institution_address
+    EditBox 100, 150, 75, 15, section_f_person_moved_institution_city
+    EditBox 175, 150, 25, 15, section_f_person_moved_institution_state
+    EditBox 200, 150, 40, 15, section_f_person_moved_institution_zip
+    Text 30, 165, 205, 10, "Address                                 City                       State       Zip"
+    CheckBox 15, 175, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
+    EditBox 25, 185, 75, 15, section_f_person_new_address_date_changed
+    EditBox 100, 185, 140, 15, section_f_person_new_address_new_phone_number
+    Text 30, 200, 185, 10, "Date addr. changed        New Phone Number (if changed)"
+    EditBox 25, 220, 75, 15, section_f_person_new_address_address
+    EditBox 100, 220, 75, 15, section_f_person_new_address_city
+    EditBox 175, 220, 25, 15, section_f_person_new_address_state
+    EditBox 200, 220, 40, 15, section_f_person_new_address_zip_code
+    Text 30, 235, 205, 10, "Address                                 City                       State       Zip"
+    CheckBox 15, 245, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
+    EditBox 25, 255, 215, 15, section_f_person_other_change_description
+    GroupBox 5, 285, 260, 30, "Section G: Comments from the eligibility worker"
+    Text 10, 300, 110, 10, "Enter any add'l notes/comments:"
+    EditBox 120, 295, 135, 15, section_g_elig_worker_comments
     ButtonGroup ButtonPressed
-      PushButton 220, 290, 50, 15, "Next", next_btn
-      CancelButton 270, 290, 50, 15
-      PushButton 5, 290, 50, 15, "Previous", previous_btn
-    Text 30, 150, 205, 10, "Admit date              Facility name                   Phone number"
-    Text 30, 175, 205, 10, "Address                                 City                       State       Zip"
-    Text 30, 240, 205, 10, "Address                                 City                       State       Zip"
-    Text 30, 215, 185, 10, "Date addr. changed        New Phone Number (if changed)"
-    ButtonGroup ButtonPressed
-      PushButton 220, 290, 50, 15, "Next", next_btn
-      CancelButton 270, 290, 50, 15
-      PushButton 5, 290, 50, 15, "Previous", previous_btn
-    GroupBox 260, 5, 60, 280, "Navigation"
-    Text 265, 15, 40, 10, "Section A"
-    Text 265, 45, 40, 10, "Section B"
-    Text 265, 105, 40, 10, "Section C"
-    Text 265, 150, 40, 10, "Section D"
-    Text 265, 180, 40, 10, "Section E"
-    Text 265, 210, 40, 10, "Section F"
-    Text 265, 255, 40, 10, "Section G"
-    ButtonGroup ButtonPressed
-      PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-      PushButton 265, 55, 50, 15, "Status", status_btn
-      PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-      PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-      PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-      PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-      PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-      PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-      PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-      PushButton 265, 235, 50, 15, "Changes", changes_btn
-      PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
+      PushButton 165, 320, 50, 15, "Next", next_btn
+      CancelButton 215, 320, 50, 15
+      PushButton 5, 320, 50, 15, "Previous", previous_btn
   EndDialog
 end function
 ' Dim all functions in variable
-Dim section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown_amount, section_f_MA_terminated_checkbox,section_f_ma_terminated_eff_date, section_f_basic_ma_spenddown_change_checkbox, section_f_basic_ma_spenddown_change_amount, section_f_ma_payment_terminated_basic_open_checkbox, section_f_ma_payment_terminated_term_date, section_f_ma_payment_terminated_date_inelig_thru, section_f_person_deceased_date_of_death, section_f_person_moved_institution_checkbox, section_f_person_moved_institution_admit_date, section_f_person_moved_institution_facility_name, section_f_person_moved_institution_phone_number, section_f_person_moved_institution_address, section_f_person_moved_institution_city, section_f_person_moved_institution_state, section_f_person_moved_institution_zip, section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, section_f_other_change_checkbox, section_f_person_other_change_description, section_f_person_deceased_checkbox
+Dim section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown_amount, section_f_ma_terminated, section_f_ma_terminated_eff_date, section_f_basic_ma_spenddown_change_checkbox, section_f_basic_ma_spenddown_change_amount, section_f_ma_payment_terminated, section_f_ma_payment_terminated_term_date, section_f_ma_payment_terminated_date_inelig_thru, section_f_person_deceased_checkbox, section_f_person_deceased_date_of_death, section_f_person_moved_institution_checkbox, section_f_person_moved_institution_admit_date, section_f_person_moved_institution_facility_name, section_f_person_moved_institution_phone_number, section_f_person_moved_institution_address, section_f_person_moved_institution_city, section_f_person_moved_institution_state, section_f_person_moved_institution_zip,section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, section_f_other_change_checkbox, section_f_person_other_change_description, section_g_elig_worker_comments
 
-'Dialog 10 - Section G: Comments from eligibility worker
-function section_g_comments_elig_worker()
-  dialog_count = 10
-  section_g_comments_elig_worker_called = True
-  BeginDialog Dialog1, 0, 0, 326, 310, "10 - Section G: Comments from elig. worker"
-  Text 5, 5, 130, 10, "Enter any additional notes or comments"
-  EditBox 5, 15, 225, 15, section_g_elig_comments
-  ButtonGroup ButtonPressed
-    PushButton 220, 290, 50, 15, "Complete", complete_btn
-    CancelButton 270, 290, 50, 15
-    PushButton 5, 290, 50, 15, "Previous", previous_btn
-  GroupBox 260, 5, 60, 280, "Navigation"
-  Text 265, 15, 40, 10, "Section A"
-  Text 265, 45, 40, 10, "Section B"
-  Text 265, 105, 40, 10, "Section C"
-  Text 265, 150, 40, 10, "Section D"
-  Text 265, 180, 40, 10, "Section E"
-  Text 265, 210, 40, 10, "Section F"
-  Text 265, 255, 40, 10, "Section G"
-  ButtonGroup ButtonPressed
-    PushButton 265, 25, 50, 15, "Contact Info", section_a_contact_info_btn
-    PushButton 265, 55, 50, 15, "Status", status_btn
-    PushButton 265, 70, 50, 15, "Initial Assess.", initial_assessment_btn
-    PushButton 265, 85, 50, 15, "MA Req/App", MA_req_app_btn
-    PushButton 265, 115, 50, 15, "Exit Reasons", exit_reasons_btn
-    PushButton 265, 130, 50, 15, "Other Changes", other_changes_btn
-    PushButton 265, 160, 50, 15, "Comments", section_d_comments_btn
-    PushButton 265, 190, 50, 15, "Contact Info", section_b_contact_info_btn
-    PushButton 265, 220, 50, 15, "MA Status/Det", MA_status_determination_btn
-    PushButton 265, 235, 50, 15, "Changes", changes_btn
-    PushButton 265, 265, 50, 15, "Comments", section_g_comments_btn
-  EndDialog
-end function
-' Dim all variables in function
-Dim section_g_elig_comments
 
 Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
   If dialog_selected = 1 then call section_a_contact_info()
