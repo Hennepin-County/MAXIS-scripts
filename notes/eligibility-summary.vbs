@@ -20589,7 +20589,6 @@ If user_ID_for_validation = "MAAL004" Then hc_access_only = True 		' MA
 If user_ID_for_validation = "KAAN002" Then hc_access_only = True 		' KA
 If user_ID_for_validation = "NAAW001" Then hc_access_only = True 		' NA
 If user_ID_for_validation = "NACA001" Then hc_access_only = True 		' NC
-If user_ID_for_validation = "PRCA002" Then hc_access_only = True 		' PC
 If user_ID_for_validation = "MACO010" Then hc_access_only = True 		' MC
 If user_ID_for_validation = "COCU002" Then hc_access_only = True 		' CC
 If user_ID_for_validation = "GRCU001" Then hc_access_only = True 		' GC
