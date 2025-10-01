@@ -142,7 +142,6 @@ function section_a_contact_info()
       CancelButton 215, 290, 50, 15
   EndDialog
 end function
-'To do - dim all the variables?
 Dim form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb, form_status_dropdown
 
 function section_a_additional_assessors()
@@ -597,6 +596,163 @@ function section_f_medical_assistance_changes()
 end function
 ' Dim all functions in variable
 Dim section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown_amount, section_f_ma_terminated, section_f_ma_terminated_eff_date, section_f_basic_ma_spenddown_change_checkbox, section_f_basic_ma_spenddown_change_amount, section_f_ma_payment_terminated, section_f_ma_payment_terminated_term_date, section_f_ma_payment_terminated_date_inelig_thru, section_f_person_deceased_checkbox, section_f_person_deceased_date_of_death, section_f_person_moved_institution_checkbox, section_f_person_moved_institution_admit_date, section_f_person_moved_institution_facility_name, section_f_person_moved_institution_phone_number, section_f_person_moved_institution_address, section_f_person_moved_institution_city, section_f_person_moved_institution_state, section_f_person_moved_institution_zip,section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, section_f_other_change_checkbox, section_f_person_other_change_description, section_g_elig_worker_comments
+
+'Error dialog alerting user of incomplete fields
+function incomplete_dialog_fields()
+  BeginDialog Dialog1, 0, 0, 196, 130, "Dialog not filled out completely"
+    Text 5, 5, 185, 25, "Not all fields in the previous dialog were filled out. You should fill out each dialog as completely as possible using the information from the submitted form."
+    Text 5, 40, 175, 20, "To return to the previous dialog and fill out the empty fields, click the button below:"
+    ButtonGroup ButtonPressed
+      PushButton 5, 60, 90, 15, "Return to previous dialog", return_btn
+    Text 5, 90, 175, 20, "To continue to the next dialog without updating the previous dialog, click the button below:"
+    ButtonGroup ButtonPressed
+      PushButton 5, 110, 90, 15, "Continue to next dialog", continue_btn
+  EndDialog
+end function
+
+'Function will alert user of incomplete fields in previous dialog
+function incomplete_dialog_handling()	
+	If ButtonPressed = next_btn OR _
+    ButtonPressed = previous_btn OR _
+    ButtonPressed = section_a_assessor_return_btn OR _
+    ButtonPressed = section_e_assessor_return_btn OR _
+    ButtonPressed = -1 Then
+      If dialog_count = 1 then 
+        If trim(section_a_date_form_sent) = "" OR _
+          trim(section_a_assessor) = "" OR _
+          trim(section_a_lead_agency) = "" OR _ 
+          trim(section_a_phone_number) = "" OR _  
+          trim(section_a_street_address) = "" OR _ 
+          trim(section_a_city) = "" OR _
+          trim(section_a_state) = "" OR _
+          trim(section_a_zip_code) = "" OR _  
+          trim(section_a_email_address) = "" Then 
+            incomplete_fields = True
+        End If 
+      End If
+      
+      If dialog_count = 10 then 
+        If trim(section_a_assessor_2) = "" OR _  
+        trim(section_a_lead_agency_2) = "" OR _ 
+        trim(section_a_phone_number_2) = "" OR _
+        trim(section_a_street_address_2) = "" OR _ 
+        trim(section_a_city_2) = "" OR _ 
+        trim(section_a_state_2) = "" OR _ 
+        trim(section_a_zip_code_2) = "" OR _ 
+        trim(section_a_email_address_2) = "" OR _ 
+        trim(section_a_assessor_3) = "" OR _ 
+        trim(section_a_lead_agency_3) = "" OR _ 
+        trim(section_a_phone_number_3) = "" OR _
+        trim(section_a_street_address_3) = "" OR _ 
+        trim(section_a_city_3) = "" OR _ 
+        trim(section_a_state_3) = "" OR _  
+        trim(section_a_zip_code_3) = "" OR _  
+        trim(section_a_email_address_3) = "" Then
+          incomplete_fields = True
+        End If 
+      End If
+
+      If dialog_count = 2 then 
+        If section_g_person_requesting_already_enrolled_LTC + section_b_diversion_checkbox + section_b_conversion_checkbox +  section_g_person_will_reside_institution_checkbox = 0 OR _
+          section_b_program_type = "Select one:" OR _
+          trim(section_b_admission_date) = "" OR _
+          trim(section_b_facility) = "" OR _
+          trim(section_b_institution_phone_number) = "" OR _
+          trim(section_b_institution_street_address) = "" OR _
+          trim(section_b_institution_city) = "" OR _
+          trim(section_b_institution_state) = "" OR _
+          trim(section_b_institution_zip_code) = "" Then
+            incomplete_fields = True
+        End If
+      End If
+
+      If dialog_count = 3 then 
+        If trim(section_b_initial_MnA_assessment_date) = "" OR _
+          trim(section_b_assessment_determination_date) = "" OR _
+          section_b_assessment_determination = "Select one:" OR _
+          section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 OR _
+          trim(section_b_monthly_waiver_costs) = "" OR _ 
+          trim(section_b_waiver_effective_date) = "" OR _ 
+          section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager = 0 OR _ 
+          trim(section_b_case_manager_name) = "" OR _ 
+          trim(section_b_case_manager_phone_number) = "" Then
+            incomplete_fields = True
+        End If
+      End if 
+
+      If dialog_count = 5 then
+        If trim(section_e_date_form_sent) = "" OR _
+          trim(section_e_assessor) = "" OR _
+          trim(section_e_lead_agency) = "" OR _ 
+          trim(section_e_phone_number) = "" OR _  
+          trim(section_e_street_address) = "" OR _ 
+          trim(section_e_city) = "" OR _
+          trim(section_e_state) = "" OR _
+          trim(section_e_zip_code) = "" OR _  
+          trim(section_e_email_address) = "" Then 
+            incomplete_fields = True
+        End If 
+      End If
+
+      If dialog_count = 6 then
+        If trim(section_e_assessor_2) = "" OR _  
+        trim(section_e_lead_agency_2) = "" OR _ 
+        trim(section_e_phone_number_2) = "" OR _
+        trim(section_e_street_address_2) = "" OR _ 
+        trim(section_e_city_2) = "" OR _ 
+        trim(section_e_state_2) = "" OR _ 
+        trim(section_e_zip_code_2) = "" OR _ 
+        trim(section_e_email_address_2) = "" OR _ 
+        trim(section_e_assessor_3) = "" OR _ 
+        trim(section_e_lead_agency_3) = "" OR _ 
+        trim(section_e_phone_number_3) = "" OR _
+        trim(section_e_street_address_3) = "" OR _ 
+        trim(section_e_city_3) = "" OR _ 
+        trim(section_e_state_3) = "" OR _  
+        trim(section_e_zip_code_3) = "" OR _  
+        trim(section_e_email_address_3) = "" Then
+          incomplete_fields = True
+        End If
+      End if 
+
+
+      If dialog_count = 7 then
+        If section_f_person_applied_MA_checkbox + section_f_dhs_3531_sent_checkbox + section_f_dhs_3543_6696a_sent_checkbox + section_f_dhs_3543_6696a_3531_returned_checkbox + section_f_dhs_3543_6696a_3531_not_returned_checkbox = 0 OR _
+        section_f_smrt_referral_checkbox + section_f_disability_cert_checkbox + section_f_ma_approved_checkbox + section_f_ma_spenddown_checkbox + section_f_ma_ltc_open_checkbox + section_f_ma_ltc_spenddown_checkbox + section_f_ma_denied_checkbox + section_f_ma_ltc_denied_checkbox + section_f_ma_ltc_ineligible_checkbox + section_f_basic_ma_cont_checkbox + section_f_asset_assess_sent_checkbox = 0 OR _
+        section_f_ma_ltc_spenddown_waiver_checkbox + section_f_ma_terminated_checkbox + section_f_ma_spenddown_changed_checkbox + section_f_ma_ltc_terminated_checkbox + section_f_person_deceased_checkbox + section_f_moved_institution_checkbox + section_f_new_address_checkbox + section_f_other_change_checkbox = 0 OR _
+        trim(section_g_additional_comments) = "" Then
+          incomplete_fields = True
+        End If
+      End if 
+  End If
+
+	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
+    'Open the incomplete fields dialog
+    Dialog1 = "" 'Blanking out previous dialog detail
+    Call incomplete_dialog_fields()
+    incomplete_fields = False
+
+    DO
+      dialog Dialog1				'main dialog
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    If ButtonPressed = return_btn Then 
+      'Return to the previous dialog
+      'Need to add handling for dialogs 2 and 5
+      If dialog_count = 3 Then
+        dialog_count = 1
+      ElseIf dialog_count = 7 Then
+        dialog_count = 5
+      Else
+        dialog_count = dialog_count - 1
+      End If
+    End If 
+  ElseIf incomplete_fields = True and ButtonPressed = previous_btn Then
+    'If the user pressed previous, then reset incomplete_fields and do not show the warning message since they will have to visit dialog again
+    incomplete_fields = False
+  End If
+end function
 
 
 Function dialog_selection(dialog_selected) 	'Selects the correct dialog based
@@ -1058,6 +1214,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
                 cancel_confirmation
                 Call dialog_specific_error_handling	'function for error handling of main dialog of forms
                 Call button_movement()				'function to move throughout the dialogs
+                Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
             Loop until err_msg = ""
         Loop until ButtonPressed = complete_btn
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
