@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/01/2025", "Update language to reflect script use for food destroyed in disasters AND misfortunes.", "Mark Riegel, Hennepin County") '#2434
 CALL changelog_update("09/10/2024", "Update to align with 06/2024 POLI/TEMP regarding denial of replacement requests.", "Mark Riegel, Hennepin County") '#1848
 CALL changelog_update("05/07/2024", "Update to align with updated 02/2024 POLI/TEMP.", "Mark Riegel, Hennepin County") '#1796
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -91,53 +92,53 @@ Call check_for_MAXIS(False)
 'Dialog to gather details on the request
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 336, 385, "Replacing Food Destroyed in a Disaster"
+  Text 5, 5, 310, 10, "When a client reports food destroyed in a disaster or misfortune and all requirements are met"
+  Text 5, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
+  Text 10, 30, 50, 10, "Case number:"
   EditBox 65, 25, 35, 15, MAXIS_case_number
-  EditBox 110, 55, 45, 15, loss_date
-  EditBox 110, 70, 45, 15, amount_loss
-  EditBox 110, 85, 45, 15, report_date
-  EditBox 110, 100, 210, 15, disaster_description
-  EditBox 110, 115, 120, 15, how_verif
-  EditBox 110, 130, 45, 15, loss_verification_date
+  GroupBox 5, 45, 325, 105, "Food Loss Details"
+  Text 10, 60, 45, 10, "Date of loss:"
+  EditBox 130, 55, 45, 15, loss_date
+  Text 10, 75, 80, 10, "Amount of food loss ($): "
+  EditBox 130, 70, 45, 15, amount_loss
+  Text 10, 90, 95, 10, "Date loss reported to county:"
+  EditBox 130, 85, 45, 15, report_date
+  Text 10, 105, 100, 10, "Describe disaster/misfortune:"
+  EditBox 130, 100, 190, 15, disaster_description
+  Text 10, 120, 110, 10, "How disaster/misfortune verified:"
+  EditBox 130, 115, 105, 15, how_verif
+  Text 240, 115, 80, 20, "(news report, social worker, Red Cross, etc.)"
+  Text 10, 135, 65, 10, "Date loss verified:"
+  EditBox 130, 130, 45, 15, loss_verification_date
+  GroupBox 5, 155, 325, 120, "Information for Replacement Request"
+  Text 10, 170, 70, 10, "Status of Request: "
   DropListBox 90, 170, 180, 15, "Select One:"+chr(9)+"Pending Complete DHS-1609"+chr(9)+"Pending Verification(s)"+chr(9)+"Request Approved"+chr(9)+"Request Denied", replacement_status
+  Text 10, 185, 55, 10, "Replace as REI: "
   DropListBox 90, 185, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"NA", rei_replacement
+  Text 10, 205, 65, 10, "Reason for Denial: "
   DropListBox 90, 200, 180, 15, "Select One:"+chr(9)+"DHS-1609 never received"+chr(9)+"Late report of loss"+chr(9)+"Other denial reason", denial_reason
+  Text 10, 225, 75, 10, "Denial Reason (other):"
   EditBox 90, 220, 235, 15, denial_reason_other
+  Text 10, 240, 70, 10, "Verifications Needed: "
   EditBox 90, 235, 235, 15, verif_needed
   CheckBox 10, 260, 135, 10, "Request was sent to TSS BENE Unit", TSS_BENE_sent_checkbox
   ButtonGroup ButtonPressed
     PushButton 145, 255, 180, 15, "TSS BENE Unit Webform", TSS_BENE_webform_btn
+  GroupBox 5, 280, 325, 80, "Nonreceipt/Replacement Affidavit (DHS-1609)"
+  Text 10, 300, 95, 10, "Date DHS-1609 is due back:"
   EditBox 135, 295, 45, 15, dhs_1609_due_date
   CheckBox 190, 295, 95, 10, "Create TIKL for DHS-1609", dhs_1609_tikl
+  Text 10, 315, 120, 10, "Date DHS-1609 signed by the client:"
   EditBox 135, 310, 45, 15, dhs1609_sig_date
+  Text 10, 330, 115, 10, "Date DHS-1609 received by county: "
   EditBox 135, 325, 45, 15, dhs1609_rcvd_date
+  Text 10, 345, 125, 10, "Date DHS-1609 completed by county: "
   EditBox 135, 340, 45, 15, dhs1609_done_date
-  EditBox 75, 365, 165, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 250, 365, 35, 15
     CancelButton 290, 365, 35, 15
-  Text 5, 5, 265, 10, "When a client reports food destroyed in a disaster and all requirements are met"
-  Text 5, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
-  Text 10, 30, 50, 10, "Case number:"
-  GroupBox 5, 45, 325, 105, "Food Loss Details"
-  Text 10, 60, 45, 10, "Date of Loss:"
-  Text 10, 75, 80, 10, "Amount of Food Loss ($): "
-  Text 10, 90, 95, 10, "Date loss reported to county:"
-  Text 10, 105, 75, 10, "Describe the disaster:"
-  Text 10, 120, 90, 10, "How disaster was verified:"
-  Text 240, 120, 80, 20, "(news report, social worker, Red Cross, etc.)"
-  Text 10, 135, 65, 10, "Date Loss verified:"
-  GroupBox 5, 155, 325, 120, "Information for Replacement Request"
-  Text 10, 170, 70, 10, "Status of Request: "
-  Text 10, 185, 55, 10, "Replace as REI: "
-  Text 10, 205, 65, 10, "Reason for Denial: "
-  Text 10, 225, 75, 10, "Denial Reason (other):"
-  Text 10, 240, 70, 10, "Verifications Needed: "
-  GroupBox 5, 280, 325, 80, "Nonreceipt/Replacement Affidavit (DHS-1609)"
-  Text 10, 300, 95, 10, "Date DHS-1609 is due back:"
-  Text 10, 315, 120, 10, "Date DHS-1609 signed by the client:"
-  Text 10, 330, 115, 10, "Date DHS-1609 received by county: "
-  Text 10, 345, 125, 10, "Date DHS-1609 completed by county: "
   Text 10, 370, 60, 10, "Worker Signature: "
+  EditBox 75, 365, 165, 15, worker_signature
 EndDialog
 
 'Info to the user of what this script currently covers
@@ -150,9 +151,9 @@ Do
     If IsDate(loss_date) <> TRUE or loss_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reports the loss occurred."
     If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please enter the dollar amount the client reported."
     If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reported the loss of food to county."
-    If trim(disaster_description) = "" Then err_msg = err_msg & vbCr & "* Please describe the type of disaster. If it was a power outage, please specify what caused the power outage."
+    If trim(disaster_description) = "" Then err_msg = err_msg & vbCr & "* Please describe the type of disaster or misfortune. If it was a power outage, please specify what caused the power outage."
     If replacement_status = "Request Approved" Then
-      If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster was verified - news reports, social worker, Red Cross, utility confirmation, etc."
+      If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster or misfortune was verified - news reports, social worker, Red Cross, utility confirmation, etc."
       If IsDate(loss_verification_date) <> TRUE or loss_verification_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county verified the loss of food."
     End If
     IF replacement_status = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the status of the replacement."
@@ -187,21 +188,21 @@ If dhs_1609_tikl = CHECKED Then Call create_TIKL("DHS-1609 was sent 10 days ago 
 
 'Write CASE/NOTE with information
 start_a_blank_case_note
-CALL write_variable_in_Case_Note("--Food Destroyed in Disaster Reported - " & replacement_status & "--")
-CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
-CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
+CALL write_variable_in_Case_Note("--Food Destroyed in Disaster or Misfortune Reported - " & replacement_status & "--")
+CALL write_bullet_and_variable_in_Case_Note("Date of loss", loss_date)
+CALL write_bullet_and_variable_in_Case_Note("Amount of food loss", amount_loss)
 CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
-CALL write_bullet_and_variable_in_Case_Note("Description of Disaster", disaster_description)
-CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
-CALL write_bullet_and_variable_in_Case_Note("Date Loss Verified", loss_verification_date)
+CALL write_bullet_and_variable_in_Case_Note("Description of disaster or misfortune", disaster_description)
+CALL write_bullet_and_variable_in_Case_Note("How the disaster or misfortune was verified", how_verif)
+CALL write_bullet_and_variable_in_Case_Note("Date loss verified", loss_verification_date)
 CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
-CALL write_bullet_and_variable_in_Case_Note("Status of Request", replacement_status)
+CALL write_bullet_and_variable_in_Case_Note("Status of request", replacement_status)
 IF denial_reason = "Other denial reason" Then 
-  CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason_other)
+  CALL write_bullet_and_variable_in_Case_Note("Reason for denial", denial_reason_other)
 ElseIf denial_reason = "DHS-1609 never received" or denial_reason = "Late report of loss" Then
-  CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason)
+  CALL write_bullet_and_variable_in_Case_Note("Reason for denial", denial_reason)
 End If
-CALL write_bullet_and_variable_in_Case_Note("Verifications Requested", verif_needed)
+CALL write_bullet_and_variable_in_Case_Note("Verifications requested", verif_needed)
 IF TSS_BENE_sent_checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Submitted a TSS BENE request (webform) through SIR")
 CALL write_variable_in_Case_Note("Nonreceipt/Replacement Affidavit (DHS-1609)")
 CALL write_bullet_and_variable_in_Case_Note("Date DHS-1609 is due back from the client", dhs_1609_due_date)
