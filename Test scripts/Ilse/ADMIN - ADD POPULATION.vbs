@@ -104,6 +104,8 @@ Do
     If basket_number = "X127ER3" then suggested_population = "ABD Plus"
     If basket_number = "X127ER4" then suggested_population = "ABD Plus"
     If basket_number = "X127ER5" then suggested_population = "ABD Plus"
+    If basket_number = "X127ER6" then suggested_population = "ABD Plus"
+
 
     If basket_number = "X127EE1" then suggested_population = "Adults"
     If basket_number = "X127EE2" then suggested_population = "Adults"
