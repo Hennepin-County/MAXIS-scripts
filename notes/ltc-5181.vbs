@@ -86,6 +86,8 @@ section_a_fill_SWKR_btn                 = 222
 section_e_fill_SWKR_btn                 = 223
 update_panels_btn                       = 224
 skip_panel_updates_btn                  = 225
+return_btn                              = 226
+continue_btn                            = 227
 
 'Defining variables
 dialog_count = ""
@@ -430,11 +432,11 @@ function section_e_contact_info()
     GroupBox 5, 215, 260, 60, "Person's Information"
     Text 10, 230, 105, 10, "Information entered previously:"
     Text 15, 240, 40, 10, "First name:"
-    Text 70, 240, 170, 10, "first_name"
+    Text 70, 240, 170, 10, first_name
     Text 15, 250, 40, 10, "Last name:"
-    Text 70, 250, 170, 10, "last_name"
+    Text 70, 250, 170, 10, last_name
     Text 15, 260, 45, 10, "Ref Number:"
-    Text 70, 260, 75, 10, "ref_nbr"
+    Text 70, 260, 75, 10, ref_nbr
     ButtonGroup ButtonPressed
       PushButton 160, 290, 55, 15, "Next", next_btn
       CancelButton 215, 290, 50, 15
@@ -589,7 +591,7 @@ function section_f_medical_assistance_changes()
     Text 10, 300, 110, 10, "Enter any add'l notes/comments:"
     EditBox 120, 295, 135, 15, section_g_elig_worker_comments
     ButtonGroup ButtonPressed
-      PushButton 165, 320, 50, 15, "Next", next_btn
+      PushButton 165, 320, 50, 15, "Complete", complete_btn
       CancelButton 215, 320, 50, 15
       PushButton 5, 320, 50, 15, "Previous", previous_btn
   EndDialog
@@ -633,62 +635,6 @@ function incomplete_dialog_handling()
       End If 
     End If
       
-    If dialog_count = 10 then 
-      If trim(section_a_assessor_2) = "" OR _  
-      trim(section_a_lead_agency_2) = "" OR _ 
-      trim(section_a_phone_number_2) = "" OR _
-      trim(section_a_street_address_2) = "" OR _ 
-      trim(section_a_city_2) = "" OR _ 
-      trim(section_a_state_2) = "" OR _ 
-      trim(section_a_zip_code_2) = "" OR _ 
-      trim(section_a_email_address_2) = "" OR _ 
-      trim(section_a_assessor_3) = "" OR _ 
-      trim(section_a_lead_agency_3) = "" OR _ 
-      trim(section_a_phone_number_3) = "" OR _
-      trim(section_a_street_address_3) = "" OR _ 
-      trim(section_a_city_3) = "" OR _ 
-      trim(section_a_state_3) = "" OR _  
-      trim(section_a_zip_code_3) = "" OR _  
-      trim(section_a_email_address_3) = "" Then
-        incomplete_fields = True
-      End If 
-    End If
-
-    If dialog_count = 7 then 
-      If trim(section_e_date_form_sent) = "" OR _
-        trim(section_e_assessor) = "" OR _
-        trim(section_e_lead_agency) = "" OR _ 
-        trim(section_e_phone_number) = "" OR _  
-        trim(section_e_street_address) = "" OR _ 
-        trim(section_e_city) = "" OR _
-        trim(section_e_state) = "" OR _
-        trim(section_e_zip_code) = "" OR _  
-        trim(section_e_email_address) = "" Then 
-          incomplete_fields = True
-      End If 
-    End If
-
-    If dialog_count = 11 then 
-      If trim(section_e_assessor_2) = "" OR _  
-      trim(section_e_lead_agency_2) = "" OR _ 
-      trim(section_e_phone_number_2) = "" OR _
-      trim(section_e_street_address_2) = "" OR _ 
-      trim(section_e_city_2) = "" OR _ 
-      trim(section_e_state_2) = "" OR _ 
-      trim(section_e_zip_code_2) = "" OR _ 
-      trim(section_e_email_address_2) = "" OR _ 
-      trim(section_e_assessor_3) = "" OR _ 
-      trim(section_e_lead_agency_3) = "" OR _ 
-      trim(section_e_phone_number_3) = "" OR _
-      trim(section_e_street_address_3) = "" OR _ 
-      trim(section_e_city_3) = "" OR _ 
-      trim(section_e_state_3) = "" OR _  
-      trim(section_e_zip_code_3) = "" OR _  
-      trim(section_e_email_address_3) = "" Then
-        incomplete_fields = True
-      End If 
-    End If
-
     'Handling for all other dialogs
     If dialog_count = 2 then 
       If section_g_person_requesting_already_enrolled_LTC + section_b_diversion_checkbox + section_b_conversion_checkbox +  section_g_person_will_reside_institution_checkbox = 0 OR _
@@ -740,6 +686,19 @@ function incomplete_dialog_handling()
       End If
     End if 
 
+    If dialog_count = 7 then 
+      If trim(section_e_date_form_sent) = "" OR _
+        trim(section_e_assessor) = "" OR _
+        trim(section_e_lead_agency) = "" OR _ 
+        trim(section_e_phone_number) = "" OR _  
+        trim(section_e_street_address) = "" OR _ 
+        trim(section_e_city) = "" OR _
+        trim(section_e_state) = "" OR _
+        trim(section_e_zip_code) = "" OR _  
+        trim(section_e_email_address) = "" Then 
+          incomplete_fields = True
+      End If 
+    End If
 
     If dialog_count = 8 then
       If section_f_person_applied_MA_checkbox + section_f_dhs_3531_sent_checkbox + section_f_dhs_3543_6696A_sent_checkbox + section_f_dhs_3543_3531_6696A_returned_checkbox + section_f_dhs_3543_3531_6696A_not_returned_checkbox = 0 OR _ 
@@ -749,12 +708,55 @@ function incomplete_dialog_handling()
     End if
       
 
-    If dialog_count = 8 then
+    If dialog_count = 9 then
       If section_f_LTC_spenddown_checkbox + section_f_ma_terminated_checkbox + section_f_basic_ma_spenddown_change_checkbox + section_f_ma_LTC_terminated_checkbox + section_f_person_deceased_checkbox + section_f_person_moved_institution_checkbox + section_f_person_new_address_checkbox + section_f_other_change_checkbox = 0 OR _ 
       trim(section_f_person_other_change_description) Then
         incomplete_fields = True
       End If
     End If
+
+    If dialog_count = 10 then 
+      If trim(section_a_assessor_2) = "" OR _  
+      trim(section_a_lead_agency_2) = "" OR _ 
+      trim(section_a_phone_number_2) = "" OR _
+      trim(section_a_street_address_2) = "" OR _ 
+      trim(section_a_city_2) = "" OR _ 
+      trim(section_a_state_2) = "" OR _ 
+      trim(section_a_zip_code_2) = "" OR _ 
+      trim(section_a_email_address_2) = "" OR _ 
+      trim(section_a_assessor_3) = "" OR _ 
+      trim(section_a_lead_agency_3) = "" OR _ 
+      trim(section_a_phone_number_3) = "" OR _
+      trim(section_a_street_address_3) = "" OR _ 
+      trim(section_a_city_3) = "" OR _ 
+      trim(section_a_state_3) = "" OR _  
+      trim(section_a_zip_code_3) = "" OR _  
+      trim(section_a_email_address_3) = "" Then
+        incomplete_fields = True
+      End If 
+    End If
+
+    If dialog_count = 11 then 
+      If trim(section_e_assessor_2) = "" OR _  
+      trim(section_e_lead_agency_2) = "" OR _ 
+      trim(section_e_phone_number_2) = "" OR _
+      trim(section_e_street_address_2) = "" OR _ 
+      trim(section_e_city_2) = "" OR _ 
+      trim(section_e_state_2) = "" OR _ 
+      trim(section_e_zip_code_2) = "" OR _ 
+      trim(section_e_email_address_2) = "" OR _ 
+      trim(section_e_assessor_3) = "" OR _ 
+      trim(section_e_lead_agency_3) = "" OR _ 
+      trim(section_e_phone_number_3) = "" OR _
+      trim(section_e_street_address_3) = "" OR _ 
+      trim(section_e_city_3) = "" OR _ 
+      trim(section_e_state_3) = "" OR _  
+      trim(section_e_zip_code_3) = "" OR _  
+      trim(section_e_email_address_3) = "" Then
+        incomplete_fields = True
+      End If 
+    End If
+
   End If
 
 	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
@@ -772,6 +774,9 @@ function incomplete_dialog_handling()
       'Return to the previous dialog
       'Need to add handling for dialogs 2 and 5
       dialog_count = dialog_count - 1
+    ElseIf ButtonPressed = continue_btn Then
+      'Go to the next dialog
+      dialog_count = dialog_count + 1
     End If 
   ElseIf incomplete_fields = True and ButtonPressed = previous_btn Then
     'If the user pressed previous, then reset incomplete_fields and do not show the warning message since they will have to visit dialog again
@@ -797,7 +802,9 @@ End Function
 function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
 	If err_msg = "" AND ButtonPressed = next_btn Then dialog_count = dialog_count + 1 'If next is selected, it will go to the next dialog
 	If err_msg = "" AND ButtonPressed = previous_btn Then dialog_count = dialog_count - 1	'If previous is selected, it will go to the previous dialog
-  If err_msg = "" AND ButtonPressed = -1 then dialog_count = dialog_count + 1   'If enter is pressed, then move to next dialog if no errors
+  If err_msg = "" AND ButtonPressed = section_a_add_assessor_btn then dialog_count = 10   'If section_a_add_assessor_btn is pressed, then go to add additional assessor dialog
+  If err_msg = "" AND ButtonPressed = section_e_add_assessor_btn then dialog_count = 11   'If enter is pressed, then move to next dialog if no errors
+
   If ButtonPressed = section_a_assessor_return_no_save_btn then 
     'Reset all Add'l Assessor variables
     section_a_assessor_2 = ""
@@ -899,7 +906,6 @@ end function
 
 function dialog_specific_error_handling()	'Error handling for main dialog of forms
   'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
-  'To do - need these?
 	If dialog_count = 10 Then
     If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return' or the 'Return WITHOUT Saving Assessor Info' buttons."
   End If
@@ -908,11 +914,11 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
     If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return' or the 'Return WITHOUT Saving Assessor Info' buttons."
   End If
 
-	If ButtonPressed = next_btn or ButtonPressed = previous_btn Or ButtonPressed = -1 Then
+	If ButtonPressed = next_btn or ButtonPressed = previous_btn Or ButtonPressed = -1 OR ButtonPressed = section_a_assessor_return_btn OR ButtonPressed = section_e_assessor_return_btn OR ButtonPressed = section_a_add_assessor_btn Or ButtonPressed = section_e_add_assessor_btn Then
     'section_a_contact_info()
     If dialog_count = 1 then 
       If form_status_dropdown = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select either 'Complete' or 'Incomplete' from the Form Status dropdown list."
-      If trim(section_a_date_form_sent) <> "" AND IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
+      If trim(section_a_date_form_sent) = "" OR IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
       If trim(section_a_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
       If trim(section_a_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
       If trim(section_a_phone_number) <> "" Then
@@ -926,10 +932,6 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
       End If
       If hh_memb = "Select One:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
     End If
-
-    
-
-
     
     'section_b_assess_results_current_status()
     If dialog_count = 2 then 
@@ -1043,7 +1045,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
 
     'section_e_contact_info()
     If dialog_count = 7 then 
-      If trim(section_e_date_form_sent) <> "" AND IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
+      If trim(section_e_date_form_sent) = "" OR IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
       If trim(section_e_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
       If trim(section_e_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
       If trim(section_e_phone_number) <> "" Then
@@ -1212,30 +1214,6 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
     End If
   End If
 
-
-  If ButtonPressed = complete_btn Then
-    If section_a_contact_info_called = False OR _
-    section_b_assess_results_current_status_called = False OR _
-    section_b_assess_results_MA_requests_apps_changes_called = False OR _
-    section_c_comm_elig_worker_exit_reasons_called = False OR _
-    section_c_other_changes_section_d_comments_called = False OR _
-    section_e_contact_info_called = False OR _
-    section_f_medical_assistance_called = False OR _
-    section_f_medical_assistance_changes_called = False OR _
-    section_g_comments_elig_worker_called = False Then
-      err_msg = err_msg & vbNewLine & "* All dialogs must be viewed/completed. Please review the following dialogs:"
-    End If
-
-    If section_a_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section A: Contact Info"
-    If section_b_assess_results_current_status_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Status"
-    If section_b_assess_results_MA_requests_apps_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section B: Initial Assess."
-    If section_c_comm_elig_worker_exit_reasons_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Exit Reasons"
-    If section_c_other_changes_section_d_comments_called = False Then err_msg = err_msg & vbNewLine & "--> Section C: Other Changes"
-    If section_e_contact_info_called = False Then err_msg = err_msg & vbNewLine & "--> Section E: Contact Info"
-    If section_f_medical_assistance_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: MA Status/Det"
-    If section_f_medical_assistance_changes_called = False Then err_msg = err_msg & vbNewLine & "--> Section F: Changes"
-    If section_g_comments_elig_worker_called = False Then err_msg = err_msg & vbNewLine & "--> Section G: Comments"
-  End If
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 end function
 
@@ -1296,7 +1274,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
         dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
         cancel_confirmation
-        Call dialog_specific_error_handling	'function for error handling of main dialog of forms
+        Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
         Call button_movement()				'function to move throughout the dialogs
         Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
       Loop until err_msg = ""
