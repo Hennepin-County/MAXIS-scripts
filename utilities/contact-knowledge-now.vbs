@@ -63,7 +63,7 @@ function script_search(name_of_the_scripts)
 		If search_words <> "" Then search_words_array = split(search_words, " ")
 		x_pos = 15
 		y_pos = 65
-		count = 1
+		tally = 1
 
 		For the_script = 0 to UBound(script_array, 1)
 			' script_array(the_script).script_checkbox_one = checked
@@ -75,20 +75,20 @@ function script_search(name_of_the_scripts)
 							If InStr(script_array(the_script).script_name, the_word) <> 0 Then
 								' MsgBox "1"
 								script_array(the_script).show_script = TRUE
-								count = count + 1
-								If count = 5 Then
+								tally = tally + 1
+								If tally = 5 Then
 									dlg_len = dlg_len + 15
-									count = 1
+									tally = 1
 								End If
 							End If
 						Next
 					Else
 						' MsgBox "2"
 						script_array(the_script).show_script = TRUE
-						count = count + 1
-						If count = 5 Then
+						tally = tally + 1
+						If tally = 5 Then
 							dlg_len = dlg_len + 15
-							count = 1
+							tally = 1
 						End If
 					End If
 				End If
@@ -99,10 +99,10 @@ function script_search(name_of_the_scripts)
 					If InStr(script_array(the_script).script_name, the_word) <> 0 Then
 						' MsgBox "3"
 						script_array(the_script).show_script = TRUE
-						count = count + 1
-						If count = 5 Then
+						tally = tally + 1
+						If tally = 5 Then
 							dlg_len = dlg_len + 15
-							count = 1
+							tally = 1
 						End If
 					End If
 				Next

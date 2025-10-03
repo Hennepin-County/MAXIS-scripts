@@ -688,7 +688,7 @@ If run_compilation = True Then
 
 	case_reviews_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews"
 
-	count = 0
+	tally = 0
 	files_to_move = ""
 	file_name_to_move = ""
 	files_to_delete = ""
@@ -773,7 +773,7 @@ If run_compilation = True Then
 					total_reviewers = total_reviewers + 1
 				End If
 
-				count = count + 1
+				tally = tally + 1
 			End If
 			ObjREVWExcel.ActiveWorkbook.Close
 			ObjREVWExcel.Application.Quit
