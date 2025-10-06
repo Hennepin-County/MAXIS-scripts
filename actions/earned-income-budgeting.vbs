@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-Call changelog_update("09/19/2025", "NEW SCRIPT VERSION - MAJOR UPDATE##~## ##~##Primary update is to allow for budgeting details of CASH to align with the process for the SNAP budgeting.##~## - Check details now entered on individual dialogs.##~## - Exclusions can be indicated on any check for SNAP, CASH, or both.##~## - Some updates to the format of the CASE/NOTE.##~## - Base functionality should all remain.##~## ##~##Interactions with this script will take some time to become familiar - additional information is available in the instructions (look for the button on the main dialog).", "Casey Love, Hennepin County")
+Call changelog_update("10/07/2025", "NEW SCRIPT VERSION - MAJOR UPDATE##~## ##~##Primary update is to allow for budgeting details of CASH to align with the process for the SNAP budgeting.##~## - Check details now entered on individual dialogs.##~## - Exclusions can be indicated on any check for SNAP, CASH, or both.##~## - Some updates to the format of the CASE/NOTE.##~## - Base functionality should all remain.##~## ##~##Interactions with this script will take some time to become familiar - additional information is available in the instructions (look for the button on the main dialog).", "Casey Love, Hennepin County")
 Call changelog_update("04/18/2025", "Fixed issue with dialog sizing for entered checks.", "Mark Riegel, Hennepin County")
 Call changelog_update("03/31/2025", "Updated script to display conversation/clarification field regardless of program(s).", "Mark Riegel, Hennepin County")
 Call changelog_update("02/01/2025", "Support for MFIP, GA, and UHFS Budgeting Workaround to support the policy change to eliminate Monthly Reporting and Retrospective Budgeting.##~## ##~##These updates follow the Guide to Six-Mount Budgeting available in SIR. Details of how the JOBS panel is updated can be found in this guide.##~## ##~##As with any new functionality, but particularly when the supporting policy is also new, reach out with any questions or script errors.##~##", "Casey Love, Hennepin County")
@@ -6203,14 +6203,14 @@ script_end_procedure_with_error_report(end_msg)
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/06/2025
+'--comment Code-----------------------------------------------------------------09/19/2025
 '--Update Changelog for release/update------------------------------------------09/19/2025
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--Remove testing message boxes-------------------------------------------------09/19/2025
+'--Remove testing code/unnecessary code-----------------------------------------09/19/2025
+'--Review/update SharePoint instructions----------------------------------------10/06/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/06/2025
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------10/06/2025
+'--Update project team/issue contact (if applicable)----------------------------10/06/2025
