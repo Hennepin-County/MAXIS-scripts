@@ -2901,6 +2901,19 @@ If operation_selection = "Review Completed Assignments" Then
 	end_msg = end_msg & vbCr & "Reviews Recorded into Spreadsheet: " & recorded_review_count
 	end_msg = end_msg & vbCr & "Reviews Already Known and XML moved to Archive: " & known_review_count & vbCr
 
+    If recorded_review_count = 0 Then
+        email_recip = "kerry.walsh@hennepin.us; rebecca.zelaya@hennepin.us; yeng.yang@hennepin.us"
+        email_recip_CC = "faughn.ramisch-church@hennepin.us"
+        send_email = True
+        email_subject = "HC Pending Work Report for " & date & " - NO COMPLETED REVIEWS FOUND"
+        email_body = "HC Pending Assignments are recorded through use of the worklist functionality in the script Health Care Pending Assignments. This information is intended to provide a summary of the work assigned and completed by HSRs through this script process.<br><br>"
+        email_body = email_body & "No Completed Assignments were found for any worker since the last Report was completed."
+
+		Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
+        end_msg = "Completed Assignments Review Finished." & vbCr & vbCr & "No Completed Reviews were found to record."
+        Call script_end_procedure(end_msg)
+    End If
+
 	supervisor_string = "~"
 
 	for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
