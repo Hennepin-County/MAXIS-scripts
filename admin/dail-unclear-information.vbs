@@ -1618,6 +1618,15 @@ If CSES_messages = 1 Then
 
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
+                                                EmReadScreen cash_reports_check, 15, 5, 35
+                                                If instr(cash_reports_check, "CASH Reports") = 0 Then
+                                                    ' msgbox "It failed to open CASH Reports, try again"
+                                                    Call write_value_and_transmit("X", 5, 35)
+                                                    ' msgbox "Did it open CASH Reports now?"
+                                                End If
+                                                'Assuming it opens cash reports, clear the variable
+                                                cash_reports_check = ""
+
                                                 'Read eligibility review date
                                                 EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
@@ -4664,9 +4673,17 @@ If HIRE_messages = 1 Then
 
                                                 EmReadScreen REVW_panel_check, 4, 2, 46
                                                 ' If REVW_panel_check <> "REVW" Then msgbox "Testing -- 4573 Error unable to reach STAT/REVW"
-
                                                 'Open the CASH/GRH window
                                                 Call write_value_and_transmit("X", 5, 35)
+                                                EmReadScreen cash_reports_check, 15, 5, 35
+                                                If instr(cash_reports_check, "CASH Reports") = 0 Then
+                                                    ' msgbox "It failed to open CASH Reports, try again"
+                                                    Call write_value_and_transmit("X", 5, 35)
+                                                    ' msgbox "Did it open CASH Reports now?"
+                                                End If
+                                                'Assuming it opens cash reports, clear the variable
+                                                cash_reports_check = ""
+
                                                 'Read eligibility review date
                                                 EMReadScreen MFIP_STAT_REVW_review_date, 8, 9, 64
                                                 'If the review date is blank, then the case should be flagged and skipped for processing
