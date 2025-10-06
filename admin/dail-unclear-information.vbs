@@ -4183,8 +4183,16 @@ If HIRE_messages = 1 Then
                             'Standard NDNH format is *[Case Number]-[Case Name]-[Memb ##]-[Date Hired with slashes]-[Employer - first 20 characters]-[Maxis name]-[new hire name]*
                             hire_ndnh_message_standardized = HIRE_case_number & "-" & HIRE_case_name & "-" & HIRE_memb_number & "-" & date_hired & "-" & HIRE_employer_name & "-" & HIRE_maxis_name & "-" & HIRE_new_hire_name
                             list_of_NDNH_messages_standard_format = list_of_NDNH_messages_standard_format & hire_ndnh_message_standardized & "*"
+                            
                             'Transmit back to DAIL
                             transmit
+
+                            'Handling to ensure X is removed
+                            x_not_removed = ""
+                            EMReadScreen x_not_removed, 1, dail_row, 3
+                            If x_not_removed = "X" or x_not_removed = "x" Then msgbox "4193 It failed to remove the X" 
+                            x_not_removed = ""
+
                         End If
                     End If
                 End If
@@ -5080,6 +5088,12 @@ If HIRE_messages = 1 Then
                                 'Transmit back to dail
                                 transmit
 
+                                'Handling to ensure X is removed
+                                x_not_removed = ""
+                                EMReadScreen x_not_removed, 1, dail_row, 3
+                                If x_not_removed = "X" or x_not_removed = "x" Then msgbox "5094 It failed to remove the X" 
+                                x_not_removed = ""
+
                             Else
                                 MsgBox "Testing -- Dail type is not HIRE. Something went wrong. Dail type is " & dail_type
                             End If
@@ -5802,6 +5816,12 @@ If HIRE_messages = 1 Then
                                                         'Transmit back to DAIL message
                                                         transmit
 
+                                                        'Handling to ensure X is removed
+                                                        x_not_removed = ""
+                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "5822 It failed to remove the X" 
+                                                        x_not_removed = ""
+
                                                         EMWriteScreen "S", dail_row, 3
                                                         EMSendKey "<enter>"
                                                         EMReadScreen background_check, 25, 7, 30
@@ -5880,10 +5900,26 @@ If HIRE_messages = 1 Then
                                                                     return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then
+                                                                        'Transmit back to DAIL message
                                                                         transmit
+
+                                                                        'Handling to ensure X is removed
+                                                                        x_not_removed = ""
+                                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "5908 It failed to remove the X" 
+                                                                        x_not_removed = ""
+
                                                                         Exit Do
                                                                     Else
+                                                                        'Transmit back to DAIL message
                                                                         transmit
+
+                                                                        'Handling to ensure X is removed
+                                                                        x_not_removed = ""
+                                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "5920 It failed to remove the X" 
+                                                                        x_not_removed = ""
+
                                                                         dail_row = dail_row + 1
 
                                                                         'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
@@ -6297,6 +6333,12 @@ If HIRE_messages = 1 Then
                                                         'Transmit back to DAIL
                                                         transmit
 
+                                                        'Handling to ensure X is removed
+                                                        x_not_removed = ""
+                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "6339 It failed to remove the X" 
+                                                        x_not_removed = ""
+
                                                     Else
                                                         If activate_msg_boxes = True then MsgBox "Testing -- Not a duplicate SDNH. Will transmit and process accordingly."
 
@@ -6382,10 +6424,26 @@ If HIRE_messages = 1 Then
                                                                     return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then
+                                                                        'Transmit back to DAIL message
                                                                         transmit
+
+                                                                        'Handling to ensure X is removed
+                                                                        x_not_removed = ""
+                                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "4193 It failed to remove the X" 
+                                                                        x_not_removed = ""
+
                                                                         Exit Do
                                                                     Else
+                                                                        'Transmit back to DAIL message
                                                                         transmit
+                                                                        
+                                                                        'Handling to ensure X is removed
+                                                                        x_not_removed = ""
+                                                                        EMReadScreen x_not_removed, 1, dail_row, 3
+                                                                        If x_not_removed = "X" or x_not_removed = "x" Then msgbox "4193 It failed to remove the X" 
+                                                                        x_not_removed = ""
+
                                                                         dail_row = dail_row + 1
 
                                                                         'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
