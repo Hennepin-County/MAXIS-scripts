@@ -6587,7 +6587,7 @@ function read_all_UNEA()
 			INCOME_ARRAY(panel_count).panel_instance = "0" & count
 
 			panel_count = panel_count + 1
-			count = tally + 1
+			tally = tally + 1
 			previous_member = panel_memb
 			' MsgBox panel_count
 			unea_found = TRUE
