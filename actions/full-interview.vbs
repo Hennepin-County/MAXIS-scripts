@@ -6584,7 +6584,7 @@ function read_all_UNEA()
 			ReDim Preserve INCOME_ARRAY(panel_count)
 			Set INCOME_ARRAY(panel_count) = new client_income
 			INCOME_ARRAY(panel_count).member_ref = panel_memb
-			INCOME_ARRAY(panel_count).panel_instance = "0" & count
+			INCOME_ARRAY(panel_count).panel_instance = "0" & tally
 
 			panel_count = panel_count + 1
 			tally = tally + 1
