@@ -1504,7 +1504,7 @@ function dialog_movement()
 				If blank_item = true Then another_job = each_item
 			Next
 			If another_job = "" Then
-				another_job = count
+				another_job = tally
 				' MsgBox "another_job - " & another_job & vbCr & IsArray(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
 				FORM_QUESTION_ARRAY(quest).add_detail_item(another_job)
 				FORM_QUESTION_ARRAY(quest).detail_edit_btn(another_job) = 2000 + quest*10 + another_job
