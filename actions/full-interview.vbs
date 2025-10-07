@@ -6569,7 +6569,7 @@ function read_all_UNEA()
 	Call navigate_to_MAXIS_screen ("STAT", "PNLI")
 
 	pnli_row = 3
-	count = 1
+	tally = 1
 	previous_member = ""
 	panel_count = UBound(INCOME_ARRAY, 1)
 	start_count = panel_count
