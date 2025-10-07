@@ -1158,16 +1158,16 @@ If MFIP_active = true then
 
 			'Raises excel_row + 3, so we can start adding messages
 			excel_row = excel_row + 3
-			count = 0
+			tally = 0
 
 			For i = 0 to ubound(message_array)
 				If message_array(i).UNEAPanel <> "NONE" then
 					If UNEA_panel = message_array(i).UNEAPanel then
-						count = count + 1
+						tally = tally + 1
 					End If
 				End If
 			Next
-			If count > 5 Then
+			If tally > 5 Then
 				amount_alloted = 0
 				For i = 0 to ubound(message_array)
 					If message_array(i).UNEAPanel <> "NONE" then

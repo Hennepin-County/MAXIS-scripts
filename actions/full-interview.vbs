@@ -6579,7 +6579,7 @@ function read_all_UNEA()
 		' MsgBox panel_name
 		IF panel_name = "UNEA" Then
 			EMReadScreen panel_memb, 2, pnli_row, 10
-			If panel_memb <> previous_member Then count = 1
+			If panel_memb <> previous_member Then tally = 1
 
 			ReDim Preserve INCOME_ARRAY(panel_count)
 			Set INCOME_ARRAY(panel_count) = new client_income
@@ -6587,7 +6587,7 @@ function read_all_UNEA()
 			INCOME_ARRAY(panel_count).panel_instance = "0" & count
 
 			panel_count = panel_count + 1
-			count = count + 1
+			tally = tally + 1
 			previous_member = panel_memb
 			' MsgBox panel_count
 			unea_found = TRUE

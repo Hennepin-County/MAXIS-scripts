@@ -245,10 +245,10 @@ For each basket in basket_array
 		actv_count = 0
 	Else
 		Do
-			If count = 500 Then Exit DO
+			If tally = 500 Then Exit DO
 			PF8
 			EMReadScreen end_of_list, 8, 19, 3
-			count = count + 1
+			tally = tally + 1
 		Loop until end_of_list = "More:  -" or end_of_list = "        "
 		EMReadScreen actv_page, 4, 3, 76
 		actv_row = 18
@@ -260,7 +260,7 @@ For each basket in basket_array
 	End If
 	ObjExcel.Cells(excel_row, 7).Value = actv_page
 	ObjExcel.Cells(excel_row, 8).Value = actv_count
-	If count > 495 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 7), ObjExcel.Cells(excel_row, 8)).Interior.ColorIndex = 3
+	If tally > 495 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 7), ObjExcel.Cells(excel_row, 8)).Interior.ColorIndex = 3
 	If actv_count <> 0 Then save_basket_info = True
 
     Call navigate_to_MAXIS_screen("REPT", "REVS")

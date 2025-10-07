@@ -188,7 +188,7 @@ excel_row = 2
 
 'setting some defaults for the file information to read
 FILES_TO_MOVE_ARRAY = ""
-count = 0
+tally = 0
 
 'Read through all of the files in the QCR Log folder
 Set objFolder = objFSO.GetFolder(t_drive & "\Eligibility Support\Assignments\QCR Logs")										'Creates an oject of the whole my documents folder

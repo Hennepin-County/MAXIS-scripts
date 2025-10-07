@@ -1464,9 +1464,9 @@ function dialog_movement()
 
 		If ButtonPressed = FORM_QUESTION_ARRAY(quest).add_to_array_btn Then
 			another_job = ""
-			count = 0
+			tally = 0
 			for each_item = 0 to UBOUND(FORM_QUESTION_ARRAY(quest).detail_interview_notes)
-				count = count + 1
+				tally = tally + 1
 				blank_item = true
 				If FORM_QUESTION_ARRAY(quest).detail_source = "jobs" Then
 					If FORM_QUESTION_ARRAY(quest).detail_business(each_item) <> "" Then blank_item = false

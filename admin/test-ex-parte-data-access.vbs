@@ -242,7 +242,7 @@ If user_ID = "CALO001" Then
 	objConnection.Open db_full_string
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
-	count = 0
+	tally = 0
 	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
 		MsgBox "TABLE INFORMATION: " & vbCr & vbCr &_
 		"USERNAME - " & objRecordSet("USERNAME") & vbCr &_
@@ -257,8 +257,8 @@ If user_ID = "CALO001" Then
 		"WORKER_COUNTY_CODE - " & objRecordSet("WORKER_COUNTY_CODE") & vbCr &_
 		"SCRIPT_SUCCESS - " & objRecordSet("SCRIPT_SUCCESS") & vbCr &_
 		"CASE_NUMBER - " & objRecordSet("CASE_NUMBER") & vbCr & vbCr &_
-		"Count - " & count
-		count = count + 1
+		"Count - " & tally
+		tally = tally + 1
 
 		objRecordSet.MoveNext											'Going to the next row in the table
 	Loop
