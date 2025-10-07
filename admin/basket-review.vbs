@@ -248,7 +248,7 @@ For each basket in basket_array
 			If tally = 500 Then Exit DO
 			PF8
 			EMReadScreen end_of_list, 8, 19, 3
-			count = tally + 1
+			tally = tally + 1
 		Loop until end_of_list = "More:  -" or end_of_list = "        "
 		EMReadScreen actv_page, 4, 3, 76
 		actv_row = 18
