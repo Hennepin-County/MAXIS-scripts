@@ -5466,8 +5466,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 	second_person_list = "Select One..."+chr(9)+"No Second Caregiver"
 
 	For person = 0 to UBound(CAREGIVER_ARRAY, 2)
-		person_list = person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
-		second_person_list = second_person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
+		person_list = person_list+chr(9)+"M" & CAREGIVER_ARRAY(memb_ref_numb_const, person) & " - " & CAREGIVER_ARRAY(memb_name_const, person)
+		second_person_list = second_person_list+chr(9)+"M" & CAREGIVER_ARRAY(memb_ref_numb_const, person) & " - " & CAREGIVER_ARRAY(memb_name_const, person)
 	Next
     If UBound(CAREGIVER_ARRAY, 2) = 0 Then caregiver_two = "No Second Caregiver"
 	caregiver_one = CAREGIVER_ARRAY(memb_name_const, 0)
@@ -5528,6 +5528,23 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 	Loop until err_msg = ""
 
+    caregiver_one_name = ""
+    caregiver_one_ref  = ""
+    caregiver_two_name = ""
+    caregiver_two_ref  = ""
+	If caregiver_one = "Select One..." or caregiver_one = "No Caregiver" Then
+        caregiver_one_name = caregiver_one
+    Else
+        caregiver_one_name = mid(caregiver_one, instr(caregiver_one, "-") + 2)
+        caregiver_one_ref  = mid(caregiver_one, 2, instr(caregiver_one, " ") - 2)
+    End If
+	If caregiver_two = "Select One..." or caregiver_two = "No Second Caregiver" Then
+        caregiver_two_name = caregiver_two
+    Else
+        caregiver_two_name = mid(caregiver_one, instr(caregiver_one, "-") + 2)
+        caregiver_two_ref  = mid(caregiver_one, 2, instr(caregiver_one, " ") - 2)
+    End If
+
 	If family_cash_program = "MFIP" or family_cash_program = "Unable to Determine" Then
 		If IsNumeric(caregiver_one_hours_per_week) = True Then caregiver_one_hours_per_week = caregiver_one_hours_per_week * 1
 		If trim(caregiver_one_hours_per_week) = "" Then caregiver_one_hours_per_week = 0
@@ -5538,7 +5555,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		minor_caregiver_on_case = 0
 
 		For person = 0 to UBound(CAREGIVER_ARRAY, 2)
-			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_one Then
+			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_one_name and CAREGIVER_ARRAY(memb_ref_numb_const, person) = caregiver_one_ref Then
 				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
 				CAREGIVER_ARRAY(orientation_needed_const, person) = True
 
@@ -5573,7 +5590,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 			End If
 
-			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_two Then
+			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_two_name and CAREGIVER_ARRAY(memb_ref_numb_const, person) = caregiver_two_ref Then
 				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
 				CAREGIVER_ARRAY(orientation_needed_const, person) = True
 
@@ -6103,7 +6120,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 				If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then
 					STATS_manualtime = STATS_manualtime + 300
 
-					Call write_variable_in_CASE_NOTE("MFIP Orientation completed with " & CAREGIVER_ARRAY(memb_name_const, caregiver))
+					Call write_variable_in_CASE_NOTE("MFIP Orientation completed with M" & CAREGIVER_ARRAY(memb_ref_numb_const, caregiver) & " " & CAREGIVER_ARRAY(memb_name_const, caregiver))
 					Call write_bullet_and_variable_in_CASE_NOTE("Orientation Completed on", date)
 					Call write_bullet_and_variable_in_CASE_NOTE("Orientation Notes", CAREGIVER_ARRAY(orientation_notes, caregiver))
 					If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Call write_variable_in_CASE_NOTE("* ESP Choice Sheet: Completed in Case File.")
