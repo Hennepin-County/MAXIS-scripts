@@ -6475,6 +6475,7 @@ If vars_filled = False Then
 				If type_of_cash = "Select" Then err_msg = err_msg & vbNewLine & "* Indicate if the cash program is a family or adult cash request."
 				If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
 				If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+			    If type_of_cash = "Adult" Then adult_cash_case = TRUE
 			End If
 			If GRH_checkbox = checked Then
 				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
@@ -6521,6 +6522,7 @@ If vars_filled = False Then
 			If ButtonPressed = untrack_cash_btn Then CASH_checkbox = unchecked
 			If ButtonPressed = untrack_grh_btn Then GRH_checkbox = unchecked
 			If ButtonPressed = untrack_snap_btn Then SNAP_checkbox = unchecked
+			If ButtonPressed = untrack_snap_btn Then the_process_for_snap = ""
 			If ButtonPressed = untrack_snap_btn Then snap_with_mfip = original_snap_with_mfip
 			If ButtonPressed = untrack_hc_btn Then HC_checkbox = unchecked
 			If ButtonPressed = untrack_emer_btn Then EMER_checkbox = unchecked
