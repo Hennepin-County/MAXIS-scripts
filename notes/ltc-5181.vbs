@@ -608,7 +608,8 @@ function incomplete_dialog_fields()
       PushButton 5, 60, 90, 15, "Return to previous dialog", return_btn
     Text 5, 90, 175, 20, "To continue to the next dialog without updating the previous dialog, click the button below:"
     ButtonGroup ButtonPressed
-      PushButton 5, 110, 90, 15, "Continue to next dialog", continue_btn
+      If dialog_count <> 10 Then PushButton 5, 110, 90, 15, "Continue to next dialog", continue_btn
+      If dialog_count = 10 Then PushButton 5, 110, 90, 15, "Complete form entry", complete_btn
   EndDialog
 end function
 
@@ -630,9 +631,14 @@ function incomplete_dialog_handling()
     End If
       
     If dialog_count = 3 then 
-      If section_g_person_requesting_already_enrolled + section_b_diversion_checkbox + section_b_conversion_checkbox +  section_b_person_will_reside_institution_checkbox = 0 OR _
-        section_b_program_type = "Select one:" OR _
-        trim(section_b_admission_date) = "" OR _
+      If section_g_person_requesting_already_enrolled + section_b_person_will_reside_institution_checkbox = 0 Then incomplete_fields = True
+      If section_g_person_requesting_already_enrolled = 1 then
+        If section_b_program_type = "Select one:" Then
+          incomplete_fields = True
+        End If
+      End If
+      If section_b_person_will_reside_institution_checkbox = 1 Then
+        If trim(section_b_admission_date) = "" OR _
         trim(section_b_facility) = "" OR _
         trim(section_b_institution_phone_number) = "" OR _
         trim(section_b_institution_street_address) = "" OR _
@@ -640,6 +646,7 @@ function incomplete_dialog_handling()
         trim(section_b_institution_state) = "" OR _
         trim(section_b_institution_zip_code) = "" Then
           incomplete_fields = True
+        End If
       End If
     End If
 
@@ -1265,7 +1272,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         Call button_movement()				'function to move throughout the dialogs
         Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
       Loop until err_msg = ""
-    Loop until ButtonPressed = complete_btn
+    Loop until (ButtonPressed = complete_btn or ButtonPressed = -1 AND dialog_count = 9)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -1366,12 +1373,10 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         'The dates do not match - this shouldn't happen
         section_c_section_f_dates_of_death_match = False
       End If
-    End If
-
-    If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox <> 1 Then
+    ElseIf section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 0 Then
       'If only section c DOD entered
       section_c_person_deceased_only = True
-    ElseIf section_c_person_deceased_checkbox <> 1 AND section_f_person_deceased_checkbox = 1 Then
+    ElseIf section_c_person_deceased_checkbox = 0 AND section_f_person_deceased_checkbox = 1 Then
       'If only section f DOD entered
       section_f_person_deceased_only = True
     End If
@@ -1503,7 +1508,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
         If swkr_update_checkbox = 1 and ((notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 2) OR (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 0)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select either the 'Y' or 'N' checkbox for the Notices to Social Worker."
 
-        If swkr_update_checkbox = 0 and ((notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 2) OR (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 0)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must check the checkbox to update the SWKR panel."
+        If swkr_update_checkbox = 0 and (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox > 0) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must check the checkbox to update the SWKR panel."
 
         If addr_update_multiple_checkbox = 1 AND ((multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 0) OR (multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must select ONLY one address to use for the update." 
 
@@ -1669,51 +1674,37 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
         Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-        'Delete after testing
-        msgbox "1707 Update worked?"
-
       ElseIf addr_update_multiple_checkbox = 1 Then
         If multiple_section_c_new_address_checkbox = 1 Then
 
           Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
           
-          'Delete after testing
-          msgbox "1715 Update worked?"
-
         ElseIf multiple_section_f_new_address_checkbox = 1 Then
 
           Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-          'Delete after testing
-          msgbox "1722 Update worked?"
         End If
 
       ElseIf addr_update_checkbox_section_c = 1 Then 
 
         Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-        'Delete after testing
-        msgbox "1730 Update worked?"
-
       ElseIf addr_update_checkbox_section_f = 1 Then
 
         Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-        'Delete after testing
-        msgbox "1737 Update worked?"
       End If
     End If
 
     'Update the DOD on MEMB panel
-    If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
-      'Determine the date of death based on selection
-      If section_c_section_f_date_of_death_update_checkbox = 1 Then 
-        date_of_death_to_update = section_c_date_of_death
-      ElseIf section_c_date_of_death_update_checkbox = 1 Then 
-        date_of_death_to_update = section_c_date_of_death
-      ElseIf section_f_person_deceased_date_of_death = 1 Then
-        date_of_death_to_update = section_f_date_of_death_checkbox
+    If section_c_section_f_date_of_death_update_checkbox = 1 OR date_of_death_update_multiple_checkbox = 1 OR section_c_date_of_death_update_checkbox = 1 OR section_f_date_of_death_update_checkbox = 1 Then
+      If section_c_section_f_date_of_death_update_checkbox = 1 OR section_c_date_of_death_update_checkbox = 1 Then date_of_death_to_update = section_c_date_of_death
+      If date_of_death_update_multiple_checkbox = 1 Then
+        If section_c_date_of_death_checkbox = 1 Then date_of_death_to_update = section_c_date_of_death
+        If section_f_date_of_death_checkbox = 1 Then date_of_death_to_update = section_f_person_deceased_date_of_death
       End If
+      If section_f_date_of_death_update_checkbox = 1 Then date_of_death_to_update = section_f_person_deceased_date_of_death
+
       Call ONLY_create_MAXIS_friendly_date(date_of_death_to_update)
       date_of_death_to_update = replace(date_of_death_to_update, "/", "")
       
