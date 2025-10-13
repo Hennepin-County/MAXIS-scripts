@@ -149,9 +149,9 @@ CALL navigate_to_MAXIS_screen("DAIL", "PICK")
 EMReadscreen pick_confirmation, 26, 4, 29
 If pick_confirmation = "View/Pick Selection (PICK)" then
     'selecting the type of DAIl message
-    EMWriteScreen "X",  8, 39   'COLA Messages 
-    EMWriteScreen "X", 13, 39   'INFO Messages 
-	EMWriteScreen "X", 18, 39   'PEPR Messages 
+    EMWriteScreen "X",  8, 39   'COLA Messages
+    EMWriteScreen "X", 13, 39   'INFO Messages
+	EMWriteScreen "X", 18, 39   'PEPR Messages
 	transmit
 Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
@@ -198,7 +198,8 @@ For each worker in worker_array
             stats_counter = stats_counter + 1   'I increment thee
 
             If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
-               instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
+			   instr(dail_msg, "CLOSED IN MMIS EFFECTIVE") OR _
+               instr(dail_msg, "MEMBER HAS TURNED 60 - WORK REG HAS BEEN UPDATED") OR _
    			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") OR _
                instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
                instr(dail_msg, "GA: NEW VERSION AUTO-APPROVED") or _
@@ -237,11 +238,11 @@ For each worker in worker_array
 				EMReadScreen other_worker_error, 13, 24, 2
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
-            Else 
+            Else
                 dail_row = dail_row + 1
-            End if 
+            End if
 
-			'Checking for the last DAIL message. If it just processed the final message, the DAIL will appear blank but there is actually an invisible '_' at 6, 3. Handling to check for this and then navigate to the next page if needed. If it is on the last page, then it will exit the do loop 
+			'Checking for the last DAIL message. If it just processed the final message, the DAIL will appear blank but there is actually an invisible '_' at 6, 3. Handling to check for this and then navigate to the next page if needed. If it is on the last page, then it will exit the do loop
 			EMReadScreen next_dail_check, 7, dail_row, 3
 			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
 				'Attempt to navigate to the next page
