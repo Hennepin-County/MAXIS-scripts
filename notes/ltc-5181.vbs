@@ -983,7 +983,7 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
       If section_b_person_no_longer_institutional_LOC_checkbox = 1 Then
         If trim(section_b_date_waiver_exit) = "" OR IsDate(section_b_date_waiver_exit) = False Then err_msg = err_msg & vbNewLine & "* The checkbox for Person no longer meets institutional LOC is checked. You must enter the effective date of waiver exit."
       End If 
-      If section_b_person_enroll_another_program = 1 Then
+      If section_b_enroll_different_program_checkbox = 1 Then
         If section_b_enroll_another_program_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* The checkbox for Person chooses to enroll in another program. You must select the program from the dropdown list."
       End If 
     End if 
@@ -1805,7 +1805,8 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_variable_in_case_note("--Initial Assessment - no information entered--")
   End If
   Call write_bullet_and_variable_in_case_note("Initial assessment date from MnA system", section_b_initial_MnA_assessment_date)
-  Call write_bullet_and_variable_in_case_note("Assessment on", section_b_assessment_determination_date)
+  If section_b_assessment_determination_date <> "" Then Call write_bullet_and_variable_in_case_note("Assessment on", section_b_assessment_determination_date)
+  Call write_bullet_and_variable_in_case_note("Determination", section_b_assessment_determination)
   If section_b_open_to_waiver_yes_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "Yes")
   If section_b_open_to_waiver_no_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "No")
   Call write_bullet_and_variable_in_case_note("Estimated monthly waiver/AC costs", section_b_monthly_waiver_costs)
@@ -1853,7 +1854,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_variable_in_case_note("* Person no longer meets institutional LOC")
     Call write_bullet_and_variable_in_case_note("Effective date of waiver exit no sooner than", section_b_date_waiver_exit)
   End If
-  If section_b_person_enroll_another_program = 1 Then 
+  If section_b_enroll_different_program_checkbox = 1 Then 
     Call write_bullet_and_variable_in_case_note("Person chooses to enroll in another program", section_b_enroll_another_program_list)
   End If
 
@@ -1870,9 +1871,9 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     If section_c_nursing_facility_admission_checkbox = 1 Then exit_reasons = exit_reasons & "nursing facility admission at " & section_c_nursing_facility_name & " on " & section_c_nursing_facility_admit_date & ", "
     If section_c_residential_treatment_admission_checkbox = 1 Then exit_reasons = exit_reasons & "residential treatment facility admission at " & section_c_residential_facility_name & " on " & section_c_residential_facility_admit_date & ", "
     If section_c_person_informed_choice_checkbox = 1 Then exit_reasons = exit_reasons & "person's informed choice, "
-    If section_c_person_deceased_checkbox = 1 Then exit_reasons = exit_reasons & "person is deceased" & " (DOD: " & section_c_date_of_death & ")"
-    If section_c_person_moved_out_of_state_checkbox = 1 Then exit_reasons = exit_reasons & "person moved out of state" & " (date of move: " & section_c_date_of_move & ")"
-    If section_c_exited_for_other_reasons_checkbox = 1 Then exit_reasons = exit_reasons & "exited for other reasons: " & section_c_exited_for_other_reasons_explanation
+    If section_c_person_deceased_checkbox = 1 Then exit_reasons = exit_reasons & "person is deceased" & " (DOD: " & section_c_date_of_death & "), "
+    If section_c_person_moved_out_of_state_checkbox = 1 Then exit_reasons = exit_reasons & "person moved out of state" & " (date of move: " & section_c_date_of_move & "), "
+    If section_c_exited_for_other_reasons_checkbox = 1 Then exit_reasons = exit_reasons & "exited for other reasons: " & section_c_exited_for_other_reasons_explanation & ", "
     Call write_bullet_and_variable_in_case_note("Reasons for exit", exit_reasons)
   End If
 
@@ -1884,13 +1885,14 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
   End If
 
   If section_c_diversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type & " (Diversion)")
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list & " (Diversion)")
   ElseIf section_c_conversion_checkbox = 1 Then 
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type & " (Conversion)")
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list & " (Conversion)")
   Else
-    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type)
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list)
   End If
   If section_c_person_moved_new_address_checkbox = 1 Then 
+    Call write_variable_in_case_note("Person has moved or has a new address")
     Call write_bullet_and_variable_in_case_note("Date address changed", section_c_date_address_changed)
     Call write_bullet_and_variable_in_case_note("Address", section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
   End If
@@ -1952,9 +1954,9 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_variable_in_case_note("--MA status for long-term supports and services--")
     If section_f_person_applied_MA_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person applied for MA/MA-LTC", section_f_person_applied_date)
     If section_f_dhs_3531_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3531 sent to person", section_f_dhs_3531_sent_date)
-    If section_f_dhs_3543_6696A_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543 sent to person", section_f_dhs_3543_6696A_sent_date)
-    If section_f_dhs_3543_3531_6696A_returned_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/3531 returned; elig. determ. pending", section_f_dhs_3543_3531_6696A_returned_comments)
-    If section_f_dhs_3543_3531_6696A_not_returned_checkbox = 1 Then Call write_variable_in_case_note("* DHS-3543/DHS-3531 has not been returned, due date: " & section_f_dhs_3543_3531_6696A_not_returned_date)
+    If section_f_dhs_3543_6696A_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/DHS-6696A sent to person", section_f_dhs_3543_6696A_sent_date)
+    If section_f_dhs_3543_3531_6696A_returned_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/DHS-6696A/DHS-3531 returned; elig. determ. pending", section_f_dhs_3543_3531_6696A_returned_comments)
+    If section_f_dhs_3543_3531_6696A_not_returned_checkbox = 1 Then Call write_variable_in_case_note("* DHS-3543/6696A/3531 not returned, due date: " & section_f_dhs_3543_3531_6696A_not_returned_date)
   Else
     Call write_variable_in_case_note("--MA status for long-term supports and services - no information entered--")
   End If
@@ -1968,7 +1970,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Call write_bullet_and_variable_in_case_note("Disability notes", section_f_disability_notes)
     End If
     If section_f_ma_coverage_approved_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA coverage approved", section_f_ma_coverage_eff_date)
-    If section_f_basic_MA_med_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("LTC spenddown/waiver olbig. for initial month", section_f_basic_MA_med_spenddown_amount)
+    If section_f_basic_MA_med_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA medical spenddown", section_f_basic_MA_med_spenddown_amount)
     If section_f_MA_LTC_open_date_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA-LTC open on specific date", section_f_MA_LTC_open_date)
     If section_f_MA_LTC_spenddown_waiver_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA-LTC spenddown or waiver obligation for initial month", section_f_MA_LTC_spenddown_waiver_amount & "(" & section_f_MA_LTC_spenddown_waiver_eff_date & ")")
     If section_f_ma_denied_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA denied", section_f_ma_denied_date)
@@ -1990,7 +1992,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     If section_f_ma_terminated_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA terminated (basic MA & MA-LTC)", section_f_ma_terminated_eff_date)
     If section_f_basic_ma_spenddown_change_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA spenddown changed", section_f_basic_ma_spenddown_change_amount)
     If section_f_ma_LTC_terminated_checkbox = 1 Then 
-      Call write_variable_in_case_note("-MA-LTC terminated on specific date; basic MA remains open-")
+      Call write_variable_in_case_note("MA-LTC terminated on specific date; basic MA remains open")
       Call write_bullet_and_variable_in_case_note("Date terminated", section_f_ma_LTC_terminated_date)
       Call write_bullet_and_variable_in_case_note("Date inelig. through", section_f_ma_payment_terminated_date_inelig_thru)
     End If
