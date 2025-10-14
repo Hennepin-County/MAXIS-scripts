@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - CASE TRACKING.vbs"
+name_of_script = "NOTES - Track Case.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 10                      'manual run time in seconds
@@ -87,7 +87,7 @@ IF snap_check = 1 THEN
 End IF
 IF MFIP_check = 1 THEN
     IF program_list <> "" THEN
-        program_list = program_list & " and ~MFIP"
+        program_list = program_list & " and ~MFIP~"
     ELSE
         program_list = "~MFIP~"
     End IF
