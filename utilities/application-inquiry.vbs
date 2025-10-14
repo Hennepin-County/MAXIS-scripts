@@ -154,6 +154,7 @@ DO
         If IsDate(date_of_app) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of application as a valid date."
 		confirmation_number = trim(confirmation_number)
 		If confirmation_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the confirmation number for the online application."
+    If IsNumeric(confirmation_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the confirmation number for the online application in a numeric format, ex, 12345."
 		name_of_applicant = trim(name_of_applicant)
 		If name_of_applicant = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the person who submitted the online application."
 		worker_name = trim(worker_name)
