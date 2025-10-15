@@ -53,6 +53,7 @@ changelog_display
 'THIS SCRIPT IS NOT BEING ACCESSED FROM GITHUB - there is a LOCAL FILE - use that for updates/action.'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call check_for_MAXIS(false)
 
 BeginDialog Dialog1, 0, 0, 216, 120, "Postponed Approval Required"
   EditBox 65, 50, 55, 15, MAXIS_case_number
@@ -81,6 +82,8 @@ Do
     End IF
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
+
+Call check_for_MAXIS(false)
 
 IF snap_check = 1 THEN
     program_list = "~SNAP~"
