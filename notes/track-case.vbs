@@ -97,7 +97,7 @@ IF MFIP_check = 1 THEN
 End IF
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE(program_list & " approval postponed due to 2025 Federal Government Shutdown.")
-Call write_variable_in_CASE_NOTE(program_list & " ready to approve, but benefits cannot be approved at this time due to expiration of funding due to federal government shutdown. Case requires future follow up for review and approval.")
+Call write_variable_in_CASE_NOTE(program_list & " ready to approve, but benefits cannot be approved at this time due to federal government shutdown. Case requires future follow up for review and approval.")
 Call write_variable_in_CASE_NOTE("Case added to tracking list.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
