@@ -1334,11 +1334,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Else
         section_c_section_f_addresses_match = False
       End If
-    ElseIf section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox <> 1 Then
+    ElseIf section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 0 Then
       'Only section c new address checked
       section_c_person_moved_new_address_only = True
       section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
-    ElseIf section_c_person_moved_new_address_checkbox <> 1 AND section_f_person_new_address_checkbox = 1 Then
+    ElseIf section_c_person_moved_new_address_checkbox = 0 AND section_f_person_new_address_checkbox = 1 Then
       'Only section f new address checked
       section_f_person_new_address_only = True
       section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
@@ -1360,7 +1360,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       memb_date_of_death = replace(memb_date_of_death, " ", "/")
     End If
 
-    'If both addresses have been added, then need to compare them to determine if they match
+    'If two DODs have been added, then need to compare them to determine if they match
     If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
       section_c_section_f_both_new_DOD = True
       'Convert both dates of death to dates to compare them
@@ -1504,6 +1504,9 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
       'Error handling only if worker intends to update panels
       If ButtonPressed = update_panels_btn Then
+        'If update_panels_btn is pressed but everything is blank, then it will error
+        If swkr_update_checkbox + addr_update_checkbox_section_c_section_f_match + addr_update_multiple_checkbox + addr_update_checkbox_section_c + addr_update_checkbox_section_f + section_c_section_f_date_of_death_update_checkbox + date_of_death_update_multiple_checkbox + section_c_date_of_death_update_checkbox + section_f_date_of_death_update_checkbox = 0 Then err_msg = err_msg & vbCr & "* If you want to update the panel(s), you must check one of the checkboxes to indicate which panel(s) to update." 
+
         If swkr_update_checkbox = 1 AND ((section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox = 0) OR (section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox > 1)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select ONLY one assessor to use for the update." 
 
         If swkr_update_checkbox = 1 and ((notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 2) OR (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 0)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select either the 'Y' or 'N' checkbox for the Notices to Social Worker."
@@ -1515,6 +1518,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         If date_of_death_update_multiple_checkbox = 1 AND ((section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 0) OR (section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the Date of Death on the MEMB panel, you must select ONLY one date to use for the update."
         
         If (trim(footer_month_updates) = "" OR len(trim(footer_month_updates)) <> 2) OR (trim(footer_year_updates) = "" OR len(trim(footer_year_updates)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the STAT panels, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+
       End If 
       If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
       'To do - add parameter for next btn
@@ -1616,7 +1620,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       End If
     End If
 
-    If addr_update_multiple_checkbox = 1 OR addr_update_checkbox_section_c_section_f_match = 1 OR addr_update_checkbox_section_c = 1 OR addr_update_checkbox_section_f = 1 Then
+    If addr_update_checkbox_section_c_section_f_match = 1 OR addr_update_multiple_checkbox = 1 OR addr_update_checkbox_section_c = 1 OR addr_update_checkbox_section_f = 1 Then
         If addr_update_checkbox_section_c_section_f_match = 1 Then 
           address_to_update = section_f_person_new_address_full
         ElseIf addr_update_multiple_checkbox = 1 Then
