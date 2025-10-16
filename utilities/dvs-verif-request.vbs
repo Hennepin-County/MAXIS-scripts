@@ -59,6 +59,8 @@ full_message = trim(full_message)
 
 Dialog1 = "" 'blanking out dialog name
 
+'To do - add button for link to HSR manual
+Dialog1 = "" 'blanking out dialog name
 BeginDialog Dialog1, 0, 0, 221, 105, "DVS Verification Request"
   Text 10, 5, 200, 35, "Script Purpose: Submits a DVS verification request email. The script will pull details from MAXIS and allow user entry to add additional details for the request. Enter the case number below to start:"
   Text 15, 50, 50, 10, "Case Number:"
@@ -86,9 +88,10 @@ DO
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-'Generatea list of HH members for the case number so the user can select
+'Generate a list of HH members for the case number so the user can select
 Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 
+Dialog1 = "" 'blanking out dialog name
 BeginDialog Dialog1, 0, 0, 220, 70, "Select Household Member"
   Text 10, 5, 200, 20, "Select the household member that you want to submit the DVS verification request for:"
   DropListBox 10, 30, 200, 15, HH_Memb_DropDown, hh_memb
@@ -106,6 +109,135 @@ DO
   Loop until err_msg = ""
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+'Gather the birthdate for the HH memb
+hh_memb_number = left(hh_memb, 2)
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+Call write_value_and_transmit(hh_memb_number, 20, 76)
+EMReadScreen hh_memb_dob, 10, 8, 42
+hh_memb_dob = replace(hh_memb_dob, " ","/")
+
+'Starting variables for dialog
+total_vehicles = 1
+dialog_height = 110
+vehicle_groupbox_height = 40
+ok_cancel_y = 90
+add_vehicle_btn_y = 80
+
+DO
+  Do
+    err_msg = ""    'This is the error message handling
+    Dialog1 = "" 'blanking out dialog name
+    BeginDialog Dialog1, 0, 0, 470, dialog_height, "DVS Verification Request Details"
+      Text 10, 5, 50, 10, "Case number:"
+      Text 70, 5, 90, 10, MAXIS_case_number
+      Text 10, 15, 55, 10, "Owner's Name:"
+      Text 70, 15, 90, 10, hh_memb
+      Text 10, 25, 55, 10, "Owner's DOB:"
+      Text 70, 25, 90, 10, hh_memb_dob
+      Text 10, 65, 75, 10, "Vehicle looking for:"
+      EditBox 90, 60, 50, 15, vehicle_1
+      GroupBox 145, 40, 320, vehicle_groupbox_height, "Optional Information (if available):"
+      Text 155, 50, 300, 10, "         Alias                               VIN                        Plate #              Title #               Owner DLN"
+      EditBox 150, 60, 70, 15, alias_1
+      EditBox 225, 60, 75, 15, vin_1
+      EditBox 305, 60, 40, 15, plate_1
+      EditBox 350, 60, 50, 15, title_1
+      EditBox 405, 60, 55, 15, owner_dln_1
+      vehicle_fields_y = 60
+      vehicle_text_y = 65
+      vehicle_field_y = 60 
+      If total_vehicles > 1 Then
+        vehicle_text_y = vehicle_text_y + 20
+        vehicle_field_y = vehicle_field_y + 20
+        Text 10, vehicle_text_y, 75, 10, "Vehicle looking for:"
+        EditBox 90, vehicle_field_y, 50, 15, vehicle_2
+        vehicle_fields_y = vehicle_fields_y + 20
+        EditBox 150, vehicle_fields_y, 70, 15, alias_2
+        EditBox 225, vehicle_fields_y, 75, 15, vin_2
+        EditBox 305, vehicle_fields_y, 40, 15, plate_2
+        EditBox 350, vehicle_fields_y, 50, 15, title_2
+        EditBox 405, vehicle_fields_y, 55, 15, owner_dln_2
+      End If
+      If total_vehicles > 2 Then
+        vehicle_text_y = vehicle_text_y + 20
+        vehicle_field_y = vehicle_field_y + 20
+        Text 10, vehicle_text_y, 75, 10, "Vehicle looking for:"
+        EditBox 90, vehicle_field_y, 50, 15, vehicle_3
+        vehicle_fields_y = vehicle_fields_y + 20
+        EditBox 150, vehicle_fields_y, 70, 15, alias_3
+        EditBox 225, vehicle_fields_y, 75, 15, vin_3
+        EditBox 305, vehicle_fields_y, 40, 15, plate_3
+        EditBox 350, vehicle_fields_y, 50, 15, title_3
+        EditBox 405, vehicle_fields_y, 55, 15, owner_dln_3
+      End If
+      If total_vehicles > 3 Then
+        vehicle_text_y = vehicle_text_y + 20
+        vehicle_field_y = vehicle_field_y + 20
+        Text 10, vehicle_text_y, 75, 10, "Vehicle looking for:"
+        EditBox 90, vehicle_field_y, 50, 15, vehicle_4
+        vehicle_fields_y = vehicle_fields_y + 20
+        EditBox 150, vehicle_fields_y, 70, 15, alias_4
+        EditBox 225, vehicle_fields_y, 75, 15, vin_4
+        EditBox 305, vehicle_fields_y, 40, 15, plate_4
+        EditBox 350, vehicle_fields_y, 50, 15, title_4
+        EditBox 405, vehicle_fields_y, 55, 15, owner_dln_4
+      End If
+      If total_vehicles > 4 Then
+        vehicle_text_y = vehicle_text_y + 20
+        vehicle_field_y = vehicle_field_y + 20
+        Text 10, vehicle_text_y, 75, 10, "Vehicle looking for:"
+        EditBox 90, vehicle_field_y, 50, 15, vehicle_5
+        vehicle_fields_y = vehicle_fields_y + 20
+        EditBox 150, vehicle_fields_y, 70, 15, alias_5
+        EditBox 225, vehicle_fields_y, 75, 15, vin_5
+        EditBox 305, vehicle_fields_y, 40, 15, plate_5
+        EditBox 350, vehicle_fields_y, 50, 15, title_5
+        EditBox 405, vehicle_fields_y, 55, 15, owner_dln_5
+      End If
+      ButtonGroup ButtonPressed
+        OkButton 375, ok_cancel_y, 45, 15
+        CancelButton 420, ok_cancel_y, 45, 15
+        If total_vehicles < 5 Then
+          PushButton 10, add_vehicle_btn_y, 50, 15, "Add Vehicle", add_vehicle_btn
+        End If
+    EndDialog
+
+    Dialog Dialog1
+    cancel_without_confirmation
+    If total_vehicles = 1 Then 
+      If trim(vehicle_1) = "" THEN err_msg = err_msg & vbCr & "* You must fill out the 'Vehicle looking for' field."
+    ElseIf total_vehicles = 2 Then 
+      If trim(vehicle_1) = "" OR trim(vehicle_2) = "" THEN err_msg = err_msg & vbCr & "* You must fill out each of the 'Vehicle looking for' fields."
+    ElseIf total_vehicles = 3 Then
+      If trim(vehicle_1) = "" OR trim(vehicle_2) = "" OR trim(vehicle_3) = "" THEN err_msg = err_msg & vbCr & "* You must fill out each of the 'Vehicle looking for' fields."
+    ElseIf total_vehicles = 4 Then
+      If trim(vehicle_1) = "" OR trim(vehicle_2) = "" OR trim(vehicle_3) = "" OR trim(vehicle_4) = "" THEN err_msg = err_msg & vbCr & "* You must fill out each of the 'Vehicle looking for' fields."
+    ElseIf total_vehicles = 5 Then
+      If trim(vehicle_1) = "" OR trim(vehicle_2) = "" OR trim(vehicle_3) = "" OR trim(vehicle_4) = "" OR trim(vehicle_5) = "" THEN err_msg = err_msg & vbCr & "* You must fill out each of the 'Vehicle looking for' fields."
+    End If
+    If ButtonPressed = add_vehicle_btn Then 
+      If total_vehicles < 5 Then
+        total_vehicles = total_vehicles + 1
+        dialog_height = dialog_height + 20
+        vehicle_groupbox_height = vehicle_groupbox_height + 20
+        ok_cancel_y = ok_cancel_y + 20
+        add_vehicle_btn_y = add_vehicle_btn_y + 20
+        err_msg = "LOOP"
+      End If
+    End If
+    IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+  Loop until err_msg = ""
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+email_body = "Case #: " & MAXIS_case_number & vBcr & "Owner's Name: " & hh_memb & vbcr & "Owner's DOB: " & hh_memb_dob & vbcr & "Vehicle looking for: " & vehicle_1 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_1 & vbcr & "VIN(s): " & vin_1 & vbcr & "Plate #(s): " & plate_1 & vbcr & "Title #: " & title_1 & vbcr & "Owner DLN: " & owner_dln_1 & vbCR
+If total_vehicles > 1 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_2 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_2 & vbcr & "VIN(s): " & vin_2 & vbcr & "Plate #(s): " & plate_2 & vbcr & "Title #: " & title_2 & vbcr & "Owner DLN: " & owner_dln_2 & vbCR
+If total_vehicles > 2 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_3 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_3 & vbcr & "VIN(s): " & vin_3 & vbcr & "Plate #(s): " & plate_3 & vbcr & "Title #: " & title_3 & vbcr & "Owner DLN: " & owner_dln_3 & vbCR
+If total_vehicles > 3 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_4 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_4 & vbcr & "VIN(s): " & vin_4 & vbcr & "Plate #(s): " & plate_4 & vbcr & "Title #: " & title_4 & vbcr & "Owner DLN: " & owner_dln_4 & vbCR
+If total_vehicles > 4 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_5 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_5 & vbcr & "VIN(s): " & vin_5 & vbcr & "Plate #(s): " & plate_5 & vbcr & "Title #: " & title_5 & vbcr & "Owner DLN: " & owner_dln_5 & vbCR
+
+Call create_outlook_email("", "hsph.es.dvs@hennepin.us", "", "", "DVS Verification Request for MAXIS Case # " & MAXIS_case_number, 1, False, "", "", False, "", email_body, False, "", True)
 
 'End dialog section-----------------------------------------------------------------------------------------------
 
