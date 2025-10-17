@@ -52,25 +52,23 @@ changelog_display
 
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
-
-'Read the dail message
-EMReadScreen full_message, 60, 6, 20
-full_message = trim(full_message)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = "" 'blanking out dialog name
 
 'To do - add button for link to HSR manual
 Dialog1 = "" 'blanking out dialog name
-BeginDialog Dialog1, 0, 0, 221, 105, "DVS Verification Request"
-  Text 10, 5, 200, 35, "Script Purpose: Submits a DVS verification request email. The script will pull details from MAXIS and allow user entry to add additional details for the request. Enter the case number below to start:"
-  Text 15, 50, 50, 10, "Case Number:"
-  EditBox 75, 45, 55, 15, MAXIS_case_number
-  Text 10, 70, 60, 10, "Worker Signature:"
-  EditBox 75, 65, 140, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 351, 65, "DVS Verification Request"
+  Text 10, 5, 270, 20, "Script Purpose: Submits a DVS verification request email. The script will pull details from MAXIS and allow user entry to add additional details for the request."
+  Text 10, 30, 50, 10, "Case Number:"
+  EditBox 75, 25, 55, 15, MAXIS_case_number
+  Text 10, 50, 60, 10, "Worker Signature:"
+  EditBox 75, 45, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 125, 85, 45, 15
-    CancelButton 170, 85, 45, 15
-    PushButton 150, 45, 65, 15, "Script Instructions", instructions_btn
+    OkButton 260, 45, 45, 15
+    CancelButton 305, 45, 45, 15
+    PushButton 285, 5, 65, 15, "Script Instructions", instructions_btn
+    PushButton 285, 20, 65, 15, "HSR Manual", hsr_manual_btn
 EndDialog
 
 DO
@@ -81,7 +79,12 @@ DO
     Call validate_MAXIS_case_number(err_msg, "*")
 		If ButtonPressed = script_instructions_btn Then 
       'to do - update with script instructions
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B7D2E3349-1333-4628-B572-754EED31AFB4%7D&file=DAIL%20-%20SDX%20MATCH.docx"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/UTILITIES/UTILITIES%20-%20DVS%20VERIFICATION%20REQUEST.docx"
+			err_msg = "LOOP"
+		End If
+		If ButtonPressed = hsr_manual_btn Then 
+      'to do - update with script instructions
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Vehicles.aspx"
 			err_msg = "LOOP"
 		End If
   Loop until err_msg = ""
@@ -132,7 +135,7 @@ DO
       Text 10, 5, 50, 10, "Case number:"
       Text 70, 5, 90, 10, MAXIS_case_number
       Text 10, 15, 55, 10, "Owner's Name:"
-      Text 70, 15, 90, 10, hh_memb
+      Text 70, 15, 250, 10, hh_memb
       Text 10, 25, 55, 10, "Owner's DOB:"
       Text 70, 25, 90, 10, hh_memb_dob
       Text 10, 65, 75, 10, "Vehicle looking for:"
@@ -231,20 +234,18 @@ DO
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-email_body = "Case #: " & MAXIS_case_number & vBcr & "Owner's Name: " & hh_memb & vbcr & "Owner's DOB: " & hh_memb_dob & vbcr & "Vehicle looking for: " & vehicle_1 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_1 & vbcr & "VIN(s): " & vin_1 & vbcr & "Plate #(s): " & plate_1 & vbcr & "Title #: " & title_1 & vbcr & "Owner DLN: " & owner_dln_1 & vbCR
-If total_vehicles > 1 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_2 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_2 & vbcr & "VIN(s): " & vin_2 & vbcr & "Plate #(s): " & plate_2 & vbcr & "Title #: " & title_2 & vbcr & "Owner DLN: " & owner_dln_2 & vbCR
-If total_vehicles > 2 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_3 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_3 & vbcr & "VIN(s): " & vin_3 & vbcr & "Plate #(s): " & plate_3 & vbcr & "Title #: " & title_3 & vbcr & "Owner DLN: " & owner_dln_3 & vbCR
-If total_vehicles > 3 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_4 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_4 & vbcr & "VIN(s): " & vin_4 & vbcr & "Plate #(s): " & plate_4 & vbcr & "Title #: " & title_4 & vbcr & "Owner DLN: " & owner_dln_4 & vbCR
-If total_vehicles > 4 Then email_body = email_body & vbCR & "Vehicle looking for: " & vehicle_5 & vbcr & vbcr & "Optional Information (if available)" & vbcr & vbcr & "Alias: " & alias_5 & vbcr & "VIN(s): " & vin_5 & vbcr & "Plate #(s): " & plate_5 & vbcr & "Title #: " & title_5 & vbcr & "Owner DLN: " & owner_dln_5 & vbCR
+email_body = "Case #: " & MAXIS_case_number & vBcr & "Owner's Name: " & hh_memb & vbcr & "Owner's DOB: " & hh_memb_dob & vbcr & vBcr & "---" & vBcr & "Vehicle looking for: " & vehicle_1 & vbcr & "Alias: " & alias_1 & vbcr & "VIN(s): " & vin_1 & vbcr & "Plate #(s): " & plate_1 & vbcr & "Title #: " & title_1 & vbcr & "Owner DLN: " & owner_dln_1 & vbCR
+If total_vehicles > 1 Then email_body = email_body & vbCR & "---" & vBcr & "Vehicle looking for: " & vehicle_2 & vbcr & "Alias: " & alias_2 & vbcr & "VIN(s): " & vin_2 & vbcr & "Plate #(s): " & plate_2 & vbcr & "Title #: " & title_2 & vbcr & "Owner DLN: " & owner_dln_2 & vbCR
+If total_vehicles > 2 Then email_body = email_body & vbCR & "---" & vBcr & "Vehicle looking for: " & vehicle_3 & vbcr & "Alias: " & alias_3 & vbcr & "VIN(s): " & vin_3 & vbcr & "Plate #(s): " & plate_3 & vbcr & "Title #: " & title_3 & vbcr & "Owner DLN: " & owner_dln_3 & vbCR
+If total_vehicles > 3 Then email_body = email_body & vbCR & "---" & vBcr & "Vehicle looking for: " & vehicle_4 & vbcr &  "Alias: " & alias_4 & vbcr & "VIN(s): " & vin_4 & vbcr & "Plate #(s): " & plate_4 & vbcr & "Title #: " & title_4 & vbcr & "Owner DLN: " & owner_dln_4 & vbCR
+If total_vehicles > 4 Then email_body = email_body & vbCR & "---" & vBcr & "Vehicle looking for: " & vehicle_5 & vbcr & "Alias: " & alias_5 & vbcr & "VIN(s): " & vin_5 & vbcr & "Plate #(s): " & plate_5 & vbcr & "Title #: " & title_5 & vbcr & "Owner DLN: " & owner_dln_5 & vbCR
 
 Call create_outlook_email("", "hsph.es.dvs@hennepin.us", "", "", "DVS Verification Request for MAXIS Case # " & MAXIS_case_number, 1, False, "", "", False, "", email_body, False, "", True)
 
 'End dialog section-----------------------------------------------------------------------------------------------
 
 'End the script.
-'To do - update accordingly
-
-script_end_procedure("")
+script_end_procedure("Success! DVS Verification Request email sent to hsph.es.dvs@hennepin.us.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
