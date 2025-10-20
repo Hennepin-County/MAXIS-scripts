@@ -50,8 +50,8 @@ call changelog_update("10/14/2025", "Initial version.", "Dave Courtright, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'THIS SCRIPT IS NOT BEING ACCESSED FROM GITHUB - there is a LOCAL FILE - use that for updates/action.'
-IF date < "10/16/2025" Then script_end_procedure("Guidance has been updated to allow SNAP and MFIP approvals through the end of 10/15/2025. Please approve your case. The script will now close.")
+
+ script_end_procedure("Guidance has been updated to allow approvals of pending cases in MAXIS, this script is no longer used. The script will now close.")
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
