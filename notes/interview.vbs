@@ -6,6 +6,25 @@ STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
+'Handling for if run directly instead of the through the power pad.
+If db_full_string = "" Then
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
+If NOT IsArray(interviewer_array) Then
+	tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+
+	Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+End If
+
 If script_repository = "" Then
 	script_repository = "C:\MAXIS-Scripts\"		'This is a safety measure for if the script is run directly.
 	run_locally = True
@@ -150,7 +169,9 @@ const exemption_reason_const        = 65
 const emps_exemption_code_const     = 66
 const choice_form_done_const        = 67
 const orientation_notes             = 68
-const last_const					= 69
+const remo_info_const               = 69
+const requires_update               = 70
+const last_const					= 71
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -270,16 +291,40 @@ function check_for_errors(interview_questions_clear)
 
 	If living_situation = "10 - Unknown" OR living_situation = "Blank" or living_situation = "Select" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
 
-	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-            HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
-    		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
-    		If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
-        End If
-	Next
+    page_3_errors = False
+    all_members_in_MN_notes = trim(all_members_in_MN_notes)
+    If all_members_in_MN_yn = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN?##~##   - Indicate if all household members intend to reside in Minnesota."
+    If all_members_in_MN_yn = "No" and all_members_in_MN_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN? - Notes##~##   - Since it is indicated that not all household members intend to reside in Minnesota, add notes to explain the details of member residence."
+    anyone_pregnant_notes = trim(anyone_pregnant_notes)
+    If anyone_pregnant_yn = "Yes" and anyone_pregnant_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Is anyone pregnant? - Notes##~##   - Since it is indicated that someone is pregnant, add notes with additional details."
+    If anyone_pregnant_yn = "" and anyone_pregnant_notes <> "" Then err_msg = err_msg & "~!~" & "3 ^* Is anyone pregnant?##~##   - Since there are notes about pregnancy, indicate if anyone is pregnant."
+    anyone_served_notes = trim(anyone_served_notes)
+    If anyone_served_yn = "Yes" and anyone_served_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Has Anyone Served in the Military? - Notes##~##   - Since it is indicated that someone served in the military, add notes with additional details."
+    If anyone_served_yn = "" and anyone_served_notes <> "" Then err_msg = err_msg & "~!~" & "3 ^* Has Anyone Served in the Military?##~##   - Since there are notes about military service, indicate if anyone has served in the military."
 
 	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "3 ^* Principal Wage Earner##~##   - Since we have SNAP to consider, you must indicate who the resident selects as PWE."
+    If InStr(err_msg, "~!~3 ^*") Then page_3_errors = True
+
+    err_selected_memb = ""
+	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+            pers_err = ""
+            HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
+            If HH_MEMB_ARRAY(requires_update, the_memb) Then pers_err = pers_err & "~!~" & "3 ^* Information Needed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ":"
+            If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then pers_err = pers_err & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+            If (HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank OR SSN Verification indicates not provided."
+    		If HH_MEMB_ARRAY(citizen, the_memb) = "No" and (HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked or the_memb = 0) Then
+                If HH_MEMB_ARRAY(imig_status, the_memb) = "" Then pers_err = pers_err & "~!~" & "3 ^* IMIG Status##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, discuss and record immigration status details."
+                If HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" or HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "?" Then pers_err = pers_err & "~!~" & "3 ^* Sponsor?##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, you need to ask and record if this resident has a sponsor."
+            End If
+            If pers_err <> "" Then
+                If err_selected_memb = "" Then err_selected_memb = the_memb
+                err_msg = err_msg & pers_err & "##~##"
+            End If
+    		' If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
+        End If
+	Next
+    If page_3_errors = True Then err_selected_memb = ""
 
 	For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 		list_err = False
@@ -472,7 +517,8 @@ function define_main_dialog()
 		Text 485, num_pos, 10, 10, running_num
 		last_pos = num_pos
 		num_pos = num_pos + 15
-	  ButtonGroup ButtonPressed
+	    ButtonGroup ButtonPressed
+
 	    If page_display = show_pg_one_memb01_and_exp Then
 			Text 497, 17, 60, 10, "INTVW / CAF 1"
 
@@ -624,135 +670,223 @@ function define_main_dialog()
 
 		ElseIf page_display = show_pg_memb_list Then
 			Text 504, 47, 60, 10, "CAF MEMBs"
-			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
-			Text 10, 15, 400, 10, "You must click on each Person button below and on the left to view each person."
+            allow_expand = False
+            If UBound(HH_MEMB_ARRAY, 2) < 10 Then allow_expand = True
 
+            If update_pers = FALSE Then
+                y_pos = 20
+                For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+                    progs = ""
+                    If HH_MEMB_ARRAY(snap_req_checkbox, the_membs) = checked Then progs = progs & "SNAP "
+                    If HH_MEMB_ARRAY(cash_req_checkbox, the_membs) = checked Then progs = progs & "CASH "
+                    If HH_MEMB_ARRAY(emer_req_checkbox, the_membs) = checked Then progs = progs & "EMER "
+                    progs = replace(trim(progs), " ", " - ")
+                    If progs = "" Then progs = " (none)"
 
+                    MEMB_requires_update = False
+                    member_info_string = ""
+                    If HH_MEMB_ARRAY(rel_to_applcnt, the_membs) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_membs) = "__" or HH_MEMB_ARRAY(id_verif, the_membs) = "NO - No Ver Prvd") Then
+                        MEMB_requires_update = True
+                        member_info_string = member_info_string & "ID Missing; "
+                    End If
+                    If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
+                    If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - SSN Not Provided" and trim(progs) <> "(none)" Then
+                        MEMB_requires_update = True
+                        member_info_string = member_info_string & "SSN Missing; "
+                    End If
+                    If HH_MEMB_ARRAY(citizen, the_membs) = "No" and trim(progs) <> "(none)" Then
+                        member_info_string = member_info_string & "*** Non-Citizen ***; "
+                        If trim(HH_MEMB_ARRAY(imig_status, the_membs)) = "" Then
+                            MEMB_requires_update = True
+                            member_info_string = member_info_string & "Imig Status Missing; "
+                        Else
+                            member_info_string = member_info_string & "Imig Status: " & HH_MEMB_ARRAY(imig_status, the_membs) & "; "
+                        End If
+                        If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
+                            MEMB_requires_update = True
+                            member_info_string = member_info_string & "Sponsor Info Missing; "
+                        End If
+                    End If
+                    If HH_MEMB_ARRAY(in_mn_12_mo, the_membs) = "No" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
+                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" Then member_info_string = member_info_string & "Interpreter Needed; "
 
-			If update_pers = FALSE Then
-				Text 70, 45, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
-				Text 165, 45, 75, 15, HH_MEMB_ARRAY(first_name_const, selected_memb)
-				Text 245, 45, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
-				Text 300, 45, 175, 15, HH_MEMB_ARRAY(other_names, selected_memb)
-				If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - System Verified" Then
-					Text 70, 75, 70, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-				Else
-					EditBox 70, 75, 70, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-				End If
-				Text 145, 75, 70, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
-				Text 220, 75, 50, 45, HH_MEMB_ARRAY(gender, selected_memb)
-				Text 275, 75, 90, 45, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
-				Text 370, 75, 105, 45, HH_MEMB_ARRAY(marital_status, selected_memb)
-				Text 70, 105, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
-				Text 195, 105, 70, 15, HH_MEMB_ARRAY(mn_entry_date, selected_memb)
-				Text 270, 105, 135, 15, HH_MEMB_ARRAY(former_state, selected_memb)
-				Text 400, 105, 75, 45, HH_MEMB_ARRAY(citizen, selected_memb)
-				Text 70, 135, 60, 45, HH_MEMB_ARRAY(interpreter, selected_memb)
-				Text 140, 135, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
-				Text 140, 165, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
-				Text 330, 145, 40, 45, HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
-				If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
-					DropListBox 70, 185, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
-				Else
-					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
-				End If
+                    If trim(progs) <> "(none)" and the_membs <> 0 Then
+                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Spoken Lang: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
+                        If left(HH_MEMB_ARRAY(written_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(written_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Written Lang: " & right(HH_MEMB_ARRAY(written_lang, the_membs), len(HH_MEMB_ARRAY(written_lang, the_membs))-5) & "; "
+                        If len(HH_MEMB_ARRAY(spoken_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Spoken Lang Unknown; "
+                        If len(HH_MEMB_ARRAY(written_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Written Lang Unknown; "
+                    End If
+                    If trim(progs) <> "(none)" Then
+                        If HH_MEMB_ARRAY(race, the_membs) = "Unable To Determine" Then member_info_string = member_info_string & "Race Undetermined; "
+                    End If
+                    If HH_MEMB_ARRAY(alias_yn, the_membs) = "Y" Then member_info_string = member_info_string & "Alias Exists; "
 
-				PushButton 385, 225, 95, 15, "Update Information", update_information_btn
+                    If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then MEMB_requires_update = False
+                    If HH_MEMB_ARRAY(requires_update, the_membs) Then member_info_string = "*** UPDATE! - " & member_info_string
+
+                    member_info_string = trim(member_info_string)
+                    If right(member_info_string, 1) = ";" Then member_info_string = left(member_info_string, len(member_info_string)-1)
+
+                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then
+                        If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(first_name_const, the_membs)
+                        If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(first_name_const, the_membs)
+                        Text        45,  y_pos+10, 225, 10, HH_MEMB_ARRAY(last_name_const, the_membs)
+                    Else
+                        If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
+                        If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
+                    End If
+                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                    If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
+
+                    Text        180, y_pos, 75,  10, progs
+
+                    PushButton  415, y_pos, 60,  10, "UPDATE M " & HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
+                    If allow_expand and len(member_info_string) > 130 Then
+                        Text        270, y_pos, 145, 35, member_info_string
+                        y_pos = y_pos + 15
+                    ElseIf allow_expand and len(member_info_string) > 80 Then
+                        Text        270, y_pos, 145, 30, member_info_string
+                        y_pos = y_pos + 10
+                    Else
+                        Text        270, y_pos, 145, 20, member_info_string
+                    End If
+
+                    y_pos = y_pos + 20
+                Next
+                GroupBox 5, 5, 470, y_pos, "All Household MEMBERs"
+                Text 180, 5, 50, 10, "REQUESTING:"
+                Text 270, 5, 105, 10, "INFORMATION NEEDED:"
+                y_pos = y_pos + 10
+
+                ' Text 10, y_pos+5, 155, 10, "Are all people in the Houshold Listed above?"
+                ' DropListBox 160, y_pos, 35, 35, ""+chr(9)+"Yes"+chr(9)+"No", all_members_listed_yn
+                Text 10, y_pos+5, 60, 10, "HH Comp Notes:"
+                EditBox 70, y_pos, 350, 15, all_members_listed_notes
+                PushButton 425, y_pos, 50, 15, "Add Person", add_person_btn
+                ' PushButton 370, y_pos, 105, 15, "Enter Date Person Left", remove_person_btn
+                y_pos = y_pos + 20
+
+                Text 10, y_pos+5, 140, 10, "Do ALL Members intend to reside in MN?"
+                DropListBox 150, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", all_members_in_MN_yn
+                Text 190, y_pos+5, 25, 10, "Notes:"
+                EditBox 215, y_pos, 260, 15, all_members_in_MN_notes
+                y_pos = y_pos + 25
+
+                Text 10, y_pos+5, 70, 10, "Is Anyone Pregnant?"
+                DropListBox 80, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", anyone_pregnant_yn
+                Text 120, y_pos+5, 25, 10, "Notes:"
+                EditBox 145, y_pos, 330, 15, anyone_pregnant_notes
+                y_pos = y_pos + 25
+
+                Text 10, y_pos+5, 115, 10, "Has Anyone Served in the Military?"
+                DropListBox 125, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", anyone_served_yn
+                Text 165, y_pos+5, 25, 10, "Notes:"
+                EditBox 190, y_pos, 285, 15, anyone_served_notes
+                y_pos = y_pos + 25
+
+                Text 10, y_pos+5, 75, 10, "Principal Wage Earner:"
+                DropListBox 85, y_pos, 130, 45, pick_a_client, pwe_selection
+                y_pos = y_pos + 20
+
 			End If
 			If update_pers = TRUE Then
-				EditBox 70, 45, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
-				EditBox 165, 45, 75, 15, HH_MEMB_ARRAY(first_name_const, selected_memb)
-				EditBox 245, 45, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
-				EditBox 300, 45, 175, 15, HH_MEMB_ARRAY(other_names, selected_memb)
-				EditBox 70, 75, 70, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-				EditBox 145, 75, 70, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
-				DropListBox 220, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
-				DropListBox 275, 75, 90, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
-				DropListBox 370, 75, 105, 45, marital_status_list, HH_MEMB_ARRAY(marital_status, selected_memb)
-				EditBox 70, 105, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
-				EditBox 185, 105, 70, 15, HH_MEMB_ARRAY(mn_entry_date, selected_memb)
-				EditBox 260, 105, 135, 15, HH_MEMB_ARRAY(former_state, selected_memb)
-				DropListBox 400, 105, 75, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(citizen, selected_memb)
-				DropListBox 70, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(interpreter, selected_memb)
-				EditBox 140, 135, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
-				EditBox 140, 165, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
-				DropListBox 330, 145, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
-				DropListBox 70, 185, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
-
-				PushButton 385, 225, 95, 15, "Save Information", save_information_btn
-			End If
-			CheckBox 330, 170, 30, 10, "Asian", HH_MEMB_ARRAY(race_a_checkbox, selected_memb)
-			CheckBox 330, 180, 30, 10, "Black", HH_MEMB_ARRAY(race_b_checkbox, selected_memb)
-			CheckBox 330, 190, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(race_n_checkbox, selected_memb)
-			CheckBox 330, 200, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(race_p_checkbox, selected_memb)
-			CheckBox 330, 210, 130, 10, "White", HH_MEMB_ARRAY(race_w_checkbox, selected_memb)
-			CheckBox 70, 210, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(snap_req_checkbox, selected_memb)
-			CheckBox 125, 210, 65, 10, "Cash programs", HH_MEMB_ARRAY(cash_req_checkbox, selected_memb)
-			CheckBox 195, 210, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(emer_req_checkbox, selected_memb)
-			CheckBox 280, 210, 30, 10, "NONE", HH_MEMB_ARRAY(none_req_checkbox, selected_memb)
-			If selected_memb = 0 Then
-				DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
-			Else
-				DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not in HH", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
-			End If
-			EditBox 155, 265, 205, 15, HH_MEMB_ARRAY(imig_status, selected_memb)
-			DropListBox 365, 265, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(clt_has_sponsor, selected_memb)
-			DropListBox 70, 295, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(client_verification, selected_memb)
-			EditBox 155, 295, 320, 15, HH_MEMB_ARRAY(client_verification_details, selected_memb)
-			EditBox 70, 325, 405, 15, HH_MEMB_ARRAY(client_notes, selected_memb)
-			If HH_MEMB_ARRAY(ref_number, selected_memb) = "" Then
-				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1
-				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & "  ---  Interview Questions"
-			Else
-				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb)
-				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Interview Questions"
-
-			End If
-
-			Text 225, 350, 75, 10, "Pricipal Wage Earner"
-			DropListBox 300, 345, 175, 45, pick_a_client, pwe_selection
-
-			y_pos = 35
-			For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-				If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-                    If the_memb = selected_memb Then
-    					Text 20, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
-    				Else
-    					PushButton 10, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(button_one, the_memb)
-    				End If
-    				y_pos = y_pos + 10
+                EditBox 25, 30, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
+                EditBox 120, 30, 75, 15, HH_MEMB_ARRAY(first_name_const, selected_memb)
+                EditBox 200, 30, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
+                EditBox 255, 30, 175, 15, HH_MEMB_ARRAY(other_names, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then Text 25, 65, 70, 10, HH_MEMB_ARRAY(ssn, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "V - SSN Verified via Interface" Then EditBox 25, 60, 70, 15, HH_MEMB_ARRAY(ssn, selected_memb)
+                EditBox 100, 60, 70, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
+                DropListBox 175, 60, 50, 45, "Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
+                DropListBox 230, 60, 90, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
+                DropListBox 325, 60, 105, 45, marital_status_list, HH_MEMB_ARRAY(marital_status, selected_memb)
+                EditBox 25, 90, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
+                EditBox 140, 90, 70, 15, HH_MEMB_ARRAY(mn_entry_date, selected_memb)
+                EditBox 215, 90, 135, 15, HH_MEMB_ARRAY(former_state, selected_memb)
+                DropListBox 355, 90, 75, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(citizen, selected_memb)
+                DropListBox 25, 120, 60, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(interpreter, selected_memb)
+                EditBox 95, 120, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
+                EditBox 95, 150, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
+                DropListBox 285, 130, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
+                DropListBox 25, 170, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
+                PushButton 340, 210, 95, 15, "Save Information", save_information_btn
+                CheckBox 285, 155, 30, 10, "Asian", HH_MEMB_ARRAY(race_a_checkbox, selected_memb)
+                CheckBox 285, 165, 30, 10, "Black", HH_MEMB_ARRAY(race_b_checkbox, selected_memb)
+                CheckBox 285, 175, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(race_n_checkbox, selected_memb)
+                CheckBox 285, 185, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(race_p_checkbox, selected_memb)
+                CheckBox 285, 195, 130, 10, "White", HH_MEMB_ARRAY(race_w_checkbox, selected_memb)
+                CheckBox 25, 195, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(snap_req_checkbox, selected_memb)
+                CheckBox 80, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(cash_req_checkbox, selected_memb)
+                CheckBox 150, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(emer_req_checkbox, selected_memb)
+                CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(none_req_checkbox, selected_memb)
+                EditBox 110, 210, 95, 15, HH_MEMB_ARRAY(remo_info_const, known_membs)
+                If selected_memb = 0 Then
+                    DropListBox 25, 250, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
+                Else
+                    DropListBox 25, 250, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not in HH", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
                 End If
-			Next
-            If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then PushButton 375, 30, 105, 13, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
-			y_pos = y_pos + 10
-			PushButton 10, 335, 45, 10, "Add Person", add_person_btn
-			Text 70, 35, 50, 10, "Last Name"
-			Text 165, 35, 50, 10, "First Name"
-			Text 245, 35, 50, 10, "Middle Name"
-			Text 300, 35, 50, 10, "Other Names"
-			Text 70, 65, 55, 10, "Soc Sec Number"
-			Text 145, 65, 45, 10, "Date of Birth"
-			Text 220, 65, 45, 10, "Gender"
-			Text 275, 65, 90, 10, "Relationship to MEMB 01"
-			Text 370, 65, 50, 10, "Marital Status"
-			Text 70, 95, 75, 10, "Last Grade Completed"
-			Text 185, 95, 55, 10, "Moved to MN on"
-			Text 260, 95, 65, 10, "Moved to MN from"
-			Text 400, 95, 75, 10, "US Citizen or National"
-			Text 70, 125, 40, 10, "Interpreter?"
-			Text 140, 125, 95, 10, "Preferred Spoken Language"
-			Text 140, 155, 95, 10, "Preferred Written Language"
-			Text 70, 175, 65, 10, "Identity Verification"
-			GroupBox 325, 125, 155, 100, "Demographics"
-			Text 330, 135, 35, 10, "Hispanic?"
-			Text 330, 160, 50, 10, "Race"
-			Text 70, 200, 145, 10, "Which programs is this person requesting?"
-			Text 70, 255, 80, 10, "Intends to reside in MN"
-			Text 155, 255, 65, 10, "Immigration Status"
-			Text 365, 255, 50, 10, "Sponsor?"
-			Text 70, 285, 50, 10, "Verification"
-			Text 155, 285, 65, 10, "Verification Details"
-			Text 70, 315, 50, 10, "Notes:"
+                EditBox 110, 250, 205, 15, HH_MEMB_ARRAY(imig_status, selected_memb)
+                DropListBox 320, 250, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(clt_has_sponsor, selected_memb)
+                DropListBox 25, 280, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(client_verification, selected_memb)
+                EditBox 110, 280, 320, 15, HH_MEMB_ARRAY(client_verification_details, selected_memb)
+                EditBox 25, 310, 405, 15, HH_MEMB_ARRAY(client_notes, selected_memb)
+                If HH_MEMB_ARRAY(ref_number, selected_memb) = "" Then
+                    GroupBox 20, 10, 415, 200, "Person " & selected_memb+1 & " " & HH_MEMB_ARRAY(full_name_const, selected_memb)
+                    GroupBox 20, 230, 415, 100, "Person " & selected_memb+1 & " " & HH_MEMB_ARRAY(full_name_const, selected_memb) & "  ---  Interview Questions"
+                Else
+                    GroupBox 20, 10, 415, 200, "MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & " - " & HH_MEMB_ARRAY(full_name_const, selected_memb)
+                    GroupBox 20, 230, 415, 100, "MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & " - " & HH_MEMB_ARRAY(full_name_const, selected_memb) & "  ---  Interview Questions"
+
+                End If
+
+                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then PushButton 330, 15, 105, 15, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
+                Text 25, 20, 50, 10, "Last Name"
+                Text 120, 20, 50, 10, "First Name"
+                Text 200, 20, 50, 10, "Middle Name"
+                Text 255, 20, 50, 10, "Other Names"
+                Text 25, 50, 55, 10, "Soc Sec Number"
+                Text 100, 50, 45, 10, "Date of Birth"
+                Text 175, 50, 45, 10, "Gender"
+                Text 230, 50, 90, 10, "Relationship to MEMB 01"
+                Text 325, 50, 50, 10, "Marital Status"
+                Text 25, 80, 75, 10, "Last Grade Completed"
+                Text 140, 80, 55, 10, "Moved to MN on"
+                Text 215, 80, 65, 10, "Moved to MN from"
+                Text 355, 80, 75, 10, "US Citizen or National"
+                Text 25, 110, 40, 10, "Interpreter?"
+                Text 95, 110, 95, 10, "Preferred Spoken Language"
+                Text 95, 140, 95, 10, "Preferred Written Language"
+                Text 25, 160, 65, 10, "Identity Verification"
+                GroupBox 280, 110, 155, 100, "Demographics"
+                Text 285, 120, 35, 10, "Hispanic?"
+                Text 285, 145, 50, 10, "Race"
+                Text 25, 185, 145, 10, "Which programs is this person requesting?"
+                Text 25, 215, 80, 10, "Date Member Left HH"
+                Text 25, 240, 80, 10, "Intends to reside in MN"
+                Text 110, 240, 65, 10, "Immigration Status"
+                Text 320, 240, 50, 10, "Sponsor?"
+                Text 25, 270, 50, 10, "Verification"
+                Text 110, 270, 65, 10, "Verification Details"
+                Text 25, 300, 50, 10, "Notes:"
+                If HH_MEMB_ARRAY(requires_update, selected_memb) Then
+                    Text 350, 5, 100, 10, "*** UPDATE REQUIRED ***"
+                    Text 20, 330, 100, 10, "*** UPDATE REQUIRED ***"
+                End If
+                y_pos = 340
+                If selected_memb = 0 AND (HH_MEMB_ARRAY(id_verif, selected_memb) = "" OR HH_MEMB_ARRAY(id_verif, selected_memb) = "NO - No Ver Prvd") Then
+                    Text 25, y_pos, 400, 10, " - NO ID Verification for MEMBER 01."
+                    y_pos = y_pos + 10
+                End If
+                If (HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "") and HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(none_req_checkbox, selected_memb) = unchecked Then
+                    Text 25, y_pos, 400, 10, " - SSN "
+                    y_pos = y_pos + 10
+                End If
+                If HH_MEMB_ARRAY(citizen, selected_memb) = "No" Then
+                    Text 25, y_pos, 400, 10, " - NON-CITIZEN: Immigrations Status and Sponsor Info Needed."
+                    y_pos = y_pos + 10
+                End If
+			End If
 
 		ElseIf page_display = show_qual Then
 			Text 500, qual_pos, 60, 10, "CAF QUAL Q"
@@ -1347,7 +1481,6 @@ function define_main_dialog()
 
 		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
-		' If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
 		If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
 		btn_pos = 60
 		If page_display <> 4 									Then PushButton 495, btn_pos, 		55, 13, pg_4_label, caf_q_pg_4_btn
@@ -1442,7 +1575,10 @@ function dialog_movement()
 		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
 		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then
-			If page_display = show_pg_memb_list Then selected_memb = i
+			If page_display = show_pg_memb_list Then
+                selected_memb = i
+                update_pers = True
+            End If
 		End If
         If ButtonPressed = HH_MEMB_ARRAY(button_two, i) Then
             HH_MEMB_ARRAY(ignore_person, i) = True
@@ -1529,7 +1665,7 @@ function dialog_movement()
 			update_addr = TRUE
 			need_to_update_addr = TRUE
 		End If
-		If page_display = show_pg_memb_list Then update_pers = TRUE
+		' If page_display = show_pg_memb_list Then update_pers = TRUE
 		If page_display = show_pg_last Then page_display = show_arep_page
 		' MsgBox update_arep & " - in dlg move"
 	End If
@@ -1558,16 +1694,6 @@ function dialog_movement()
 		phone_three_type = "Select One..."
 	End If
 
-	If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
-
-	If ButtonPressed = next_memb_btn Then
-		Do
-            memb_selected = memb_selected + 1
-            If HH_MEMB_ARRAY(ignore_person, memb_selected) = True Then memb_selected = memb_selected + 1
-        Loop until HH_MEMB_ARRAY(ignore_person, memb_selected) = False OR memb_selected > UBound(HH_MEMB_ARRAY, 2)
-		If memb_selected > UBound(HH_MEMB_ARRAY, 2) Then ButtonPressed = next_btn
-	End If
-
 	If ButtonPressed = add_person_btn Then
 		last_clt = UBound(HH_MEMB_ARRAY, 2)
 		new_clt = last_clt + 1
@@ -1585,13 +1711,28 @@ function dialog_movement()
 
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
-		page_display = page_display + 1
-		If page_display > show_pg_last Then
-			page_display = show_pg_last
-			ButtonPressed = finish_interview_btn
-		End If
-		If page_display = discrepancy_questions and discrepancies_exist = False Then page_display = page_display + 1
-		If page_display = expedited_determination and expedited_determination_needed = False Then page_display = page_display + 1
+        pers_next = False                           'Used to navigate the dialog to a MEMBER Update page if an update is required for the member.
+		If page_display = show_pg_memb_list Then
+            If NOT IsNumeric(selected_memb) Then selected_memb = 0
+            For each_memb = selected_memb to UBoyund(HH_MEMB_ARRAY, 2)
+                If HH_MEMB_ARRAY(requires_update, each_memb) Then
+                    selected_memb = each_memb
+                    update_pers = True
+                    pers_next = True
+                    Exit For
+                End If
+            Next
+        End If
+
+        If NOT pers_next Then
+            page_display = page_display + 1
+            If page_display > show_pg_last Then
+                page_display = show_pg_last
+                ButtonPressed = finish_interview_btn
+            End If
+            If page_display = discrepancy_questions and discrepancies_exist = False Then page_display = page_display + 1
+            If page_display = expedited_determination and expedited_determination_needed = False Then page_display = page_display + 1
+        End If
 	End If
 
 	If ButtonPressed = caf_page_one_btn Then
@@ -1622,7 +1763,6 @@ function dialog_movement()
 		page_display = discrepancy_questions
 	End If
 	If ButtonPressed = expedited_determination_btn OR page_display = expedited_determination Then
-		'TODO - update here when we have a different expedtied determination path for the interview team
 		If run_by_interview_team = True Then page_display = expedited_determination
 		If run_by_interview_team = False Then
 			STATS_manualtime = STATS_manualtime + 150
@@ -1649,7 +1789,10 @@ function dialog_movement()
 
 		ButtonPressed = save_button
 	End If
-
+    If page_display <> show_pg_memb_list or update_pers = False Then
+        selected_memb = ""
+        update_pers = False
+    End If
 end function
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
@@ -1704,6 +1847,11 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				If page_display = expedited_determination Then page_to_review = exp_num
 				If page_display = show_pg_last Then page_to_review = last_num
 				page_to_review = trim(page_to_review) & ""
+
+                If page_to_review = "3" Then                'This will navigate to the first member with an error on the CAF MEMBs page
+                    selected_memb = err_selected_memb
+                    If IsNumeric(err_selected_memb) Then update_pers = True
+                End If
 
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
@@ -2940,6 +3088,15 @@ function save_your_work()
 			objTextStream.WriteLine "ADR - TEXT - " & send_text
 			objTextStream.WriteLine "ADR - EMAL - " & send_email
 
+            objTextStream.WriteLine "MEMB - ALLYN - " & all_members_listed_yn
+            objTextStream.WriteLine "MEMB - ALLNT - " & all_members_listed_notes
+            objTextStream.WriteLine "MEMB - IMNYN - " & all_members_in_MN_yn
+            objTextStream.WriteLine "MEMB - IMNNT - " & all_members_in_MN_notes
+            objTextStream.WriteLine "MEMB - PRGYN - " & anyone_pregnant_yn
+            objTextStream.WriteLine "MEMB - PRGNT - " & anyone_pregnant_notes
+            objTextStream.WriteLine "MEMB - MILYN - " & anyone_served_yn
+            objTextStream.WriteLine "MEMB - MILNT - " & anyone_served_notes
+
 			objTextStream.WriteLine "PWE - " & pwe_selection
 
 			objTextStream.WriteLine "QQ1A - " & qual_question_one
@@ -3214,18 +3371,18 @@ function save_your_work()
 				If HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked Then prog_n_info = "YES"
 
 				objTextStream.WriteLine "ARR - HH_MEMB_ARRAY - " & HH_MEMB_ARRAY(ref_number, known_membs)&"~"&HH_MEMB_ARRAY(access_denied, known_membs)&"~"&HH_MEMB_ARRAY(full_name_const, known_membs)&"~"&HH_MEMB_ARRAY(last_name_const, known_membs)&"~"&_
-				HH_MEMB_ARRAY(first_name_const, known_membs)&"~"&HH_MEMB_ARRAY(mid_initial, known_membs)&"~"&HH_MEMB_ARRAY(other_names, known_membs)&"~"&HH_MEMB_ARRAY(age, known_membs)&"~"&HH_MEMB_ARRAY(date_of_birth, known_membs)&"~"&HH_MEMB_ARRAY(ssn, known_membs)&"~"&HH_MEMB_ARRAY(ssn_verif, known_membs)&"~"&_
-				HH_MEMB_ARRAY(birthdate_verif, known_membs)&"~"&HH_MEMB_ARRAY(gender, known_membs)&"~"&HH_MEMB_ARRAY(race, known_membs)&"~"&HH_MEMB_ARRAY(spoken_lang, known_membs)&"~"&HH_MEMB_ARRAY(written_lang, known_membs)&"~"&HH_MEMB_ARRAY(interpreter, known_membs)&"~"&_
-				HH_MEMB_ARRAY(alias_yn, known_membs)&"~"&HH_MEMB_ARRAY(ethnicity_yn, known_membs)&"~"&HH_MEMB_ARRAY(id_verif, known_membs)&"~"&HH_MEMB_ARRAY(rel_to_applcnt, known_membs)&"~"&HH_MEMB_ARRAY(cash_minor, known_membs)&"~"&HH_MEMB_ARRAY(snap_minor, known_membs)&"~"&_
-				HH_MEMB_ARRAY(marital_status, known_membs)&"~"&HH_MEMB_ARRAY(spouse_ref, known_membs)&"~"&HH_MEMB_ARRAY(spouse_name, known_membs)&"~"&HH_MEMB_ARRAY(last_grade_completed, known_membs)&"~"&HH_MEMB_ARRAY(citizen, known_membs)&"~"&_
-				HH_MEMB_ARRAY(other_st_FS_end_date, known_membs)&"~"&HH_MEMB_ARRAY(in_mn_12_mo, known_membs)&"~"&HH_MEMB_ARRAY(residence_verif, known_membs)&"~"&HH_MEMB_ARRAY(mn_entry_date, known_membs)&"~"&HH_MEMB_ARRAY(former_state, known_membs)&"~"&_
-				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
-				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
-				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
+                HH_MEMB_ARRAY(first_name_const, known_membs)&"~"&HH_MEMB_ARRAY(mid_initial, known_membs)&"~"&HH_MEMB_ARRAY(other_names, known_membs)&"~"&HH_MEMB_ARRAY(age, known_membs)&"~"&HH_MEMB_ARRAY(date_of_birth, known_membs)&"~"&HH_MEMB_ARRAY(ssn, known_membs)&"~"&_
+                HH_MEMB_ARRAY(ssn_verif, known_membs)&"~"&HH_MEMB_ARRAY(birthdate_verif, known_membs)&"~"&HH_MEMB_ARRAY(gender, known_membs)&"~"&HH_MEMB_ARRAY(race, known_membs)&"~"&HH_MEMB_ARRAY(spoken_lang, known_membs)&"~"&HH_MEMB_ARRAY(written_lang, known_membs)&"~"&_
+                HH_MEMB_ARRAY(interpreter, known_membs)&"~"&HH_MEMB_ARRAY(alias_yn, known_membs)&"~"&HH_MEMB_ARRAY(ethnicity_yn, known_membs)&"~"&HH_MEMB_ARRAY(id_verif, known_membs)&"~"&HH_MEMB_ARRAY(rel_to_applcnt, known_membs)&"~"&HH_MEMB_ARRAY(cash_minor, known_membs)&"~"&_
+                HH_MEMB_ARRAY(snap_minor, known_membs)&"~"&HH_MEMB_ARRAY(marital_status, known_membs)&"~"&HH_MEMB_ARRAY(spouse_ref, known_membs)&"~"&HH_MEMB_ARRAY(spouse_name, known_membs)&"~"&HH_MEMB_ARRAY(last_grade_completed, known_membs)&"~"&_
+                HH_MEMB_ARRAY(citizen, known_membs)&"~"&HH_MEMB_ARRAY(other_st_FS_end_date, known_membs)&"~"&HH_MEMB_ARRAY(in_mn_12_mo, known_membs)&"~"&HH_MEMB_ARRAY(residence_verif, known_membs)&"~"&HH_MEMB_ARRAY(mn_entry_date, known_membs)&"~"&_
+                HH_MEMB_ARRAY(former_state, known_membs)&"~"&HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(imig_status, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&_
+                HH_MEMB_ARRAY(client_verification, known_membs)&"~"&HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&_
+                race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&_
+                HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
-                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
+                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
 			'Close the object so it can be opened again shortly
@@ -3311,6 +3468,15 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - CNTY - " & resi_addr_county
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - TEXT - " & send_text
 			script_run_lowdown = script_run_lowdown & vbCr & "ADR - EMAL - " & send_email & vbCr & vbCr
+
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - ALLYN - " & all_members_listed_yn
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - ALLNT - " & all_members_listed_notes
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - IMNYN - " & all_members_in_MN_yn
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - IMNNT - " & all_members_in_MN_notes
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - PRGYN - " & anyone_pregnant_yn
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - PRGNT - " & anyone_pregnant_notes
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - MILYN - " & anyone_served_yn
+            script_run_lowdown = script_run_lowdown & vbCr & "MEMB - MILNT - " & anyone_served_notes & vbCr & vbCr
 
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				Call FORM_QUESTION_ARRAY(quest).add_to_SRL()
@@ -3584,19 +3750,20 @@ function save_your_work()
 				If HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked Then prog_e_info = "YES"
 				If HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked Then prog_n_info = "YES"
 
+
 				script_run_lowdown = script_run_lowdown & vbCr & "ARR - HH_MEMB_ARRAY - " & HH_MEMB_ARRAY(ref_number, known_membs)&"~"&HH_MEMB_ARRAY(access_denied, known_membs)&"~"&HH_MEMB_ARRAY(full_name_const, known_membs)&"~"&HH_MEMB_ARRAY(last_name_const, known_membs)&"~"&_
-				HH_MEMB_ARRAY(first_name_const, known_membs)&"~"&HH_MEMB_ARRAY(mid_initial, known_membs)&"~"&HH_MEMB_ARRAY(other_names, known_membs)&"~"&HH_MEMB_ARRAY(age, known_membs)&"~"&HH_MEMB_ARRAY(date_of_birth, known_membs)&"~"&HH_MEMB_ARRAY(ssn, known_membs)&"~"&HH_MEMB_ARRAY(ssn_verif, known_membs)&"~"&_
-				HH_MEMB_ARRAY(birthdate_verif, known_membs)&"~"&HH_MEMB_ARRAY(gender, known_membs)&"~"&HH_MEMB_ARRAY(race, known_membs)&"~"&HH_MEMB_ARRAY(spoken_lang, known_membs)&"~"&HH_MEMB_ARRAY(written_lang, known_membs)&"~"&HH_MEMB_ARRAY(interpreter, known_membs)&"~"&_
-				HH_MEMB_ARRAY(alias_yn, known_membs)&"~"&HH_MEMB_ARRAY(ethnicity_yn, known_membs)&"~"&HH_MEMB_ARRAY(id_verif, known_membs)&"~"&HH_MEMB_ARRAY(rel_to_applcnt, known_membs)&"~"&HH_MEMB_ARRAY(cash_minor, known_membs)&"~"&HH_MEMB_ARRAY(snap_minor, known_membs)&"~"&_
-				HH_MEMB_ARRAY(marital_status, known_membs)&"~"&HH_MEMB_ARRAY(spouse_ref, known_membs)&"~"&HH_MEMB_ARRAY(spouse_name, known_membs)&"~"&HH_MEMB_ARRAY(last_grade_completed, known_membs)&"~"&HH_MEMB_ARRAY(citizen, known_membs)&"~"&_
-				HH_MEMB_ARRAY(other_st_FS_end_date, known_membs)&"~"&HH_MEMB_ARRAY(in_mn_12_mo, known_membs)&"~"&HH_MEMB_ARRAY(residence_verif, known_membs)&"~"&HH_MEMB_ARRAY(mn_entry_date, known_membs)&"~"&HH_MEMB_ARRAY(former_state, known_membs)&"~"&_
-				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
-				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
-				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-                HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
+                HH_MEMB_ARRAY(first_name_const, known_membs)&"~"&HH_MEMB_ARRAY(mid_initial, known_membs)&"~"&HH_MEMB_ARRAY(other_names, known_membs)&"~"&HH_MEMB_ARRAY(age, known_membs)&"~"&HH_MEMB_ARRAY(date_of_birth, known_membs)&"~"&HH_MEMB_ARRAY(ssn, known_membs)&"~"&_
+                HH_MEMB_ARRAY(ssn_verif, known_membs)&"~"&HH_MEMB_ARRAY(birthdate_verif, known_membs)&"~"&HH_MEMB_ARRAY(gender, known_membs)&"~"&HH_MEMB_ARRAY(race, known_membs)&"~"&HH_MEMB_ARRAY(spoken_lang, known_membs)&"~"&HH_MEMB_ARRAY(written_lang, known_membs)&"~"&_
+                HH_MEMB_ARRAY(interpreter, known_membs)&"~"&HH_MEMB_ARRAY(alias_yn, known_membs)&"~"&HH_MEMB_ARRAY(ethnicity_yn, known_membs)&"~"&HH_MEMB_ARRAY(id_verif, known_membs)&"~"&HH_MEMB_ARRAY(rel_to_applcnt, known_membs)&"~"&HH_MEMB_ARRAY(cash_minor, known_membs)&"~"&_
+                HH_MEMB_ARRAY(snap_minor, known_membs)&"~"&HH_MEMB_ARRAY(marital_status, known_membs)&"~"&HH_MEMB_ARRAY(spouse_ref, known_membs)&"~"&HH_MEMB_ARRAY(spouse_name, known_membs)&"~"&HH_MEMB_ARRAY(last_grade_completed, known_membs)&"~"&_
+                HH_MEMB_ARRAY(citizen, known_membs)&"~"&HH_MEMB_ARRAY(other_st_FS_end_date, known_membs)&"~"&HH_MEMB_ARRAY(in_mn_12_mo, known_membs)&"~"&HH_MEMB_ARRAY(residence_verif, known_membs)&"~"&HH_MEMB_ARRAY(mn_entry_date, known_membs)&"~"&_
+                HH_MEMB_ARRAY(former_state, known_membs)&"~"&HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(imig_status, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&_
+                HH_MEMB_ARRAY(client_verification, known_membs)&"~"&HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&_
+                race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&_
+                HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
-                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
+                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
 			Next
 
 			'Since the file was new, we can simply exit the function
@@ -3755,6 +3922,15 @@ function restore_your_work(vars_filled)
 						If mid(text_line, 7, 4) = "TEXT" Then send_text = MID(text_line, 14)
 						If mid(text_line, 7, 4) = "EMAL" Then send_email = MID(text_line, 14)
 					End If
+
+                    If left(text_line, 12) = "MEMB - ALLYN" Then all_members_listed_yn = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - ALLNT" Then all_members_listed_notes = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - IMNYN" Then all_members_in_MN_yn = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - IMNNT" Then all_members_in_MN_notes = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - PRGYN" Then anyone_pregnant_yn = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - PRGNT" Then anyone_pregnant_notes = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - MILYN" Then anyone_served_yn = Mid(text_line, 16)
+                    If left(text_line, 12) = "MEMB - MILNT" Then anyone_served_notes = Mid(text_line, 16)
 
 					If left(text_line, 3) = "PWE" Then pwe_selection = Mid(text_line, 7)
 
@@ -4086,77 +4262,75 @@ function restore_your_work(vars_filled)
 							HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(33)
 							HH_MEMB_ARRAY(button_one, known_membs)					= array_info(34)
 							HH_MEMB_ARRAY(button_two, known_membs)					= array_info(35)
-							HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(36)
-							HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(37)
-							HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(38)
-							HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(39)
-							HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(40)
-							If array_info(41) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
-							If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
-							If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
-							If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
-							If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
-							If array_info(46) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
-							If array_info(47) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
-							If array_info(48) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
-							If array_info(49) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
-							HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(50)
-							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(51)
-							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(52)
-							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(53)
+                            ' 36
+                            HH_MEMB_ARRAY(imig_status, known_membs)					= array_info(36)
 
+							HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(37)
+							HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(38)
+							HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(39)
+							HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(40)
+							HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(41)
+							If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
+							If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
+							If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
+							If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
+							If array_info(46) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
+							If array_info(47) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
+							If array_info(48) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
+							If array_info(49) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
+							If array_info(50) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
+							HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(51)
+							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(52)
+							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(53)
+							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(54)
+
+                            HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(55)
+                            HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(56)
+
+                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
+
+                            HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
+                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
+
+                            HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
+                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
+                            HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
+                            If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
+                            If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
+                            HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
+                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
+                            HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
+                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
+                            HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
+                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
+
+                            HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
+                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
+                            HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
+                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
+                            HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
+                            HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
+
+                            HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
+                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
+                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
+                            HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
                             If UBound(array_info) = 69 Then
-                                HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(54)
-                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(55)
-                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(56)
-
-                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
-                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
-
-                                HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
-                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
-
-                                HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
-                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
-                                HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
-                                If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
-                                If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
-                                HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
-                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
-                                HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
-                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
-                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
-
-                                HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
-                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
-                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
-                                HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
-                                HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
-
-                                HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
-                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
-                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
                                 HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
-
-
                             Else
-                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(54)
-
-                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
-                                If HH_MEMB_ARRAY(ref_number, known_membs) <> "" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
-                                HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                                HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
+                                HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
+                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
                             End If
 
 							known_membs = known_membs + 1
@@ -4225,7 +4399,8 @@ function restore_your_work(vars_filled)
 end function
 
 function review_information()
-	If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	If anyone_pregnant_yn = "" Then anyone_pregnant_yn = exp_pregnant_yn
+    If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
 		If verbal_sig_date = "" Then verbal_sig_date = date & ""
 		If verbal_sig_time = "" Then
 			time_hr = DatePart("h", time)
@@ -4259,7 +4434,40 @@ function review_information()
 				End If
 			End If
 		End If
-		If HH_MEMB_ARRAY(full_name_const, the_memb) = "" Then HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
+
+        HH_MEMB_ARRAY(last_name_const, the_memb) = UCase(trim(HH_MEMB_ARRAY(last_name_const, the_memb)))
+        HH_MEMB_ARRAY(first_name_const, the_memb) = UCase(trim(HH_MEMB_ARRAY(first_name_const, the_memb)))
+		HH_MEMB_ARRAY(mid_initial, the_memb) = UCase(trim(HH_MEMB_ARRAY(mid_initial, the_memb)))
+
+		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
+        If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) and IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
+
+        race_string = ""
+        If HH_MEMB_ARRAY(race_a_checkbox, the_memb) = checked Then race_string = race_string & "Asian~"
+        If HH_MEMB_ARRAY(race_b_checkbox, the_memb) = checked Then race_string = race_string & "Black Or African Amer~"
+        If HH_MEMB_ARRAY(race_n_checkbox, the_memb) = checked Then race_string = race_string & "Amer Indn Or Alaskan Native~"
+        If HH_MEMB_ARRAY(race_p_checkbox, the_memb) = checked Then race_string = race_string & "Pacific Is Or Native Hawaii~"
+        If HH_MEMB_ARRAY(race_w_checkbox, the_memb) = checked Then race_string = race_string & "White~"
+        If right(race_string, 1) = "~" Then race_string = left(race_string, len(race_string) - 1)
+        If InStr(race_string, "~") > 0 Then race_string = "Multiple Races"
+        If race_string = "" Then race_string = "Unable To Determine"
+        HH_MEMB_ARRAY(race, the_memb) = race_string
+
+        HH_MEMB_ARRAY(requires_update, the_memb) = False
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_memb) = "__" or HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
+            HH_MEMB_ARRAY(requires_update, the_memb) = True
+        End If
+        If (HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
+            HH_MEMB_ARRAY(requires_update, the_memb) = True
+        End If
+        If HH_MEMB_ARRAY(citizen, the_memb) = "No" and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
+            If trim(HH_MEMB_ARRAY(imig_status, the_memb)) = "" Then
+                HH_MEMB_ARRAY(requires_update, the_memb) = True
+            End If
+            If (HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
+                HH_MEMB_ARRAY(requires_update, the_memb) = True
+            End If
+        End If
 	next
 end function
 
@@ -4961,6 +5169,23 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("    Resident Phone Number: " & verbal_sig_phone_number)
 	End If
 	CALL write_variable_in_CASE_NOTE("Interview Programs:")
+    memb_snap_checkbox = unchecked
+    memb_cash_checkbox = unchecked
+    memb_emer_checkbox = unchecked
+    memb_none_checkbox = unchecked
+    all_hh_memb_progs_match = True
+    If HH_MEMB_ARRAY(snap_req_checkbox, 0) = checked Then memb_snap_checkbox = checked
+    If HH_MEMB_ARRAY(cash_req_checkbox, 0) = checked Then memb_cash_checkbox = checked
+    If HH_MEMB_ARRAY(emer_req_checkbox, 0) = checked Then memb_emer_checkbox = checked
+    If HH_MEMB_ARRAY(none_req_checkbox, 0) = checked Then memb_none_checkbox = checked
+	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
+		If HH_MEMB_ARRAY(ignore_person, the_members) = False Then
+            If HH_MEMB_ARRAY(snap_req_checkbox, the_members) <> memb_snap_checkbox Then all_hh_memb_progs_match = False
+            If HH_MEMB_ARRAY(cash_req_checkbox, the_members) <> memb_cash_checkbox Then all_hh_memb_progs_match = False
+            If HH_MEMB_ARRAY(emer_req_checkbox, the_members) <> memb_emer_checkbox Then all_hh_memb_progs_match = False
+            If HH_MEMB_ARRAY(none_req_checkbox, the_members) <> memb_none_checkbox Then all_hh_memb_progs_match = False
+        End If
+    Next
 
 	If cash_request = True Then
 		If the_process_for_cash = "Application" Then CALL write_variable_in_CASE_NOTE(" - CASH at Application. App Date: " & CAF_datestamp & ". " & type_of_cash & " Cash.")
@@ -4987,12 +5212,84 @@ function write_interview_CASE_NOTE()
 	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Program Request Notes", program_request_notes)
 	Call write_bullet_and_variable_in_CASE_NOTE("Verbal Request Notes", verbal_request_notes)
+    If all_hh_memb_progs_match Then write_variable_in_CASE_NOTE("Program requests include everyone listed on this case.")
 
 	CALL write_variable_in_CASE_NOTE("Household Members:")
+    membs_no_request = ""
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_members) = False Then
+		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+        If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
             CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
-    		If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
+            If NOT all_hh_memb_progs_match Then
+                prog_list = ""
+                If HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked Then prog_list = prog_list & "SNAP, "
+                If HH_MEMB_ARRAY(cash_req_checkbox, the_members) = checked Then prog_list = prog_list & "CASH, "
+                If HH_MEMB_ARRAY(emer_req_checkbox, the_members) = checked Then prog_list = prog_list & "EMERGENCY, "
+                ' If HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then prog_list = prog_list & "NO PROGRAMS, "
+                If prog_list <> "" Then prog_list = left(prog_list, len(prog_list)-2)
+                CALL write_variable_in_CASE_NOTE("    Program Requests: " & prog_list)
+            End If
+            If HH_MEMB_ARRAY(pers_in_maxis, the_members) = False Then
+                CALL write_variable_in_CASE_NOTE("    Person NOT in MAXIS. Details recorded during interview:")
+                demographic_details = ""
+                If HH_MEMB_ARRAY(date_of_birth, each_member) <> "" Then demographic_details = demographic_details & "DOB: " & HH_MEMB_ARRAY(date_of_birth, each_member) & ", "
+                If HH_MEMB_ARRAY(gender, each_member) <> "" Then demographic_details = demographic_details & "Gender: " & HH_MEMB_ARRAY(gender, each_member) & ", "
+                If HH_MEMB_ARRAY(rel_to_applcnt, each_member) <> "" Then demographic_details = demographic_details & "Rel to M01: " & HH_MEMB_ARRAY(rel_to_applcnt, each_member) & ", "
+                demographic_details = trim(demographic_details)
+                If right(demographic_details, 1) = "," Then demographic_details = left(demographic_details, len(demographic_details)-1)
+                If demographic_details <> "" Then CALL write_variable_in_CASE_NOTE("    - " & demographic_details)
+                If HH_MEMB_ARRAY(ssn, each_member) <> "" Then CALL write_variable_in_CASE_NOTE("    - SSN in Case File on Interview Notes Doc (WIF).")
+                If HH_MEMB_ARRAY(id_verif, each_member) <> "" Then          Call write_variable_in_CASE_NOTE("    - ID Verification: " & HH_MEMB_ARRAY(id_verif, each_member) )
+                If HH_MEMB_ARRAY(citizen, each_member) <> "" Then           Call write_variable_in_CASE_NOTE("    - Citizen: " & HH_MEMB_ARRAY(citizen, each_member) )
+                demographics_plus = ""
+                If HH_MEMB_ARRAY(race, each_member) <> "" Then demographics_plus = demographics_plus & "Race: " & HH_MEMB_ARRAY(race, each_member) & ", "
+                If HH_MEMB_ARRAY(ethnicity_yn, each_member) <> "" Then demographics_plus = demographics_plus & "Hispanic: " & HH_MEMB_ARRAY(ethnicity_yn, each_member) & ", "
+                If HH_MEMB_ARRAY(marital_status, each_member) <> "" Then demographics_plus = demographics_plus & "Marital Status: " & HH_MEMB_ARRAY(marital_status, each_member) & ", "
+                If HH_MEMB_ARRAY(last_grade_completed, each_member) <> "" Then demographics_plus = demographics_plus & "Last Grade: " & HH_MEMB_ARRAY(last_grade_completed, each_member) & ", "
+                demographics_plus = trim(demographics_plus)
+                If right(demographics_plus, 1) = "," Then demographics_plus = left(demographics_plus, len(demographics_plus)-1)
+                If demographics_plus <> "" Then CALL write_variable_in_CASE_NOTE("    - " & demographics_plus)
+                move_info = ""
+                If HH_MEMB_ARRAY(mn_entry_date, each_member) <> "" Then move_info = move_info & "MN Entry Date: " & HH_MEMB_ARRAY(mn_entry_date, each_member) & ", "
+                If HH_MEMB_ARRAY(former_state, each_member) <> "" Then move_info = move_info & "Former State: " & HH_MEMB_ARRAY(former_state, each_member) & ", "
+                move_info = trim(move_info)
+                If right(move_info, 1) = "," Then move_info = left(move_info, len(move_info)-1)
+                If move_info <> "" Then CALL write_variable_in_CASE_NOTE("    - " & move_info)
+
+            Else
+                If CHANGES_ARRAY(last_name_const, each_member) <> ""      Then Call write_variable_in_CASE_NOTE("    - Last Name Changed from " & CHANGES_ARRAY(last_name_const, each_member) & " to " & HH_MEMB_ARRAY(last_name_const, each_member) )
+                If CHANGES_ARRAY(first_name_const, each_member) <> ""     Then Call write_variable_in_CASE_NOTE("    - First Name Changed from " & CHANGES_ARRAY(first_name_const, each_member) & " to " & HH_MEMB_ARRAY(first_name_const, each_member) )
+                If CHANGES_ARRAY(mid_initial, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Mid Initial Changed from " & CHANGES_ARRAY(mid_initial, each_member) & " to " & HH_MEMB_ARRAY(mid_initial, each_member) )
+                If CHANGES_ARRAY(date_of_birth, each_member) <> ""        Then Call write_variable_in_CASE_NOTE("    - Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, each_member) & " to " & HH_MEMB_ARRAY(date_of_birth, each_member) )
+                If CHANGES_ARRAY(birthdate_verif, each_member) <> ""      Then Call write_variable_in_CASE_NOTE("    - DoB Verif Changed from " & CHANGES_ARRAY(birthdate_verif, each_member) & " to " & HH_MEMB_ARRAY(birthdate_verif, each_member) )
+                If CHANGES_ARRAY(age, each_member) <> ""                  Then Call write_variable_in_CASE_NOTE("    - Age Changed from " & CHANGES_ARRAY(age, each_member) & " to " & HH_MEMB_ARRAY(age, each_member) )
+                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then Call write_variable_in_CASE_NOTE("    - SSN Updated.")'" from " & CHANGES_ARRAY(ssn, each_member) & " to " & HH_MEMB_ARRAY(ssn, each_member) )
+                If CHANGES_ARRAY(ssn_verif, each_member) <> ""            Then Call write_variable_in_CASE_NOTE("    - SSN Verif Changed from " & CHANGES_ARRAY(ssn_verif, each_member) & " to " & HH_MEMB_ARRAY(ssn_verif, each_member) )
+                If CHANGES_ARRAY(spoken_lang, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Spoken Lang Changed from " & CHANGES_ARRAY(spoken_lang, each_member) & " to " & HH_MEMB_ARRAY(spoken_lang, each_member) )
+                If CHANGES_ARRAY(written_lang, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Written Lang Changed from " & CHANGES_ARRAY(written_lang, each_member) & " to " & HH_MEMB_ARRAY(written_lang, each_member) )
+                If CHANGES_ARRAY(interpreter, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Interpreter Needed Changed from " & CHANGES_ARRAY(interpreter, each_member) & " to " & HH_MEMB_ARRAY(interpreter, each_member) )
+                If CHANGES_ARRAY(alias_yn, each_member) = "Y"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Added: " & HH_MEMB_ARRAY(other_names, each_member) )
+                If CHANGES_ARRAY(alias_yn, each_member) = "N"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Removed." )
+                ' If CHANGES_ARRAY(alias_yn, each_member) <> ""           Then Call write_variable_in_CASE_NOTE("    - XXXX Changed from " & CHANGES_ARRAY(alias_yn, each_member) & " to " & HH_MEMB_ARRAY(alias_yn, each_member) )
+                If CHANGES_ARRAY(gender, each_member) <> ""               Then Call write_variable_in_CASE_NOTE("    - Gender Changed from " & CHANGES_ARRAY(gender, each_member) & " to " & HH_MEMB_ARRAY(gender, each_member) )
+                If CHANGES_ARRAY(race, each_member) <> ""                 Then Call write_variable_in_CASE_NOTE("    - Race Changed from " & CHANGES_ARRAY(race, each_member) & " to " & HH_MEMB_ARRAY(race, each_member) )
+                If CHANGES_ARRAY(ethnicity_yn, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Ethnicity Changed from " & CHANGES_ARRAY(ethnicity_yn, each_member) & " to " & HH_MEMB_ARRAY(ethnicity_yn, each_member) )
+                If CHANGES_ARRAY(rel_to_applcnt, each_member) <> ""       Then Call write_variable_in_CASE_NOTE("    - Rel to Applicant Changed from " & CHANGES_ARRAY(rel_to_applcnt, each_member) & " to " & HH_MEMB_ARRAY(rel_to_applcnt, each_member) )
+                If CHANGES_ARRAY(id_verif, each_member) <> ""             Then Call write_variable_in_CASE_NOTE("    - ID Verif Changed from " & CHANGES_ARRAY(id_verif, each_member) & " to " & HH_MEMB_ARRAY(id_verif, each_member) )
+                If CHANGES_ARRAY(marital_status, each_member) <> ""       Then Call write_variable_in_CASE_NOTE("    - Marital Status Changed from " & CHANGES_ARRAY(marital_status, each_member) & " to " & HH_MEMB_ARRAY(marital_status, each_member) )
+                If CHANGES_ARRAY(last_grade_completed, each_member) <> "" Then Call write_variable_in_CASE_NOTE("    - Last Grade Changed from " & CHANGES_ARRAY(last_grade_completed, each_member) & " to " & HH_MEMB_ARRAY(last_grade_completed, each_member) )
+                If CHANGES_ARRAY(citizen, each_member) <> ""              Then Call write_variable_in_CASE_NOTE("    - Citizen Changed from " & CHANGES_ARRAY(citizen, each_member) & " to " & HH_MEMB_ARRAY(citizen, each_member) )
+                If CHANGES_ARRAY(mn_entry_date, each_member) <> ""        Then Call write_variable_in_CASE_NOTE("    - MN Entry Date Changed from " & CHANGES_ARRAY(mn_entry_date, each_member) & " to " & HH_MEMB_ARRAY(mn_entry_date, each_member) )
+                If CHANGES_ARRAY(former_state, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Former State Changed from " & CHANGES_ARRAY(former_state, each_member) & " to " & HH_MEMB_ARRAY(former_state, each_member) )
+
+            End If
+
+            If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
+            If HH_MEMB_ARRAY(citizen, the_members) = "No" Then
+                CALL write_variable_in_CASE_NOTE("    Member is a Non-Citizen.")
+                If HH_MEMB_ARRAY(clt_has_sponsor, selected_memb) <> "?" Then CALL write_variable_in_CASE_NOTE("    * Sponsor: " & HH_MEMB_ARRAY(clt_has_sponsor, selected_memb))
+                If trim(HH_MEMB_ARRAY(imig_status, selected_memb)) <> "" Then CALL write_variable_in_CASE_NOTE("    * IMIG NOTES: " & HH_MEMB_ARRAY(imig_status, selected_memb))
+            End If
     		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
     		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then
     			If HH_MEMB_ARRAY(client_verification, the_members) = "On File" Then
@@ -5005,7 +5302,29 @@ function write_interview_CASE_NOTE()
     		End If
         End If
 	Next
-	CALL write_variable_in_CASE_NOTE("----- ADDR Information -----")
+    membs_no_request = trim(membs_no_request)
+    If membs_no_request <> "" Then
+        If right(membs_no_request, 1) = "," Then membs_no_request = left(membs_no_request, len(membs_no_request)-1)
+        CALL write_variable_in_CASE_NOTE("MEMBS NO Request: " & membs_no_request)
+    End If
+
+    If all_members_listed_yn <> "" Then CALL write_variable_in_CASE_NOTE("* ALL HH members Listed: " & all_members_listed_yn)
+    If trim(all_members_listed_notes) <> "" Then CALL write_variable_in_CASE_NOTE("* HH Comp Notes: " & all_members_listed_notes)
+
+    If all_members_in_MN_yn <> "" Then
+        CALL write_variable_in_CASE_NOTE("* ALL HH members Intend to reside in MN: " & all_members_in_MN_yn)
+        If trim(all_members_in_MN_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    Notes: " & all_members_in_MN_notes)
+    End If
+    If anyone_pregnant_yn <> "" Then
+        CALL write_variable_in_CASE_NOTE("* Anyone Pregnant: " & anyone_pregnant_yn)
+        If trim(anyone_pregnant_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    Notes: " & anyone_pregnant_notes)
+    End If
+    If anyone_served_yn <> "" Then
+        CALL write_variable_in_CASE_NOTE("* Anyone Served in Military: " & anyone_served_yn)
+        If trim(anyone_served_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    Notes: " & anyone_served_notes)
+    End If
+
+    CALL write_variable_in_CASE_NOTE("----- ADDR Information -----")
 	CALL write_variable_in_CASE_NOTE("Residence Address:")
 	CALL write_variable_in_CASE_NOTE("    " & resi_addr_street_full)
 	CALL write_variable_in_CASE_NOTE("    " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip)
@@ -6827,7 +7146,7 @@ Call remove_dash_from_droplist(state_list)
 'These are all the definitions for droplists
 
 memb_panel_relationship_list = "Select One..."
-memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"01 Applicant"
+memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"01 Self"
 memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"02 Spouse"
 memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"03 Child"
 memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"04 Parent"
@@ -6852,7 +7171,7 @@ marital_status_list = "Select One..."
 marital_status_list = marital_status_list+chr(9)+"N  Never Married"
 marital_status_list = marital_status_list+chr(9)+"M  Married Living With Spouse"
 marital_status_list = marital_status_list+chr(9)+"S  Married Living Apart (Sep)"
-marital_status_list = marital_status_list+chr(9)+"L  Legally Sep"
+marital_status_list = marital_status_list+chr(9)+"L  Legally Seperated"
 marital_status_list = marital_status_list+chr(9)+"D  Divorced"
 marital_status_list = marital_status_list+chr(9)+"W  Widowed"
 
@@ -6880,7 +7199,9 @@ Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_prev
 Dim licensed_facility, meal_provided, residence_name_phone
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
-Dim send_text, send_email
+Dim send_text, send_email, ssn_update_success, ssn_update_attempt
+Dim all_members_listed_yn, all_members_listed_notes, all_members_in_MN_yn, all_members_in_MN_notes, anyone_pregnant_yn, anyone_pregnant_notes, anyone_served_yn, anyone_served_notes
+
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
@@ -6946,6 +7267,8 @@ Dim previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn
 Dim delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn
 Dim income_review_completed, assets_review_completed, shel_review_completed, note_calculation_detail
 
+ssn_update_attempt = False
+ssn_update_success = False
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -7023,19 +7346,6 @@ If MX_region = "INQUIRY DB" Then
 End If
 If MX_region = "TRAINING" Then developer_mode = True
 
-If NOT IsArray(interviewer_array) Then
-	Dim tester_array()
-	ReDim tester_array(0)
-	Dim interviewer_array()
-	ReDim interviewer_array(0)
-	tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-
-	Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
-	text_from_the_other_script = fso_command.ReadAll
-	fso_command.Close
-	Execute text_from_the_other_script
-End If
 
 'look to see if the worker is listed as one of the interviewer workers
 run_by_interview_team = False										'Default the interview team option to false
@@ -7945,26 +8255,26 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			EMReadScreen HH_MEMB_ARRAY(id_verif, clt_count), 2, 9, 68
 
 			EMReadScreen HH_MEMB_ARRAY(rel_to_applcnt, clt_count), 2, 10, 42              'reading the relationship from MEMB'
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "01" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Self"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "02" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Spouse"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "03" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Child"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "04" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Parent"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "05" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Sibling"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "06" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Step Sibling"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "08" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Step Child"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "09" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Step Parent"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "10" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Aunt"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "11" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Uncle"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "12" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Niece"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "13" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Nephew"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "14" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Cousin"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "15" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Grandparent"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "16" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Grandchild"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "17" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Other Relative"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "18" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Legal Guardian"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "24" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Not Related"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "25" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Live-in Attendant"
-			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "27" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "Unknown"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "01" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "01 Self"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "02" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "02 Spouse"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "03" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "03 Child"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "04" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "04 Parent"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "05" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "05 Sibling"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "06" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "06 Step Sibling"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "08" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "08 Step Child"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "09" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "09 Step Parent"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "10" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "10 Aunt"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "11" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "11 Uncle"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "12" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "12 Niece"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "13" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "13 Nephew"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "14" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "14 Cousin"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "15" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "15 Grandparent"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "16" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "16 Grandchild"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "17" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "17 Other Relative"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "18" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "18 Legal Guardian"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "24" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "24 Not Related"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "25" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "25 Live-in Attendant"
+			If HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "27" Then HH_MEMB_ARRAY(rel_to_applcnt, clt_count) = "27 Unknown"
 
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "BC" Then HH_MEMB_ARRAY(id_verif, clt_count) = "BC - Birth Certificate"
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "RE" Then HH_MEMB_ARRAY(id_verif, clt_count) = "RE - Religious Record"
@@ -8011,6 +8321,11 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(gender, clt_count) = "M" Then HH_MEMB_ARRAY(gender, clt_count) = "Male"
 			If HH_MEMB_ARRAY(gender, clt_count) = "F" Then HH_MEMB_ARRAY(gender, clt_count) = "Female"
 
+			If HH_MEMB_ARRAY(interpreter, clt_count) = "Y" Then HH_MEMB_ARRAY(interpreter, clt_count) = "Yes"
+			If HH_MEMB_ARRAY(interpreter, clt_count) = "N" Then HH_MEMB_ARRAY(interpreter, clt_count) = "No"
+			If HH_MEMB_ARRAY(alias_yn, clt_count) = "Y" Then HH_MEMB_ARRAY(alias_yn, clt_count) = "Yes"
+			If HH_MEMB_ARRAY(alias_yn, clt_count) = "N" Then HH_MEMB_ARRAY(alias_yn, clt_count) = "No"
+
 			HH_MEMB_ARRAY(race, clt_count) = trim(HH_MEMB_ARRAY(race, clt_count))
 
 			HH_MEMB_ARRAY(spoken_lang, clt_count) = replace(replace(HH_MEMB_ARRAY(spoken_lang, clt_count), "_", ""), "  ", " - ")
@@ -8032,12 +8347,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			EMReadScreen HH_MEMB_ARRAY(mn_entry_date, clt_count), 8, 15, 49
 			EMReadScreen HH_MEMB_ARRAY(former_state, clt_count), 2, 15, 78
 
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "N" Then HH_MEMB_ARRAY(marital_status, clt_count) = "N - Never Married"
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "M" Then HH_MEMB_ARRAY(marital_status, clt_count) = "M - Married Living with Spouse"
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "S" Then HH_MEMB_ARRAY(marital_status, clt_count) = "S - Married Living Apart"
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "L" Then HH_MEMB_ARRAY(marital_status, clt_count) = "L - Legally Seperated"
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "D" Then HH_MEMB_ARRAY(marital_status, clt_count) = "D - Divorced"
-			If HH_MEMB_ARRAY(marital_status, clt_count) = "W" Then HH_MEMB_ARRAY(marital_status, clt_count) = "W - Widowed"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "N" Then HH_MEMB_ARRAY(marital_status, clt_count) = "N  Never Married"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "M" Then HH_MEMB_ARRAY(marital_status, clt_count) = "M  Married Living with Spouse"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "S" Then HH_MEMB_ARRAY(marital_status, clt_count) = "S  Married Living Apart (Sep)"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "L" Then HH_MEMB_ARRAY(marital_status, clt_count) = "L  Legally Seperated"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "D" Then HH_MEMB_ARRAY(marital_status, clt_count) = "D  Divorced"
+			If HH_MEMB_ARRAY(marital_status, clt_count) = "W" Then HH_MEMB_ARRAY(marital_status, clt_count) = "W  Widowed"
 			If HH_MEMB_ARRAY(spouse_ref, clt_count) = "__" Then HH_MEMB_ARRAY(spouse_ref, clt_count) = ""
 			HH_MEMB_ARRAY(spouse_name, clt_count) = trim(HH_MEMB_ARRAY(spouse_name, clt_count))
 
@@ -8076,19 +8391,68 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		clt_count = clt_count + 1
 	Next
 
+	Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
+    type_row = 6
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
 		HH_MEMB_ARRAY(race_a_checkbox, the_members) = unchecked
 		HH_MEMB_ARRAY(race_b_checkbox, the_members) = unchecked
 		HH_MEMB_ARRAY(race_n_checkbox, the_members) = unchecked
 		HH_MEMB_ARRAY(race_p_checkbox, the_members) = unchecked
 		HH_MEMB_ARRAY(race_w_checkbox, the_members) = unchecked
+
+        EMReadScreen type_ref_numb, 2, type_row, 3
+        Do While type_ref_numb <> HH_MEMB_ARRAY(ref_number, the_members)
+            type_row = type_row + 1
+            If type_row > 20 Then
+                PF8
+                EMWaitReady 0, 0
+                type_row = 6
+            End If
+            EMReadScreen type_ref_numb, 2, type_row, 3
+        Loop
+        EMReadScreen memb_cash, 1, type_row, 28
+        ' EMReadScreen memb_hc, 1, type_row, 37
+        EMReadScreen memb_snap, 1, type_row, 46
+        EMReadScreen memb_emer, 1, type_row, 55
+        memb_grh = "N"
+        If type_row = 6 Then EMReadScreen memb_grh, 1, type_row, 64
+
 		HH_MEMB_ARRAY(snap_req_checkbox, the_members) = unchecked
-		If SNAP_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked
+        If SNAP_on_CAF_checkbox = checked Then
+            If memb_snap = "Y" Then HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked
+		End If
 		HH_MEMB_ARRAY(cash_req_checkbox, the_members) = unchecked
-		If CASH_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(cash_req_checkbox, the_members) = checked
-		HH_MEMB_ARRAY(emer_req_checkbox, the_members) = unchecked
-		If EMER_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(emer_req_checkbox, the_members) = checked
-		HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked
+        If CASH_on_CAF_checkbox = checked Then
+            If memb_cash = "Y" Then HH_MEMB_ARRAY(cash_req_checkbox, the_members) = checked
+		End If
+        If GRH_on_CAF_checkbox = checked Then
+            If memb_grh = "Y" Then HH_MEMB_ARRAY(cash_req_checkbox, the_members) = checked
+		End If
+        HH_MEMB_ARRAY(emer_req_checkbox, the_members) = unchecked
+        If EMER_on_CAF_checkbox = checked Then
+            If memb_emer = "Y" Then HH_MEMB_ARRAY(emer_req_checkbox, the_members) = checked
+		End If
+
+        HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked
+		If HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked Then HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked
+		If HH_MEMB_ARRAY(cash_req_checkbox, the_members) = checked Then HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked
+		If HH_MEMB_ARRAY(emer_req_checkbox, the_members) = checked Then HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked
+
+        HH_MEMB_ARRAY(requires_update, the_members) = False
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_members) = "__" or HH_MEMB_ARRAY(id_verif, the_members) = "NO - No Ver Prvd") Then
+            HH_MEMB_ARRAY(requires_update, the_members) = True
+        End If
+        If (HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
+            HH_MEMB_ARRAY(requires_update, the_members) = True
+        End If
+        If HH_MEMB_ARRAY(citizen, the_members) = "No" and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
+            If trim(HH_MEMB_ARRAY(imig_status, the_members)) = "" Then
+                HH_MEMB_ARRAY(requires_update, the_members) = True
+            End If
+            If (HH_MEMB_ARRAY(clt_has_sponsor, the_members) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_members) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
+                HH_MEMB_ARRAY(requires_update, the_members) = True
+            End If
+        End If
 
 		HH_MEMB_ARRAY(clt_has_sponsor, the_members) = ""
 		HH_MEMB_ARRAY(client_verification, the_members) = ""
@@ -8196,8 +8560,7 @@ fill_button					= 907
 calculate_btn				= 908
 update_btn					= 909
 add_verif_button			= 910
-next_memb_btn				= 911
-program_requests_btn 		= 912
+program_requests_btn 		= 911
 
 msg_mfip_orientation_btn		= 930
 cm_05_12_12_06_btn				= 931
@@ -8284,6 +8647,7 @@ For btn_count = 0 to UBound(HH_MEMB_ARRAY, 2)
 Next
 interview_date = interview_date & ""
 selected_memb = 0
+err_selected_memb = ""
 pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 
 
@@ -10071,6 +10435,157 @@ With (CreateObject("Scripting.FileSystemObject"))
 End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 
+Dim CHANGES_ARRAY()
+ReDim CHANGES_ARRAY(last_const, 0)	'Defining the changes array to
+
+For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+    If HH_MEMB_ARRAY(pers_in_maxis, the_memb) = True and HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+        ReDim Preserve CHANGES_ARRAY(last_const, the_memb)
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")
+        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
+        transmit
+
+        EMReadscreen curr_last_name, 25, 6, 30
+        EMReadscreen curr_first_name, 12, 6, 63
+        EMReadscreen curr_mid_initial, 1, 6, 79
+        EMReadScreen curr_age, 3, 8, 76
+
+        curr_last_name = trim(replace(curr_last_name, "_", ""))
+        curr_first_name = trim(replace(curr_first_name, "_", ""))
+        curr_mid_initial = trim(replace(curr_mid_initial, "_", ""))
+        curr_age = trim(curr_age)
+        If curr_age = "" Then curr_age = 0
+        curr_age = curr_age * 1
+
+        If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
+        If curr_first_name <> HH_MEMB_ARRAY(first_name_const, the_memb) Then CHANGES_ARRAY(first_name_const, the_memb) = curr_first_name
+        If curr_mid_initial <> HH_MEMB_ARRAY(mid_initial, the_memb)     Then CHANGES_ARRAY(mid_initial, the_memb) = curr_mid_initial
+        If curr_age <> HH_MEMB_ARRAY(age, the_memb)                     Then CHANGES_ARRAY(age, the_memb) = curr_age
+
+        EMReadScreen curr_date_of_birth, 10, 8, 42
+        EMReadScreen curr_ssn, 11, 7, 42
+        EMReadScreen curr_ssn_verif, 1, 7, 68
+        EMReadScreen curr_birthdate_verif, 2, 8, 68
+        EMReadScreen curr_gender, 1, 9, 42
+        EMReadScreen curr_race, 30, 17, 42
+        EMReadScreen curr_spoken_lang, 2, 12, 42
+        EMReadScreen curr_written_lang, 2, 13, 42
+        EMReadScreen curr_interpreter, 1, 14, 68
+        EMReadScreen curr_alias_yn, 1, 15, 42
+        EMReadScreen curr_ethnicity_yn, 1, 16, 68
+
+        curr_date_of_birth = replace(curr_date_of_birth, " ", "/")
+        curr_ssn = replace(curr_ssn, " ", "-")
+        if curr_ssn = "___-__-____" Then curr_ssn = ""
+        curr_race = trim(curr_race)
+
+        If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb)         Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
+        If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb)                             Then
+            ssn_update_attempt = True
+
+            CHANGES_ARRAY(ssn, the_memb) = curr_ssn
+            PF9
+            numb_only_ssn = replace(replace(curr_ssn, "-", ""), " ", "")
+            EMWriteScreen left(numb_only_ssn, 3), 7, 42
+            EMWriteScreen mid(numb_only_ssn, 4, 2), 7, 46
+            EMWriteScreen right(numb_only_ssn, 4), 7, 49
+            EMWriteScreen "P", 7, 68
+            curr_ssn_verif = "P"
+            transmit
+
+            EMReadScreen memb_check, 4, 2, 48
+            If memb_check = "MEMB" Then
+                PF10
+                EMWaitReady 0, 0
+            End If
+
+            count = 0
+            EMReadScreen match_check, 4, 2, 51
+            Do While match_check = "MTCH"
+                PF3
+                EMWaitReady 0, 0
+                EMReadScreen match_check, 4, 2, 51
+                count = count + 1
+                If count > 9 Then Exit Do
+            Loop
+
+            EMReadScreen new_ssn, 11, 7, 42
+            new_ssn = replace(new_ssn, " ", "")
+            If new_ssn = numb_only_ssn Then ssn_update_success = True
+        End If
+
+        If curr_ssn_verif <> left(HH_MEMB_ARRAY(ssn_verif, the_memb), 1)        Then
+            ' CHANGES_ARRAY(ssn_verif, the_memb) = curr_ssn_verif
+			If curr_ssn_verif = "A" THen CHANGES_ARRAY(ssn_verif, clt_count) = "A - SSN Applied For"
+			If curr_ssn_verif = "P" THen CHANGES_ARRAY(ssn_verif, clt_count) = "P - SSN Provided, verif Pending"
+			If curr_ssn_verif = "N" THen CHANGES_ARRAY(ssn_verif, clt_count) = "N - SSN Not Provided"
+			If curr_ssn_verif = "V" THen CHANGES_ARRAY(ssn_verif, clt_count) = "V - SSN Verified via Interface"
+        End If
+        If curr_birthdate_verif <> left(HH_MEMB_ARRAY(birthdate_verif, the_memb), 2) Then
+            ' CHANGES_ARRAY(birthdate_verif, the_memb) = curr_birthdate_verif
+			If Hcurr_birthdate_verif = "BC" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "BC - Birth Certificate"
+			If Hcurr_birthdate_verif = "RE" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "RE - Religious Record"
+			If Hcurr_birthdate_verif = "DL" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DL - Drivers License/State ID"
+			If Hcurr_birthdate_verif = "DV" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DV - Divorce Decree"
+			If Hcurr_birthdate_verif = "AL" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "AL - Alien Card"
+			If Hcurr_birthdate_verif = "DR" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DR - Doctor Statement"
+			If Hcurr_birthdate_verif = "OT" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "OT - Other Document"
+			If Hcurr_birthdate_verif = "PV" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "PV - Passport/Visa"
+			If Hcurr_birthdate_verif = "NO" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "NO - No Verif Provided"
+        End If
+        If curr_gender <> left(HH_MEMB_ARRAY(gender, the_memb), 1)              Then
+            CHANGES_ARRAY(gender, the_memb) = curr_gender
+            If curr_gender = "M" Then CHANGES_ARRAY(gender, the_memb) = "Male"
+            If curr_gender = "F" Then CHANGES_ARRAY(gender, the_memb) = "Female"
+        End If
+        If curr_race <> HH_MEMB_ARRAY(race, the_memb)                           Then CHANGES_ARRAY(race, the_memb) = curr_race
+        If curr_spoken_lang <> left(HH_MEMB_ARRAY(spoken_lang, the_memb), 2)    Then CHANGES_ARRAY(spoken_lang, the_memb) = curr_spoken_lang
+        If curr_written_lang <> left(HH_MEMB_ARRAY(written_lang, the_memb), 2)  Then CHANGES_ARRAY(written_lang, the_memb) = curr_written_lang
+        If curr_interpreter <> HH_MEMB_ARRAY(interpreter, the_memb)             Then
+            CHANGES_ARRAY(interpreter, the_memb) = curr_interpreter
+            If curr_interpreter = "Y" Then CHANGES_ARRAY(interpreter, the_memb) = "Yes"
+            If curr_interpreter = "N" Then CHANGES_ARRAY(interpreter, the_memb) = "No"
+        End If
+        If curr_alias_yn <> HH_MEMB_ARRAY(alias_yn, the_memb)                   Then CHANGES_ARRAY(alias_yn, the_memb) = curr_alias_yn
+        If curr_ethnicity_yn <> HH_MEMB_ARRAY(ethnicity_yn, the_memb)           Then CHANGES_ARRAY(ethnicity_yn, the_memb) = curr_ethnicity_yn
+
+        EMReadScreen curr_rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
+		EMReadScreen curr_id_verif, 2, 9, 68
+
+        If curr_rel_to_applcnt <> left(HH_MEMB_ARRAY(rel_to_applcnt, the_memb), 2)  Then CHANGES_ARRAY(rel_to_applcnt, the_memb) = curr_rel_to_applcnt
+        If curr_id_verif <> left(HH_MEMB_ARRAY(id_verif, the_memb), 2)              Then CHANGES_ARRAY(id_verif, the_memb) = curr_id_verif
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMI")		'===============================================================================================
+        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
+        transmit
+
+        EMReadScreen curr_marital_status, 1, 7, 40
+        EMReadScreen curr_last_grade_completed, 2, 10, 49
+        EMReadScreen curr_citizen, 1, 11, 49
+        EMReadScreen curr_mn_entry_date, 8, 15, 49
+        EMReadScreen curr_former_state, 2, 15, 78
+
+        curr_mn_entry_date = replace(curr_mn_entry_date, " ", "/")
+        If curr_mn_entry_date = "__/__/__" Then curr_mn_entry_date = ""
+        If curr_former_state = "__" Then curr_former_state = ""
+
+        If curr_marital_status <> left(HH_MEMB_ARRAY(marital_status, the_memb), 1)              Then CHANGES_ARRAY(marital_status, the_memb) = curr_marital_status
+        If curr_last_grade_completed <> right(HH_MEMB_ARRAY(last_grade_completed, the_memb), 2) Then CHANGES_ARRAY(last_grade_completed, the_memb) = curr_last_grade_completed
+        If curr_citizen <> left(HH_MEMB_ARRAY(citizen, the_memb), 1)                            Then CHANGES_ARRAY(citizen, the_memb) = curr_citizen
+        If curr_mn_entry_date <> HH_MEMB_ARRAY(mn_entry_date, the_memb)                         Then CHANGES_ARRAY(mn_entry_date, the_memb) = curr_mn_entry_date
+        If curr_former_state <> HH_MEMB_ARRAY(former_state, the_memb)                           Then CHANGES_ARRAY(former_state, the_memb) = curr_former_state
+
+        'THESE ARE NOT EDITABLE
+        ' EMReadScreen HH_MEMB_ARRAY(spouse_ref, clt_count), 2, 9, 49
+        ' EMReadScreen HH_MEMB_ARRAY(spouse_name, clt_count), 40, 9, 52
+        ' EMReadScreen HH_MEMB_ARRAY(other_st_FS_end_date, clt_count), 8, 13, 49
+        ' EMReadScreen HH_MEMB_ARRAY(in_mn_12_mo, clt_count), 1, 14, 49
+        ' EMReadScreen HH_MEMB_ARRAY(residence_verif, clt_count), 1, 14, 78
+
+    End If
+Next
+
 ' complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
 ' script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
@@ -10497,12 +11012,47 @@ objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
+If CHANGES_ARRAY(last_name_const, 0) <> ""      Then objSelection.TypeText "Last Name Changed from " & CHANGES_ARRAY(last_name_const, 0) & " to " & HH_MEMB_ARRAY(last_name_const, 0) & vbCr
+If CHANGES_ARRAY(first_name_const, 0) <> ""     Then objSelection.TypeText "First Name Changed from " & CHANGES_ARRAY(first_name_const, 0) & " to " & HH_MEMB_ARRAY(first_name_const, 0) & vbCr
+If CHANGES_ARRAY(mid_initial, 0) <> ""          Then objSelection.TypeText "Middle Initial Changed from " & CHANGES_ARRAY(mid_initial, 0) & " to " & HH_MEMB_ARRAY(mid_initial, 0) & vbCr
+If CHANGES_ARRAY(date_of_birth, 0) <> ""        Then objSelection.TypeText "Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, 0) & " to " & HH_MEMB_ARRAY(date_of_birth, 0) & vbCr
+If CHANGES_ARRAY(birthdate_verif, 0) <> ""      Then objSelection.TypeText "DoB Verification Changed from " & CHANGES_ARRAY(birthdate_verif, 0) & " to " & HH_MEMB_ARRAY(birthdate_verif, 0) & vbCr
+If CHANGES_ARRAY(age, 0) <> ""                  Then objSelection.TypeText "Age Changed from " & CHANGES_ARRAY(age, 0) & " to " & HH_MEMB_ARRAY(age, 0) & vbCr
+If CHANGES_ARRAY(ssn, 0) <> ""                  Then objSelection.TypeText "SSN Updated." & vbCr '" from " & CHANGES_ARRAY(ssn, 0) & " to " & HH_MEMB_ARRAY(ssn, 0) & vbCr
+If CHANGES_ARRAY(ssn_verif, 0) <> ""            Then objSelection.TypeText "SSN Verification Changed from " & CHANGES_ARRAY(ssn_verif, 0) & " to " & HH_MEMB_ARRAY(ssn_verif, 0) & vbCr
+If CHANGES_ARRAY(spoken_lang, 0) <> ""          Then objSelection.TypeText "Spoken Language Changed from " & CHANGES_ARRAY(spoken_lang, 0) & " to " & HH_MEMB_ARRAY(spoken_lang, 0) & vbCr
+If CHANGES_ARRAY(written_lang, 0) <> ""         Then objSelection.TypeText "Written Language Changed from " & CHANGES_ARRAY(written_lang, 0) & " to " & HH_MEMB_ARRAY(written_lang, 0) & vbCr
+If CHANGES_ARRAY(interpreter, 0) <> ""          Then objSelection.TypeText "Interpreter Needed Changed from " & CHANGES_ARRAY(interpreter, 0) & " to " & HH_MEMB_ARRAY(interpreter, 0) & vbCr
+If CHANGES_ARRAY(alias_yn, 0) = "Y"             Then objSelection.TypeText "Alias Name Added: " & HH_MEMB_ARRAY(other_names, 0) & vbCr
+If CHANGES_ARRAY(alias_yn, 0) = "N"             Then objSelection.TypeText "Alias Name Removed." & vbCr
+' If CHANGES_ARRAY(alias_yn, 0) <> ""             Then objSelection.TypeText "XXXX Changed from " & CHANGES_ARRAY(alias_yn, 0) & " to " & HH_MEMB_ARRAY(alias_yn, 0) & vbCr
+If CHANGES_ARRAY(gender, 0) <> ""               Then objSelection.TypeText "Gender Changed from " & CHANGES_ARRAY(gender, 0) & " to " & HH_MEMB_ARRAY(gender, 0) & vbCr
+If CHANGES_ARRAY(race, 0) <> ""                 Then objSelection.TypeText "Race Changed from " & CHANGES_ARRAY(race, 0) & " to " & HH_MEMB_ARRAY(race, 0) & vbCr
+If CHANGES_ARRAY(ethnicity_yn, 0) <> ""         Then objSelection.TypeText "Ethnicity Changed from " & CHANGES_ARRAY(ethnicity_yn, 0) & " to " & HH_MEMB_ARRAY(ethnicity_yn, 0) & vbCr
+If CHANGES_ARRAY(rel_to_applcnt, 0) <> ""       Then objSelection.TypeText "Relationship to Applicant Changed from " & CHANGES_ARRAY(rel_to_applcnt, 0) & " to " & HH_MEMB_ARRAY(rel_to_applcnt, 0) & vbCr
+If CHANGES_ARRAY(id_verif, 0) <> ""             Then objSelection.TypeText "ID Verification Changed from " & CHANGES_ARRAY(id_verif, 0) & " to " & HH_MEMB_ARRAY(id_verif, 0) & vbCr
+If CHANGES_ARRAY(marital_status, 0) <> ""       Then objSelection.TypeText "Marital Status Changed from " & CHANGES_ARRAY(marital_status, 0) & " to " & HH_MEMB_ARRAY(marital_status, 0) & vbCr
+If CHANGES_ARRAY(last_grade_completed, 0) <> "" Then objSelection.TypeText "Last Grade Completed Changed from " & CHANGES_ARRAY(last_grade_completed, 0) & " to " & HH_MEMB_ARRAY(last_grade_completed, 0) & vbCr
+If CHANGES_ARRAY(citizen, 0) <> ""              Then objSelection.TypeText "Citizen Changed from " & CHANGES_ARRAY(citizen, 0) & " to " & HH_MEMB_ARRAY(citizen, 0) & vbCr
+If CHANGES_ARRAY(mn_entry_date, 0) <> ""        Then objSelection.TypeText "MN Entry Date Changed from " & CHANGES_ARRAY(mn_entry_date, 0) & " to " & HH_MEMB_ARRAY(mn_entry_date, 0) & vbCr
+If CHANGES_ARRAY(former_state, 0) <> ""         Then objSelection.TypeText "Former State Changed from " & CHANGES_ARRAY(former_state, 0) & " to " & HH_MEMB_ARRAY(former_state, 0) & vbCr
+
+objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, 0) & vbCR
+objSelection.TypeText chr(9) & "Identity: " & HH_MEMB_ARRAY(id_verif, 0) & vbCr
+If HH_MEMB_ARRAY(intend_to_reside_in_mn, 0) <> "" Then objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, 0) & vbCr
+If HH_MEMB_ARRAY(imig_status, 0) <> "" Then objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, 0) & vbCr
+If HH_MEMB_ARRAY(clt_has_sponsor, 0) <> "" and HH_MEMB_ARRAY(clt_has_sponsor, 0) <> "?" Then objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, 0) & vbCr
+objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, 0) & vbCr
+If HH_MEMB_ARRAY(client_verification_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, 0) & vbCr
+
+
+objSelection.TypeText vbCr & "Contact Info" & vbCR
 If send_text = "Yes" Then objSelection.TypeText "Send Updates Via Text Message: Yes" & vbCR
 If send_text = "No" Then objSelection.TypeText "Send Updates Via Text Message: No" & vbCR
 If send_email = "Yes" Then objSelection.TypeText "Send Updates Via E-Mail: Yes" & vbCR
 If send_email = "No" Then objSelection.TypeText "Send Updates Via E-Mail: No" & vbCR
 
-objSelection.TypeText "Housing Support Info" & vbCR
+objSelection.TypeText vbCr & "Housing Support Info" & vbCR
 objSelection.TypeText "-Currently residing in a licensed facility: " & licensed_facility & vbCR
 objSelection.TypeText "-Residence provides meals? " & meal_provided & vbCR
 objSelection.TypeText "-Name/Phone number of residence: " & residence_name_phone & vbCR
@@ -10511,8 +11061,23 @@ objSelection.TypeParagraph()						'adds a line between the table and the next in
 objSelection.TypeText "Household Lives in " & resi_addr_county & " County" & vbCR
 If disc_out_of_county = "RESOLVED" Then objSelection.TypeText "- Household reported living Out of Hennepin County - Case Needs Transfer - additional interview conversation: " & disc_out_of_county_confirmation & vbCr
 
+If trim(all_members_listed_notes) <> "" Then objSelection.TypeText vbCr & "HH Comp Notes: " & all_members_listed_notes & vbCR
+If all_members_in_MN_yn <> "" Then
+    objSelection.TypeText "ALL HH members Intend to reside in MN: " & all_members_in_MN_yn & vbCR
+    If trim(all_members_in_MN_notes) <> "" Then objSelection.TypeText " - Notes: " & all_members_in_MN_notes & vbCR
+End If
+If anyone_pregnant_yn <> "" Then
+    objSelection.TypeText "Anyone Pregnant: " & anyone_pregnant_yn & vbCR
+    If trim(anyone_pregnant_notes) <> "" Then objSelection.TypeText " - Notes: " & anyone_pregnant_notes & vbCR
+End If
+If anyone_served_yn <> "" Then
+    objSelection.TypeText "Anyone Served in Military: " & anyone_served_yn & vbCR
+    If trim(anyone_served_notes) <> "" Then objSelection.TypeText " - Notes: " & anyone_served_notes & vbCR
+End If
+
+
 objSelection.TypeText "LIVING SITUATION: " & living_situation & vbCR
-objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, 0) & vbCR
+
 If disc_homeless_no_mail_addr = "RESOLVED" Then objSelection.TypeText "- Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation & vbCr
 If disc_no_phone_number = "RESOLVED" Then objSelection.TypeText "- No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation & vbCr
 
@@ -10623,12 +11188,6 @@ End If
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "Interview Answers:" & vbCr
 objSelection.Font.Bold = FALSE
-objSelection.TypeText chr(9) & "Identity: " & HH_MEMB_ARRAY(id_verif, 0) & vbCr
-objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, 0) & vbCr
-objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, 0) & vbCr
-objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, 0) & vbCr
-objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, 0) & vbCr
-If HH_MEMB_ARRAY(client_verification_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, 0) & vbCr
 
 additional_person = False
 If UBound(HH_MEMB_ARRAY, 2) <> 0 Then
@@ -10787,14 +11346,43 @@ If additional_person = True Then
 
     		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, each_member) Then objSelection.TypeText "Person needs to be added to MAXIS." & vbCr
+
+            If HH_MEMB_ARRAY(pers_in_maxis, each_member) Then
+                If CHANGES_ARRAY(last_name_const, each_member) <> ""      Then objSelection.TypeText "Last Name Changed from " & CHANGES_ARRAY(last_name_const, each_member) & " to " & HH_MEMB_ARRAY(last_name_const, each_member) & vbCr
+                If CHANGES_ARRAY(first_name_const, each_member) <> ""     Then objSelection.TypeText "First Name Changed from " & CHANGES_ARRAY(first_name_const, each_member) & " to " & HH_MEMB_ARRAY(first_name_const, each_member) & vbCr
+                If CHANGES_ARRAY(mid_initial, each_member) <> ""          Then objSelection.TypeText "Middle Initial Changed from " & CHANGES_ARRAY(mid_initial, each_member) & " to " & HH_MEMB_ARRAY(mid_initial, each_member) & vbCr
+                If CHANGES_ARRAY(date_of_birth, each_member) <> ""        Then objSelection.TypeText "Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, each_member) & " to " & HH_MEMB_ARRAY(date_of_birth, each_member) & vbCr
+                If CHANGES_ARRAY(birthdate_verif, each_member) <> ""      Then objSelection.TypeText "DoB Verification Changed from " & CHANGES_ARRAY(birthdate_verif, each_member) & " to " & HH_MEMB_ARRAY(birthdate_verif, each_member) & vbCr
+                If CHANGES_ARRAY(age, each_member) <> ""                  Then objSelection.TypeText "Age Changed from " & CHANGES_ARRAY(age, each_member) & " to " & HH_MEMB_ARRAY(age, each_member) & vbCr
+                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then objSelection.TypeText "SSN Updated." & vbCr '" from " & CHANGES_ARRAY(ssn, each_member) & " to " & HH_MEMB_ARRAY(ssn, each_member) & vbCr
+                If CHANGES_ARRAY(ssn_verif, each_member) <> ""            Then objSelection.TypeText "SSN Verification Changed from " & CHANGES_ARRAY(ssn_verif, each_member) & " to " & HH_MEMB_ARRAY(ssn_verif, each_member) & vbCr
+                If CHANGES_ARRAY(spoken_lang, each_member) <> ""          Then objSelection.TypeText "Spoken Language Changed from " & CHANGES_ARRAY(spoken_lang, each_member) & " to " & HH_MEMB_ARRAY(spoken_lang, each_member) & vbCr
+                If CHANGES_ARRAY(written_lang, each_member) <> ""         Then objSelection.TypeText "Written Language Changed from " & CHANGES_ARRAY(written_lang, each_member) & " to " & HH_MEMB_ARRAY(written_lang, each_member) & vbCr
+                If CHANGES_ARRAY(interpreter, each_member) <> ""          Then objSelection.TypeText "Interpreter Needed Changed from " & CHANGES_ARRAY(interpreter, each_member) & " to " & HH_MEMB_ARRAY(interpreter, each_member) & vbCr
+                If CHANGES_ARRAY(alias_yn, each_member) = "Y"             Then objSelection.TypeText "Alias Name Added: " & HH_MEMB_ARRAY(other_names, each_member) & vbCr
+                If CHANGES_ARRAY(alias_yn, each_member) = "N"             Then objSelection.TypeText "Alias Name Removed." & vbCr
+                ' If CHANGES_ARRAY(alias_yn, each_member) <> ""             Then objSelection.TypeText "XXXX Changed from " & CHANGES_ARRAY(alias_yn, each_member) & " to " & HH_MEMB_ARRAY(alias_yn, each_member) & vbCr
+                If CHANGES_ARRAY(gender, each_member) <> ""               Then objSelection.TypeText "Gender Changed from " & CHANGES_ARRAY(gender, each_member) & " to " & HH_MEMB_ARRAY(gender, each_member) & vbCr
+                If CHANGES_ARRAY(race, each_member) <> ""                 Then objSelection.TypeText "Race Changed from " & CHANGES_ARRAY(race, each_member) & " to " & HH_MEMB_ARRAY(race, each_member) & vbCr
+                If CHANGES_ARRAY(ethnicity_yn, each_member) <> ""         Then objSelection.TypeText "Ethnicity Changed from " & CHANGES_ARRAY(ethnicity_yn, each_member) & " to " & HH_MEMB_ARRAY(ethnicity_yn, each_member) & vbCr
+                If CHANGES_ARRAY(rel_to_applcnt, each_member) <> ""       Then objSelection.TypeText "Relationship to Applicant Changed from " & CHANGES_ARRAY(rel_to_applcnt, each_member) & " to " & HH_MEMB_ARRAY(rel_to_applcnt, each_member) & vbCr
+                If CHANGES_ARRAY(id_verif, each_member) <> ""             Then objSelection.TypeText "ID Verification Changed from " & CHANGES_ARRAY(id_verif, each_member) & " to " & HH_MEMB_ARRAY(id_verif, each_member) & vbCr
+                If CHANGES_ARRAY(marital_status, each_member) <> ""       Then objSelection.TypeText "Marital Status Changed from " & CHANGES_ARRAY(marital_status, each_member) & " to " & HH_MEMB_ARRAY(marital_status, each_member) & vbCr
+                If CHANGES_ARRAY(last_grade_completed, each_member) <> "" Then objSelection.TypeText "Last Grade Completed Changed from " & CHANGES_ARRAY(last_grade_completed, each_member) & " to " & HH_MEMB_ARRAY(last_grade_completed, each_member) & vbCr
+                If CHANGES_ARRAY(citizen, each_member) <> ""              Then objSelection.TypeText "Citizen Changed from " & CHANGES_ARRAY(citizen, each_member) & " to " & HH_MEMB_ARRAY(citizen, each_member) & vbCr
+                If CHANGES_ARRAY(mn_entry_date, each_member) <> ""        Then objSelection.TypeText "MN Entry Date Changed from " & CHANGES_ARRAY(mn_entry_date, each_member) & " to " & HH_MEMB_ARRAY(mn_entry_date, each_member) & vbCr
+                If CHANGES_ARRAY(former_state, each_member) <> ""         Then objSelection.TypeText "Former State Changed from " & CHANGES_ARRAY(former_state, each_member) & " to " & HH_MEMB_ARRAY(former_state, each_member) & vbCr
+            End If
+
     		objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, each_member) & vbCR
     		' objSelection.Font.Bold = TRUE
     		' objSelection.TypeText "AGENCY USE:" & vbCr
     		' objSelection.Font.Bold = FALSE
     		objSelection.TypeText chr(9) & "Identity: " & HH_MEMB_ARRAY(id_verif, each_member) & vbCr
-    		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, each_member) & vbCr
-    		objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, each_member) & vbCr
-    		objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, each_member) & vbCr
+    		If HH_MEMB_ARRAY(intend_to_reside_in_mn, each_member) <> "" Then objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, each_member) & vbCr
+    		If HH_MEMB_ARRAY(imig_status, each_member) <> "" Then objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, each_member) & vbCr
+    		If HH_MEMB_ARRAY(clt_has_sponsor, each_member) <> "" and HH_MEMB_ARRAY(clt_has_sponsor, each_member) <> "?" Then objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, each_member) & vbCr
     		objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, each_member) & vbCr
     		If HH_MEMB_ARRAY(client_verification_details, each_member) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, each_member) & vbCr
 
