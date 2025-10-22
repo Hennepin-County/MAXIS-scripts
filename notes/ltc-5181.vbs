@@ -1643,6 +1643,15 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
           address_to_update = section_f_person_new_address_full
         End If
 
+        'Return to SELF to change the footer month
+        Call back_to_SELF
+        MAXIS_footer_month = footer_month_ADDR
+        MAXIS_footer_year = footer_year_ADDR 
+        EmWriteScreen footer_month_updates, 20, 43
+        EmWriteScreen footer_year_updates, 20, 46
+        EmWriteScreen MAXIS_case_number, 18, 43
+        transmit
+
       BeginDialog Dialog1, 0, 0, 241, 115, "Verify New Address Details"
         Text 5, 5, 225, 10, "Verify the updated address details below to update the ADDR panel:"
         Text 5, 20, 230, 10, address_to_update
@@ -1676,15 +1685,6 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         LOOP UNTIL err_msg = ""	AND ButtonPressed = OK								'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
       Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-      'Return to SELF to change the footer month
-      Call back_to_SELF
-      MAXIS_footer_month = footer_month_ADDR
-      MAXIS_footer_year = footer_year_ADDR 
-      EmWriteScreen footer_month_updates, 20, 43
-      EmWriteScreen footer_year_updates, 20, 46
-      EmWriteScreen MAXIS_case_number, 18, 43
-      transmit
 
       'Navigate to STAT/ADDR
       Call navigate_to_MAXIS_screen("STAT", "ADDR")
