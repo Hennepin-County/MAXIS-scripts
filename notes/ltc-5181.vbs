@@ -303,7 +303,7 @@ function section_c_comm_elig_worker_exit_reasons()
     CheckBox 15, 15, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
     Text 35, 30, 95, 10, "Effective date of waiver exit:"
     EditBox 135, 25, 50, 15, section_c_date_waiver_exit
-    Text 35, 50, 175, 10, "Reason - Check reason for exit (select all that apply)"
+    GroupBox 25, 50, 220, 230, "Reason - Check reason for exit (select all that apply)"
     CheckBox 35, 65, 75, 10, "Hospital admission", section_c_hospital_admission_checkbox
     EditBox 45, 75, 110, 15, section_c_hospital_name
     EditBox 155, 75, 50, 15, section_c_hospital_admit_date
@@ -542,7 +542,7 @@ function section_f_medical_assistance_changes()
     CheckBox 15, 65, 205, 10, "MA-LTC terminated on specific date; basic MA remains open", section_f_ma_LTC_terminated_checkbox
     Text 30, 80, 60, 10, "Termination date:"
     EditBox 90, 75, 50, 15, section_f_ma_LTC_terminated_date
-    Text 130, 80, 70, 10, "Date inelig. through:"
+    Text 140, 80, 70, 10, "Date inelig. through:"
     EditBox 210, 75, 50, 15, section_f_ma_payment_terminated_date_inelig_thru
     CheckBox 15, 95, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
     EditBox 210, 90, 50, 15, section_f_person_deceased_date_of_death
@@ -741,7 +741,7 @@ function incomplete_dialog_handling()
 	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
     'Open the incomplete fields dialog
     Dialog1 = "" 'Blanking out previous dialog detail
-    Call incomplete_dialog_fields()
+    ' Call incomplete_dialog_fields()
     incomplete_fields = False
 
     DO
@@ -1250,7 +1250,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         cancel_confirmation
         Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
         Call button_movement()				'function to move throughout the dialogs
-        Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
+        ' Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
       Loop until err_msg = ""
     Loop until (ButtonPressed = complete_btn or ButtonPressed = -1 AND dialog_count = 9)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -1368,109 +1368,125 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
   y_pos = 60
 
   'Calculate size of the SWKR group box
-  swkr_group_box = 95
+  swkr_group_box = 110
   If section_a_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10
   If section_a_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10
   If section_e_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10 
   If section_e_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10 
 
+  'Calculate the size of the ADDR group box
+
+
+  'Calculate the size of the DOD group box
+  'Set starting position
+  addr_group_height = 90
+  If section_c_section_f_addresses_match = False Then addr_group_height = addr_group_height + 10
+
   'ADDR, SWKR, DOD match
+  'x, y, width, height
   Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 325, 310, "STAT Panel Updates"
-    GroupBox 5, 5, 315, swkr_group_box, "Update SWKR"
+  BeginDialog Dialog1, 0, 0, 345, 340, "STAT Panel Updates"
+    GroupBox 5, 5, 335, swkr_group_box, "Update SWKR"
     Text 15, 20, 70, 10, "Current SWKR Panel: "
     If swkr_panel_exists = True Then Text 15, 30, 290, 10, current_swkr_panel_info
     If swkr_panel_exists = False Then Text 15, 30, 290, 10, "No SWKR Panel Exists" 
-    CheckBox 15, 45, 290, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
-    CheckBox 25, 60, 275, 10, "Section A - Assessor 1: " & section_a_assessor, section_a_assessor_1_checkbox
+    CheckBox 15, 45, 310, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
+    CheckBox 25, 60, 310, 10, "Section A - Assessor 1: " & section_a_assessor, section_a_assessor_1_checkbox
     If section_a_assessor_2 <> "" Then 
-      CheckBox 25, y_pos + 10, 275, 10, "Section A - Assessor 2: " & section_a_assessor_2, section_a_assessor_2_checkbox
+      CheckBox 25, y_pos + 10, 310, 10, "Section A - Assessor 2: " & section_a_assessor_2, section_a_assessor_2_checkbox
       y_pos = y_pos + 10
     End If
     If section_a_assessor_3 <> "" Then 
-      CheckBox 25, y_pos + 10, 275, 10, "Section A - Assessor 3: " & section_a_assessor_3, section_a_assessor_3_checkbox
+      CheckBox 25, y_pos + 10, 310, 10, "Section A - Assessor 3: " & section_a_assessor_3, section_a_assessor_3_checkbox
       y_pos = y_pos + 10
     End If
-    CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 1: " & section_e_assessor, section_e_assessor_1_checkbox
+    CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 1: " & section_e_assessor, section_e_assessor_1_checkbox
     y_pos = y_pos + 10
     If section_e_assessor_2 <> "" Then 
-      CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 2: " & section_e_assessor_2, section_e_assessor_2_checkbox
+      CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 2: " & section_e_assessor_2, section_e_assessor_2_checkbox
       y_pos = y_pos + 10
     End If
     If section_e_assessor_3 <> "" Then 
-      CheckBox 25, y_pos + 10, 275, 10, "Section E - Assessor 3: " & section_e_assessor_3, section_e_assessor_3_checkbox
+      CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 3: " & section_e_assessor_3, section_e_assessor_3_checkbox
       y_pos = y_pos + 10
     End If
     Text 10, y_pos + 15, 145, 10, "All notices to Social Worker (select Y or N):"
     CheckBox 160, y_pos + 15, 25, 10, "Yes", notices_to_social_worker_y_checkbox
     CheckBox 190, y_pos + 15, 25, 10, "No", notices_to_social_worker_n_checkbox
-    y_pos = y_pos + 30
+    Text 10, y_pos + 30, 105, 10, "Enter footer month for updates:"
+    EditBox 120, y_pos + 25, 20, 15, footer_month_SWKR
+    EditBox 145, y_pos + 25, 20, 15, footer_year_SWKR
+    y_pos = y_pos + 50
     'Add the addresses if needed
     If new_address_provided = True Then
       'Insert current ADDR information
-      GroupBox 5, y_pos, 315, 75, "Update ADDR"
-      Text 15, y_pos + 10, 70, 10, "Current ADDR Panel: "
-      Text 15, y_pos + 20, 290, 20, current_ADDR_address
-      y_pos = y_pos + 30
+      GroupBox 5, y_pos, 335, addr_group_height, "Update ADDR"
+      Text 15, y_pos + 15, 70, 10, "Current ADDR Panel: "
+      Text 15, y_pos + 25, 290, 15, current_ADDR_address
+      y_pos = y_pos + 45
       If section_c_section_f_both_new_addresses = True Then
         If section_c_section_f_addresses_match = True Then
           'The addresses DO match so only need to display one of them
-          CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c_section_f_match
-          Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_f_person_new_address_full
-          y_pos = y_pos + 35
+          CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c_section_f_match
+          Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_f_person_new_address_full
+          y_pos = y_pos + 20
         ElseIf section_c_section_f_addresses_match = False Then
           'The addresses DO NOT match so need to display both of them
-          CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
-          CheckBox 25, y_pos + 20, 275, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, multiple_section_c_new_address_checkbox
-          CheckBox 25, y_pos + 30, 275, 10, "Section F - New Address: " & section_f_person_new_address_full, multiple_section_f_new_address_checkbox
+          CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
+          CheckBox 25, y_pos + 10, 310, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, multiple_section_c_new_address_checkbox
+          CheckBox 25, y_pos + 20, 310, 10, "Section F - New Address: " & section_f_person_new_address_full, multiple_section_f_new_address_checkbox
           y_pos = y_pos + 30
         End If
       ElseIf section_c_person_moved_new_address_only = True Then
         'Only need to display the section c address
-        CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c
-        Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_c_person_moved_new_address_full
-        y_pos = y_pos + 35
+        CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c
+        Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_c_person_moved_new_address_full
+        y_pos = y_pos + 20
       ElseIf section_f_person_moved_new_address_only = True Then
         'Only need to display the section f address
-        CheckBox 15, y_pos + 10, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_f
-        Text 25, y_pos + 25, 290, 10, "New Address Entered on LTC-5181: " & section_f_person_new_address_full
-        y_pos = y_pos + 35
+        CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_f
+        Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_f_person_new_address_full
+        y_pos = y_pos + 20
       End If
+      Text 10, y_pos + 10, 105, 10, "Enter footer month for updates:"
+      EditBox 120, y_pos + 5, 20, 15, footer_month_ADDR
+      EditBox 145, y_pos + 5, 20, 15, footer_year_ADDR
+      y_pos = y_pos + 30
     End If
     If date_of_death_provided = True then
+      'Update ADDR section does not exist so need to shift up
+      GroupBox 5, y_pos, 335, 80, "Update MEMB (Date of Death)"
+      Text 15, y_pos + 10, 100, 10, "Current DOD on MEMB Panel: "
+      If memb_panel_date_of_death_exists = True Then Text 120, y_pos + 10, 100, 10, memb_date_of_death
+      If memb_panel_date_of_death_exists = False Then Text 120, y_pos + 10, 100, 10, "No date of death entered"
       y_pos = y_pos + 20
-      GroupBox 5, y_pos, 315, 65, "Update MEMB (Date of Death)"
-      Text 15, y_pos + 15, 100, 10, "Current DOD on MEMB Panel: "
-      If memb_panel_date_of_death_exists = True Then Text 120, y_pos + 15, 100, 10, memb_date_of_death
-      If memb_panel_date_of_death_exists = False Then Text 120, y_pos + 15, 100, 10, "No date of death entered"
-      y_pos = y_pos + 15 
       If section_c_section_f_both_new_DOD = True Then
         If section_c_section_f_dates_of_death_match = True Then
-          CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", section_c_section_f_date_of_death_update_checkbox
-          Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
-          y_pos = y_pos + 10
+          CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_c_section_f_date_of_death_update_checkbox
+          Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+          y_pos = y_pos + 20
         ElseIf section_c_section_f_dates_of_death_match = False Then
-          CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
-          CheckBox 25, y_pos + 25, 275, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
-          CheckBox 25, y_pos + 35, 275, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
-          y_pos = y_pos + 10
+          CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
+          CheckBox 25, y_pos + 10, 310, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
+          CheckBox 25, y_pos + 20, 310, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
+          y_pos = y_pos + 30
         End If
       ElseIf section_c_person_deceased_only = True Then
-        CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", section_c_date_of_death_update_checkbox
-        Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
-        y_pos = y_pos + 10
+        CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_c_date_of_death_update_checkbox
+        Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+        y_pos = y_pos + 20 
       ElseIf section_f_person_deceased_only = True Then
-        CheckBox 15, y_pos + 15, 275, 10, "Check here to update the date of death on MEMB panel", section_f_date_of_death_update_checkbox
-        Text 25, y_pos + 30, 290, 10, "Date of Death Entered on LTC-5181: " & section_f_person_deceased_date_of_death
-        y_pos = y_pos + 10
+        CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_f_date_of_death_update_checkbox
+        Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_f_person_deceased_date_of_death
+        y_pos = y_pos + 20
       End If
+      Text 10, y_pos+ 10, 105, 10, "Enter footer month for updates:"
+      EditBox 120, y_pos + 5, 20, 15, footer_month_DOD
+      EditBox 145, y_pos + 5, 20, 15, footer_year_DOD
     End If
-    Text 5, 295, 135, 10, "Enter footer month and year for updates:"
-    EditBox 145, 290, 20, 15, footer_month_updates
-    EditBox 170, 290, 20, 15, footer_year_updates
     ButtonGroup ButtonPressed
-      PushButton 205, 290, 60, 15, "UPDATE Panels", update_panels_btn
-      PushButton 265, 290, 55, 15, "SKIP Updates", skip_panel_updates_btn
+      PushButton 220, 320, 60, 15, "UPDATE Panels", update_panels_btn
+      PushButton 285, 320, 55, 15, "SKIP Updates", skip_panel_updates_btn
   EndDialog
 
   'Dialog validation
@@ -1497,8 +1513,17 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
         If date_of_death_update_multiple_checkbox = 1 AND ((section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 0) OR (section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the Date of Death on the MEMB panel, you must select ONLY one date to use for the update."
         
-        If (trim(footer_month_updates) = "" OR len(trim(footer_month_updates)) <> 2) OR (trim(footer_year_updates) = "" OR len(trim(footer_year_updates)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the STAT panels, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        If swkr_update_checkbox = 1 Then
+          If (trim(footer_month_SWKR) = "" OR len(trim(footer_month_SWKR)) <> 2) OR (trim(footer_year_SWKR) = "" OR len(trim(footer_year_SWKR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
 
+        If addr_update_checkbox_section_c_section_f_match + addr_update_multiple_checkbox + addr_update_checkbox_section_c + addr_update_checkbox_section_f = 1 Then
+          If (trim(footer_month_ADDR) = "" OR len(trim(footer_month_ADDR)) <> 2) OR (trim(footer_year_ADDR) = "" OR len(trim(footer_year_ADDR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
+
+        If section_c_section_f_date_of_death_update_checkbox + date_of_death_update_multiple_checkbox + section_c_date_of_death_update_checkbox + section_f_date_of_death_update_checkbox = 1 Then
+          If (trim(footer_month_ADDR) = "" OR len(trim(footer_month_ADDR)) <> 2) OR (trim(footer_year_ADDR) = "" OR len(trim(footer_year_ADDR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the MEMB panel with the date of death, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
       End If 
       If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
       'To do - add parameter for next btn
@@ -1508,16 +1533,18 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
   'If worker indicates that panels should be updated, then script will update panels
   If ButtonPressed = update_panels_btn Then
-    'Return to SELF to change the footer month
-    Call back_to_SELF
-    MAXIS_footer_month = footer_month_updates
-    MAXIS_footer_year = footer_year_updates 
-    EmWriteScreen footer_month_updates, 20, 43
-    EmWriteScreen footer_year_updates, 20, 46
-    EmWriteScreen MAXIS_case_number, 18, 43
-    transmit
-
     If swkr_update_checkbox = 1 Then
+      'Return to SELF to change the footer month
+      Call back_to_SELF
+      MAXIS_footer_month = footer_month_SWKR
+      MAXIS_footer_year = footer_year_SWKR
+      EmWriteScreen footer_month_updates, 20, 43
+      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+      transmit
+
+      msgbox "Confirm that footer month is correct. It should be " & footer_month_SWKR & " " & footer_year_SWKR
+
       'Ensure the specifically selected assessor (SWKR) will update the panel
       If section_a_assessor_1_checkbox = 1 Then
         swkr_panel_name = section_a_assessor
@@ -1650,6 +1677,17 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
       Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+      'Return to SELF to change the footer month
+      Call back_to_SELF
+      MAXIS_footer_month = footer_month_ADDR
+      MAXIS_footer_year = footer_year_ADDR 
+      EmWriteScreen footer_month_updates, 20, 43
+      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+      transmit
+
+      msgbox "Confirm that footer month is correct. It should be " & footer_month_ADDR & " " & footer_year_ADDR
+
       'Navigate to STAT/ADDR
       Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
@@ -1691,6 +1729,18 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
       Call ONLY_create_MAXIS_friendly_date(date_of_death_to_update)
       date_of_death_to_update = replace(date_of_death_to_update, "/", "")
+
+      'Return to SELF to change the footer month
+      Call back_to_SELF
+      Call MAXIS_background_check
+      MAXIS_footer_month = footer_month_DOD
+      MAXIS_footer_year = footer_year_DOD 
+      EmWriteScreen footer_month_updates, 20, 43
+      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+      transmit
+
+      msgbox "Confirm that footer month is correct. It should be " & footer_month_DOD & " " & footer_year_DOD
       
       'Navigate to STAT/MEMB
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -1698,6 +1748,8 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
       'Put panel into edit mode
       PF9
+
+      msgbox "Panel should be in edit mode"
 
       'Write date of death to panel
       EmWriteScreen left(date_of_death_to_update, 2), 19, 42
@@ -2018,8 +2070,9 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EditBox 80, 5, 55, 15, OS_date_sent_worker
     Text 150, 10, 55, 10, "Date Received:"
     EditBox 205, 5, 55, 15, OS_date_form_received
-    GroupBox 5, 25, 250, 225, "Update SWKR Panel"
+    GroupBox 5, 25, 250, 240, "Update SWKR Panel"
     CheckBox 15, 40, 120, 10, "Click here to update SWKR panel", OS_swkr_update_panel_checkbox
+    Text 15, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
     Text 15, 75, 50, 10, "Lead Agency:"
     EditBox 95, 70, 120, 15, OS_lead_agency
     Text 15, 90, 40, 10, "Assessor:"
@@ -2044,10 +2097,14 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EditBox 95, 205, 115, 15, OS_swkr_email_address
     Text 15, 230, 115, 10, "All notices to Social Worker (Y/N):"
     DropListBox 135, 225, 65, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", OS_swkr_notices_dropdown
+    Text 15, 245, 90, 10, "Footer month for updates:"
+    EditBox 135, 240, 20, 15, footer_month_SWKR
+    EditBox 160, 240, 20, 15, footer_year_SWKR
     ButtonGroup ButtonPressed
-        PushButton 180, 35, 70, 15, "Navigate to SWKR", swkr_nav_btn
+      PushButton 180, 35, 70, 15, "Navigate to SWKR", swkr_nav_btn
     GroupBox 260, 25, 245, 225, "Update ADDR Panel"
-    Text 265, 75, 70, 10, "Address Eff Date:"
+    CheckBox 265, 40, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
+    Text 265, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
     EditBox 345, 70, 55, 15, OS_addr_eff_date
     Text 265, 90, 50, 10, "Street Line 1:"
     EditBox 345, 85, 120, 15, OS_addr_address_street_line_1
@@ -2061,57 +2118,57 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EditBox 345, 145, 35, 15, OS_addr_zip
     Text 265, 165, 45, 10, "County code:"
     EditBox 345, 160, 25, 15, OS_addr_resi_code
-    CheckBox 265, 40, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
     ButtonGroup ButtonPressed
-        PushButton 420, 35, 70, 15, "Navigate to ADDR", addr_nav_btn
-        PushButton 400, 255, 55, 15, "Next", next_btn
-        CancelButton 455, 255, 50, 15
-    Text 15, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
-    Text 265, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
-    EndDialog
+      PushButton 420, 35, 70, 15, "Navigate to ADDR", addr_nav_btn
+      PushButton 400, 255, 55, 15, "Next", next_btn
+      CancelButton 455, 255, 50, 15
+    Text 265, 75, 70, 10, "Address Eff Date:"
+  EndDialog
 
   DO
     DO
-        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-        dialog Dialog1				'main dialog
-        cancel_without_confirmation
+      err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+      dialog Dialog1				'main dialog
+      cancel_without_confirmation
 
-        'Ensure dates are filled out
-        If trim(OS_date_sent_worker) = "" or IsDate(OS_date_sent_worker) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date on the DHS-5181 in the format MM/DD/YYYY."  
-        If trim(OS_date_form_received) = "" or IsDate(OS_date_form_received) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-5181 was received in the format MM/DD/YYYY."  
+      'Ensure dates are filled out
+      If trim(OS_date_sent_worker) = "" or IsDate(OS_date_sent_worker) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date on the DHS-5181 in the format MM/DD/YYYY."  
+      If trim(OS_date_form_received) = "" or IsDate(OS_date_form_received) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-5181 was received in the format MM/DD/YYYY."  
 
-        'Error handling for SWKR panel updates
-        If OS_swkr_update_panel_checkbox = 1 Then
-            If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."
-            'Navigate to SWKR panel to ensure that SWKR panel exists
-            Call navigate_to_MAXIS_screen("STAT", "SWKR")
-            'Check if SWKR panel exists
-            EmReadScreen swkr_does_not_exist, 19, 24, 2
-            If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then 
-                Call back_to_SELF
-                If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
-                If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
-                If trim(OS_fax_number) = "" AND (len(OS_fax_number) <> 12 OR mid(OS_fax_number, 4, 1) <> "-" OR mid(OS_fax_number, 8, 1) <> "-") Then err_msg = err_msg & vbCr & "* You must fill out the Fax Number field in the format ###-###-####."
-                If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
-                If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
-                If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
-                If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
-                If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
-            End If
+      'Error handling for SWKR panel updates
+      If OS_swkr_update_panel_checkbox = 1 Then
+        If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."
+        'Navigate to SWKR panel to ensure that SWKR panel exists
+        Call navigate_to_MAXIS_screen("STAT", "SWKR")
+        'Check if SWKR panel exists
+        EmReadScreen swkr_does_not_exist, 19, 24, 2
+        If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then 
+          Call back_to_SELF
+          If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
+          If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+          If trim(OS_fax_number) = "" AND (len(OS_fax_number) <> 12 OR mid(OS_fax_number, 4, 1) <> "-" OR mid(OS_fax_number, 8, 1) <> "-") Then err_msg = err_msg & vbCr & "* You must fill out the Fax Number field in the format ###-###-####."
+          If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+          If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
+          If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
+          If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
+          If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
         End If
-        'Error handling for ADDR panel updates
-        If OS_addr_update_panel_checkbox = 1 Then
-            If trim(OS_addr_eff_date) <> "" AND IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
-            If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
-            If trim(OS_addr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."
-            If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
-            If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
-            If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
-        End If
-        If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
-        If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
-        If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        If trim(footer_month_SWKR) = "" OR Len(trim(footer_month_SWKR)) <> 2 OR IsNumeric(trim(footer_month_SWKR)) = False OR trim(footer_year_SWKR) = "" OR Len(trim(footer_year_SWKR)) <> 2 OR IsNumeric(trim(footer_year_SWKR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the SWKR panel updates in  the MM YY format."
+      End If
+      'Error handling for ADDR panel updates
+      If OS_addr_update_panel_checkbox = 1 Then
+        If trim(OS_addr_eff_date) <> "" AND IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
+        If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+        If trim(OS_addr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."
+        If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
+        If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
+        If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
+        If trim(footer_month_ADDR) = "" OR Len(trim(footer_month_ADDR)) <> 2 OR IsNumeric(trim(footer_month_ADDR)) = False OR trim(footer_year_ADDR) = "" OR Len(trim(footer_year_ADDR)) <> 2 OR IsNumeric(trim(footer_year_ADDR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the ADDR panel updates in  the MM YY format."
+      End If
+      If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
+      If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
+      If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = "" and (ButtonPressed <> swkr_nav_btn and ButtonPressed <> addr_nav_btn) 									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -2129,75 +2186,85 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     swkr_panel_phone = replace(OS_phone_number, "-", "")
     If trim(OS_phone_ext) <> "" Then swkr_panel_phone_ext = OS_phone_ext
     
+    'Return to SELF to change the footer month
+    Call back_to_SELF
+    Call MAXIS_background_check
+    MAXIS_footer_month = footer_month_SWKR
+    MAXIS_footer_year = footer_year_SWKR
+    EmWriteScreen footer_month_updates, 20, 43
+    EmWriteScreen footer_year_updates, 20, 46
+    EmWriteScreen MAXIS_case_number, 18, 43
+    transmit
+
     'Navigate to STAT/SWKR
     Call navigate_to_MAXIS_screen("STAT", "SWKR")
     'Check if SWKR panel exists
     EmReadScreen swkr_does_not_exist, 19, 24, 2
     If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
-        'Add new panel
-        Call write_value_and_transmit("NN", 20, 79)
-        'Write details to panel
+      'Add new panel
+      Call write_value_and_transmit("NN", 20, 79)
+      'Write details to panel
+      EMWriteScreen swkr_panel_name, 6, 32
+      EMWriteScreen swkr_panel_street_line_1, 8, 32
+      If trim(swkr_panel_street_line_2) <> "" Then EMWriteScreen swkr_panel_street_line_2, 9, 32
+      EMWriteScreen swkr_panel_city, 10, 32
+      EMWriteScreen swkr_panel_state, 10, 54
+      EMWriteScreen swkr_panel_zip, 10, 63
+      If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
+      EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+      EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+      EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+
+      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+
+      'Transmit to save 
+      transmit
+  
+    Else
+      'Put panel into edit mode
+      PF9
+      'Write to panel
+      If trim(swkr_panel_name) <> "" Then
+        EMWriteScreen "___________________________________", 6, 32
         EMWriteScreen swkr_panel_name, 6, 32
+      End If
+      If trim(swkr_panel_street_line_1) <> "" Then
+        EMWriteScreen "______________________", 8, 32
         EMWriteScreen swkr_panel_street_line_1, 8, 32
-        If trim(swkr_panel_street_line_2) <> "" Then EMWriteScreen swkr_panel_street_line_2, 9, 32
+      End If
+      If trim(swkr_panel_street_line_2) <> "" Then
+        EMWriteScreen "______________________", 9, 32
+        EMWriteScreen swkr_panel_street_line_2, 9, 32
+      End If
+      If trim(swkr_panel_city) <> "" Then 
+        EMWriteScreen "_______________", 10, 32
         EMWriteScreen swkr_panel_city, 10, 32
+      End If
+      If trim(swkr_panel_state) <> "" Then
+        EMWriteScreen "__", 10, 54
         EMWriteScreen swkr_panel_state, 10, 54
+      End If
+      If trim(swkr_panel_zip) <> "" Then
+        EMWriteScreen "_____", 10, 63
         EMWriteScreen swkr_panel_zip, 10, 63
-        If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
+      End If
+      If trim(swkr_panel_phone) <> "" Then
+        EMWriteScreen "___", 12, 34
+        EMWriteScreen "___", 12, 40
+        EMWriteScreen "____", 12, 44
         EMWriteScreen left(swkr_panel_phone, 3), 12, 34
         EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
         EMWriteScreen right(swkr_panel_phone, 4), 12, 44
-
-        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
-
-        'Transmit to save 
-        transmit
-  
-    Else
-        'Put panel into edit mode
-        PF9
-        'Write to panel
-        If trim(swkr_panel_name) <> "" Then
-            EMWriteScreen "___________________________________", 6, 32
-            EMWriteScreen swkr_panel_name, 6, 32
-        End If
-        If trim(swkr_panel_street_line_1) <> "" Then
-            EMWriteScreen "______________________", 8, 32
-            EMWriteScreen swkr_panel_street_line_1, 8, 32
-        End If
-        If trim(swkr_panel_street_line_2) <> "" Then
-            EMWriteScreen "______________________", 9, 32
-            EMWriteScreen swkr_panel_street_line_2, 9, 32
-        End If
-        If trim(swkr_panel_city) <> "" Then 
-            EMWriteScreen "_______________", 10, 32
-            EMWriteScreen swkr_panel_city, 10, 32
-        End If
-        If trim(swkr_panel_state) <> "" Then
-            EMWriteScreen "__", 10, 54
-            EMWriteScreen swkr_panel_state, 10, 54
-        End If
-        If trim(swkr_panel_zip) <> "" Then
-            EMWriteScreen "_____", 10, 63
-            EMWriteScreen swkr_panel_zip, 10, 63
-        End If
-        If trim(swkr_panel_phone) <> "" Then
-            EMWriteScreen "___", 12, 34
-            EMWriteScreen "___", 12, 40
-            EMWriteScreen "____", 12, 44
-            EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-            EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-            EMWriteScreen right(swkr_panel_phone, 4), 12, 44
-        End If
-        If trim(swkr_panel_phone_ext) <> "" Then
-            EMWriteScreen "____", 12, 54
-            EMWriteScreen swkr_panel_phone_ext, 12, 54
-        End If
-        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
-        'Transmit to save 
-        transmit
+      End If
+      If trim(swkr_panel_phone_ext) <> "" Then
+        EMWriteScreen "____", 12, 54
+        EMWriteScreen swkr_panel_phone_ext, 12, 54
+      End If
+      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+      'Transmit to save 
+      transmit
     End If
   End If
 
@@ -2252,11 +2319,11 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
 
   If OS_swkr_update_panel_checkbox = 1 OR OS_addr_update_panel_checkbox = 1 Then
     If OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox = 1 Then
-        panels_updated = "SWKR and ADDR Updated"
+      panels_updated = "SWKR and ADDR Updated"
     ElseIf OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox <> 1 Then
-        panels_updated = "SWKR Updated"
+      panels_updated = "SWKR Updated"
     ElseIf OS_swkr_update_panel_checkbox <> 1 AND OS_addr_update_panel_checkbox = 1 Then
-        panels_updated = "ADDR Updated"
+      panels_updated = "ADDR Updated"
     End If
 
     Call start_a_blank_CASE_NOTE
@@ -2265,36 +2332,36 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Call write_variable_in_case_note("~~~DHS-5181 Received - " & panels_updated & "~~~")
 
     If OS_swkr_update_panel_checkbox = 1 Then
-        Call write_variable_in_case_note("SWKR Updates")  
-        Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", OS_date_sent_worker)
-        Call write_bullet_and_variable_in_case_note("Date 5181 received", OS_date_form_received)
-        Call write_bullet_and_variable_in_case_note("Lead agency", OS_lead_agency)
-        If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Assessor", OS_assessor)
-        If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Phone number", OS_phone_number)
-        If trim(OS_fax_number) <> "" Then Call write_bullet_and_variable_in_case_note("Fax number", OS_fax_number)
-        If trim(OS_swkr_street_address_1) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 1", OS_swkr_street_address_1)
-        If trim(OS_swkr_street_address_2) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 2", OS_swkr_street_address_2)
-        If trim(OS_swkr_city) <> "" Then Call write_bullet_and_variable_in_case_note("City", OS_swkr_city)
-        If trim(OS_swkr_state) <> "" Then Call write_bullet_and_variable_in_case_note("State", OS_swkr_state)
-        If trim(OS_swkr_zip_code) <> "" Then Call write_bullet_and_variable_in_case_note("Zip code", OS_swkr_zip_code)
-        If trim(OS_swkr_email_address) <> "" Then Call write_bullet_and_variable_in_case_note("Email address", OS_swkr_email_address)
-        If trim(OS_swkr_notices_dropdown) <> "Select one:" Then Call write_bullet_and_variable_in_case_note("All notices to Social Worker", OS_swkr_notices_dropdown)
-        Call write_variable_in_case_note("---")
+      Call write_variable_in_case_note("SWKR Updates")  
+      Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", OS_date_sent_worker)
+      Call write_bullet_and_variable_in_case_note("Date 5181 received", OS_date_form_received)
+      Call write_bullet_and_variable_in_case_note("Lead agency", OS_lead_agency)
+      If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Assessor", OS_assessor)
+      If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Phone number", OS_phone_number)
+      If trim(OS_fax_number) <> "" Then Call write_bullet_and_variable_in_case_note("Fax number", OS_fax_number)
+      If trim(OS_swkr_street_address_1) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 1", OS_swkr_street_address_1)
+      If trim(OS_swkr_street_address_2) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 2", OS_swkr_street_address_2)
+      If trim(OS_swkr_city) <> "" Then Call write_bullet_and_variable_in_case_note("City", OS_swkr_city)
+      If trim(OS_swkr_state) <> "" Then Call write_bullet_and_variable_in_case_note("State", OS_swkr_state)
+      If trim(OS_swkr_zip_code) <> "" Then Call write_bullet_and_variable_in_case_note("Zip code", OS_swkr_zip_code)
+      If trim(OS_swkr_email_address) <> "" Then Call write_bullet_and_variable_in_case_note("Email address", OS_swkr_email_address)
+      If trim(OS_swkr_notices_dropdown) <> "Select one:" Then Call write_bullet_and_variable_in_case_note("All notices to Social Worker", OS_swkr_notices_dropdown)
+      Call write_variable_in_case_note("---")
     End If
 
     If OS_addr_update_panel_checkbox = 1 Then
-        Call write_variable_in_case_note("ADDR Updates")  
-        Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
+      Call write_variable_in_case_note("ADDR Updates")  
+      Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
 
-        If OS_addr_address_street_line_2 <> "" Then 
-            Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
-        Else
-            Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
-        End If
-        Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
-        Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
-        Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
-        Call write_variable_in_case_note ("---")
+      If OS_addr_address_street_line_2 <> "" Then 
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
+      Else
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
+      End If
+      Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
+      Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
+      Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
+      Call write_variable_in_case_note ("---")
     End If
 
     'Add worker signature
