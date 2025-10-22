@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2025", "* * * SHUTDOWN WCOM ADDED * * *##~## ##~##A WCOM will be added to any notices for Eligible SNAP or MFIP to inform November Food Benefits will not be issued.##~## ##~##No selection needs to be made, the WCOM will be added automatically to notices for all months. WCOM success will be indicated in CASE/NOTE.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "* * * MAXIS Cash Six-Month Functionality Updates * * *##~## ##~##Effective 03/25 MFIP, GA, and HS/GRH no longer have monthly reporting. To support this update, six-month budgeting functionality has been added to MAXIS.##~## ##~##Panels Updated:##~##- ELIG/MFIP##~##- JOBS##~##- UNEA##~## ##~##This script has been updated to support the PIC for CASH on these panels.", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "BUG FIX to resolve:##~##- Finding Retro approvals correctly.##~##- Emergency Exist test in EMA cases was missing.##~##These issues should now be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/23/2025", "BUG FIX for ELIG/Health Care to correctly read the tests since the panel has changed with the addition of new tests.##~##- AVSA cooperation tests added to MA and EMA types##~##- MNSure System test added to MSP types.##~##", "Casey Love, Hennepin County")
@@ -1256,6 +1257,7 @@ function define_mfip_elig_dialog()
 				grp_len = 45
 			End If
 			GroupBox 5, y_pos, 445, grp_len, "MFIP Benefits Issued for the Approval Package"
+            Text 275, y_pos, 200, 10, "** SCRIPT WILL ATTEMPT SHUTDOWN WCOM"
 			app_y_pos = y_pos + 15
 			' app_y_pos = 150
 			app_x_pos = 10
@@ -4419,6 +4421,7 @@ function define_snap_elig_dialog()
 				End If
 			End If
 		  Next
+          Text 120, 150, 165, 10, "** SCRIPT WILL ATTEMPT SHUTDOWN WCOM"
 	  End If
 
 	  GroupBox 5, 160, 285, 70, "Household Composition"
@@ -5262,7 +5265,8 @@ function mfip_elig_case_note()
 	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MFIP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 	Call write_bullet_and_variable_in_CASE_NOTE("SNAP Assessment", MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, unique_app))
-	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
+
+    If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
 			If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
@@ -5285,6 +5289,7 @@ function mfip_elig_case_note()
 		Next
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_cash = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP CASH PORTION")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
+        If MFIP_ELIG_APPROVALS(elig_ind).shutdown_wcom_sent = True Then Call write_variable_in_CASE_NOTE("Federal Shutdown WCOM added: Food Portion will not issue starting 11/25.")
 	End If
 
 	vendor_header = "----------------------------- Vendor Payments -------------------------------"
@@ -8329,6 +8334,7 @@ function snap_elig_case_note()
 				End If
 			End If
 		Next
+        If SNAP_ELIG_APPROVALS(elig_ind).shutdown_wcom_sent = True Then Call write_variable_in_CASE_NOTE("Federal Shutdown WCOM added: SNAP will not issue starting 11/25.")
 	End If
 
 	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
@@ -10244,6 +10250,7 @@ class mfip_eligibility_detail
 	public mfip_deemed_income_exists
 	public mfip_counted_memb_allocation_exists
 	public mfip_deemer_allocation_exists
+    public shutdown_wcom_sent
 
 	public mfip_sig_change
 	public mfsc_month_one_of_sig_change
@@ -16929,6 +16936,7 @@ class snap_eligibility_detail
 	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
+    public shutdown_wcom_sent
 
 	public snap_elig_ref_numbs()
 	public snap_elig_membs_request_yn()
@@ -26127,6 +26135,74 @@ If enter_CNOTE_for_DWP = True Then
 End If
 
 If enter_CNOTE_for_MFIP = True Then
+    'Functionality to add WCOM about shutdown to MFIP NOTICES
+    For MF_mo = 0 to UBound(MFIP_ELIG_APPROVALS)
+        If MFIP_ELIG_APPROVALS(MF_mo).approved_today and MFIP_ELIG_APPROVALS(MF_mo).mfip_case_eligibility_result = "ELIGIBLE" Then
+            first_MFIP_approval = MFIP_ELIG_APPROVALS(MF_mo).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(MF_mo).elig_footer_year
+
+			ft_mo = left(MFIP_ELIG_APPROVALS(MF_mo).elig_footer_month, 2)
+			ft_yr = right(MFIP_ELIG_APPROVALS(MF_mo).elig_footer_year, 2)
+			MFIP_ELIG_APPROVALS(MF_mo).shutdown_wcom_sent = False
+
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen ft_mo, 03, 46
+			EMWriteScreen ft_yr, 03, 51
+			transmit
+
+			wcom_row = 7
+			Do
+				EMReadScreen notc_date, 8, wcom_row, 16
+				EMReadScreen notc_type, 2, wcom_row, 26
+				EMReadScreen notc_description, 30, wcom_row, 30
+				EMReadScreen notc_print_status, 8, wcom_row, 71
+
+				If notc_date <> "        " Then
+					notc_date = DateAdd("d", 0, notc_date)
+					notc_description = trim(notc_description)
+					notc_print_status = trim(notc_print_status)
+					If DateDiff("d", date, notc_date) = 0 AND notc_type = "MF" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+						Call write_value_and_transmit("X", wcom_row, 13)
+
+						PF9
+						EMReadScreen wcom_line, 60, 3, 17
+                        wcom_row = 3
+                        second_page = False
+                        Do While trim(wcom_line) <> ""
+                            wcom_row = wcom_row + 1
+                            If wcom_row >= 18 Then
+                                If second_page = True Then Exit Do
+                                PF8
+                                second_page = True
+                            End If
+    						EMReadScreen wcom_line, 60, wcom_row, 17
+                        Loop
+                        room_for_wcom = False
+                        If second_page = False then room_for_wcom = True
+                        If second_page and wcom_row < 9 Then room_for_wcom = True
+
+                        If room_for_wcom Then
+                            CALL write_variable_in_SPEC_MEMO("The federal government shutdown has caused a lack of funding for MN Department of Children, Youth, and Families (DCYF) Programs.")
+                            CALL write_variable_in_SPEC_MEMO("*** The MN Family Investment Program (MFIP) Food Portion")
+                            CALL write_variable_in_SPEC_MEMO("    will NOT be issued for November unless the shutdown")
+                            CALL write_variable_in_SPEC_MEMO("    ends or the federal government issues further guidance.")
+                            CALL write_variable_in_SPEC_MEMO("*** The cash portion of MFIP will be issued.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("The latest information can be found at the website:")
+                            CALL write_variable_in_SPEC_MEMO("    dcyf.mn.gov/federal-shutdown")
+
+                            PF4
+                            PF3
+							MFIP_ELIG_APPROVALS(MF_mo).shutdown_wcom_sent = True
+
+                        End If
+					End If
+				End if
+				wcom_row = wcom_row + 1
+			Loop until notc_date = "        "
+			Call back_to_SELF
+        End If
+    Next
+
 	For unique_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
 		first_month = left(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		If len(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
@@ -26869,6 +26945,72 @@ If enter_CNOTE_for_EMER = True Then
 End If
 
 If enter_CNOTE_for_SNAP = True Then
+    'Functionality to add WCOM about shutdown to SNAP NOTICES
+    For FS_mo = 0 to UBound(SNAP_ELIG_APPROVALS)
+        If SNAP_ELIG_APPROVALS(FS_mo).approved_today and SNAP_ELIG_APPROVALS(FS_mo).snap_elig_result = "ELIGIBLE" Then
+            first_MFIP_approval = SNAP_ELIG_APPROVALS(FS_mo).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(FS_mo).elig_footer_year
+
+			ft_mo = left(SNAP_ELIG_APPROVALS(FS_mo).elig_footer_month, 2)
+			ft_yr = right(SNAP_ELIG_APPROVALS(FS_mo).elig_footer_year, 2)
+			SNAP_ELIG_APPROVALS(FS_mo).shutdown_wcom_sent = False
+
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen ft_mo, 03, 46
+			EMWriteScreen ft_yr, 03, 51
+			transmit
+
+			wcom_row = 7
+			Do
+				EMReadScreen notc_date, 8, wcom_row, 16
+				EMReadScreen notc_type, 2, wcom_row, 26
+				EMReadScreen notc_description, 30, wcom_row, 30
+				EMReadScreen notc_print_status, 8, wcom_row, 71
+
+				If notc_date <> "        " Then
+					notc_date = DateAdd("d", 0, notc_date)
+					notc_description = trim(notc_description)
+					notc_print_status = trim(notc_print_status)
+					If DateDiff("d", date, notc_date) = 0 AND notc_type = "FS" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+						Call write_value_and_transmit("X", wcom_row, 13)
+
+						PF9
+						EMReadScreen wcom_line, 60, 3, 17
+                        wcom_row = 3
+                        second_page = False
+                        Do While trim(wcom_line) <> ""
+                            wcom_row = wcom_row + 1
+                            If wcom_row >= 18 Then
+                                If second_page = True Then Exit Do
+                                PF8
+                                second_page = True
+                            End If
+    						EMReadScreen wcom_line, 60, wcom_row, 17
+                        Loop
+                        room_for_wcom = False
+                        If second_page = False then room_for_wcom = True
+                        If second_page and wcom_row < 9 Then room_for_wcom = True
+
+                        If room_for_wcom Then
+                            CALL write_variable_in_SPEC_MEMO("The federal government shutdown has caused a lack of funding for MN Department of Children, Youth, and Families (DCYF) Programs.")
+                            CALL write_variable_in_SPEC_MEMO("*** The Supplemental Nutrition Assistance Program (SNAP)")
+                            CALL write_variable_in_SPEC_MEMO("    will NOT be issued for November unless the shutdown")
+                            CALL write_variable_in_SPEC_MEMO("    ends or the federal government issues further guidance.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("The latest information can be found at the website:")
+                            CALL write_variable_in_SPEC_MEMO("    dcyf.mn.gov/federal-shutdown")
+
+                            PF4
+                            PF3
+							SNAP_ELIG_APPROVALS(FS_mo).shutdown_wcom_sent = True
+                        End If
+					End If
+				End if
+				wcom_row = wcom_row + 1
+			Loop until notc_date = "        "
+			Call back_to_SELF
+        End If
+    Next
+
 	For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 		first_month = left(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		If len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
