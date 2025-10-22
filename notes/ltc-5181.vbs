@@ -741,7 +741,7 @@ function incomplete_dialog_handling()
 	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
     'Open the incomplete fields dialog
     Dialog1 = "" 'Blanking out previous dialog detail
-    ' Call incomplete_dialog_fields()
+    Call incomplete_dialog_fields()
     incomplete_fields = False
 
     DO
@@ -1219,8 +1219,12 @@ DO
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
+    If ButtonPressed = instructions_btn Then 
+      Call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20LTC%20-%205181.docx") 
+      err_msg = "LOOP"
+    End IF 
     If script_user_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must make a selection from the dropdown for the Script User."
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1250,7 +1254,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         cancel_confirmation
         Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
         Call button_movement()				'function to move throughout the dialogs
-        ' Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
+        Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
       Loop until err_msg = ""
     Loop until (ButtonPressed = complete_btn or ButtonPressed = -1 AND dialog_count = 9)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -1526,7 +1530,6 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         End If
       End If 
       If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      'To do - add parameter for next btn
     LOOP UNTIL err_msg = ""	AND ((ButtonPressed = update_panels_btn) OR (ButtonPressed = skip_panel_updates_btn))								'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1542,8 +1545,6 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       EmWriteScreen footer_year_updates, 20, 46
       EmWriteScreen MAXIS_case_number, 18, 43
       transmit
-
-      msgbox "Confirm that footer month is correct. It should be " & footer_month_SWKR & " " & footer_year_SWKR
 
       'Ensure the specifically selected assessor (SWKR) will update the panel
       If section_a_assessor_1_checkbox = 1 Then
@@ -1672,7 +1673,6 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
             If address_ver = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Ver dropdown." 
           End If 
           If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-          'To do - add parameter for next btn
         LOOP UNTIL err_msg = ""	AND ButtonPressed = OK								'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
       Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1685,8 +1685,6 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       EmWriteScreen footer_year_updates, 20, 46
       EmWriteScreen MAXIS_case_number, 18, 43
       transmit
-
-      msgbox "Confirm that footer month is correct. It should be " & footer_month_ADDR & " " & footer_year_ADDR
 
       'Navigate to STAT/ADDR
       Call navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -1740,16 +1738,12 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       EmWriteScreen MAXIS_case_number, 18, 43
       transmit
 
-      msgbox "Confirm that footer month is correct. It should be " & footer_month_DOD & " " & footer_year_DOD
-      
       'Navigate to STAT/MEMB
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
       'Navigate to HH Memb
       Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
       'Put panel into edit mode
       PF9
-
-      msgbox "Panel should be in edit mode"
 
       'Write date of death to panel
       EmWriteScreen left(date_of_death_to_update, 2), 19, 42
@@ -2371,45 +2365,50 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
   End If
 End If
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------07/21/2022
-'--Tab orders reviewed & confirmed----------------------------------------------07/21/2022
-'--Mandatory fields all present & Reviewed--------------------------------------07/21/2022
-'--All variables in dialog match mandatory fields-------------------------------07/21/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/22/2025
+'--Tab orders reviewed & confirmed----------------------------------------------10/22/2025
+'--Mandatory fields all present & Reviewed--------------------------------------10/22/2025
+'--All variables in dialog match mandatory fields-------------------------------10/22/2025
+'Review dialog names for content and content fit in dialog----------------------10/22/2025
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------10/22/2025
+'--Include script category and name somewhere on first dialog-------------------10/22/2025
+'--Create a button to reference instructions------------------------------------10/22/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/14/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------10/22/2025
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/22/2025
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/22/2025
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----10/22/2025
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------07/21/2022
-'--PRIV Case handling reviewed -------------------------------------------------07/21/2022
-'--Out-of-County handling reviewed----------------------------------------------07/21/2022----------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------07/21/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------07/21/2022
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/21/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/22/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/22/2025
+'--PRIV Case handling reviewed -------------------------------------------------10/22/2025
+'--Out-of-County handling reviewed----------------------------------------------10/22/2025
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/22/2025
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/22/2025
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------07/21/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------07/21/2022
-'--Denomination reviewed -------------------------------------------------------07/21/2022
-'--Script name reviewed---------------------------------------------------------07/21/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
+'--Manual time study reviewed --------------------------------------------------10/22/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------10/22/2025
+'--Denomination reviewed -------------------------------------------------------10/22/2025
+'--Script name reviewed---------------------------------------------------------10/22/2025
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
-'--comment Code-----------------------------------------------------------------07/21/2022
-'--Update Changelog for release/update------------------------------------------11/14/2022
-'--Remove testing message boxes-------------------------------------------------07/21/2022
-'--Remove testing code/unnecessary code-----------------------------------------07/21/2022
-'--Review/update SharePoint instructions----------------------------------------11/14/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
-'--Complete misc. documentation (if applicable)---------------------------------07/21/2022
-'--Update project team/issue contact (if applicable)----------------------------11/14/2022
+'--Confirm all GitHub tasks are complete----------------------------------------10/22/2025
+'--comment Code-----------------------------------------------------------------10/22/2025
+'--Update Changelog for release/update------------------------------------------10/22/2025
+'--Remove testing message boxes-------------------------------------------------10/22/2025
+'--Remove testing code/unnecessary code-----------------------------------------10/22/2025
+'--Review/update SharePoint instructions----------------------------------------10/22/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/22/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/22/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/22/2025
+'--Complete misc. documentation (if applicable)---------------------------------10/22/2025
+'--Update project team/issue contact (if applicable)----------------------------10/22/2025
