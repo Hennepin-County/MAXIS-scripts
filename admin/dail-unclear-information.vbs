@@ -2029,8 +2029,6 @@ If CSES_messages = 1 Then
                               'The dail message cannot be processed due to timing of recertification or SR report date
                               process_dail_message = False
                               
-                              list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                              
                             Else
                               
                               'Process the CSES message here
@@ -2070,21 +2068,29 @@ If CSES_messages = 1 Then
                               
                               'The dail message cannot be processed due to timing of recertification or SR report date
                               process_dail_message = False
-                              'Add to skip list
-                              list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                               
                             Else
-                              'DAIL message can be processed
-                              process_dail_message = True
+                              'Need to determine if SNAP already determined that message could not be processed so need to check
+                              If process_dail_message = True OR process_dail_message = "" Then 
+                                process_dail_message = True
+                              ElseIf process_dail_message = False Then
+                                process_dail_message = False
+                              End If
                             End If
                           End If
                           
                         Else
-                          'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                          process_dail_message = True
-                          
+                          'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message. However, require handling to determine if already set to False by SNAP evaluation in which case it should remain false
+                          If process_dail_message = True OR process_dail_message = "" Then 
+                            process_dail_message = True
+                          ElseIf process_dail_message = False Then
+                            process_dail_message = False
+                          End If
                         End If
                       End If
+
+                      'Add message to skip list here so that it does not do it twice within the sections above determinining of SR/ER next month
+                      If process_dail_message = False Then list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                       
                       'Process the CSES dail message
                       If process_dail_message = True And dail_type = "CSES" Then
@@ -5556,9 +5562,7 @@ If HIRE_messages = 1 Then
                                 
                                 'The dail message cannot be processed due to timing of recertification or SR report date
                                 process_dail_message = False
-                                
-                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                
+
                               Else
                                 'Process the HIRE message
                                 process_dail_message = True
@@ -5600,19 +5604,24 @@ If HIRE_messages = 1 Then
                                 
                                 'The dail message cannot be processed due to timing of recertification or SR report date
                                 process_dail_message = False
-                                'Add to skip list
-                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                
                               Else
-                                'DAIL message can be processed
-                                process_dail_message = True
+                                'Need to check if already determined to be a skip message by other programs
+                                If process_dail_message = True OR process_dail_message = "" Then 
+                                  process_dail_message = True
+                                ElseIf process_dail_message = False Then
+                                  process_dail_message = False
+                                End If
                               End If
                             End If
                             
                           Else
                             'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                            process_dail_message = True
-                            
+                            'Need to check if already determined to be a skip message by other programs
+                            If process_dail_message = True OR process_dail_message = "" Then 
+                              process_dail_message = True
+                            ElseIf process_dail_message = False Then
+                              process_dail_message = False
+                            End If
                           End If
                         End If
                         
@@ -5643,21 +5652,29 @@ If HIRE_messages = 1 Then
                                 
                                 'The dail message cannot be processed due to timing of recertification or SR report date
                                 process_dail_message = False
-                                'Add to skip list
-                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                 
                               Else
-                                'DAIL message can be processed
-                                process_dail_message = True
+                                'Need to check if already determined to be a skip message by other programs
+                                If process_dail_message = True OR process_dail_message = "" Then 
+                                  process_dail_message = True
+                                ElseIf process_dail_message = False Then
+                                  process_dail_message = False
+                                End If
                               End If
                             End If
                             
                           Else
                             'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                            process_dail_message = True
-                            
+                            'Need to check if already determined to be a skip message by other programs
+                            If process_dail_message = True OR process_dail_message = "" Then 
+                              process_dail_message = True
+                            ElseIf process_dail_message = False Then
+                              process_dail_message = False
+                            End If
                           End If
                         End If
+                        'Add message to skip list if it cannot be processed
+                        If process_dail_message = False Then list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                       End If
                       
                       If process_dail_message = True And dail_type = "HIRE" Then
