@@ -13344,6 +13344,11 @@ class ga_eligibility_detail
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
+
+        six_month_budget_elig = False
+		first_of_footer_month = elig_footer_month & "/1/" & elig_footer_year
+		If DateDiff("d", #3/1/2025#, first_of_footer_month) >= 0 Then six_month_budget_elig = True
+
 		If approved_today = True Then
 	 		EMReadScreen ga_elig_case_status, 12, 18, 23
 			EMReadScreen ga_elig_file_unit_type_code, 1, 18, 52
@@ -13555,12 +13560,20 @@ class ga_eligibility_detail
 			EMReadScreen ga_elig_case_test_eligible_member, 	6, 12, 10
 			EMReadScreen ga_elig_case_test_prosp_net_income, 	6, 13, 10
 
-			EMReadScreen ga_elig_case_test_retro_net_income, 	6, 8, 46
-			EMReadScreen ga_elig_case_test_residence, 			6, 9, 46
-			EMReadScreen ga_elig_case_test_assets, 				6, 10, 46
-			EMReadScreen ga_elig_case_test_eligible_other_prgm, 6, 11, 46
-			EMReadScreen ga_elig_case_test_verif, 				6, 12, 46
-			EMReadScreen ga_elig_case_test_lump_sum_payment, 	6, 13, 46
+            If six_month_budget_elig = True Then
+                EMReadScreen ga_elig_case_test_residence, 			6, 8, 46
+                EMReadScreen ga_elig_case_test_assets, 				6, 9, 46
+                EMReadScreen ga_elig_case_test_eligible_other_prgm, 6, 10, 46
+                EMReadScreen ga_elig_case_test_verif, 				6, 11, 46
+                EMReadScreen ga_elig_case_test_lump_sum_payment, 	6, 12, 46
+            Else
+                EMReadScreen ga_elig_case_test_retro_net_income, 	6, 8, 46
+                EMReadScreen ga_elig_case_test_residence, 			6, 9, 46
+                EMReadScreen ga_elig_case_test_assets, 				6, 10, 46
+                EMReadScreen ga_elig_case_test_eligible_other_prgm, 6, 11, 46
+                EMReadScreen ga_elig_case_test_verif, 				6, 12, 46
+                EMReadScreen ga_elig_case_test_lump_sum_payment, 	6, 13, 46
+            End If
 
 			ga_elig_case_test_appl_withdrawn = trim(ga_elig_case_test_appl_withdrawn)
 			ga_elig_case_test_dupl_assistance = trim(ga_elig_case_test_dupl_assistance)
