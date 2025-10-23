@@ -8546,85 +8546,40 @@ function snap_elig_case_note()
 		deduction_detail_two = ""
 		deduction_detail_three = ""
 
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> "" Then
-			If deduction_detail_one = "" Then
-				deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_one) < 21 Then
-				deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-			ElseIf deduction_detail_two = "" Then
-				deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_two) < 21 Then
-				deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-			ElseIf deduction_detail_three = "" Then
-				deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-			ElseIf len(deduction_detail_three) < 21 Then
-				deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-			End if
-		End If
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> "" Then
-			If deduction_detail_one = "" Then
-				deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_one) < 21 Then
-				deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-			ElseIf deduction_detail_two = "" Then
-				deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_two) < 21 Then
-				deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-			ElseIf deduction_detail_three = "" Then
-				deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-			ElseIf len(deduction_detail_three) < 21 Then
-				deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-			End if
-		End If
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical <> "" Then
-			If deduction_detail_one = "" Then
-				deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_one) < 21 Then
-				deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-			ElseIf deduction_detail_two = "" Then
-				deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_two) < 21 Then
-				deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-			ElseIf deduction_detail_three = "" Then
-				deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-			ElseIf len(deduction_detail_three) < 21 Then
-				deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-			End if
-		End If
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care <> "" Then
-			If deduction_detail_one = "" Then
-				deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_one) < 21 Then
-				deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-			ElseIf deduction_detail_two = "" Then
-				deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_two) < 21 Then
-				deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-			ElseIf deduction_detail_three = "" Then
-				deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-			ElseIf len(deduction_detail_three) < 21 Then
-				deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-			End if
-		End If
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses <> "" Then
-			If deduction_detail_one = "" Then
-				deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_one) < 21 Then
-				deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-			ElseIf deduction_detail_two = "" Then
-				deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-			ElseIf len(deduction_detail_two) < 21 Then
-				deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-			ElseIf deduction_detail_three = "" Then
-				deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-			ElseIf len(deduction_detail_three) < 21 Then
-				deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-			End if
-		End If
+        For select_deduction = 1 to 5
+            deduction_string = ""
+            If select_deduction = 1 Then
+                If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> ""    Then deduction_string = "Shelter Std $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+            ElseIf select_deduction = 2 Then
+        		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> ""      Then deduction_string = "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+            ElseIf select_deduction = 3 Then
+		        If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical <> ""     Then deduction_string = "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+            ElseIf select_deduction = 4 Then
+                If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care <> "" Then deduction_string = "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+            ElseIf select_deduction = 5 Then
+		        If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses <> ""        Then deduction_string = "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+            End If
 
-		Call write_variable_in_CASE_NOTE("Deductions: " & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
-		If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
-		If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
+            If deduction_string <> "" Then
+                If deduction_detail_one = "" Then
+                    deduction_detail_one = left(deduction_string & spaces_18, 18)
+                ElseIf (len(deduction_detail_one) + len(deduction_string)) < 35 Then
+                    deduction_detail_one = deduction_detail_one & "- " & deduction_string
+                ElseIf deduction_detail_two = "" Then
+                    deduction_detail_two = left(deduction_string & spaces_18, 18)
+                ElseIf (len(deduction_detail_two) + len(deduction_string)) < 35 Then
+                    deduction_detail_two = deduction_detail_two & "- " & deduction_string
+                ElseIf deduction_detail_three = "" Then
+                    deduction_detail_three = left(deduction_string & spaces_18, 18)
+                Else
+                    deduction_detail_three = deduction_detail_three & "- " & deduction_string
+                End if
+            End If
+        Next
+
+        Call write_variable_in_CASE_NOTE("Deduct: " & left(deduction_detail_one & spaces_30, 36) & "|   (-)   Deductions: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
+		If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("        " & left(deduction_detail_two & spaces_30, 36) & "|")
+		If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("        " & left(deduction_detail_three & spaces_30, 36) & "|")
 
 		Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
 		Call write_variable_in_CASE_NOTE("Expenses:   Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
@@ -26161,11 +26116,11 @@ If enter_CNOTE_for_MFIP = True Then
 				EMReadScreen notc_description, 30, wcom_row, 30
 				EMReadScreen notc_print_status, 8, wcom_row, 71
 
-				If notc_date <> "        " Then
+                If notc_date <> "        " Then
 					notc_date = DateAdd("d", 0, notc_date)
 					notc_description = trim(notc_description)
 					notc_print_status = trim(notc_print_status)
-					If DateDiff("d", date, notc_date) = 0 AND notc_type = "MF" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+                    If DateDiff("d", date, notc_date) = 0 AND notc_type = "MF" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
 						Call write_value_and_transmit("X", wcom_row, 13)
 
 						PF9
