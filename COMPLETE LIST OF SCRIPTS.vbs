@@ -4581,6 +4581,7 @@ script_array(script_num).tags                   = array("MFIP", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/14/2025#
+script_array(script_num).retirement_date		= #10/24/2025#
 script_array(script_num).hot_topic_date         = ""
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
