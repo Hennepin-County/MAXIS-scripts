@@ -1632,6 +1632,8 @@ class jobs_income
 
 	public sub create_new_panel()
         'If a new panel is to be created - this displays the dialog to collect the information and then creates the panel
+        first_of_cm_plus_2 = CM_plus_2_mo & "/1/" & CM_plus_2_yr
+        first_of_cm_plus_2 = DateAdd("d", 0, first_of_cm_plus_2)
 
 		'NEW JOB PANEL Dialog'
 		Dialog1 = ""
@@ -1689,7 +1691,12 @@ class jobs_income
 				If trim(enter_JOBS_verif_code) = "  " Then err_msg = err_msg & vbNewLine & "* Enter the verification code for this job."                                        'MAXIS requires some kind of verification code - 'N' is okay here
 				If enter_JOBS_employer = "" Then err_msg = err_msg & vbNewLine & "* Enter the employer name for this job."                                                      'Must have an employer name to enter into MAXIS
 				If len(enter_JOBS_employer) > 30 Then err_msg = err_msg & vbNewLine & "* The Employer name is too long to fit on the JOBS panel, abbreviate as necessary."      'Employer name line on JOBS is only a certain length, conforming to that length
-				If IsDate(enter_JOBS_start_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for Income start date."                                     'Requiring a start date for income since SNAP eligibility results can only be created if we have this
+				If IsDate(enter_JOBS_start_date) = FALSE Then
+                    err_msg = err_msg & vbNewLine & "* Enter a valid date for Income start date."                                     'Requiring a start date for income since SNAP eligibility results can only be created if we have this
+                Else
+                    If DateDiff("d", first_of_cm_plus_2, enter_JOBS_start_date) > 0 Then err_msg = err_msg & vbNewLine & "* The Income start date cannot be after " & CM_plus_1_mo & "/" & CM_plus_1_yr
+                    'Start date cannot be after current month plus 2
+                End If
 				If trim(enter_JOBS_end_date) <> "" AND IsDate(enter_JOBS_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for Income end date."     'IF there is an end date, it must be a valid date
 
 				if err_msg <> "" Then msgBox "Please resolve the following to continue:" & vbNewLine & err_msg          'displaying the error messages if there are any
@@ -1725,7 +1732,6 @@ class jobs_income
 					first_check = beginning_month & "/01/" & beginning_year         'setting the date of the first check to be entered on JOBS
 				End If
 			End If
-
 			If beginning_month = "" Then
 				If DateDiff("m", appl_date, enter_JOBS_start_date) >= 0 Then    'if the application date is before the income start date
 					beginning_month = DatePart("m", enter_JOBS_start_date)      'we use the income start date as the footer month and year to enter the JOBS panel
@@ -4343,6 +4349,8 @@ class jobs_income
 				Call order_checks
 				Call create_expected_check_array
 				Call find_missing_checks
+            Else
+                Call make_known_date_earlier
 			End If
 
 			Call select_budget_option
@@ -6072,6 +6080,7 @@ Next
                     '---------------------------------------------------------------------------------'
                             '----------------------------------------------------------'
 
+member_string_wreg_check = " "
 If update_with_verifs = TRUE Then       'this means we have at least one panel with income to update'
     list_of_all_months_to_update = right(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)     'formatting our list of months
     list_of_all_months_to_update = left(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)
@@ -6107,6 +6116,10 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 'BUGGY CODE - this may miss the first check(s) in a month if they are not listed or the pay date is after the first one for the first month
 
                 JOBS_PANELS(panel).update_panel(active_month)                                                   'ALL THE JUICY BITS GO HERE
+
+                If JOBS_PANELS(panel).update_this_month = True Then
+                    If Instr(member_string_wreg_check, JOBS_PANELS(panel).member) = 0 Then member_string_wreg_check = member_string_wreg_check & JOBS_PANELS(panel).member & " "
+                End If
 
                 If JOBS_PANELS(panel).updates_to_display <> "" AND developer_mode = TRUE Then MsgBox JOBS_PANELS(panel).updates_to_display            'this shows the information that WOULD have been updated if we were not in INQUIRY
 				script_run_lowdown = script_run_lowdown & vbCr & JOBS_PANELS(panel).updates_to_display
@@ -6162,6 +6175,64 @@ For panel = 0 to UBOUND(JOBS_PANELS)       'looping through all of the current J
         JOBS_PANELS(panel).case_note_details(developer_mode)
     End If
 Next
+
+'This block is to check WREG for all MEMBERS who had a JOBS panel updated.
+'If the WREG status is 30 or 09 for any member, a reminder dialog will appear to remind the worker to review WREG for those members.
+'This is done as a dialgo with a required input to ensure it gets read.
+member_string_wreg_check = trim(member_string_wreg_check)           'this variable was updated as panels were worked on to have the MEMB REFERENCE NUMBER in a list with spaces
+If member_string_wreg_check <> "" Then                              'If no members had JOBS updated, then this is blank and we skip the WREG check
+    wreg_membs_array = split(member_string_wreg_check)              'create an array of members
+    member_string_wreg_check = " "                                  'resetting this variable to capture only MEMBERS with 09 or 30 WREG status
+    reminder_needed = False                                         'defaulting this to FALSE - will be set to TRUE if any member has 09 or 30 WREG status
+    Call MAXIS_background_check                                     'making sure the case is not in background after JOBS update
+    Call navigate_to_MAXIS_screen("STAT", "WREG")
+    For each memb in wreg_membs_array                               'looping through each member who had JOBS updated to check WREG status
+        Call write_value_and_transmit(memb, 20, 76)                 'navigating to the member's WREG
+        EMReadscreen wreg_status, 2, 8, 50                          'reading the WREG status
+        If wreg_status = "30" Then reminder_needed = True           'setting the reminder flag if 09 or 30 status found
+        If wreg_status = "09" Then reminder_needed = True
+        'Building the string to show in the dialog if needed
+        member_string_wreg_check = member_string_wreg_check & "MEMB" & memb & "WREG" & wreg_status & " "
+    Next
+
+    'If a WREG status of 09 or 30 was found for any member, show the reminder dialog
+    If reminder_needed Then
+        member_string_wreg_check = trim(member_string_wreg_check)
+        reminder_array = split(member_string_wreg_check)        'creating an array of the members who need WREG review
+        dlg_len = 175
+        If UBound(reminder_array) > 1 Then dlg_len = dlg_len + (15 * (UBound(reminder_array) - 1))    'increasing dialog length for each additional member needing review beyond 2
+
+        Dialog1 = ""
+        horse = 0
+        BeginDialog Dialog1, 0, 0, 300, dlg_len, "WREG Reminder"
+            Text 65, 10, 280, 10, "*** JOBS UPDATE COULD CAUSE WREG CHANGE ***"
+            Text 10, 25, 280, 30,  "Changes to earned income and hours can change the WREG Status and potentially the Time-Limited Status for members of the case. It is important to review WREG for anyone with a change in income or hours."
+            Text 10, 60, 280, 10,  "You can check the WREG panel(s) now while the script is still active."
+            Text 10, 75, 280, 10,  "Members with JOBS updated and WREG status needing review:"
+            For each wreg_info in reminder_array
+                Text 15, 90 + (15 * horse), 150, 10, "* MEMB " & mid(wreg_info, 5, 2) & " - WREG Status: " & mid(wreg_info, 11, 2)
+                horse = horse + 1
+            Next
+            Text 10, dlg_len-55, 280, 10, "Confirm WREG has been reviewed and updated as needed:"
+            ComboBox 10, dlg_len-45, 280, 45, "Select or Type"+chr(9)+"Yes, WREG is accurate"+chr(9)+"Yes, but additional review is needed"+chr(9)+"No, I have more informaiton to review first"+chr(9)+"No, I will review it later", wreg_review_response
+            ButtonGroup ButtonPressed
+                OkButton 240, dlg_len - 25, 50, 15
+        EndDialog
+
+        Do
+            err_msg = ""
+            dialog Dialog1
+
+            If wreg_review_response = "" or wreg_review_response = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Confirm you have reviewed the WREG panel(s) for the member(s) listed."
+            If err_msg <> "" Then MsgBox "** Please Resolve to Continue **" & vbNewLine & err_msg
+        Loop until err_msg = ""
+
+        'The worker response to the variable is NOT in CASE NOTE - but we are capturing it in the end message for possible review
+        end_msg = end_msg & vbCr & vbCr & "** SCRIPT REMINDER TO CHECK WREG **" & vbCr & "Worker Response: " & trim(wreg_review_response)
+    End If
+
+    Call back_to_SELF
+End If
 
 If end_msg = "" Then end_msg = "Script ended with no action taken, panels not updated, no case note created. No new panels were indicated and no income verification was entered to be budgeted."
 
