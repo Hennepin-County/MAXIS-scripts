@@ -2132,21 +2132,14 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
       'Error handling for SWKR panel updates
       If OS_swkr_update_panel_checkbox = 1 Then
         If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."
-        'Navigate to SWKR panel to ensure that SWKR panel exists
-        Call navigate_to_MAXIS_screen("STAT", "SWKR")
-        'Check if SWKR panel exists
-        EmReadScreen swkr_does_not_exist, 19, 24, 2
-        If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then 
-          Call back_to_SELF
-          If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
-          If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
-          If trim(OS_fax_number) = "" AND (len(OS_fax_number) <> 12 OR mid(OS_fax_number, 4, 1) <> "-" OR mid(OS_fax_number, 8, 1) <> "-") Then err_msg = err_msg & vbCr & "* You must fill out the Fax Number field in the format ###-###-####."
-          If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
-          If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
-          If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
-          If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
-          If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
-        End If
+        Call back_to_SELF
+        If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
+        If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+        If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
+        If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
+        If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
+        If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
         If trim(footer_month_SWKR) = "" OR Len(trim(footer_month_SWKR)) <> 2 OR IsNumeric(trim(footer_month_SWKR)) = False OR trim(footer_year_SWKR) = "" OR Len(trim(footer_year_SWKR)) <> 2 OR IsNumeric(trim(footer_year_SWKR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the SWKR panel updates in  the MM YY format."
       End If
       'Error handling for ADDR panel updates
@@ -2157,7 +2150,6 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
         If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
         If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
-        If trim(footer_month_ADDR) = "" OR Len(trim(footer_month_ADDR)) <> 2 OR IsNumeric(trim(footer_month_ADDR)) = False OR trim(footer_year_ADDR) = "" OR Len(trim(footer_year_ADDR)) <> 2 OR IsNumeric(trim(footer_year_ADDR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the ADDR panel updates in  the MM YY format."
       End If
       If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
       If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
