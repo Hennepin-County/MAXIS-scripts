@@ -3363,53 +3363,12 @@ class jobs_income
         If header = "mo_w_more_5_chcks"                 Then Call read_txt_value(mo_w_more_5_chcks,         info, "String")
         If header = "update_future"                     Then Call read_txt_value(update_future,             info, "Checkbox")
         If header = "cash_array_info_exists"            Then Call read_txt_value(cash_array_info_exists,    info, "Boolean")
-        ' If header = "numb_months"                       Then Call read_txt_value(numb_months,               info, "")         'Currently never assigned
-        ' If header = "reg_non_monthly"                   Then Call read_txt_value(reg_non_monthly,           info, "")         'Currently never assigned
-        ' If header = "update_this_month"                 Then Call read_txt_value(update_this_month,         info, "")         'Need to leave this as a default
-        ' If header = "updates_to_display"                Then Call read_txt_value(updates_to_display,        info, "")         'Need to leave this as a default
-
-        ' If header = "snap_anticipated_pay_array"        Then Call read_txt_value(snap_anticipated_pay_array,info, "")
-        ' If header = "cash_anticipated_pay_array"        Then Call read_txt_value(cash_anticipated_pay_array,info, "")
 
         If header = "cash_anticipated_pay_array" Then Call read_txt_array(cash_anticipated_pay_array, info, "String", "|", True)
-        '     temp_array = split(info, "|")
-        '     ReDim cash_anticipated_pay_array(UBound(temp_array))
-        '     For the_thing = 0 to UBound(temp_array)
-        '         cash_anticipated_pay_array(the_thing) = temp_array(the_thing)
-        '     Next
-        ' End If
-
         If header = "snap_anticipated_pay_array" Then Call read_txt_array(snap_anticipated_pay_array, info, "String", "|", True)
-        '     temp_array = split(info, "|")
-        '     ReDim snap_anticipated_pay_array(UBound(temp_array))
-        '     For the_thing = 0 to UBound(temp_array)
-        '         snap_anticipated_pay_array(the_thing) = temp_array(the_thing)
-        '     Next
-        ' End If
-
         If header = "expected_check_array" Then Call read_txt_array(expected_check_array, info, "Date", "|", True)
-        '     temp_array = split(info, "|")
-        '     ReDim expected_check_array(UBound(temp_array))
-        '     For the_thing = 0 to UBound(temp_array)
-        '         expected_check_array(the_thing) = temp_array(the_thing)
-        '     Next
-        ' End If
-
         If header = "this_month_checks_array" Then Call read_txt_array(this_month_checks_array, info, "Date", "|", True)
-        '     temp_array = split(info, "|")
-        '     ReDim this_month_checks_array(UBound(temp_array))
-        '     For the_thing = 0 to UBound(temp_array)
-        '         this_month_checks_array(the_thing) = temp_array(the_thing)
-        '     Next
-        ' End If
-
         If header = "retro_month_checks_array" Then Call read_txt_array(retro_month_checks_array, info, "Date", "|", True)
-        '     temp_array = split(info, "|")
-        '     ReDim retro_month_checks_array(UBound(temp_array))
-        '     For the_thing = 0 to UBound(temp_array)
-        '         retro_month_checks_array(the_thing) = temp_array(the_thing)
-        '     Next
-        ' End If
 
         If header = "CASH_ARRAY" Then
             array_ubound = info
@@ -3434,222 +3393,36 @@ class jobs_income
         End If
 
         If header = "cash_info_cash_mo_yr" Then Call read_txt_array(cash_info_cash_mo_yr, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_cash_mo_yr(the_thing) = temp_array(the_thing)
-        '     next
-        ' End If
         If header = "cash_info_retro_mo_yr" Then Call read_txt_array(cash_info_retro_mo_yr, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_retro_mo_yr(the_thing) = temp_array(the_thing)
-        '     next
-        ' End If
         If header = "cash_info_retro_updtd" Then Call read_txt_array(cash_info_retro_updtd, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         If UCASE(temp_array(the_thing)) = "FALSE" Then cash_info_retro_updtd(the_thing) = False
-        '         If UCASE(temp_array(the_thing)) = "TRUE" Then cash_info_retro_updtd(the_thing) = True
-        '     next
-        ' End If
         If header = "cash_info_prosp_updtd" Then Call read_txt_array(cash_info_prosp_updtd, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         If UCASE(temp_array(the_thing)) = "FALSE" Then cash_info_prosp_updtd(the_thing) = False
-        '         If UCASE(temp_array(the_thing)) = "TRUE" Then cash_info_prosp_updtd(the_thing) = True
-        '     next
-        ' End If
         If header = "cash_info_mo_retro_pay" Then Call read_txt_array(cash_info_mo_retro_pay, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_mo_retro_pay(the_thing) = temp_array(the_thing)
-        '         If NOT IsNumeric(cash_info_mo_retro_pay(the_thing)) Then temp_array(the_thing) = 0
-        '         cash_info_mo_retro_pay(the_thing) = FormatNumber(cash_info_mo_retro_pay(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "cash_info_mo_retro_hrs" Then Call read_txt_array(cash_info_mo_retro_hrs, info, "Integer", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_mo_retro_hrs(the_thing) = temp_array(the_thing)
-        '         If NOT IsNumeric(cash_info_mo_retro_hrs(the_thing)) Then cash_info_mo_retro_hrs(the_thing) = 0
-        '         cash_info_mo_retro_hrs(the_thing) = Round(cash_info_mo_retro_hrs(the_thing))
-        '     next
-        ' End If
         If header = "cash_info_mo_prosp_pay" Then Call read_txt_array(cash_info_mo_prosp_pay, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_mo_prosp_pay(the_thing) = temp_array(the_thing)
-        '         If NOT IsNumeric(cash_info_mo_prosp_pay(the_thing)) Then cash_info_mo_prosp_pay(the_thing) = 0
-        '         cash_info_mo_prosp_pay(the_thing) = FormatNumber(cash_info_mo_prosp_pay(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "cash_info_mo_prosp_hrs" Then Call read_txt_array(cash_info_mo_prosp_hrs, info, "Integer", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for the_thing = 0 to UBound(temp_array)
-        '         cash_info_mo_prosp_hrs(the_thing) = temp_array(the_thing)
-        '         If NOT IsNumeric(cash_info_mo_prosp_hrs(the_thing)) Then cash_info_mo_prosp_hrs(the_thing) = 0
-        '         cash_info_mo_prosp_hrs(the_thing) = Round(cash_info_mo_prosp_hrs(the_thing))
-        '     next
-        ' End If
-
 
         If header = "pay_date" Then Call read_txt_array(pay_date, info, "Date", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_date(cow) = temp_array(cow)
-        '         If IsDate(pay_date(cow)) Then pay_date(cow) = DateAdd("d", 0, pay_date(cow))
-        '     next
-        ' End If
         If header = "gross_amount" Then Call read_txt_array(gross_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         gross_amount(cow) = temp_array(cow)
-        '         If gross_amount(cow) Then gross_amount(cow) = gross_amount(cow)
-        '         If IsNumeric(gross_amount(cow)) Then gross_amount(cow) = FormatNumber(gross_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "hours" Then Call read_txt_array(hours, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         hours(cow) = temp_array(cow)
-        '         If hours(cow) Then hours(cow) = hours(cow)
-        '         If IsNumeric(hours(cow)) Then hours(cow) = FormatNumber(hours(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_entirely" Then Call read_txt_array(exclude_entirely, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_entirely(cow) = temp_array(cow)
-        '         If UCase(exclude_entirely(cow)) = "TRUE" Then exclude_entirely(cow) = True
-        '         If UCase(exclude_entirely(cow)) = "FALSE" Then exclude_entirely(cow) = False
-        '     next
-        ' End If
         If header = "exclude_from_SNAP" Then Call read_txt_array(exclude_from_SNAP, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_from_SNAP(cow) = temp_array(cow)
-        '         If exclude_from_SNAP(cow) = "" Then exclude_from_SNAP(cow) = unchecked
-        '         exclude_from_SNAP(cow) = exclude_from_SNAP(cow) * 1
-        '     next
-        ' End If
         If header = "exclude_from_CASH" Then Call read_txt_array(exclude_from_CASH, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_from_CASH(cow) = temp_array(cow)
-        '         If exclude_from_CASH(cow) = "" Then exclude_from_CASH(cow) = unchecked
-        '         exclude_from_CASH(cow) = exclude_from_CASH(cow) * 1
-        '     next
-        ' End If
         If header = "reason_to_exclude" Then Call read_txt_array(reason_to_exclude, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         reason_to_exclude(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "exclude_ALL_amount" Then Call read_txt_array(exclude_ALL_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_ALL_amount(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_ALL_amount(cow)) Then exclude_ALL_amount(cow) = FormatNumber(exclude_ALL_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_ALL_hours" Then Call read_txt_array(exclude_ALL_hours, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_ALL_hours(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_ALL_hours(cow)) Then exclude_ALL_hours(cow) = FormatNumber(exclude_ALL_hours(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_SNAP_amount" Then Call read_txt_array(exclude_SNAP_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_SNAP_amount(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_SNAP_amount(cow)) Then exclude_SNAP_amount(cow) = FormatNumber(exclude_SNAP_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_SNAP_hours" Then Call read_txt_array(exclude_SNAP_hours, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_SNAP_hours(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_SNAP_hours(cow)) Then exclude_SNAP_hours(cow) = FormatNumber(exclude_SNAP_hours(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_CASH_amount" Then Call read_txt_array(exclude_CASH_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_CASH_amount(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_CASH_amount(cow)) Then exclude_CASH_amount(cow) = FormatNumber(exclude_CASH_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "exclude_CASH_hours" Then Call read_txt_array(exclude_CASH_hours, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         exclude_CASH_hours(cow) = temp_array(cow)
-        '         If IsNumeric(exclude_CASH_hours(cow)) Then exclude_CASH_hours(cow) = FormatNumber(exclude_CASH_hours(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "SNAP_info_string" Then Call read_txt_array(SNAP_info_string, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         SNAP_info_string(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "CASH_info_string" Then Call read_txt_array(CASH_info_string, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         CASH_info_string(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "check_order" Then Call read_txt_array(check_order, info, "Number", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         check_order(cow) = temp_array(cow)
-        '         If IsNumeric(check_order(cow)) Then check_order(cow) = check_order(cow)*1
-        '     next
-        ' End If
         If header = "view_pay_date" Then Call read_txt_array(view_pay_date, info, "Date", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         view_pay_date(cow) = temp_array(cow)
-        '         If IsDate(view_pay_date(cow)) Then view_pay_date(cow) = DateAdd("d", 0, view_pay_date(cow))
-        '     next
-        ' End If
         If header = "frequency_issue" Then Call read_txt_array(frequency_issue, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         frequency_issue(cow) = temp_array(cow)
-        '         If UCase(frequency_issue(cow)) = "TRUE" Then frequency_issue(cow) = True
-        '         If UCase(frequency_issue(cow)) = "FALSE" Then frequency_issue(cow) = False
-        '     next
-        ' End If
         If header = "future_check" Then Call read_txt_array(future_check, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         future_check(cow) = temp_array(cow)
-        '         If UCase(future_check(cow)) = "TRUE" Then future_check(cow) = True
-        '         If UCase(future_check(cow)) = "FALSE" Then future_check(cow) = False
-        '     next
-        ' End If
         If header = "duplicate_pay_date" Then Call read_txt_array(duplicate_pay_date, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         duplicate_pay_date(cow) = temp_array(cow)
-        '         If UCase(duplicate_pay_date(cow)) = "TRUE" Then duplicate_pay_date(cow) = True
-        '         If UCase(duplicate_pay_date(cow)) = "FALSE" Then duplicate_pay_date(cow) = False
-        '     next
-        ' End If
         If header = "reason_SNAP_amt_excluded" Then Call read_txt_array(reason_SNAP_amt_excluded, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         reason_SNAP_amt_excluded(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "reason_CASH_amt_excluded" Then Call read_txt_array(reason_CASH_amt_excluded, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         reason_CASH_amt_excluded(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "pay_detail_btn" Then 'Call read_txt_array(pay_date, info, "", "^&**&^", False)
             temp_array = split(info, "^&**&^")
             for cow = 0 to UBound(temp_array)
@@ -3657,185 +3430,30 @@ class jobs_income
             next
         End If
         If header = "check_info_entered" Then Call read_txt_array(check_info_entered, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         check_info_entered(cow) = temp_array(cow)
-        '         If UCase(check_info_entered(cow)) = "TRUE" Then check_info_entered(cow) = True
-        '         If UCase(check_info_entered(cow)) = "FALSE" Then check_info_entered(cow) = False
-        '     next
-        ' End If
         If header = "bonus_check" Then Call read_txt_array(bonus_check, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         bonus_check(cow) = temp_array(cow)
-        '         If UCase(bonus_check(cow)) = "TRUE" Then bonus_check(cow) = True
-        '         If UCase(bonus_check(cow)) = "FALSE" Then bonus_check(cow) = False
-        '     next
-        ' End If
         If header = "pay_split_regular_amount" Then Call read_txt_array(pay_split_regular_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_regular_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_regular_amount(cow)) Then pay_split_regular_amount(cow) = FormatNumber(pay_split_regular_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_bonus_amount" Then Call read_txt_array(pay_split_bonus_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_bonus_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_bonus_amount(cow)) Then pay_split_bonus_amount(cow) = FormatNumber(pay_split_bonus_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_ot_amount" Then Call read_txt_array(pay_split_ot_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_ot_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_ot_amount(cow)) Then pay_split_ot_amount(cow) = FormatNumber(pay_split_ot_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_ot_hours" Then Call read_txt_array(pay_split_ot_hours, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_ot_hours(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_ot_hours(cow)) Then pay_split_ot_hours(cow) = FormatNumber(pay_split_ot_hours(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_shift_diff_amount" Then Call read_txt_array(pay_split_shift_diff_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_shift_diff_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_shift_diff_amount(cow)) Then pay_split_shift_diff_amount(cow) = FormatNumber(pay_split_shift_diff_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_tips_amount" Then Call read_txt_array(pay_split_tips_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_tips_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_tips_amount(cow)) Then pay_split_tips_amount(cow) = FormatNumber(pay_split_tips_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_other_amount" Then Call read_txt_array(pay_split_other_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_other_amount(cow) = temp_array(cow)
-        '         If IsNumeric(pay_split_other_amount(cow)) Then pay_split_other_amount(cow) = FormatNumber(pay_split_other_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "pay_split_other_detail" Then Call read_txt_array(pay_split_other_detail, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_split_other_detail(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "pay_excld_bonus" Then Call read_txt_array(pay_excld_bonus, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_excld_bonus(cow) = temp_array(cow)
-        '         If pay_excld_bonus(cow) = "" Then pay_excld_bonus(cow) = unchecked
-        '         pay_excld_bonus(cow) = pay_excld_bonus(cow) * 1
-        '     next
-        ' End If
         If header = "pay_excld_ot" Then Call read_txt_array(pay_excld_ot, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_excld_ot(cow) = temp_array(cow)
-        '         If pay_excld_ot(cow) = "" Then pay_excld_ot(cow) = unchecked
-        '         pay_excld_ot(cow) = pay_excld_ot(cow) * 1
-        '     next
-        ' End If
         If header = "pay_excld_shift_diff" Then Call read_txt_array(pay_excld_shift_diff, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_excld_shift_diff(cow) = temp_array(cow)
-        '         If pay_excld_shift_diff(cow) = "" Then pay_excld_shift_diff(cow) = unchecked
-        '         pay_excld_shift_diff(cow) = pay_excld_shift_diff(cow) * 1
-        '     next
-        ' End If
         If header = "pay_excld_tips" Then Call read_txt_array(pay_excld_tips, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_excld_tips(cow) = temp_array(cow)
-        '         If pay_excld_tips(cow) = "" Then pay_excld_tips(cow) = unchecked
-        '         pay_excld_tips(cow) = pay_excld_tips(cow) * 1
-        '     next
-        ' End If
         If header = "pay_excld_other" Then Call read_txt_array(pay_excld_other, info, "Checkbox", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_excld_other(cow) = temp_array(cow)
-        '         If pay_excld_other(cow) = "" Then pay_excld_other(cow) = unchecked
-        '         pay_excld_other(cow) = pay_excld_other(cow) * 1
-        '     next
-        ' End If
         If header = "split_check_string" Then Call read_txt_array(split_check_string, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         split_check_string(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "split_check_excld_string" Then Call read_txt_array(split_check_excld_string, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         split_check_excld_string(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "split_exclude_amount" Then Call read_txt_array(split_exclude_amount, info, "Amount", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         split_exclude_amount(cow) = temp_array(cow)
-        '         If IsNumeric(split_exclude_amount(cow)) Then split_exclude_amount(cow) = FormatNumber(split_exclude_amount(the_thing), 2,,0)
-        '     next
-        ' End If
         If header = "duplct_pay_date" Then Call read_txt_array(duplct_pay_date, info, "Date", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         duplct_pay_date(cow) = temp_array(cow)
-        '         If IsDate(duplct_pay_date(cow)) Then duplct_pay_date(cow) = DateAdd("d", 0, duplct_pay_date(cow))
-        '     next
-        ' End If
         If header = "calculated_by_ytd" Then Call read_txt_array(calculated_by_ytd, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         calculated_by_ytd(cow) = temp_array(cow)
-        '         If UCase(calculated_by_ytd(cow)) = "TRUE" Then calculated_by_ytd(cow) = True
-        '         If UCase(calculated_by_ytd(cow)) = "FALSE" Then calculated_by_ytd(cow) = False
-        '     next
-        ' End If
         If header = "ytd_calc_notes" Then Call read_txt_array(ytd_calc_notes, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         ytd_calc_notes(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "pay_detail_exists" Then Call read_txt_array(pay_detail_exists, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         pay_detail_exists(cow) = temp_array(cow)
-        '         If UCase(pay_detail_exists(cow)) = "TRUE" Then pay_detail_exists(cow) = True
-        '         If UCase(pay_detail_exists(cow)) = "FALSE" Then pay_detail_exists(cow) = False
-        '     next
-        ' End If
         If header = "combined_into_one" Then Call read_txt_array(combined_into_one, info, "Boolean", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         combined_into_one(cow) = temp_array(cow)
-        '         If UCase(combined_into_one(cow)) = "TRUE" Then combined_into_one(cow) = True
-        '         If UCase(combined_into_one(cow)) = "FALSE" Then combined_into_one(cow) = False
-        '     next
-        ' End If
         If header = "CASH_dialog_display" Then Call read_txt_array(CASH_dialog_display, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         SNAP_dialog_display(cow) = temp_array(cow)
-        '     next
-        ' End If
         If header = "CASH_dialog_display" Then Call read_txt_array(CASH_dialog_display, info, "String", "^&**&^", False)
-        '     temp_array = split(info, "^&**&^")
-        '     for cow = 0 to UBound(temp_array)
-        '         CASH_dialog_display(cow) = temp_array(cow)
-        '     next
-        ' End If
-
 
     end sub
 
@@ -4083,7 +3701,7 @@ class jobs_income
 
         If apply_to_GRH = checked or apply_to_CASH = checked  Then
             STATS_manualtime = STATS_manualtime + 145
-            updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** GRH Budget Update ***" & vbNewLine & "---- PIC ----"
+            updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** CASH/GRH Budget Update ***" & vbNewLine & "---- PIC ----"
             EMWriteScreen "X", 19, 71               'opening the GRH PIC
             transmit
 
@@ -4137,7 +3755,15 @@ class jobs_income
                                 net_amount = gross_amount(all_income) - calc_exclude      'taking out excluded amounts
                                 net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
                                 EMWriteScreen net_amount, list_row, 21
-                                running_hours = running_hours + hours(all_income)
+
+						        the_hours = hours(all_income)
+                                If IsNumeric(exclude_ALL_hours(all_income)) Then the_hours = the_hours - exclude_ALL_hours(all_income)
+                                If IsNumeric(exclude_CASH_hours(all_income)) Then the_hours = the_hours - exclude_CASH_hours(all_income)
+        						If pay_excld_ot(all_income) = checked and IsNumeric(pay_split_ot_hours(all_income)) Then the_hours = the_hours - pay_split_ot_hours(all_income)
+
+                                running_hours = running_hours + the_hours
+                                the_hours = FormatNumber(the_hours, 2, -1, 0, 0)
+                                EMWriteScreen the_hours, list_row, 32
                                 updates_to_display = updates_to_display & view_pay_date(all_income) & " - $" & net_amount & " - " & hours(all_income) & " hrs." & vbNewLine
 
                                 list_row = list_row + 1
@@ -4425,7 +4051,7 @@ class jobs_income
         total_hours = 0
         income_items_used = "~"
 
-        updates_to_display = updates_to_display & "-- Main JOBS panel --"
+        updates_to_display = updates_to_display & vbCr  & "-- Main JOBS panel --"
 
         checks_in_month = 0
         check_to_enter = "~"
@@ -4597,7 +4223,7 @@ class jobs_income
         call find_panel
 
         If update_this_month = TRUE Then              'if this panel should be update in thie month - here is where we do it
-            script_run_lowdown = script_run_lowdown & vbCr & "  - Updated JOBS - MEMB " & member & " " & instance & " - " & employer
+            script_run_lowdown = script_run_lowdown & vbCr & vbCr & "  - Updated JOBS - MEMB " & member & " " & instance & " - " & employer & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year &  "==========="
 
             months_updated = months_updated & ", " & MAXIS_footer_month & "/" & MAXIS_footer_year       'keeping a list of all the panels updated for each job
 
@@ -4659,7 +4285,7 @@ class jobs_income
         If apply_to_CASH = checked  OR hc_retro = TRUE Then         'now on to cash
             STATS_manualtime = STATS_manualtime + 185
             total_pay = 0
-            updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** Cash Budget Update (or Uncle Harry SNAP) ***"
+            updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** RETRO Checks UPDATE ***"
 
             update_retro = True
             If DateDiff("m", income_start_dt, RETRO_month) < 0 Then update_retro = False
@@ -4938,6 +4564,7 @@ class jobs_income
                         If InStr(income_items_used, "~" & all_income & "~") = 0 Then
                             appl_month_gross = appl_month_gross + gross_amount(all_income)
                             appl_month_hours = appl_month_hours + hours(all_income)
+                            If IsNumeric(exclude_ALL_hours(all_income)) Then appl_month_hours = appl_month_hours - exclude_ALL_hours(all_income)
 						    If IsNumeric(exclude_SNAP_hours(all_income)) Then appl_month_hours = appl_month_hours - exclude_SNAP_hours(all_income)
 
                             checks_lumped = checks_lumped & view_pay_date(all_income) & " - $ " & gross_amount(all_income) & " - " & hours(all_income) & "hrs.; "      'saving a list of the checks used
@@ -5006,6 +4633,7 @@ class jobs_income
                                     net_amount = gross_amount(all_income) - calc_exclude      'taking out excluded amounts
                                     net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
 						            the_hours = hours(all_income)
+                                    If IsNumeric(exclude_ALL_hours(all_income)) Then the_hours = the_hours - exclude_ALL_hours(all_income)
                                     If IsNumeric(exclude_SNAP_hours(all_income)) Then the_hours = the_hours - exclude_SNAP_hours(all_income)
         							If pay_excld_ot(all_income) = checked and IsNumeric(pay_split_ot_hours(all_income)) Then the_hours = the_hours - pay_split_ot_hours(all_income)
 
