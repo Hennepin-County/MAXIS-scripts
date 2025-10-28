@@ -10196,6 +10196,7 @@ class mfip_eligibility_detail
 	public revw_month
 	public hrf_month
 	public revw_status
+	public revw_type
 	public revw_caf_date
 	public revw_interview_date
 	public hrf_status
@@ -13165,6 +13166,7 @@ class ga_eligibility_detail
 	public revw_month
 	public hrf_month
 	public revw_status
+    public revw_type
 	public revw_caf_date
 	public revw_interview_date
 	public hrf_status
@@ -20653,39 +20655,36 @@ const hrf_form_date_const		= 9
 
 const mfip_revw_completed_const = 10
 const mfip_next_revw_const 		= 11
-const mfip_hrf_completed_const 	= 12
-const mfip_elig_const 			= 13
-const mfip_budg_cycle_const 	= 14
+const mfip_elig_const 			= 12
+const mfip_budg_cycle_const 	= 13
 
-const ga_revw_completed_const 	= 15
-const ga_next_revw_const 		= 16
-const ga_hrf_completed_const 	= 17
-const ga_elig_const 			= 18
-const ga_budg_cycle_const 		= 19
+const ga_revw_completed_const 	= 14
+const ga_next_revw_const 		= 15
+const ga_elig_const 			= 16
+const ga_budg_cycle_const 		= 17
 
-const snap_revw_completed_const = 20
-const snap_next_revw_const 		= 21
-const snap_hrf_completed_const 	= 22
-const snap_elig_const 			= 23
-const snap_budg_cycle_const 	= 24
+const snap_revw_completed_const = 18
+const snap_next_revw_const 		= 19
+const snap_elig_const 			= 20
+const snap_budg_cycle_const 	= 21
 
-const msa_revw_completed_const 	= 25
-const msa_next_revw_const 		= 26
-const msa_elig_const 			= 27
-const msa_budg_cycle_const 		= 28
+const msa_revw_completed_const 	= 22
+const msa_next_revw_const 		= 23
+const msa_hrf_completed_const 	= 24
+const msa_elig_const 			= 25
+const msa_budg_cycle_const 		= 26
 
-const grh_revw_completed_const 	= 29
-const grh_next_revw_const 		= 30
-const grh_hrf_completed_const 	= 31
-const grh_elig_const 			= 32
-const grh_budg_cycle_const 		= 33
+const grh_revw_completed_const 	= 27
+const grh_next_revw_const 		= 28
+const grh_elig_const 			= 29
+const grh_budg_cycle_const 		= 30
 
-const hc_revw_completed_const 	= 34
-const hc_next_revw_const 		= 35
-const hc_elig_const 			= 36
-const hc_budg_cycle_const 		= 37
+const hc_revw_completed_const 	= 31
+const hc_next_revw_const 		= 32
+const hc_elig_const 			= 33
+const hc_budg_cycle_const 		= 34
 
-const cash_revw_completed_const = 38
+const cash_revw_completed_const = 35
 
 const final_const				= 40
 
@@ -21341,23 +21340,24 @@ For each footer_month in MONTHS_ARRAY
 
 				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MFIP"
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
-			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = True
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 
-				REPORTING_COMPLETE_ARRAY(mfip_hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/MFIP"
-				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+				If IsDate(STAT_INFORMATION(month_count).stat_last_cash_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_cash_revw_date)
+				If IsDate(STAT_INFORMATION(month_count).stat_next_cash_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_cash_revw_date)
+
+				If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_cash_revw_process = "SR" Then
+					MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_type = "ER"
+                    REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+                    REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MFIP"
+				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" Then
+					MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_type = "SR"
+					REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/MFIP"
+				End If
 			End If
 
-			For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
+            For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
 				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
 
@@ -21565,6 +21565,16 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
+			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
+				MSA_ELIG_APPROVALS(msa_elig_months_count).hrf_month = True
+				MSA_ELIG_APPROVALS(msa_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+				MSA_ELIG_APPROVALS(msa_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+
+				REPORTING_COMPLETE_ARRAY(msa_hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/MSA"
+				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+			End If
 
 			For each_elig_memb = 0 to UBound(MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_ref_numbs)
 				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
@@ -21618,20 +21628,21 @@ For each footer_month in MONTHS_ARRAY
 
 				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GA"
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
-			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
-				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = True
-				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 
-				REPORTING_COMPLETE_ARRAY(ga_hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/GA"
-				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+				If IsDate(STAT_INFORMATION(month_count).stat_last_cash_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_cash_revw_date)
+				If IsDate(STAT_INFORMATION(month_count).stat_next_cash_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_cash_revw_date)
+
+				If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_cash_revw_process = "SR" Then
+					GA_ELIG_APPROVALS(ga_elig_months_count).revw_type = "ER"
+                    REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+                    REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GA"
+				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" Then
+					GA_ELIG_APPROVALS(ga_elig_months_count).revw_type = "SR"
+					REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/GA"
+				End If
 			End If
 
 			For each_elig_memb = 0 to UBound(GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_ref_numbs)
@@ -21793,21 +21804,11 @@ For each footer_month in MONTHS_ARRAY
 					GRH_ELIG_APPROVALS(grh_elig_months_count).revw_type = "ER"
 					REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
 					REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GRH"
-				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" Then
+				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" and mfip_status <> "ACTIVE" Then
 					GRH_ELIG_APPROVALS(grh_elig_months_count).revw_type = "SR"
 					REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
 					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/GRH"
 				End If
-			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
-				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = True
-				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-
-				REPORTING_COMPLETE_ARRAY(grh_hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/GRH"
-				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 		End If
 		grh_elig_months_count = grh_elig_months_count + 1
@@ -21859,15 +21860,6 @@ For each footer_month in MONTHS_ARRAY
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
-			End If
-			If STAT_INFORMATION(month_count).stat_mont_snap_status = "A" Then
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = True
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_snap_status
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-				REPORTING_COMPLETE_ARRAY(snap_hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
-				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/SNAP"
-				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 
 			SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = 0
