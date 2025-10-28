@@ -406,6 +406,7 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 	script_run_lowdown = script_run_lowdown & vbCr & "RSDI Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_RSDI_income
 	script_run_lowdown = script_run_lowdown & vbCr & "Other UNEA Income: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_other_unearned_income
 	script_run_lowdown = script_run_lowdown & vbCr & "Supportive Housing Disregard: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard
+    If GRH_ELIG_APPROVALS(grh_elig_months_count).income_too_low_for_supportive_housing_disregard = True Then script_run_lowdown = script_run_lowdown & vbCr & "Income too low for Supportive Housing Disregard to be used."
 	If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one <> "" Then
 		script_run_lowdown = script_run_lowdown & vbCr & "Vendor: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name
 		script_run_lowdown = script_run_lowdown & vbCr & "Health Dept Licensing: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_1_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_2_code & " " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_health_dept_license_3_code
@@ -7088,6 +7089,7 @@ function grh_elig_case_note()
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Supportive Hsg Disrgrd    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard, 8) & "      |")
+                If GRH_ELIG_APPROVALS(elig_ind).income_too_low_for_supportive_housing_disregard Then Call write_variable_in_CASE_NOTE("   - Not Applied - Income too low           |")
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "MFIP" Then
 
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
@@ -7105,6 +7107,7 @@ function grh_elig_case_note()
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Aged" Then Call write_variable_in_CASE_NOTE("  EW Spousal Allocation     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_EW_spousal_allocation, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Supportive Hsg Disrgrd    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard, 8) & "      |")
+                If GRH_ELIG_APPROVALS(elig_ind).income_too_low_for_supportive_housing_disregard Then Call write_variable_in_CASE_NOTE("   - Not Applied - Income too low           |")
 			End if
 			Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "      |     Counted Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income, 8))
 		End If
@@ -14784,6 +14787,8 @@ class grh_eligibility_detail
 	public hrf_status
 	public hrf_doc_date
 	public appears_supportive_housing_disregard_case
+    public ignore_supportive_housing
+    public income_too_low_for_supportive_housing_disregard
 	public all_income_disregarded
 
 	public grh_elig_memb_ref_numb
@@ -15029,6 +15034,8 @@ class grh_eligibility_detail
 		End If
 		If approved_today = True Then
 			appears_supportive_housing_disregard_case = True
+            income_too_low_for_supportive_housing_disregard = False
+            ignore_supportive_housing = False
 			all_income_disregarded = False
 			EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
 			EMReadScreen grh_elig_memb_full_name, 15, 6, 7
@@ -15069,7 +15076,7 @@ class grh_eligibility_detail
 			EMReadScreen grh_elig_case_test_income, 				6, 11, 45
 			EMReadScreen grh_elig_case_test_setting, 				6, 12, 45
 			EMReadScreen grh_elig_case_test_verif, 					6, 13, 45
-			If grh_elig_memb_elig_status = "INELIGIBLE" and grh_elig_case_test_income = "PASSED" Then appears_supportive_housing_disregard_case = False
+			If grh_elig_memb_elig_status = "INELIGIBLE" and grh_elig_case_test_income = "PASSED" Then ignore_supportive_housing = True
 
 			grh_elig_case_test_application_withdrawn = trim(grh_elig_case_test_application_withdrawn)
 			grh_elig_case_test_pben_coop = trim(grh_elig_case_test_pben_coop)
@@ -15287,6 +15294,13 @@ class grh_eligibility_detail
 					If grh_elig_budg_earned_income = "" Then grh_elig_budg_earned_income = "0.00"
 
 					If grh_elig_budg_RSDI_income = "0.00" and grh_elig_budg_other_unearned_income = "0.00" Then appears_supportive_housing_disregard_case = False
+                    If IsNumeric(grh_elig_budg_total_income) Then
+                        grh_elig_budg_total_income = grh_elig_budg_total_income * 1
+                        supp_housing_amount = grh_elig_budg_total_income * .3
+                        If appears_supportive_housing_disregard_case and grh_elig_budg_personal_needs <> "________" and supp_housing_amount =< 128 Then income_too_low_for_supportive_housing_disregard = True
+                        If supp_housing_amount < 128 Then appears_supportive_housing_disregard_case = False
+                        If supp_housing_amount = 128 Then ignore_supportive_housing = True
+                    End If
 
 					grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
 					grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
@@ -16114,6 +16128,7 @@ class grh_eligibility_detail
 				PF3
 			End If
 			If supportive_housing_vendor = False Then appears_supportive_housing_disregard_case = False
+            If supportive_housing_vendor = False Then income_too_low_for_supportive_housing_disregard = False
 			'If there is no income at all, we don't need to flag an error for supportive housing disregard
 			If appears_supportive_housing_disregard_case = True and grh_elig_budg_counted_income = "0.00" Then appears_supportive_housing_disregard_case = False
 			If supportive_housing_disregard_applies_to_this_month = False Then appears_supportive_housing_disregard_case = False
@@ -21763,8 +21778,10 @@ For each footer_month in MONTHS_ARRAY
 			REPORTING_COMPLETE_ARRAY(grh_next_revw_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_elig_review_date
 			REPORTING_COMPLETE_ARRAY(grh_elig_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
 
-			If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = True and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard = "" Then call supportive_housing_disregard_error(True)
-			If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = False and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard <> "" Then call supportive_housing_disregard_error(False)
+            If GRH_ELIG_APPROVALS(grh_elig_months_count).ignore_supportive_housing = False Then
+                If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = True and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard = "" Then call supportive_housing_disregard_error(True)
+                If GRH_ELIG_APPROVALS(grh_elig_months_count).appears_supportive_housing_disregard_case = False and GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_supp_hsg_disregard <> "" Then call supportive_housing_disregard_error(False)
+            End If
 
 			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 				If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_ref_numb <> STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
@@ -24700,8 +24717,10 @@ If enter_CNOTE_for_GRH = True Then
 			GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = False
 
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard <> "" Then
-				GRH_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
-				GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = True
+				If GRH_ELIG_APPROVALS(elig_ind).ignore_supportive_housing = False Then
+                    GRH_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+                    GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = True
+                End If
 
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "Required to add GRH Supportive Housing Disregard to the budget as this process is not yet automated in the system."
 			End If
