@@ -2270,35 +2270,8 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
     'Write information to panel depending on which address selected
-    'Manually writing informatiaon to STAT/ADDR to avoid errors with function
-    'Put panel in edit mode
-    PF9
-    'Blank out all information
-    EMWriteScreen "__", 4, 43
-    EMWriteScreen "__", 4, 46
-    EMWriteScreen "__", 4, 49
-    EMWriteScreen "______________________", 6, 43
-    EMWriteScreen "______________________", 7, 43
-    EMWriteScreen "_______________", 8, 43
-    EMWriteScreen "__", 8, 66
-    EMWriteScreen "_______", 9, 43
-    EMWriteScreen "__", 9, 66
-    EMWriteScreen "__", 9, 74
+    Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-    EMWriteScreen left(OS_addr_eff_date, 2), 4, 43
-    EMWriteScreen mid(OS_addr_eff_date, 4, 2), 4, 46
-    EMWriteScreen right(OS_addr_eff_date, 2), 4, 49
-    EMWriteScreen Left(OS_addr_address_street_line_1, 22), 6, 43 
-    EMWriteScreen Left(OS_addr_address_street_line_2, 22), 7, 43 
-    EMWriteScreen Left(OS_addr_city, 15), 8, 43
-    EMWriteScreen OS_addr_state, 8, 66
-    EMWriteScreen left(OS_addr_zip, 7), 9, 43
-    EMWriteScreen OS_addr_resi_code, 9, 66
-    EMWriteScreen "OT", 9, 74
-    'Transmit to save
-    transmit
-    transmit
-    transmit
   End If
 
   'CASE/NOTE information
