@@ -6781,7 +6781,6 @@ If HIRE_messages = 1 Then
                             'PF3 back to DAIL
                             PF3
                           ElseIf SNAP_required_action_applies = True Then
-                            msgbox "6847 SNAP_required_action_applies = True so message should not get processed"
                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "SNAP required action may apply." & " Message should not be deleted."   
                             
                             'Transmit past message back to DAIL
