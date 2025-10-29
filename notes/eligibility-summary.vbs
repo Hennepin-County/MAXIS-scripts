@@ -11478,6 +11478,7 @@ class mfip_eligibility_detail
 			mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
 			transmit			'MFB1
+
 			EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
 			EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 6, 32
 			EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 7, 32
@@ -11657,6 +11658,16 @@ class mfip_eligibility_detail
 				dm_row = 1
 				dm_col = 1
 				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+			End If
+            If dm_row = 0 Then
+				dm_row = 1
+				dm_col = 1
+				EMSearch "Maxis Person Monthly Income Budget", dm_row, dm_col
+			End If
+            If dm_row = 0 Then
+				dm_row = 1
+				dm_col = 1
+				EMSearch "MAXIS Person Monthly Income Budget", dm_row, dm_col
 			End If
 			Do while dm_row <> 0
 				pers_row = 1
