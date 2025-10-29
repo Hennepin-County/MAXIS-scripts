@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/20/2025", "Updated script to align with current DHS-5181 form; added functionality for OS staff to complete SWKR/ADDR panel updates without completing whole script; improved STAT panel update functionality.", "Mark Riegel, Hennepin County")
 call changelog_update("11/14/2022", "Enhanced script to only update SWKR/Case Manager information that is added. Previously all information was cleared before updating the SWKR/case manager info.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
@@ -55,28 +56,1161 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+'DEFINING CONSTANTS, ARRAY and BUTTONS===========================================================================
+
+'Buttons Defined
+'--Navigation buttons
+section_a_contact_info_btn              = 201
+section_b_contact_info_btn              = 202
+status_btn                              = 203
+initial_assessment_btn                  = 204
+MA_req_app_btn                          = 205
+exit_reasons_btn                        = 206
+other_changes_btn                       = 207
+section_d_comments_btn                  = 208
+MA_status_determination_btn             = 209
+changes_btn                             = 210  
+section_g_comments_btn                  = 211
+next_btn                                = 212
+previous_btn                            = 213
+complete_btn                            = 214
+
+'--Other buttons
+instructions_btn                        = 215
+section_a_add_assessor_btn              = 216
+section_e_add_assessor_btn              = 217
+section_a_assessor_return_btn           = 218
+section_e_assessor_return_btn           = 219
+section_a_assessor_return_no_save_btn   = 220
+section_e_assessor_return_no_save_btn   = 221
+section_a_fill_SWKR_btn                 = 222
+section_e_fill_SWKR_btn                 = 223
+update_panels_btn                       = 224
+skip_panel_updates_btn                  = 225
+return_btn                              = 226
+continue_btn                            = 227
+
+'Defining variables
+dialog_count = ""
+
+'DEFINING FUNCTIONS===========================================================================
+
+'Dialog 1 - Section A: Contact Information
+function section_a_contact_info()
+  dialog_count = 1
+  BeginDialog Dialog1, 0, 0, 270, 310, "1 - Section A: Contact Information"
+    Text 10, 10, 45, 10, "Form Status:"
+    DropListBox 65, 5, 75, 15, "Select one:"+chr(9)+"Complete"+chr(9)+"Incomplete", form_status_dropdown
+    Text 10, 25, 155, 10, "Click here to fill information from SWKR Panel:"
+    ButtonGroup ButtonPressed
+      PushButton 170, 20, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
+    GroupBox 5, 40, 260, 170, "FROM (assessor/case manager/care coordinator's information)"
+    Text 10, 55, 70, 10, "Date Sent to Worker:"
+    EditBox 90, 50, 50, 15, section_a_date_form_sent
+    Text 10, 70, 40, 10, "Assessor:"
+    EditBox 90, 65, 150, 15, section_a_assessor
+    Text 10, 85, 50, 10, "Lead Agency:"
+    EditBox 90, 80, 150, 15, section_a_lead_agency
+    Text 10, 100, 55, 10, "Phone Number:"
+    EditBox 90, 95, 55, 15, section_a_phone_number
+    Text 10, 115, 55, 10, "Street Address:"
+    EditBox 90, 110, 150, 15, section_a_street_address
+    Text 10, 130, 20, 10, "City:"
+    EditBox 90, 125, 150, 15, section_a_city
+    Text 10, 145, 25, 10, "State:"
+    EditBox 90, 140, 25, 15, section_a_state
+    Text 10, 160, 35, 10, "Zip Code:"
+    EditBox 90, 155, 55, 15, section_a_zip_code
+    Text 10, 175, 55, 10, "Email Address:"
+    EditBox 90, 170, 150, 15, section_a_email_address
+    Text 10, 195, 145, 10, "Click button to add up to 2 add'l assessors:"
+    ButtonGroup ButtonPressed
+      PushButton 160, 190, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
+    GroupBox 5, 220, 260, 30, "Person's Information"
+    Text 10, 230, 70, 10, "Select HH Member:"
+    DropListBox 80, 230, 160, 15, HH_Memb_DropDown, hh_memb
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+  EndDialog
+end function
+Dim form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+
+function section_a_additional_assessors()
+  dialog_count = 10
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section A: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
+    Text 10, 20, 40, 10, "Assessor:"
+    EditBox 90, 15, 150, 15, section_a_assessor_2
+    Text 10, 35, 50, 10, "Lead Agency:"
+    EditBox 90, 30, 150, 15, section_a_lead_agency_2
+    Text 10, 50, 55, 10, "Phone Number:"
+    EditBox 90, 45, 55, 15, section_a_phone_number_2
+    Text 10, 65, 55, 10, "Street Address:"
+    EditBox 90, 60, 150, 15, section_a_street_address_2
+    Text 10, 80, 20, 10, "City:"
+    EditBox 90, 75, 150, 15, section_a_city_2
+    Text 10, 95, 25, 10, "State:"
+    EditBox 90, 90, 25, 15, section_a_state_2
+    Text 10, 110, 35, 10, "Zip Code:"
+    EditBox 90, 105, 55, 15, section_a_zip_code_2
+    Text 10, 125, 55, 10, "Email Address:"
+    EditBox 90, 120, 150, 15, section_a_email_address_2
+    GroupBox 5, 150, 260, 135, "Additional Assessor (3)"
+    Text 10, 165, 40, 10, "Assessor:"
+    EditBox 90, 160, 150, 15, section_a_assessor_3
+    Text 10, 180, 50, 10, "Lead Agency:"
+    EditBox 90, 175, 150, 15, section_a_lead_agency_3
+    Text 10, 195, 55, 10, "Phone Number:"
+    EditBox 90, 190, 55, 15, section_a_phone_number_3
+    Text 10, 210, 55, 10, "Street Address:"
+    EditBox 90, 205, 150, 15, section_a_street_address_3
+    Text 10, 225, 20, 10, "City:"
+    EditBox 90, 220, 150, 15, section_a_city_3
+    Text 10, 240, 25, 10, "State:"
+    EditBox 90, 235, 25, 15, section_a_state_3
+    Text 10, 255, 35, 10, "Zip Code:"
+    EditBox 90, 250, 55, 15, section_a_zip_code_3
+    Text 10, 270, 55, 10, "Email Address:"
+    EditBox 90, 265, 150, 15, section_a_email_address_3
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 105, 15, "SAVE Info and Return", section_a_assessor_return_btn
+      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
+  EndDialog
+end function
+'Dim all variables in function
+Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
+
+'Dialog 2 - Section B: Assessment Results - Current Status
+function section_b_assess_results_current_status()
+  dialog_count = 2
+  BeginDialog Dialog1, 0, 0, 271, 310, "2 - Section B: Assessment Info - Status"
+    GroupBox 5, 5, 260, 245, "What is the person's current status? (check second if both apply)"
+    CheckBox 15, 20, 205, 10, "The person is requesting services or already enrolled", section_b_person_requesting_already_enrolled
+    GroupBox 20, 35, 235, 55, "Program Type"
+    Text 25, 45, 185, 10, "Program person is requesting or is currently enrolled in:"
+    DropListBox 25, 55, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+    Text 25, 75, 85, 10, "Check one (if applicable):"
+    CheckBox 115, 70, 45, 15, "Diversion", section_b_diversion_checkbox
+    CheckBox 165, 70, 50, 15, "Conversion", section_b_conversion_checkbox
+    CheckBox 15, 100, 195, 10, "The person resides in or will reside in an institution", section_b_person_will_reside_institution_checkbox
+    GroupBox 20, 115, 235, 125, "Institution"
+    Text 25, 130, 60, 10, "Admission Date:"
+    EditBox 90, 125, 50, 15, section_b_admission_date
+    Text 25, 145, 60, 10, "Facility:"
+    EditBox 90, 140, 95, 15, section_b_facility
+    Text 25, 160, 60, 10, "Phone Number:"
+    EditBox 90, 155, 95, 15, section_b_institution_phone_number
+    Text 25, 175, 60, 10, "Street Address:"
+    EditBox 90, 170, 95, 15, section_b_institution_street_address
+    Text 25, 190, 60, 10, "City:"
+    EditBox 90, 185, 95, 15, section_b_institution_city
+    Text 25, 205, 60, 10, "State:"
+    EditBox 90, 200, 20, 15, section_b_institution_state
+    Text 25, 220, 60, 10, "Zip Code:"
+    EditBox 90, 215, 95, 15, section_b_institution_zip_code
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
+end function
+'Dim all variables in function
+Dim section_b_person_requesting_already_enrolled, section_b_person_will_reside_institution_checkbox, section_b_program_type, section_b_diversion_checkbox, section_b_conversion_checkbox, section_b_admission_date, section_b_facility, section_b_institution_phone_number, section_b_institution_street_address, section_b_institution_city, section_b_institution_state, section_b_institution_zip_code
+
+'Dialog 3 - Section B: Assessment Results - Initial Assessment & Case Manager
+function section_b_assess_results_initial_assess_case_manager()
+  dialog_count = 3
+  BeginDialog Dialog1, 0, 0, 271, 310, "3 - Section B: Assessment Info - Initial Assessment and Case Manager"
+    GroupBox 5, 5, 260, 115, "Initial Assessment"
+    Text 15, 20, 115, 10, "Initial assessment date from MnA:"
+    EditBox 135, 15, 55, 15, section_b_initial_MnA_assessment_date
+    Text 15, 35, 55, 10, "Assessment on"
+    EditBox 75, 30, 55, 15, section_b_assessment_determination_date
+    Text 135, 35, 95, 10, "determined that the person:"
+    DropListBox 10, 50, 200, 20, "Select one:"+chr(9)+"Does not meet institutional LOC requirement"+chr(9)+"Meets institutional LOC requirement"+chr(9)+"Meets need criteria for PCA/CFSS", section_b_assessment_determination
+    Text 15, 70, 135, 10, "Will the person open to waiver/AC/ECS?"
+    CheckBox 160, 65, 25, 15, "Yes", section_b_open_to_waiver_yes_checkbox
+    CheckBox 190, 65, 25, 15, "No", section_b_open_to_waiver_no_checkbox
+    Text 15, 85, 120, 10, "Estimated monthly waiver/AC costs:"
+    EditBox 160, 80, 70, 15, section_b_monthly_waiver_costs
+    Text 15, 100, 90, 10, "Anticipated effective date:"
+    EditBox 160, 95, 50, 15, section_b_waiver_effective_date
+    GroupBox 5, 125, 260, 105, "Case Manager"
+    Text 15, 140, 220, 10, "Does the person have a case manager? (select ONE option below)"
+    CheckBox 20, 155, 105, 10, "Yes - I am the case manager", section_b_yes_case_manager
+    CheckBox 20, 170, 190, 10, "Yes - Someone else is the manager (enter info below):", section_b_yes_someone_else_case_manager
+    Text 40, 185, 75, 10, "Case Manager Name:"
+    EditBox 115, 180, 125, 15, section_b_case_manager_name
+    Text 40, 200, 60, 10, "Phone Number:"
+    EditBox 115, 195, 70, 15, section_b_case_manager_phone_number
+    CheckBox 25, 215, 25, 10, "No", section_b_no_case_manager
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
+end function
+'Dim all variables in function
+Dim section_b_initial_MnA_assessment_date, section_b_assessment_determination_date, section_b_assessment_determination, section_b_open_to_waiver_yes_checkbox, section_b_open_to_waiver_no_checkbox, section_b_monthly_waiver_costs, section_b_waiver_effective_date, section_b_yes_case_manager, section_b_yes_someone_else_case_manager, section_b_case_manager_name, section_b_case_manager_phone_number, section_b_no_case_manager
+
+'Dialog 4 - Section B: Assessment Results - MA Requests/Apps & Changes
+function section_b_assess_results_MA_requests_apps_changes()
+  dialog_count = 4
+  BeginDialog Dialog1, 0, 0, 271, 310, "4 - Section B: Assessment Info - MA Requests/Apps and Changes"
+    GroupBox 5, 5, 260, 200, "Medical Assistance requests/applications (select all that apply):"
+    CheckBox 15, 15, 110, 10, "Person applied for MA/MA-LTC", section_b_applied_MA_MA_LTC_checkbox
+    CheckBox 15, 30, 110, 10, "Person is an MA enrollee", section_b_ma_enrollee_checkbox
+    Text 30, 40, 170, 10, "Date assessor provided the DHS-3543/DHS-6696A:"
+    EditBox 205, 35, 50, 15, section_b_date_dhs_3543_provided
+    CheckBox 15, 55, 235, 10, "Person completed DHS-3543, DHS-6696A or DHS-3531; it is attached", section_b_completed_dhs_3543_3531_6696A_attached_checkbox
+    CheckBox 15, 70, 190, 10, "Person completed DHS-3543, DHS-6696A or DHS-3531", section_b_completed_dhs_3543_3531_6696A_checkbox
+    Text 30, 80, 80, 10, "Date sent to the county:"
+    EditBox 110, 80, 50, 15, section_b_dhs_3543_3531_6696A_sent_to_county_date
+    CheckBox 15, 100, 235, 10, "Send DHS-3543 (MAXIS MA enrollee)/DHS-6696A (METS MA enrollee)", section_b_send_dhs_3543_checkbox
+    CheckBox 15, 115, 160, 10, "Send DHS-3531 to person (Not MA Enrollee)", section_b_send_dhs_3531_checkbox
+    EditBox 25, 125, 80, 15, section_b_send_dhs_3531_address
+    EditBox 105, 125, 60, 15, section_b_send_dhs_3531_city
+    EditBox 165, 125, 25, 15, section_b_send_dhs_3531_state
+    EditBox 190, 125, 40, 15, section_b_send_dhs_3531_zip
+    Text 50, 140, 175, 10, "Address                          City              State        Zip"
+    CheckBox 15, 155, 190, 10, "Send DHS-3340 to person (asset assessment needed)", section_b_send_dhs_3340_checkbox
+    EditBox 25, 170, 80, 15, section_b_send_dhs_3340_address
+    EditBox 105, 170, 60, 15, section_b_send_dhs_3340_city
+    EditBox 165, 170, 25, 15, section_b_send_dhs_3340_state
+    EditBox 190, 170, 40, 15, section_b_send_dhs_3340_zip
+    Text 50, 185, 175, 10, "Address                          City              State        Zip"
+    GroupBox 5, 215, 260, 55, "Changes completed by assessor at reassessment (select all that apply)"
+    CheckBox 15, 225, 145, 10, "Person no longer meets institutional LOC", section_b_person_no_longer_institutional_LOC_checkbox
+    Text 30, 235, 170, 10, "Effect. date of waiver exit should be no sooner than:"
+    EditBox 205, 230, 50, 15, section_b_date_waiver_exit
+    CheckBox 15, 250, 155, 10, "Person chooses to enroll in another program", section_b_enroll_different_program_checkbox
+    DropListBox 180, 250, 70, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_enroll_another_program_list
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
+end function
+'Dim all variables in function
+Dim section_b_applied_MA_MA_LTC_checkbox, section_b_ma_enrollee_checkbox, section_b_date_dhs_3543_provided, section_b_completed_dhs_3543_3531_6696A_attached_checkbox, section_b_completed_dhs_3543_3531_6696A_checkbox, section_b_dhs_3543_3531_6696A_sent_to_county_date, section_b_send_dhs_3543_checkbox, section_b_send_dhs_3531_checkbox, section_b_send_dhs_3531_address, section_b_send_dhs_3531_city, section_b_send_dhs_3531_state, section_b_send_dhs_3531_zip, section_b_send_dhs_3340_checkbox, section_b_send_dhs_3340_address, section_b_send_dhs_3340_city, section_b_send_dhs_3340_state, section_b_send_dhs_3340_zip, section_b_person_no_longer_institutional_LOC_checkbox, section_b_date_waiver_exit, section_b_enroll_different_program_checkbox, section_b_enroll_another_program_list
+
+'Dialog 5 - Section C: Communication to eligibility worker - Exit Reasons
+function section_c_comm_elig_worker_exit_reasons()
+  dialog_count = 5
+  BeginDialog Dialog1, 0, 0, 270, 310, " 5 - Section C: Communication to eligibility worker - Exit Reasons"
+    GroupBox 5, 5, 260, 280, "Exit Reasons"
+    CheckBox 15, 15, 125, 10, "The person exited waiver program", section_c_exited_waiver_program_checkbox
+    Text 35, 30, 95, 10, "Effective date of waiver exit:"
+    EditBox 135, 25, 50, 15, section_c_date_waiver_exit
+    GroupBox 25, 50, 220, 230, "Reason - Check reason for exit (select all that apply)"
+    CheckBox 35, 65, 75, 10, "Hospital admission", section_c_hospital_admission_checkbox
+    EditBox 45, 75, 110, 15, section_c_hospital_name
+    EditBox 155, 75, 50, 15, section_c_hospital_admit_date
+    Text 65, 90, 150, 10, "Hospital Name                       Admission Date"
+    CheckBox 35, 100, 95, 10, "Nursing facility admission", section_c_nursing_facility_admission_checkbox
+    EditBox 45, 110, 110, 15, section_c_nursing_facility_name
+    EditBox 155, 110, 50, 15, section_c_nursing_facility_admit_date
+    Text 65, 125, 150, 10, "Facility Name                          Admission Date"
+    CheckBox 35, 135, 115, 10, "Residential treatment admission", section_c_residential_treatment_admission_checkbox
+    EditBox 45, 145, 110, 15, section_c_residential_facility_name
+    EditBox 155, 145, 50, 15, section_c_residential_facility_admit_date
+    Text 65, 160, 150, 10, "Facility Name                          Admission Date"
+    CheckBox 35, 175, 100, 10, "Person's informed choice", section_c_person_informed_choice_checkbox
+    CheckBox 35, 190, 85, 10, "Person is deceased", section_c_person_deceased_checkbox
+    Text 50, 205, 50, 10, "Date of death:"
+    EditBox 100, 200, 50, 15, section_c_date_of_death
+    CheckBox 35, 215, 110, 10, "Person moved out of state", section_c_person_moved_out_of_state_checkbox
+    Text 50, 230, 50, 10, "Date of move:"
+    EditBox 100, 225, 50, 15, section_c_date_of_move
+    CheckBox 35, 245, 205, 10, "Exited for other reasons (not including LOC) - explain below:", section_c_exited_for_other_reasons_checkbox
+    EditBox 45, 260, 190, 15, section_c_exited_for_other_reasons_explanation
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
+end function
+' Dim all variables in function
+Dim section_c_exited_waiver_program_checkbox, section_c_date_waiver_exit, section_c_hospital_admission_checkbox, section_c_hospital_name, section_c_hospital_admit_date, section_c_nursing_facility_admission_checkbox, section_c_nursing_facility_name, section_c_nursing_facility_admit_date, section_c_residential_treatment_admission_checkbox, section_c_residential_facility_name, section_c_residential_facility_admit_date, section_c_person_informed_choice_checkbox, section_c_person_deceased_checkbox, section_c_date_of_death, section_c_person_moved_out_of_state_checkbox, section_c_date_of_move, section_c_exited_for_other_reasons_checkbox, section_c_exited_for_other_reasons_explanation
+
+'Dialog 6 - Section C: Other Changes & Section D: Comments
+function section_c_other_changes_section_d_comments()
+  dialog_count = 6
+  BeginDialog Dialog1, 0, 0, 271, 310, "6 - Section C: Other Changes, Section D: Comments"
+    GroupBox 5, 5, 260, 235, "Other changes"
+    Text 15, 20, 50, 10, "Program type"
+    DropListBox 70, 15, 65, 15, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_c_program_type_list
+    Text 20, 30, 90, 10, "Choose one (if applicable)"
+    CheckBox 120, 30, 45, 10, "Diversion", section_c_diversion_checkbox
+    CheckBox 170, 30, 50, 10, "Conversion", section_c_conversion_checkbox
+    Text 15, 45, 100, 10, "Changes (select all that apply)"
+    CheckBox 15, 60, 145, 10, "Person has moved or has a new address", section_c_person_moved_new_address_checkbox
+    Text 35, 75, 80, 10, "Date address changed:"
+    EditBox 120, 70, 50, 15, section_c_date_address_changed
+    EditBox 25, 90, 70, 15, section_c_street_address
+    EditBox 95, 90, 50, 15, section_c_city
+    EditBox 145, 90, 25, 15, section_c_state
+    EditBox 170, 90, 40, 15, section_c_zip_code
+    Text 35, 105, 165, 10, "Address                       City                State       Zip"
+    CheckBox 15, 115, 205, 10, "Person has a new legal representative (enter details below)", section_c_new_legal_rep_checkbox
+    EditBox 25, 125, 80, 15, section_c_legal_rep_first_name
+    EditBox 105, 125, 80, 15, section_c_legal_rep_last_name
+    EditBox 185, 125, 55, 15, section_c_legal_rep_phone_number
+    Text 35, 140, 215, 10, "First name                         Last name                  Phone number"
+    EditBox 25, 150, 70, 15, section_c_legal_rep_street_address
+    EditBox 95, 150, 50, 15, section_c_legal_rep_city
+    EditBox 145, 150, 25, 15, section_c_legal_rep_state
+    EditBox 170, 150, 40, 15, section_c_legal_rep_zip_code
+    Text 35, 165, 165, 10, "Address                       City                State       Zip"
+    CheckBox 15, 175, 225, 10, "Person returning to community w/in 121 days of a qual. admission", section_c_person_return_to_community_checkbox
+    Text 40, 190, 50, 10, "Effective date:"
+    EditBox 95, 185, 50, 15, section_c_qual_admission_eff_date
+    CheckBox 15, 205, 225, 10, "Other changes related to program/service elig. (describe changes)", section_c_other_changes_program_checkbox
+    EditBox 25, 220, 225, 15, section_c_other_changes_program
+    GroupBox 5, 245, 260, 40, "Section D: Comments from assessor, case manager or care coordinator"
+    Text 15, 255, 215, 10, "Enter any additional notes or comments"
+    EditBox 15, 265, 225, 15, section_d_additional_comments
+    ButtonGroup ButtonPressed
+    PushButton 160, 290, 55, 15, "Next", next_btn
+    CancelButton 215, 290, 50, 15
+    PushButton 5, 290, 55, 15, "Previous", previous_btn
+    EndDialog
+end function
+'Dim the variables in function
+Dim section_c_program_type_list, section_c_diversion_checkbox, section_c_conversion_checkbox, section_c_person_moved_new_address_checkbox, section_c_date_address_changed, section_c_street_address, section_c_city, section_c_state, section_c_zip_code, section_c_new_legal_rep_checkbox, section_c_legal_rep_first_name, section_c_legal_rep_last_name, section_c_legal_rep_phone_number, section_c_legal_rep_street_address, section_c_legal_rep_city, section_c_legal_rep_state, section_c_legal_rep_zip_code, section_c_person_return_to_community_checkbox, section_c_qual_admission_eff_date, section_c_other_changes_program_checkbox, section_c_other_changes_program, section_d_additional_comments
+
+'Dialog 7 - Section E: Contact Information
+function section_e_contact_info()
+  first_name = replace(first_name, "_", "")
+  last_name = replace(last_name, "_", "")
+  ref_nbr = left(hh_memb, 2)
+  dialog_count = 7
+  BeginDialog Dialog1, 0, 0, 271, 310, "7 - Section E: Contact Information"
+    GroupBox 5, 5, 260, 200, "TO (assessor/case manager/care coordinator's information)"
+    Text 10, 25, 180, 10, "Date Sent to assessor/case manager/care coordinator:"
+    EditBox 195, 20, 50, 15, section_e_date_form_sent
+    Text 10, 45, 155, 10, "Click here to fill information from SWKR Panel:"
+    ButtonGroup ButtonPressed
+      PushButton 165, 40, 75, 15, "Fill from SWKR", section_e_fill_SWKR_btn
+    Text 10, 65, 40, 10, "Assessor:"
+    EditBox 90, 60, 150, 15, section_e_assessor
+    Text 10, 80, 50, 10, "Lead Agency:"
+    EditBox 90, 75, 150, 15, section_e_lead_agency
+    Text 10, 95, 55, 10, "Phone Number:"
+    EditBox 90, 90, 55, 15, section_e_phone_number
+    Text 10, 110, 55, 10, "Street Address:"
+    EditBox 90, 105, 150, 15, section_e_street_address
+    Text 10, 125, 20, 10, "City:"
+    EditBox 90, 120, 150, 15, section_e_city
+    Text 10, 140, 25, 10, "State:"
+    EditBox 90, 135, 25, 15, section_e_state
+    Text 10, 155, 35, 10, "Zip Code:"
+    EditBox 90, 150, 45, 15, section_e_zip_code
+    Text 10, 170, 55, 10, "Email Address:"
+    EditBox 90, 165, 150, 15, section_e_email_address
+    Text 10, 190, 145, 10, "Click button to add up to 2 add'l assessors:"
+    ButtonGroup ButtonPressed
+      PushButton 160, 185, 85, 15, "Add/Update Assessor", section_e_add_assessor_btn
+    GroupBox 5, 215, 260, 60, "Person's Information"
+    Text 10, 230, 105, 10, "Information entered previously:"
+    Text 15, 240, 40, 10, "First name:"
+    Text 70, 240, 170, 10, first_name
+    Text 15, 250, 40, 10, "Last name:"
+    Text 70, 250, 170, 10, last_name
+    Text 15, 260, 45, 10, "Ref Number:"
+    Text 70, 260, 75, 10, ref_nbr
+    ButtonGroup ButtonPressed
+      PushButton 160, 290, 55, 15, "Next", next_btn
+      CancelButton 215, 290, 50, 15
+      PushButton 5, 290, 55, 15, "Previous", previous_btn
+  EndDialog
+end function
+' Dim all variables in function
+Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, first_name, last_name, ref_nbr
+
+'Dialog 7 - Section E: Contact Information
+function section_e_additional_assessors()
+  dialog_count = 11
+  BeginDialog Dialog1, 0, 0, 271, 310, "Section E: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
+    Text 10, 20, 40, 10, "Assessor:"
+    EditBox 90, 15, 150, 15, section_e_assessor_2
+    Text 10, 35, 50, 10, "Lead Agency:"
+    EditBox 90, 30, 150, 15, section_e_lead_agency_2
+    Text 10, 50, 55, 10, "Phone Number:"
+    EditBox 90, 45, 55, 15, section_e_phone_number_2
+    Text 10, 65, 55, 10, "Street Address:"
+    EditBox 90, 60, 150, 15, section_e_street_address_2
+    Text 10, 80, 20, 10, "City:"
+    EditBox 90, 75, 150, 15, section_e_city_2
+    Text 10, 95, 25, 10, "State:"
+    EditBox 90, 90, 25, 15, section_e_state_2
+    Text 10, 110, 35, 10, "Zip Code:"
+    EditBox 90, 105, 55, 15, section_e_zip_code_2
+    Text 10, 125, 55, 10, "Email Address:"
+    EditBox 90, 120, 150, 15, section_e_email_address_2
+    GroupBox 5, 150, 260, 135, "Additional Assessor (3) - Leave blank if unneeded"
+    Text 10, 165, 40, 10, "Assessor:"
+    EditBox 90, 160, 150, 15, section_e_assessor_3
+    Text 10, 180, 50, 10, "Lead Agency:"
+    EditBox 90, 175, 150, 15, section_e_lead_agency_3
+    Text 10, 195, 55, 10, "Phone Number:"
+    EditBox 90, 190, 55, 15, section_e_phone_number_3
+    Text 10, 210, 55, 10, "Street Address:"
+    EditBox 90, 205, 150, 15, section_e_street_address_3
+    Text 10, 225, 20, 10, "City:"
+    EditBox 90, 220, 150, 15, section_e_city_3
+    Text 10, 240, 25, 10, "State:"
+    EditBox 90, 235, 25, 15, section_e_state_3
+    Text 10, 255, 35, 10, "Zip Code:"
+    EditBox 90, 250, 55, 15, section_e_zip_code_3
+    Text 10, 270, 55, 10, "Email Address:"
+    EditBox 90, 265, 150, 15, section_e_email_address_3
+    ButtonGroup ButtonPressed
+      PushButton 170, 290, 95, 15, "Save Info and Return", section_e_assessor_return_btn
+      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
+  EndDialog
+end function
+' Dim all functions in variable
+Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3,  section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
+
+'Dialog 8 - Section F: Medical Assistance
+function section_f_medical_assistance()
+  dialog_count = 8
+  BeginDialog Dialog1, 0, 0, 271, 370, "8 - Section F: Medical Assistance - Status and Determination"
+    GroupBox 5, 5, 260, 105, "MA status for long-term supports and services (select all that apply)"
+    CheckBox 15, 20, 175, 10, "Person applied for MA/MA-LTC (enter date applied)", section_f_person_applied_MA_checkbox
+    EditBox 210, 15, 50, 15, section_f_person_applied_date
+    CheckBox 15, 35, 150, 10, "DHS-3531 sent to person (enter date sent)", section_f_dhs_3531_sent_checkbox
+    EditBox 210, 30, 50, 15, section_f_dhs_3531_sent_date
+    CheckBox 15, 50, 185, 10, "DHS-3543/DHS-6696A sent to person (enter date sent)", section_f_dhs_3543_6696A_sent_checkbox
+    EditBox 210, 45, 50, 15, section_f_dhs_3543_6696A_sent_date
+    CheckBox 15, 65, 220, 10, "DHS-3543/DHS-6696A/DHS-3531 returned; elig. determ. pending", section_f_dhs_3543_3531_6696A_returned_checkbox
+    Text 30, 80, 40, 10, "Comments:"
+    EditBox 75, 75, 170, 15, section_f_dhs_3543_3531_6696A_returned_comments
+    CheckBox 15, 95, 180, 10, "DHS-3543/6696A/3531 not returned (enter due date)", section_f_dhs_3543_3531_6696A_not_returned_checkbox
+    EditBox 210, 90, 50, 15, section_f_dhs_3543_3531_6696A_not_returned_date
+    GroupBox 5, 110, 260, 235, "Determination (select all that apply)"
+    CheckBox 15, 125, 130, 10, "SMRT referral sent (enter date sent)", section_f_smrt_referral_sent_checkbox
+    EditBox 210, 120, 50, 15, section_f_smrt_referral_date
+    CheckBox 15, 140, 90, 10, "Certification of disability", section_f_disability_cert_checkbox
+    EditBox 25, 150, 50, 15, section_f_basic_disability_eff_date
+    DropListBox 85, 150, 65, 15, "Select one:"+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Withdrawn"+chr(9)+"Appealed", section_f_disability_status_list
+    EditBox 170, 150, 75, 15, section_f_disability_notes
+    Text 30, 165, 185, 10, "Effective date                 Status                                 Notes"
+    CheckBox 10, 180, 155, 10, "MA coverage approved (enter effective date)", section_f_ma_coverage_approved_checkbox
+    EditBox 210, 175, 50, 15, section_f_ma_coverage_eff_date
+    CheckBox 10, 195, 165, 10, "Basic MA medical spenddown (enter amount $)", section_f_basic_MA_med_spenddown_checkbox
+    EditBox 210, 190, 30, 15, section_f_basic_MA_med_spenddown_amount
+    CheckBox 10, 210, 180, 10, "MA-LTC open on specific date (enter effective date)", section_f_MA_LTC_open_date_checkbox
+    EditBox 210, 205, 50, 15, section_f_MA_LTC_open_date
+    CheckBox 10, 225, 195, 10, "MA-LTC spenddown or waiver obligation for initial month", section_f_MA_LTC_spenddown_waiver_checkbox
+    EditBox 25, 235, 40, 15, section_f_MA_LTC_spenddown_waiver_eff_date
+    EditBox 125, 235, 55, 15, section_f_MA_LTC_spenddown_waiver_amount
+    Text 25, 250, 200, 10, "Effective date            Spenddown/waiver obligation amount"
+    CheckBox 10, 270, 115, 10, "MA denied (enter effective date)", section_f_ma_denied_checkbox
+    EditBox 210, 265, 50, 15, section_f_ma_denied_date
+    CheckBox 10, 285, 130, 10, "MA-LTC denied (enter effective date)", section_f_ma_ltc_denied_checkbox
+    EditBox 210, 280, 50, 15, section_f_ma_ltc_denied_date
+    CheckBox 10, 300, 200, 10, "Person ineligible for MA-LTC until specific date (enter date)", section_f_inelig_MA_LTC_date_checkbox
+    EditBox 210, 295, 50, 15, section_f_inelig_MA_LTC_date
+    CheckBox 10, 315, 175, 10, "Basic MA continues until specific date (enter date)", section_f_basic_ma_continues_date_checkbox
+    EditBox 210, 310, 50, 15, section_f_basic_ma_continues_date
+    CheckBox 10, 330, 195, 10, "Results from asset assess. sent to person (enter date)", section_f_asset_asses_results_sent_checkbox
+    EditBox 210, 325, 30, 15, section_f_asset_asses_results_sent_date
+    ButtonGroup ButtonPressed
+      PushButton 165, 350, 50, 15, "Next", next_btn
+      CancelButton 215, 350, 50, 15
+      PushButton 5, 350, 50, 15, "Previous", previous_btn
+  EndDialog
+end function
+' Dim all functions in variable
+Dim section_f_person_applied_MA_checkbox, section_f_person_applied_date, section_f_dhs_3531_sent_checkbox, section_f_dhs_3531_sent_date, section_f_dhs_3543_6696A_sent_checkbox, section_f_dhs_3543_6696A_sent_date, section_f_dhs_3543_3531_6696A_returned_checkbox, section_f_dhs_3543_3531_6696A_returned_comments, section_f_dhs_3543_3531_6696A_not_returned_checkbox, section_f_dhs_3543_3531_6696A_not_returned_date, section_f_smrt_referral_sent_checkbox, section_f_smrt_referral_date, section_f_disability_cert_checkbox, section_f_basic_disability_eff_date, section_f_disability_status_list, section_f_disability_notes, section_f_ma_coverage_approved_checkbox, section_f_ma_coverage_eff_date, section_f_basic_MA_med_spenddown_checkbox, section_f_basic_MA_med_spenddown_amount, section_f_MA_LTC_open_date_checkbox, section_f_MA_LTC_open_date, section_f_MA_LTC_spenddown_waiver_checkbox, section_f_MA_LTC_spenddown_waiver_eff_date, section_f_MA_LTC_spenddown_waiver_amount, section_f_ma_denied_checkbox, section_f_ma_denied_date, section_f_ma_ltc_denied_checkbox, section_f_ma_ltc_denied_date, section_f_inelig_MA_LTC_date_checkbox, section_f_inelig_MA_LTC_date, section_f_basic_ma_continues_date_checkbox, section_f_basic_ma_continues_date, section_f_asset_asses_results_sent_checkbox, section_f_asset_asses_results_sent_date
+
+'Dialog 9 - Section F: Medical Assistance
+function section_f_medical_assistance_changes()
+  dialog_count = 9
+  BeginDialog Dialog1, 0, 0, 271, 340, "9 - Section F: Medical Assistance - Changes, Section G: Comments"
+    GroupBox 5, 5, 260, 275, "Changes (select all that apply)"
+    CheckBox 15, 20, 190, 10, "LTC spenddown/waiver obligation (enter spenddown $)", section_f_LTC_spenddown_checkbox
+    EditBox 210, 15, 30, 15, section_f_LTC_spenddown_amount
+    CheckBox 15, 35, 185, 10, "MA terminated (basic MA and MA-LTC) (enter eff. date)", section_f_ma_terminated_checkbox
+    EditBox 210, 30, 50, 15, section_f_ma_terminated_eff_date
+    CheckBox 15, 50, 180, 10, "Basic MA spenddown changed (enter spenddown $)", section_f_basic_ma_spenddown_change_checkbox
+    EditBox 210, 45, 30, 15, section_f_basic_ma_spenddown_change_amount
+    CheckBox 15, 65, 205, 10, "MA-LTC terminated on specific date; basic MA remains open", section_f_ma_LTC_terminated_checkbox
+    Text 30, 80, 60, 10, "Termination date:"
+    EditBox 90, 75, 50, 15, section_f_ma_LTC_terminated_date
+    Text 140, 80, 70, 10, "Date inelig. through:"
+    EditBox 210, 75, 50, 15, section_f_ma_payment_terminated_date_inelig_thru
+    CheckBox 15, 95, 145, 10, "Person is deceased (enter date of death)", section_f_person_deceased_checkbox
+    EditBox 210, 90, 50, 15, section_f_person_deceased_date_of_death
+    CheckBox 15, 110, 110, 10, "Person moved to an institution", section_f_person_moved_institution_checkbox
+    EditBox 25, 120, 50, 15, section_f_person_moved_institution_admit_date
+    EditBox 70, 120, 95, 15, section_f_person_moved_institution_facility_name
+    EditBox 165, 120, 75, 15, section_f_person_moved_institution_phone_number
+    Text 30, 135, 205, 10, "Admit date              Facility name                   Phone number"
+    EditBox 25, 150, 75, 15, section_f_person_moved_institution_address
+    EditBox 100, 150, 75, 15, section_f_person_moved_institution_city
+    EditBox 175, 150, 25, 15, section_f_person_moved_institution_state
+    EditBox 200, 150, 40, 15, section_f_person_moved_institution_zip
+    Text 30, 165, 205, 10, "Address                                 City                       State       Zip"
+    CheckBox 15, 175, 110, 10, "Person has a new address", section_f_person_new_address_checkbox
+    EditBox 25, 185, 75, 15, section_f_person_new_address_date_changed
+    EditBox 100, 185, 140, 15, section_f_person_new_address_new_phone_number
+    Text 30, 200, 185, 10, "Date addr. changed        New Phone Number (if changed)"
+    EditBox 25, 220, 75, 15, section_f_person_new_address_address
+    EditBox 100, 220, 75, 15, section_f_person_new_address_city
+    EditBox 175, 220, 25, 15, section_f_person_new_address_state
+    EditBox 200, 220, 40, 15, section_f_person_new_address_zip_code
+    Text 30, 235, 205, 10, "Address                                 City                       State       Zip"
+    CheckBox 15, 245, 135, 10, "Other change (describe reason below)", section_f_other_change_checkbox
+    EditBox 25, 255, 215, 15, section_f_person_other_change_description
+    GroupBox 5, 285, 260, 30, "Section G: Comments from the eligibility worker"
+    Text 10, 300, 110, 10, "Enter any add'l notes/comments:"
+    EditBox 120, 295, 135, 15, section_g_elig_worker_comments
+    ButtonGroup ButtonPressed
+      PushButton 165, 320, 50, 15, "Complete", complete_btn
+      CancelButton 215, 320, 50, 15
+      PushButton 5, 320, 50, 15, "Previous", previous_btn
+  EndDialog
+end function
+' Dim all functions in variable
+Dim section_f_LTC_spenddown_checkbox, section_f_LTC_spenddown_amount, section_f_ma_terminated_checkbox, section_f_ma_terminated_eff_date, section_f_basic_ma_spenddown_change_checkbox, section_f_basic_ma_spenddown_change_amount, section_f_ma_LTC_terminated_checkbox, section_f_ma_LTC_terminated_date, section_f_ma_payment_terminated_date_inelig_thru, section_f_person_deceased_checkbox, section_f_person_deceased_date_of_death, section_f_person_moved_institution_checkbox, section_f_person_moved_institution_admit_date, section_f_person_moved_institution_facility_name, section_f_person_moved_institution_phone_number, section_f_person_moved_institution_address, section_f_person_moved_institution_city, section_f_person_moved_institution_state, section_f_person_moved_institution_zip,section_f_person_new_address_checkbox, section_f_person_new_address_date_changed, section_f_person_new_address_new_phone_number, section_f_person_new_address_address, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, section_f_other_change_checkbox, section_f_person_other_change_description, section_g_elig_worker_comments
+
+'Error dialog alerting user of incomplete fields
+function incomplete_dialog_fields()
+  BeginDialog Dialog1, 0, 0, 196, 130, "Dialog not filled out completely"
+    Text 5, 5, 185, 25, "Not all fields in the previous dialog were filled out. You should fill out each dialog as completely as possible using the information from the submitted form."
+    Text 5, 40, 175, 20, "To return to the previous dialog and fill out the empty fields, click the button below:"
+    ButtonGroup ButtonPressed
+      PushButton 5, 60, 90, 15, "Return to previous dialog", return_btn
+    Text 5, 90, 175, 20, "To continue to the next dialog without updating the previous dialog, click the button below:"
+    ButtonGroup ButtonPressed
+      If dialog_count <> 10 Then PushButton 5, 110, 90, 15, "Continue to next dialog", continue_btn
+      If dialog_count = 10 Then PushButton 5, 110, 90, 15, "Complete form entry", complete_btn
+  EndDialog
+end function
+
+'Function will alert user of incomplete fields in previous dialog
+function incomplete_dialog_handling()	
+	If ButtonPressed = next_btn OR ButtonPressed = -1 Then
+    'Dialog_count is one off the actual dialog_count for each dialog because the dialog_count would have been incremented with the next_btn
+    If dialog_count = 2 then 
+      If trim(section_a_phone_number) = "" OR _  
+      trim(section_a_street_address) = "" OR _ 
+      trim(section_a_city) = "" OR _
+      trim(section_a_state) = "" OR _
+      trim(section_a_zip_code) = "" OR _  
+      trim(section_a_email_address) = "" Then 
+        incomplete_fields = True
+      End If
+    Else
+      incomplete_fields = False
+    End If
+      
+    If dialog_count = 3 then 
+      If section_b_person_requesting_already_enrolled + section_b_person_will_reside_institution_checkbox = 0 Then incomplete_fields = True
+      If section_b_person_requesting_already_enrolled = 1 then
+        If section_b_program_type = "Select one:" Then
+          incomplete_fields = True
+        End If
+      End If
+      If section_b_person_will_reside_institution_checkbox = 1 Then
+        If trim(section_b_admission_date) = "" OR _
+        trim(section_b_facility) = "" OR _
+        trim(section_b_institution_phone_number) = "" OR _
+        trim(section_b_institution_street_address) = "" OR _
+        trim(section_b_institution_city) = "" OR _
+        trim(section_b_institution_state) = "" OR _
+        trim(section_b_institution_zip_code) = "" Then
+          incomplete_fields = True
+        End If
+      End If
+    End If
+
+    If dialog_count = 4 then 
+      If trim(section_b_initial_MnA_assessment_date) = "" OR _
+        trim(section_b_assessment_determination_date) = "" OR _
+        section_b_assessment_determination = "Select one:" OR _
+        section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 OR _
+        trim(section_b_monthly_waiver_costs) = "" OR _ 
+        trim(section_b_waiver_effective_date) = "" OR _ 
+        section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager = 0 OR _ 
+        trim(section_b_case_manager_name) = "" OR _ 
+        trim(section_b_case_manager_phone_number) = "" Then
+          incomplete_fields = True
+      End If
+    End if 
+
+    If dialog_count = 5 then
+      If section_b_applied_MA_MA_LTC_checkbox + section_b_ma_enrollee_checkbox + section_b_completed_dhs_3543_3531_6696A_attached_checkbox + section_b_completed_dhs_3543_3531_6696A_checkbox + section_b_send_dhs_3543_checkbox + section_b_send_dhs_3531_checkbox + section_b_send_dhs_3340_checkbox = 0 OR _ 
+      section_b_person_no_longer_institutional_LOC_checkbox + section_b_enroll_different_program_checkbox = 0 Then
+        incomplete_fields = True
+      End If 
+    End If
+
+    If dialog_count = 6 then
+      If section_c_exited_waiver_program_checkbox = 0 AND _ 
+      section_c_hospital_admission_checkbox + section_c_nursing_facility_admission_checkbox + section_c_residential_treatment_admission_checkbox + section_c_person_informed_choice_checkbox + section_c_person_deceased_checkbox + section_c_person_moved_out_of_state_checkbox + section_c_exited_for_other_reasons_checkbox = 0 Then
+        incomplete_fields = True
+      End If 
+    End If
+
+    If dialog_count = 7 then
+      If section_c_program_type_list = "Select one:" OR _ 
+      section_c_person_moved_new_address_checkbox + section_c_new_legal_rep_checkbox + section_c_person_return_to_community_checkbox + section_c_other_changes_program_checkbox = 0 OR _ 
+      trim(section_d_additional_comments) = "" Then
+        incomplete_fields = True
+      End If
+    End if 
+
+    If dialog_count = 8 then 
+      If trim(section_e_date_form_sent) = "" OR _
+        trim(section_e_assessor) = "" OR _
+        trim(section_e_lead_agency) = "" OR _ 
+        trim(section_e_phone_number) = "" OR _  
+        trim(section_e_street_address) = "" OR _ 
+        trim(section_e_city) = "" OR _
+        trim(section_e_state) = "" OR _
+        trim(section_e_zip_code) = "" OR _  
+        trim(section_e_email_address) = "" Then 
+          incomplete_fields = True
+      End If 
+    End If
+
+    If dialog_count = 9 then
+      If section_f_person_applied_MA_checkbox + section_f_dhs_3531_sent_checkbox + section_f_dhs_3543_6696A_sent_checkbox + section_f_dhs_3543_3531_6696A_returned_checkbox + section_f_dhs_3543_3531_6696A_not_returned_checkbox = 0 OR _ 
+      section_f_smrt_referral_sent_checkbox + section_f_disability_cert_checkbox + section_f_ma_coverage_approved_checkbox + section_f_basic_MA_med_spenddown_checkbox + section_f_MA_LTC_open_date_checkbox + section_f_MA_LTC_spenddown_waiver_checkbox + section_f_ma_denied_checkbox + section_f_ma_ltc_denied_checkbox + section_f_inelig_MA_LTC_date_checkbox + section_f_basic_ma_continues_date_checkbox + section_f_asset_asses_results_sent_checkbox = 0 Then
+        incomplete_fields = True
+      End If
+    End if
+      
+
+    If dialog_count = 10 then
+      If section_f_LTC_spenddown_checkbox + section_f_ma_terminated_checkbox + section_f_basic_ma_spenddown_change_checkbox + section_f_ma_LTC_terminated_checkbox + section_f_person_deceased_checkbox + section_f_person_moved_institution_checkbox + section_f_person_new_address_checkbox + section_f_other_change_checkbox = 0 OR _ 
+      trim(section_g_elig_worker_comments) = "" Then
+        incomplete_fields = True
+      End If
+    End If
+  ElseIf ButtonPressed = section_a_assessor_return_btn OR ButtonPressed = section_e_assessor_return_btn Then
+    If dialog_count = 10 then 
+      If trim(section_a_assessor_2) = "" OR _  
+      trim(section_a_lead_agency_2) = "" OR _ 
+      trim(section_a_phone_number_2) = "" OR _
+      trim(section_a_street_address_2) = "" OR _ 
+      trim(section_a_city_2) = "" OR _ 
+      trim(section_a_state_2) = "" OR _ 
+      trim(section_a_zip_code_2) = "" OR _ 
+      trim(section_a_email_address_2) = "" OR _ 
+      trim(section_a_assessor_3) = "" OR _ 
+      trim(section_a_lead_agency_3) = "" OR _ 
+      trim(section_a_phone_number_3) = "" OR _
+      trim(section_a_street_address_3) = "" OR _ 
+      trim(section_a_city_3) = "" OR _ 
+      trim(section_a_state_3) = "" OR _  
+      trim(section_a_zip_code_3) = "" OR _  
+      trim(section_a_email_address_3) = "" Then
+        incomplete_fields = True
+      End If 
+    End If
+
+    If dialog_count = 11 then 
+      If trim(section_e_assessor_2) = "" OR _  
+      trim(section_e_lead_agency_2) = "" OR _ 
+      trim(section_e_phone_number_2) = "" OR _
+      trim(section_e_street_address_2) = "" OR _ 
+      trim(section_e_city_2) = "" OR _ 
+      trim(section_e_state_2) = "" OR _ 
+      trim(section_e_zip_code_2) = "" OR _ 
+      trim(section_e_email_address_2) = "" OR _ 
+      trim(section_e_assessor_3) = "" OR _ 
+      trim(section_e_lead_agency_3) = "" OR _ 
+      trim(section_e_phone_number_3) = "" OR _
+      trim(section_e_street_address_3) = "" OR _ 
+      trim(section_e_city_3) = "" OR _ 
+      trim(section_e_state_3) = "" OR _  
+      trim(section_e_zip_code_3) = "" OR _  
+      trim(section_e_email_address_3) = "" Then
+        incomplete_fields = True
+      End If 
+    End If
+  End If
+
+	If (ButtonPressed = next_btn OR ButtonPressed = -1) and incomplete_fields = True and err_msg = "" Then 
+    'Open the incomplete fields dialog
+    Dialog1 = "" 'Blanking out previous dialog detail
+    Call incomplete_dialog_fields()
+    incomplete_fields = False
+
+    DO
+      dialog Dialog1				'main dialog
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    If ButtonPressed = return_btn Then dialog_count = dialog_count - 1
+
+  ElseIf incomplete_fields = True and ButtonPressed = previous_btn Then
+    'If the user pressed previous, then reset incomplete_fields and do not show the warning message since they will have to visit dialog again
+    incomplete_fields = False
+  End If
+end function
+
+Function dialog_selection(dialog_selected) 	
+  'Selects the correct dialog based
+  If dialog_selected = 1 then call section_a_contact_info()
+  If dialog_selected = 2 then call section_b_assess_results_current_status()
+  If dialog_selected = 3 then call section_b_assess_results_initial_assess_case_manager()
+  If dialog_selected = 4 then call section_b_assess_results_MA_requests_apps_changes()
+  If dialog_selected = 5 then call section_c_comm_elig_worker_exit_reasons()
+  If dialog_selected = 6 then call section_c_other_changes_section_d_comments()
+  If dialog_selected = 7 then call section_e_contact_info()
+  If dialog_selected = 8 then call section_f_medical_assistance()
+  If dialog_selected = 9 then call section_f_medical_assistance_changes()
+  If dialog_selected = 10 then call section_a_additional_assessors()
+  If dialog_selected = 11 then call section_e_additional_assessors()
+End Function
+
+function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
+  If err_msg = "" AND (ButtonPressed = next_btn or ButtonPressed = -1) Then dialog_count = dialog_count + 1
+	If err_msg = "" AND ButtonPressed = previous_btn Then dialog_count = dialog_count - 1
+  If err_msg = "" AND ButtonPressed = section_a_add_assessor_btn then dialog_count = 10
+  If err_msg = "" AND ButtonPressed = section_e_add_assessor_btn then dialog_count = 11
+
+  If err_msg = "" AND ButtonPressed = section_a_assessor_return_btn then dialog_count = 1
+  If ButtonPressed = section_a_assessor_return_no_save_btn then 
+    'Reset all Add'l Assessor variables
+    section_a_assessor_2 = ""
+    section_a_lead_agency_2 = ""
+    section_a_phone_number_2 = ""
+    section_a_street_address_2 = ""
+    section_a_city_2 = ""
+    section_a_state_2 = ""
+    section_a_zip_code_2 = ""
+    section_a_email_address_2 = ""
+    section_a_assessor_3 = ""
+    section_a_lead_agency_3 = ""
+    section_a_phone_number_3 = ""
+    section_a_street_address_3 = ""
+    section_a_city_3 = ""
+    section_a_state_3 = ""
+    section_a_zip_code_3 = ""
+    section_a_email_address_3 = ""
+
+    dialog_count = 1
+  End If 
+  If err_msg = "" AND ButtonPressed = section_e_assessor_return_btn then dialog_count = 7
+  If ButtonPressed = section_e_assessor_return_no_save_btn then 
+    'Reset all Add'l Assessor variables
+    section_e_assessor_2 = ""
+    section_e_lead_agency_2 = ""
+    section_e_phone_number_2 = ""
+    section_e_street_address_2 = ""
+    section_e_city_2 = ""
+    section_e_state_2 = ""
+    section_e_zip_code_2 = ""
+    section_e_email_address_2 = ""
+    section_e_assessor_3 = ""
+    section_e_lead_agency_3 = ""
+    section_e_phone_number_3 = ""
+    section_e_street_address_3 = ""
+    section_e_city_3 = ""
+    section_e_state_3 = ""
+    section_e_zip_code_3 = ""
+    section_e_email_address_3 = ""
+    
+    dialog_count = 7
+  End If
+  If ButtonPressed = section_a_fill_SWKR_btn Then
+    Call navigate_to_MAXIS_screen("STAT", "SWKR")
+    'creates a new panel if one doesn't exist, and will needs new if there is not one
+    EMReadScreen panel_exists_check, 1, 2, 73
+    IF panel_exists_check = "0" THEN
+      'If no SWKR panel exists, then msgbox to alert the worker
+      msgbox "No SWKR panel exists. Script will return to dialog."
+    ELSE
+      'Read information from SWKR
+      EMReadScreen section_a_assessor, 35, 6, 32
+      section_a_assessor = replace(section_a_assessor, "_", "")
+      EMReadScreen section_a_street_address, 22, 8, 32
+      section_a_street_address = replace(section_a_street_address, "_", "")
+      EMReadScreen section_a_city, 15, 10, 32
+      section_a_city = replace(section_a_city, "_", "")
+      EMReadScreen section_a_phone_number, 14, 12, 34
+      section_a_phone_number = replace(section_a_phone_number, " ) ", "")
+      section_a_phone_number = replace(section_a_phone_number, " ", "")
+      'Convert phone number to ###-###-####
+      section_a_phone_number = left(section_a_phone_number, 3) & "-" & mid(section_a_phone_number, 4, 3) & "-" & right(section_a_phone_number, 4) 
+      EMReadScreen section_a_state, 2, 10, 54
+      EMReadScreen section_a_zip_code, 10, 10, 63
+      'Return to STAT/MEMB
+      Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    END IF
+  End If
+  If ButtonPressed = section_e_fill_SWKR_btn Then
+    Call navigate_to_MAXIS_screen("STAT", "SWKR")
+    'creates a new panel if one doesn't exist, and will needs new if there is not one
+    EMReadScreen panel_exists_check, 1, 2, 73
+    IF panel_exists_check = "0" THEN
+      'If no SWKR panel exists, then msgbox to alert the worker
+      msgbox "No SWKR panel exists. Script will return to dialog."
+    ELSE
+      'Read information from SWKR
+      EMReadScreen section_e_assessor, 35, 6, 32
+      section_e_assessor = replace(section_e_assessor, "_", "")
+      EMReadScreen section_e_street_address, 22, 8, 32
+      section_e_street_address = replace(section_e_street_address, "_", "")
+      EMReadScreen section_e_city, 15, 10, 32
+      section_e_city = replace(section_e_city, "_", "")
+      EMReadScreen section_e_phone_number, 14, 12, 34
+      section_e_phone_number = replace(section_e_phone_number, " ) ", "")
+      section_e_phone_number = replace(section_e_phone_number, " ", "")
+      'Convert phone number to ###-###-####
+      section_e_phone_number = left(section_e_phone_number, 3) & "-" & mid(section_e_phone_number, 4, 3) & "-" & right(section_e_phone_number, 4)
+      EMReadScreen section_e_state, 2, 10, 54
+      EMReadScreen section_e_zip_code, 10, 10, 63
+      'Return to STAT/MEMB
+      Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    END IF
+    'End at STAT/MEMB
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+  End If
+end function
+
+function dialog_specific_error_handling()	'Error handling for main dialog of forms
+  'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+	If dialog_count = 10 Then
+    If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return' or the 'Return WITHOUT Saving Assessor Info' buttons."
+  End If
+
+  If dialog_count = 11 Then
+    If ButtonPressed = -1 Then err_msg = err_msg & vbNewLine & "* You must press either the 'Save Info and Return' or the 'Return WITHOUT Saving Assessor Info' buttons."
+  End If
+
+	If ButtonPressed = next_btn or ButtonPressed = previous_btn Or ButtonPressed = -1 OR ButtonPressed = section_a_assessor_return_btn OR ButtonPressed = section_e_assessor_return_btn OR ButtonPressed = section_a_add_assessor_btn Or ButtonPressed = section_e_add_assessor_btn Then
+    'section_a_contact_info()
+    If dialog_count = 1 then 
+      If form_status_dropdown = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select either 'Complete' or 'Incomplete' from the Form Status dropdown list."
+      If trim(section_a_date_form_sent) = "" OR IsDate(section_a_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
+      If trim(section_a_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+      If trim(section_a_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+      If trim(section_a_phone_number) <> "" Then
+        If len(trim(section_a_phone_number)) <> 12 OR mid(section_a_phone_number, 4, 1) <> "-" OR mid(section_a_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+      End If
+      If trim(section_a_state) <> "" Then 
+        If len(trim(section_a_state)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+      End If  
+      If trim(section_a_zip_code) <> "" Then
+        If len(trim(section_a_zip_code)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+      End If
+      If hh_memb = "Select One:" Then err_msg = err_msg & vbNewLine & "* You must select the Household Member from the dropdown." 
+    End If
+    
+    'section_b_assess_results_current_status()
+    If dialog_count = 2 then 
+      If section_b_person_requesting_already_enrolled + section_b_person_will_reside_institution_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* Only select the second option for the person's current status if both options apply."
+      If section_b_person_requesting_already_enrolled = 1 Then
+        If section_b_program_type = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must select the program the person is requesting or is currently enrolled in from the dropdown list." 
+      End If
+      If section_b_diversion_checkbox + section_b_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox option - Diversion or Conversion."
+      If section_b_person_requesting_already_enrolled <> 1 Then
+        If section_b_diversion_checkbox = 1 OR section_b_conversion_checkbox = 1 Then err_msg = err_msg & vbNewLine & "* The 'Diversion' or 'Conversion' checkboxes should only be checked if 'The person is requesting services or already enrolled' checkbox is checked."
+      End If
+      If section_b_person_will_reside_institution_checkbox = 1 Then
+        If trim(section_b_admission_date) = "" or IsDate(section_b_admission_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the 'Admission Date' field in the format MM/DD/YYYY."
+        If trim(section_b_facility) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Facility field."
+        If trim(section_b_institution_phone_number) = "" OR len(trim(section_b_institution_phone_number)) <> 12 OR mid(section_b_institution_phone_number, 4, 1) <> "-" OR mid(section_b_institution_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        If trim(section_b_institution_street_address) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address field."
+        If trim(section_b_institution_city) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the City field."
+        If trim(section_b_institution_state) = "" OR len(trim(section_b_institution_state)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+        If trim(section_b_institution_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field."
+      End if 
+    End If 
+    
+    'section_b_assess_results_initial_assess_case_manager()
+    If dialog_count = 3 then 
+      If trim(section_b_initial_MnA_assessment_date) <> "" and IsDate(section_b_initial_MnA_assessment_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the 'Initial assessment date from MnA system' field in the format MM/DD/YYYY."
+      
+      If trim(section_b_assessment_determination_date) <> "" and IsDate(section_b_assessment_determination_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the 'Assessment on' field in the format MM/DD/YYYY."
+
+      If (section_b_open_to_waiver_yes_checkbox = 1) Then
+        If trim(section_b_monthly_waiver_costs) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the estimated monthly waiver/AC costs field."
+        If trim(section_b_waiver_effective_date) = "" or IsDate(section_b_waiver_effective_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the anticipated effective date field in the format MM/DD/YYYY."
+      End If
+      If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager > 1 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox for whether the person has a case manager."
+
+      If section_b_yes_someone_else_case_manager = 1 Then 
+        If trim(section_b_case_manager_name) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Case Manager Name field."
+        If trim(section_b_case_manager_phone_number) = "" OR len(trim(section_b_case_manager_phone_number)) <> 12 OR mid(section_b_case_manager_phone_number, 4, 1) <> "-" OR mid(section_b_case_manager_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+      End If
+    End if 
+
+    'section_b_assess_results_MA_requests_apps_changes()
+    If dialog_count = 4 then 
+      If section_b_ma_enrollee_checkbox = 1 Then
+        If trim(section_b_date_dhs_3543_provided) = "" or IsDate(section_b_date_dhs_3543_provided) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the assessor provided the DHS-3543."
+      End If
+      If section_b_completed_dhs_3543_3531_6696A_checkbox = 1 Then
+        If trim(section_b_dhs_3543_3531_6696A_sent_to_county_date) = "" or IsDate(section_b_dhs_3543_3531_6696A_sent_to_county_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the assessor provided the DHS-3543."
+      End If
+      If section_b_send_dhs_3531_checkbox = 1 Then
+        If trim(section_b_send_dhs_3531_address) = "" or trim(section_b_send_dhs_3531_city) = "" or trim(section_b_send_dhs_3531_state) = "" or trim(section_b_send_dhs_3531_zip) = "" Then err_msg = err_msg & vbNewLine & "* The checkbox for Send DHS-3340 to person (asset assessment needed) is checked so you must fill out the Address, City, State, and Zip Code fields below the checkbox."
+      End If     
+      If section_b_send_dhs_3340_checkbox = 1 Then
+        If trim(section_b_send_dhs_3340_address) = "" or trim(section_b_send_dhs_3340_city) = "" or trim(section_b_send_dhs_3340_state) = "" or trim(section_b_send_dhs_3340_zip) = "" Then err_msg = err_msg & vbNewLine & "* The checkbox for Send DHS-3340 to person (asset assessment needed) is checked so you must fill out the Address, City, State, and Zip Code fields below the checkbox."
+      End If          
+      If section_b_person_no_longer_institutional_LOC_checkbox = 1 Then
+        If trim(section_b_date_waiver_exit) = "" OR IsDate(section_b_date_waiver_exit) = False Then err_msg = err_msg & vbNewLine & "* The checkbox for Person no longer meets institutional LOC is checked. You must enter the effective date of waiver exit."
+      End If 
+      If section_b_enroll_different_program_checkbox = 1 Then
+        If section_b_enroll_another_program_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* The checkbox for Person chooses to enroll in another program. You must select the program from the dropdown list."
+      End If 
+    End if 
+
+    'section_c_comm_elig_worker_exit_reasons()
+    If dialog_count = 5 then 
+      If section_c_exited_waiver_program_checkbox = 1 Then
+        If trim(section_c_date_waiver_exit) = "" or IsDate(section_c_date_waiver_exit) = False Then err_msg = err_msg & vbNewLine & "* You must enter the effective date of the waiver exit."
+      End If
+      If section_c_hospital_admission_checkbox = 1 Then
+        If trim(section_c_hospital_name) = "" OR trim(section_c_hospital_admit_date) = "" Then err_msg = err_msg & vbNewLine & "* You checked the 'Hospital admission' checkbox. You must fill out the 'Hospital name' and 'Admission date' fields." 
+      End If
+      If section_c_nursing_facility_admission_checkbox = 1 Then
+        If trim(section_c_nursing_facility_name) = "" OR trim(section_c_nursing_facility_admit_date) = "" Then err_msg = err_msg & vbNewLine & "* You checked the 'Nursing facility admission' checkbox. You must fill out the 'Hospital name' and 'Admission date' fields."
+      End If
+      If section_c_residential_treatment_admission_checkbox = 1 Then
+        If trim(section_c_residential_facility_name) = "" OR trim(section_c_residential_facility_admit_date) = "" Then err_msg = err_msg & vbNewLine & "* You checked the 'Residential treatment admission' checkbox. You must fill out the 'Hospital name' and 'Admission date' fields."
+      End If
+
+      If section_c_person_deceased_checkbox = 1 Then
+        If trim(section_c_date_of_death) = "" or IsDate(section_c_date_of_death) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the date of death field in the format MM/DD/YYYY."
+      End If
+      If section_c_person_moved_out_of_state_checkbox = 1 Then
+        If trim(section_c_date_of_move) = "" or IsDate(section_c_date_of_move) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the date of move field in the format MM/DD/YYYY."
+      End If
+      If section_c_exited_for_other_reasons_checkbox = 1 Then
+        If trim(section_c_exited_for_other_reasons_explanation) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Exited for other reasons field."
+      End If
+    End if 
+
+    'section_c_other_changes_section_d_comments()
+    If dialog_count = 6 then 
+      If section_c_diversion_checkbox + section_c_conversion_checkbox = 2 Then err_msg = err_msg & vbNewLine & "* You can only check either the 'Diversion' or 'Conversion' checkboxes, not both."
+    
+      If section_c_program_type_list <> "Select one:" Then 
+        If section_c_person_moved_new_address_checkbox = 1 Then
+          If trim(section_c_date_address_changed) = "" or IsDate(section_c_date_address_changed) = False Then err_msg = err_msg & vbNewLine & "* You must enter the Date of Address Change in the format MM/DD/YYYY."
+          If trim(section_c_street_address) = "" OR trim(section_c_city) = "" or trim(section_c_state) = "" OR trim(section_c_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the fields for the person's new address (address, state, city, and zip code)."
+        End If
+        If section_c_new_legal_rep_checkbox = 1 Then
+          If trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_first_name) = "" or trim(section_c_legal_rep_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the First Name, Last Name, and Phone Number fields for the new legal representative."
+          If len(trim(section_c_legal_rep_phone_number)) <> 12 OR mid(section_c_legal_rep_phone_number, 4, 1) <> "-" OR mid(section_c_legal_rep_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+          If trim(section_c_legal_rep_street_address) = "" or trim(section_c_legal_rep_city) = "" or trim(section_c_legal_rep_state) = "" OR trim(section_c_legal_rep_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Street Address, City, State, and Zip Code fields for the new legal representative."
+        End If
+        If section_c_person_return_to_community_checkbox = 1 Then 
+          If trim(section_c_qual_admission_eff_date) = "" OR IsDate(section_c_qual_admission_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Effective Date for the Person returning to community w/in 121 days of a qual. admission."
+        End If
+        If section_c_other_changes_program_checkbox = 1 Then
+          If trim(section_c_other_changes_program) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the field to describe the Other changes related to program/service eligibility."
+        End If 
+      End If
+    End if 
+
+    'section_e_contact_info()
+    If dialog_count = 7 then 
+      If trim(section_e_date_form_sent) = "" OR IsDate(section_e_date_form_sent) = FALSE Then err_msg = err_msg & vbNewLine & "* You must fill out the Date Sent to Worker field in the format MM/DD/YYYY."
+      If trim(section_e_assessor) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+      If trim(section_e_lead_agency) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+      If trim(section_e_phone_number) <> "" Then
+        If len(trim(section_e_phone_number)) <> 12 OR mid(section_e_phone_number, 4, 1) <> "-" OR mid(section_e_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+      End If
+      If trim(section_e_state) <> "" Then 
+        If len(trim(section_e_state)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+      End If  
+      If trim(section_e_zip_code) <> "" Then
+        If len(trim(section_e_zip_code)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+      End If
+    End if 
+
+    'section_f_medical_assistance()
+    If dialog_count = 8 then 
+      If section_f_person_applied_MA_checkbox = 1 Then
+        If trim(section_f_person_applied_date) = "" OR IsDate(section_f_person_applied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the person applied for MA/MA-LTC in the format MM/DD/YYYY."
+      End If
+      If section_f_dhs_3531_sent_checkbox = 1 Then
+        If trim(section_f_dhs_3531_sent_date) = "" OR IsDate(section_f_dhs_3531_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3531 was sent to the person in the format MM/DD/YYYY."
+      End If
+      If section_f_dhs_3543_6696A_sent_checkbox = 1 Then
+        If trim(section_f_dhs_3543_6696A_sent_date) = "" OR IsDate(section_f_dhs_3543_6696A_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3543 was sent to the person in the format MM/DD/YYYY."
+      End If
+      If section_f_dhs_3543_3531_6696A_not_returned_checkbox = 1 Then
+        If trim(section_f_dhs_3543_3531_6696A_not_returned_date) = "" OR IsDate(section_f_dhs_3543_3531_6696A_not_returned_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the due date for the DHS-3543/6696A/3531 that was not returned in the format MM/DD/YYYY."
+      End If
+      If section_f_smrt_referral_sent_checkbox = 1 Then
+        If trim(section_f_smrt_referral_date) = "" OR IsDate(section_f_smrt_referral_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the date the SMRT referral was sent in the format MM/DD/YYYY."
+      End If
+      If section_f_disability_cert_checkbox = 1 Then
+        If trim(section_f_basic_disability_eff_date) = "" OR IsDate(section_f_basic_disability_eff_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the disability effective date in the format MM/DD/YYYY."
+        If section_f_disability_status_list = "Select one:" Then err_msg = err_msg & vbNewLine & "* You must indicate the 'Status' since the 'Certification of disability' checkbox is checked."
+      End If
+      If section_f_ma_coverage_approved_checkbox = 1 Then
+        If trim(section_f_ma_coverage_eff_date) = "" OR IsDate(section_f_ma_coverage_eff_date) = False Then err_msg = err_msg & vbNewLine & "* You must enter the MA Coverage effective date in the format MM/DD/YYYY."
+      End If
+      If section_f_basic_MA_med_spenddown_checkbox = 1 Then
+        If trim(section_f_basic_MA_med_spenddown_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the Basic MA medical spenddown amount."
+      End If
+
+      If section_f_ma_opened_checkbox = 1 Then
+        If trim(section_f_ma_opened_date) = "" OR IsDate(section_f_ma_opened_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the DHS-3543 was sent to the person in the format MM/DD/YYYY."
+      End If
+      If section_f_basic_ma_medical_spenddown_checkbox = 1 Then
+        If trim(section_f_basic_ma_medical_spenddown) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the dollar amount in the basic MA medical spenddown field."
+      End If
+      If section_f_MA_LTC_open_date_checkbox = 1 Then
+        If trim(section_f_MA_LTC_open_date) = "" OR IsDate(section_f_MA_LTC_open_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the specific date for when MA-LTC opened in the format MM/DD/YYYY."
+      End If
+      If section_f_MA_LTC_spenddown_waiver_checkbox = 1 Then
+        If trim(section_f_MA_LTC_spenddown_waiver_eff_date) = "" OR IsDate(section_f_MA_LTC_spenddown_waiver_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA-LTC spenddown or waiver obligation for initial month in the format MM/DD/YYYY."
+        If trim(section_f_MA_LTC_spenddown_waiver_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the Spenddown/waiver obligation amount."
+      End If
+      If section_f_ma_denied_checkbox = 1 Then
+        If trim(section_f_ma_denied_date) = "" OR IsDate(section_f_ma_denied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA denial in the format MM/DD/YYYY."
+      End If
+      If section_f_ma_payment_denied_checkbox = 1 Then
+        If trim(section_f_ma_payment_LTC_date) = "" OR IsDate(section_f_ma_payment_LTC_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA payment of LTC services denial in the format MM/DD/YYYY."
+      End If
+      If section_f_ma_ltc_denied_checkbox = 1 Then
+        If trim(section_f_ma_ltc_denied_date) = "" OR IsDate(section_f_ma_ltc_denied_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You checked the box that the MA-LTC was denied. You must enter the effective date in the format MM/DD/YYYY."
+      End If
+      If section_f_inelig_MA_LTC_date_checkbox = 1 Then
+        If trim(section_f_inelig_MA_LTC_date) = "" OR IsDate(section_f_inelig_MA_LTC_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date that person is ineligible for MA-LTC until in the format MM/DD/YYYY."
+      End If
+      If section_f_basic_ma_continues_date_checkbox = 1 Then
+        If trim(section_f_basic_ma_continues_date) = "" OR IsDate(section_f_basic_ma_continues_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date that Basic MA continues until in the format MM/DD/YYYY."
+      End If
+      If section_f_asset_asses_results_sent_checkbox = 1 Then
+        If trim(section_f_asset_asses_results_sent_date) = "" OR IsDate(section_f_asset_asses_results_sent_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date that the results from the asset assessment were sent to the person in the format MM/DD/YYYY."
+      End If
+    End If
+
+    'section_f_medical_assistance_changes()
+    If dialog_count = 9 then
+      If section_f_LTC_spenddown_checkbox = 1 Then
+        If trim(section_f_LTC_spenddown_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the spenddown dollar amount for the LTC spenddown/waiver obligation."
+      End If
+      If section_f_ma_terminated_checkbox = 1 Then
+        If trim(section_f_ma_terminated_eff_date) = "" OR IsDate(section_f_ma_terminated_eff_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the effective date for the MA termination for basic MA and MA payment of LTSS services in the format MM/DD/YYYY."
+      End If
+      If section_f_basic_ma_spenddown_change_checkbox = 1 Then
+        If trim(section_f_basic_ma_spenddown_change_amount) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the spenddown dollar amount for the basic MA spenddown."
+      End If
+      If section_f_ma_LTC_terminated_checkbox = 1 Then
+        If trim(section_f_ma_LTC_terminated_date) = "" OR IsDate(section_f_ma_LTC_terminated_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the termination date of the MA payment of LTSS services in the format MM/DD/YYYY."
+        If trim(section_f_ma_payment_terminated_date_inelig_thru) = "" OR IsDate(section_f_ma_payment_terminated_date_inelig_thru) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date the ineligibility lasts through in the format MM/DD/YYYY."
+      End If
+      If section_f_person_deceased_checkbox = 1 Then
+        If trim(section_f_person_deceased_date_of_death) = "" OR IsDate(section_f_person_deceased_date_of_death) = FALSE Then err_msg = err_msg & vbNewLine & "* You must enter the date of death in the format MM/DD/YYYY."
+      End If
+      If section_f_person_moved_institution_checkbox = 1 Then
+        If trim(section_f_person_moved_institution_admit_date) = "" OR IsDate(section_f_person_moved_institution_admit_date) = FALSE Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date in the format MM/DD/YYYY."
+        If trim(section_f_person_moved_institution_facility_name) = "" OR trim(section_f_person_moved_institution_phone_number) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the admit date, facility name, and phone number for the institution."
+        If len(trim(section_f_person_moved_institution_phone_number)) <> 12 OR mid(section_f_person_moved_institution_phone_number, 4, 1) <> "-" OR mid(section_f_person_moved_institution_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        If trim(section_f_person_moved_institution_address) = "" OR trim(section_f_person_moved_institution_city) = "" OR trim(section_f_person_moved_institution_state) = "" OR trim(section_f_person_moved_institution_zip) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person moved to an institution. You must enter the address, city, state, and zip code for the institution."
+      End If
+      If section_f_person_new_address_checkbox = 1 Then
+        If trim(section_f_person_new_address_date_changed) = "" OR IsDate(section_f_person_new_address_date_changed) = False Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person has a new address. You must enter the date of the address change in the format MM/DD/YYYY."
+        If trim(section_f_person_new_address_address) = "" OR trim(section_f_person_new_address_city) = "" OR trim(section_f_person_new_address_state) = "" OR trim(section_f_person_new_address_zip_code) = "" Then err_msg = err_msg & vbNewLine & "* You checked the box indicating that the person has a new address. You must enter the new address, city, state, and zip code for the new address."
+      End If
+      If section_f_other_change_checkbox = 1 Then
+        If trim(section_f_person_other_change_description) = "" Then err_msg = err_msg & vbNewLine & "* You checked the Other change box. You must describe the change in the field provided."
+      End If
+    End If
+
+    'section_a_additional_assessors()
+    If dialog_count = 10 then 
+      If trim(section_a_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+      If trim(section_a_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+      If trim(section_a_phone_number_2) <> "" Then
+        If len(trim(section_a_phone_number_2)) <> 12 OR mid(section_a_phone_number_2, 4, 1) <> "-" OR mid(section_a_phone_number_2, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+      End If
+      If trim(section_a_state_2) <> "" Then 
+        If len(trim(section_a_state_2)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+      End If  
+      If trim(section_a_zip_code_2) <> "" Then
+        If len(trim(section_a_zip_code_2)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+      End If      
+
+      'Handling for Asessor (3) to only trigger errors if some fields are filled in but if completely blank then it will ignore errors
+      If trim(section_a_assessor_3) <> "" or trim(section_a_lead_agency_3) <> "" OR trim(section_a_phone_number_3) <> "" OR trim(section_a_street_address_3) <> "" OR trim(section_a_city_3) <> "" OR trim(section_a_state_3) <> "" OR trim(section_a_zip_code_3) <> "" OR trim(section_a_email_address_3) <> "" Then
+        If trim(section_a_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+        If trim(section_a_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+        If trim(section_a_phone_number_3) <> "" Then
+          If len(trim(section_a_phone_number_3)) <> 12 OR mid(section_a_phone_number_3, 4, 1) <> "-" OR mid(section_a_phone_number_3, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        End If
+        If trim(section_a_state_3) <> "" Then 
+          If len(trim(section_a_state_3)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+        End If  
+        If trim(section_a_zip_code_3) <> "" Then
+          If len(trim(section_a_zip_code_3)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+        End If    
+      End If
+    End If
+
+    'section_e_additional_assessors()
+    If dialog_count = 11 then 
+      If trim(section_e_assessor_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+      If trim(section_e_lead_agency_2) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+      If trim(section_e_phone_number_2) <> "" Then
+        If len(trim(section_e_phone_number_2)) <> 12 OR mid(section_e_phone_number_2, 4, 1) <> "-" OR mid(section_e_phone_number_2, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+      End If
+      If trim(section_e_state_2) <> "" Then 
+        If len(trim(section_e_state_2)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+      End If  
+      If trim(section_e_zip_code_2) <> "" Then
+        If len(trim(section_e_zip_code_2)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+      End If      
+
+      'Handling for Asessor (3) to only trigger errors if some fields are filled in but if completely blank then it will ignore errors
+      If trim(section_e_assessor_3) <> "" or trim(section_e_lead_agency_3) <> "" OR trim(section_e_phone_number_3) <> "" OR trim(section_e_street_address_3) <> "" OR trim(section_e_city_3) <> "" OR trim(section_e_state_3) <> "" OR trim(section_e_zip_code_3) <> "" OR trim(section_e_email_address_3) <> "" Then
+        If trim(section_e_assessor_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Assessor field." 
+        If trim(section_e_lead_agency_3) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Lead Agency field." 
+        If trim(section_e_phone_number_3) <> "" Then
+          If len(trim(section_e_phone_number_3)) <> 12 OR mid(section_e_phone_number_3, 4, 1) <> "-" OR mid(section_e_phone_number_3, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        End If
+        If trim(section_e_state_3) <> "" Then 
+          If len(trim(section_e_state_3)) <> 2 Then err_msg = err_msg & vbNewLine & "* You must fill out the State field in the two character format, ex. MN."
+        End If  
+        If trim(section_e_zip_code_3) <> "" Then
+          If len(trim(section_e_zip_code_3)) <> 5 Then err_msg = err_msg & vbNewLine & "* You must fill out the Zip Code field in a five number format." 
+        End If    
+      End If
+    End If
+  End If
+
+	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+end function
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
 call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-'-------------------------------------------------------------------------------------------------DIALOG
+
+'Initial Dialog - Instructions
 Dialog1 = "" 'Blanking out previous dialog detail
-'Showing the case number - defining the dialog for the case number
-BeginDialog Dialog1 , 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 221, 115, "Enter LTC-5181 Form Details"
+  Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
+  Text 15, 35, 50, 10, "Case Number:"
+  EditBox 70, 30, 55, 15, MAXIS_case_number
+  Text 15, 50, 45, 15, "Script User:"
+  DropListBox 70, 50, 145, 20, "Select one:"+chr(9)+"HSR - enter DHS-5181 form details"+chr(9)+"OS Staff - update SWKR/ADDR panels", script_user_dropdown
+  Text 10, 80, 60, 10, "Worker Signature:"
+  EditBox 75, 75, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 25, 45, 50, 15
-	CancelButton 85, 45, 50, 15
+    OkButton 125, 95, 45, 15
+    CancelButton 170, 95, 45, 15
+    PushButton 150, 30, 65, 15, "Script Instructions", instructions_btn
 EndDialog
 
 DO
@@ -85,562 +1219,1161 @@ DO
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    If ButtonPressed = instructions_btn Then 
+      Call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20LTC%20-%205181.docx") 
+      err_msg = "LOOP"
+    End IF 
+    If script_user_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must make a selection from the dropdown for the Script User."
+		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+Call back_to_SELF
 
-'Dialog completed by worker. Each dialog follows this process:
-'  1. Show the dialog and validate that next/OK or prev is pressed
-'  2. Do the validation on that page, but contain a "if ButtonPressed = prev then exit do" to skip the validation if previous is pressed
-'  3. Validate again that next/OK or prev is pressed
-'  4. Loop until next is pressed, which will loop back to the previous dialog.
+'If OS staff, then provide dialog with options to make updates. If HSR staff, then provide full suite of dialogs
+If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
+  'Create list of HH members
+  Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 
-Do
+  'Start at the first dialog
+  dialog_count = 1
+
+  Do
     Do
-    	Do
-    		Do
-                err_msg = ""
-    			Do
-                    Dialog1 = "" 'Blanking out previous dialog detail
-                    'The successive dialogs for this script need to be defined in the loop just before being called
-                    BeginDialog Dialog1, 0, 0, 361, 305, "5181 Dialog 1"
-                      EditBox 55, 5, 55, 15, date_5181
-                      EditBox 170, 5, 55, 15, date_received
-                      EditBox 280, 5, 70, 15, lead_agency
-                      EditBox 235, 30, 115, 15, lead_agency_assessor
-                      EditBox 65, 50, 240, 15, casemgr_ADDR_line_01
-                      EditBox 65, 65, 240, 15, casemgr_ADDR_line_02
-                      EditBox 35, 85, 80, 15, casemgr_city
-                      EditBox 155, 85, 40, 15, casemgr_state
-                      EditBox 260, 85, 45, 15, casemgr_zip_code
-                      EditBox 35, 105, 25, 15, phone_area_code
-                      EditBox 65, 105, 25, 15, phone_prefix
-                      EditBox 95, 105, 25, 15, phone_second_four
-                      EditBox 140, 105, 25, 15, phone_extension
-                      EditBox 190, 105, 80, 15, fax
-                      CheckBox 275, 105, 80, 15, "Update SWRK panel", update_SWKR_info_checkbox
-                      CheckBox 60, 140, 115, 15, "Have script update ADDR panel", update_addr_checkbox
-                      EditBox 70, 160, 140, 15, name_of_facility
-                      EditBox 285, 160, 65, 15, date_of_admission
-                      EditBox 70, 180, 240, 15, facility_address_line_01
-                      EditBox 70, 195, 240, 15, facility_address_line_02
-                      EditBox 30, 215, 80, 15, facility_city
-                      EditBox 140, 215, 40, 15, facility_state
-                      EditBox 230, 215, 45, 15, facility_county_code
-                      EditBox 310, 215, 45, 15, facility_zip_code
-                      DropListBox 170, 250, 105, 15, "Select one..."+chr(9)+"No waiver"+chr(9)+"Alternative Care"+chr(9)+"BI diversion"+chr(9)+"BI conversion"+chr(9)+"CAC diversion"+chr(9)+"CAC conversion"+chr(9)+"CADI diversion"+chr(9)+"CADI conversion"+chr(9)+"DD diversion"+chr(9)+"DD conversion"+chr(9)+"EW diversion"+chr(9)+"EW conversion", waiver_type_droplist
-                      CheckBox 40, 265, 190, 10, "Essential Community Supports (DHS- 3876 is required)", essential_community_supports_check
-                      ButtonGroup ButtonPressed
-                        PushButton 245, 285, 55, 15, "Next", next_to_page_02_button
-                        CancelButton 305, 285, 50, 15
-                      Text 170, 110, 20, 10, "Fax:"
-                      Text 5, 160, 60, 15, "Name of Facility:"
-                      Text 5, 45, 55, 15, "Address line 1:"
-                      Text 5, 85, 25, 15, "City:"
-                      Text 220, 160, 65, 15, "Date of admission:"
-                      Text 135, 85, 20, 15, "State:"
-                      Text 5, 105, 30, 10, "Phone:"
-                      Text 230, 5, 45, 15, "Lead Agency:"
-                      Text 225, 85, 35, 15, "Zip code:"
-                      Text 5, 30, 100, 15, "**CONTACT INFORMATION**"
-                      Text 5, 65, 55, 15, "Address line 2:"
-                      Text 5, 180, 60, 15, "Facility address:"
-                      Text 105, 30, 130, 15, "Lead Agency Assessor/Case Manager:"
-                      Text 115, 5, 55, 15, "Date Received:"
-                      Text 25, 250, 140, 10, "Choose waiver type (or select 'no waiver'):"
-                      Text 125, 110, 15, 10, "Ext."
-                      Text 30, 235, 285, 15, "OR The client is currently requesting services/enrolled in the following waiver program:"
-                      Text 5, 195, 55, 15, "Address line 2:"
-                      Text 5, 140, 45, 15, "**STATUS**"
-                      GroupBox 0, 20, 355, 105, ""
-                      Text 5, 5, 50, 15, "Date on 5181:"
-                      Text 5, 215, 20, 15, "City:"
-                      Text 115, 215, 20, 15, "State:"
-                      Text 280, 215, 30, 15, "Zip code:"
-                      GroupBox 0, 130, 355, 150, ""
-                      Text 185, 215, 45, 15, "County code:"
-                      Text 185, 140, 165, 15, "**Script will default to sending the SWKR notices**"
-                    EndDialog
+      Do
+        Dialog1 = "" 'Blanking out previous dialog detail
+        Call dialog_selection(dialog_count)
 
-    				Dialog Dialog1						'Displays the first dialog - defined just above.
-    				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-    			Loop until ButtonPressed = next_to_page_02_button
-                If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "* Enter a valid 5181 date."
-                If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
-                IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
-                'case manager info
-                If trim(casemgr_ADDR_line_01) <> "" then
-                    If trim(casemgr_city) = "" then err_msg = err_msg & vBcr & "* Update the case manager's city."
-                    If trim(casemgr_state) = "" then err_msg = err_msg & vBcr & "* Update the case manager's state."
-                    If trim(casemgr_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the case manager's zip code."
-                End if
-                'phone number
-                If trim(phone_area_code) <> "" or trim(phone_prefix) <> "" or trim(phone_second_four) <> "" or trim(phone_extension) <> "" then
-                    If trim(phone_area_code) = "" or len(phone_area_code) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit area code."
-                    If trim(phone_prefix) = "" or len(phone_prefix) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit phone number prefix code."
-                    If trim(phone_second_four) = "" or len(phone_second_four) <> 4 then err_msg = err_msg & vBcr & "* Enter the case's managers 4-digit phone number line code."
-                End if
-                'facility info
-                IF update_addr_checkbox = 1 then
-                    If isdate(date_of_admission) = False then err_msg = err_msg & vBcr & "* Enter the date of admission."
-                    If trim(facility_address_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
-                    If trim(facility_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
-                    If trim(facility_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
-                    If trim(facility_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
-                    If trim(facility_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
-                End if
-    			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "* Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
-                IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-            Loop until err_msg = ""
-    	Loop until ButtonPressed = next_to_page_02_button
-        ''-------------------------------------------------------------------------------------------------DIALOG
-    	Do
-    		Do
-    			Do
-                    err_msg = ""
-    				Do
-                        Dialog1 = "" 'Blanking out previous dialog detailThe successive dialogs for this script need to be defined in the loop just before being called
-                        BeginDialog Dialog1, 0, 0, 361, 385, "5181 Dialog 2: INITIAL REQUESTS (check all that apply):"
-                        EditBox 75, 15, 45, 15, waiver_assessment_date
-                        EditBox 275, 30, 45, 15, estimated_effective_date
-                        EditBox 120, 50, 45, 15, estimated_monthly_waiver_costs
-                        CheckBox 175, 55, 170, 15, "Does not meet waiver services LOC requirement", does_not_meet_waiver_LOC_check
-                        EditBox 105, 70, 60, 15, ongoing_waiver_case_manager
-                        EditBox 75, 110, 45, 15, LTCF_assessment_date
-                        CheckBox 130, 115, 100, 10, "Meets MA-LOC requirement", meets_MALOC_check
-                        EditBox 130, 130, 110, 15, ongoing_case_manager
-                        CheckBox 10, 150, 135, 10, "Ongoing case manager not available", ongoing_case_manager_not_available_check
-                        CheckBox 10, 160, 115, 10, "Does not meet LOC requirement", does_not_meet_MALTC_LOC_check
-                        CheckBox 150, 150, 65, 10, "1503 requested?", requested_1503_check
-                        CheckBox 150, 160, 55, 10, "1503 on file?", onfile_1503_check
-                        CheckBox 10, 200, 80, 15, "Client applied for MA", client_applied_MA_check
-                        EditBox 240, 210, 45, 15, Client_MA_enrollee
-                        CheckBox 10, 225, 195, 15, "Completed DHS-3543 or DHS-3531 attached to DHS-5181", completed_3543_3531_check
-                        EditBox 235, 240, 45, 15, completed_3543_3531_faxed
-                        CheckBox 10, 255, 180, 15, "Please send DHS-3543 to client (MA enrollee)", please_send_3543_check
-                        EditBox 185, 270, 150, 15, please_send_3531
-                        CheckBox 10, 290, 205, 10, "Please send DHS-3340 to client - Asset Assessment needed", please_send_3340_check
-                        EditBox 240, 320, 45, 15, client_no_longer_meets_LOC_efffective_date
-                        DropListBox 105, 340, 60, 15, "Select one..."+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW", from_droplist
-                        DropListBox 180, 340, 60, 15, "Select one..."+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW", to_droplist
-                        EditBox 295, 340, 55, 15, waiver_program_change_effective_date
-                        ButtonGroup ButtonPressed
-                          PushButton 190, 365, 50, 15, "Previous", previous_to_page_01_button
-                          PushButton 245, 365, 50, 15, "Next", next_to_page_03_button
-                          CancelButton 300, 365, 50, 15
-                        GroupBox 5, 5, 350, 85, "**WAIVERS** Assessment date determine client:"
-                        GroupBox 5, 100, 350, 80, "**LTCF** Assessment determines client: "
-                        GroupBox 5, 190, 350, 115, "**MEDICAL ASSISTANCE REQUESTS/APPLICATIONS**"
-                        Text 10, 115, 60, 10, "Assessment date:"
-                        Text 10, 35, 265, 10, "Needs waiver services and meets LOC. Anticipated effective date no sooner than:"
-                        Text 170, 345, 10, 10, "to:"
-                        Text 10, 20, 60, 10, "Assessment date:"
-                        Text 245, 345, 50, 10, "Effective date:"
-                        GroupBox 5, 310, 350, 50, "**CHANGES COMPLETED BY THE ASSESSOR**"
-                        Text 10, 55, 110, 10, "Estimated monthly waiver costs:"
-                        Text 10, 75, 95, 10, "Ongoing case mgr assigned:"
-                        Text 10, 135, 110, 10, "Ongoing case manager assigned:"
-                        Text 10, 215, 230, 10, "Client is an MA enrollee -  If assessor provided DHS-3543, enter date:"
-                        Text 10, 245, 225, 10, "If completed DHS-3543 or DHS-3531 was faxed to county, enter date: "
-                        Text 10, 275, 170, 10, "Please send DHS-3531 to client (Not MA enrollee) at:"
-                        Text 10, 325, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
-                        Text 5, 345, 100, 10, "Waiver program change from:"
-                        EndDialog
-    					Dialog Dialog1							'Displays the second dialog - defined just above.
-    					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-    					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-    				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
-    				If ButtonPressed = previous_to_page_01_button THEN exit do
-                    If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") then err_msg = err_msg & vbcr & "You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
-                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-                Loop until err_msg = ""
-    		Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
-    		If ButtonPressed = previous_to_page_01_button then exit do
+        'Blank out variables on each new dialog
+        err_msg = ""
 
-            Do
-    			Do
-    			    err_msg = ""
-                        '-------------------------------------------------------------------------------------------------DIALOG
-                        Dialog1 = "" 'Blanking out previous dialog detail
-                        'The successive dialogs for this script need to be defined in the loop just before being called
-                         BeginDialog Dialog1 , 0, 0, 366, 345, "5181 Dialog 3"
-                         CheckBox 10, 20, 130, 10, "Exited waiver program effective date: ", exited_waiver_program_check
-                         EditBox 150, 15, 40, 15, exit_waiver_end_date
-                         CheckBox 15, 40, 60, 10, "Client's choice", client_choice_check
-                         CheckBox 200, 20, 115, 10, "Client deceased.  Date of death:", client_deceased_check
-                         EditBox 315, 15, 40, 15, date_of_death
-                         CheckBox 200, 40, 95, 10, "Client moved to LTCF on:", client_moved_to_LTCF_check
-                         EditBox 315, 35, 40, 15, client_moved_to_LTCF
-                         EditBox 75, 55, 235, 15, LTCF_ADDR_line_01
-                         EditBox 75, 75, 235, 15, LTCF_ADDR_line_02
-                         EditBox 35, 95, 55, 15, LTCF_city
-                         EditBox 120, 95, 25, 15, LTCF_state
-                         EditBox 195, 95, 25, 15, LTCF_county_code
-                         EditBox 265, 95, 45, 15, LTCF_zip_code
-                         CheckBox 15, 115, 115, 10, "Have script update ADDR panel", LTCF_update_ADDR_checkbox
-                         CheckBox 15, 135, 110, 10, "Waiver program change: From", waiver_program_change_check
-                         EditBox 125, 130, 45, 15, waiver_program_change_from
-                         EditBox 190, 130, 45, 15, waiver_program_change_to
-                         CheckBox 15, 155, 175, 10, "Client disenrolled from health plan.  Effective date: ", client_disenrolled_health_plan_check
-                         EditBox 190, 150, 45, 15, client_disenrolled_from_healthplan
-                         CheckBox 15, 175, 105, 10, "New address-Effective date:", new_address_check
-                         EditBox 125, 170, 45, 15, new_address_effective_date
-                         EditBox 80, 190, 235, 15, change_ADDR_line_1
-                         EditBox 80, 210, 235, 15, change_ADDR_line_2
-                         EditBox 35, 230, 60, 15, change_city
-                         EditBox 125, 230, 25, 15, change_state
-                         EditBox 205, 230, 25, 15, change_county_code
-                         EditBox 270, 230, 45, 15, change_zip_code
-                         CheckBox 15, 250, 115, 10, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
-                         EditBox 65, 270, 285, 15, case_action
-                         EditBox 65, 290, 285, 15, other_notes
-                         CheckBox 20, 310, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
-                         EditBox 70, 325, 120, 15, worker_signature
-                         ButtonGroup ButtonPressed
-                           PushButton 195, 325, 50, 15, "Previous", previous_to_page_02_button
-                           OkButton 250, 325, 50, 15
-                           CancelButton 305, 325, 50, 15
-                         Text 15, 75, 55, 10, "Address line 2:"
-                         Text 15, 100, 20, 10, "City:"
-                         Text 5, 330, 65, 10, "Worker signature:"
-                         Text 95, 100, 25, 10, "State:"
-                         Text 175, 135, 15, 10, "To: "
-                         Text 150, 100, 45, 10, "County code:"
-                         Text 230, 100, 35, 10, "Zip code:"
-                         Text 15, 275, 45, 10, "Case Action:"
-                         Text 15, 60, 60, 10, "Facility Address:"
-                         Text 15, 195, 60, 10, "Address line 1:"
-                         Text 15, 215, 55, 10, "Address line 2:"
-                         Text 15, 235, 20, 10, "City:"
-                         Text 100, 235, 20, 10, "State:"
-                         Text 155, 235, 45, 10, "County code:"
-                         Text 235, 235, 35, 10, "Zip code:"
-                         Text 15, 295, 45, 10, "Other notes:"
-                         GroupBox 5, 5, 355, 260, "**CHANGES** (check all that apply):"
-                       EndDialog
-    				Dialog Dialog1							'Displays the third dialog - defined just above.
-    				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
-    				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-    				IF (exited_waiver_program_check = checked AND isdate(exit_waiver_end_date) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the exited waiver checkbox that was checked."
-    				IF (client_deceased_check =  checked AND isdate(date_of_death) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client deceased checkbox that was checked."
-    				IF (client_moved_to_LTCF_check = checked AND isdate(client_moved_to_LTCF) = False) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client moved to LTCF checkbox that was checked."
-                    If LTCF_update_ADDR_checkbox = 1 then
-                        If trim(LTCF_ADDR_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
-                        If trim(LTCF_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
-                        If trim(LTCF_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
-                        If trim(LTCF_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
-                        If trim(LTCF_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
-                    End if
-                    IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "* Complete the field next to the waiver program change checkbox that was checked."
-    				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "* Complete a field next to the client disenrolled from health plan checkbox that was checked."
-    				IF (new_address_check = checked AND isdate(new_address_effective_date) = False) THEN err_msg = err_msg & vBcr & "* Complete a field next to the new address effective date checkbox that was checked."
-                    If update_addr_new_ADDR_checkbox = 1 then
-                        If trim(change_ADDR_line_1) = "" then err_msg = err_msg & vBcr & "* Update the new address line 1."
-                        If trim(change_city) = "" then err_msg = err_msg & vBcr & "* Update the new city."
-                        If trim(change_state) = "" then err_msg = err_msg & vBcr & "* Update the new state."
-                        If trim(change_county_code) = "" then err_msg = err_msg & vBcr & "* Update the new county code."
-                        If trim(change_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the new zip code."
-                    End if
-                    IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "* Complete case actions section."
-    				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "* Sign your case note."
-                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    			Loop until err_msg = ""
-    		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
-    	Loop until ButtonPressed = -1
-    	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-    Loop until case_note_confirm = TRUE
+        dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+        cancel_confirmation
+        Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
+        Call button_movement()				'function to move throughout the dialogs
+        Call incomplete_dialog_handling()     'function to alert worker to incomplete dialogs
+      Loop until err_msg = ""
+    Loop until (ButtonPressed = complete_btn or ButtonPressed = -1 AND dialog_count = 9)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
+  call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
+  'Start at SELF
+  Call back_to_SELF
 
-'Dollar bill symbol will be added to numeric variables
-IF estimated_monthly_waiver_costs <> "" THEN estimated_monthly_waiver_costs = "$" & estimated_monthly_waiver_costs
+  'ACTIONS----------------------------------------------------------------------------------------------------
+  'Read through panels to determine status and updates if needed
+  'Update ADDR
+  '--Fields with new address
+  new_address_provided = False
+  section_c_section_f_both_new_addresses = False
+  section_c_person_moved_new_address_only = False
+  section_f_person_new_address_only = False
+  date_of_death_provided = False
 
-'ACTIONS----------------------------------------------------------------------------------------------------
-'Updates STAT MEMB with client's date of death (client_deceased_check)
-IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB
-	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-	'Calculates the difference between the two dates (date of death and footer month)
-	difference_between_dates = DateDiff("m", date_of_death, footer_month_as_date)
+  '--Fields with new assessor details (SWKR panel)
+  'Navigate to STAT/SWKR to gather details
+  Call navigate_to_MAXIS_screen("STAT", "SWKR")
+  EmReadScreen swkr_does_not_exist, 19, 24, 2
+  If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
+    swkr_panel_exists = False
+  Else
+    swkr_panel_exists = True
+    'Read the SWKR screen - name, street, city, state, zip, phone
+    EmReadScreen current_swkr_name, 35, 6, 32
+    current_swkr_name = replace(current_swkr_name, "_", "")
+    EmReadScreen current_swkr_street, 22, 8, 32
+    current_swkr_street = replace(current_swkr_street, "_", "")
+    EmReadScreen current_swkr_city, 15, 10, 32
+    current_swkr_city = replace(current_swkr_city, "_", "")
+    EmReadScreen current_swkr_state, 2, 10, 54
+    EmReadScreen current_swkr_zip, 5, 10, 63
+    EmReadScreen current_swkr_area_code, 3, 12, 34
+    EmReadScreen current_swkr_prefix_code, 3, 12, 40
+    EmReadScreen current_swkr_line_code, 4, 12, 44
+    current_swkr_phone_number = current_swkr_area_code & current_swkr_prefix_code & current_swkr_line_code
+    current_swkr_panel_info = current_swkr_name & "(" & current_swkr_street & ", " & current_swkr_city & ", " & current_swkr_state & " " & current_swkr_zip & "; " & current_swkr_phone_number & ")"
+  End If
 
-	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-	If difference_between_dates <> 0 THEN
-		back_to_SELF
-		Call convert_date_into_MAXIS_footer_month(date_of_death, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		Transmit
-	END IF
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	PF9
-	'Writes in DOD from the date_of_death
-	Call create_MAXIS_friendly_date_with_YYYY(date_of_death, 0, 19, 42)
-	transmit
-	PF3
-	transmit
-END IF
-
-'------ADDRESS UPDATES----------------------------------------------------------------------------------------------------
-'Updates ADDR if selected on DIALOG 1 "have script update ADDR panel"
-IF update_addr_checkbox = 1 THEN
-	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-
-	'Calculates the difference between the two dates (date of admission and footer month)
-	difference_between_dates = DateDiff("m", date_of_admission, footer_month_as_date)
-
-	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-	If difference_between_dates <> 0 THEN
-		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(date_of_admission, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		Transmit
-	END IF
-
+  If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
+    new_address_provided = True
+    'Navigate to STAT/ADDR
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
     Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-END If
+    ' addr_eff_date = replace(addr_eff_date, " ", "/")
 
-'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
-IF LTCF_update_ADDR_checkbox = 1 THEN
-		'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+    current_ADDR_address = addr_eff_date & "; " & resi_street_full & ", " & resi_state & ", " & resi_zip & " (" & "County: " & resi_county & "; " & "Ver: " & addr_verif & "; " & "Living Sit: " & addr_living_sit & ")"
 
-	'Calculates the difference between the two dates (date of admission and footer month)
-	difference_between_dates = DateDiff("m", client_moved_to_LTCF, footer_month_as_date)
+    'If both addresses have been added, then need to compare them to determine if they match
+    If section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 1 Then
+      section_c_section_f_both_new_addresses = True
+      section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
+      section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
+      If section_c_person_moved_new_address_full = section_f_person_new_address_full Then
+        section_c_section_f_addresses_match = True
+      Else
+        section_c_section_f_addresses_match = False
+      End If
+    ElseIf section_c_person_moved_new_address_checkbox = 1 AND section_f_person_new_address_checkbox = 0 Then
+      'Only section c new address checked
+      section_c_person_moved_new_address_only = True
+      section_c_person_moved_new_address_full = UCase(section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
+    ElseIf section_c_person_moved_new_address_checkbox = 0 AND section_f_person_new_address_checkbox = 1 Then
+      'Only section f new address checked
+      section_f_person_new_address_only = True
+      section_f_person_new_address_full = UCase(section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
+    End If
+  End If
 
-	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-	If difference_between_dates <> 0 THEN
-		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(client_moved_to_LTCF, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		Transmit
-	END IF
+  '--Fields with date of death
+  'Navigate to STAT/MEMB to gather details
+  If section_c_person_deceased_checkbox = 1 OR section_f_person_deceased_checkbox = 1 Then
+    date_of_death_provided = True
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    'Navigate to HH Memb
+    Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
+    EMReadScreen memb_date_of_death, 10, 19, 42
+    If memb_date_of_death = "__ __ ____" then 
+      memb_panel_date_of_death_exists = False
+    Else
+      memb_panel_date_of_death_exists = True
+      memb_date_of_death = replace(memb_date_of_death, " ", "/")
+    End If
 
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    'If two DODs have been added, then need to compare them to determine if they match
+    If section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 1 Then
+      section_c_section_f_both_new_DOD = True
+      'Convert both dates of death to dates to compare them
+      section_c_date_of_death = DateAdd("m", 0, section_c_date_of_death)
+      section_f_person_deceased_date_of_death = dateadd("m", 0, section_f_person_deceased_date_of_death)
+      If section_c_date_of_death = section_f_person_deceased_date_of_death Then
+        'The dates are the same date
+        section_c_section_f_dates_of_death_match = True
+      Else
+        'The dates do not match - this shouldn't happen
+        section_c_section_f_dates_of_death_match = False
+      End If
+    ElseIf section_c_person_deceased_checkbox = 1 AND section_f_person_deceased_checkbox = 0 Then
+      'If only section c DOD entered
+      section_c_person_deceased_only = True
+    ElseIf section_c_person_deceased_checkbox = 0 AND section_f_person_deceased_checkbox = 1 Then
+      'If only section f DOD entered
+      section_f_person_deceased_only = True
+    End If
+  End If
 
-	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-END If
+  'Format
+  'x, y, length, height
+  'Set starting position for y_pos
+  y_pos = 60
 
-'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
-IF update_addr_new_ADDR_checkbox = 1 THEN
-	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
-	footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+  'Calculate size of the SWKR group box
+  swkr_group_box = 110
+  If section_a_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10
+  If section_a_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10
+  If section_e_assessor_2 <> "" Then swkr_group_box = swkr_group_box + 10 
+  If section_e_assessor_3 <> "" Then swkr_group_box = swkr_group_box + 10 
 
-	'Calculates the difference between the two dates (date of admission and footer month)
-	difference_between_dates = DateDiff("m", new_address_effective_date, footer_month_as_date)
+  'Calculate the size of the ADDR group box
 
-	'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
-	If difference_between_dates <> 0 THEN
-		back_to_SELF
-		CALL convert_date_into_MAXIS_footer_month(new_address_effective_date, MAXIS_footer_month, MAXIS_footer_year)
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		Transmit
-	END IF
 
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+  'Calculate the size of the DOD group box
+  'Set starting position
+  addr_group_height = 90
+  If section_c_section_f_addresses_match = False Then addr_group_height = addr_group_height + 10
 
-	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-END If
+  'ADDR, SWKR, DOD match
+  'x, y, width, height
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 345, 340, "STAT Panel Updates"
+    GroupBox 5, 5, 335, swkr_group_box, "Update SWKR"
+    Text 15, 20, 70, 10, "Current SWKR Panel: "
+    If swkr_panel_exists = True Then Text 15, 30, 290, 10, current_swkr_panel_info
+    If swkr_panel_exists = False Then Text 15, 30, 290, 10, "No SWKR Panel Exists" 
+    CheckBox 15, 45, 310, 10, "Check here to update the SWKR panel (select ONE Assessor to use for update below):", swkr_update_checkbox
+    CheckBox 25, 60, 310, 10, "Section A - Assessor 1: " & section_a_assessor, section_a_assessor_1_checkbox
+    If section_a_assessor_2 <> "" Then 
+      CheckBox 25, y_pos + 10, 310, 10, "Section A - Assessor 2: " & section_a_assessor_2, section_a_assessor_2_checkbox
+      y_pos = y_pos + 10
+    End If
+    If section_a_assessor_3 <> "" Then 
+      CheckBox 25, y_pos + 10, 310, 10, "Section A - Assessor 3: " & section_a_assessor_3, section_a_assessor_3_checkbox
+      y_pos = y_pos + 10
+    End If
+    CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 1: " & section_e_assessor, section_e_assessor_1_checkbox
+    y_pos = y_pos + 10
+    If section_e_assessor_2 <> "" Then 
+      CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 2: " & section_e_assessor_2, section_e_assessor_2_checkbox
+      y_pos = y_pos + 10
+    End If
+    If section_e_assessor_3 <> "" Then 
+      CheckBox 25, y_pos + 10, 310, 10, "Section E - Assessor 3: " & section_e_assessor_3, section_e_assessor_3_checkbox
+      y_pos = y_pos + 10
+    End If
+    Text 10, y_pos + 15, 145, 10, "All notices to Social Worker (select Y or N):"
+    CheckBox 160, y_pos + 15, 25, 10, "Yes", notices_to_social_worker_y_checkbox
+    CheckBox 190, y_pos + 15, 25, 10, "No", notices_to_social_worker_n_checkbox
+    Text 10, y_pos + 30, 105, 10, "Enter footer month for updates:"
+    EditBox 120, y_pos + 25, 20, 15, footer_month_SWKR
+    EditBox 145, y_pos + 25, 20, 15, footer_year_SWKR
+    y_pos = y_pos + 50
+    'Add the addresses if needed
+    If new_address_provided = True Then
+      'Insert current ADDR information
+      GroupBox 5, y_pos, 335, addr_group_height, "Update ADDR"
+      Text 15, y_pos + 15, 70, 10, "Current ADDR Panel: "
+      Text 15, y_pos + 25, 290, 15, current_ADDR_address
+      y_pos = y_pos + 45
+      If section_c_section_f_both_new_addresses = True Then
+        If section_c_section_f_addresses_match = True Then
+          'The addresses DO match so only need to display one of them
+          CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c_section_f_match
+          Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_f_person_new_address_full
+          y_pos = y_pos + 20
+        ElseIf section_c_section_f_addresses_match = False Then
+          'The addresses DO NOT match so need to display both of them
+          CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel (select ONE address to use for update below):", addr_update_multiple_checkbox
+          CheckBox 25, y_pos + 10, 310, 10, "Section C - New Address: " & section_c_person_moved_new_address_full, multiple_section_c_new_address_checkbox
+          CheckBox 25, y_pos + 20, 310, 10, "Section F - New Address: " & section_f_person_new_address_full, multiple_section_f_new_address_checkbox
+          y_pos = y_pos + 30
+        End If
+      ElseIf section_c_person_moved_new_address_only = True Then
+        'Only need to display the section c address
+        CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_c
+        Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_c_person_moved_new_address_full
+        y_pos = y_pos + 20
+      ElseIf section_f_person_moved_new_address_only = True Then
+        'Only need to display the section f address
+        CheckBox 15, y_pos, 285, 10, "Check here to update the ADDR panel", addr_update_checkbox_section_f
+        Text 25, y_pos + 10, 310, 10, "New Address Entered: " & section_f_person_new_address_full
+        y_pos = y_pos + 20
+      End If
+      Text 10, y_pos + 10, 105, 10, "Enter footer month for updates:"
+      EditBox 120, y_pos + 5, 20, 15, footer_month_ADDR
+      EditBox 145, y_pos + 5, 20, 15, footer_year_ADDR
+      y_pos = y_pos + 30
+    End If
+    If date_of_death_provided = True then
+      'Update ADDR section does not exist so need to shift up
+      GroupBox 5, y_pos, 335, 80, "Update MEMB (Date of Death)"
+      Text 15, y_pos + 10, 100, 10, "Current DOD on MEMB Panel: "
+      If memb_panel_date_of_death_exists = True Then Text 120, y_pos + 10, 100, 10, memb_date_of_death
+      If memb_panel_date_of_death_exists = False Then Text 120, y_pos + 10, 100, 10, "No date of death entered"
+      y_pos = y_pos + 20
+      If section_c_section_f_both_new_DOD = True Then
+        If section_c_section_f_dates_of_death_match = True Then
+          CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_c_section_f_date_of_death_update_checkbox
+          Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+          y_pos = y_pos + 20
+        ElseIf section_c_section_f_dates_of_death_match = False Then
+          CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel (select ONE DOD below):", date_of_death_update_multiple_checkbox
+          CheckBox 25, y_pos + 10, 310, 10, "Section C - Date of Death: " & section_c_date_of_death, section_c_date_of_death_checkbox
+          CheckBox 25, y_pos + 20, 310, 10, "Section F - Date of Death: " & section_f_person_deceased_date_of_death, section_f_date_of_death_checkbox
+          y_pos = y_pos + 30
+        End If
+      ElseIf section_c_person_deceased_only = True Then
+        CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_c_date_of_death_update_checkbox
+        Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_c_date_of_death
+        y_pos = y_pos + 20 
+      ElseIf section_f_person_deceased_only = True Then
+        CheckBox 15, y_pos, 285, 10, "Check here to update the date of death on MEMB panel", section_f_date_of_death_update_checkbox
+        Text 25, y_pos + 10, 310, 10, "Date of Death Entered on LTC-5181: " & section_f_person_deceased_date_of_death
+        y_pos = y_pos + 20
+      End If
+      Text 10, y_pos+ 10, 105, 10, "Enter footer month for updates:"
+      EditBox 120, y_pos + 5, 20, 15, footer_month_DOD
+      EditBox 145, y_pos + 5, 20, 15, footer_year_DOD
+    End If
+    ButtonGroup ButtonPressed
+      PushButton 220, 320, 60, 15, "UPDATE Panels", update_panels_btn
+      PushButton 285, 320, 55, 15, "SKIP Updates", skip_panel_updates_btn
+  EndDialog
 
-'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
-If update_SWKR_info_checkbox = 1 THEN
+  'Dialog validation
+  Do
+    Do
+      'Blank out variables on each new dialog
+      err_msg = ""
 
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
-	'creates a new panel if one doesn't exist, and will needs new if there is not one
-	EMReadScreen panel_exists_check, 1, 2, 73
-	IF panel_exists_check = "0" THEN
-		EMWriteScreen "NN", 20, 79 'creating new panel
-		transmit
-	ELSE
-		PF9	'putting panel into edit mode
-	END IF
+      dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+      cancel_confirmation
 
-	'Blanks out the old info and writes in the new info into the SWKR panel if updated in the dialog
-    If trim(lead_agency_assessor) <> "" then
-        call clear_line_of_text(6, 32)
-        EMWriteScreen lead_agency_assessor, 6, 32
-    End if
+      'Error handling only if worker intends to update panels
+      If ButtonPressed = update_panels_btn Then
+        'If update_panels_btn is pressed but everything is blank, then it will error
+        If swkr_update_checkbox + addr_update_checkbox_section_c_section_f_match + addr_update_multiple_checkbox + addr_update_checkbox_section_c + addr_update_checkbox_section_f + section_c_section_f_date_of_death_update_checkbox + date_of_death_update_multiple_checkbox + section_c_date_of_death_update_checkbox + section_f_date_of_death_update_checkbox = 0 Then err_msg = err_msg & vbCr & "* If you want to update the panel(s), you must check one of the checkboxes to indicate which panel(s) to update." 
 
-    'updating all the ADDR info together
-    If trim(casemgr_ADDR_line_01) <> "" then
-        call clear_line_of_text(8, 32)
-        call clear_line_of_text(9, 32)
-        EMWriteScreen casemgr_ADDR_line_01, 8, 32
-        EMWriteScreen casemgr_ADDR_line_02, 9, 32
-    End if
+        If swkr_update_checkbox = 1 AND ((section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox = 0) OR (section_a_assessor_1_checkbox + section_a_assessor_2_checkbox + section_a_assessor_3_checkbox + section_e_assessor_1_checkbox + section_e_assessor_2_checkbox + section_e_assessor_3_checkbox > 1)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select ONLY one assessor to use for the update." 
 
-    If trim(casemgr_city) <> "" then
-        call clear_line_of_text(10, 32)
-        EMWriteScreen casemgr_city, 10, 32
-    End if
+        If swkr_update_checkbox = 1 and ((notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 2) OR (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox = 0)) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must select either the 'Y' or 'N' checkbox for the Notices to Social Worker."
 
-    If trim(casemgr_state) <> "" then
-        call clear_line_of_text(10, 54)
-        EMWriteScreen casemgr_state, 10, 54
-    End if
+        If swkr_update_checkbox = 0 and (notices_to_social_worker_y_checkbox + notices_to_social_worker_n_checkbox > 0) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must check the checkbox to update the SWKR panel."
 
-    If trim(casemgr_zip_code) <> "" then
-        call clear_line_of_text(10, 63)
-        EMWriteScreen casemgr_zip_code, 10, 63
-    End if
+        If addr_update_multiple_checkbox = 1 AND ((multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 0) OR (multiple_section_c_new_address_checkbox + multiple_section_f_new_address_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must select ONLY one address to use for the update." 
 
-    'Updating all the phone number info together
-    If trim(phone_area_code) <> "" then
-        call clear_line_of_text(12, 34)
-        call clear_line_of_text(12, 40)
-        call clear_line_of_text(12, 44)
-        call clear_line_of_text(12, 54)
-        EMWriteScreen phone_area_code, 12, 34
-        EMWriteScreen phone_prefix, 12, 40
-        EMWriteScreen phone_second_four, 12, 44
-        EMWriteScreen phone_extension, 12, 54
-    End if
+        If date_of_death_update_multiple_checkbox = 1 AND ((section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 0) OR (section_c_date_of_death_checkbox + section_f_date_of_death_checkbox = 2)) Then err_msg = err_msg & vbCr & "* If you want to update the Date of Death on the MEMB panel, you must select ONLY one date to use for the update."
+        
+        If swkr_update_checkbox = 1 Then
+          If (trim(footer_month_SWKR) = "" OR len(trim(footer_month_SWKR)) <> 2) OR (trim(footer_year_SWKR) = "" OR len(trim(footer_year_SWKR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the SWKR panel, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
 
-	EMWriteScreen "Y", 15, 63
-	transmit
-	transmit
-	PF3
-END IF
+        If addr_update_checkbox_section_c_section_f_match + addr_update_multiple_checkbox + addr_update_checkbox_section_c + addr_update_checkbox_section_f = 1 Then
+          If (trim(footer_month_ADDR) = "" OR len(trim(footer_month_ADDR)) <> 2) OR (trim(footer_year_ADDR) = "" OR len(trim(footer_year_ADDR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the ADDR panel, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
 
-'Updates SWKR panel with ongoing waiver case manager assigned
-If trim(ongoing_waiver_case_manager) <> "" then
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
-	PF9    'Go into edit mode
-	Call clear_line_of_text(6, 32) 'Blanks out the old info
-	EMWriteScreen ongoing_waiver_case_manager, 6, 32   'Writes in new case manager name
-	transmit
-	transmit
-	PF3
-END IF
+        If section_c_section_f_date_of_death_update_checkbox + date_of_death_update_multiple_checkbox + section_c_date_of_death_update_checkbox + section_f_date_of_death_update_checkbox = 1 Then
+          If (trim(footer_month_ADDR) = "" OR len(trim(footer_month_ADDR)) <> 2) OR (trim(footer_year_ADDR) = "" OR len(trim(footer_year_ADDR)) <> 2) Then err_msg = err_msg & vbCr & "* If you want to update the MEMB panel with the date of death, you must enter the footer month in the two digit format and the footer year in the two digit format in order for script to make the updates in the correct footer month."
+        End If
+      End If 
+      If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""	AND ((ButtonPressed = update_panels_btn) OR (ButtonPressed = skip_panel_updates_btn))								'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Updates SWKR panel with ongoing case manager assigned
-If trim(ongoing_case_manager) <> "" then
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
-	PF9    	'Go into edit mode
-	Call clear_line_of_text(6, 32) 'Blanks out the old info
-	EMWriteScreen ongoing_case_manager, 6, 32 'Writes in new case manager name
-	transmit
-	transmit
-	PF3
-END IF
+  'If worker indicates that panels should be updated, then script will update panels
+  If ButtonPressed = update_panels_btn Then
+    If swkr_update_checkbox = 1 Then
+      'Return to SELF to change the footer month
+      Call back_to_SELF
+      MAXIS_footer_month = footer_month_SWKR
+      MAXIS_footer_year = footer_year_SWKR
+      EmWriteScreen footer_month_updates, 20, 43
+      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+      transmit
 
-'THE CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
-'Information from DHS 5181 Dialog 1
-'Contact information
-Call write_variable_in_case_note ("~~~DHS 5181 rec'd~~~")
-Call write_bullet_and_variable_in_case_note ("Date of 5181", date_5181 )
-Call write_bullet_and_variable_in_case_note ("Date received", date_received)
-Call write_bullet_and_variable_in_case_note ("Lead Agency", lead_agency)
-Call write_bullet_and_variable_in_case_note ("Lead Agency Assessor/Case Manager",lead_agency_assessor)
-Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & " " & casemgr_ADDR_line_02 & " " & casemgr_city & " " & casemgr_state & " " & casemgr_zip_code)
-Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & "-" & phone_prefix & "-" & phone_second_four & " " & phone_extension)
-Call write_bullet_and_variable_in_case_note ("Fax", fax)
-'STATUS
-Call write_bullet_and_variable_in_case_note ("Name of Facility", name_of_facility)
-Call write_bullet_and_variable_in_case_note ("Date of admission", date_of_admission)
-Call write_bullet_and_variable_in_case_note ("Facility address", facility_address_line_01 & " " & facility_address_line_02 & " " & facility_city & " " & facility_state & " " & facility_zip_code)
-IF waiver_type_droplist <> "No waiver" then call write_bullet_and_variable_in_case_note("Client is requesting services/enrolled in waiver type", waiver_type_droplist)
-IF essential_community_supports_check = 1 THEN Call write_variable_in_case_note ("* Essential Community supports.  Client does not meet LOC requirements.")
+      'Ensure the specifically selected assessor (SWKR) will update the panel
+      If section_a_assessor_1_checkbox = 1 Then
+        swkr_panel_name = section_a_assessor
+        swkr_panel_street = section_a_street_address
+        swkr_panel_city = section_a_city
+        swkr_panel_state = section_a_state
+        swkr_panel_zip = section_a_zip_code
+        swkr_panel_phone = replace(section_a_phone_number, "-", "")
+      ElseIf section_a_assessor_2_checkbox Then
+        swkr_panel_name = section_a_assessor_2
+        swkr_panel_street = section_a_street_address_2
+        swkr_panel_city = section_a_city_2
+        swkr_panel_state = section_a_state_2
+        swkr_panel_zip = section_a_zip_code_2
+        swkr_panel_phone = replace(section_a_phone_number_2, "-", "")
+      ElseIf section_a_assessor_3_checkbox Then
+        swkr_panel_name = section_a_assessor_3
+        swkr_panel_street = section_a_street_address_3
+        swkr_panel_city = section_a_city_3
+        swkr_panel_state = section_a_state_3
+        swkr_panel_zip = section_a_zip_code_3
+        swkr_panel_phone = replace(section_a_phone_number_3, "-", "")
+      ElseIf section_e_assessor_1_checkbox = 1 Then
+        swkr_panel_name = section_e_assessor
+        swkr_panel_street = section_e_street_address
+        swkr_panel_city = section_e_city
+        swkr_panel_state = section_e_state
+        swkr_panel_zip = section_e_zip_code
+        swkr_panel_phone = replace(section_e_phone_number, "-", "")
+      ElseIf section_e_assessor_2_checkbox = 1 Then
+        swkr_panel_name = section_e_assessor_2
+        swkr_panel_street = section_e_street_address_2
+        swkr_panel_city = section_e_city_2
+        swkr_panel_state = section_e_state_2
+        swkr_panel_zip = section_e_zip_code_2
+        swkr_panel_phone = replace(section_e_phone_number_2, "-", "")
+      ElseIf section_e_assessor_3_checkbox = 1 Then
+        swkr_panel_name = section_e_assessor_3
+        swkr_panel_street = section_e_street_address_3
+        swkr_panel_city = section_e_city_3
+        swkr_panel_state = section_e_state_3
+        swkr_panel_zip = section_e_zip_code_3
+        swkr_panel_phone = replace(section_e_phone_number_3, "-", "")
+      End If
 
-'Information from DHS 5181 Dialog 2
-'Waivers
-Call write_bullet_and_variable_in_case_note ("Waiver Assessment Date", waiver_assessment_date)
-Call write_bullet_and_variable_in_case_note ("Assessment determines that client needs waiver services and meets LOC requirements.  Anticipated effective date no sooner than", estimated_effective_date)
-Call write_bullet_and_variable_in_case_note ("Estimated monthly waiver costs", estimated_monthly_waiver_costs)
-IF does_not_meet_waiver_LOC_check = 1 THEN Call write_variable_in_case_note ("* Client does not meet LOC requirements for waivered services.")
-Call write_bullet_and_variable_in_case_note ("Ongoing case manager is", ongoing_waiver_case_manager)
-'LTCF
-Call write_bullet_and_variable_in_case_note ("LTCF Assessment Date", LTCF_assessment_date)
-IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement.")
-Call write_bullet_and_variable_in_case_note("Ongoing case manager is", ongoing_case_manager)
-IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available.")
-IF does_not_meet_MALTC_LOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client does not meet LOC requirements for LTCF's.")
-IF requested_1503_check = 1 THEN Call write_variable_in_case_note ("* A DHS-1503 has been requested from the LTCF.")
-IF onfile_1503_check = 1 THEN Call write_variable_in_case_note ("A DHS-1503 has been provided.")
-'MA requests/applications
-IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA.")
-Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee. Assessor provided a DHS-3543 on", Client_MA_enrollee)
-IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181.")
-Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on", completed_3543_3531_faxed)
-IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
-Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531)
-IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP.")
-'changes completed by the assessor
-Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date)
-IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date)
+      'Navigate to STAT/SWKR
+      Call navigate_to_MAXIS_screen("STAT", "SWKR")
+      'Check if SWKR panel exists
+      EmReadScreen swkr_does_not_exist, 19, 24, 2
+      If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
+        'Add new panel
+        Call write_value_and_transmit("NN", 20, 79)
+        'Write details to panel
+        EMWriteScreen swkr_panel_name, 6, 32
+        EMWriteScreen swkr_panel_street, 8, 32
+        EMWriteScreen swkr_panel_city, 10, 32
+        EMWriteScreen swkr_panel_state, 10, 54
+        EMWriteScreen swkr_panel_zip, 10, 63
+        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+        'Transmit to save 
+        transmit
 
-'Information from DHS 5181 Dialog 3
-'changes
-IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: " & exit_waiver_end_date)
-IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program.")
-IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death: " & date_of_death)
-IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on" & client_moved_to_LTCF)
-Call write_bullet_and_variable_in_case_note ("Facility name", client_moved_to_LTCF)
-Call write_bullet_and_variable_in_case_note ("Facility address", LTCF_ADDR_line_01 & " " & LTCF_ADDR_line_02 & " " &  LTCF_city & " " & LTCF_state & " " & LTCF_zip_code)
-IF waiver_program_change_check = 1 THEN Call write_variable_in_case_note ("* Waiver program changed from:" & waiver_program_change_from & "to" & waiver_program_change_to)
-IF client_disenrolled_health_plan_check = 1 THEN Call write_variable_in_case_note ("* Client disenrolled from health plan effective" & client_disenrolled_from_healthplan)
-IF new_address_check = 1 THEN Call write_variable_in_case_note ("* New Address, effective date: " & new_address_effective_date & " " & change_ADDR_line_1 & " " & change_ADDR_line_2 & " " & change_city & " " & change_state & " " & change_zip_code)
-'case summary
-Call write_bullet_and_variable_in_case_note ("Case actions", case_action)
-Call write_bullet_and_variable_in_case_note ("Other notes", other_notes)
-If sent_5181_to_caseworker_check = 1 then Call write_variable_in_case_note("* Sent 5181 back to case manager.")
-Call write_variable_in_case_note ("---")
-call write_variable_in_case_note (worker_signature)
+      Else
+        'Put panel into edit mode
+        PF9
+        'Write to panel
+        EMWriteScreen swkr_panel_name, 6, 32
+        EMWriteScreen swkr_panel_street, 8, 32
+        EMWriteScreen swkr_panel_city, 10, 32
+        EMWriteScreen swkr_panel_state, 10, 54
+        EMWriteScreen swkr_panel_zip, 10, 63
+        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+        'Transmit to save 
+        transmit
 
-script_end_procedure_with_error_report("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+      End If
+    End If
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+    If addr_update_checkbox_section_c_section_f_match = 1 OR addr_update_multiple_checkbox = 1 OR addr_update_checkbox_section_c = 1 OR addr_update_checkbox_section_f = 1 Then
+        If addr_update_checkbox_section_c_section_f_match = 1 Then 
+          address_to_update = section_f_person_new_address_full
+        ElseIf addr_update_multiple_checkbox = 1 Then
+          If multiple_section_c_new_address_checkbox = 1 Then
+            address_to_update = section_c_person_moved_new_address_full
+          ElseIf multiple_section_f_new_address_checkbox = 1 Then
+            address_to_update = section_f_person_new_address_full
+          End If
+        ElseIf addr_update_checkbox_section_c = 1 Then 
+          address_to_update = section_c_person_moved_new_address_full
+        ElseIf addr_update_checkbox_section_f = 1 Then
+          address_to_update = section_f_person_new_address_full
+        End If
+
+        'Return to SELF to change the footer month
+        Call back_to_SELF
+        MAXIS_footer_month = footer_month_ADDR
+        MAXIS_footer_year = footer_year_ADDR 
+        EmWriteScreen footer_month_updates, 20, 43
+        EmWriteScreen footer_year_updates, 20, 46
+        EmWriteScreen MAXIS_case_number, 18, 43
+        transmit
+
+        BeginDialog Dialog1, 0, 0, 241, 115, "Verify New Address Details"
+          Text 5, 5, 225, 10, "Verify the updated address details below to update the ADDR panel:"
+          Text 5, 20, 230, 10, address_to_update
+          Text 5, 40, 50, 10, "County Code:"
+          EditBox 70, 35, 25, 15, county_of_residence
+          Text 5, 55, 60, 10, "Living Situation:"
+          DropListBox 70, 55, 60, 15, "Select one:"+chr(9)+"01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"09"+chr(9)+"10", living_situation
+          Text 5, 70, 20, 10, "Ver:"
+          DropListBox 70, 70, 60, 15, "Select one:"+chr(9)+"SF"+chr(9)+"CO"+chr(9)+"LE"+chr(9)+"MO"+chr(9)+"TX"+chr(9)+"CD"+chr(9)+"UT"+chr(9)+"DL"+chr(9)+"OT"+chr(9)+"NO", address_ver
+          ButtonGroup ButtonPressed
+            OkButton 130, 95, 50, 15
+            CancelButton 185, 95, 50, 15
+        EndDialog
+
+      'Dialog validation
+      Do
+        Do
+          'Blank out variables on each new dialog
+          err_msg = ""
+
+          dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+          cancel_confirmation
+
+          'Error handling only if worker intends to update panels
+          If ButtonPressed = OK Then
+            If trim(county_of_residence) = "" OR trim(len(county_of_residence)) <> 2 OR IsNumeric(county_of_residence) = False Then err_msg = err_msg & vbCr & "* The County Code field must be filled out with a two-digit number." 
+            If living_situation = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Living Situation dropdown." 
+            If address_ver = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Ver dropdown." 
+          End If 
+          If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        LOOP UNTIL err_msg = ""	AND ButtonPressed = OK								'loops until all errors are resolved
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+      Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+      'Navigate to STAT/ADDR
+      Call navigate_to_MAXIS_screen("STAT", "ADDR")
+
+      'Write information to panel depending on which address selected
+      If addr_update_checkbox_section_c_section_f_match = 1 Then 
+
+        Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+      ElseIf addr_update_multiple_checkbox = 1 Then
+        If multiple_section_c_new_address_checkbox = 1 Then
+
+          Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+        ElseIf multiple_section_f_new_address_checkbox = 1 Then
+
+          Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+        End If
+
+      ElseIf addr_update_checkbox_section_c = 1 Then 
+
+        Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+      ElseIf addr_update_checkbox_section_f = 1 Then
+
+        Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+      End If
+    End If
+
+    'Update the DOD on MEMB panel
+    If section_c_section_f_date_of_death_update_checkbox = 1 OR date_of_death_update_multiple_checkbox = 1 OR section_c_date_of_death_update_checkbox = 1 OR section_f_date_of_death_update_checkbox = 1 Then
+      If section_c_section_f_date_of_death_update_checkbox = 1 OR section_c_date_of_death_update_checkbox = 1 Then date_of_death_to_update = section_c_date_of_death
+      If date_of_death_update_multiple_checkbox = 1 Then
+        If section_c_date_of_death_checkbox = 1 Then date_of_death_to_update = section_c_date_of_death
+        If section_f_date_of_death_checkbox = 1 Then date_of_death_to_update = section_f_person_deceased_date_of_death
+      End If
+      If section_f_date_of_death_update_checkbox = 1 Then date_of_death_to_update = section_f_person_deceased_date_of_death
+
+      Call ONLY_create_MAXIS_friendly_date(date_of_death_to_update)
+      date_of_death_to_update = replace(date_of_death_to_update, "/", "")
+
+      'Return to SELF to change the footer month
+      Call back_to_SELF
+      Call MAXIS_background_check
+      MAXIS_footer_month = footer_month_DOD
+      MAXIS_footer_year = footer_year_DOD 
+      EmWriteScreen footer_month_updates, 20, 43
+      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+      transmit
+
+      'Navigate to STAT/MEMB
+      Call navigate_to_MAXIS_screen("STAT", "MEMB")
+      'Navigate to HH Memb
+      Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
+      'Put panel into edit mode
+      PF9
+
+      'Write date of death to panel
+      EmWriteScreen left(date_of_death_to_update, 2), 19, 42
+      EmWriteScreen mid(date_of_death_to_update, 3, 2), 19, 45
+      EmWriteScreen "20" & right(date_of_death_to_update, 2), 19, 48
+
+      'transmit to save DOD
+      transmit
+    End If
+  End If
+
+  'THE CASE NOTE----------------------------------------------------------------------------------------------------
+  Call start_a_blank_CASE_NOTE
+
+  'Information from dialog 1 - section_a_contact_info()
+  Call write_variable_in_case_note("~~~" & form_status_dropdown & " DHS-5181 Received~~~")
+  Call write_variable_in_case_note("-Section A - Contact Info-")
+  Call write_bullet_and_variable_in_case_note("Date sent to worker", section_a_date_form_sent)
+  Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor)
+  Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency)
+  If trim(section_a_phone_number) = "" Then 
+    Call write_bullet_and_variable_in_case_note("Phone number", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number)
+  End If
+  If trim(section_a_street_address) = "" Then
+    Call write_bullet_and_variable_in_case_note("Address", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
+  End If
+  If trim(section_a_email_address) = "" Then 
+    Call write_bullet_and_variable_in_case_note("Email address", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address)
+  End If
+  'Information from Dialog 10 - section_a_additional_assessors()
+  If section_a_assessor_2 <> "" Then
+    Call write_variable_in_case_note("Additional Assessor (2)")
+    Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_2)
+    Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_2)
+    Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_2)
+    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
+    Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_2)
+  End If
+  If section_a_assessor_3 <> "" Then
+    Call write_variable_in_case_note("Additional Assessor (3)")
+    Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_3)
+    Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_3)
+    Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_3)
+    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
+    Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_3)
+  End If
+  'Person's information
+  Call write_bullet_and_variable_in_case_note("Person's Information", replace(first_name, "_", "") & " " & replace(last_name, "_", "") & "(" & ref_nbr & ")")
+
+  'Information from Dialog 2 - section_b_assess_results_current_status()
+  Call write_variable_in_case_note("-Section B - Assessment Information-")
+  If section_b_person_requesting_already_enrolled + section_b_person_will_reside_institution_checkbox = 0 Then Call write_variable_in_case_note("* Person's current status: not provided")
+  If section_b_person_requesting_already_enrolled = 1 Then Call write_bullet_and_variable_in_case_note("Person's current status", "The person currently is requesting services or already enrolled")
+  If section_b_diversion_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Program requested/currently enrolled in", section_b_program_type & " (Diversion)")
+  ElseIf section_b_conversion_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Program requested/currently enrolled in", section_b_program_type & " (Conversion)")
+  Else
+    If section_b_program_type <> "Select one:" Then 
+      Call write_bullet_and_variable_in_case_note("Program requested/currently enrolled in", section_b_program_type)
+    Else
+      Call write_variable_in_case_note("* Program requested/currently enrolled in: Not provided")
+    End If
+  End If
+  If section_b_person_will_reside_institution_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Person's current status", "The person resides in or will reside in an institution")
+    Call write_bullet_and_variable_in_case_note("Facility", section_b_facility)
+    Call write_bullet_and_variable_in_case_note("Admission date", section_b_admission_date)
+    Call write_bullet_and_variable_in_case_note("Phone Number", section_b_institution_phone_number)
+    If trim(section_b_institution_street_address) <> "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_b_institution_street_address & ", " & section_b_institution_city & ", " & section_b_institution_state & ", " & section_b_institution_zip_code)
+    End If 
+  End If
+
+  'Information from Dialog 3 - section_b_assess_results_initial_assess_case_manager()
+  If trim(section_b_initial_MnA_assessment_date) <> "" OR trim(section_b_assessment_determination_date) <> "" OR section_b_assessment_determination <> "Select one:" OR section_b_open_to_waiver_yes_checkbox = 1 OR section_b_open_to_waiver_no_checkbox = 1 Then 
+    Call write_variable_in_case_note("--Initial Assessment--")
+  Else
+    Call write_variable_in_case_note("--Initial Assessment - no information provided--")
+  End If
+  Call write_bullet_and_variable_in_case_note("Initial assessment date from MnA system", section_b_initial_MnA_assessment_date)
+  If section_b_assessment_determination_date <> "" Then Call write_bullet_and_variable_in_case_note("Assessment on", section_b_assessment_determination_date)
+  Call write_bullet_and_variable_in_case_note("Determination", section_b_assessment_determination)
+  If section_b_open_to_waiver_yes_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "Yes")
+  If section_b_open_to_waiver_no_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Open to waiver/AC/ECS", "No")
+  Call write_bullet_and_variable_in_case_note("Estimated monthly waiver/AC costs", section_b_monthly_waiver_costs)
+  Call write_bullet_and_variable_in_case_note("Anticipated effective date", section_b_waiver_effective_date)
+  If section_b_yes_case_manager = 1 OR section_b_yes_someone_else_case_manager = 1 OR section_b_no_case_manager = 1 Then 
+    Call write_variable_in_case_note("--Case Manager--")
+  Else
+    Call write_variable_in_case_note("--Case Manager - no information provided--")
+  End If
+  If section_b_yes_case_manager = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - I am the case manager")
+  If section_b_yes_someone_else_case_manager = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Case manager?", "Yes - someone else is the manager")
+    Call write_bullet_and_variable_in_case_note("Case manager name", section_b_case_manager_name)
+    Call write_bullet_and_variable_in_case_note("Phone number", section_b_case_manager_phone_number)
+  End If
+  If section_b_no_case_manager = 1 Then Call write_bullet_and_variable_in_case_note("Case manager?", "No")
+
+  'Information from Dialog 4 - section_b_assess_results_MA_requests_apps_changes()
+  If section_b_applied_MA_MA_LTC_checkbox + section_b_ma_enrollee_checkbox + section_b_completed_dhs_3543_3531_6696A_attached_checkbox + section_b_completed_dhs_3543_3531_6696A_checkbox + section_b_send_dhs_3543_checkbox + section_b_send_dhs_3531_checkbox + section_b_send_dhs_3340_checkbox = 0 Then
+    Call write_variable_in_case_note("--Medical Assistance Requests/Applications - no information provided--")
+  Else
+    Call write_variable_in_case_note("--Medical Assistance Requests/Applications--")
+  End If
+  If section_b_applied_MA_MA_LTC_checkbox = 1 Then Call write_variable_in_case_note("* Person applied for MA/MA-LTC")
+  If section_b_ma_enrollee_checkbox = 1 Then 
+    Call write_variable_in_case_note("* Person is an MA enrollee")
+    Call write_bullet_and_variable_in_case_note("Date assessor provided DHS-3543/DHS-6696A", section_b_date_dhs_3543_provided)
+  End If
+  If section_b_completed_dhs_3543_3531_6696A_attached_checkbox = 1 Then Call write_variable_in_case_note("* Person completed DHS-3543, DHS-6696A, or DHS-3531, it is attached")
+  If section_b_completed_dhs_3543_3531_6696A_checkbox = 1 Then 
+    Call write_variable_in_case_note("* Person completed DHS-3543, DHS-6696A or DHS-3531")
+    Call write_bullet_and_variable_in_case_note("Date sent to county", section_b_dhs_3543_3531_6696A_sent_to_county_date)
+  End If
+  If section_b_send_dhs_3543_checkbox = 1 Then Call write_variable_in_case_note("* Send DHS-3543 to person (MA enrollee)/DHS-6696A (METS MA enrollee)")
+  If section_b_send_dhs_3531_checkbox = 1 Then 
+    Call write_variable_in_case_note("* Send DHS-3531 to person (not MA enrollee)")
+    Call write_bullet_and_variable_in_case_note("Address", section_b_send_dhs_3531_address & ", " & section_b_send_dhs_3531_city & ", " & section_b_send_dhs_3531_state & " " & section_b_send_dhs_3531_zip)
+  End If
+  If section_b_send_dhs_3340_checkbox = 1 Then 
+    Call write_variable_in_case_note("* Send DHS-3340 to person (asset assessment needed)")
+    Call write_bullet_and_variable_in_case_note("Address", section_b_send_dhs_3340_address & ", " & section_b_send_dhs_3340_city & ", " & section_b_send_dhs_3340_state & " " & section_b_send_dhs_3340_zip)
+  End If
+  If section_b_person_no_longer_institutional_LOC_checkbox + section_b_enroll_different_program_checkbox = 0 Then
+    Call write_variable_in_case_note("--Changes completed by assessor at reassessment - no information provided--")
+  Else
+    Call write_variable_in_case_note("--Changes completed by assessor at reassessment--")
+  End If
+  If section_b_person_no_longer_institutional_LOC_checkbox = 1 Then 
+    Call write_variable_in_case_note("* Person no longer meets institutional LOC")
+    Call write_bullet_and_variable_in_case_note("Effective date of waiver exit no sooner than", section_b_date_waiver_exit)
+  End If
+  If section_b_enroll_different_program_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Person chooses to enroll in another program", section_b_enroll_another_program_list)
+  End If
+
+  'Information from Dialog 5 - section_c_comm_elig_worker_exit_reasons()
+  Call write_variable_in_case_note("-Section C - Case manager/Care Coordinator communication to elig worker-")
+  If section_c_exited_waiver_program_checkbox = 1 Then 
+    Call write_variable_in_case_note("--Exit Reasons--")
+    Call write_variable_in_case_note("* Person exited waiver program")
+    Call write_bullet_and_variable_in_case_note("Effective date of waiver exit", section_c_date_waiver_exit)
+
+    'Create the list of exit reasons as a variable
+    exit_reasons = ""
+    If section_c_hospital_admission_checkbox = 1 Then exit_reasons = exit_reasons & "hospital admission at " & section_c_hospital_name & " on " & section_c_hospital_admit_date & ", "
+    If section_c_nursing_facility_admission_checkbox = 1 Then exit_reasons = exit_reasons & "nursing facility admission at " & section_c_nursing_facility_name & " on " & section_c_nursing_facility_admit_date & ", "
+    If section_c_residential_treatment_admission_checkbox = 1 Then exit_reasons = exit_reasons & "residential treatment facility admission at " & section_c_residential_facility_name & " on " & section_c_residential_facility_admit_date & ", "
+    If section_c_person_informed_choice_checkbox = 1 Then exit_reasons = exit_reasons & "person's informed choice, "
+    If section_c_person_deceased_checkbox = 1 Then exit_reasons = exit_reasons & "person is deceased" & " (DOD: " & section_c_date_of_death & "), "
+    If section_c_person_moved_out_of_state_checkbox = 1 Then exit_reasons = exit_reasons & "person moved out of state" & " (date of move: " & section_c_date_of_move & "), "
+    If section_c_exited_for_other_reasons_checkbox = 1 Then exit_reasons = exit_reasons & "exited for other reasons: " & section_c_exited_for_other_reasons_explanation & ", "
+    Call write_bullet_and_variable_in_case_note("Reasons for exit", exit_reasons)
+  End If
+
+  'Information from Dialog 6 - section_c_other_changes_section_d_comments()
+  If section_c_program_type_list <> "Select one:" OR section_c_diversion_checkbox = 1 OR section_c_conversion_checkbox = 1 OR section_c_person_moved_new_address_checkbox = 1 OR section_c_new_legal_rep_checkbox = 1 OR section_c_person_return_to_community_checkbox = 1 OR section_c_other_changes_program_checkbox = 1 Then
+    Call write_variable_in_case_note("--Other Changes--")
+  Else
+    Call write_variable_in_case_note("--Other Changes - no information provided--")
+  End If
+
+  If section_c_diversion_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list & " (Diversion)")
+  ElseIf section_c_conversion_checkbox = 1 Then 
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list & " (Conversion)")
+  Else
+    Call write_bullet_and_variable_in_case_note("Program requested", section_c_program_type_list)
+  End If
+  If section_c_person_moved_new_address_checkbox = 1 Then 
+    Call write_variable_in_case_note("Person has moved or has a new address")
+    Call write_bullet_and_variable_in_case_note("Date address changed", section_c_date_address_changed)
+    Call write_bullet_and_variable_in_case_note("Address", section_c_street_address & ", " & section_c_city & ", " & section_c_state & " " & section_c_zip_code)
+  End If
+  If section_c_new_legal_rep_checkbox = 1 Then
+    Call write_bullet_and_variable_in_case_note("Person has new legal representative", section_c_legal_rep_first_name & " " & section_c_legal_rep_last_name & "(" & section_c_legal_rep_phone_number & ")")
+    Call write_bullet_and_variable_in_case_note("Legal rep address", section_c_legal_rep_street_address & ", " & section_c_legal_rep_city & ", " & section_c_legal_rep_state & " " & section_c_legal_rep_zip_code)
+  End If
+  If section_c_person_return_to_community_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person returning to community w/in 121 days of qual admission", "Effective date: " & section_c_qual_admission_eff_date)
+  If section_c_other_changes_program_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Other changes related to program/service elig", section_c_other_changes_program)
+  
+  Call write_variable_in_case_note("-Section D: Comments from assessor, case manager or care coordinator-")
+  If trim(section_d_additional_comments) <> "" Then 
+    Call write_bullet_and_variable_in_case_note("Additional notes or comments", section_d_additional_comments)
+  Else
+    Call write_variable_in_case_note("* No additional notes or comments provided")
+  End If
+
+  'Information from Dialog 7 - section_e_contact_info()
+  Call write_variable_in_case_note("-Section E-")
+  Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", section_e_date_form_sent)
+  Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor)
+  Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency)
+  If trim(section_e_phone_number) = "" Then 
+    Call write_bullet_and_variable_in_case_note("Phone number", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number)
+  End If
+  If trim(section_e_street_address) = "" Then
+    Call write_bullet_and_variable_in_case_note("Address", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
+  End If
+  If trim(section_e_email_address) = "" Then 
+    Call write_bullet_and_variable_in_case_note("Email address", "Not provided")
+  Else
+    Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address)
+  End If
+  'Information from Dialog 11 - section_e_additional_assessors()
+  If section_e_assessor_2 <> "" Then
+    Call write_variable_in_case_note("Additional Assessor (2)")
+    Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_2)
+    Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_2)
+    Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_2)
+    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
+    Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_2)
+  End If
+  If section_e_assessor_3 <> "" Then
+    Call write_variable_in_case_note("Additional Assessor (3)")
+    Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_3)
+    Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_3)
+    Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_3)
+    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
+    Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_3)
+  End If
+
+  'Information from Dialog 8 - section_f_medical_assistance()
+  Call write_variable_in_case_note("-Section F - Medical Assistance-")
+  If section_f_person_applied_MA_checkbox + section_f_dhs_3531_sent_checkbox + section_f_dhs_3543_6696A_sent_checkbox + section_f_dhs_3543_3531_6696A_returned_checkbox + section_f_dhs_3543_3531_6696A_not_returned_checkbox > 0 Then
+    Call write_variable_in_case_note("--MA status for long-term supports and services--")
+    If section_f_person_applied_MA_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person applied for MA/MA-LTC", section_f_person_applied_date)
+    If section_f_dhs_3531_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3531 sent to person", section_f_dhs_3531_sent_date)
+    If section_f_dhs_3543_6696A_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/DHS-6696A sent to person", section_f_dhs_3543_6696A_sent_date)
+    If section_f_dhs_3543_3531_6696A_returned_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("DHS-3543/DHS-6696A/DHS-3531 returned; elig. determ. pending", section_f_dhs_3543_3531_6696A_returned_comments)
+    If section_f_dhs_3543_3531_6696A_not_returned_checkbox = 1 Then Call write_variable_in_case_note("* DHS-3543/6696A/3531 not returned, due date: " & section_f_dhs_3543_3531_6696A_not_returned_date)
+  Else
+    Call write_variable_in_case_note("--MA status for long-term supports and services - no information provided--")
+  End If
+
+  If section_f_smrt_referral_sent_checkbox + section_f_disability_cert_checkbox + section_f_ma_coverage_approved_checkbox + section_f_basic_MA_med_spenddown_checkbox + section_f_MA_LTC_open_date_checkbox + section_f_MA_LTC_spenddown_waiver_checkbox + section_f_ma_denied_checkbox + section_f_ma_ltc_denied_checkbox + section_f_inelig_MA_LTC_date_checkbox + section_f_basic_ma_continues_date_checkbox + section_f_asset_asses_results_sent_checkbox > 0 Then
+    Call write_variable_in_case_note("--Determination--")
+    If section_f_smrt_referral_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("SMRT referral sent", section_f_smrt_referral_date)
+    If section_f_disability_cert_checkbox = 1 Then 
+      Call write_bullet_and_variable_in_case_note("Certification of disability",  section_f_disability_status_list)
+      Call write_bullet_and_variable_in_case_note("Disability effective date", section_f_basic_disability_eff_date)
+      Call write_bullet_and_variable_in_case_note("Disability notes", section_f_disability_notes)
+    End If
+    If section_f_ma_coverage_approved_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA coverage approved", section_f_ma_coverage_eff_date)
+    If section_f_basic_MA_med_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA medical spenddown", section_f_basic_MA_med_spenddown_amount)
+    If section_f_MA_LTC_open_date_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA-LTC open on specific date", section_f_MA_LTC_open_date)
+    If section_f_MA_LTC_spenddown_waiver_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA-LTC spenddown or waiver obligation for initial month", section_f_MA_LTC_spenddown_waiver_amount & "(" & section_f_MA_LTC_spenddown_waiver_eff_date & ")")
+    If section_f_ma_denied_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA denied", section_f_ma_denied_date)
+    If section_f_ma_ltc_denied_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA-LTC denied", section_f_ma_ltc_denied_date)
+    If section_f_inelig_MA_LTC_date_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person ineligible for MA-LTC until specific date", section_f_inelig_MA_LTC_date)
+    If section_f_basic_ma_continues_date_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA continues until specific date", section_f_basic_ma_continues_date)
+    If section_f_asset_asses_results_sent_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Results from asset assess. sent to person", section_f_asset_asses_results_sent_date)
+  Else
+    Call write_variable_in_case_note("--Determination - no information provided--")
+  End If
+
+  'Information from Dialog 9 - section_f_medical_assistance_changes()
+
+  If section_f_LTC_spenddown_checkbox + section_f_ma_terminated_checkbox + section_f_basic_ma_spenddown_change_checkbox + section_f_ma_LTC_terminated_checkbox + section_f_person_deceased_checkbox + section_f_person_moved_institution_checkbox + section_f_person_new_address_checkbox + section_f_other_change_checkbox > 0 Then
+    Call write_variable_in_case_note("--Changes--")
+
+    If section_f_LTC_spenddown_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("LTC spenddown/waiver obligation", section_f_LTC_spenddown_amount)
+    If section_f_ma_terminated_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("MA terminated (basic MA & MA-LTC)", section_f_ma_terminated_eff_date)
+    If section_f_basic_ma_spenddown_change_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Basic MA spenddown changed", section_f_basic_ma_spenddown_change_amount)
+    If section_f_ma_LTC_terminated_checkbox = 1 Then 
+      Call write_variable_in_case_note("MA-LTC terminated on specific date; basic MA remains open")
+      Call write_bullet_and_variable_in_case_note("Date terminated", section_f_ma_LTC_terminated_date)
+      Call write_bullet_and_variable_in_case_note("Date inelig. through", section_f_ma_payment_terminated_date_inelig_thru)
+    End If
+    If section_f_person_deceased_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Person is deceased", section_f_person_deceased_date_of_death)
+    If section_f_person_moved_institution_checkbox = 1 Then
+      Call write_variable_in_case_note("* Person moved to an institution") 
+      Call write_bullet_and_variable_in_case_note("Date of admission", section_f_person_moved_institution_admit_date)
+      Call write_bullet_and_variable_in_case_note("Institution name and phone number", section_f_person_moved_institution_facility_name & "(" & section_f_person_moved_institution_phone_number & ")")
+      Call write_bullet_and_variable_in_case_note("Address", section_f_person_moved_institution_address & ", " & section_f_person_moved_institution_city & ", " & section_f_person_moved_institution_state & " " & section_f_person_moved_institution_zip)
+    End If
+
+    If section_f_person_new_address_checkbox = 1 Then 
+      Call write_variable_in_case_note("* Person has a new address")
+      Call write_bullet_and_variable_in_case_note("Date of address change", section_f_person_new_address_date_changed)
+      If section_f_person_new_address_new_phone_number <> "" Then Call write_bullet_and_variable_in_case_note("New phone number", section_f_person_new_address_new_phone_number)
+      Call write_bullet_and_variable_in_case_note("Address", section_f_person_new_address_address & ", " & section_f_person_new_address_city & ", " & section_f_person_new_address_state & " " & section_f_person_new_address_zip_code)
+    End If
+    If section_f_other_change_checkbox = 1 Then Call write_bullet_and_variable_in_case_note("Other change", section_f_person_other_change_description)
+  Else
+    Call write_variable_in_case_note("--Changes - no information provided--")
+  End If
+  Call write_variable_in_case_note("-Section G: Comments from eligibility worker-")
+  If section_g_elig_worker_comments <> "" Then 
+    Call write_bullet_and_variable_in_case_note("Additional comments", section_g_elig_worker_comments)
+  Else
+    Call write_variable_in_case_note("* No comments provided")
+  End If
+
+  'Add worker signature
+  Call write_variable_in_case_note ("---")
+  call write_variable_in_case_note (worker_signature)
+
+  script_end_procedure_with_error_report("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
+  'Update the panels here
+
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 511, 275, "Update SWKR/ADDR Panels"
+    Text 10, 10, 65, 10, "Date on DHS-5181:"
+    EditBox 80, 5, 55, 15, OS_date_sent_worker
+    Text 150, 10, 55, 10, "Date Received:"
+    EditBox 205, 5, 55, 15, OS_date_form_received
+    GroupBox 5, 25, 250, 240, "Update SWKR Panel"
+    CheckBox 15, 40, 120, 10, "Click here to update SWKR panel", OS_swkr_update_panel_checkbox
+    Text 15, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
+    Text 15, 75, 50, 10, "Lead Agency:"
+    EditBox 95, 70, 120, 15, OS_lead_agency
+    Text 15, 90, 40, 10, "Assessor:"
+    EditBox 95, 85, 120, 15, OS_assessor
+    Text 15, 105, 55, 10, "Phone Number:"
+    EditBox 95, 100, 55, 15, OS_phone_number
+    Text 155, 105, 20, 10, "Ext:"
+    EditBox 175, 100, 40, 15, OS_phone_ext
+    Text 15, 120, 55, 10, "Fax Number:"
+    EditBox 95, 115, 55, 15, OS_fax_number
+    Text 15, 135, 60, 10, "Street Address 1:"
+    EditBox 95, 130, 120, 15, OS_swkr_street_address_1
+    Text 15, 150, 60, 10, "Street Address 2:"
+    EditBox 95, 145, 120, 15, OS_swkr_street_address_2
+    Text 15, 165, 20, 10, "City:"
+    EditBox 95, 160, 120, 15, OS_swkr_city
+    Text 15, 180, 25, 10, "State:"
+    EditBox 95, 175, 25, 15, OS_swkr_state
+    Text 15, 195, 35, 10, "Zip Code:"
+    EditBox 95, 190, 55, 15, OS_swkr_zip_code
+    Text 15, 210, 55, 10, "Email Address:"
+    EditBox 95, 205, 115, 15, OS_swkr_email_address
+    Text 15, 230, 115, 10, "All notices to Social Worker (Y/N):"
+    DropListBox 135, 225, 65, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", OS_swkr_notices_dropdown
+    Text 15, 245, 90, 10, "Footer month for updates:"
+    EditBox 135, 240, 20, 15, footer_month_SWKR
+    EditBox 160, 240, 20, 15, footer_year_SWKR
+    ButtonGroup ButtonPressed
+      PushButton 180, 35, 70, 15, "Navigate to SWKR", swkr_nav_btn
+    GroupBox 260, 25, 245, 225, "Update ADDR Panel"
+    CheckBox 265, 40, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
+    Text 265, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
+    EditBox 345, 70, 55, 15, OS_addr_eff_date
+    Text 265, 90, 50, 10, "Street Line 1:"
+    EditBox 345, 85, 120, 15, OS_addr_address_street_line_1
+    Text 265, 105, 50, 10, "Street Line 2:"
+    EditBox 345, 100, 120, 15, OS_addr_address_street_line_2
+    Text 265, 120, 20, 10, "City:"
+    EditBox 345, 115, 120, 15, OS_addr_city
+    Text 265, 135, 25, 10, "State:"
+    EditBox 345, 130, 25, 15, OS_addr_state
+    Text 265, 150, 35, 10, "Zip code:"
+    EditBox 345, 145, 35, 15, OS_addr_zip
+    Text 265, 165, 45, 10, "County code:"
+    EditBox 345, 160, 25, 15, OS_addr_resi_code
+    ButtonGroup ButtonPressed
+      PushButton 420, 35, 70, 15, "Navigate to ADDR", addr_nav_btn
+      PushButton 400, 255, 55, 15, "Next", next_btn
+      CancelButton 455, 255, 50, 15
+    Text 265, 75, 70, 10, "Address Eff Date:"
+  EndDialog
+
+  DO
+    DO
+      err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+      dialog Dialog1				'main dialog
+      cancel_without_confirmation
+
+      'Ensure dates are filled out
+      If trim(OS_date_sent_worker) = "" or IsDate(OS_date_sent_worker) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date on the DHS-5181 in the format MM/DD/YYYY."  
+      If trim(OS_date_form_received) = "" or IsDate(OS_date_form_received) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-5181 was received in the format MM/DD/YYYY."  
+
+      'Error handling for SWKR panel updates
+      If OS_swkr_update_panel_checkbox = 1 Then
+        If trim(OS_lead_agency) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Lead Agency field."
+        Call back_to_SELF
+        If trim(OS_assessor) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Assessor field."  
+        If trim(OS_phone_number) = "" OR len(OS_phone_number) <> 12 OR mid(OS_phone_number, 4, 1) <> "-" OR mid(OS_phone_number, 8, 1) <> "-" Then err_msg = err_msg & vbCr & "* You must fill out the Phone Number field in the format ###-###-####."
+        If trim(OS_swkr_street_address_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+        If trim(OS_swkr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."  
+        If trim(OS_swkr_state) = "" OR len(OS_swkr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."  
+        If trim(OS_swkr_zip_code) = "" OR len(OS_swkr_zip_code) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."  
+        If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
+        If trim(footer_month_SWKR) = "" OR Len(trim(footer_month_SWKR)) <> 2 OR IsNumeric(trim(footer_month_SWKR)) = False OR trim(footer_year_SWKR) = "" OR Len(trim(footer_year_SWKR)) <> 2 OR IsNumeric(trim(footer_year_SWKR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the SWKR panel updates in  the MM YY format."
+      End If
+      'Error handling for ADDR panel updates
+      If OS_addr_update_panel_checkbox = 1 Then
+        If trim(OS_addr_eff_date) <> "" AND IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
+        If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
+        If trim(OS_addr_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the City field."
+        If trim(OS_addr_state) = "" OR len(OS_addr_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the State field in the two-character format, ex. MN."
+        If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
+        If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
+      End If
+      If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
+      If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
+      If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = "" and (ButtonPressed <> swkr_nav_btn and ButtonPressed <> addr_nav_btn) 									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+  'Update SWKR
+
+  If OS_swkr_update_panel_checkbox = 1 Then
+    'Ensure the specifically selected assessor (SWKR) will update the panel
+    swkr_panel_name = trim(OS_assessor)
+    swkr_panel_street_line_1 = trim(OS_swkr_street_address_1)
+    If trim(OS_swkr_street_address_2) <> "" Then swkr_panel_street_line_2 = OS_swkr_street_address_2
+    swkr_panel_city = trim(OS_swkr_city)
+    swkr_panel_state = trim(OS_swkr_state)
+    swkr_panel_zip = trim(OS_swkr_zip_code)
+    swkr_panel_phone = replace(OS_phone_number, "-", "")
+    If trim(OS_phone_ext) <> "" Then swkr_panel_phone_ext = OS_phone_ext
+    
+    'Return to SELF to change the footer month
+    Call back_to_SELF
+    Call MAXIS_background_check
+    MAXIS_footer_month = footer_month_SWKR
+    MAXIS_footer_year = footer_year_SWKR
+    EmWriteScreen footer_month_updates, 20, 43
+    EmWriteScreen footer_year_updates, 20, 46
+    EmWriteScreen MAXIS_case_number, 18, 43
+    transmit
+
+    'Navigate to STAT/SWKR
+    Call navigate_to_MAXIS_screen("STAT", "SWKR")
+    'Check if SWKR panel exists
+    EmReadScreen swkr_does_not_exist, 19, 24, 2
+    If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
+      'Add new panel
+      Call write_value_and_transmit("NN", 20, 79)
+      'Write details to panel
+      EMWriteScreen swkr_panel_name, 6, 32
+      EMWriteScreen swkr_panel_street_line_1, 8, 32
+      If trim(swkr_panel_street_line_2) <> "" Then EMWriteScreen swkr_panel_street_line_2, 9, 32
+      EMWriteScreen swkr_panel_city, 10, 32
+      EMWriteScreen swkr_panel_state, 10, 54
+      EMWriteScreen swkr_panel_zip, 10, 63
+      If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
+      EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+      EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+      EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+
+      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+
+      'Transmit to save 
+      transmit
+  
+    Else
+      'Put panel into edit mode
+      PF9
+      'Write to panel
+      If trim(swkr_panel_name) <> "" Then
+        EMWriteScreen "___________________________________", 6, 32
+        EMWriteScreen swkr_panel_name, 6, 32
+      End If
+      If trim(swkr_panel_street_line_1) <> "" Then
+        EMWriteScreen "______________________", 8, 32
+        EMWriteScreen swkr_panel_street_line_1, 8, 32
+      End If
+      If trim(swkr_panel_street_line_2) <> "" Then
+        EMWriteScreen "______________________", 9, 32
+        EMWriteScreen swkr_panel_street_line_2, 9, 32
+      End If
+      If trim(swkr_panel_city) <> "" Then 
+        EMWriteScreen "_______________", 10, 32
+        EMWriteScreen swkr_panel_city, 10, 32
+      End If
+      If trim(swkr_panel_state) <> "" Then
+        EMWriteScreen "__", 10, 54
+        EMWriteScreen swkr_panel_state, 10, 54
+      End If
+      If trim(swkr_panel_zip) <> "" Then
+        EMWriteScreen "_____", 10, 63
+        EMWriteScreen swkr_panel_zip, 10, 63
+      End If
+      If trim(swkr_panel_phone) <> "" Then
+        EMWriteScreen "___", 12, 34
+        EMWriteScreen "___", 12, 40
+        EMWriteScreen "____", 12, 44
+        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+      End If
+      If trim(swkr_panel_phone_ext) <> "" Then
+        EMWriteScreen "____", 12, 54
+        EMWriteScreen swkr_panel_phone_ext, 12, 54
+      End If
+      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+      'Transmit to save 
+      transmit
+    End If
+  End If
+
+  'Update ADDR
+  If OS_addr_update_panel_checkbox = 1 Then
+
+    Call back_to_SELF
+    Call ONLY_create_MAXIS_friendly_date(OS_addr_eff_date)
+    MAXIS_footer_month = left(OS_addr_eff_date, 2)
+    MAXIS_footer_year = right(OS_addr_eff_date, 2)
+    EmWriteScreen OS_footer_month, 20, 43
+    EmWriteScreen OS_footer_year, 20, 46
+    EmWriteScreen MAXIS_case_number, 18, 43
+    transmit
+
+    'Navigate to STAT/ADDR
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+
+    'Write information to panel depending on which address selected
+    Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+  End If
+
+  'CASE/NOTE information
+
+  If OS_swkr_update_panel_checkbox = 1 OR OS_addr_update_panel_checkbox = 1 Then
+    If OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox = 1 Then
+      panels_updated = "SWKR and ADDR Updated"
+    ElseIf OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox <> 1 Then
+      panels_updated = "SWKR Updated"
+    ElseIf OS_swkr_update_panel_checkbox <> 1 AND OS_addr_update_panel_checkbox = 1 Then
+      panels_updated = "ADDR Updated"
+    End If
+
+    Call start_a_blank_CASE_NOTE
+    'Information from DHS 5181 Dialog 1
+    'Contact information
+    Call write_variable_in_case_note("~~~DHS-5181 Received - " & panels_updated & "~~~")
+
+    If OS_swkr_update_panel_checkbox = 1 Then
+      Call write_variable_in_case_note("SWKR Updates")  
+      Call write_bullet_and_variable_in_case_note("Date 5181 sent to worker", OS_date_sent_worker)
+      Call write_bullet_and_variable_in_case_note("Date 5181 received", OS_date_form_received)
+      Call write_bullet_and_variable_in_case_note("Lead agency", OS_lead_agency)
+      If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Assessor", OS_assessor)
+      If trim(OS_assessor) <> "" Then Call write_bullet_and_variable_in_case_note("Phone number", OS_phone_number)
+      If trim(OS_fax_number) <> "" Then Call write_bullet_and_variable_in_case_note("Fax number", OS_fax_number)
+      If trim(OS_swkr_street_address_1) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 1", OS_swkr_street_address_1)
+      If trim(OS_swkr_street_address_2) <> "" Then Call write_bullet_and_variable_in_case_note("Street Address Line 2", OS_swkr_street_address_2)
+      If trim(OS_swkr_city) <> "" Then Call write_bullet_and_variable_in_case_note("City", OS_swkr_city)
+      If trim(OS_swkr_state) <> "" Then Call write_bullet_and_variable_in_case_note("State", OS_swkr_state)
+      If trim(OS_swkr_zip_code) <> "" Then Call write_bullet_and_variable_in_case_note("Zip code", OS_swkr_zip_code)
+      If trim(OS_swkr_email_address) <> "" Then Call write_bullet_and_variable_in_case_note("Email address", OS_swkr_email_address)
+      If trim(OS_swkr_notices_dropdown) <> "Select one:" Then Call write_bullet_and_variable_in_case_note("All notices to Social Worker", OS_swkr_notices_dropdown)
+      Call write_variable_in_case_note("---")
+    End If
+
+    If OS_addr_update_panel_checkbox = 1 Then
+      Call write_variable_in_case_note("ADDR Updates")  
+      Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
+
+      If OS_addr_address_street_line_2 <> "" Then 
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
+      Else
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
+      End If
+      Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
+      Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
+      Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
+      Call write_variable_in_case_note ("---")
+    End If
+
+    'Add worker signature
+    call write_variable_in_case_note (worker_signature)
+
+    script_end_procedure_with_error_report("Success! Panel(s) updated and CASE/NOTE created.")
+  End If
+End If
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------07/21/2022
-'--Tab orders reviewed & confirmed----------------------------------------------07/21/2022
-'--Mandatory fields all present & Reviewed--------------------------------------07/21/2022
-'--All variables in dialog match mandatory fields-------------------------------07/21/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/22/2025
+'--Tab orders reviewed & confirmed----------------------------------------------10/22/2025
+'--Mandatory fields all present & Reviewed--------------------------------------10/22/2025
+'--All variables in dialog match mandatory fields-------------------------------10/22/2025
+'Review dialog names for content and content fit in dialog----------------------10/22/2025
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------10/22/2025
+'--Include script category and name somewhere on first dialog-------------------10/22/2025
+'--Create a button to reference instructions------------------------------------10/22/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/14/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------10/22/2025
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/22/2025
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/22/2025
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----10/22/2025
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------07/21/2022
-'--PRIV Case handling reviewed -------------------------------------------------07/21/2022
-'--Out-of-County handling reviewed----------------------------------------------07/21/2022----------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------07/21/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------07/21/2022
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/21/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/22/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/22/2025
+'--PRIV Case handling reviewed -------------------------------------------------10/22/2025
+'--Out-of-County handling reviewed----------------------------------------------10/22/2025
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/22/2025
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/22/2025
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------07/21/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------07/21/2022
-'--Denomination reviewed -------------------------------------------------------07/21/2022
-'--Script name reviewed---------------------------------------------------------07/21/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
+'--Manual time study reviewed --------------------------------------------------10/22/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------10/22/2025
+'--Denomination reviewed -------------------------------------------------------10/22/2025
+'--Script name reviewed---------------------------------------------------------10/22/2025
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
-'--comment Code-----------------------------------------------------------------07/21/2022
-'--Update Changelog for release/update------------------------------------------11/14/2022
-'--Remove testing message boxes-------------------------------------------------07/21/2022
-'--Remove testing code/unnecessary code-----------------------------------------07/21/2022
-'--Review/update SharePoint instructions----------------------------------------11/14/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
-'--Complete misc. documentation (if applicable)---------------------------------07/21/2022
-'--Update project team/issue contact (if applicable)----------------------------11/14/2022
+'--Confirm all GitHub tasks are complete----------------------------------------10/22/2025
+'--comment Code-----------------------------------------------------------------10/22/2025
+'--Update Changelog for release/update------------------------------------------10/22/2025
+'--Remove testing message boxes-------------------------------------------------10/22/2025
+'--Remove testing code/unnecessary code-----------------------------------------10/22/2025
+'--Review/update SharePoint instructions----------------------------------------10/22/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/22/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/22/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/22/2025
+'--Complete misc. documentation (if applicable)---------------------------------10/22/2025
+'--Update project team/issue contact (if applicable)----------------------------10/22/2025
