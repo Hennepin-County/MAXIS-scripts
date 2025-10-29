@@ -1652,19 +1652,19 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         EmWriteScreen MAXIS_case_number, 18, 43
         transmit
 
-      BeginDialog Dialog1, 0, 0, 241, 115, "Verify New Address Details"
-        Text 5, 5, 225, 10, "Verify the updated address details below to update the ADDR panel:"
-        Text 5, 20, 230, 10, address_to_update
-        Text 5, 40, 70, 10, "County of Residence:"
-        EditBox 80, 35, 60, 15, county_of_residence
-        Text 5, 55, 70, 10, "Living Situation:"
-        DropListBox 80, 55, 60, 15, "Select one:"+chr(9)+"01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"09"+chr(9)+"10", living_situation
-        Text 5, 70, 20, 10, "Ver:"
-        DropListBox 80, 70, 60, 15, "Select one:"+chr(9)+"SF"+chr(9)+"CO"+chr(9)+"LE"+chr(9)+"MO"+chr(9)+"TX"+chr(9)+"CD"+chr(9)+"UT"+chr(9)+"DL"+chr(9)+"OT"+chr(9)+"NO", address_ver
-        ButtonGroup ButtonPressed
-          OkButton 130, 95, 50, 15
-          CancelButton 185, 95, 50, 15
-      EndDialog
+        BeginDialog Dialog1, 0, 0, 241, 115, "Verify New Address Details"
+          Text 5, 5, 225, 10, "Verify the updated address details below to update the ADDR panel:"
+          Text 5, 20, 230, 10, address_to_update
+          Text 5, 40, 50, 10, "County Code:"
+          EditBox 70, 35, 25, 15, county_of_residence
+          Text 5, 55, 60, 10, "Living Situation:"
+          DropListBox 70, 55, 60, 15, "Select one:"+chr(9)+"01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"09"+chr(9)+"10", living_situation
+          Text 5, 70, 20, 10, "Ver:"
+          DropListBox 70, 70, 60, 15, "Select one:"+chr(9)+"SF"+chr(9)+"CO"+chr(9)+"LE"+chr(9)+"MO"+chr(9)+"TX"+chr(9)+"CD"+chr(9)+"UT"+chr(9)+"DL"+chr(9)+"OT"+chr(9)+"NO", address_ver
+          ButtonGroup ButtonPressed
+            OkButton 130, 95, 50, 15
+            CancelButton 185, 95, 50, 15
+        EndDialog
 
       'Dialog validation
       Do
@@ -1677,7 +1677,7 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 
           'Error handling only if worker intends to update panels
           If ButtonPressed = OK Then
-            If trim(county_of_residence) = "" OR trim(len(county_of_residence)) <> 2 OR IsNumeric(county_of_residence) = False Then err_msg = err_msg & vbCr & "* The County of Residence field must be filled out with a two-digit number." 
+            If trim(county_of_residence) = "" OR trim(len(county_of_residence)) <> 2 OR IsNumeric(county_of_residence) = False Then err_msg = err_msg & vbCr & "* The County Code field must be filled out with a two-digit number." 
             If living_situation = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Living Situation dropdown." 
             If address_ver = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the Ver dropdown." 
           End If 
