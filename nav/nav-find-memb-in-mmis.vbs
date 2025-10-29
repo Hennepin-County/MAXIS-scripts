@@ -240,53 +240,6 @@ function find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMI
 	Next
 End Function
 
-function navigate_to_MAXIS_environment(maxis_mode)
-'VARIATION of FuncLib function to navigate to specifc MAXIS environment
-'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
-'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
-'===== Keywords: MAXIS, navigate
-    maxis_mode = UCASE(maxis_mode)
-    If maxis_mode = "PRODUCTION" Then
-        mai_code = "1"
-        mai_row = 6
-    End If
-    If maxis_mode = "INQUIRY DB" Then
-        mai_code = "2"
-        mai_row = 7
-    End If
-    If maxis_mode = "TRAINING" Then
-        mai_code = "3"
-        mai_row = 8
-    End If
-
-    attn
-    Do
-        EMReadScreen MAI_check, 3, 1, 33
-        If MAI_check <> "MAI" then EMWaitReady 1, 1
-    Loop until MAI_check = "MAI"
-
-    EMReadScreen prod_check, 7, mai_row, 15
-    IF prod_check = "RUNNING" THEN
-        Call write_value_and_transmit(mai_code, 2, 15)
-    ELSE
-        EMConnect"A"
-        attn
-        EMReadScreen prod_check, 7, mai_row, 15
-        IF prod_check = "RUNNING" THEN
-            Call write_value_and_transmit(mai_code, 2, 15)
-        ELSE
-            EMConnect"B"
-            attn
-            EMReadScreen prod_check, 7, mai_row, 15
-            IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit(mai_code, 2, 15)
-            Else
-                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
-            END IF
-        END IF
-    END IF
-end function
-
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
 
@@ -297,7 +250,7 @@ EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX
 MX_environment = trim(MX_environment)
 If MX_environment = "TRAINING" Then Call script_end_procedure("You are in the MAXIS Training environment. This script only works in Production or Inquiry. The script will now end.")
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        	'Going to MMIS'
-Call navigate_to_MAXIS_environment(MX_environment)                          'going back to MAXIS
+Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
 MAXIS_footer_month = CM_mo									'Directly assigns a footer month based on the current month
 MAXIS_footer_year = CM_yr
@@ -434,7 +387,7 @@ ReDim MMIS_HC_SPANS_ARRAY(MMIS_last_const, 0)
 
 Call find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMIS_pmi_const, DUPLICATE_pmi_const, MMIS_ssn_const, MMIS_name_const, MMIS_hc_prog_const, MMIS_hc_elig_type_const, MMIS_span_start_date_const, MMIS_span_status_const, MMIS_span_end_date_const, string_id_const, MX_ref_numb_const, MMIS_last_const, MMIS_HC_SPANS_ARRAY)
 
-Call navigate_to_MAXIS_environment(MX_environment)                          'going back to MAXIS
+Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
 Dialog1 = ""
 If MMIS_HC_SPANS_ARRAY(MMIS_name_const, 0) <> "" Then
