@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/29/2025", "Added button to fill SWKR details for OS staff update dialog.", "Mark Riegel, Hennepin County")
 call changelog_update("10/20/2025", "Updated script to align with current DHS-5181 form; added functionality for OS staff to complete SWKR/ADDR panel updates without completing whole script; improved STAT panel update functionality.", "Mark Riegel, Hennepin County")
 call changelog_update("11/14/2022", "Enhanced script to only update SWKR/Case Manager information that is added. Previously all information was cleared before updating the SWKR/case manager info.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
@@ -2059,43 +2060,44 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
   'Update the panels here
 
   Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 511, 275, "Update SWKR/ADDR Panels"
+  BeginDialog Dialog1, 0, 0, 511, 285, "Update SWKR/ADDR Panels"
     Text 10, 10, 65, 10, "Date on DHS-5181:"
     EditBox 80, 5, 55, 15, OS_date_sent_worker
     Text 150, 10, 55, 10, "Date Received:"
     EditBox 205, 5, 55, 15, OS_date_form_received
-    GroupBox 5, 25, 250, 240, "Update SWKR Panel"
+    GroupBox 5, 25, 250, 255, "Update SWKR Panel"
     CheckBox 15, 40, 120, 10, "Click here to update SWKR panel", OS_swkr_update_panel_checkbox
-    Text 15, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
-    Text 15, 75, 50, 10, "Lead Agency:"
-    EditBox 95, 70, 120, 15, OS_lead_agency
-    Text 15, 90, 40, 10, "Assessor:"
-    EditBox 95, 85, 120, 15, OS_assessor
-    Text 15, 105, 55, 10, "Phone Number:"
-    EditBox 95, 100, 55, 15, OS_phone_number
-    Text 155, 105, 20, 10, "Ext:"
-    EditBox 175, 100, 40, 15, OS_phone_ext
-    Text 15, 120, 55, 10, "Fax Number:"
-    EditBox 95, 115, 55, 15, OS_fax_number
-    Text 15, 135, 60, 10, "Street Address 1:"
-    EditBox 95, 130, 120, 15, OS_swkr_street_address_1
-    Text 15, 150, 60, 10, "Street Address 2:"
-    EditBox 95, 145, 120, 15, OS_swkr_street_address_2
-    Text 15, 165, 20, 10, "City:"
-    EditBox 95, 160, 120, 15, OS_swkr_city
-    Text 15, 180, 25, 10, "State:"
-    EditBox 95, 175, 25, 15, OS_swkr_state
-    Text 15, 195, 35, 10, "Zip Code:"
-    EditBox 95, 190, 55, 15, OS_swkr_zip_code
-    Text 15, 210, 55, 10, "Email Address:"
-    EditBox 95, 205, 115, 15, OS_swkr_email_address
-    Text 15, 230, 115, 10, "All notices to Social Worker (Y/N):"
-    DropListBox 135, 225, 65, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", OS_swkr_notices_dropdown
-    Text 15, 245, 90, 10, "Footer month for updates:"
-    EditBox 135, 240, 20, 15, footer_month_SWKR
-    EditBox 160, 240, 20, 15, footer_year_SWKR
+    Text 15, 70, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
+    Text 15, 90, 50, 10, "Lead Agency:"
+    EditBox 95, 85, 120, 15, OS_lead_agency
+    Text 15, 105, 40, 10, "Assessor:"
+    EditBox 95, 100, 120, 15, OS_assessor
+    Text 15, 120, 55, 10, "Phone Number:"
+    EditBox 95, 115, 55, 15, OS_phone_number
+    Text 155, 120, 20, 10, "Ext:"
+    EditBox 175, 115, 40, 15, OS_phone_ext
+    Text 15, 135, 55, 10, "Fax Number:"
+    EditBox 95, 130, 55, 15, OS_fax_number
+    Text 15, 150, 60, 10, "Street Address 1:"
+    EditBox 95, 145, 120, 15, OS_swkr_street_address_1
+    Text 15, 165, 60, 10, "Street Address 2:"
+    EditBox 95, 160, 120, 15, OS_swkr_street_address_2
+    Text 15, 180, 20, 10, "City:"
+    EditBox 95, 175, 120, 15, OS_swkr_city
+    Text 15, 195, 25, 10, "State:"
+    EditBox 95, 190, 25, 15, OS_swkr_state
+    Text 15, 210, 35, 10, "Zip Code:"
+    EditBox 95, 205, 55, 15, OS_swkr_zip_code
+    Text 15, 225, 55, 10, "Email Address:"
+    EditBox 95, 220, 115, 15, OS_swkr_email_address
+    Text 15, 245, 115, 10, "All notices to Social Worker (Y/N):"
+    DropListBox 135, 240, 65, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", OS_swkr_notices_dropdown
+    Text 15, 260, 90, 10, "Footer month for updates:"
+    EditBox 135, 255, 20, 15, footer_month_SWKR
+    EditBox 160, 255, 20, 15, footer_year_SWKR
     ButtonGroup ButtonPressed
       PushButton 180, 35, 70, 15, "Navigate to SWKR", swkr_nav_btn
+      PushButton 180, 50, 70, 15, "Fill from SWKR", fill_from_swkr_OS_dialog_btn
     GroupBox 260, 25, 245, 225, "Update ADDR Panel"
     CheckBox 265, 40, 120, 10, "Click here to update ADDR panel", OS_addr_update_panel_checkbox
     Text 265, 55, 235, 10, "Only fill out fields below that need to be updated, otherwise leave blank."
@@ -2114,8 +2116,8 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     EditBox 345, 160, 25, 15, OS_addr_resi_code
     ButtonGroup ButtonPressed
       PushButton 420, 35, 70, 15, "Navigate to ADDR", addr_nav_btn
-      PushButton 400, 255, 55, 15, "Next", next_btn
-      CancelButton 455, 255, 50, 15
+      PushButton 400, 265, 55, 15, "Next", next_btn
+      CancelButton 455, 265, 50, 15
     Text 265, 75, 70, 10, "Address Eff Date:"
   EndDialog
 
@@ -2152,10 +2154,45 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
       End If
       If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
-      If ButtonPressed = swkr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "SWKR")
-      If ButtonPressed = addr_nav_btn Then Call navigate_to_MAXIS_screen("STAT", "ADDR")
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-    LOOP UNTIL err_msg = "" and (ButtonPressed <> swkr_nav_btn and ButtonPressed <> addr_nav_btn) 									'loops until all errors are resolved
+      If ButtonPressed = fill_from_swkr_OS_dialog_btn Then
+        err_msg = "LOOP"
+        Call navigate_to_MAXIS_screen("STAT", "SWKR")
+        'creates a new panel if one doesn't exist, and will needs new if there is not one
+        EMReadScreen panel_exists_check, 1, 2, 73
+        IF panel_exists_check = "0" THEN
+          'If no SWKR panel exists, then msgbox to alert the worker
+          msgbox "No SWKR panel exists. Script will return to dialog."
+        ELSE
+          'Read information from SWKR
+          EMReadScreen OS_assessor, 35, 6, 32
+          OS_assessor = replace(OS_assessor, "_", "")
+          EMReadScreen OS_swkr_street_address_1, 22, 8, 32
+          OS_swkr_street_address_1 = replace(OS_swkr_street_address_1, "_", "")
+          EMReadScreen OS_swkr_city, 15, 10, 32
+          OS_swkr_city = replace(OS_swkr_city, "_", "")
+          EMReadScreen OS_phone_number, 14, 12, 34
+          OS_phone_number = replace(OS_phone_number, " ) ", "")
+          OS_phone_number = replace(OS_phone_number, " ", "")
+          'Convert phone number to ###-###-####
+          OS_phone_number = left(OS_phone_number, 3) & "-" & mid(OS_phone_number, 4, 3) & "-" & right(OS_phone_number, 4)
+          EMReadScreen OS_swkr_state, 2, 10, 54
+          EMReadScreen OS_swkr_zip_code, 10, 10, 63
+          OS_swkr_zip_code = trim(OS_swkr_zip_code)
+          Call back_to_SELF
+        END IF
+        'End at STAT/MEMB
+        Call back_to_SELF
+      End If
+      If ButtonPressed = swkr_nav_btn Then 
+        Call navigate_to_MAXIS_screen("STAT", "SWKR")
+        err_msg = "LOOP"
+      End If
+      If ButtonPressed = addr_nav_btn Then 
+        Call navigate_to_MAXIS_screen("STAT", "ADDR")
+        err_msg = "LOOP"
+      End If
+      IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = "" 									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
