@@ -2021,7 +2021,7 @@ function define_ga_elig_dialog()
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_ga_gross_amt(each_memb)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2030,7 +2030,7 @@ function define_ga_elig_dialog()
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_ga_gross_amt(each_memb)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2039,7 +2039,7 @@ function define_ga_elig_dialog()
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_ga_gross_amt(each_memb)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -2048,7 +2048,7 @@ function define_ga_elig_dialog()
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_ga_gross_amt(each_memb)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
 					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
@@ -5420,30 +5420,45 @@ function mfip_elig_case_note()
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+                If left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 4) = "RSDI" and MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb) <> "" Then
+                    Call write_variable_in_CASE_NOTE("   - RSDI Disregard: $" & left(FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb), 2, -1, 0, -1) & spaces_30, 14) & "|")
+                End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+                If left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 4) = "RSDI" and MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb) <> "" Then
+                    Call write_variable_in_CASE_NOTE("   - RSDI Disregard: $" & left(FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb), 2, -1, 0, -1) & spaces_30, 14) & "|")
+                End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+                If left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 4) = "RSDI" and MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb) <> "" Then
+                    Call write_variable_in_CASE_NOTE("   - RSDI Disregard: $" & left(FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb), 2, -1, 0, -1) & spaces_30, 14) & "|")
+                End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+                If left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 4) = "RSDI" and MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb) <> "" Then
+                    Call write_variable_in_CASE_NOTE("   - RSDI Disregard: $" & left(FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb), 2, -1, 0, -1) & spaces_30, 14) & "|")
+                End If
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
 				STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+                If left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 4) = "RSDI" and MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb) <> "" Then
+                    Call write_variable_in_CASE_NOTE("   - RSDI Disregard: $" & left(FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(each_memb), 2, -1, 0, -1) & spaces_30, 14) & "|")
+                End If
 			End If
 			For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
 				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) Then
@@ -5500,22 +5515,22 @@ function mfip_elig_case_note()
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_deemed_for_mfip(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_deemed_for_mfip(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_deemed_for_mfip(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_deemed_for_mfip(each_memb) = True Then
 				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = False Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
-				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If STAT_INFORMATION(month_ind).cash_six_month_budget_elig = True Then unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_cash_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
 			For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
@@ -10381,6 +10396,9 @@ class mfip_eligibility_detail
 	public mfip_elig_membs_counted_earned_income()
 
 	public mfip_elig_membs_total_unearned_income()
+	public mfip_elig_membs_other_unearned_income()
+	public mfip_elig_membs_rsdi_unearned_income()
+	public mfip_elig_membs_rsdi_disregard_income()
 	public mfip_elig_membs_allocation_balance()
 	public mfip_elig_membs_child_support_balance()
 	public mfip_elig_membs_counted_unearned_income()
@@ -10804,6 +10822,9 @@ class mfip_eligibility_detail
 			ReDim mfip_elig_membs_child_support_deduction(0)
 			ReDim mfip_elig_membs_counted_earned_income(0)
 			ReDim mfip_elig_membs_total_unearned_income(0)
+			ReDim mfip_elig_membs_other_unearned_income(0)
+			ReDim mfip_elig_membs_rsdi_unearned_income(0)
+			ReDim mfip_elig_membs_rsdi_disregard_income(0)
 			ReDim mfip_elig_membs_allocation_balance(0)
 			ReDim mfip_elig_membs_child_support_balance(0)
 			ReDim mfip_elig_membs_counted_unearned_income(0)
@@ -10948,6 +10969,9 @@ class mfip_eligibility_detail
 				ReDim preserve mfip_elig_membs_child_support_deduction(elig_memb_count)
 				ReDim preserve mfip_elig_membs_counted_earned_income(elig_memb_count)
 				ReDim preserve mfip_elig_membs_total_unearned_income(elig_memb_count)
+				ReDim preserve mfip_elig_membs_other_unearned_income(elig_memb_count)
+				ReDim preserve mfip_elig_membs_rsdi_unearned_income(elig_memb_count)
+				ReDim preserve mfip_elig_membs_rsdi_disregard_income(elig_memb_count)
 				ReDim preserve mfip_elig_membs_allocation_balance(elig_memb_count)
 				ReDim preserve mfip_elig_membs_child_support_balance(elig_memb_count)
 				ReDim preserve mfip_elig_membs_counted_unearned_income(elig_memb_count)
@@ -11584,21 +11608,35 @@ class mfip_eligibility_detail
 			Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
 			EMReadScreen still_in_menu, 15, 6, 34
 			If still_in_menu = "Unearned Income" Then
-				' EMReadScreen pop_up_name, 25, 8, 34
-				' pop_up_name = trim(pop_up_name)
-				' compare_pop_up_name = pop_up_name
-				' ' pop_up_name_array = split(pop_up_name, ",")
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 					If mfip_elig_membs_code(case_memb) = "A" Then
-						EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	8, 11, 50
-						EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	8, 12, 50
-						EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	8, 13, 50
-						EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 8, 14, 50
+                        EMReadScreen info_identifier, 4, 12, 21
+                        If info_identifier = "RSDI" Then
+                            EMReadScreen mfip_elig_membs_other_unearned_income(case_memb), 	8, 11, 50
+                            EMReadScreen mfip_elig_membs_rsdi_unearned_income(case_memb), 	8, 12, 50
+                            EMReadScreen mfip_elig_membs_rsdi_disregard_income(case_memb), 	8, 13, 50
+                            EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	8, 14, 50
+                            EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	8, 15, 50
+                            EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 8, 16, 50
+                        Else
+                            EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	8, 11, 50
+                            EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	8, 12, 50
+                            EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	8, 13, 50
+                            EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 8, 14, 50
+                        End If
 
 						mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
+						mfip_elig_membs_other_unearned_income(case_memb) = trim(mfip_elig_membs_other_unearned_income(case_memb))
+						mfip_elig_membs_rsdi_unearned_income(case_memb) = trim(mfip_elig_membs_rsdi_unearned_income(case_memb))
+						mfip_elig_membs_rsdi_disregard_income(case_memb) = trim(mfip_elig_membs_rsdi_disregard_income(case_memb))
 						mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
 						mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
 						mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
+                        If info_identifier = "RSDI" Then
+                            mfip_elig_membs_other_unearned_income(case_memb) = mfip_elig_membs_other_unearned_income(case_memb) * 1
+                            mfip_elig_membs_rsdi_unearned_income(case_memb) = mfip_elig_membs_rsdi_unearned_income(case_memb) * 1
+                            mfip_elig_membs_total_unearned_income(case_memb) = mfip_elig_membs_other_unearned_income(case_memb) + mfip_elig_membs_rsdi_unearned_income(case_memb)
+                        End If
 
 						If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
 						If mfip_elig_membs_allocation_balance(case_memb) <> "0.00" Then mfip_counted_memb_allocation_exists = True
@@ -11608,37 +11646,6 @@ class mfip_eligibility_detail
 						If still_in_menu <> "Unearned Income" Then Exit For
 					End If
 				Next
-				' 		' If mfip_elig_membs_last_name_complete(case_memb) = False Then
-				' 		' 	pop_up_last_name = left(pop_up_name, 10)
-				' 		' 	pop_up_first_name = trim(left(pop_up_name_array(1), 10))
-				' 		' 	compare_pop_up_name = pop_up_last_name & " " & pop_up_first_name
-				' 		' End If
-				' 		' If mfip_elig_membs_last_name_complete(case_memb) = True Then
-				' 		' 	pop_up_last_name = trim(pop_up_name_array(0))
-				' 		' 	pop_up_first_name = left(trim(pop_up_name_array(1)), len(mfip_elig_membs_partial_first_name(case_memb)))
-				' 		' 	compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
-				' 		' End If
-				' 		MsgBox compare_pop_up_name & " - compare_pop_up_name" & vbCr & mfip_elig_membs_full_name(case_memb) & " - mfip_elig_membs_full_name(case_memb)" & vbCr & "Length of COMPARE NAME - " & len(compare_pop_up_name)
-				' 		If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-				'
-				' 			EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
-				' 			EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
-				' 			EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
-				' 			EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
-				'
-				' 			mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
-				' 			mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
-				' 			mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
-				' 			mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
-				'
-				' 			If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
-				'
-				' 		End If
-				' 	Next
-				' 	transmit
-				' 	EMReadScreen still_in_menu, 15, 6, 34
-				' Loop
-				' MsgBox "LEAVE ???   UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			End if
 
 			Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
@@ -23337,20 +23344,24 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				    PushButton 200, 355, 180, 15, "Return to Approval Dialog", reload_btn
 					GroupBox 10, 10, 535, uei_grp_bx, "Case Unearned Income"
 					Text 20, 30, 50, 10, "Member"
-					Text 155, 30, 70, 10, "Unearned Income"
-				    Text 250, 30, 75, 10, "(-) Allocation Balance"
-				    Text 355, 30, 85, 10, "(-) Child Support Balance"
-				    Text 460, 30, 80, 10, "Counted Unearned Inc"
+					Text 155, 25, 50, 20, "Unearned Income"
+                    Text 215, 25, 50, 20, "RSDI Income"
+                    Text 275, 25, 50, 20, "RSDI Disregard"
+				    Text 335, 25, 50, 20, "(-) Allocation Balance"
+				    Text 395, 25, 50, 20, "(-) Child Support Balance"
+				    Text 460, 25, 50, 20, "Counted Unearned Inc"
 
 					y_pos = 45
 					For case_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
 						If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_total_unearned_income(case_memb) <> "" Then
 							Text 20, y_pos, 130, 10, "M " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(case_memb) & " - " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_full_name(case_memb)
 							If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then
-							    Text 155, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_total_unearned_income(case_memb)
-							    Text 250, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(case_memb)
-							    Text 355, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_child_support_balance(case_memb)
-							    Text 460, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_counted_unearned_income(case_memb)
+							    Text 155, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_total_unearned_income(case_memb), 2, -1, 0, -1)
+                                Text 215, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_unearned_income(case_memb), 2, -1, 0, -1)
+                                Text 275, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_rsdi_disregard_income(case_memb), 2, -1, 0, -1)
+							    Text 335, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(case_memb), 2, -1, 0, -1)
+							    Text 395, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_child_support_balance(case_memb), 2, -1, 0, -1)
+							    Text 460, y_pos, 40, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_counted_unearned_income(case_memb), 2, -1, 0, -1)
 							Else
 								Text 140, y_pos, 360, 10, "Member is Counted for MFIP, but no Unearned Income entered for this Member."
 							End If
@@ -23359,7 +23370,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					Next
 					y_pos = y_pos + 5
 					Text 300, y_pos, 155, 10, "Total Counted Deemed Income for the Budget"
-				    Text 460, y_pos, 35, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income
+				    Text 460, y_pos, 35, 10, "$ " & FormatNumber(MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 2, -1, 0, -1)
 				EndDialog
 
 				dialog Dialog1
