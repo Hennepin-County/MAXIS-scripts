@@ -2176,7 +2176,7 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
           'Convert phone number to ###-###-####
           OS_phone_number = left(OS_phone_number, 3) & "-" & mid(OS_phone_number, 4, 3) & "-" & right(OS_phone_number, 4)
           EMReadScreen OS_swkr_state, 2, 10, 54
-          EMReadScreen OS_swkr_zip_code, 10, 10, 63
+          EMReadScreen OS_swkr_zip_code, 5, 10, 63
           OS_swkr_zip_code = trim(OS_swkr_zip_code)
           Call back_to_SELF
         END IF
