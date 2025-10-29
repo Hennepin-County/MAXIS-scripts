@@ -4271,6 +4271,13 @@ If HIRE_messages = 1 Then
         GA_Active = ""
         SNAP_MFIP_GA_active = ""
         Other_programs_active_or_pending = ""
+
+        'New variables for SNAP required action
+        prog_appl_date = ""
+        REVW_approval_month = ""
+        SNAP_req_action_appl_month = ""
+        app_status = ""
+        FSSM_approval_date = ""
         
         'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
         EMReadScreen new_case, 8, dail_row, 63
@@ -4572,6 +4579,15 @@ If HIRE_messages = 1 Then
                             
                             If renewal_6_month_difference = "6" Or renewal_6_month_difference = "-6" Then
                               renewal_6_month_check = True
+                              'Determine if SR date or ER date is earlier
+                              If renewal_6_month_difference = "6" Then
+                                REVW_approval_month = sr_report_date
+                              ElseIf renewal_6_month_difference = "-6" Then 
+                                REVW_approval_month = recertification_date
+                              End If
+                              
+                              'Subtract 6 months to get most recent approval
+                              REVW_approval_month = DateAdd("m", -6, REVW_approval_month)
                             Else
                               renewal_6_month_check = False
                               
@@ -4602,6 +4618,70 @@ If HIRE_messages = 1 Then
                           
                           'Close the FS screen
                           transmit
+
+                          'Gather case information to help determine if individual DAIL messages fall under SNAP Required Action
+                          If renewal_6_month_check = True Then
+                            'To do - determine if UHFS is included, currently included but likely should be excluded
+                            'Navigate to STAT/PROG to get the approval date
+                            Call write_value_and_transmit("PROG", 20, 71)
+                            EmReadScreen prog_appl_date, 8, 10, 33
+                            
+                            'Convert to date
+                            prog_appl_date = replace(prog_appl_date, " ", "/")
+                            prog_appl_date = DateAdd("m", 0 , prog_appl_date)
+                            'Compare the prog_appl_date to REVW_approval_month
+                            appl_revw_date_comp = DateDiff("m", prog_appl_date, REVW_approval_month)
+                            If appl_revw_date_comp = 0 Then
+                              SNAP_req_action_appl_month = prog_appl_date  
+                            Else
+                              SNAP_req_action_appl_month = REVW_approval_month
+                            End If
+
+                            Call ONLY_create_MAXIS_friendly_date(SNAP_req_action_appl_month)
+
+                            'PF3 back to DAIL
+                            PF3
+
+                            'Navigate to Elig for footer month of approval month determined above
+                            Call write_value_and_transmit("E", 6, 3)
+                            EMWriteScreen left(SNAP_req_action_appl_month, 2), 20, 55
+                            EMWriteScreen right(SNAP_req_action_appl_month, 2), 20, 58
+                            Call write_value_and_transmit("FS", 20, 71)
+
+                            EMWriteScreen "99", 19, 78
+                            transmit
+                            'This brings up the FS versions of eligibility results to search for approved versions
+                            status_row = 7
+                            Do
+                              EMReadScreen app_status, 8, status_row, 50
+                              app_status = Trim(app_status)
+                              If app_status = "" Then
+                                PF3
+                                Exit Do 'if end of the list is reached then exits the do loop
+                              End If
+                              If app_status = "UNAPPROV" Then status_row = status_row + 1
+                            Loop Until app_status = "APPROVED" Or app_status = ""
+                            
+                            If app_status = "" Or app_status <> "APPROVED" Then
+                              If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then
+                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                              Else
+                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                              End If
+                              HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                            ElseIf app_status = "APPROVED" Then
+                              EMWriteScreen "   ", 18, 54 'blank out the version first - cause if it's double digit - everything is bad
+                              EMReadScreen vers_number, 1, status_row, 23
+                              Call write_value_and_transmit(vers_number, 18, 54)
+                              Call write_value_and_transmit("FSSM", 19, 70)
+                              
+                              EmReadscreen FSSM_approval_date, 8, 3, 14
+                              'Convert to date
+                              FSSM_approval_date = DateAdd("m", 0, FSSM_approval_date)
+                              Call ONLY_create_MAXIS_friendly_date(FSSM_approval_date)
+                            End If
+                          End If
+
                         Else
                           sr_report_date = "N/A"
                           recertification_date = "N/A"
@@ -4970,6 +5050,9 @@ If HIRE_messages = 1 Then
                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
               ElseIf Trim(HIRE_case_details_array(HIRE_case_processing_notes_const, case_count)) = "" Then
                 HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = True
+                If FSSM_approval_date <> "" Then 
+                  HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "FSSM approval date: " & FSSM_approval_date
+                End If
               End If
               
               'Activate the case details sheet
@@ -5111,8 +5194,6 @@ If HIRE_messages = 1 Then
               If InStr(list_of_DAIL_messages_to_delete_NDNH_known, "*" & full_dail_msg & "*") Then
                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
                 
-                'Delete after testing new functionality
-                ' msgbox "Delete after testing -- Message is within list_of_DAIL_messages_to_delete_NDNH_known"
                 If activate_msg_boxes = True Then MsgBox "Testing -- Messages is within list_of_DAIL_messages_to_delete_NDNH_known"
                 
                 ' Resetting variables so they do not carry forward
@@ -5224,8 +5305,6 @@ If HIRE_messages = 1 Then
               ElseIf InStr(list_of_DAIL_messages_to_delete_NDNH_not_known, "*" & full_dail_msg & "*") Then
                 'If the full dail message is within the list of dail messages to delete then the message should be deleted
                 
-                'Delete after testing new functionality
-                ' msgbox "Delete after testing -- Message is within list_of_DAIL_messages_to_delete_NDNH_not_known"
                 If activate_msg_boxes = True Then MsgBox "Testing -- Message within list_of_DAIL_messages_to_delete_NDNH_not_known"
                 
                 ' Resetting variables so they do not carry forward
@@ -5359,8 +5438,8 @@ If HIRE_messages = 1 Then
                   'The script is about to delete the LAST message in the DAIL so script will exit do loop after deletion, also works if it is about to delete the ONLY message in the DAIL
                   all_done = True
                 End If
-                
-                If activate_msg_boxes = True Then MsgBox "Testing -- Script will now delete the SDNH message"
+
+                If activate_msg_boxes = True Then msgbox "It is about to delete SDNH message"
                 'Delete the message
                 Call write_value_and_transmit("D", dail_row, 3)
                 activate_msg_boxes = False
@@ -5494,7 +5573,7 @@ If HIRE_messages = 1 Then
                     objExcel.Cells(dail_excel_row, 4).Value = DAIL_message_array(dail_month_const, dail_count)
                     objExcel.Cells(dail_excel_row, 5).Value = DAIL_message_array(dail_msg_const, dail_count)
                     objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(full_dail_msg_const, dail_count)
-                    
+
                     If HIRE_case_details_array(HIRE_processable_based_on_case_const, each_case) = False Then
                       If InStr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and Recertification are not 6 months apart") Or _
                           InStr(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case), "SR Report Date and/or Recertification Date is missing") Or _
@@ -5712,6 +5791,10 @@ If HIRE_messages = 1 Then
                           snap_earned_income_minor_exclusion = ""
                           fs_eligibility_eligible = ""
                           fs_eligibility_status_check = ""
+
+                          'To do - add variables for SNAP required action
+                          SNAP_required_action_applies = ""
+                          FSSM_approval_date = ""
                           
                           'Read the HIRE message member name to navigate back if needed
                           EMReadScreen hire_message_member_name, 8, dail_row - 1, 5
@@ -5786,6 +5869,25 @@ If HIRE_messages = 1 Then
                             year_hired = date_split(2)
                           End If
                           
+                          'To do - verify if UHFS included
+                          If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" Or HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
+
+                            'Get the FSSM date from processing notes and convert to date
+                            FSSM_approval_date = right(trim(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)), 8)
+                            FSSM_approval_date = dateadd("m", 0, FSSM_approval_date)
+                            
+
+                            If DateDiff("d", FSSM_approval_date, date_hired) > 0 Then
+                              'Hire date is AFTER approval date so can process as normal
+                              SNAP_required_action_applies = False
+                            ElseIf DateDiff("d", FSSM_approval_date, date_hired) < 0 and DateDiff("d", FSSM_approval_date, date_hired) > -91 Then
+                              'Hire date is less than 90 days BEFORE approval date so must skip message 
+                              SNAP_required_action_applies = True
+                            Else
+                              SNAP_required_action_applies = False
+                            End If
+                          End If
+
                           'Identify where ' Employer:' text is so that script can account for slight changes in location in MAXIS
                           'Set row and col
                           row = 1
@@ -5796,8 +5898,9 @@ If HIRE_messages = 1 Then
                           EMReadScreen HIRE_employer_name_TIKL, 25, row, col + 10
                           HIRE_employer_name_TIKL = Trim(HIRE_employer_name_TIKL)
                           
-                          If blank_state_check <> "??" And HIRE_employer_name <> "" Then
-                            
+                          If blank_state_check <> "??" And HIRE_employer_name <> "" AND (SNAP_required_action_applies = False OR SNAP_required_action_applies = "") Then
+                            'To do - delete after testing
+                            msgbox "5914 Made it to a processable message" 
                             'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
                             HIRE_employer_name_split = Split(HIRE_employer_name, " ")
                             
@@ -6117,8 +6220,15 @@ If HIRE_messages = 1 Then
                                 
                               End If
                             End If
-                          Else
+                          ElseIf (blank_state_check = "??" OR HIRE_employer_name = "") Then
                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "The employer name and/or state is blank." & " Message should not be deleted."
+                          ElseIf SNAP_required_action_applies = True Then
+                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "SNAP required action may apply." & " Message should not be deleted."
+                          Else
+                            'To do - remove after testing
+
+                            msgbox "~6231 Reached situation where none of the other options triggered for reviewing HIRE message - not sure what the deal is"
+                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "ERROR around lime 6268 - need to review." & " Message should not be deleted."  
                             
                           End If
                           
@@ -6216,6 +6326,10 @@ If HIRE_messages = 1 Then
                           snap_earned_income_minor_exclusion = ""
                           fs_eligibility_eligible = ""
                           fs_eligibility_status_check = ""
+
+                          'To do - add SNAP required action variables
+                          SNAP_required_action_applies = ""
+                          FSSM_approval_date = ""
                           
                           'Read the HIRE message member name to navigate back if needed
                           EMReadScreen hire_message_member_name, 8, dail_row - 1, 5
@@ -6295,6 +6409,24 @@ If HIRE_messages = 1 Then
                             year_hired = date_split(2)
                           End If
                           
+                          'To do - need to confirm if UHFS included at all
+                          If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" Or HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
+                            'Get the FSSM date from processing notes and conver to date
+                            FSSM_approval_date = right(trim(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)), 8)
+                            FSSM_approval_date = dateadd("m", 0, FSSM_approval_date)
+
+
+                            If DateDiff("d", FSSM_approval_date, date_hired) > 0 Then
+                              'Hire date is AFTER approval date so can process as normal
+                              SNAP_required_action_applies = False
+                            ElseIf DateDiff("d", FSSM_approval_date, date_hired) < 0 and DateDiff("d", FSSM_approval_date, date_hired) > -91 Then
+                              'Hire date is less than 90 days BEFORE approval date 
+                              SNAP_required_action_applies = True
+                            Else
+                              SNAP_required_action_applies = False
+                            End If
+                          End If
+
                           row = 1
                           col = 1
                           EMSearch "EMPLOYER: ", row, col
@@ -6356,7 +6488,7 @@ If HIRE_messages = 1 Then
                             If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "6339 It failed to remove the X"
                             x_not_removed = ""
                             
-                          Else
+                          ElseIf SNAP_required_action_applies = False OR SNAP_required_action_applies = "" Then
                             If activate_msg_boxes = True Then MsgBox "Testing -- Not a duplicate SDNH. Will transmit and process accordingly."
                             
                             'Transmit back to DAIL
@@ -6646,29 +6778,36 @@ If HIRE_messages = 1 Then
                               End If
                             End If
                             
-                            If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
-                              If activate_msg_boxes = True Then MsgBox "Testing -- add to skip list for SDNH"
-                              'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                              list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                              'Update the excel spreadsheet with processing notes
-                              objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                              QI_flagged_msg_count = QI_flagged_msg_count + 1
-                            ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
-                              If activate_msg_boxes = True Then MsgBox "Testing -- add to delete list for SDNH"
-                              'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
-                              list_of_DAIL_messages_to_delete_SDNH = list_of_DAIL_messages_to_delete_SDNH & full_dail_msg & "*"
-                              'Update the excel spreadsheet with processing notes
-                              objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                              dail_row = dail_row - 1
-                            Else
-                              MsgBox "Testing -- Script reached a SDNH message that does not meet delete or not delete criteria."
-                            End If
-                            
                             'PF3 back to DAIL
                             PF3
+                          ElseIf SNAP_required_action_applies = True Then
+                            msgbox "6847 SNAP_required_action_applies = True so message should not get processed"
+                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "SNAP required action may apply." & " Message should not be deleted."   
                             
+                            'Transmit past message back to DAIL
+                            transmit
                           End If
                           
+                          'To do - confirm this is correct spot
+                          'Check whether message can be processed
+                          If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
+                            If activate_msg_boxes = True Then MsgBox "Testing -- add to skip list for SDNH"
+                            'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                            list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                            'Update the excel spreadsheet with processing notes
+                            objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                            QI_flagged_msg_count = QI_flagged_msg_count + 1
+                          ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
+                            If activate_msg_boxes = True Then MsgBox "Testing -- add to delete list for SDNH"
+                            'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
+                            list_of_DAIL_messages_to_delete_SDNH = list_of_DAIL_messages_to_delete_SDNH & full_dail_msg & "*"
+                            'Update the excel spreadsheet with processing notes
+                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                            dail_row = dail_row - 1
+                          Else
+                            MsgBox "Testing -- Script reached a SDNH message that does not meet delete or not delete criteria."
+                          End If
+
                           Call nav_back_to_dail_check(False)
                           
                           If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
