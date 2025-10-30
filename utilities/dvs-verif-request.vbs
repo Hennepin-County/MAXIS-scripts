@@ -1,9 +1,9 @@
 'STATS GATHERING=============================================================================================================
 name_of_script = "DAIL - DVS Verif Request.vbs"
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the anctual manualtime based on time study
-STATS_denomination = "C"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation appliable to your script.
+STATS_counter = 1                 'sets the stats counter at one
+STATS_manualtime = 120            'manual run time in seconds
+STATS_denomination = "C"          'C is for each case; I is for Instance, M is for member
 'END OF stats block==========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -54,9 +54,7 @@ changelog_display
 EMConnect "" 'Connects to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-Dialog1 = "" 'blanking out dialog name
-
-'To do - add button for link to HSR manual
+'Initial dialog to gather case number and provide script information
 Dialog1 = "" 'blanking out dialog name
 BeginDialog Dialog1, 0, 0, 351, 65, "DVS Verification Request"
   Text 10, 5, 270, 20, "Script Purpose: Submits a DVS verification request email. The script will pull details from MAXIS and allow user entry to add additional details for the request."
@@ -94,6 +92,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'Generate a list of HH members for the case number so the user can select
 Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 
+'Dialog to select HH member
 Dialog1 = "" 'blanking out dialog name
 BeginDialog Dialog1, 0, 0, 220, 70, "Select Household Member"
   Text 10, 5, 200, 20, "Select the household member that you want to submit the DVS verification request for:"
@@ -257,8 +256,6 @@ If total_vehicles > 4 Then email_body = email_body & vbCR & "---" & vBcr & "Vehi
 
 Call create_outlook_email("", "hsph.es.dvs@hennepin.us", "", "", "DVS Verification Request for MAXIS Case # " & MAXIS_case_number, 1, False, "", "", False, "", email_body, False, "", True)
 
-'End dialog section-----------------------------------------------------------------------------------------------
-
 'End the script.
 script_end_procedure("Success! DVS Verification Request email sent to hsph.es.dvs@hennepin.us.")
 
@@ -266,46 +263,46 @@ script_end_procedure("Success! DVS Verification Request email sent to hsph.es.dv
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
-'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
-'--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/30/2025
+'--Tab orders reviewed & confirmed----------------------------------------------10/30/2025
+'--Mandatory fields all present & Reviewed--------------------------------------10/30/2025
+'--All variables in dialog match mandatory fields-------------------------------10/30/2025
+'Review dialog names for content and content fit in dialog----------------------10/30/2025
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------10/30/2025
+'--Include script category and name somewhere on first dialog-------------------10/30/2025
+'--Create a button to reference instructions------------------------------------10/30/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----N/A
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/30/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/30/2025
+'--PRIV Case handling reviewed -------------------------------------------------10/30/2025
+'--Out-of-County handling reviewed----------------------------------------------10/30/2025
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/30/2025
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/30/2025
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------10/30/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------10/30/2025
+'--Denomination reviewed -------------------------------------------------------10/30/2025
+'--Script name reviewed---------------------------------------------------------10/30/2025
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/30/2025
+'--comment Code-----------------------------------------------------------------10/30/2025
+'--Update Changelog for release/update------------------------------------------10/30/2025
+'--Remove testing message boxes-------------------------------------------------10/30/2025
+'--Remove testing code/unnecessary code-----------------------------------------10/30/2025
+'--Review/update SharePoint instructions----------------------------------------10/30/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/30/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/30/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/30/2025
+'--Complete misc. documentation (if applicable)---------------------------------10/30/2025
+'--Update project team/issue contact (if applicable)----------------------------10/30/2025
