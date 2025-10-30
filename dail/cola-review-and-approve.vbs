@@ -98,7 +98,7 @@ function cola_summary_note()
 		Call write_variable_in_CASE_NOTE("--- MEDICARE PART B ---")
 		For medi_count = 0 to UBound(HH_member_array)
 			functionality_info = functionality_info & " ~|~ " & "MEMB " & HH_member_array(medi_count)
-			If MEDI_PART_B_ARRAY(medi_count) <> "" Then Call write_variable_in_CASE_NOTE("* MEMB " & HH_member_array(medi_count) & " - " & NAME_ARRAY(medi_count) & ": Medicare - Part B $ " & MEDI_PART_B_ARRAY(medi_count))
+			If MEDI_PART_B_ARRAY(medi_count) <> "" Then Call write_variable_in_CASE_NOTE("* MEMB " & HH_member_array(medi_count) & " - " & COLA_NAME_ARRAY(medi_count) & ": Medicare - Part B $ " & MEDI_PART_B_ARRAY(medi_count))
 		Next
 		Call write_bullet_and_variable_in_CASE_NOTE("MEDI Notes", MEDI_notes)
 	End If
@@ -167,8 +167,8 @@ Call HH_member_custom_dialog(HH_member_array)				'Creating a custom dialog for d
 number_of_persons = UBound(HH_member_array)
 Dim MEDI_PART_B_ARRAY()
 ReDim MEDI_PART_B_ARRAY(number_of_persons)
-Dim NAME_ARRAY()
-ReDim NAME_ARRAY(number_of_persons)
+Dim COLA_NAME_ARRAY()
+ReDim COLA_NAME_ARRAY(number_of_persons)
 Dim SSN_ARRAY()
 ReDim SSN_ARRAY(number_of_persons)
 Dim PERS_BUTTON_ARRAY()
@@ -186,7 +186,7 @@ For each HH_member in HH_member_array						'for each person that was selected
 	memb_name = replace(first_name, "_", "") & " " & replace(last_name, "_", "")
 	EmReadscreen client_SSN, 11, 7, 42
 	client_SSN = replace(client_SSN, " ", "")
-	NAME_ARRAY(medi_count) = memb_name
+	COLA_NAME_ARRAY(medi_count) = memb_name
 	SSN_ARRAY(medi_count) = client_SSN
 	PERS_BUTTON_ARRAY(medi_count) = 500 + medi_count
 
@@ -370,7 +370,7 @@ If unea_count <> 0 Then
 
 					For medi_count = 0 to UBound(HH_member_array)
 						If MEDI_PART_B_ARRAY(medi_count) <> "" Then
-							Text 25, y_pos, 155, 10, "MEMB " & HH_member_array(medi_count) & " - " & NAME_ARRAY(medi_count)
+							Text 25, y_pos, 155, 10, "MEMB " & HH_member_array(medi_count) & " - " & COLA_NAME_ARRAY(medi_count)
 							Text 185, y_pos, 160, 10, "MEDICARE - Part B $ " & MEDI_PART_B_ARRAY(medi_count)
 							y_pos = y_pos + 10
 						End If
@@ -397,8 +397,8 @@ If unea_count <> 0 Then
 					PushButton 440, y_pos+20, 100, 15, "Finish - no additional actions", finish_script_btn
 					GroupBox 440, 10, 105, 65, "Check SVES"
 					y_pos = 20
-					For i = 0 to UBound(NAME_ARRAY)
-						PushButton 445, y_pos, 95, 13, NAME_ARRAY(i), PERS_BUTTON_ARRAY(i)
+					For i = 0 to UBound(COLA_NAME_ARRAY)
+						PushButton 445, y_pos, 95, 13, COLA_NAME_ARRAY(i), PERS_BUTTON_ARRAY(i)
 						y_pos = y_pos + 15
 					Next
 			EndDialog
@@ -416,7 +416,7 @@ If unea_count <> 0 Then
 		Loop Until are_we_passworded_out = false					'loops until user passwords back in
 
 		'Here we figure out what button was pushed
-		For i = 0 to UBound(NAME_ARRAY)							'looking for a MEMBER button - to go to SVES for that member
+		For i = 0 to UBound(COLA_NAME_ARRAY)							'looking for a MEMBER button - to go to SVES for that member
 			If ButtonPressed = PERS_BUTTON_ARRAY(i) Then
 				Call nav_in_DAIL("I")
 				EMWriteScreen SSN_ARRAY(i), 3, 63
@@ -425,7 +425,7 @@ If unea_count <> 0 Then
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
 				STATS_manualtime = STATS_manualtime + 30
-				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
+				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & COLA_NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
 				functionality_time = timer
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
@@ -448,7 +448,7 @@ If unea_count <> 0 Then
 Else
 	'This dialog is ONLY for viewing SVES - there was no UNEA found so we do not have a CASE/NOTE option
 	dlg_len = 80
-	dlg_len = dlg_len + (UBound(NAME_ARRAY)+1) * 20
+	dlg_len = dlg_len + (UBound(COLA_NAME_ARRAY)+1) * 20
 
 	Do
 		Do
@@ -459,8 +459,8 @@ Else
 
 				ButtonGroup ButtonPressed
 					y_pos = 35
-					For i = 0 to UBound(NAME_ARRAY)
-						PushButton 25, y_pos, 95, 13, NAME_ARRAY(i), PERS_BUTTON_ARRAY(i)
+					For i = 0 to UBound(COLA_NAME_ARRAY)
+						PushButton 25, y_pos, 95, 13, COLA_NAME_ARRAY(i), PERS_BUTTON_ARRAY(i)
 						y_pos = y_pos + 15
 					Next
 					y_pos = y_pos + 10
@@ -481,7 +481,7 @@ Else
 		Loop Until are_we_passworded_out = false					'loops until user passwords back in
 
 		'Here we figure out what button was pushe
-		For i = 0 to UBound(NAME_ARRAY)							'looking for a MEMBER button - to go to SVES for that member
+		For i = 0 to UBound(COLA_NAME_ARRAY)							'looking for a MEMBER button - to go to SVES for that member
 			If ButtonPressed = PERS_BUTTON_ARRAY(i) Then
 				Call nav_in_DAIL("I")
 				EMWriteScreen SSN_ARRAY(i), 3, 63
@@ -491,7 +491,7 @@ Else
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
 				STATS_manualtime = STATS_manualtime + 30
-				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
+				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & COLA_NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
 				functionality_time = timer
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
