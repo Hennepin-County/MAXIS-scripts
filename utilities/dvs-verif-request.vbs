@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-CALL changelog_update("11/01/24", "Initial version.", "Mark Riegel, Hennepin County") 'REPLACE with release date and your name.
+CALL changelog_update("10/30/25", "Initial version.", "Mark Riegel, Hennepin County") 'REPLACE with release date and your name.
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -77,7 +77,7 @@ DO
     Dialog Dialog1
     cancel_without_confirmation
     Call validate_MAXIS_case_number(err_msg, "*")
-		If ButtonPressed = script_instructions_btn Then 
+		If ButtonPressed = instructions_btn Then 
       'to do - update with script instructions
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/UTILITIES/UTILITIES%20-%20DVS%20VERIFICATION%20REQUEST.docx"
 			err_msg = "LOOP"
@@ -204,6 +204,11 @@ DO
         If total_vehicles < 5 Then
           PushButton 10, add_vehicle_btn_y, 50, 15, "Add Vehicle", add_vehicle_btn
         End If
+        If total_vehicles > 1 and total_vehicles <> 5 Then
+          PushButton 60, add_vehicle_btn_y, 60, 15, "Remove Vehicle", remove_vehicle_btn
+        ElseIf total_vehicles = 5 Then
+          PushButton 10, add_vehicle_btn_y, 60, 15, "Remove Vehicle", remove_vehicle_btn
+        End If
     EndDialog
 
     Dialog Dialog1
@@ -226,6 +231,16 @@ DO
         vehicle_groupbox_height = vehicle_groupbox_height + 20
         ok_cancel_y = ok_cancel_y + 20
         add_vehicle_btn_y = add_vehicle_btn_y + 20
+        err_msg = "LOOP"
+      End If
+    End If
+    If ButtonPressed = remove_vehicle_btn Then 
+      If total_vehicles > 1 Then
+        total_vehicles = total_vehicles - 1
+        dialog_height = dialog_height - 20
+        vehicle_groupbox_height = vehicle_groupbox_height - 20
+        ok_cancel_y = ok_cancel_y - 20
+        add_vehicle_btn_y = add_vehicle_btn_y - 20
         err_msg = "LOOP"
       End If
     End If
