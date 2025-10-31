@@ -11735,6 +11735,16 @@ class mfip_eligibility_detail
 					dm_col = 1
 					EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
 				End If
+                If dm_row = 0 Then
+                    dm_row = 1
+                    dm_col = 1
+                    EMSearch "Maxis Person Monthly Income Budget", dm_row, dm_col
+                End If
+                If dm_row = 0 Then
+                    dm_row = 1
+                    dm_col = 1
+                    EMSearch "MAXIS Person Monthly Income Budget", dm_row, dm_col
+                End If
 			Loop
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
