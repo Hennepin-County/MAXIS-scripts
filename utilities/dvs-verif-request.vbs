@@ -1,5 +1,5 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "DAIL - DVS Verif Request.vbs"
+name_of_script = "UTILITIES - DVS Verif Request.vbs"
 start_time = timer
 STATS_counter = 1                 'sets the stats counter at one
 STATS_manualtime = 120            'manual run time in seconds

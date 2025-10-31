@@ -1748,7 +1748,7 @@ script_num = script_num + 1					            'Increment by one
 ReDim Preserve script_array(script_num)		      'Resets the array to add one more element to it
 Set script_array(script_num)                    = new script_bowie  'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			      = "DVS Verif Request"
-' script_array(script_num).description 			    = "Calculates the GRH Rate 2 total units to input into MMIS."
+' script_array(script_num).description 			    = "Generates an email to DVS staff to verify vehicle ownership."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Support", "Utility")
