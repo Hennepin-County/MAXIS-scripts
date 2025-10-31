@@ -4621,7 +4621,6 @@ If HIRE_messages = 1 Then
 
                           'Gather case information to help determine if individual DAIL messages fall under SNAP Required Action
                           If renewal_6_month_check = True Then
-                            'To do - determine if UHFS is included, currently included but likely should be excluded
                             'Navigate to STAT/PROG to get the approval date
                             Call write_value_and_transmit("PROG", 20, 71)
                             EmReadScreen prog_appl_date, 8, 10, 33
@@ -5792,7 +5791,6 @@ If HIRE_messages = 1 Then
                           fs_eligibility_eligible = ""
                           fs_eligibility_status_check = ""
 
-                          'To do - add variables for SNAP required action
                           SNAP_required_action_applies = ""
                           FSSM_approval_date = ""
                           
@@ -5869,7 +5867,6 @@ If HIRE_messages = 1 Then
                             year_hired = date_split(2)
                           End If
                           
-                          'To do - verify if UHFS included
                           If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" Or HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
 
                             'Get the FSSM date from processing notes and convert to date
@@ -5899,8 +5896,6 @@ If HIRE_messages = 1 Then
                           HIRE_employer_name_TIKL = Trim(HIRE_employer_name_TIKL)
                           
                           If blank_state_check <> "??" And HIRE_employer_name <> "" AND (SNAP_required_action_applies = False OR SNAP_required_action_applies = "") Then
-                            'To do - delete after testing
-                            msgbox "5914 Made it to a processable message" 
                             'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
                             HIRE_employer_name_split = Split(HIRE_employer_name, " ")
                             
@@ -6225,8 +6220,6 @@ If HIRE_messages = 1 Then
                           ElseIf SNAP_required_action_applies = True Then
                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "SNAP required action may apply." & " Message should not be deleted."
                           Else
-                            'To do - remove after testing
-
                             msgbox "~6231 Reached situation where none of the other options triggered for reviewing HIRE message - not sure what the deal is"
                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "ERROR around lime 6268 - need to review." & " Message should not be deleted."  
                             
@@ -6327,7 +6320,6 @@ If HIRE_messages = 1 Then
                           fs_eligibility_eligible = ""
                           fs_eligibility_status_check = ""
 
-                          'To do - add SNAP required action variables
                           SNAP_required_action_applies = ""
                           FSSM_approval_date = ""
                           
@@ -6409,7 +6401,6 @@ If HIRE_messages = 1 Then
                             year_hired = date_split(2)
                           End If
                           
-                          'To do - need to confirm if UHFS included at all
                           If HIRE_case_details_array(HIRE_snap_type_const, each_case) = "SNAP" Or HIRE_case_details_array(HIRE_snap_type_const, each_case) = "UHFS" Then
                             'Get the FSSM date from processing notes and conver to date
                             FSSM_approval_date = right(trim(HIRE_case_details_array(HIRE_case_processing_notes_const, each_case)), 8)
@@ -6787,7 +6778,6 @@ If HIRE_messages = 1 Then
                             transmit
                           End If
                           
-                          'To do - confirm this is correct spot
                           'Check whether message can be processed
                           If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
                             If activate_msg_boxes = True Then MsgBox "Testing -- add to skip list for SDNH"
