@@ -190,7 +190,7 @@ function section_b_assess_results_current_status()
     CheckBox 15, 20, 205, 10, "The person is requesting services or already enrolled", section_b_person_requesting_already_enrolled
     GroupBox 20, 35, 235, 55, "Program Type"
     Text 25, 45, 185, 10, "Program person is requesting or is currently enrolled in:"
-    DropListBox 25, 55, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EQ"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
+    DropListBox 25, 55, 55, 20, "Select one:"+chr(9)+"AC"+chr(9)+"BI"+chr(9)+"CAC"+chr(9)+"CADI"+chr(9)+"DD"+chr(9)+"EW"+chr(9)+"ECS"+chr(9)+"PCA/CFSS", section_b_program_type
     Text 25, 75, 85, 10, "Check one (if applicable):"
     CheckBox 115, 70, 45, 15, "Diversion", section_b_diversion_checkbox
     CheckBox 165, 70, 50, 15, "Conversion", section_b_conversion_checkbox
