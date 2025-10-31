@@ -217,7 +217,7 @@ caseload_manager.add "1800 - Team 160",                          "Monique Moore"
 caseload_manager.add "MA - BC",                                  "Jackie Poidinger"
 caseload_manager.add "Foster Care / IV-E",                       "Brianna Fleeman Schneider"
 caseload_manager.add "METS Retro Request",                       "Tenzing Yarphel"
-caseload_manager.add "YET",                                      "Tenzig Yarphel"
+caseload_manager.add "YET",                                      "Tenzing Yarphel"
 
 
 
