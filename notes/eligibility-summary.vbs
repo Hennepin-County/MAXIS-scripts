@@ -20601,6 +20601,16 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or 
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 ' developer_mode = False
 If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"
+If NOT developer_mode THEN
+    't_drive & "\Eligibility Support\Scripts\Script Files"\eligibility-summary\eligibility-summary-approval-log.txt
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objTextStream = objFSO.OpenTextFile(t_drive & "\Eligibility Support\Scripts\Script Files\ELIG SUMM late note list.txt", 1)
+    Do While Not objTextStream.AtEndOfStream
+        text_line = objTextStream.ReadLine
+        If text_line = MAXIS_case_number Then allow_late_note = True
+    Loop
+    objTextStream.Close
+End If
 
 ' Special handling for workers that do not have access to any programs in MAXIS other than Health Care
 ' One of the primary issues is that these workers cannot access the MONY Function and the script will error if this is attempted.
