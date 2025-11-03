@@ -108,6 +108,8 @@ caseload_info.add "X127ER5", "Healthcare Mixed Active"
 caseload_info.add "X127ER6", "Healthcare Mixed Active"
 'This is the casebank for DWP team
 caseload_info.add "X127EY9", "Families - Cash"
+caseload_info.add "X127EY8", "Families - Cash" 'pending DWP
+caseload_info.add "X127FE7", "Families - Cash" 'pending DWP
 ' caseload_info.add "X127EY8", "Families - Cash"		removed from assignment selection until additional process clarification can be identified. There are concerns with all cases being entered into a single basket with pending status.
 caseload_info.add "X127EN6", "TEFRA"
 caseload_info.add "X127FG1", "Foster Care / IV-E"
@@ -137,7 +139,6 @@ caseload_info.add "X127EK6",	"LTC"
 'caseload_info.add "X127EK4",	"LTC+ Pending A – H" already exists as LTC+ - General
 'caseload_info.add "X127EK9",	"LTC+ Pending I – Z" already exists as LTC+ - General
 caseload_info.add "X127EM9",	"LTC"
-caseload_info.add "X127EN6",	"TEFRA"
 caseload_info.add "X127EP5",	"LTC"
 caseload_info.add "X127EP9",	"Waivers"
 caseload_info.add "X127F3F",	"ADS - MA-EPD"
@@ -146,8 +147,6 @@ caseload_info.add "X127FH4",	"Waivers"
 caseload_info.add "X127FH5",	"Waivers"
 caseload_info.add "X127FI2",	"Waivers"
 caseload_info.add "X127FI7",	"Waivers"
-caseload_info.add "X127EF8",	"Active A - L"
-caseload_info.add "X127EF9",	"Active M-Z"
 caseload_info.add "X127EJ1",	"Forensic"
 caseload_info.add "X127EG9",	"MNsure A-L"
 caseload_info.add "X127EG0",	"MNsure M-Z"
@@ -199,8 +198,6 @@ caseload_manager.add "LTC+ - General",                           "Ann Noeker" '(
 caseload_manager.add "Waivers",                                  "Ann Noeker"
 caseload_manager.add "ADS - MA-EPD",                             "Ann Noeker"
 caseload_manager.add "Andrew Residence",                         "Ann Noeker"
-caseload_manager.add "Active A - L",                             "Ann Noeker"
-caseload_manager.add "Active M-Z",                               "Ann Noeker"
 caseload_manager.add "TEFRA",                                    "Ann Noeker"
 caseload_manager.add "Contracted - Monarch Facilities Contract", "Ann Noeker"
 caseload_manager.add "Contracted - A Villa Facilities Contract", "Ann Noeker"
@@ -218,7 +215,6 @@ caseload_manager.add "MA - BC",                                  "Jackie Poiding
 caseload_manager.add "Foster Care / IV-E",                       "Brianna Fleeman Schneider"
 caseload_manager.add "METS Retro Request",                       "Tenzing Yarphel"
 caseload_manager.add "YET",                                      "Tenzing Yarphel"
-
 
 
 
