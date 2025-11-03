@@ -20639,7 +20639,6 @@ If user_ID_for_validation = "FRYA001" Then hc_access_only = True 		' FY
 If user_ID_for_validation = "MAZI002" Then hc_access_only = True 		' MZ
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
-' If MAXIS_case_number = "2683408" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
