@@ -12475,8 +12475,11 @@ class msa_eligibility_detail
 	public revw_status
 	public revw_caf_date
 	public revw_interview_date
+	public hrf_month
+	public hrf_status
+	public hrf_doc_date
 
-	public msa_elig_ref_numbs()
+    public msa_elig_ref_numbs()
 	public msa_elig_membs_full_name()
 	public msa_elig_membs_request_yn()
 	public msa_elig_membs_member_code()
