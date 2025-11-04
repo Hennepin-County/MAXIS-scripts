@@ -4659,7 +4659,7 @@ If HIRE_messages = 1 Then
                               app_status = Trim(app_status)
                               If app_status = "" Then
                                 ' PF3
-                                msgbox "4462 Delete after testing - PF3 would have backed too far but commented it out"
+                                ' msgbox "4462 Delete after testing - PF3 would have backed too far but commented it out"
                                 Exit Do 'if end of the list is reached then exits the do loop
                               End If
                               If app_status = "UNAPPROV" Then status_row = status_row + 1
@@ -4672,8 +4672,6 @@ If HIRE_messages = 1 Then
                                 HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
                               End If
                               HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-
-                              msgbox "To do - delete after testing" & vbcr & vbcr & "No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. Where is the script?"
                             ElseIf app_status = "APPROVED" Then
                               EMWriteScreen "   ", 18, 54 'blank out the version first - cause if it's double digit - everything is bad
                               EMReadScreen vers_number, 1, status_row, 23
@@ -5109,7 +5107,7 @@ If HIRE_messages = 1 Then
                 PF3
               End If
 
-              If instr(HIRE_case_details_array(HIRE_case_processing_notes_const, case_count), "No approved eligibility") Then msgbox "5112 Confirm script location as needed"
+              ' If instr(HIRE_case_details_array(HIRE_case_processing_notes_const, case_count), "No approved eligibility") Then msgbox "5112 Confirm script location as needed"
               
               'Increment the case_count for updating the array
               case_count = case_count + 1
