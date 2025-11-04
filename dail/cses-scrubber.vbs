@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/04/2025", "Due to new budgeting rules, script will no longer be available until further evaluation is completed.", "Mark Riegel, Hennepin County")
 call changelog_update("08/10/2021", "Update to Child Support DAIL Scrubber:##~## ##~##- The script does not support Spousal Support messages (TYPE 37 and TYPE 40).##~##- This has been true since the script was released.##~##- The script now handles to read if these messages are on the DAIL to ignore them and alert you that they have not been processed.##~##- The script will now proccess the Child Support messages on case that have both Spousal and Child Support messages.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/17/2020", "Updates to Child Support DAIL Scrubber:##~## ##~##- Script will not work on a case with more than one month of DAIL messages, these cases will need to be processed manually at this time. ##~##- Removed verbiage from the case note about the change to MFIP benefits.##~##- Removed verbiage from after the worker signature indicating the note was created using a script.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/02/2018", "Instructions for DAIL Scrubber have been updated to explain why cases may need to be processed manually. Please review the instructions on SharePoint.", "BlueZone Script Team, Hennepin County")
@@ -114,6 +115,8 @@ end class
 
 'Connects to MAXIS
 EMConnect ""
+
+script_end_procedure("Due to new budgeting rules, script will no longer be available until further evaluation is completed.")
 
 'If the worker signature is the Konami code (UUDDLRLRBA), developer mode will be triggered
 If worker_signature = "UUDDLRLRBA" then
