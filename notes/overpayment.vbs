@@ -67,14 +67,13 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01" 'defaults to 01'
-discovery_date = "" & date
 closing_message = "Overpayment case note entered, copied to CCOL and the claims team has been emailed. Please review case & claim notes to ensure accuracy."
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claims"
   EditBox 60, 55, 45, 15, MAXIS_case_number
-  DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
+  DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Initial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
   EditBox 60, 95, 105, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 70, 115, 45, 15
@@ -106,7 +105,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-IF claim_actions = "Intial Overpayment/Claim" THEN
+IF claim_actions = "Initial Overpayment/Claim" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 406, 320, "Overpayment Claim Entry"
