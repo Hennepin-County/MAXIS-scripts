@@ -5,7 +5,7 @@ STATS_counter = 0			     'sets the stats counter at one
 STATS_manualtime = 	90			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
-
+run_locally = True      'TESTING ONLY - REMOVE FOR PRODUCTION
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -833,8 +833,8 @@ If developer_mode = False Then
 End If
 
 end_message = end_message & vbCr & "Worklist by Program Manager Excel file created: " & pm_worklist_display_name
-If developer_mode = False Then  end_message = end_message & vbCr & "File has been saved and closed." & vbCr & vbCr &
-end_message = end_message &"Case Counts:"
+If developer_mode = False Then  end_message = end_message & vbCr & "File has been saved and closed." & vbCr & vbCr
+end_message = end_message & "Case Counts:"
 
 'Email to PMs of worklist completion
 email_from = ""
@@ -844,23 +844,50 @@ email_recip_CC = ""
 email_subject = "Worklist Created - Interview Team Cases from " & list_of_dates
 email_body = "The Interview Team Cases Worklist for interviews completed on " & list_of_dates & " has been created." & "<br>"
 email_body = email_body & "The Worklist Excel File is here: "
-email_body = email_body & "<a href=" & chr(34) & pm_worklist_file_name & chr(34) & ">Interview Worklist by PM for " & list_of_dates & "</a><br><br>"
+email_body = email_body & "<a href=" & chr(34) & pm_worklist_file_name & chr(34) & ">Interview Worklist by PM for " & list_of_dates & "</a><br>"
+email_body = email_body & "Please note that this file is only editable by one person at a time, so leaving it open will limit others’ access.<br><br>"
 email_body = email_body & "<br>" & "Case Count Overview:" & "<br>"
-email_body = email_body & "Total Cases added to Worklist: " & case_count & "<br>"
+email_body = email_body & "Total Cases added to Worklist: " & case_count & "<br><br>"
+email_body = email_body & "Count by Program Manager:<br>"
 
 For duck = 0 to UBound(PM_ARRAY, 2)
     email_recip = email_recip & PM_ARRAY(email_const, duck) & "; "
-    email_body = email_body & PM_ARRAY(name_const, duck) & ": " & PM_ARRAY(case_count_const, duck) & " cases" & "<br>"
+    email_body = email_body & PM_ARRAY(name_const, duck) & ": " & PM_ARRAY(case_count_const, duck) & " case"
     end_message = end_message & vbCr & PM_ARRAY(name_const, duck) & ": " & PM_ARRAY(case_count_const, duck) & " cases"
+    If PM_ARRAY(case_count_const, duck) <> 1 Then email_body = email_body & "s"
+    email_body = email_body & "<br>"
 Next
 email_body = email_body & "<br>" & "<b>Please assign cases on worklist.</b>"
-send_email = True
+send_email = False          'SET TO FALSE FOR TESTING PURPOSES
 If developer_mode = True Then send_email = False
+email_recip = "Tammy.Coenen@hennepin.us"                        'TESTING ONLY - REMOVE FOR PRODUCTION
+email_recip_CC = "HSPH.EWS.BlueZoneScripts@hennepin.us"         'TESTING ONLY - REMOVE FOR PRODUCTION
 
 'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
 Call create_outlook_email(email_from, email_recip, email_recip_CC, "", 			    email_subject, 1, 				 False, 	   email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				      email_attachment_array, send_email)
 
 end_message = end_message & vbCr & vbCr & "Excel created to save the information of the interviews created today." & vbCr
+
+'Creates an oject of the whole assignments folder
+Set objFolder = objFSO.GetFolder(t_drive & "\Eligibility Support\Assignments\Interview Team PM Assignments")
+Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+For Each objFile in colFiles																'looping through each file
+	this_file_created_date = objFile.DateCreated											'Reading the date created
+	this_file_name = objFile.Name															'Grabing the file name
+	this_file_path = objFile.Path															'Grabing the path for the file
+	this_file_type = objFile.Type															'Grabing the file type
+
+    ' If a worklist is over 3 motnhs old, it will be moved to the Archive folder
+    If DateDiff("m", this_file_created_date, date) > 3 and this_file_type = "Microsoft Excel Worksheet" Then
+        date_on_file = left(replace(this_file_name, "Assignment List of Interviews from ", ""), 2)                                          'Finding the folder name based on the date on the file
+        archive_folder = t_drive & "\Eligibility Support\Assignments\Interview Team PM Assignments\Archive\" & date_on_file & "-2025"
+
+        If NOT (FSOxl.FolderExists(archive_folder)) Then                                    'Creating the archive folder if it does not already exist
+            FSOxl.CreateFolder archive_folder
+        End If
+        FSOxl.MoveFile this_file_path , archive_folder & "\" & this_file_name               'Moving the file to the archive folder
+    End If
+Next
 
 internal_run_time = timer - start_time
 internal_run_min = int(internal_run_time/60)
