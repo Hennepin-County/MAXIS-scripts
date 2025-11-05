@@ -317,6 +317,12 @@ function check_for_errors(interview_questions_clear)
                 If HH_MEMB_ARRAY(imig_status, the_memb) = "" Then pers_err = pers_err & "~!~" & "3 ^* IMIG Status##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, discuss and record immigration status details."
                 If HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" or HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "?" Then pers_err = pers_err & "~!~" & "3 ^* Sponsor?##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, you need to ask and record if this resident has a sponsor."
             End If
+            prog_selected = False
+            If HH_MEMB_ARRAY(snap_req_checkbox, the_memb) = checked Then prog_selected = True
+            If HH_MEMB_ARRAY(cash_req_checkbox, the_memb) = checked Then prog_selected = True
+            If HH_MEMB_ARRAY(emer_req_checkbox, the_memb) = checked Then prog_selected = True
+            If prog_selected and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = checked Then pers_err = pers_err & "~!~" & "3 ^* Program Request##~##   - Conflicting program request selections for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". If any program is checked, then 'NONE' cannot be checked."
+
             If pers_err <> "" Then
                 If err_selected_memb = "" Then err_selected_memb = the_memb
                 err_msg = err_msg & pers_err & "##~##"
@@ -674,6 +680,7 @@ function define_main_dialog()
             If UBound(HH_MEMB_ARRAY, 2) < 10 Then allow_expand = True
 
             If update_pers = FALSE Then
+                EditBox 800, 500, 50, 15, dummy_editbox_to_capture_focus
                 y_pos = 20
                 For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
                     progs = ""
@@ -1850,6 +1857,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
                 If page_to_review = "3" Then                'This will navigate to the first member with an error on the CAF MEMBs page
                     selected_memb = err_selected_memb
+                    update_pers = False
                     If IsNumeric(err_selected_memb) Then update_pers = True
                 End If
 
