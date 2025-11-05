@@ -792,12 +792,13 @@ function define_main_dialog()
                 EditBox 25, 30, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
                 EditBox 120, 30, 75, 15, HH_MEMB_ARRAY(first_name_const, selected_memb)
                 EditBox 200, 30, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
-                EditBox 255, 30, 175, 15, HH_MEMB_ARRAY(other_names, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then Text 25, 65, 70, 10, HH_MEMB_ARRAY(ssn, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "V - SSN Verified via Interface" Then EditBox 25, 60, 70, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-                EditBox 100, 60, 70, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
-                DropListBox 175, 60, 50, 45, "Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
-                DropListBox 230, 60, 90, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
+                EditBox 255, 30, 105, 15, HH_MEMB_ARRAY(other_names, selected_memb)
+                EditBox 370, 30, 60, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then Text 25, 65, 50, 10, HH_MEMB_ARRAY(ssn, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "V - SSN Verified via Interface" Then EditBox 25, 60, 50, 15, HH_MEMB_ARRAY(ssn, selected_memb)
+                DropListBox 75, 60, 110, 15, ssn_verif_list, HH_MEMB_ARRAY(ssn_verif, selected_memb)
+                DropListBox 190, 60, 40, 45, "Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
+                DropListBox 235, 60, 75, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
                 DropListBox 325, 60, 105, 45, marital_status_list, HH_MEMB_ARRAY(marital_status, selected_memb)
                 EditBox 25, 90, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
                 EditBox 140, 90, 70, 15, HH_MEMB_ARRAY(mn_entry_date, selected_memb)
@@ -843,10 +844,11 @@ function define_main_dialog()
                 Text 120, 20, 50, 10, "First Name"
                 Text 200, 20, 50, 10, "Middle Name"
                 Text 255, 20, 50, 10, "Other Names"
-                Text 25, 50, 55, 10, "Soc Sec Number"
-                Text 100, 50, 45, 10, "Date of Birth"
-                Text 175, 50, 45, 10, "Gender"
-                Text 230, 50, 90, 10, "Relationship to MEMB 01"
+                Text 370, 20, 45, 10, "Date of Birth"
+                Text 25, 50, 100, 10, "Social Security Number"
+                ' Text 25, 50, 55, 10, "SSN"
+                Text 190, 50, 45, 10, "Gender"
+                Text 235, 50, 90, 10, "Relationship to MEMB 01"
                 Text 325, 50, 50, 10, "Marital Status"
                 Text 25, 80, 75, 10, "Last Grade Completed"
                 Text 140, 80, 55, 10, "Moved to MN on"
@@ -7186,6 +7188,12 @@ id_droplist_info = id_droplist_info+chr(9)+"OT - Other Document"
 id_droplist_info = id_droplist_info+chr(9)+"NO - No Ver Prvd"
 id_droplist_info = id_droplist_info+chr(9)+"Found in SOLQ/SMI"
 id_droplist_info = id_droplist_info+chr(9)+"Requested"
+
+ssn_verif_list = ""
+ssn_verif_list = ssn_verif_list+chr(9)+"A - SSN Applied For"
+ssn_verif_list = ssn_verif_list+chr(9)+"P - SSN Provided, verif Pending"
+ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
+ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
