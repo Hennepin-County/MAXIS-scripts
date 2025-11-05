@@ -15,16 +15,6 @@ If db_full_string = "" Then
 	Execute text_from_the_other_script
 End If
 
-If NOT IsArray(interviewer_array) Then
-	tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-
-	Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
-	text_from_the_other_script = fso_command.ReadAll
-	fso_command.Close
-	Execute text_from_the_other_script
-End If
-
 If script_repository = "" Then
 	script_repository = "C:\MAXIS-Scripts\"		'This is a safety measure for if the script is run directly.
 	run_locally = True
@@ -75,6 +65,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/05/2025", "Update the display of person information and adjustment to how person details needed for the interview are gathered.", "Casey Love, Hennepin County")
 call changelog_update("06/23/2025", "The CAF form question were updated by DHS. The script has been updated to align with this new CAF layout and question format.##~## ##~##NOTE - ANY INTERVIEW DETAILS SAVED PRIOR TO TODAY WILL NOT BE ABLE TO BE RESTORED.##~## ##~##The interview details restoration has been updated to ensure the same form and version were selected for the information to be restored.", "Casey Love, Hennepin County")
 call changelog_update("05/29/2025", "Condensed information displayed on EXPEDITED dialog to reduce risk of information extending past edges of dialog", "Mark Riegel, Hennepin County")
 call changelog_update("05/02/2025", "Updated button locations for verifications dialog", "Mark Riegel, Hennepin County")
@@ -726,7 +717,7 @@ function define_main_dialog()
                     If trim(progs) <> "(none)" Then
                         If HH_MEMB_ARRAY(race, the_membs) = "Unable To Determine" Then member_info_string = member_info_string & "Race Undetermined; "
                     End If
-                    If HH_MEMB_ARRAY(alias_yn, the_membs) = "Y" Then member_info_string = member_info_string & "Alias Exists; "
+                    If HH_MEMB_ARRAY(alias_yn, the_membs) = "Yes" Then member_info_string = member_info_string & "Alias Exists; "
 
                     If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then MEMB_requires_update = False
                     If HH_MEMB_ARRAY(requires_update, the_membs) Then member_info_string = "*** UPDATE! - " & member_info_string
@@ -1721,7 +1712,7 @@ function dialog_movement()
         pers_next = False                           'Used to navigate the dialog to a MEMBER Update page if an update is required for the member.
 		If page_display = show_pg_memb_list Then
             If NOT IsNumeric(selected_memb) Then selected_memb = 0
-            For each_memb = selected_memb to UBoyund(HH_MEMB_ARRAY, 2)
+            For each_memb = selected_memb to UBound(HH_MEMB_ARRAY, 2)
                 If HH_MEMB_ARRAY(requires_update, each_memb) Then
                     selected_memb = each_memb
                     update_pers = True
@@ -5240,66 +5231,66 @@ function write_interview_CASE_NOTE()
             If HH_MEMB_ARRAY(pers_in_maxis, the_members) = False Then
                 CALL write_variable_in_CASE_NOTE("    Person NOT in MAXIS. Details recorded during interview:")
                 demographic_details = ""
-                If HH_MEMB_ARRAY(date_of_birth, each_member) <> "" Then demographic_details = demographic_details & "DOB: " & HH_MEMB_ARRAY(date_of_birth, each_member) & ", "
-                If HH_MEMB_ARRAY(gender, each_member) <> "" Then demographic_details = demographic_details & "Gender: " & HH_MEMB_ARRAY(gender, each_member) & ", "
-                If HH_MEMB_ARRAY(rel_to_applcnt, each_member) <> "" Then demographic_details = demographic_details & "Rel to M01: " & HH_MEMB_ARRAY(rel_to_applcnt, each_member) & ", "
+                If HH_MEMB_ARRAY(date_of_birth, the_members) <> "" Then demographic_details = demographic_details & "DOB: " & HH_MEMB_ARRAY(date_of_birth, the_members) & ", "
+                If HH_MEMB_ARRAY(gender, the_members) <> "" Then demographic_details = demographic_details & "Gender: " & HH_MEMB_ARRAY(gender, the_members) & ", "
+                If HH_MEMB_ARRAY(rel_to_applcnt, the_members) <> "" Then demographic_details = demographic_details & "Rel to M01: " & HH_MEMB_ARRAY(rel_to_applcnt, the_members) & ", "
                 demographic_details = trim(demographic_details)
                 If right(demographic_details, 1) = "," Then demographic_details = left(demographic_details, len(demographic_details)-1)
                 If demographic_details <> "" Then CALL write_variable_in_CASE_NOTE("    - " & demographic_details)
-                If HH_MEMB_ARRAY(ssn, each_member) <> "" Then CALL write_variable_in_CASE_NOTE("    - SSN in Case File on Interview Notes Doc (WIF).")
-                If HH_MEMB_ARRAY(id_verif, each_member) <> "" Then          Call write_variable_in_CASE_NOTE("    - ID Verification: " & HH_MEMB_ARRAY(id_verif, each_member) )
-                If HH_MEMB_ARRAY(citizen, each_member) <> "" Then           Call write_variable_in_CASE_NOTE("    - Citizen: " & HH_MEMB_ARRAY(citizen, each_member) )
+                If HH_MEMB_ARRAY(ssn, the_members) <> "" Then CALL write_variable_in_CASE_NOTE("    - SSN in Case File on Interview Notes Doc (WIF).")
+                If HH_MEMB_ARRAY(id_verif, the_members) <> "" Then          Call write_variable_in_CASE_NOTE("    - ID Verification: " & HH_MEMB_ARRAY(id_verif, the_members) )
+                If HH_MEMB_ARRAY(citizen, the_members) <> "" Then           Call write_variable_in_CASE_NOTE("    - Citizen: " & HH_MEMB_ARRAY(citizen, the_members) )
                 demographics_plus = ""
-                If HH_MEMB_ARRAY(race, each_member) <> "" Then demographics_plus = demographics_plus & "Race: " & HH_MEMB_ARRAY(race, each_member) & ", "
-                If HH_MEMB_ARRAY(ethnicity_yn, each_member) <> "" Then demographics_plus = demographics_plus & "Hispanic: " & HH_MEMB_ARRAY(ethnicity_yn, each_member) & ", "
-                If HH_MEMB_ARRAY(marital_status, each_member) <> "" Then demographics_plus = demographics_plus & "Marital Status: " & HH_MEMB_ARRAY(marital_status, each_member) & ", "
-                If HH_MEMB_ARRAY(last_grade_completed, each_member) <> "" Then demographics_plus = demographics_plus & "Last Grade: " & HH_MEMB_ARRAY(last_grade_completed, each_member) & ", "
+                If HH_MEMB_ARRAY(race, the_members) <> "" Then demographics_plus = demographics_plus & "Race: " & HH_MEMB_ARRAY(race, the_members) & ", "
+                If HH_MEMB_ARRAY(ethnicity_yn, the_members) <> "" Then demographics_plus = demographics_plus & "Hispanic: " & HH_MEMB_ARRAY(ethnicity_yn, the_members) & ", "
+                If HH_MEMB_ARRAY(marital_status, the_members) <> "" Then demographics_plus = demographics_plus & "Marital Status: " & HH_MEMB_ARRAY(marital_status, the_members) & ", "
+                If HH_MEMB_ARRAY(last_grade_completed, the_members) <> "" Then demographics_plus = demographics_plus & "Last Grade: " & HH_MEMB_ARRAY(last_grade_completed, the_members) & ", "
                 demographics_plus = trim(demographics_plus)
                 If right(demographics_plus, 1) = "," Then demographics_plus = left(demographics_plus, len(demographics_plus)-1)
                 If demographics_plus <> "" Then CALL write_variable_in_CASE_NOTE("    - " & demographics_plus)
                 move_info = ""
-                If HH_MEMB_ARRAY(mn_entry_date, each_member) <> "" Then move_info = move_info & "MN Entry Date: " & HH_MEMB_ARRAY(mn_entry_date, each_member) & ", "
-                If HH_MEMB_ARRAY(former_state, each_member) <> "" Then move_info = move_info & "Former State: " & HH_MEMB_ARRAY(former_state, each_member) & ", "
+                If HH_MEMB_ARRAY(mn_entry_date, the_members) <> "" Then move_info = move_info & "MN Entry Date: " & HH_MEMB_ARRAY(mn_entry_date, the_members) & ", "
+                If HH_MEMB_ARRAY(former_state, the_members) <> "" Then move_info = move_info & "Former State: " & HH_MEMB_ARRAY(former_state, the_members) & ", "
                 move_info = trim(move_info)
                 If right(move_info, 1) = "," Then move_info = left(move_info, len(move_info)-1)
                 If move_info <> "" Then CALL write_variable_in_CASE_NOTE("    - " & move_info)
 
             Else
-                If CHANGES_ARRAY(last_name_const, each_member) <> ""      Then Call write_variable_in_CASE_NOTE("    - Last Name Changed from " & CHANGES_ARRAY(last_name_const, each_member) & " to " & HH_MEMB_ARRAY(last_name_const, each_member) )
-                If CHANGES_ARRAY(first_name_const, each_member) <> ""     Then Call write_variable_in_CASE_NOTE("    - First Name Changed from " & CHANGES_ARRAY(first_name_const, each_member) & " to " & HH_MEMB_ARRAY(first_name_const, each_member) )
-                If CHANGES_ARRAY(mid_initial, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Mid Initial Changed from " & CHANGES_ARRAY(mid_initial, each_member) & " to " & HH_MEMB_ARRAY(mid_initial, each_member) )
-                If CHANGES_ARRAY(date_of_birth, each_member) <> ""        Then Call write_variable_in_CASE_NOTE("    - Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, each_member) & " to " & HH_MEMB_ARRAY(date_of_birth, each_member) )
-                If CHANGES_ARRAY(birthdate_verif, each_member) <> ""      Then Call write_variable_in_CASE_NOTE("    - DoB Verif Changed from " & CHANGES_ARRAY(birthdate_verif, each_member) & " to " & HH_MEMB_ARRAY(birthdate_verif, each_member) )
-                If CHANGES_ARRAY(age, each_member) <> ""                  Then Call write_variable_in_CASE_NOTE("    - Age Changed from " & CHANGES_ARRAY(age, each_member) & " to " & HH_MEMB_ARRAY(age, each_member) )
-                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then Call write_variable_in_CASE_NOTE("    - SSN Updated.")'" from " & CHANGES_ARRAY(ssn, each_member) & " to " & HH_MEMB_ARRAY(ssn, each_member) )
-                If CHANGES_ARRAY(ssn_verif, each_member) <> ""            Then Call write_variable_in_CASE_NOTE("    - SSN Verif Changed from " & CHANGES_ARRAY(ssn_verif, each_member) & " to " & HH_MEMB_ARRAY(ssn_verif, each_member) )
-                If CHANGES_ARRAY(spoken_lang, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Spoken Lang Changed from " & CHANGES_ARRAY(spoken_lang, each_member) & " to " & HH_MEMB_ARRAY(spoken_lang, each_member) )
-                If CHANGES_ARRAY(written_lang, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Written Lang Changed from " & CHANGES_ARRAY(written_lang, each_member) & " to " & HH_MEMB_ARRAY(written_lang, each_member) )
-                If CHANGES_ARRAY(interpreter, each_member) <> ""          Then Call write_variable_in_CASE_NOTE("    - Interpreter Needed Changed from " & CHANGES_ARRAY(interpreter, each_member) & " to " & HH_MEMB_ARRAY(interpreter, each_member) )
-                If CHANGES_ARRAY(alias_yn, each_member) = "Y"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Added: " & HH_MEMB_ARRAY(other_names, each_member) )
-                If CHANGES_ARRAY(alias_yn, each_member) = "N"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Removed." )
-                ' If CHANGES_ARRAY(alias_yn, each_member) <> ""           Then Call write_variable_in_CASE_NOTE("    - XXXX Changed from " & CHANGES_ARRAY(alias_yn, each_member) & " to " & HH_MEMB_ARRAY(alias_yn, each_member) )
-                If CHANGES_ARRAY(gender, each_member) <> ""               Then Call write_variable_in_CASE_NOTE("    - Gender Changed from " & CHANGES_ARRAY(gender, each_member) & " to " & HH_MEMB_ARRAY(gender, each_member) )
-                If CHANGES_ARRAY(race, each_member) <> ""                 Then Call write_variable_in_CASE_NOTE("    - Race Changed from " & CHANGES_ARRAY(race, each_member) & " to " & HH_MEMB_ARRAY(race, each_member) )
-                If CHANGES_ARRAY(ethnicity_yn, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Ethnicity Changed from " & CHANGES_ARRAY(ethnicity_yn, each_member) & " to " & HH_MEMB_ARRAY(ethnicity_yn, each_member) )
-                If CHANGES_ARRAY(rel_to_applcnt, each_member) <> ""       Then Call write_variable_in_CASE_NOTE("    - Rel to Applicant Changed from " & CHANGES_ARRAY(rel_to_applcnt, each_member) & " to " & HH_MEMB_ARRAY(rel_to_applcnt, each_member) )
-                If CHANGES_ARRAY(id_verif, each_member) <> ""             Then Call write_variable_in_CASE_NOTE("    - ID Verif Changed from " & CHANGES_ARRAY(id_verif, each_member) & " to " & HH_MEMB_ARRAY(id_verif, each_member) )
-                If CHANGES_ARRAY(marital_status, each_member) <> ""       Then Call write_variable_in_CASE_NOTE("    - Marital Status Changed from " & CHANGES_ARRAY(marital_status, each_member) & " to " & HH_MEMB_ARRAY(marital_status, each_member) )
-                If CHANGES_ARRAY(last_grade_completed, each_member) <> "" Then Call write_variable_in_CASE_NOTE("    - Last Grade Changed from " & CHANGES_ARRAY(last_grade_completed, each_member) & " to " & HH_MEMB_ARRAY(last_grade_completed, each_member) )
-                If CHANGES_ARRAY(citizen, each_member) <> ""              Then Call write_variable_in_CASE_NOTE("    - Citizen Changed from " & CHANGES_ARRAY(citizen, each_member) & " to " & HH_MEMB_ARRAY(citizen, each_member) )
-                If CHANGES_ARRAY(mn_entry_date, each_member) <> ""        Then Call write_variable_in_CASE_NOTE("    - MN Entry Date Changed from " & CHANGES_ARRAY(mn_entry_date, each_member) & " to " & HH_MEMB_ARRAY(mn_entry_date, each_member) )
-                If CHANGES_ARRAY(former_state, each_member) <> ""         Then Call write_variable_in_CASE_NOTE("    - Former State Changed from " & CHANGES_ARRAY(former_state, each_member) & " to " & HH_MEMB_ARRAY(former_state, each_member) )
+                If CHANGES_ARRAY(last_name_const, the_members) <> ""      Then Call write_variable_in_CASE_NOTE("    - Last Name Changed from " & CHANGES_ARRAY(last_name_const, the_members) & " to " & HH_MEMB_ARRAY(last_name_const, the_members) )
+                If CHANGES_ARRAY(first_name_const, the_members) <> ""     Then Call write_variable_in_CASE_NOTE("    - First Name Changed from " & CHANGES_ARRAY(first_name_const, the_members) & " to " & HH_MEMB_ARRAY(first_name_const, the_members) )
+                If CHANGES_ARRAY(mid_initial, the_members) <> ""          Then Call write_variable_in_CASE_NOTE("    - Mid Initial Changed from " & CHANGES_ARRAY(mid_initial, the_members) & " to " & HH_MEMB_ARRAY(mid_initial, the_members) )
+                If CHANGES_ARRAY(date_of_birth, the_members) <> ""        Then Call write_variable_in_CASE_NOTE("    - Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, the_members) & " to " & HH_MEMB_ARRAY(date_of_birth, the_members) )
+                If CHANGES_ARRAY(birthdate_verif, the_members) <> ""      Then Call write_variable_in_CASE_NOTE("    - DoB Verif Changed from " & CHANGES_ARRAY(birthdate_verif, the_members) & " to " & HH_MEMB_ARRAY(birthdate_verif, the_members) )
+                If CHANGES_ARRAY(age, the_members) <> ""                  Then Call write_variable_in_CASE_NOTE("    - Age Changed from " & CHANGES_ARRAY(age, the_members) & " to " & HH_MEMB_ARRAY(age, the_members) )
+                If CHANGES_ARRAY(ssn, the_members) <> ""                  Then Call write_variable_in_CASE_NOTE("    - SSN Updated.")'" from " & CHANGES_ARRAY(ssn, the_members) & " to " & HH_MEMB_ARRAY(ssn, the_members) )
+                If CHANGES_ARRAY(ssn_verif, the_members) <> ""            Then Call write_variable_in_CASE_NOTE("    - SSN Verif Changed from " & CHANGES_ARRAY(ssn_verif, the_members) & " to " & HH_MEMB_ARRAY(ssn_verif, the_members) )
+                If CHANGES_ARRAY(spoken_lang, the_members) <> ""          Then Call write_variable_in_CASE_NOTE("    - Spoken Lang Changed from " & CHANGES_ARRAY(spoken_lang, the_members) & " to " & HH_MEMB_ARRAY(spoken_lang, the_members) )
+                If CHANGES_ARRAY(written_lang, the_members) <> ""         Then Call write_variable_in_CASE_NOTE("    - Written Lang Changed from " & CHANGES_ARRAY(written_lang, the_members) & " to " & HH_MEMB_ARRAY(written_lang, the_members) )
+                If CHANGES_ARRAY(interpreter, the_members) <> ""          Then Call write_variable_in_CASE_NOTE("    - Interpreter Needed Changed from " & CHANGES_ARRAY(interpreter, the_members) & " to " & HH_MEMB_ARRAY(interpreter, the_members) )
+                If CHANGES_ARRAY(alias_yn, the_members) = "Y"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Added: " & HH_MEMB_ARRAY(other_names, the_members) )
+                If CHANGES_ARRAY(alias_yn, the_members) = "N"             Then Call write_variable_in_CASE_NOTE("    - Alias Name Removed." )
+                ' If CHANGES_ARRAY(alias_yn, the_members) <> ""           Then Call write_variable_in_CASE_NOTE("    - XXXX Changed from " & CHANGES_ARRAY(alias_yn, the_members) & " to " & HH_MEMB_ARRAY(alias_yn, the_members) )
+                If CHANGES_ARRAY(gender, the_members) <> ""               Then Call write_variable_in_CASE_NOTE("    - Gender Changed from " & CHANGES_ARRAY(gender, the_members) & " to " & HH_MEMB_ARRAY(gender, the_members) )
+                If CHANGES_ARRAY(race, the_members) <> ""                 Then Call write_variable_in_CASE_NOTE("    - Race Changed from " & CHANGES_ARRAY(race, the_members) & " to " & HH_MEMB_ARRAY(race, the_members) )
+                If CHANGES_ARRAY(ethnicity_yn, the_members) <> ""         Then Call write_variable_in_CASE_NOTE("    - Ethnicity Changed from " & CHANGES_ARRAY(ethnicity_yn, the_members) & " to " & HH_MEMB_ARRAY(ethnicity_yn, the_members) )
+                If CHANGES_ARRAY(rel_to_applcnt, the_members) <> ""       Then Call write_variable_in_CASE_NOTE("    - Rel to Applicant Changed from " & CHANGES_ARRAY(rel_to_applcnt, the_members) & " to " & HH_MEMB_ARRAY(rel_to_applcnt, the_members) )
+                If CHANGES_ARRAY(id_verif, the_members) <> ""             Then Call write_variable_in_CASE_NOTE("    - ID Verif Changed from " & CHANGES_ARRAY(id_verif, the_members) & " to " & HH_MEMB_ARRAY(id_verif, the_members) )
+                If CHANGES_ARRAY(marital_status, the_members) <> ""       Then Call write_variable_in_CASE_NOTE("    - Marital Status Changed from " & CHANGES_ARRAY(marital_status, the_members) & " to " & HH_MEMB_ARRAY(marital_status, the_members) )
+                If CHANGES_ARRAY(last_grade_completed, the_members) <> "" Then Call write_variable_in_CASE_NOTE("    - Last Grade Changed from " & CHANGES_ARRAY(last_grade_completed, the_members) & " to " & HH_MEMB_ARRAY(last_grade_completed, the_members) )
+                If CHANGES_ARRAY(citizen, the_members) <> ""              Then Call write_variable_in_CASE_NOTE("    - Citizen Changed from " & CHANGES_ARRAY(citizen, the_members) & " to " & HH_MEMB_ARRAY(citizen, the_members) )
+                If CHANGES_ARRAY(mn_entry_date, the_members) <> ""        Then Call write_variable_in_CASE_NOTE("    - MN Entry Date Changed from " & CHANGES_ARRAY(mn_entry_date, the_members) & " to " & HH_MEMB_ARRAY(mn_entry_date, the_members) )
+                If CHANGES_ARRAY(former_state, the_members) <> ""         Then Call write_variable_in_CASE_NOTE("    - Former State Changed from " & CHANGES_ARRAY(former_state, the_members) & " to " & HH_MEMB_ARRAY(former_state, the_members) )
 
             End If
 
             If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
             If HH_MEMB_ARRAY(citizen, the_members) = "No" Then
                 CALL write_variable_in_CASE_NOTE("    Member is a Non-Citizen.")
-                If HH_MEMB_ARRAY(clt_has_sponsor, selected_memb) <> "?" Then CALL write_variable_in_CASE_NOTE("    * Sponsor: " & HH_MEMB_ARRAY(clt_has_sponsor, selected_memb))
-                If trim(HH_MEMB_ARRAY(imig_status, selected_memb)) <> "" Then CALL write_variable_in_CASE_NOTE("    * IMIG NOTES: " & HH_MEMB_ARRAY(imig_status, selected_memb))
+                If HH_MEMB_ARRAY(clt_has_sponsor, the_members) <> "?" Then CALL write_variable_in_CASE_NOTE("    * Sponsor: " & HH_MEMB_ARRAY(clt_has_sponsor, the_members))
+                If trim(HH_MEMB_ARRAY(imig_status, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    * IMIG NOTES: " & HH_MEMB_ARRAY(imig_status, the_members))
             End If
     		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
-    		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then
+            If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" and HH_MEMB_ARRAY(client_verification, the_members) <> "" Then
     			If HH_MEMB_ARRAY(client_verification, the_members) = "On File" Then
     				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(client_verification_details, the_members))
     				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & ".")
@@ -8333,6 +8324,8 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(interpreter, clt_count) = "N" Then HH_MEMB_ARRAY(interpreter, clt_count) = "No"
 			If HH_MEMB_ARRAY(alias_yn, clt_count) = "Y" Then HH_MEMB_ARRAY(alias_yn, clt_count) = "Yes"
 			If HH_MEMB_ARRAY(alias_yn, clt_count) = "N" Then HH_MEMB_ARRAY(alias_yn, clt_count) = "No"
+			If HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "Y" Then HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "Yes"
+			If HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "N" Then HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "No"
 
 			HH_MEMB_ARRAY(race, clt_count) = trim(HH_MEMB_ARRAY(race, clt_count))
 
@@ -10447,8 +10440,8 @@ Dim CHANGES_ARRAY()
 ReDim CHANGES_ARRAY(last_const, 0)	'Defining the changes array to
 
 For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+    ReDim Preserve CHANGES_ARRAY(last_const, the_memb)
     If HH_MEMB_ARRAY(pers_in_maxis, the_memb) = True and HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-        ReDim Preserve CHANGES_ARRAY(last_const, the_memb)
 
         Call navigate_to_MAXIS_screen("STAT", "MEMB")
         EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
@@ -10550,13 +10543,13 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         If curr_race <> HH_MEMB_ARRAY(race, the_memb)                           Then CHANGES_ARRAY(race, the_memb) = curr_race
         If curr_spoken_lang <> left(HH_MEMB_ARRAY(spoken_lang, the_memb), 2)    Then CHANGES_ARRAY(spoken_lang, the_memb) = curr_spoken_lang
         If curr_written_lang <> left(HH_MEMB_ARRAY(written_lang, the_memb), 2)  Then CHANGES_ARRAY(written_lang, the_memb) = curr_written_lang
-        If curr_interpreter <> HH_MEMB_ARRAY(interpreter, the_memb)             Then
+        If curr_interpreter <> left(HH_MEMB_ARRAY(interpreter, the_memb), 1)    Then
             CHANGES_ARRAY(interpreter, the_memb) = curr_interpreter
             If curr_interpreter = "Y" Then CHANGES_ARRAY(interpreter, the_memb) = "Yes"
             If curr_interpreter = "N" Then CHANGES_ARRAY(interpreter, the_memb) = "No"
         End If
-        If curr_alias_yn <> HH_MEMB_ARRAY(alias_yn, the_memb)                   Then CHANGES_ARRAY(alias_yn, the_memb) = curr_alias_yn
-        If curr_ethnicity_yn <> HH_MEMB_ARRAY(ethnicity_yn, the_memb)           Then CHANGES_ARRAY(ethnicity_yn, the_memb) = curr_ethnicity_yn
+        If curr_alias_yn <> left(HH_MEMB_ARRAY(alias_yn, the_memb), 1)          Then CHANGES_ARRAY(alias_yn, the_memb) = curr_alias_yn
+        If curr_ethnicity_yn <> left(HH_MEMB_ARRAY(ethnicity_yn, the_memb), 1)  Then CHANGES_ARRAY(ethnicity_yn, the_memb) = curr_ethnicity_yn
 
         EMReadScreen curr_rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
 		EMReadScreen curr_id_verif, 2, 9, 68
