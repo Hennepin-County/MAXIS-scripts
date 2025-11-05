@@ -12297,14 +12297,7 @@ If run_by_interview_team = True and developer_mode = False Then
 	Set info = xmlTracDoc.createTextNode(case_pending)
 	element.appendChild info
 
-	If case_pending = True Then
-		Set element = xmlTracDoc.createElement("DaysPendingAtInterview")
-		root.appendChild element
-		Set info = xmlTracDoc.createTextNode(item)
-		element.appendChild info
-	End If
-
-	Set element = xmlTracDoc.createElement("InterviewPerson")
+		Set element = xmlTracDoc.createElement("InterviewPerson")
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(who_are_we_completing_the_interview_with)
 	element.appendChild info
