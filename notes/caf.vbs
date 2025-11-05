@@ -3374,7 +3374,7 @@ function read_BUSI_panel()
     If income_type = "07" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "07 - In Home Daycare"
     If income_type = "08" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "08 - Rental Income"
     If income_type = "09" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "09 - Other"
-    If income_type = "09" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "10 - Lived Experience"
+    If income_type = "10" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "10 - Lived Experience"
     ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, busi_count) = trim(retro_rpt_hrs)
     ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, busi_count) = trim(prosp_rpt_hrs)
     ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, busi_count) = trim(retro_min_wg_hrs)
