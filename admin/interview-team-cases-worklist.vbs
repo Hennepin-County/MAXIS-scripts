@@ -860,7 +860,7 @@ Next
 email_body = email_body & "<br>" & "<b>Please assign cases on worklist.</b>"
 send_email = False          'SET TO FALSE FOR TESTING PURPOSES
 If developer_mode = True Then send_email = False
-email_recip = "Tammy.Coenen@hennepin.us"                        'TESTING ONLY - REMOVE FOR PRODUCTION
+email_recip = "hsph.ews.unit.coenen@hennepin.us"                        'TESTING ONLY - REMOVE FOR PRODUCTION
 email_recip_CC = "HSPH.EWS.BlueZoneScripts@hennepin.us"         'TESTING ONLY - REMOVE FOR PRODUCTION
 
 'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
