@@ -940,11 +940,11 @@ CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that 
 
 'Read to find out which version of BSUM we have for line positioning.
 EMReadScreen name_or_date, 1, 5, 19
-If name_or_date = " " Then 
+If name_or_date = " " Then
     base_row = 0 'This is the old version of BSUM
-Else    
+Else
     base_row = -1
-End If 
+End If
 PF9													' }
 'checking if FIAT already...						' }
 EMReadScreen cannot_fiat, 20, 24, 2					' }
@@ -988,7 +988,7 @@ EMWriteScreen ttl_OTHR_unavailable, 15, 63
 
 transmit
 transmit '
-PF3 
+PF3
 
 IF asset_counted_total >= 3000 THEN
 	end_msg = "The client appears to exceed $3,000 in counted assets." & vbNewLine &  "Follow instructions in One Source."
@@ -1100,7 +1100,6 @@ call check_for_MAXIS(false)
 IF is_there_income_deeming = vbCancel THEN
 	script_end_procedure("Script cancelled.")
 ELSEIF is_there_income_deeming = vbYes THEN
-	testing_run = TRUE
 	' grabbing the ref num of the deeming individual
 	' and confirming it is not the same as the applicant
 
@@ -1278,11 +1277,11 @@ CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that 
 
 'Read to find out which version of BSUM we have for line positioning.
 EMReadScreen name_or_date, 1, 5, 19
-If name_or_date = " " Then 
+If name_or_date = " " Then
     base_row = 0 'This is the old version of BSUM
-Else    
+Else
     base_row = -1
-End If 
+End If
 
 'Make sure this is the correct type of case'
 EMReadScreen method_check, 55, base_row + 13, 21
@@ -1464,7 +1463,7 @@ DO ' This loop goes through each available MAPT screen and enters the assets on 
 	EMWriteScreen ttl_OTHR_excluded, 15, 49
 	EMWriteScreen ttl_OTHR_unavailable, 15, 63
 	transmit
-	transmit 'This will knock us back to BSUM - have to check multi-month package 
+	transmit 'This will knock us back to BSUM - have to check multi-month package
 	transmit 'This puts us on bhsm
 LOOP
 
