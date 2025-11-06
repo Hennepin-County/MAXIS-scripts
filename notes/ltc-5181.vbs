@@ -105,7 +105,7 @@ function section_a_contact_info()
     Text 10, 25, 155, 10, "Click here to fill information from SWKR Panel:"
     ButtonGroup ButtonPressed
       PushButton 170, 20, 75, 15, "Fill from SWKR", section_a_fill_SWKR_btn
-    GroupBox 5, 40, 260, 170, "FROM (assessor/case manager/care coordinator's information)"
+    GroupBox 5, 40, 260, 190, "FROM (assessor/case manager/care coordinator's information)"
     Text 10, 55, 70, 10, "Date Sent to Worker:"
     EditBox 90, 50, 50, 15, section_a_date_form_sent
     Text 10, 70, 40, 10, "Assessor:"
@@ -114,73 +114,79 @@ function section_a_contact_info()
     EditBox 90, 80, 150, 15, section_a_lead_agency
     Text 10, 100, 55, 10, "Phone Number:"
     EditBox 90, 95, 55, 15, section_a_phone_number
-    Text 10, 115, 55, 10, "Street Address:"
-    EditBox 90, 110, 150, 15, section_a_street_address
-    Text 10, 130, 20, 10, "City:"
-    EditBox 90, 125, 150, 15, section_a_city
-    Text 10, 145, 25, 10, "State:"
-    EditBox 90, 140, 25, 15, section_a_state
-    Text 10, 160, 35, 10, "Zip Code:"
-    EditBox 90, 155, 55, 15, section_a_zip_code
-    Text 10, 175, 55, 10, "Email Address:"
-    EditBox 90, 170, 150, 15, section_a_email_address
-    Text 10, 195, 145, 10, "Click button to add up to 2 add'l assessors:"
+    Text 10, 115, 60, 10, "Street Address 1:"
+    EditBox 90, 110, 150, 15, section_a_street_address_1_1
+    Text 10, 130, 60, 10, "Street Address 2:"
+    EditBox 90, 125, 150, 15, section_a_street_address_1_2
+    Text 10, 145, 20, 10, "City:"
+    EditBox 90, 140, 150, 15, section_a_city
+    Text 10, 160, 25, 10, "State:"
+    EditBox 90, 155, 25, 15, section_a_state
+    Text 10, 175, 35, 10, "Zip Code:"
+    EditBox 90, 170, 55, 15, section_a_zip_code
+    Text 10, 190, 55, 10, "Email Address:"
+    EditBox 90, 185, 150, 15, section_a_email_address
+    Text 10, 210, 145, 10, "Click button to add up to 2 add'l assessors:"
     ButtonGroup ButtonPressed
-      PushButton 160, 190, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
-    GroupBox 5, 220, 260, 30, "Person's Information"
-    Text 10, 230, 70, 10, "Select HH Member:"
-    DropListBox 80, 230, 160, 15, HH_Memb_DropDown, hh_memb
+      PushButton 160, 205, 85, 15, "Add/Update Assessor", section_a_add_assessor_btn
+    GroupBox 5, 235, 260, 30, "Person's Information"
+    Text 10, 245, 70, 10, "Select HH Member:"
+    DropListBox 80, 245, 160, 15, HH_Memb_DropDown, hh_memb
     ButtonGroup ButtonPressed
       PushButton 160, 290, 55, 15, "Next", next_btn
       CancelButton 215, 290, 50, 15
   EndDialog
 end function
-Dim form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
+Dim form_status_dropdown, section_a_date_form_sent, section_a_assessor, section_a_lead_agency, section_a_phone_number, section_a_street_address_1_1, section_a_street_address_1_2, section_a_city, section_a_state, section_a_zip_code, section_a_email_address, hh_memb
 
 function section_a_additional_assessors()
   dialog_count = 10
-  BeginDialog Dialog1, 0, 0, 271, 310, "Section A: Contact Info (Add'l Assessors)"
-    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
+  BeginDialog Dialog1, 0, 0, 251, 330, "Section A: Contact Info (Add'l Assessors)"
+    GroupBox 5, 5, 240, 150, "Additional Assessor (2)"
     Text 10, 20, 40, 10, "Assessor:"
     EditBox 90, 15, 150, 15, section_a_assessor_2
     Text 10, 35, 50, 10, "Lead Agency:"
     EditBox 90, 30, 150, 15, section_a_lead_agency_2
     Text 10, 50, 55, 10, "Phone Number:"
     EditBox 90, 45, 55, 15, section_a_phone_number_2
-    Text 10, 65, 55, 10, "Street Address:"
-    EditBox 90, 60, 150, 15, section_a_street_address_2
-    Text 10, 80, 20, 10, "City:"
-    EditBox 90, 75, 150, 15, section_a_city_2
-    Text 10, 95, 25, 10, "State:"
-    EditBox 90, 90, 25, 15, section_a_state_2
-    Text 10, 110, 35, 10, "Zip Code:"
-    EditBox 90, 105, 55, 15, section_a_zip_code_2
-    Text 10, 125, 55, 10, "Email Address:"
-    EditBox 90, 120, 150, 15, section_a_email_address_2
-    GroupBox 5, 150, 260, 135, "Additional Assessor (3)"
-    Text 10, 165, 40, 10, "Assessor:"
-    EditBox 90, 160, 150, 15, section_a_assessor_3
-    Text 10, 180, 50, 10, "Lead Agency:"
-    EditBox 90, 175, 150, 15, section_a_lead_agency_3
-    Text 10, 195, 55, 10, "Phone Number:"
-    EditBox 90, 190, 55, 15, section_a_phone_number_3
-    Text 10, 210, 55, 10, "Street Address:"
-    EditBox 90, 205, 150, 15, section_a_street_address_3
-    Text 10, 225, 20, 10, "City:"
-    EditBox 90, 220, 150, 15, section_a_city_3
-    Text 10, 240, 25, 10, "State:"
-    EditBox 90, 235, 25, 15, section_a_state_3
-    Text 10, 255, 35, 10, "Zip Code:"
-    EditBox 90, 250, 55, 15, section_a_zip_code_3
-    Text 10, 270, 55, 10, "Email Address:"
-    EditBox 90, 265, 150, 15, section_a_email_address_3
+    Text 10, 65, 60, 10, "Street Address 1:"
+    EditBox 90, 60, 150, 15, section_a_street_address_2_1
+    Text 10, 80, 60, 10, "Street Address 2:"
+    EditBox 90, 75, 150, 15, section_a_street_address_2_2
+    Text 10, 95, 20, 10, "City:"
+    EditBox 90, 90, 150, 15, section_a_city_2
+    Text 10, 110, 25, 10, "State:"
+    EditBox 90, 105, 25, 15, section_a_state_2
+    Text 10, 125, 35, 10, "Zip Code:"
+    EditBox 90, 120, 55, 15, section_a_zip_code_2
+    Text 10, 140, 55, 10, "Email Address:"
+    EditBox 90, 135, 150, 15, section_a_email_address_2
+    GroupBox 5, 155, 240, 150, "Additional Assessor (3)"
+    Text 10, 170, 40, 10, "Assessor:"
+    EditBox 90, 165, 150, 15, section_a_assessor_3
+    Text 10, 185, 50, 10, "Lead Agency:"
+    EditBox 90, 180, 150, 15, section_a_lead_agency_3
+    Text 10, 200, 55, 10, "Phone Number:"
+    EditBox 90, 195, 55, 15, section_a_phone_number_3
+    Text 10, 215, 60, 10, "Street Address 1:"
+    EditBox 90, 210, 150, 15, section_a_street_address_3_1
+    Text 10, 230, 60, 10, "Street Address 2:"
+    EditBox 90, 225, 150, 15, section_a_street_address_3_2
+    Text 10, 245, 20, 10, "City:"
+    EditBox 90, 240, 150, 15, section_a_city_3
+    Text 10, 260, 25, 10, "State:"
+    EditBox 90, 255, 25, 15, section_a_state_3
+    Text 10, 275, 35, 10, "Zip Code:"
+    EditBox 90, 270, 55, 15, section_a_zip_code_3
+    Text 10, 290, 55, 10, "Email Address:"
+    EditBox 90, 285, 150, 15, section_a_email_address_3
     ButtonGroup ButtonPressed
-      PushButton 160, 290, 105, 15, "SAVE Info and Return", section_a_assessor_return_btn
-      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
+      PushButton 150, 310, 95, 15, "SAVE Info and Return", section_a_assessor_return_btn
+      PushButton 5, 310, 135, 15, "Return WITHOUT Saving Assessor Info", section_a_assessor_return_no_save_btn
   EndDialog
 end function
 'Dim all variables in function
-Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
+Dim section_a_assessor_2, section_a_lead_agency_2, section_a_phone_number_2, section_a_street_address_2_1, section_a_street_address_2_2, section_a_city_2, section_a_state_2, section_a_zip_code_2, section_a_email_address_2, section_a_assessor_3, section_a_lead_agency_3, section_a_phone_number_3, section_a_street_address_3_1, section_a_street_address_3_2, section_a_city_3, section_a_state_3, section_a_zip_code_3, section_a_email_address_3
 
 'Dialog 2 - Section B: Assessment Results - Current Status
 function section_b_assess_results_current_status()
@@ -388,7 +394,7 @@ function section_e_contact_info()
   ref_nbr = left(hh_memb, 2)
   dialog_count = 7
   BeginDialog Dialog1, 0, 0, 271, 310, "7 - Section E: Contact Information"
-    GroupBox 5, 5, 260, 200, "TO (assessor/case manager/care coordinator's information)"
+    GroupBox 5, 10, 260, 210, "TO (assessor/case manager/care coordinator's information)"
     Text 10, 25, 180, 10, "Date Sent to assessor/case manager/care coordinator:"
     EditBox 195, 20, 50, 15, section_e_date_form_sent
     Text 10, 45, 155, 10, "Click here to fill information from SWKR Panel:"
@@ -400,27 +406,29 @@ function section_e_contact_info()
     EditBox 90, 75, 150, 15, section_e_lead_agency
     Text 10, 95, 55, 10, "Phone Number:"
     EditBox 90, 90, 55, 15, section_e_phone_number
-    Text 10, 110, 55, 10, "Street Address:"
-    EditBox 90, 105, 150, 15, section_e_street_address
-    Text 10, 125, 20, 10, "City:"
-    EditBox 90, 120, 150, 15, section_e_city
-    Text 10, 140, 25, 10, "State:"
-    EditBox 90, 135, 25, 15, section_e_state
-    Text 10, 155, 35, 10, "Zip Code:"
-    EditBox 90, 150, 45, 15, section_e_zip_code
-    Text 10, 170, 55, 10, "Email Address:"
-    EditBox 90, 165, 150, 15, section_e_email_address
-    Text 10, 190, 145, 10, "Click button to add up to 2 add'l assessors:"
+    Text 10, 110, 60, 10, "Street Address 1:"
+    EditBox 90, 105, 150, 15, section_e_street_address_1_1
+    Text 10, 125, 60, 10, "Street Address 2:"
+    EditBox 90, 120, 150, 15, section_e_street_address_1_2
+    Text 10, 140, 20, 10, "City:"
+    EditBox 90, 135, 150, 15, section_e_city
+    Text 10, 155, 25, 10, "State:"
+    EditBox 90, 150, 25, 15, section_e_state
+    Text 10, 170, 35, 10, "Zip Code:"
+    EditBox 90, 165, 45, 15, section_e_zip_code
+    Text 10, 185, 55, 10, "Email Address:"
+    EditBox 90, 180, 150, 15, section_e_email_address
+    Text 10, 205, 145, 10, "Click button to add up to 2 add'l assessors:"
     ButtonGroup ButtonPressed
-      PushButton 160, 185, 85, 15, "Add/Update Assessor", section_e_add_assessor_btn
-    GroupBox 5, 215, 260, 60, "Person's Information"
-    Text 10, 230, 105, 10, "Information entered previously:"
-    Text 15, 240, 40, 10, "First name:"
-    Text 70, 240, 170, 10, first_name
-    Text 15, 250, 40, 10, "Last name:"
-    Text 70, 250, 170, 10, last_name
-    Text 15, 260, 45, 10, "Ref Number:"
-    Text 70, 260, 75, 10, ref_nbr
+      PushButton 160, 200, 85, 15, "Add/Update Assessor", section_e_add_assessor_btn
+    GroupBox 5, 225, 260, 60, "Person's Information"
+    Text 10, 240, 105, 10, "Information entered previously:"
+    Text 15, 250, 40, 10, "First name:"
+    Text 70, 250, 170, 10, first_name
+    Text 15, 260, 40, 10, "Last name:"
+    Text 70, 260, 170, 10, last_name
+    Text 15, 270, 45, 10, "Ref Number:"
+    Text 70, 270, 75, 10, ref_nbr
     ButtonGroup ButtonPressed
       PushButton 160, 290, 55, 15, "Next", next_btn
       CancelButton 215, 290, 50, 15
@@ -428,53 +436,58 @@ function section_e_contact_info()
   EndDialog
 end function
 ' Dim all variables in function
-Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, first_name, last_name, ref_nbr
+Dim section_e_date_form_sent, section_e_assessor, section_e_lead_agency, section_e_phone_number, section_e_street_address_1_1, section_e_street_address_1_2, section_e_city, section_e_state, section_e_zip_code, section_e_email_address, first_name, last_name, ref_nbr
 
 'Dialog 7 - Section E: Contact Information
 function section_e_additional_assessors()
   dialog_count = 11
-  BeginDialog Dialog1, 0, 0, 271, 310, "Section E: Contact Info (Add'l Assessors)"
-    GroupBox 5, 5, 260, 135, "Additional Assessor (2)"
-    Text 10, 20, 40, 10, "Assessor:"
-    EditBox 90, 15, 150, 15, section_e_assessor_2
-    Text 10, 35, 50, 10, "Lead Agency:"
-    EditBox 90, 30, 150, 15, section_e_lead_agency_2
-    Text 10, 50, 55, 10, "Phone Number:"
-    EditBox 90, 45, 55, 15, section_e_phone_number_2
-    Text 10, 65, 55, 10, "Street Address:"
-    EditBox 90, 60, 150, 15, section_e_street_address_2
-    Text 10, 80, 20, 10, "City:"
-    EditBox 90, 75, 150, 15, section_e_city_2
-    Text 10, 95, 25, 10, "State:"
-    EditBox 90, 90, 25, 15, section_e_state_2
-    Text 10, 110, 35, 10, "Zip Code:"
-    EditBox 90, 105, 55, 15, section_e_zip_code_2
-    Text 10, 125, 55, 10, "Email Address:"
-    EditBox 90, 120, 150, 15, section_e_email_address_2
-    GroupBox 5, 150, 260, 135, "Additional Assessor (3) - Leave blank if unneeded"
-    Text 10, 165, 40, 10, "Assessor:"
-    EditBox 90, 160, 150, 15, section_e_assessor_3
-    Text 10, 180, 50, 10, "Lead Agency:"
-    EditBox 90, 175, 150, 15, section_e_lead_agency_3
-    Text 10, 195, 55, 10, "Phone Number:"
-    EditBox 90, 190, 55, 15, section_e_phone_number_3
-    Text 10, 210, 55, 10, "Street Address:"
-    EditBox 90, 205, 150, 15, section_e_street_address_3
-    Text 10, 225, 20, 10, "City:"
-    EditBox 90, 220, 150, 15, section_e_city_3
-    Text 10, 240, 25, 10, "State:"
-    EditBox 90, 235, 25, 15, section_e_state_3
-    Text 10, 255, 35, 10, "Zip Code:"
-    EditBox 90, 250, 55, 15, section_e_zip_code_3
-    Text 10, 270, 55, 10, "Email Address:"
-    EditBox 90, 265, 150, 15, section_e_email_address_3
-    ButtonGroup ButtonPressed
-      PushButton 170, 290, 95, 15, "Save Info and Return", section_e_assessor_return_btn
-      PushButton 5, 290, 135, 15, "Return WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
-  EndDialog
+  BeginDialog Dialog1, 0, 0, 251, 330, "Section E: Contact Info (Add'l Assessors)"
+  GroupBox 5, 5, 240, 150, "Additional Assessor (2)"
+  Text 10, 20, 40, 10, "Assessor:"
+  EditBox 90, 15, 150, 15, section_e_assessor_2
+  Text 10, 35, 50, 10, "Lead Agency:"
+  EditBox 90, 30, 150, 15, section_e_lead_agency_2
+  Text 10, 50, 55, 10, "Phone Number:"
+  EditBox 90, 45, 55, 15, section_e_phone_number_2
+  Text 10, 65, 60, 10, "Street Address 1:"
+  EditBox 90, 60, 150, 15, section_e_street_address_2_1
+  Text 10, 80, 60, 10, "Street Address 2:"
+  EditBox 90, 75, 150, 15, section_e_street_address_2_2
+  Text 10, 95, 20, 10, "City:"
+  EditBox 90, 90, 150, 15, section_e_city_2
+  Text 10, 110, 25, 10, "State:"
+  EditBox 90, 105, 25, 15, section_e_state_2
+  Text 10, 125, 35, 10, "Zip Code:"
+  EditBox 90, 120, 55, 15, section_e_zip_code_2
+  Text 10, 140, 55, 10, "Email Address:"
+  EditBox 90, 135, 150, 15, section_e_email_address_2
+  GroupBox 5, 155, 240, 150, "Additional Assessor (3)"
+  Text 10, 170, 40, 10, "Assessor:"
+  EditBox 90, 165, 150, 15, section_e_assessor_3
+  Text 10, 185, 50, 10, "Lead Agency:"
+  EditBox 90, 180, 150, 15, section_e_lead_agency_3
+  Text 10, 200, 55, 10, "Phone Number:"
+  EditBox 90, 195, 55, 15, section_e_phone_number_3
+  Text 10, 215, 60, 10, "Street Address 1:"
+  EditBox 90, 210, 150, 15, section_e_street_address_3_1
+  Text 10, 230, 60, 10, "Street Address 2:"
+  EditBox 90, 225, 150, 15, section_e_3_street_address_3_2
+  Text 10, 245, 20, 10, "City:"
+  EditBox 90, 240, 150, 15, section_e_city_3
+  Text 10, 260, 25, 10, "State:"
+  EditBox 90, 255, 25, 15, section_e_state_3
+  Text 10, 275, 35, 10, "Zip Code:"
+  EditBox 90, 270, 55, 15, section_e_zip_code_3
+  Text 10, 290, 55, 10, "Email Address:"
+  EditBox 90, 285, 150, 15, section_e_email_address_3
+  ButtonGroup ButtonPressed
+    PushButton 150, 310, 95, 15, "SAVE Info and Return", section_e_assessor_return_btn
+    PushButton 5, 310, 135, 15, "Return WITHOUT Saving Assessor Info", section_e_assessor_return_no_save_btn
+EndDialog
+
 end function
 ' Dim all functions in variable
-Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3,  section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
+Dim section_e_assessor_2, section_e_lead_agency_2, section_e_phone_number_2, section_e_street_address_2_1, section_e_street_address_2_2, section_e_city_2, section_e_state_2, section_e_zip_code_2, section_e_email_address_2, section_e_assessor_3,  section_e_lead_agency_3, section_e_phone_number_3, section_e_street_address_3_1, section_e_street_address_3_2, section_e_city_3, section_e_state_3, section_e_zip_code_3, section_e_email_address_3
 
 'Dialog 8 - Section F: Medical Assistance
 function section_f_medical_assistance()
@@ -600,7 +613,7 @@ function incomplete_dialog_handling()
     'Dialog_count is one off the actual dialog_count for each dialog because the dialog_count would have been incremented with the next_btn
     If dialog_count = 2 then 
       If trim(section_a_phone_number) = "" OR _  
-      trim(section_a_street_address) = "" OR _ 
+      trim(section_a_street_address_1_1) = "" OR _ 
       trim(section_a_city) = "" OR _
       trim(section_a_state) = "" OR _
       trim(section_a_zip_code) = "" OR _  
@@ -672,7 +685,7 @@ function incomplete_dialog_handling()
         trim(section_e_assessor) = "" OR _
         trim(section_e_lead_agency) = "" OR _ 
         trim(section_e_phone_number) = "" OR _  
-        trim(section_e_street_address) = "" OR _ 
+        trim(section_e_street_address_1_1) = "" OR _ 
         trim(section_e_city) = "" OR _
         trim(section_e_state) = "" OR _
         trim(section_e_zip_code) = "" OR _  
@@ -700,7 +713,7 @@ function incomplete_dialog_handling()
       If trim(section_a_assessor_2) = "" OR _  
       trim(section_a_lead_agency_2) = "" OR _ 
       trim(section_a_phone_number_2) = "" OR _
-      trim(section_a_street_address_2) = "" OR _ 
+      trim(section_a_street_address_2_1) = "" OR _ 
       trim(section_a_city_2) = "" OR _ 
       trim(section_a_state_2) = "" OR _ 
       trim(section_a_zip_code_2) = "" OR _ 
@@ -708,7 +721,7 @@ function incomplete_dialog_handling()
       trim(section_a_assessor_3) = "" OR _ 
       trim(section_a_lead_agency_3) = "" OR _ 
       trim(section_a_phone_number_3) = "" OR _
-      trim(section_a_street_address_3) = "" OR _ 
+      trim(section_a_street_address_3_1) = "" OR _ 
       trim(section_a_city_3) = "" OR _ 
       trim(section_a_state_3) = "" OR _  
       trim(section_a_zip_code_3) = "" OR _  
@@ -721,7 +734,7 @@ function incomplete_dialog_handling()
       If trim(section_e_assessor_2) = "" OR _  
       trim(section_e_lead_agency_2) = "" OR _ 
       trim(section_e_phone_number_2) = "" OR _
-      trim(section_e_street_address_2) = "" OR _ 
+      trim(section_e_street_address_2_1) = "" OR _ 
       trim(section_e_city_2) = "" OR _ 
       trim(section_e_state_2) = "" OR _ 
       trim(section_e_zip_code_2) = "" OR _ 
@@ -729,7 +742,7 @@ function incomplete_dialog_handling()
       trim(section_e_assessor_3) = "" OR _ 
       trim(section_e_lead_agency_3) = "" OR _ 
       trim(section_e_phone_number_3) = "" OR _
-      trim(section_e_street_address_3) = "" OR _ 
+      trim(section_e_street_address_3_1) = "" OR _ 
       trim(section_e_city_3) = "" OR _ 
       trim(section_e_state_3) = "" OR _  
       trim(section_e_zip_code_3) = "" OR _  
@@ -785,7 +798,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_a_assessor_2 = ""
     section_a_lead_agency_2 = ""
     section_a_phone_number_2 = ""
-    section_a_street_address_2 = ""
+    section_a_street_address_2_1 = ""
+    section_a_street_address_2_2 = ""
     section_a_city_2 = ""
     section_a_state_2 = ""
     section_a_zip_code_2 = ""
@@ -793,7 +807,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_a_assessor_3 = ""
     section_a_lead_agency_3 = ""
     section_a_phone_number_3 = ""
-    section_a_street_address_3 = ""
+    section_a_street_address_3_1 = ""
+    section_a_street_address_3_2 = ""
     section_a_city_3 = ""
     section_a_state_3 = ""
     section_a_zip_code_3 = ""
@@ -807,7 +822,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_e_assessor_2 = ""
     section_e_lead_agency_2 = ""
     section_e_phone_number_2 = ""
-    section_e_street_address_2 = ""
+    section_e_street_address_2_1 = ""
+    section_e_street_address_2_2 = ""
     section_e_city_2 = ""
     section_e_state_2 = ""
     section_e_zip_code_2 = ""
@@ -815,7 +831,8 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
     section_e_assessor_3 = ""
     section_e_lead_agency_3 = ""
     section_e_phone_number_3 = ""
-    section_e_street_address_3 = ""
+    section_e_street_address_3_1 = ""
+    section_e_street_address_3_2 = ""
     section_e_city_3 = ""
     section_e_state_3 = ""
     section_e_zip_code_3 = ""
@@ -834,15 +851,18 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       'Read information from SWKR
       EMReadScreen section_a_assessor, 35, 6, 32
       section_a_assessor = replace(section_a_assessor, "_", "")
-      EMReadScreen section_a_street_address, 22, 8, 32
-      section_a_street_address = replace(section_a_street_address, "_", "")
+      EMReadScreen section_a_street_address_1_1, 22, 8, 32
+      section_a_street_address_1_1 = replace(section_a_street_address_1_1, "_", "")
+      EMReadScreen section_a_street_address_1_2, 22, 9, 32
+      section_a_street_address_1_2 = replace(section_a_street_address_1_2, "_", "")
       EMReadScreen section_a_city, 15, 10, 32
       section_a_city = replace(section_a_city, "_", "")
       EMReadScreen section_a_phone_number, 14, 12, 34
       section_a_phone_number = replace(section_a_phone_number, " ) ", "")
       section_a_phone_number = replace(section_a_phone_number, " ", "")
-      'Convert phone number to ###-###-####
-      section_a_phone_number = left(section_a_phone_number, 3) & "-" & mid(section_a_phone_number, 4, 3) & "-" & right(section_a_phone_number, 4) 
+      section_a_phone_number = trim(section_a_phone_number)
+      'Convert phone number to ###-###-#### only if phone number is not blank 
+      If trim(section_a_phone_number) <> "" Then section_a_phone_number = left(section_a_phone_number, 3) & "-" & mid(section_a_phone_number, 4, 3) & "-" & right(section_a_phone_number, 4) 
       EMReadScreen section_a_state, 2, 10, 54
       EMReadScreen section_a_zip_code, 10, 10, 63
       'Return to STAT/MEMB
@@ -860,19 +880,19 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       'Read information from SWKR
       EMReadScreen section_e_assessor, 35, 6, 32
       section_e_assessor = replace(section_e_assessor, "_", "")
-      EMReadScreen section_e_street_address, 22, 8, 32
-      section_e_street_address = replace(section_e_street_address, "_", "")
+      EMReadScreen section_e_street_address_1_1, 22, 8, 32
+      section_e_street_address_1_1 = replace(section_e_street_address_1_1, "_", "")
+      EMReadScreen section_e_street_address_1_2, 22, 9, 32
+      section_e_street_address_1_2 = replace(section_e_street_address_1_2, "_", "")
       EMReadScreen section_e_city, 15, 10, 32
       section_e_city = replace(section_e_city, "_", "")
       EMReadScreen section_e_phone_number, 14, 12, 34
       section_e_phone_number = replace(section_e_phone_number, " ) ", "")
       section_e_phone_number = replace(section_e_phone_number, " ", "")
-      'Convert phone number to ###-###-####
-      section_e_phone_number = left(section_e_phone_number, 3) & "-" & mid(section_e_phone_number, 4, 3) & "-" & right(section_e_phone_number, 4)
+      'Convert phone number to ###-###-#### only if phone number is not blank 
+      If trim(section_e_phone_number) <> "" Then section_e_phone_number = left(section_e_phone_number, 3) & "-" & mid(section_e_phone_number, 4, 3) & "-" & right(section_e_phone_number, 4)
       EMReadScreen section_e_state, 2, 10, 54
       EMReadScreen section_e_zip_code, 10, 10, 63
-      'Return to STAT/MEMB
-      Call navigate_to_MAXIS_screen("STAT", "MEMB")
     END IF
     'End at STAT/MEMB
     Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -1286,8 +1306,10 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     'Read the SWKR screen - name, street, city, state, zip, phone
     EmReadScreen current_swkr_name, 35, 6, 32
     current_swkr_name = replace(current_swkr_name, "_", "")
-    EmReadScreen current_swkr_street, 22, 8, 32
-    current_swkr_street = replace(current_swkr_street, "_", "")
+    EmReadScreen current_swkr_street_1, 22, 8, 32
+    current_swkr_street_1 = replace(current_swkr_street_1, "_", "")
+    EmReadScreen current_swkr_street_2, 22, 9, 32
+    current_swkr_street_2 = replace(current_swkr_street_2, "_", "")
     EmReadScreen current_swkr_city, 15, 10, 32
     current_swkr_city = replace(current_swkr_city, "_", "")
     EmReadScreen current_swkr_state, 2, 10, 54
@@ -1296,7 +1318,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     EmReadScreen current_swkr_prefix_code, 3, 12, 40
     EmReadScreen current_swkr_line_code, 4, 12, 44
     current_swkr_phone_number = current_swkr_area_code & current_swkr_prefix_code & current_swkr_line_code
-    current_swkr_panel_info = current_swkr_name & "(" & current_swkr_street & ", " & current_swkr_city & ", " & current_swkr_state & " " & current_swkr_zip & "; " & current_swkr_phone_number & ")"
+    If trim(current_swkr_street_2) = "" Then
+      current_swkr_panel_info = current_swkr_name & "(" & current_swkr_street_1 & ", " & current_swkr_city & ", " & current_swkr_state & " " & current_swkr_zip & "; " & current_swkr_phone_number & ")"
+    Else
+      current_swkr_panel_info = current_swkr_name & "(" & current_swkr_street_1 & ", " & current_swkr_street_2 & ", " & current_swkr_city & ", " & current_swkr_state & " " & current_swkr_zip & "; " & current_swkr_phone_number & ")"
+    End If
   End If
 
   If section_c_person_moved_new_address_checkbox = 1 OR section_f_person_new_address_checkbox = 1 Then
@@ -1550,42 +1576,48 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       'Ensure the specifically selected assessor (SWKR) will update the panel
       If section_a_assessor_1_checkbox = 1 Then
         swkr_panel_name = section_a_assessor
-        swkr_panel_street = section_a_street_address
+        swkr_panel_street_line_1 = section_a_street_address_1_1
+        swkr_panel_street_line_2 = section_a_street_address_1_2
         swkr_panel_city = section_a_city
         swkr_panel_state = section_a_state
         swkr_panel_zip = section_a_zip_code
         swkr_panel_phone = replace(section_a_phone_number, "-", "")
       ElseIf section_a_assessor_2_checkbox Then
         swkr_panel_name = section_a_assessor_2
-        swkr_panel_street = section_a_street_address_2
+        swkr_panel_street_line_1 = section_a_street_address_2_1
+        swkr_panel_street_line_2 = section_a_street_address_2_2
         swkr_panel_city = section_a_city_2
         swkr_panel_state = section_a_state_2
         swkr_panel_zip = section_a_zip_code_2
         swkr_panel_phone = replace(section_a_phone_number_2, "-", "")
       ElseIf section_a_assessor_3_checkbox Then
         swkr_panel_name = section_a_assessor_3
-        swkr_panel_street = section_a_street_address_3
+        swkr_panel_street_line_1 = section_a_street_address_3_1
+        swkr_panel_street_line_2 = section_a_street_address_3_2
         swkr_panel_city = section_a_city_3
         swkr_panel_state = section_a_state_3
         swkr_panel_zip = section_a_zip_code_3
         swkr_panel_phone = replace(section_a_phone_number_3, "-", "")
       ElseIf section_e_assessor_1_checkbox = 1 Then
         swkr_panel_name = section_e_assessor
-        swkr_panel_street = section_e_street_address
+        swkr_panel_street_line_1 = section_e_street_address_1_1
+        swkr_panel_street_line_2 = section_e_street_address_1_2
         swkr_panel_city = section_e_city
         swkr_panel_state = section_e_state
         swkr_panel_zip = section_e_zip_code
         swkr_panel_phone = replace(section_e_phone_number, "-", "")
       ElseIf section_e_assessor_2_checkbox = 1 Then
         swkr_panel_name = section_e_assessor_2
-        swkr_panel_street = section_e_street_address_2
+        swkr_panel_street_line_1 = section_e_street_address_2_1
+        swkr_panel_street_line_2 = section_e_street_address_2_2
         swkr_panel_city = section_e_city_2
         swkr_panel_state = section_e_state_2
         swkr_panel_zip = section_e_zip_code_2
         swkr_panel_phone = replace(section_e_phone_number_2, "-", "")
       ElseIf section_e_assessor_3_checkbox = 1 Then
         swkr_panel_name = section_e_assessor_3
-        swkr_panel_street = section_e_street_address_3
+        swkr_panel_street_line_1 = section_e_street_address_3_1
+        swkr_panel_street_line_2 = section_e_street_address_3_2
         swkr_panel_city = section_e_city_3
         swkr_panel_state = section_e_state_3
         swkr_panel_zip = section_e_zip_code_3
@@ -1598,34 +1630,66 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       EmReadScreen swkr_does_not_exist, 19, 24, 2
       If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
         'Add new panel
+        EMReadScreen swkr_mode_before, 1, 20, 8
         Call write_value_and_transmit("NN", 20, 79)
-        'Write details to panel
-        EMWriteScreen swkr_panel_name, 6, 32
-        EMWriteScreen swkr_panel_street, 8, 32
-        EMWriteScreen swkr_panel_city, 10, 32
-        EMWriteScreen swkr_panel_state, 10, 54
-        EMWriteScreen swkr_panel_zip, 10, 63
-        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
-        'Transmit to save 
-        transmit
+        EMReadScreen swkr_mode_after, 1, 20, 8
+
+        If swkr_mode_after = swkr_mode_before Then
+          script_end_procedure_with_error_report("The script was unable to edit the SWKR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+        Else
+          'Write details to panel
+          'To do - update to clear out current details and replace
+          'To do - write both lines of address
+          EMWriteScreen swkr_panel_name, 6, 32
+          EMWriteScreen swkr_panel_street_line_1, 8, 32
+          EMWriteScreen swkr_panel_street_line_2, 9, 32
+          EMWriteScreen swkr_panel_city, 10, 32
+          EMWriteScreen swkr_panel_state, 10, 54
+          EMWriteScreen swkr_panel_zip, 10, 63
+          EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+          EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+          EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+          'Transmit to save 
+          transmit
+        End If
 
       Else
+        EMReadScreen swkr_mode_before, 1, 20, 8
         'Put panel into edit mode
         PF9
-        'Write to panel
-        EMWriteScreen swkr_panel_name, 6, 32
-        EMWriteScreen swkr_panel_street, 8, 32
-        EMWriteScreen swkr_panel_city, 10, 32
-        EMWriteScreen swkr_panel_state, 10, 54
-        EMWriteScreen swkr_panel_zip, 10, 63
-        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
-        'Transmit to save 
-        transmit
+        EMReadScreen swkr_mode_after, 1, 20, 8
 
+        If swkr_mode_after = swkr_mode_before Then
+          script_end_procedure_with_error_report("The script was unable to edit the SWKR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+        Else
+          'Write to panel
+          EMWriteScreen "___________________________________", 6, 32
+          EMWriteScreen swkr_panel_name, 6, 32
+          EMWriteScreen "______________________", 8, 32
+          EMWriteScreen swkr_panel_street_line_1, 8, 32
+          EMWriteScreen "______________________", 9, 32
+          EMWriteScreen swkr_panel_street_line_2, 9, 32
+          EMWriteScreen "_______________", 10, 32
+          EMWriteScreen swkr_panel_city, 10, 32
+          EMWriteScreen "__", 10, 54
+          EMWriteScreen swkr_panel_state, 10, 54
+          EMWriteScreen "_____", 10, 63
+          EMWriteScreen swkr_panel_zip, 10, 63
+          EMWriteScreen "___", 12, 34
+          EMWriteScreen "___", 12, 40
+          EMWriteScreen "____", 12, 44
+          EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+          EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+          EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+          If trim(swkr_panel_phone_ext) <> "" Then
+            EMWriteScreen "____", 12, 54
+            EMWriteScreen swkr_panel_phone_ext, 12, 54
+          End If
+          If notices_to_social_worker_y_checkbox = 1 Then EMWriteScreen "Y", 15, 63
+          If notices_to_social_worker_n_checkbox = 1 Then EMWriteScreen "N", 15, 63
+          'Transmit to save 
+          transmit
+        End If
       End If
     End If
 
@@ -1690,30 +1754,83 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       'Navigate to STAT/ADDR
       Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
-      'Write information to panel depending on which address selected
-      If addr_update_checkbox_section_c_section_f_match = 1 Then 
+      'Check if ADDR panel exists, not sure there could ever NOT be an ADDR panel but checking just in case
+      EMReadScreen addr_panel_count, 1, 2, 73
+      If addr_panel_count = "0" OR addr_panel_count = 0 Then
+        'Test if possible to edit the panel
+        EMReadScreen addr_mode_before, 1, 20, 8
+        Call write_value_and_transmit("NN", 20, 79)
+        EMReadScreen addr_mode_after, 1, 20, 8
 
-        Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        If addr_mode_before = addr_mode_after Then
+          script_end_procedure_with_error_report("The script was unable to edit the ADDR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+        Else
+          'Clear editing
+          PF10
 
-      ElseIf addr_update_multiple_checkbox = 1 Then
-        If multiple_section_c_new_address_checkbox = 1 Then
+          'Write information to panel depending on which address selected
+          If addr_update_checkbox_section_c_section_f_match = 1 Then 
 
-          Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-          
-        ElseIf multiple_section_f_new_address_checkbox = 1 Then
+            Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-          Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          ElseIf addr_update_multiple_checkbox = 1 Then
+            If multiple_section_c_new_address_checkbox = 1 Then
 
+              Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+              
+            ElseIf multiple_section_f_new_address_checkbox = 1 Then
+
+              Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+            End If
+
+          ElseIf addr_update_checkbox_section_c = 1 Then 
+
+            Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+          ElseIf addr_update_checkbox_section_f = 1 Then
+
+            Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          End If
         End If
+      Else
+        'Test if possible to edit the panel
+        EMReadScreen addr_mode_before, 1, 20, 8
+        'Put panel in edit mode
+        PF9
+        EMReadScreen addr_mode_after, 1, 20, 8
 
-      ElseIf addr_update_checkbox_section_c = 1 Then 
+        If addr_mode_before = addr_mode_after Then
+          script_end_procedure_with_error_report("The script was unable to edit the ADDR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+        Else  
+          'Clear editing
+          PF10
 
-        Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          'Write information to panel depending on which address selected
+          If addr_update_checkbox_section_c_section_f_match = 1 Then 
 
-      ElseIf addr_update_checkbox_section_f = 1 Then
+            Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-        Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          ElseIf addr_update_multiple_checkbox = 1 Then
+            If multiple_section_c_new_address_checkbox = 1 Then
 
+              Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+              
+            ElseIf multiple_section_f_new_address_checkbox = 1 Then
+
+              Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+            End If
+
+          ElseIf addr_update_checkbox_section_c = 1 Then 
+
+            Call access_ADDR_panel("WRITE", notes_on_address, section_c_street_address, resi_line_two, resi_street_full, section_c_city, section_c_state, section_c_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_c_date_address_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+          ElseIf addr_update_checkbox_section_f = 1 Then
+
+            Call access_ADDR_panel("WRITE", notes_on_address, section_f_person_new_address_address, resi_line_two, resi_street_full, section_f_person_new_address_city, section_f_person_new_address_state, section_f_person_new_address_zip_code, county_of_residence, address_ver, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, section_f_person_new_address_date_changed, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          End If
+        End If
       End If
     End If
 
@@ -1743,16 +1860,22 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
       'Navigate to HH Memb
       Call write_value_and_transmit(left(hh_memb, 2), 20, 76)
+      EMReadScreen memb_mode_before, 1, 20, 8
       'Put panel into edit mode
       PF9
+      EMReadScreen memb_mode_after, 1, 20, 8
 
-      'Write date of death to panel
-      EmWriteScreen left(date_of_death_to_update, 2), 19, 42
-      EmWriteScreen mid(date_of_death_to_update, 3, 2), 19, 45
-      EmWriteScreen "20" & right(date_of_death_to_update, 2), 19, 48
+      If memb_mode_before = memb_mode_after Then
+        script_end_procedure_with_error_report("The script was unable to edit the MEMB panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+      Else
+        'Write date of death to panel
+        EmWriteScreen left(date_of_death_to_update, 2), 19, 42
+        EmWriteScreen mid(date_of_death_to_update, 3, 2), 19, 45
+        EmWriteScreen "20" & right(date_of_death_to_update, 2), 19, 48
 
-      'transmit to save DOD
-      transmit
+        'transmit to save DOD
+        transmit
+      End If
     End If
   End If
 
@@ -1770,10 +1893,14 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
   Else
     Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number)
   End If
-  If trim(section_a_street_address) = "" Then
+  If trim(section_a_street_address_1_1) = "" Then
     Call write_bullet_and_variable_in_case_note("Address", "Not provided")
   Else
-    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
+    If section_a_street_address_1_2 = "" Then 
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_1_1 & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_1_1 & ", " & section_a_street_address_1_2 & ", " & section_a_city & ", " & section_a_state & ", " & section_a_zip_code)
+    End If
   End If
   If trim(section_a_email_address) = "" Then 
     Call write_bullet_and_variable_in_case_note("Email address", "Not provided")
@@ -1786,7 +1913,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_2)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_2)
     Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_2)
-    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
+    If section_a_street_address_2_2 = "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2_1 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_2_1 & ", " & section_a_street_address_2_2 & ", " & section_a_city_2 & ", " & section_a_state_2 & ", " & section_a_zip_code_2)
+    End If
     Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_2)
   End If
   If section_a_assessor_3 <> "" Then
@@ -1794,7 +1925,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_a_assessor_3)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_a_lead_agency_3)
     Call write_bullet_and_variable_in_case_note("Phone number", section_a_phone_number_3)
-    Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
+    If section_a_street_address_3_2 = "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3_1 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_a_street_address_3_1 & ", " & section_a_street_address_3_2 & ", " & section_a_city_3 & ", " & section_a_state_3 & ", " & section_a_zip_code_3)
+    End If
     Call write_bullet_and_variable_in_case_note("Email address", section_a_email_address_3)
   End If
   'Person's information
@@ -1951,10 +2086,14 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
   Else
     Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number)
   End If
-  If trim(section_e_street_address) = "" Then
+  If trim(section_e_street_address_1_1) = "" Then
     Call write_bullet_and_variable_in_case_note("Address", "Not provided")
   Else
-    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
+    If section_e_street_address_1_2 = "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_1_1 & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_1_1 & ", " & section_e_street_address_1_2 & ", " & section_e_city & ", " & section_e_state & ", " & section_e_zip_code)
+    End If
   End If
   If trim(section_e_email_address) = "" Then 
     Call write_bullet_and_variable_in_case_note("Email address", "Not provided")
@@ -1967,7 +2106,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_2)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_2)
     Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_2)
-    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
+    If section_e_street_address_2_2 = "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2_1 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_2_1 & ", " & section_e_street_address_2_2 & ", " & section_e_city_2 & ", " & section_e_state_2 & ", " & section_e_zip_code_2)
+    End If
     Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_2)
   End If
   If section_e_assessor_3 <> "" Then
@@ -1975,7 +2118,11 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
     Call write_bullet_and_variable_in_case_note("Assessor", section_e_assessor_3)
     Call write_bullet_and_variable_in_case_note("Lead agency", section_e_lead_agency_3)
     Call write_bullet_and_variable_in_case_note("Phone number", section_e_phone_number_3)
-    Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
+    If section_e_street_address_3_2 = "" Then
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3_1 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
+    Else
+      Call write_bullet_and_variable_in_case_note("Address", section_e_street_address_3_1 & ", " & section_e_street_address_3_2 & ", " & section_e_city_3 & ", " & section_e_state_3 & ", " & section_e_zip_code_3)
+    End If
     Call write_bullet_and_variable_in_case_note("Email address", section_e_email_address_3)
   End If
 
@@ -2168,6 +2315,8 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
           OS_assessor = replace(OS_assessor, "_", "")
           EMReadScreen OS_swkr_street_address_1, 22, 8, 32
           OS_swkr_street_address_1 = replace(OS_swkr_street_address_1, "_", "")
+          EMReadScreen OS_swkr_street_address_2, 22, 9, 32
+          OS_swkr_street_address_2 = replace(OS_swkr_street_address_2, "_", "")
           EMReadScreen OS_swkr_city, 15, 10, 32
           OS_swkr_city = replace(OS_swkr_city, "_", "")
           EMReadScreen OS_phone_number, 14, 12, 34
@@ -2202,7 +2351,7 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     'Ensure the specifically selected assessor (SWKR) will update the panel
     swkr_panel_name = trim(OS_assessor)
     swkr_panel_street_line_1 = trim(OS_swkr_street_address_1)
-    If trim(OS_swkr_street_address_2) <> "" Then swkr_panel_street_line_2 = OS_swkr_street_address_2
+    swkr_panel_street_line_2 = trim(OS_swkr_street_address_2)
     swkr_panel_city = trim(OS_swkr_city)
     swkr_panel_state = trim(OS_swkr_state)
     swkr_panel_zip = trim(OS_swkr_zip_code)
@@ -2224,70 +2373,70 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     'Check if SWKR panel exists
     EmReadScreen swkr_does_not_exist, 19, 24, 2
     If swkr_does_not_exist = "SWKR DOES NOT EXIST" Then
+      'Check mode before updates
+      EMReadScreen swkr_mode_before, 1, 20, 8
       'Add new panel
       Call write_value_and_transmit("NN", 20, 79)
-      'Write details to panel
-      EMWriteScreen swkr_panel_name, 6, 32
-      EMWriteScreen swkr_panel_street_line_1, 8, 32
-      If trim(swkr_panel_street_line_2) <> "" Then EMWriteScreen swkr_panel_street_line_2, 9, 32
-      EMWriteScreen swkr_panel_city, 10, 32
-      EMWriteScreen swkr_panel_state, 10, 54
-      EMWriteScreen swkr_panel_zip, 10, 63
-      If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
-      EMWriteScreen left(swkr_panel_phone, 3), 12, 34
-      EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
-      EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+      'Look at code to make sure panel is in edit mode
+      EMReadScreen swkr_mode_after, 1, 20, 8
+      If swkr_mode_after = swkr_mode_before Then
+        script_end_procedure_with_error_report("The script was unable to edit the SWKR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+      Else
+        'Write details to panel
+        EMWriteScreen swkr_panel_name, 6, 32
+        EMWriteScreen swkr_panel_street_line_1, 8, 32
+        EMWriteScreen swkr_panel_street_line_2, 9, 32
+        EMWriteScreen swkr_panel_city, 10, 32
+        EMWriteScreen swkr_panel_state, 10, 54
+        EMWriteScreen swkr_panel_zip, 10, 63
+        If trim(swkr_panel_phone_ext) <> "" Then EMWriteScreen swkr_panel_phone_ext, 12, 54
+        EMWriteScreen left(swkr_panel_phone, 3), 12, 34
+        EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
+        EMWriteScreen right(swkr_panel_phone, 4), 12, 44
 
-      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
 
-      'Transmit to save 
-      transmit
-  
+        'Transmit to save 
+        transmit
+      End If
     Else
+      EMReadScreen swkr_mode_before, 1, 20, 8
       'Put panel into edit mode
       PF9
-      'Write to panel
-      If trim(swkr_panel_name) <> "" Then
+      EMReadScreen swkr_mode_after, 1, 20, 8
+
+      If swkr_mode_after <> swkr_mode_before Then
+        'Write to panel
         EMWriteScreen "___________________________________", 6, 32
         EMWriteScreen swkr_panel_name, 6, 32
-      End If
-      If trim(swkr_panel_street_line_1) <> "" Then
         EMWriteScreen "______________________", 8, 32
         EMWriteScreen swkr_panel_street_line_1, 8, 32
-      End If
-      If trim(swkr_panel_street_line_2) <> "" Then
         EMWriteScreen "______________________", 9, 32
         EMWriteScreen swkr_panel_street_line_2, 9, 32
-      End If
-      If trim(swkr_panel_city) <> "" Then 
         EMWriteScreen "_______________", 10, 32
         EMWriteScreen swkr_panel_city, 10, 32
-      End If
-      If trim(swkr_panel_state) <> "" Then
         EMWriteScreen "__", 10, 54
         EMWriteScreen swkr_panel_state, 10, 54
-      End If
-      If trim(swkr_panel_zip) <> "" Then
         EMWriteScreen "_____", 10, 63
         EMWriteScreen swkr_panel_zip, 10, 63
-      End If
-      If trim(swkr_panel_phone) <> "" Then
         EMWriteScreen "___", 12, 34
         EMWriteScreen "___", 12, 40
         EMWriteScreen "____", 12, 44
         EMWriteScreen left(swkr_panel_phone, 3), 12, 34
         EMWriteScreen Mid(swkr_panel_phone, 4, 3), 12, 40
         EMWriteScreen right(swkr_panel_phone, 4), 12, 44
+        If trim(swkr_panel_phone_ext) <> "" Then
+          EMWriteScreen "____", 12, 54
+          EMWriteScreen swkr_panel_phone_ext, 12, 54
+        End If
+        If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
+        If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
+        'Transmit to save 
+        transmit
+      Else
+        script_end_procedure_with_error_report("The script was unable to edit the SWKR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
       End If
-      If trim(swkr_panel_phone_ext) <> "" Then
-        EMWriteScreen "____", 12, 54
-        EMWriteScreen swkr_panel_phone_ext, 12, 54
-      End If
-      If OS_swkr_notices_dropdown = "Yes" Then EMWriteScreen "Y", 15, 63
-      If OS_swkr_notices_dropdown = "No" Then EMWriteScreen "N", 15, 63
-      'Transmit to save 
-      transmit
     End If
   End If
 
@@ -2306,9 +2455,40 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     'Navigate to STAT/ADDR
     Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
-    'Write information to panel depending on which address selected
-    Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    'Check if ADDR panel exists, not sure there could ever NOT be an ADDR panel but checking just in case
+    EMReadScreen addr_panel_count, 1, 2, 73
+    If addr_panel_count = "0" OR addr_panel_count = 0 Then
+      'Test if possible to edit the panel
+      EMReadScreen addr_mode_before, 1, 20, 8
+      Call write_value_and_transmit("NN", 20, 79)
+      EMReadScreen addr_mode_after, 1, 20, 8
 
+      If addr_mode_before = addr_mode_after Then
+        script_end_procedure_with_error_report("The script was unable to edit the ADDR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+      Else
+        'Clear editing
+        PF10
+
+        'Write information to panel depending on which address selected
+        Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+      End If
+    Else
+      'Test if possible to edit the panel
+      EMReadScreen addr_mode_before, 1, 20, 8
+      'Put panel in edit mode
+      PF9
+      EMReadScreen addr_mode_after, 1, 20, 8
+
+      If addr_mode_before = addr_mode_after Then
+        script_end_procedure_with_error_report("The script was unable to edit the ADDR panel. Please review the error information at the bottom of the MAXIS screen. Resolve the errors and rerun the script.")
+      Else
+        'Back out of edit mode
+        PF10
+
+        'Write information to panel depending on which address selected
+        Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+      End If
+    End If
   End If
 
   'CASE/NOTE information
