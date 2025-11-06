@@ -73,6 +73,7 @@ Const sheet_name_const      = 02
 Const case_count_const      = 03
 Const mx_name_const         = 04
 Const mx_id_const           = 05
+Const secondary_pm          = 06
 
 Const pm_end_const             = 10
 
@@ -82,6 +83,7 @@ ReDim PM_ARRAY(pm_end_const, 0)
 pm_counter = 0
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Doryan Clifton"
+PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
 PM_ARRAY(email_const, pm_counter)           = "Doryan.Clifton@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "D Clifton"
 PM_ARRAY(mx_name_const, pm_counter)         = "CLIFTON,DORYAN C."
@@ -91,6 +93,7 @@ pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Tammy Coenen"
+PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
 PM_ARRAY(email_const, pm_counter)           = "Tammy.Coenen@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "T Coenen"
 PM_ARRAY(mx_name_const, pm_counter)         = "COENEN,TAMMY L."
@@ -98,17 +101,20 @@ PM_ARRAY(mx_id_const, pm_counter)           = "X127AY1"
 PM_ARRAY(case_count_const, pm_counter)      = 0
 pm_counter = pm_counter + 1
 
-ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
-PM_ARRAY(name_const, pm_counter)            = "Brianna Fleeman Schneider"
-PM_ARRAY(email_const, pm_counter)           = "Brianna.FleemanSchneider@hennepin.us"
-PM_ARRAY(sheet_name_const, pm_counter)      = "B Fleeman Schneider"
-PM_ARRAY(mx_name_const, pm_counter)         = "FLEEMAN SCHNEIDER,BRIANNA J."
-PM_ARRAY(mx_id_const, pm_counter)           = "X1275K4"
-PM_ARRAY(case_count_const, pm_counter)      = 0
-pm_counter = pm_counter + 1
+'THIS PROGRAM MANAGER IS REMOVED BECAUSE INTERVIEW PROCESSING IS NOT ASSIGNED TO THEM DIRECTLY - Cases will be listed on UNKNOWN
+' ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
+' PM_ARRAY(name_const, pm_counter)            = "Brianna Fleeman Schneider"
+' PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
+' PM_ARRAY(email_const, pm_counter)           = "Brianna.FleemanSchneider@hennepin.us"
+' PM_ARRAY(sheet_name_const, pm_counter)      = "B Fleeman Schneider"
+' PM_ARRAY(mx_name_const, pm_counter)         = "FLEEMAN SCHNEIDER,BRIANNA J."
+' PM_ARRAY(mx_id_const, pm_counter)           = "X1275K4"
+' PM_ARRAY(case_count_const, pm_counter)      = 0
+' pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Twanda Garrett"
+PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
 PM_ARRAY(email_const, pm_counter)           = "Twanda.Garrett@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "T Garrett"
 PM_ARRAY(mx_name_const, pm_counter)         = "GARRETT,TWANDA T."
@@ -118,6 +124,7 @@ pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Lisa Groves"
+PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
 PM_ARRAY(email_const, pm_counter)           = "Lisa.Groves@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "L Groves"
 PM_ARRAY(mx_name_const, pm_counter)         = "GROVES,LISA K."
@@ -127,6 +134,7 @@ pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Monique Moore"
+PM_ARRAY(secondary_pm, pm_counter)          = "Tenzing Yarphel"
 PM_ARRAY(email_const, pm_counter)           = "Monique.Moore@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "M Moore"
 PM_ARRAY(mx_name_const, pm_counter)         = "MOORE,MONIQUE L."
@@ -136,6 +144,7 @@ pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Ann Noeker"
+PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
 PM_ARRAY(email_const, pm_counter)           = "Ann.Noeker@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "A Noeker"
 PM_ARRAY(mx_name_const, pm_counter)         = "NOEKER,ANN M."
@@ -143,14 +152,16 @@ PM_ARRAY(mx_id_const, pm_counter)           = "X127C1K"
 PM_ARRAY(case_count_const, pm_counter)      = 0
 pm_counter = pm_counter + 1
 
-ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
-PM_ARRAY(name_const, pm_counter)            = "Jackie Poidinger"
-PM_ARRAY(email_const, pm_counter)           = "Jackie.Poidinger@hennepin.us"
-PM_ARRAY(sheet_name_const, pm_counter)      = "J Poidinger"
-PM_ARRAY(mx_name_const, pm_counter)         = "POIDINGER,JACKIE A."
-PM_ARRAY(mx_id_const, pm_counter)           = "X127R61"
-PM_ARRAY(case_count_const, pm_counter)      = 0
-pm_counter = pm_counter + 1
+'THIS PROGRAM MANAGER IS REMOVED BECAUSE INTERVIEW PROCESSING IS NOT ASSIGNED TO THEM DIRECTLY - Cases will be listed on UNKNOWN
+' ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
+' PM_ARRAY(name_const, pm_counter)            = "Jackie Poidinger"
+' PM_ARRAY(secondary_pm, pm_counter)          = "NONE"
+' PM_ARRAY(email_const, pm_counter)           = "Jackie.Poidinger@hennepin.us"
+' PM_ARRAY(sheet_name_const, pm_counter)      = "J Poidinger"
+' PM_ARRAY(mx_name_const, pm_counter)         = "POIDINGER,JACKIE A."
+' PM_ARRAY(mx_id_const, pm_counter)           = "X127R61"
+' PM_ARRAY(case_count_const, pm_counter)      = 0
+' pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "Faughn Ramisch-Church"
@@ -161,18 +172,19 @@ PM_ARRAY(mx_id_const, pm_counter)           = "X127Z84"
 PM_ARRAY(case_count_const, pm_counter)      = 0
 pm_counter = pm_counter + 1
 
-ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
-PM_ARRAY(name_const, pm_counter)            = "Tenzing Yarphel"
-PM_ARRAY(email_const, pm_counter)           = "Tenzing.Yarphel@hennepin.us"
-PM_ARRAY(sheet_name_const, pm_counter)      = "T Yarphel"
-PM_ARRAY(mx_name_const, pm_counter)         = "YARPHEL,TENZING N."
-PM_ARRAY(mx_id_const, pm_counter)           = "X127Y97"
-PM_ARRAY(case_count_const, pm_counter)      = 0
-pm_counter = pm_counter + 1
+'THIS PROGRAM MANAGER IS REMOVED BECAUSE INTERVIEW PROCESSING IS NOT ASSIGNED TO THEM DIRECTLY - Cases are assigned by Monique Moore
+' ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
+' PM_ARRAY(name_const, pm_counter)            = "Tenzing Yarphel"
+' PM_ARRAY(email_const, pm_counter)           = "Tenzing.Yarphel@hennepin.us"
+' PM_ARRAY(sheet_name_const, pm_counter)      = "T Yarphel"
+' PM_ARRAY(mx_name_const, pm_counter)         = "YARPHEL,TENZING N."
+' PM_ARRAY(mx_id_const, pm_counter)           = "X127Y97"
+' PM_ARRAY(case_count_const, pm_counter)      = 0
+' pm_counter = pm_counter + 1
 
 ReDim Preserve PM_ARRAY(pm_end_const, pm_counter)
 PM_ARRAY(name_const, pm_counter)            = "UNKNOWN"
-PM_ARRAY(email_const, pm_counter)           = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+PM_ARRAY(email_const, pm_counter)           = "HSPH.EWS.BlueZoneScripts@hennepin.us; HSPH.EWS.Unit.Coenen@hennepin.us"
 PM_ARRAY(sheet_name_const, pm_counter)      = "UNKNOWN"
 PM_ARRAY(mx_name_const, pm_counter)         = "UNKNOWN"
 PM_ARRAY(mx_id_const, pm_counter)           = ""
@@ -617,13 +629,25 @@ end_message = end_message & vbCr & "Cases found with an interview completed that
 
 For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
     MX_Program_Manager = CASES_TO_ASSIGN_ARRAY(pm_const, cow)
+    PM_Found = False
     For duck = 0 to Ubound(PM_ARRAY, 2)
-        If MX_Program_Manager = PM_ARRAY(name_const, duck) Then
+        If MX_Program_Manager = PM_ARRAY(name_const, duck) or MX_Program_Manager = PM_ARRAY(secondary_pm, duck) Then
             CASES_TO_ASSIGN_ARRAY(pm_index_const, cow) = duck
             PM_ARRAY(case_count_const, duck) = PM_ARRAY(case_count_const, duck) + 1
+            PM_Found = True
             Exit For
         End If
     Next
+    If PM_Found = False Then
+        'assign to UNKNOWN PM
+        For duck = 0 to Ubound(PM_ARRAY, 2)
+            If PM_ARRAY(name_const, duck) = "UNKNOWN" Then
+                CASES_TO_ASSIGN_ARRAY(pm_index_const, cow) = duck
+                PM_ARRAY(case_count_const, duck) = PM_ARRAY(case_count_const, duck) + 1
+                Exit For
+            End If
+        Next
+    End If
 Next
 
 'Here is the worklist creation section
@@ -775,6 +799,7 @@ For cow = 0 to Ubound(CASES_TO_ASSIGN_ARRAY, 2)
 		ObjExcel.Cells(excel_row, basket_col).Value 	= CASES_TO_ASSIGN_ARRAY(x_numb_const, cow)
 		ObjExcel.Cells(excel_row, case_numb_col).Value 	= CASES_TO_ASSIGN_ARRAY(case_numb_const, cow)
 		ObjExcel.Cells(excel_row, population_col).Value = CASES_TO_ASSIGN_ARRAY(population_const, cow)
+        ObjExcel.Cells(excel_row, prog_mngr_col).Value  = CASES_TO_ASSIGN_ARRAY(pm_const, cow)
 		ObjExcel.Cells(excel_row, intvw_date_col).Value = CASES_TO_ASSIGN_ARRAY(intvw_date_const, cow)
 		ObjExcel.Cells(excel_row, exp_det_col).Value = "?"
 	End If
@@ -850,12 +875,14 @@ email_body = email_body & "<br>" & "Case Count Overview:" & "<br>"
 email_body = email_body & "Total Cases added to Worklist: " & case_count & "<br><br>"
 email_body = email_body & "Count by Program Manager:<br>"
 
+running_count = 0
 For duck = 0 to UBound(PM_ARRAY, 2)
     email_recip = email_recip & PM_ARRAY(email_const, duck) & "; "
     email_body = email_body & PM_ARRAY(name_const, duck) & ": " & PM_ARRAY(case_count_const, duck) & " case"
     end_message = end_message & vbCr & PM_ARRAY(name_const, duck) & ": " & PM_ARRAY(case_count_const, duck) & " cases"
     If PM_ARRAY(case_count_const, duck) <> 1 Then email_body = email_body & "s"
     email_body = email_body & "<br>"
+    running_count = running_count + PM_ARRAY(case_count_const, duck)
 Next
 email_body = email_body & "<br>" & "<b>Please assign cases on worklist.</b>"
 send_email = False          'SET TO FALSE FOR TESTING PURPOSES
@@ -865,6 +892,11 @@ email_recip_CC = "HSPH.EWS.BlueZoneScripts@hennepin.us"         'TESTING ONLY - 
 
 'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
 Call create_outlook_email(email_from, email_recip, email_recip_CC, "", 			    email_subject, 1, 				 False, 	   email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				      email_attachment_array, send_email)
+
+case_diff = case_count - running_count
+If case_diff <> 0 Then
+    Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "LD Interview Worklist CASE COUNT MISMATCH", 1, False, "", "", False, "", "Case count mismatch detected. Cases counted in worklist: " & running_count & ". Cases expected: " & case_count & ". Difference: " & case_diff & "." & vbCr & "AUTOMATED EMAIL", False, "", True)
+End If
 
 end_message = end_message & vbCr & vbCr & "Excel created to save the information of the interviews created today." & vbCr
 
