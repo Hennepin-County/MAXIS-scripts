@@ -303,8 +303,19 @@ function check_for_errors(interview_questions_clear)
             HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
             If HH_MEMB_ARRAY(requires_update, the_memb) Then pers_err = pers_err & "~!~" & "3 ^* Information Needed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ":"
             If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then pers_err = pers_err & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
-            If (HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank OR SSN Verification indicates not provided."
-    		If HH_MEMB_ARRAY(citizen, the_memb) = "No" and (HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked or the_memb = 0) Then
+
+            If HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
+                If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
+                    If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
+                        pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank and should be requested now."
+                    End If
+                End If
+                If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                    pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN Verification indicates not provided and should be requested now."
+                End If
+            End If
+
+            If HH_MEMB_ARRAY(citizen, the_memb) = "No" and (HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked or the_memb = 0) Then
                 If HH_MEMB_ARRAY(imig_status, the_memb) = "" Then pers_err = pers_err & "~!~" & "3 ^* IMIG Status##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, discuss and record immigration status details."
                 If HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" or HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "?" Then pers_err = pers_err & "~!~" & "3 ^* Sponsor?##~##   - " & HH_MEMB_ARRAY(full_name_const, the_memb) & " is a non-citizen, you need to ask and record if this resident has a sponsor."
             End If
@@ -681,27 +692,31 @@ function define_main_dialog()
                     progs = replace(trim(progs), " ", " - ")
                     If progs = "" Then progs = " (none)"
 
-                    MEMB_requires_update = False
+                    ' MEMB_requires_update = False
                     member_info_string = ""
                     If HH_MEMB_ARRAY(rel_to_applcnt, the_membs) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_membs) = "__" or HH_MEMB_ARRAY(id_verif, the_membs) = "NO - No Ver Prvd") Then
-                        MEMB_requires_update = True
+                        ' MEMB_requires_update = True
                         member_info_string = member_info_string & "ID Missing; "
                     End If
                     If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
-                    If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - SSN Not Provided" and trim(progs) <> "(none)" Then
-                        MEMB_requires_update = True
-                        member_info_string = member_info_string & "SSN Missing; "
+                    If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
+                        If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
+                            member_info_string = member_info_string & "SSN Missing; "
+                        End If
+                    End If
+                    If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                        member_info_string = member_info_string & "SSN Not Provided; "
                     End If
                     If HH_MEMB_ARRAY(citizen, the_membs) = "No" and trim(progs) <> "(none)" Then
                         member_info_string = member_info_string & "*** Non-Citizen ***; "
                         If trim(HH_MEMB_ARRAY(imig_status, the_membs)) = "" Then
-                            MEMB_requires_update = True
+                            ' MEMB_requires_update = True
                             member_info_string = member_info_string & "Imig Status Missing; "
                         Else
                             member_info_string = member_info_string & "Imig Status: " & HH_MEMB_ARRAY(imig_status, the_membs) & "; "
                         End If
                         If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
-                            MEMB_requires_update = True
+                            ' MEMB_requires_update = True
                             member_info_string = member_info_string & "Sponsor Info Missing; "
                         End If
                     End If
@@ -719,7 +734,7 @@ function define_main_dialog()
                     End If
                     If HH_MEMB_ARRAY(alias_yn, the_membs) = "Yes" Then member_info_string = member_info_string & "Alias Exists; "
 
-                    If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then MEMB_requires_update = False
+                    ' If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then MEMB_requires_update = False
                     If HH_MEMB_ARRAY(requires_update, the_membs) Then member_info_string = "*** UPDATE! - " & member_info_string
 
                     member_info_string = trim(member_info_string)
@@ -878,14 +893,15 @@ function define_main_dialog()
                     Text 25, y_pos, 400, 10, " - NO ID Verification for MEMBER 01."
                     y_pos = y_pos + 10
                 End If
-                If (HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "") and HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(none_req_checkbox, selected_memb) = unchecked Then
-                    Text 25, y_pos, 400, 10, " - SSN "
+                If (trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN") or HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                    Text 25, y_pos, 400, 10, " - SSN Information Missing"
                     y_pos = y_pos + 10
                 End If
                 If HH_MEMB_ARRAY(citizen, selected_memb) = "No" Then
                     Text 25, y_pos, 400, 10, " - NON-CITIZEN: Immigrations Status and Sponsor Info Needed."
                     y_pos = y_pos + 10
                 End If
+                If y_pos <> 340 Then Text 20, 330, 100, 10, "MEMBER Notes:"
 			End If
 
 		ElseIf page_display = show_qual Then
@@ -4458,9 +4474,17 @@ function review_information()
         If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_memb) = "__" or HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_memb) = True
         End If
-        If (HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
-            HH_MEMB_ARRAY(requires_update, the_memb) = True
+
+        ssn_info_valid = True
+        If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
+            ssn_info_valid = False
+            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
         End If
+        If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then ssn_info_valid = False
+        If HH_MEMB_ARRAY(none_req_checkbox, the_memb) = checked Then ssn_info_valid = True
+        If ssn_info_valid = False Then HH_MEMB_ARRAY(requires_update, the_memb) = True
+
         If HH_MEMB_ARRAY(citizen, the_memb) = "No" and HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
             If trim(HH_MEMB_ARRAY(imig_status, the_memb)) = "" Then
                 HH_MEMB_ARRAY(requires_update, the_memb) = True
@@ -7193,6 +7217,7 @@ ssn_verif_list = ""
 ssn_verif_list = ssn_verif_list+chr(9)+"A - SSN Applied For"
 ssn_verif_list = ssn_verif_list+chr(9)+"P - SSN Provided, verif Pending"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
+ssn_verif_list = ssn_verif_list+chr(9)+"N - Member Does Not Have SSN"
 ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
@@ -8451,9 +8476,17 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
         If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_members) = "__" or HH_MEMB_ARRAY(id_verif, the_members) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_members) = True
         End If
-        If (HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" or trim(HH_MEMB_ARRAY(ssn, the_memb)) = "") and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
-            HH_MEMB_ARRAY(requires_update, the_members) = True
+
+        ssn_info_valid = True
+        If trim(HH_MEMB_ARRAY(ssn, the_members)) = "" Then
+            ssn_info_valid = False
+            If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN Applied For" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
         End If
+        If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then ssn_info_valid = False
+        If HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then ssn_info_valid = True
+        If ssn_info_valid = False Then HH_MEMB_ARRAY(requires_update, the_members) = True
+
         If HH_MEMB_ARRAY(citizen, the_members) = "No" and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
             If trim(HH_MEMB_ARRAY(imig_status, the_members)) = "" Then
                 HH_MEMB_ARRAY(requires_update, the_members) = True
@@ -10509,14 +10542,14 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
                 EMWaitReady 0, 0
             End If
 
-            count = 0
+            attempt_count = 0
             EMReadScreen match_check, 4, 2, 51
             Do While match_check = "MTCH"
                 PF3
                 EMWaitReady 0, 0
                 EMReadScreen match_check, 4, 2, 51
-                count = count + 1
-                If count > 9 Then Exit Do
+                attempt_count = attempt_count + 1
+                If attempt_count > 9 Then Exit Do
             Loop
 
             EMReadScreen new_ssn, 11, 7, 42
