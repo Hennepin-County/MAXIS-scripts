@@ -870,7 +870,7 @@ email_subject = "Worklist Created - Interview Team Cases from " & list_of_dates
 email_body = "The Interview Team Cases Worklist for interviews completed on " & list_of_dates & " has been created." & "<br>"
 email_body = email_body & "The Worklist Excel File is here: "
 email_body = email_body & "<a href=" & chr(34) & pm_worklist_file_name & chr(34) & ">Interview Worklist by PM for " & list_of_dates & "</a><br>"
-email_body = email_body & "Please note that this file is only editable by one person at a time, so leaving it open will limit others’ access.<br><br>"
+email_body = email_body & "Please note that this file is only editable by one person at a time, so leaving it open will limit others' access.<br><br>"
 email_body = email_body & "<br>" & "Case Count Overview:" & "<br>"
 email_body = email_body & "Total Cases added to Worklist: " & case_count & "<br><br>"
 email_body = email_body & "Count by Program Manager:<br>"
