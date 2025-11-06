@@ -304,13 +304,13 @@ function check_for_errors(interview_questions_clear)
             If HH_MEMB_ARRAY(requires_update, the_memb) Then pers_err = pers_err & "~!~" & "3 ^* Information Needed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ":"
             If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then pers_err = pers_err & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
 
-            If HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
+            If HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
                 If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
                     If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
                         pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank and should be requested now."
                     End If
                 End If
-                If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
                     pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN Verification indicates not provided and should be requested now."
                 End If
             End If
@@ -704,7 +704,7 @@ function define_main_dialog()
                             member_info_string = member_info_string & "SSN Missing; "
                         End If
                     End If
-                    If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                    If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
                         member_info_string = member_info_string & "SSN Not Provided; "
                     End If
                     If HH_MEMB_ARRAY(citizen, the_membs) = "No" and trim(progs) <> "(none)" Then
@@ -893,7 +893,7 @@ function define_main_dialog()
                     Text 25, y_pos, 400, 10, " - NO ID Verification for MEMBER 01."
                     y_pos = y_pos + 10
                 End If
-                If (trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN") or HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then
+                If (trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN") or HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
                     Text 25, y_pos, 400, 10, " - SSN Information Missing"
                     y_pos = y_pos + 10
                 End If
