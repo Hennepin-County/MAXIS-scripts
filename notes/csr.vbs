@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/10/2025", "Improved background script functionality, streamlined dialog options, added signature details to final dialog, and removed unneeded dialog fields.", "Mark Riegel, Hennepin County")
 call changelog_update("09/23/2025", "Returned the Health Care Programs option for CSR Processing.##~##(It had previously been removed during the PHE.)", "Casey Love, Hennepin County")
 call changelog_update("07/11/2025", "Added MFIP and GA to CSR Program Selection to support new CSR processing on these programs.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2022", "Removed Paperless IR and Health Care Programs selections during Public Health Emergency.", "Ilse Ferris, Hennepin County") '#863
