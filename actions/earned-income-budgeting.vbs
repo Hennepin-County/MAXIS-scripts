@@ -2469,6 +2469,7 @@ class jobs_income
         checks_exist = False
 		For all_checks = 0 to UBound(pay_date)
 			check_info_entered(all_checks) = False
+            MsgBox "CHECK:" & vbCr & vbCr & "Pay Date: " & pay_date(all_checks) & vbCr & "Gross Amount: " & gross_amount(all_checks) & vbCr & "Hours: " & hours(all_checks) & vbCr & "Order - " & check_order(all_checks)
 			If pay_date(all_checks) <> "" Then
 				checks_exist = True
 				check_info_entered(all_checks) = True
@@ -2754,9 +2755,11 @@ class jobs_income
 
 		actual_checks_provided = FALSE      'defaults for some logic coming up
 		there_are_counted_checks = FALSE
+        MsgBox "UBound(pay_date) - " & UBound(pay_date)
 		For all_checks = 0 to UBound(pay_date)
 			If pay_date(all_checks) = "" Then check_info_entered(all_checks) = False
 			If check_info_entered(all_checks) Then
+                MsgBox "all_checks - " & all_checks & vbCr & "gross_amount - " & gross_amount(all_checks)
 				actual_checks_provided = TRUE
 				total_check_count = total_check_count + 1
 				total_gross_amount = total_gross_amount + gross_amount(all_checks)
@@ -5425,6 +5428,30 @@ End If
 
 vars_filled = FALSE
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
+
+If vars_filled Then
+    For each_job = 0 to UBound(JOBS_PANELS)
+        For all_checks = 0 to UBound(JOBS_PANELS(each_job).pay_date)
+            necessary_info_valid = True
+            If NOT IsDate(JOBS_PANELS(each_job).pay_date(all_checks)) Then necessary_info_valid = False
+            If NOT IsNumeric(JOBS_PANELS(each_job).gross_amount(all_checks)) Then necessary_info_valid = False
+            If NOT IsNumeric(JOBS_PANELS(each_job).hours(all_checks)) Then necessary_info_valid = False
+            If NOT necessary_info_valid Then
+                Call JOBS_PANELS(each_job).check_details_dialog(True, all_checks, ButtonPressed)
+                If ButtonPressed = save_details_btn Then
+                    JOBS_PANELS(each_job).check_info_entered(all_checks) = True
+                End If
+                If ButtonPressed = delete_check_btn Then
+                    Call JOBS_PANELS(each_job).delete_one_check(all_checks)
+                End If
+
+                ' MsgBox "It appears that the information saved for this case from a previous run of this script is not valid. Please review the information and update as needed."
+            End If
+        Next
+		Call JOBS_PANELS(each_job).evaluate_checks
+		If JOBS_PANELS(each_job).checks_exist Then Call JOBS_PANELS(each_job).order_checks
+    Next
+End If
 
 If vars_filled = False Then
 
