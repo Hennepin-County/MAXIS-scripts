@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/10/2025", "Updated handling for reading the EATS panel to determine groups correctly.", "Mark Riegel, Hennepin County")
 call changelog_update("07/25/2025", "Update the determination of Eligibility Review to have more accuracy in determining the difference between an SR and ER. This script is not intended for use to process Six-Month Reviews and is built to attempt to ignore these types of REVW processes. This determination can be challenging and any cases that do not function properly should be reported.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/16/2025", "Display of unearned income and job information updated in line with the changes to these panels in allowing the inclusion of information from the CASH PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "UPDATE to Date of Application handling to allow for noting of programs no longer pending. It is strongly advised to RUN THE CAF SCRIPT PRIOR TO APPROVAL but occasionally it is necessary to use the CAF after an approval.##~##", "Casey Love, Hennepin County")
