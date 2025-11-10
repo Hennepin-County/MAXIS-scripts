@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/10/2025", "Updated handling for reading the EATS panel to determine groups correctly.", "Mark Riegel, Hennepin County")
 call changelog_update("07/25/2025", "Update the determination of Eligibility Review to have more accuracy in determining the difference between an SR and ER. This script is not intended for use to process Six-Month Reviews and is built to attempt to ignore these types of REVW processes. This determination can be challenging and any cases that do not function properly should be reported.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/16/2025", "Display of unearned income and job information updated in line with the changes to these panels in allowing the inclusion of information from the CASH PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/01/2025", "UPDATE to Date of Application handling to allow for noting of programs no longer pending. It is strongly advised to RUN THE CAF SCRIPT PRIOR TO APPROVAL but occasionally it is necessary to use the CAF after an approval.##~##", "Casey Love, Hennepin County")
@@ -3509,22 +3510,22 @@ function read_EATS_panel()
             EATS = EATS & "Eating group " & group_one_no & " with memb(s) " & group_one
         End If
         If group_two <> "" Then
-            EMReadScreen group_two_no, 2, 13, 28
+            EMReadScreen group_two_no, 2, 14, 28
             group_two = replace(group_two, "  ", ", ")
             EATS = EATS & "; Eating group " & group_two_no & " with memb(s) " & group_two
         End If
         If group_three <> "" Then
-            EMReadScreen group_three_no, 2, 13, 28
+            EMReadScreen group_three_no, 2, 15, 28
             group_three = replace(group_three, "  ", ", ")
             EATS = EATS & "; Eating group " & group_three_no & " with memb(s) " & group_three
         End If
         If group_four <> "" Then
-            EMReadScreen group_four_no, 2, 13, 28
+            EMReadScreen group_four_no, 2, 16, 28
             group_four = replace(group_four, "  ", ", ")
             EATS = EATS & "; Eating group " & group_four_no & " with memb(s) " & group_four
         End If
         If group_five <> "" Then
-            EMReadScreen group_five_no, 2, 13, 28
+            EMReadScreen group_five_no, 2, 17, 28
             group_five = replace(group_five, "  ", ", ")
             EATS = EATS & "; Eating group " & group_five_no & " with memb(s) " & group_five
         End If
