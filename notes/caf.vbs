@@ -3509,22 +3509,22 @@ function read_EATS_panel()
             EATS = EATS & "Eating group " & group_one_no & " with memb(s) " & group_one
         End If
         If group_two <> "" Then
-            EMReadScreen group_two_no, 2, 13, 28
+            EMReadScreen group_two_no, 2, 14, 28
             group_two = replace(group_two, "  ", ", ")
             EATS = EATS & "; Eating group " & group_two_no & " with memb(s) " & group_two
         End If
         If group_three <> "" Then
-            EMReadScreen group_three_no, 2, 13, 28
+            EMReadScreen group_three_no, 2, 15, 28
             group_three = replace(group_three, "  ", ", ")
             EATS = EATS & "; Eating group " & group_three_no & " with memb(s) " & group_three
         End If
         If group_four <> "" Then
-            EMReadScreen group_four_no, 2, 13, 28
+            EMReadScreen group_four_no, 2, 16, 28
             group_four = replace(group_four, "  ", ", ")
             EATS = EATS & "; Eating group " & group_four_no & " with memb(s) " & group_four
         End If
         If group_five <> "" Then
-            EMReadScreen group_five_no, 2, 13, 28
+            EMReadScreen group_five_no, 2, 17, 28
             group_five = replace(group_five, "  ", ", ")
             EATS = EATS & "; Eating group " & group_five_no & " with memb(s) " & group_five
         End If
