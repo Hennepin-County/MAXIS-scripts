@@ -539,46 +539,46 @@ End if
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------05/26/2022
-'--Tab orders reviewed & confirmed----------------------------------------------05/26/2022
-'--Mandatory fields all present & Reviewed--------------------------------------05/26/2022
-'--All variables in dialog match mandatory fields-------------------------------05/26/2022
-'Review dialog names for content and content fit in dialog----------------------07/11/2025
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/10/2025
+'--Tab orders reviewed & confirmed----------------------------------------------11/10/2025
+'--Mandatory fields all present & Reviewed--------------------------------------11/10/2025
+'--All variables in dialog match mandatory fields-------------------------------11/10/2025
+'Review dialog names for content and content fit in dialog----------------------11/10/2025
 '--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
-'--Include script category and name somewhere on first dialog-------------------07/11/2025
-'--Create a button to reference instructions------------------------------------07/11/2025
+'--Include script category and name somewhere on first dialog-------------------11/10/2025
+'--Create a button to reference instructions------------------------------------11/10/2025
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/11/2025
-'--CASE:NOTE Header doesn't look funky------------------------------------------05/26/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/26/2022
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------07/11/2025
+'--All variables are CASE:NOTEing (if required)---------------------------------11/10/2025
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/10/2025
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/10/2025
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----11/10/2025
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/26/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------05/26/2022
-'--PRIV Case handling reviewed -------------------------------------------------05/26/2022
-'--Out-of-County handling reviewed----------------------------------------------05/26/2022------------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------05/26/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------05/26/2022------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/26/2022------------------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/10/2025
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/10/2025
+'--PRIV Case handling reviewed -------------------------------------------------11/10/2025
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/10/2025
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---N/A
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------05/26/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------05/26/2022
-'--Denomination reviewed -------------------------------------------------------05/26/2022
-'--Script name reviewed---------------------------------------------------------05/26/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------05/26/2022------------------N/A
+'--Manual time study reviewed --------------------------------------------------11/10/2025
+'--Incrementors reviewed (if necessary)-----------------------------------------11/10/2025
+'--Denomination reviewed -------------------------------------------------------11/10/2025
+'--Script name reviewed---------------------------------------------------------11/10/2025
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------07/11/2025
-'--comment Code-----------------------------------------------------------------07/11/2025
-'--Update Changelog for release/update------------------------------------------07/11/2025
-'--Remove testing message boxes-------------------------------------------------07/11/2025
-'--Remove testing code/unnecessary code-----------------------------------------07/11/2025
-'--Review/update SharePoint instructions----------------------------------------07/11/2025
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/26/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/26/2022
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/26/2022
-'--Complete misc. documentation (if applicable)---------------------------------05/26/2022
-'--Update project team/issue contact (if applicable)----------------------------05/26/2022
+'--Confirm all GitHub tasks are complete----------------------------------------11/11/2025
+'--comment Code-----------------------------------------------------------------11/11/2025
+'--Update Changelog for release/update------------------------------------------11/11/2025
+'--Remove testing message boxes-------------------------------------------------11/11/2025
+'--Remove testing code/unnecessary code-----------------------------------------11/11/2025
+'--Review/update SharePoint instructions----------------------------------------11/11/2025
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/11/2025
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/11/2025
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------11/11/2025
+'--Complete misc. documentation (if applicable)---------------------------------11/11/2025
+'--Update project team/issue contact (if applicable)----------------------------11/11/2025
