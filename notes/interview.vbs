@@ -3365,6 +3365,9 @@ function save_your_work()
 			objTextStream.WriteLine "FORM -b16 - " & next_revw_month
 			objTextStream.WriteLine "FORM - 17 - " & confirm_recap_read
 			objTextStream.WriteLine "FINAL SUMM - " & case_summary
+            objTextStream.WriteLine "SUMM PHONE - " & phone_number_selection
+            objTextStream.WriteLine "SUMM MESSG - " & leave_a_message
+            objTextStream.WriteLine "SUMM QUEST - " & resident_questions
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
 				race_a_info = ""
@@ -3744,6 +3747,9 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM -b16 - " & next_revw_month
 			script_run_lowdown = script_run_lowdown & vbCr & "FORM - 17 - " & confirm_recap_read & vbCr & vbCr
 			script_run_lowdown = script_run_lowdown & vbCr & "FINAL SUMM - " & case_summary & vbCr & vbCr
+            script_run_lowdown = script_run_lowdown & vbCr & "SUMM PHONE - " & phone_number_selection
+            script_run_lowdown = script_run_lowdown & vbCr & "SUMM MESSG - " & leave_a_message
+            script_run_lowdown = script_run_lowdown & vbCr & "SUMM QUEST - " & resident_questions & vbCr & vbCr
 
 
 			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -4232,6 +4238,10 @@ function restore_your_work(vars_filled)
 					If left(text_line, 9) = "FORM -b16" Then next_revw_month = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM - 17" Then confirm_recap_read = Mid(text_line, 13)
 					If left(text_line, 10) = "FINAL SUMM" Then case_summary = Mid(text_line, 14)
+                    If left(text_line, 10) = "SUMM PHONE" Then phone_number_selection = Mid(text_line, 14)
+                    If left(text_line, 10) = "SUMM MESSG" Then leave_a_message = Mid(text_line, 14)
+                    If left(text_line, 10) = "SUMM QUEST" Then resident_questions = Mid(text_line, 14)
+
 					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 
 
@@ -7271,7 +7281,7 @@ Dim qual_numb, exp_num, last_num, emer_numb, discrep_num, verbal_sig_date, verba
 'R&R
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
 Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
-Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read, case_summary
+Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read, case_summary, phone_number_selection, leave_a_message, resident_questions
 Dim interested_in_job_assistance_now, interested_names_now, interested_in_job_assistance_future, interested_names_future
 Dim cash_request, snap_request, emer_request, grh_request
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
@@ -9858,124 +9868,122 @@ Else
 	STATS_manualtime = STATS_manualtime + 150
 End If
 
-If left(confirm_recap_read, 4) <> "YES!" Then
-	Do
-		Do
-			err_msg = ""
-			Call create_verifs_needed_list(verifs_selected, verifs_needed)
-			If trim(verifs_needed) <> "" Then
-				verif_counter = 1
-				verifs_needed = trim(verifs_needed)
-				If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
-				If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
-				If InStr(verifs_needed, ";") <> 0 Then
-					verifs_array = split(verifs_needed, ";")
-				Else
-					verifs_array = array(verifs_needed)
-				End If
-			End If
+Do
+    Do
+        err_msg = ""
+        Call create_verifs_needed_list(verifs_selected, verifs_needed)
+        If trim(verifs_needed) <> "" Then
+            verif_counter = 1
+            verifs_needed = trim(verifs_needed)
+            If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+            If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+            If InStr(verifs_needed, ";") <> 0 Then
+                verifs_array = split(verifs_needed, ";")
+            Else
+                verifs_array = array(verifs_needed)
+            End If
+        End If
 
-			BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
-				Text 150, 10, 395, 10, "We have finished gathering all the information for the interview. Finish by reviewing this information with the resident."
-				GroupBox 10, 20, 530, 325, "CASE INTERVIEW WRAP UP"
-				y_pos = 45
-				If run_by_interview_team = True Then
-					Text 15, 35, 505, 10, "Explain Verifications:"
-					Text 20, 45, 505, 10, "If verifications are needed, a request will be sent in the mail. Provide proofs quickly, as they are due in 10 days."
-					Text 20, 55, 505, 10, "We can help you obtain these verifications if you have any difficulties. Contact us by phone or come to a service center if you need help."
-					Text 15, 75, 460, 10, "Your case will be processed by another worker, there is a possibility they will need to contact you with additional clarifications."
-					Text 25, 90, 150, 10, "Confirm the best Phone Number to reach you:"
-					ComboBox 175, 85, 85, 45, phone_droplist, phone_number_selection
-					Text 270, 90, 170, 10, "Can we leave a detailed message at this number?"
-					DropListBox 440, 85, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", leave_a_message
-					Text 25, 105, 400, 10, "Do you have any questions or requests I can pass on to the processing worker or a program specialist?"
-					EditBox 25, 115, 475, 15, resident_questions
-					y_pos = 140
-				Else
-					If trim(verifs_needed) = "" Then
-						Text 15, 35, 505, 10, "THERE ARE NO REQUESTED VERIFICATIONS ENTERED INTO THE SCRIPT"
-						Text 15, 50, 505, 10, "Since there are no verifications requested, the program requests should be processed."
-						y_pos = 65
-					Else
-						If verif_req_form_sent_date = "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script"
-						If verif_req_form_sent_date <> "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script. Request sent on " & verif_req_form_sent_date
-						For each verif_item in verifs_array
-							If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
-							Text 25, y_pos, 505, 10, verif_item
+        BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
+            Text 150, 10, 395, 10, "We have finished gathering all the information for the interview. Finish by reviewing this information with the resident."
+            GroupBox 10, 20, 530, 325, "CASE INTERVIEW WRAP UP"
+            y_pos = 45
+            If run_by_interview_team = True Then
+                Text 15, 35, 505, 10, "Explain Verifications:"
+                Text 20, 45, 505, 10, "If verifications are needed, a request will be sent in the mail. Provide proofs quickly, as they are due in 10 days."
+                Text 20, 55, 505, 10, "We can help you obtain these verifications if you have any difficulties. Contact us by phone or come to a service center if you need help."
+                Text 15, 75, 460, 10, "Your case will be processed by another worker, there is a possibility they will need to contact you with additional clarifications."
+                Text 25, 90, 150, 10, "Confirm the best Phone Number to reach you:"
+                ComboBox 175, 85, 85, 45, phone_droplist, phone_number_selection
+                Text 270, 90, 170, 10, "Can we leave a detailed message at this number?"
+                DropListBox 440, 85, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", leave_a_message
+                Text 25, 105, 400, 10, "Do you have any questions or requests I can pass on to the processing worker or a program specialist?"
+                EditBox 25, 115, 475, 15, resident_questions
+                y_pos = 140
+            Else
+                If trim(verifs_needed) = "" Then
+                    Text 15, 35, 505, 10, "THERE ARE NO REQUESTED VERIFICATIONS ENTERED INTO THE SCRIPT"
+                    Text 15, 50, 505, 10, "Since there are no verifications requested, the program requests should be processed."
+                    y_pos = 65
+                Else
+                    If verif_req_form_sent_date = "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script"
+                    If verif_req_form_sent_date <> "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script. Request sent on " & verif_req_form_sent_date
+                    For each verif_item in verifs_array
+                        If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+                        Text 25, y_pos, 505, 10, verif_item
 
-							verif_counter = verif_counter + 1
-							y_pos = y_pos + 10
-						Next
-					End If
-					ButtonGroup ButtonPressed
-					PushButton 15, y_pos, 100, 15, "Update Verifications", verif_button
-					y_pos = y_pos + 20
-				End If
-				Text 15, y_pos, 505, 10, "Your address and phone number are our best way to contact you, let us know if these change so you do not miss any notices or requests."
-				y_pos = y_pos + 10
-				Text 20, y_pos, 505, 10, "Our mail does not forward and missing notices can cause your benefits to end."
-				y_pos = y_pos + 20
-				Text 15, y_pos, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
-				y_pos = y_pos + 20
-				GroupBox 15, y_pos, 505, 95, "Contact Hennepin County by phone, in person, or online. Ask the resident if they need any more details:"
-				y_pos = y_pos + 10
-				Text 20, y_pos, 40, 10, "By Phone:"
-				Text 60, y_pos, 450, 10, "612-596-1300. The phone lines are open Monday - Friday from 9:00 - 4:00"
-				y_pos = y_pos + 10
-				Text 20, y_pos, 40, 10, "In person: "
-				Text 60, y_pos, 170, 10, "Northwest Human Service Center"
-				Text 230, y_pos, 200, 10, "7051 Brooklyn Blvd Brooklyn Center 55429"
-				y_pos = y_pos + 10
-				Text 60, y_pos, 170, 10, "North Minneapolis Service Center"
-				Text 230, y_pos, 200, 10, "1001 Plymouth Ave N Minneapolis 55411"
-				y_pos = y_pos + 10
-				Text 60, y_pos, 170, 10, "South Minneapolis Human Service Center"
-				Text 230, y_pos, 200, 10, "2215 East Lake Street Minneapolis 55407"
-				y_pos = y_pos + 10
-				Text 60, y_pos, 170, 10, "Health Services Building (Downtown Minneapolis)"
-				Text 230, y_pos, 200, 10, "525  Portland Ave S (5th floor) Minneapolis 55415"
-				y_pos = y_pos + 10
-				Text 60, y_pos, 170, 10, "South Suburban Human Service Center"
-				Text 230, y_pos, 200, 10, "9600 Aldrich Ave S Bloomington 55420"
-				y_pos = y_pos + 10
-				Text 20, y_pos, 40, 10, "Online:"
-				Text 60, y_pos, 400, 10, "MNBenefits  at  https://mnbenefits.mn.gov/  -  Use for submitting applications and documents."
-				y_pos = y_pos + 10
-				Text 60, y_pos, 465, 10, "InfoKeep  at  https://infokeep.hennepin.us/  -  Create a unique sign in to submit documents directly to your case, has a chat functionality."
-				y_pos = y_pos + 25
-				If run_by_interview_team = True Then Text 15, y_pos, 270, 10, "Summarize any additional case details to pass on to the processing worker:"
-				If run_by_interview_team = False Then Text 15, y_pos, 270, 10, "Summarize what is happening with this case:"
-				y_pos = y_pos + 10
-				EditBox 15, y_pos, 520, 15, case_summary
-				Text 10, 370, 220, 10, "Confirm you have reviewed Hennepin County Information Information:"
-				DropListBox 230, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
-				ButtonGroup ButtonPressed
-					PushButton 465, 365, 80, 15, "Interview Completed", continue_btn
-			EndDialog
+                        verif_counter = verif_counter + 1
+                        y_pos = y_pos + 10
+                    Next
+                End If
+                ButtonGroup ButtonPressed
+                PushButton 15, y_pos, 100, 15, "Update Verifications", verif_button
+                y_pos = y_pos + 20
+            End If
+            Text 15, y_pos, 505, 10, "Your address and phone number are our best way to contact you, let us know if these change so you do not miss any notices or requests."
+            y_pos = y_pos + 10
+            Text 20, y_pos, 505, 10, "Our mail does not forward and missing notices can cause your benefits to end."
+            y_pos = y_pos + 20
+            Text 15, y_pos, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
+            y_pos = y_pos + 20
+            GroupBox 15, y_pos, 505, 95, "Contact Hennepin County by phone, in person, or online. Ask the resident if they need any more details:"
+            y_pos = y_pos + 10
+            Text 20, y_pos, 40, 10, "By Phone:"
+            Text 60, y_pos, 450, 10, "612-596-1300. The phone lines are open Monday - Friday from 9:00 - 4:00"
+            y_pos = y_pos + 10
+            Text 20, y_pos, 40, 10, "In person: "
+            Text 60, y_pos, 170, 10, "Northwest Human Service Center"
+            Text 230, y_pos, 200, 10, "7051 Brooklyn Blvd Brooklyn Center 55429"
+            y_pos = y_pos + 10
+            Text 60, y_pos, 170, 10, "North Minneapolis Service Center"
+            Text 230, y_pos, 200, 10, "1001 Plymouth Ave N Minneapolis 55411"
+            y_pos = y_pos + 10
+            Text 60, y_pos, 170, 10, "South Minneapolis Human Service Center"
+            Text 230, y_pos, 200, 10, "2215 East Lake Street Minneapolis 55407"
+            y_pos = y_pos + 10
+            Text 60, y_pos, 170, 10, "Health Services Building (Downtown Minneapolis)"
+            Text 230, y_pos, 200, 10, "525  Portland Ave S (5th floor) Minneapolis 55415"
+            y_pos = y_pos + 10
+            Text 60, y_pos, 170, 10, "South Suburban Human Service Center"
+            Text 230, y_pos, 200, 10, "9600 Aldrich Ave S Bloomington 55420"
+            y_pos = y_pos + 10
+            Text 20, y_pos, 40, 10, "Online:"
+            Text 60, y_pos, 400, 10, "MNBenefits  at  https://mnbenefits.mn.gov/  -  Use for submitting applications and documents."
+            y_pos = y_pos + 10
+            Text 60, y_pos, 465, 10, "InfoKeep  at  https://infokeep.hennepin.us/  -  Create a unique sign in to submit documents directly to your case, has a chat functionality."
+            y_pos = y_pos + 25
+            If run_by_interview_team = True Then Text 15, y_pos, 270, 10, "Summarize any additional case details to pass on to the processing worker:"
+            If run_by_interview_team = False Then Text 15, y_pos, 270, 10, "Summarize what is happening with this case:"
+            y_pos = y_pos + 10
+            EditBox 15, y_pos, 520, 15, case_summary
+            Text 10, 370, 220, 10, "Confirm you have reviewed Hennepin County Information Information:"
+            DropListBox 230, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
+            ButtonGroup ButtonPressed
+                PushButton 465, 365, 80, 15, "Interview Completed", continue_btn
+        EndDialog
 
-			dialog Dialog1
-			cancel_confirmation
+        dialog Dialog1
+        cancel_confirmation
 
-			If confirm_recap_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+        If confirm_recap_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
 
-			If run_by_interview_team = True Then
-				resident_questions = trim(resident_questions)
-				phone_number_selection = trim(phone_number_selection)
-				If phone_number_selection = "" or phone_number_selection = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Enter a phone number to reach the resident at in the case of follow up questions."
-				If leave_a_message = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if a detailed message can be left at the phone number provided."
-			End If
+        If run_by_interview_team = True Then
+            resident_questions = trim(resident_questions)
+            phone_number_selection = trim(phone_number_selection)
+            If phone_number_selection = "" or phone_number_selection = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Enter a phone number to reach the resident at in the case of follow up questions."
+            If leave_a_message = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if a detailed message can be left at the phone number provided."
+        End If
 
-			If ButtonPressed = verif_button Then
-				Call verification_dialog
-				err_msg = "LOOP"
-			End If
+        If ButtonPressed = verif_button Then
+            Call verification_dialog
+            err_msg = "LOOP"
+        End If
 
-			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+        IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-End If
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 save_your_work
 Call check_for_MAXIS(False)
 
