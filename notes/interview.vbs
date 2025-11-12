@@ -10477,6 +10477,15 @@ With (CreateObject("Scripting.FileSystemObject"))
 End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+EMReadScreen memb_check, 4, 2, 48
+Do While memb_check <> "MEMB"
+    Call back_to_SELF
+    Call MAXIS_background_check
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMReadScreen memb_check, 4, 2, 48
+Loop
+
 Dim CHANGES_ARRAY()
 ReDim CHANGES_ARRAY(last_const, 0)	'Defining the changes array to
 
@@ -10559,22 +10568,23 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 
         If curr_ssn_verif <> left(HH_MEMB_ARRAY(ssn_verif, the_memb), 1)        Then
             ' CHANGES_ARRAY(ssn_verif, the_memb) = curr_ssn_verif
-			If curr_ssn_verif = "A" THen CHANGES_ARRAY(ssn_verif, clt_count) = "A - SSN Applied For"
-			If curr_ssn_verif = "P" THen CHANGES_ARRAY(ssn_verif, clt_count) = "P - SSN Provided, verif Pending"
-			If curr_ssn_verif = "N" THen CHANGES_ARRAY(ssn_verif, clt_count) = "N - SSN Not Provided"
-			If curr_ssn_verif = "V" THen CHANGES_ARRAY(ssn_verif, clt_count) = "V - SSN Verified via Interface"
+			If curr_ssn_verif = "A" THen CHANGES_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For"
+			If curr_ssn_verif = "P" THen CHANGES_ARRAY(ssn_verif, the_memb) = "P - SSN Provided, verif Pending"
+			If curr_ssn_verif = "N" THen CHANGES_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided"
+			If curr_ssn_verif = "V" THen CHANGES_ARRAY(ssn_verif, the_memb) = "V - SSN Verified via Interface"
         End If
+        If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then CHANGES_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN"
         If curr_birthdate_verif <> left(HH_MEMB_ARRAY(birthdate_verif, the_memb), 2) Then
             ' CHANGES_ARRAY(birthdate_verif, the_memb) = curr_birthdate_verif
-			If Hcurr_birthdate_verif = "BC" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "BC - Birth Certificate"
-			If Hcurr_birthdate_verif = "RE" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "RE - Religious Record"
-			If Hcurr_birthdate_verif = "DL" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DL - Drivers License/State ID"
-			If Hcurr_birthdate_verif = "DV" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DV - Divorce Decree"
-			If Hcurr_birthdate_verif = "AL" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "AL - Alien Card"
-			If Hcurr_birthdate_verif = "DR" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "DR - Doctor Statement"
-			If Hcurr_birthdate_verif = "OT" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "OT - Other Document"
-			If Hcurr_birthdate_verif = "PV" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "PV - Passport/Visa"
-			If Hcurr_birthdate_verif = "NO" Then CHANGES_ARRAY(birthdate_verif, clt_count) = "NO - No Verif Provided"
+			If curr_birthdate_verif = "BC" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "BC - Birth Certificate"
+			If curr_birthdate_verif = "RE" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "RE - Religious Record"
+			If curr_birthdate_verif = "DL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DL - Drivers License/State ID"
+			If curr_birthdate_verif = "DV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DV - Divorce Decree"
+			If curr_birthdate_verif = "AL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "AL - Alien Card"
+			If curr_birthdate_verif = "DR" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DR - Doctor Statement"
+			If curr_birthdate_verif = "OT" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "OT - Other Document"
+			If curr_birthdate_verif = "PV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "PV - Passport/Visa"
+			If curr_birthdate_verif = "NO" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "NO - No Verif Provided"
         End If
         If curr_gender <> left(HH_MEMB_ARRAY(gender, the_memb), 1)              Then
             CHANGES_ARRAY(gender, the_memb) = curr_gender
