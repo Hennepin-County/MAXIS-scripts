@@ -383,7 +383,7 @@ class jobs_income
 				snap_total_hours = 0
 				cash_total_hours = 0
 				For all_income = 0 to UBound(pay_date)
-					If NOT future_check(all_income) and NOT bonus_check(all_income) Then
+					If NOT future_check(all_income) Then
 						exclude_amount = 0
 						If IsNumeric(pay_split_bonus_amount(all_income)) Then exclude_amount = exclude_amount + pay_split_bonus_amount(all_income)
 						If IsNumeric(pay_split_shift_diff_amount(all_income)) Then exclude_amount = exclude_amount + pay_split_shift_diff_amount(all_income)
@@ -414,10 +414,12 @@ class jobs_income
                         End If
                     End If
 				Next
-				hourly_wage = total_hourly_amount/total_hours
-				pay_per_hr = total_hourly_amount/total_hours
-                snap_hourly_wage = snap_total_hourly_amount/snap_total_hours
-                cash_hourly_wage = cash_total_hourly_amount/cash_total_hours
+                If total_hours <> 0 Then
+                    hourly_wage = total_hourly_amount/total_hours
+                    pay_per_hr = total_hourly_amount/total_hours
+                End If
+                If snap_total_hours <> 0 Then snap_hourly_wage = snap_total_hourly_amount/snap_total_hours
+                If cash_total_hours <> 0 Then cash_hourly_wage = cash_total_hourly_amount/cash_total_hours
 
 			End If
 			hourly_wage = FormatNumber(hourly_wage, 2,,0)
@@ -2504,12 +2506,11 @@ class jobs_income
                 split_check_string(all_checks) = temp_string
                 split_check_excld_string(all_checks) = excld_string
 
+                SNAP_info_string(all_checks) = ""
+                CASH_info_string(all_checks) = ""
 				If exclude_entirely(all_checks) Then
 					SNAP_info_string(all_checks) = "Check is excluded for SNAP. Reason: " & reason_to_exclude(all_checks)
 					CASH_info_string(all_checks) = "Check is excluded for CASH. Reason: " & reason_to_exclude(all_checks)
-				ElseIf bonus_check(all_checks) Then
-					SNAP_info_string(all_checks) = "This is a Bonus Check and is excluded for SNAP."
-					CASH_info_string(all_checks) = "This is a Bonus Check and is excluded for CASH."
 				ElseIF IsNumeric(exclude_ALL_amount(all_checks)) Then
                     If exclude_ALL_amount(all_checks) <> 0 Then
                         SNAP_info_string(all_checks) = "$ " & exclude_ALL_amount(all_checks) & " of check is excluded for SNAP. Reason: " & reason_to_exclude(all_checks)
@@ -3892,16 +3893,17 @@ class jobs_income
 									Text 115, (y_pos * 10) + 75, 50, 10, pay_date(all_checks)
 									Text 160, (y_pos * 10) + 75, 45, 10, "$ " & gross_amount(all_checks)
 									Text 210, (y_pos * 10) + 75, 30, 10, hours(all_checks)
-									If exclude_entirely(all_checks) Then
-										Text 245, (y_pos * 10) + 75, 500, 10, "Entire Check Excluded from both Cash and SNAP. Reason: " & reason_to_exclude(all_checks)
-									ElseIf bonus_check(all_checks) Then
-										Text 245, (y_pos * 10) + 75, 500, 10, "BONUS CHECK: Entire Check Excluded from both Cash and SNAP."
-									ElseIf split_check_string(all_checks) <> "" Then
-										Text 245, (y_pos * 10) + 75, 500, 10, split_check_string(all_checks)
-									ElseIf SNAP_info_string(all_checks) = "Entire check counted for SNAP." and CASH_info_string(all_checks) = "Entire check counted for CASH." Then
-										Text 245, (y_pos * 10) + 75, 500, 10, "Entire check counted for all programs."
-									Else
-										Text 245, (y_pos * 10) + 75, 250, 10, "SNAP: " & SNAP_info_string(all_checks)
+									info_string = ""
+                                    If bonus_check(all_checks) Then info_string = info_string & "BONUS CHECK "
+                                    If exclude_entirely(all_checks) Then info_string = info_string & "Entire Check Excluded from both Cash and SNAP. Reason: " & reason_to_exclude(all_checks) & " "
+									If split_check_string(all_checks) <> "" Then info_string = info_string & split_check_string(all_checks) & " "
+                                    If SNAP_info_string(all_checks) = "Entire check counted for SNAP." and CASH_info_string(all_checks) = "Entire check counted for CASH." Then info_string = info_string &  "Entire check counted for all programs. "
+                                    info_string = trim(info_string)
+                                    If info_string <> "" and info_string <> "BONUS CHECK" Then
+                                        Text 245, (y_pos * 10) + 75, 500, 10, info_string
+                                    Else
+										If bonus_check(all_checks)      Then Text 245, (y_pos * 10) + 75, 250, 10, "BONUS CHECK - SNAP: " & SNAP_info_string(all_checks)
+										If NOT bonus_check(all_checks)  Then Text 245, (y_pos * 10) + 75, 250, 10, "SNAP: " & SNAP_info_string(all_checks)
 										Text 500, (y_pos * 10) + 75, 250, 10, "CASH: " & CASH_info_string(all_checks)
 									End If
 									' Text 355, (y_pos * 10) + 75, 45, 10, pay_date(all_checks)
