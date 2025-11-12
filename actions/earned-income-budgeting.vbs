@@ -1077,7 +1077,7 @@ class jobs_income
             exclude_entirely(check_count) = False
             If exclude_all_checkbox = checked then exclude_entirely(check_count) = True
 
-			Call check_details_error_handling(err_msg, edit_base_info)
+			Call check_details_error_handling(err_msg, edit_base_info, check_count)
 
 			If ButtonPressed = delete_check_btn Then err_msg = ""
 
@@ -1111,129 +1111,129 @@ class jobs_income
         End If
 	end sub
 
-	public sub check_details_error_handling(err_msg, edit_base_info)
+	public sub check_details_error_handling(err_msg, edit_base_info, check_index)
         'making sure the details of check align with data requirements and formats
 
 		If edit_base_info = True Then
-			If NOT IsDate(pay_date(check_count)) Then err_msg = err_msg & vbCr & "* Pay Date should be entered as a date."
-			If IsDate(pay_date(check_count)) Then
-				future_check(check_count) = False
+			If NOT IsDate(pay_date(check_index)) Then err_msg = err_msg & vbCr & "* Pay Date should be entered as a date."
+			If IsDate(pay_date(check_index)) Then
+				future_check(check_index) = False
                 in_appl_month = False
                 If IsDate(fs_appl_date) Then
-                    If DatePart("m", fs_appl_date) = DatePart("m", pay_date(check_count)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(check_count)) Then   'if the paydate is in the application month
+                    If DatePart("m", fs_appl_date) = DatePart("m", pay_date(check_index)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(check_index)) Then   'if the paydate is in the application month
                         in_appl_month = True
                     End If
                 End If
 				If in_appl_month Then   'if the paydate is in the application month
-					If DateDiff("d", date, pay_date(check_count)) > 0 Then future_check(check_count) = TRUE   'this is a future check
+					If DateDiff("d", date, pay_date(check_index)) > 0 Then future_check(check_index) = TRUE   'this is a future check
 				Else        'if the paydate is NOT in the application  month
-					If DateDiff("d", date, pay_date(check_count)) > 0 Then             'if the pay date is in the future we have to error
-						err_msg = err_msg & vbCr & "* Paydates cannot be in the future. (" & pay_date(check_count) & ")"
+					If DateDiff("d", date, pay_date(check_index)) > 0 Then             'if the pay date is in the future we have to error
+						err_msg = err_msg & vbCr & "* Paydates cannot be in the future. (" & pay_date(check_index) & ")"
 					End If
 				End If
 			End If
-			If NOT IsNumeric(gross_amount(check_count)) Then err_msg = err_msg & vbCr & "* The Amount of the Pay Check should be entered."
-			If NOT IsNumeric(hours(check_count)) Then err_msg = err_msg & vbCr & "* The Hours worked should be entered as a number."
+			If NOT IsNumeric(gross_amount(check_index)) Then err_msg = err_msg & vbCr & "* The Amount of the Pay Check should be entered."
+			If NOT IsNumeric(hours(check_index)) Then err_msg = err_msg & vbCr & "* The Hours worked should be entered as a number."
 		End If
-		If trim(exclude_ALL_amount(check_count)) <> "" and NOT IsNumeric(exclude_ALL_amount(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude ALL Amount has been entered but does not appear to be a number, this must be entered as a number."
-		If trim(exclude_ALL_hours(check_count)) <> "" and NOT IsNumeric(exclude_ALL_hours(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude ALL Hours has been entered but does not appear to be a number, this must be entered as a number."
-		If trim(exclude_SNAP_amount(check_count)) <> "" and NOT IsNumeric(exclude_SNAP_amount(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude SNAP Amount has been entered but does not appear to be a number, this must be entered as a number."
-		If trim(exclude_SNAP_hours(check_count)) <> "" and NOT IsNumeric(exclude_SNAP_hours(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude SNAP Hours has been entered but does not appear to be a number, this must be entered as a number."
-		If trim(exclude_CASH_amount(check_count)) <> "" and NOT IsNumeric(exclude_CASH_amount(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude CASH Amount has been entered but does not appear to be a number, this must be entered as a number."
-		If trim(exclude_SNAP_hours(check_count)) <> "" and NOT IsNumeric(exclude_SNAP_hours(check_count)) Then err_msg = err_msg & vbCr & "* The Exclude CASH Hours has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_ALL_amount(check_index)) <> "" and NOT IsNumeric(exclude_ALL_amount(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude ALL Amount has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_ALL_hours(check_index)) <> "" and NOT IsNumeric(exclude_ALL_hours(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude ALL Hours has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_SNAP_amount(check_index)) <> "" and NOT IsNumeric(exclude_SNAP_amount(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude SNAP Amount has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_SNAP_hours(check_index)) <> "" and NOT IsNumeric(exclude_SNAP_hours(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude SNAP Hours has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_CASH_amount(check_index)) <> "" and NOT IsNumeric(exclude_CASH_amount(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude CASH Amount has been entered but does not appear to be a number, this must be entered as a number."
+		If trim(exclude_SNAP_hours(check_index)) <> "" and NOT IsNumeric(exclude_SNAP_hours(check_index)) Then err_msg = err_msg & vbCr & "* The Exclude CASH Hours has been entered but does not appear to be a number, this must be entered as a number."
 
-        If exclude_ALL_hours(check_count) = "" Then exclude_ALL_hours(check_count) = 0
-        If IsNumeric(exclude_SNAP_amount(check_count)) Then
-            If exclude_SNAP_amount(check_count) = 0 Then exclude_SNAP_amount(check_count) = ""
+        If exclude_ALL_hours(check_index) = "" Then exclude_ALL_hours(check_index) = 0
+        If IsNumeric(exclude_SNAP_amount(check_index)) Then
+            If exclude_SNAP_amount(check_index) = 0 Then exclude_SNAP_amount(check_index) = ""
         End If
-        If IsNumeric(exclude_CASH_amount(check_count)) Then
-            If exclude_CASH_amount(check_count) = 0 Then exclude_CASH_amount(check_count) = ""
+        If IsNumeric(exclude_CASH_amount(check_index)) Then
+            If exclude_CASH_amount(check_index) = 0 Then exclude_CASH_amount(check_index) = ""
         End If
 
-		If exclude_from_SNAP(check_count) = checked and exclude_from_CASH(check_count) = checked then
+		If exclude_from_SNAP(check_index) = checked and exclude_from_CASH(check_index) = checked then
 			exclude_all_checkbox = checked
-			If trim(reason_to_exclude(check_count)) = "" Then
-				If trim(reason_CASH_amt_excluded(check_count)) <> "" Then reason_to_exclude(check_count) = reason_CASH_amt_excluded(check_count)
-				If trim(reason_SNAP_amt_excluded(check_count)) <> "" Then reason_to_exclude(check_count) = reason_SNAP_amt_excluded(check_count)
+			If trim(reason_to_exclude(check_index)) = "" Then
+				If trim(reason_CASH_amt_excluded(check_index)) <> "" Then reason_to_exclude(check_index) = reason_CASH_amt_excluded(check_index)
+				If trim(reason_SNAP_amt_excluded(check_index)) <> "" Then reason_to_exclude(check_index) = reason_SNAP_amt_excluded(check_index)
 			End If
 		End If
-		If bonus_check(check_count) = True and exclude_all_checkbox = checked Then
-			If Instr(reason_to_exclude(check_count), bonus_exclude_txt) = 0 Then
-				reason_to_exclude(check_count) = bonus_exclude_txt
+		If bonus_check(check_index) = True and exclude_all_checkbox = checked Then
+			If Instr(reason_to_exclude(check_index), bonus_exclude_txt) = 0 Then
+				reason_to_exclude(check_index) = bonus_exclude_txt
 			End If
 		End If
-		If exclude_all_checkbox = checked or IsNumeric(exclude_ALL_amount(check_count)) Then
+		If exclude_all_checkbox = checked or IsNumeric(exclude_ALL_amount(check_index)) Then
 			'need to explain excluding a check
-			If trim(reason_to_exclude(check_count)) = "" Then err_msg = err_msg & vbCr & "* To exclude the entire check, list a reason for excluding it."
+			If trim(reason_to_exclude(check_index)) = "" Then err_msg = err_msg & vbCr & "* To exclude the entire check, list a reason for excluding it."
 		Else
-			If (exclude_from_SNAP(check_count) = checked or (IsNumeric(exclude_SNAP_amount(check_count)))) and trim(reason_SNAP_amt_excluded(check_count)) = "" Then err_msg = err_msg & vbCr & "* Explain the reason for excluding part or all of the check for SNAP."
-			If (exclude_from_CASH(check_count) = checked or (IsNumeric(exclude_CASH_amount(check_count)))) and trim(reason_CASH_amt_excluded(check_count)) = "" Then err_msg = err_msg & vbCr & "* Explain the reason for excluding part or all of the check for CASH."
+			If (exclude_from_SNAP(check_index) = checked or (IsNumeric(exclude_SNAP_amount(check_index)))) and trim(reason_SNAP_amt_excluded(check_index)) = "" Then err_msg = err_msg & vbCr & "* Explain the reason for excluding part or all of the check for SNAP."
+			If (exclude_from_CASH(check_index) = checked or (IsNumeric(exclude_CASH_amount(check_index)))) and trim(reason_CASH_amt_excluded(check_index)) = "" Then err_msg = err_msg & vbCr & "* Explain the reason for excluding part or all of the check for CASH."
 		End If
 
 
 		total_pay_calculation = 0
 
-		pay_split_regular_amount(check_count) = trim(pay_split_regular_amount(check_count))
-		If IsNumeric(pay_split_regular_amount(check_count)) = True Then
-			pay_split_regular_amount(check_count) = pay_split_regular_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_regular_amount(check_count)
+		pay_split_regular_amount(check_index) = trim(pay_split_regular_amount(check_index))
+		If IsNumeric(pay_split_regular_amount(check_index)) = True Then
+			pay_split_regular_amount(check_index) = pay_split_regular_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_regular_amount(check_index)
 		Else
-			If pay_split_regular_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* REGULAR Pay was entered but does not appear to be a valid number, please review."
+			If pay_split_regular_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* REGULAR Pay was entered but does not appear to be a valid number, please review."
 		End If
 
-		pay_split_bonus_amount(check_count) = trim(pay_split_bonus_amount(check_count))
-		pay_split_ot_amount(check_count) = trim(pay_split_ot_amount(check_count))
-		pay_split_shift_diff_amount(check_count) = trim(pay_split_shift_diff_amount(check_count))
-		pay_split_tips_amount(check_count) = trim(pay_split_tips_amount(check_count))
-		pay_split_other_amount(check_count) = trim(pay_split_other_amount(check_count))
+		pay_split_bonus_amount(check_index) = trim(pay_split_bonus_amount(check_index))
+		pay_split_ot_amount(check_index) = trim(pay_split_ot_amount(check_index))
+		pay_split_shift_diff_amount(check_index) = trim(pay_split_shift_diff_amount(check_index))
+		pay_split_tips_amount(check_index) = trim(pay_split_tips_amount(check_index))
+		pay_split_other_amount(check_index) = trim(pay_split_other_amount(check_index))
 
-		If IsNumeric(pay_split_bonus_amount(check_count)) = True Then
-			pay_split_bonus_amount(check_count) = pay_split_bonus_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_bonus_amount(check_count)
+		If IsNumeric(pay_split_bonus_amount(check_index)) = True Then
+			pay_split_bonus_amount(check_index) = pay_split_bonus_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_bonus_amount(check_index)
 		Else
-			If pay_split_bonus_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* BONUS Pay was entered but does not appear to be a valid number, please review."
-			If pay_excld_bonus(check_count) = checked Then err_msg = err_msg & vbCr & "* Exclude BONUS Pay was checked but amount entered does not appear to be a number."
+			If pay_split_bonus_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* BONUS Pay was entered but does not appear to be a valid number, please review."
+			If pay_excld_bonus(check_index) = checked Then err_msg = err_msg & vbCr & "* Exclude BONUS Pay was checked but amount entered does not appear to be a number."
 		End If
-		If IsNumeric(pay_split_ot_amount(check_count)) = True Then
-			pay_split_ot_amount(check_count) = pay_split_ot_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_ot_amount(check_count)
+		If IsNumeric(pay_split_ot_amount(check_index)) = True Then
+			pay_split_ot_amount(check_index) = pay_split_ot_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_ot_amount(check_index)
 		Else
-			If pay_split_ot_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* OVERTIME Pay was entered but does not appear to be a valid number, please review."
-			If pay_excld_ot(check_count) = checked Then err_msg = err_msg & vbCr & "* Exclude OVERTIME Pay was checked but amount entered does not appear to be a number."
+			If pay_split_ot_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* OVERTIME Pay was entered but does not appear to be a valid number, please review."
+			If pay_excld_ot(check_index) = checked Then err_msg = err_msg & vbCr & "* Exclude OVERTIME Pay was checked but amount entered does not appear to be a number."
 		End If
-		If IsNumeric(pay_split_shift_diff_amount(check_count)) = True Then
-			pay_split_shift_diff_amount(check_count) = pay_split_shift_diff_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_shift_diff_amount(check_count)
+		If IsNumeric(pay_split_shift_diff_amount(check_index)) = True Then
+			pay_split_shift_diff_amount(check_index) = pay_split_shift_diff_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_shift_diff_amount(check_index)
 		Else
-			If pay_split_shift_diff_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* SHIFT DIFFERENTIAL Pay was entered but does not appear to be a valid number, please review."
-			If pay_excld_shift_diff(check_count) = checked Then err_msg = err_msg & vbCr & "* Exclude SHIFT DIFFERENTIAL Pay was checked but amount entered does not appear to be a number."
+			If pay_split_shift_diff_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* SHIFT DIFFERENTIAL Pay was entered but does not appear to be a valid number, please review."
+			If pay_excld_shift_diff(check_index) = checked Then err_msg = err_msg & vbCr & "* Exclude SHIFT DIFFERENTIAL Pay was checked but amount entered does not appear to be a number."
 		End If
-		If IsNumeric(pay_split_tips_amount(check_count)) = True Then
-			pay_split_tips_amount(check_count) = pay_split_tips_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_tips_amount(check_count)
+		If IsNumeric(pay_split_tips_amount(check_index)) = True Then
+			pay_split_tips_amount(check_index) = pay_split_tips_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_tips_amount(check_index)
 		Else
-			If pay_split_tips_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* TIPS Pay was entered but does not appear to be a valid number, please review."
-			If pay_excld_tips(check_count) = checked Then err_msg = err_msg & vbCr & "* Exclude TIPS Pay was checked but amount entered does not appear to be a number."
+			If pay_split_tips_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* TIPS Pay was entered but does not appear to be a valid number, please review."
+			If pay_excld_tips(check_index) = checked Then err_msg = err_msg & vbCr & "* Exclude TIPS Pay was checked but amount entered does not appear to be a number."
 		End If
-		If IsNumeric(pay_split_other_amount(check_count)) = True Then
-			pay_split_other_amount(check_count) = pay_split_other_amount(check_count)*1
-			total_pay_calculation = total_pay_calculation + pay_split_other_amount(check_count)
-			If trim(pay_split_other_detail(check_count)) = "" Then err_msg = err_msg & vbCr & "An amount was listed in OTHER Pay but no detail was entered into the explanation of what OTHER is. Update the explanation."
+		If IsNumeric(pay_split_other_amount(check_index)) = True Then
+			pay_split_other_amount(check_index) = pay_split_other_amount(check_index)*1
+			total_pay_calculation = total_pay_calculation + pay_split_other_amount(check_index)
+			If trim(pay_split_other_detail(check_index)) = "" Then err_msg = err_msg & vbCr & "An amount was listed in OTHER Pay but no detail was entered into the explanation of what OTHER is. Update the explanation."
 		Else
-			If pay_split_other_amount(check_count) <> "" Then err_msg = err_msg & vbCr & "* OTHER (" & pay_split_other_detail(check_count) & ") Pay was entered but does not appear to be a valid number, please review."
-			If pay_excld_other(check_count) = checked Then err_msg = err_msg & vbCr & "* Exclude OTHER (" & pay_split_other_detail(check_count) & ") Pay was checked but amount entered does not appear to be a number."
+			If pay_split_other_amount(check_index) <> "" Then err_msg = err_msg & vbCr & "* OTHER (" & pay_split_other_detail(check_index) & ") Pay was entered but does not appear to be a valid number, please review."
+			If pay_excld_other(check_index) = checked Then err_msg = err_msg & vbCr & "* Exclude OTHER (" & pay_split_other_detail(check_index) & ") Pay was checked but amount entered does not appear to be a number."
 		End If
 		total_pay_calculation = FormatNumber(total_pay_calculation, 2, -1, 0, 0)
-		If IsNumeric(gross_amount(check_count)) Then
-			gross_amount(check_count) = FormatNumber(gross_amount(check_count), 2, -1, 0, 0)
-            If pay_split_regular_amount(check_count) = "" Then
-                pay_split_regular_amount(check_count) = gross_amount(check_count) - total_pay_calculation
-                total_pay_calculation = total_pay_calculation + pay_split_regular_amount(check_count)
+		If IsNumeric(gross_amount(check_index)) Then
+			gross_amount(check_index) = FormatNumber(gross_amount(check_index), 2, -1, 0, 0)
+            If pay_split_regular_amount(check_index) = "" Then
+                pay_split_regular_amount(check_index) = gross_amount(check_index) - total_pay_calculation
+                total_pay_calculation = total_pay_calculation + pay_split_regular_amount(check_index)
         		total_pay_calculation = FormatNumber(total_pay_calculation, 2, -1, 0, 0)
             End If
-			If total_pay_calculation <> gross_amount(check_count) Then
+			If total_pay_calculation <> gross_amount(check_index) Then
 				err_msg = err_msg & vbCr & "* The pay entered in the split pay information does not match the gross pay amount entered. Update the numbers on the pay splits, or press the 'Clear' button to cancel the split pay functionality and return to the main Paycheck Received dialog to update the Gross Pay amount."
-				err_msg = err_msg & vbCr & " - Gross Paycheck Amount $ " & gross_amount(check_count)
+				err_msg = err_msg & vbCr & " - Gross Paycheck Amount $ " & gross_amount(check_index)
 				err_msg = err_msg & vbCr & " - Sum of Paycheck Splits $ " & total_pay_calculation
 			End If
 		End If
@@ -2469,7 +2469,6 @@ class jobs_income
         checks_exist = False
 		For all_checks = 0 to UBound(pay_date)
 			check_info_entered(all_checks) = False
-            MsgBox "CHECK:" & vbCr & vbCr & "Pay Date: " & pay_date(all_checks) & vbCr & "Gross Amount: " & gross_amount(all_checks) & vbCr & "Hours: " & hours(all_checks) & vbCr & "Order - " & check_order(all_checks)
 			If pay_date(all_checks) <> "" Then
 				checks_exist = True
 				check_info_entered(all_checks) = True
@@ -2755,11 +2754,9 @@ class jobs_income
 
 		actual_checks_provided = FALSE      'defaults for some logic coming up
 		there_are_counted_checks = FALSE
-        MsgBox "UBound(pay_date) - " & UBound(pay_date)
 		For all_checks = 0 to UBound(pay_date)
-			If pay_date(all_checks) = "" Then check_info_entered(all_checks) = False
+			If pay_date(all_checks) = "" or gross_amount(all_checks) = "" or hours(all_checks) = "" Then check_info_entered(all_checks) = False
 			If check_info_entered(all_checks) Then
-                MsgBox "all_checks - " & all_checks & vbCr & "gross_amount - " & gross_amount(all_checks)
 				actual_checks_provided = TRUE
 				total_check_count = total_check_count + 1
 				total_gross_amount = total_gross_amount + gross_amount(all_checks)
@@ -2868,6 +2865,14 @@ class jobs_income
         transmit
 
         EMReadScreen JOBS_check, 4, 2, 45
+        EMReadScreen month_check, 2, 20, 55
+        EMReadScreen year_check, 2, 20, 58
+
+        If month_check <> MAXIS_footer_month or year_check <> MAXIS_footer_year Then
+            Call back_to_SELF
+            Call MAXIS_background_check
+        End If
+
         If JOBS_check <> "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS") 'navigate to JOBS for the right member and instance
 
         EMWriteScreen member, 20, 76
@@ -3887,7 +3892,7 @@ class jobs_income
 									Text 115, (y_pos * 10) + 75, 50, 10, pay_date(all_checks)
 									Text 160, (y_pos * 10) + 75, 45, 10, "$ " & gross_amount(all_checks)
 									Text 210, (y_pos * 10) + 75, 30, 10, hours(all_checks)
-									If exclude_entirely(check_count) Then
+									If exclude_entirely(all_checks) Then
 										Text 245, (y_pos * 10) + 75, 500, 10, "Entire Check Excluded from both Cash and SNAP. Reason: " & reason_to_exclude(all_checks)
 									ElseIf bonus_check(all_checks) Then
 										Text 245, (y_pos * 10) + 75, 500, 10, "BONUS CHECK: Entire Check Excluded from both Cash and SNAP."
@@ -4007,13 +4012,33 @@ class jobs_income
 							If DateDiff("d", date, pay_date(pay_item)) > 0 Then future_check(pay_item) = TRUE   'this is a future check
 						End If
 
-						Call check_details_dialog(True, pay_item, ButtonPressed)
-						If ButtonPressed = save_details_btn Then
-							check_info_entered(pay_item) = True
-						End If
-						If ButtonPressed = delete_check_btn Then
-							Call delete_one_check(pay_item)
-						End If
+                        Dialog1 = ""
+                        BeginDialog Dialog1, 0, 0, 241, 140, "Missing Check Selection"
+                            Text 55, 10, 145, 10, "*** It appears there are checks missing ***"
+                            Text 10, 25, 220, 30, "All checks need to be entered to have a correct budget. If there are pay dates between the first and last date entered that were not included, include them now. If the pay was $0, list $0 income."
+                            Text 25, 60, 130, 10, "Check to Update: " & pay_date(pay_item)
+                            Text 10, 80, 190, 20, "If the check before and after the missing check is known, the Year-To-Date calculation functionality can be used."
+                            ButtonGroup ButtonPressed
+                                PushButton 10, 110, 90, 15, "Use YTD Calculator", ytd_calculator_btn
+                                PushButton 110, 110, 120, 15, "Enter Check Information Manually", enter_check_manually_btn
+                        EndDialog
+
+                        dialog Dialog1
+
+                        If ButtonPressed = ytd_calculator_btn Then
+                            Call delete_one_check(pay_item)
+                            Call ytd_calculator(err_msg)
+                            Call order_checks
+                        Else
+                            ButtonPressed = ""
+                            Call check_details_dialog(True, pay_item, ButtonPressed)
+                            If ButtonPressed = save_details_btn Then
+                                check_info_entered(pay_item) = True
+                            End If
+                            If ButtonPressed = delete_check_btn Then
+                                Call delete_one_check(pay_item)
+                            End If
+                        End If
 					Next
 					all_info_entered = False
 					Call order_checks
@@ -4702,7 +4727,7 @@ class jobs_income
 				Call resize_check_list(pay_item)
 				pay_date(pay_item) = check_missed
 				pay_detail_btn(pay_item) = 2000+pay_item
-				duplct_pay_date(check_count) = False
+				duplct_pay_date(pay_item) = False
 				calculated_by_ytd(pay_item) = True
 				duplicate_pay_date(pay_item) = False
 				check_info_entered(pay_item) = True
