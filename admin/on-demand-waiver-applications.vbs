@@ -1683,6 +1683,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		    WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
 		    EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
 		    IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+		        original_application_date = ""
 		        multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 		        EMReadScreen original_application_date, 8, row, 38               'reading the app date from the other application line
 		        EMReadScreen original_cash_code, 1, row, 54
@@ -1695,6 +1696,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		        If original_emer_code <> "_" Then use_original_app_date = True
 		        If original_grh_code <> "_" Then use_original_app_date = True
 
+                additional_application_date = ""
 		        EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
 		        EMReadScreen additional_cash_code, 1, row + 1, 54
 		        EMReadScreen additional_snap_code, 1, row + 1, 62
@@ -1712,17 +1714,18 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 				End If
 
 		        If use_original_app_date = True AND use_additional_app_date = True Then
+                    original_application_date = trim(original_application_date)
 		            original_application_date = replace(original_application_date, " ", "/")
-		            WORKING_LIST_CASES_ARRAY(application_date, case_entry) = original_application_date
+		            If IsDate(original_application_date) Then WORKING_LIST_CASES_ARRAY(application_date, case_entry) = original_application_date
+                    additional_application_date = trim(additional_application_date)
 		            additional_application_date = replace(additional_application_date, " ", "/")
-		            WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
+		            If IsDate(additional_application_date) Then WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
 		            WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "RESOLVE SUBSEQUENT APPLICATION DATE"
 		        End If
 		        ' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & WORKING_LIST_CASES_ARRAY(error_notes, case_entry)
 		    END IF
+            additional_application_check = ""
 		End If
-
-
 
 		If WORKING_LIST_CASES_ARRAY(client_name, case_entry) = "XXXXX" Then
 			Call navigate_to_MAXIS_screen("STAT", "MEMB")       'go to MEMB - do not need to chose a different memb number because we are looking for the case name
