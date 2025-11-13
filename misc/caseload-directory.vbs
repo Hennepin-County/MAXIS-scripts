@@ -4,6 +4,7 @@
 set caseload_info = CreateObject("Scripting.Dictionary")
 
 caseload_info.add "X127FA5", "YET"
+caseload_info.add "X127FA7", "YET Active"
 ' caseload_info.add "X127F3P", "Families - General"		- this is MAEPD
 'Team 1 Clifton
 caseload_info.add "X127EK8", "Adults - Pending 1"
@@ -147,6 +148,7 @@ caseload_info.add "X127FH4",	"Waivers"
 caseload_info.add "X127FH5",	"Waivers"
 caseload_info.add "X127FI2",	"Waivers"
 caseload_info.add "X127FI7",	"Waivers"
+caseload_info.add "X127EZ5",	"Families - Waivers"
 caseload_info.add "X127EJ1",	"Forensic"
 caseload_info.add "X127EG9",	"MNsure A-L"
 caseload_info.add "X127EG0",	"MNsure M-Z"
@@ -162,12 +164,16 @@ caseload_info.add "X127F3H", "Privileged Cases"
 caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
 caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
 caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
+caseload_info.add "X127FF4", "Contracted - Northridge"
+caseload_info.add "X127FF5", "Contracted - Northridge"
 
 caseload_info.add "X127FF8", "Contracted - North Memorial"
 caseload_info.add "X127FF6", "Contracted - HCMC"
 caseload_info.add "X127FF7", "Contracted - HCMC"
 
 caseload_info.add "X127FI1", "METS Retro Request"
+caseload_info.add "X127EA0", "EA"
+caseload_info.add "X127EAK", "EA"
 
 
 'Dictionary for program manager based on caseload type
@@ -201,9 +207,11 @@ caseload_manager.add "Andrew Residence",                         "Ann Noeker"
 caseload_manager.add "TEFRA",                                    "Ann Noeker"
 caseload_manager.add "Contracted - Monarch Facilities Contract", "Ann Noeker"
 caseload_manager.add "Contracted - A Villa Facilities Contract", "Ann Noeker"
+caseload_manager.add "Families Waivers",                         "Ann Noeker"
 caseload_manager.add "Contracted - Ebenezer Care Center/ Martin Luther Care Center", "Ann Noeker"
 caseload_manager.add "Contracted - North Memorial",              "Ann Noeker"
 caseload_manager.add "Contracted - HCMC",                        "Ann Noeker"
+caseload_manager.add "Contracted - Northridge",                  "Ann Noeker"
 caseload_manager.add "GRH / HS - Adults Pending",                "Monique Moore"
 caseload_manager.add "GRH / HS - Families Pending",              "Monique Moore"
 caseload_manager.add "GRH / HS - Maintenance",                   "Monique Moore"
@@ -211,10 +219,12 @@ caseload_manager.add "Forensic",                                 "Monique Moore"
 caseload_manager.add "MNsure A-L",                               "Monique Moore"
 caseload_manager.add "MNsure M-Z",                               "Monique Moore"
 caseload_manager.add "1800 - Team 160",                          "Monique Moore"
+caseload_manager.add "EA",                                       "Monique Moore"
 caseload_manager.add "MA - BC",                                  "Jackie Poidinger"
 caseload_manager.add "Foster Care / IV-E",                       "Brianna Fleeman Schneider"
 caseload_manager.add "METS Retro Request",                       "Tenzing Yarphel"
-caseload_manager.add "YET",                                      "Tenzing Yarphel"
+caseload_manager.add "YET",                                      "Monique Moore"
+caseload_manager.add "YET Active",                               "Monique Moore"
 
 
 
