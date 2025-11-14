@@ -687,6 +687,10 @@ function define_main_dialog()
             If update_pers = FALSE Then
                 EditBox 800, 500, 50, 15, dummy_editbox_to_capture_focus
                 y_pos = 20
+                If HH_arrived_date <> "" Then
+                    Text 20, y_pos, 200, 10, "*** Household Arrived in Minnesota on " & HH_arrived_date & " from " & HH_arrived_place
+                    y_pos = y_pos + 15
+                End If
                 For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
                     progs = ""
                     If HH_MEMB_ARRAY(snap_req_checkbox, the_membs) = checked Then progs = progs & "SNAP "
@@ -714,23 +718,28 @@ function define_main_dialog()
                         member_info_string = member_info_string & "*** Non-Citizen ***; "
                         If trim(HH_MEMB_ARRAY(imig_status, the_membs)) = "" Then
                             ' MEMB_requires_update = True
-                            member_info_string = member_info_string & "Imig Status Missing; "
+                            If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
+                                member_info_string = member_info_string & "Imig Status and Sponsor Info Missing; "
+                            Else
+                                member_info_string = member_info_string & "Imig Status Missing; "
+                            End If
                         Else
                             member_info_string = member_info_string & "Imig Status: " & HH_MEMB_ARRAY(imig_status, the_membs) & "; "
-                        End If
-                        If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
-                            ' MEMB_requires_update = True
-                            member_info_string = member_info_string & "Sponsor Info Missing; "
+                            If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
+                                ' MEMB_requires_update = True
+                                member_info_string = member_info_string & "Sponsor Info Missing; "
+                            End If
                         End If
                     End If
-                    If HH_MEMB_ARRAY(in_mn_12_mo, the_membs) = "No" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
-                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" Then member_info_string = member_info_string & "Interpreter Needed; "
+                    If HH_MEMB_ARRAY(in_mn_12_mo, the_membs) = "No" and HH_arrived_place = "" and HH_arrived_date = "" Then
+                        If HH_MEMB_ARRAY(former_state, the_membs) = "NB" Then member_info_string = member_info_string & "Born on " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & "; "
+                        If HH_MEMB_ARRAY(former_state, the_membs) <> "NB" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
+                    End If
+                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then member_info_string = member_info_string & "Interpreter Needed; "
 
-                    If trim(progs) <> "(none)" and the_membs <> 0 Then
-                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Spoken Lang: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
-                        If left(HH_MEMB_ARRAY(written_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(written_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Written Lang: " & right(HH_MEMB_ARRAY(written_lang, the_membs), len(HH_MEMB_ARRAY(written_lang, the_membs))-5) & "; "
+                    If trim(progs) <> "(none)" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then
+                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Language: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
                         If len(HH_MEMB_ARRAY(spoken_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Spoken Lang Unknown; "
-                        If len(HH_MEMB_ARRAY(written_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Written Lang Unknown; "
                     End If
                     If trim(progs) <> "(none)" Then
                         If HH_MEMB_ARRAY(race, the_membs) = "Unable To Determine" Then member_info_string = member_info_string & "Race Undetermined; "
@@ -4480,8 +4489,19 @@ function review_information()
         If HH_MEMB_ARRAY(race_w_checkbox, the_memb) = checked Then race_string = race_string & "White~"
         If right(race_string, 1) = "~" Then race_string = left(race_string, len(race_string) - 1)
         If InStr(race_string, "~") > 0 Then race_string = "Multiple Races"
+        If HH_MEMB_ARRAY(race, the_memb) = "Multiple Races" and race_string = "" Then race_string = "Multiple Races"
         If race_string = "" Then race_string = "Unable To Determine"
         HH_MEMB_ARRAY(race, the_memb) = race_string
+
+        If the_memb = 0 Then
+            HH_arrived_date = HH_MEMB_ARRAY(mn_entry_date, the_memb)
+            HH_arrived_place = HH_MEMB_ARRAY(former_state, the_memb)
+        Else
+            If HH_arrived_date <> HH_MEMB_ARRAY(mn_entry_date, the_memb) or HH_arrived_place <> HH_MEMB_ARRAY(former_state, the_memb)  Then
+                HH_arrived_date = ""
+                HH_arrived_place = ""
+            End If
+        End If
 
         HH_MEMB_ARRAY(requires_update, the_memb) = False
         If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_memb) = "__" or HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
@@ -7239,6 +7259,7 @@ Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method t
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
+Dim HH_arrived_date, HH_arrived_place
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim licensed_facility, meal_provided, residence_name_phone
@@ -8249,6 +8270,8 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	client_array = split(client_array, "|")
 
 	clt_count = 0
+    HH_arrived_date = ""
+    HH_arrived_place = ""
 
 	For each hh_clt in client_array
 
@@ -8374,6 +8397,41 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "N" Then HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "No"
 
 			HH_MEMB_ARRAY(race, clt_count) = trim(HH_MEMB_ARRAY(race, clt_count))
+            HH_MEMB_ARRAY(race_a_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_b_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_n_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_p_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_w_checkbox, clt_count) = unchecked
+
+            If HH_MEMB_ARRAY(race, clt_count) = "Asian" Then                        HH_MEMB_ARRAY(race_a_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Black Or African Amer" Then        HH_MEMB_ARRAY(race_b_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Amer Indn Or Alaskan Native" Then  HH_MEMB_ARRAY(race_n_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Pacific Is Or Native Hawaii" Then  HH_MEMB_ARRAY(race_p_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "White" Then                        HH_MEMB_ARRAY(race_w_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Multiple Races" Then
+                PF9
+                call write_value_and_transmit("X", 17, 34)
+                EMReadScreen race_pop_up_check, 18, 5, 12
+                If race_pop_up_check = "X AS MANY AS APPLY" Then
+                    EMReadScreen x_a, 1, 7, 12
+                    If x_a = "X" Then HH_MEMB_ARRAY(race_a_checkbox, clt_count) = checked
+                    EMReadScreen x_b, 1, 8, 12
+                    If x_b = "X" Then HH_MEMB_ARRAY(race_b_checkbox, clt_count) = checked
+                    EMReadScreen x_n, 1, 10, 12
+                    If x_n = "X" Then HH_MEMB_ARRAY(race_n_checkbox, clt_count) = checked
+                    EMReadScreen x_p, 1, 12, 12
+                    If x_p = "X" Then HH_MEMB_ARRAY(race_p_checkbox, clt_count) = checked
+                    EMReadScreen x_w, 1, 14, 12
+                    If x_w = "X" Then HH_MEMB_ARRAY(race_w_checkbox, clt_count) = checked
+                End If
+                EMReadScreen race_pop_up_check, 7, 6, 22
+                EMReadScreen memb_mode, 1, 20, 8
+                Do while race_pop_up_check <> "* Last:" and memb_mode <> "D"
+                    PF10
+                    EMReadScreen race_pop_up_check, 7, 6, 22
+                    EMReadScreen memb_mode, 1, 20, 8
+                Loop
+            End If
 
 			HH_MEMB_ARRAY(spoken_lang, clt_count) = replace(replace(HH_MEMB_ARRAY(spoken_lang, clt_count), "_", ""), "  ", " - ")
 			HH_MEMB_ARRAY(written_lang, clt_count) = trim(replace(replace(replace(HH_MEMB_ARRAY(written_lang, clt_count), "_", ""), "  ", " - "), "(HRF)", ""))
@@ -8426,6 +8484,15 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(mn_entry_date, clt_count) = "__/__/__" Then HH_MEMB_ARRAY(mn_entry_date, clt_count) = ""
 			If HH_MEMB_ARRAY(former_state, clt_count) = "__" Then HH_MEMB_ARRAY(former_state, clt_count) = ""
 
+            If clt_count = 0 Then
+                HH_arrived_date = HH_MEMB_ARRAY(mn_entry_date, clt_count)
+                HH_arrived_place = HH_MEMB_ARRAY(former_state, clt_count)
+            Else
+                If HH_arrived_date <> HH_MEMB_ARRAY(mn_entry_date, clt_count) or HH_arrived_place <> HH_MEMB_ARRAY(former_state, clt_count)  Then
+                    HH_arrived_date = ""
+                    HH_arrived_place = ""
+                End If
+            End If
 
 		End If
 
@@ -8437,15 +8504,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		' ReDim Preserve ALL_ANSWERS_ARRAY(ans_notes, clt_count)
 		clt_count = clt_count + 1
 	Next
+    If HH_arrived_date <> "" Then all_members_listed_notes = "All members arrived in Minnesota on " & HH_arrived_date & " from " & HH_arrived_place & "."
+
 
 	Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
     type_row = 6
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		HH_MEMB_ARRAY(race_a_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_b_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_n_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_p_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_w_checkbox, the_members) = unchecked
 
         EMReadScreen type_ref_numb, 2, type_row, 3
         Do While type_ref_numb <> HH_MEMB_ARRAY(ref_number, the_members)
