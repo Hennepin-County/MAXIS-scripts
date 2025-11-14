@@ -129,7 +129,7 @@ EndDialog
 
 Do
     'Shows dialog
-    Dialog Dialog1 
+    Dialog Dialog1
     cancel_without_confirmation
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -201,6 +201,7 @@ If all_workers_check = checked then
         If MX_row = 19 Then
             EMReadScreen last_page_check, 9, 19, 3
 
+            If trim(last_page_check) = "" Then Exit Do          'probably no county has only one page of workers but weirder things have happened
             If last_page_check <> "More:   -" Then
                 PF8
                 MX_row = 7
@@ -239,6 +240,7 @@ Else
                 If MX_row = 19 Then
                     EMReadScreen last_page_check, 9, 19, 3
 
+                    If trim(last_page_check) = "" Then Exit Do      'leave the loop if there is exactly one page of workers for this supervisor as there is no 'More' phrase
                     If last_page_check <> "More:   -" Then
                         PF8
                         MX_row = 7
