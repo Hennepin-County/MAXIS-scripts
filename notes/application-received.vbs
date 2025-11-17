@@ -129,6 +129,10 @@ CALL changelog_update("08/07/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 random_team_needed = ""
+
+'Load the list of caseloads and pms file
+Call run_from_GitHub(script_repository & "misc\caseload-directory.vbs")
+
 set caseload_info = CreateObject("Scripting.Dictionary")
 
 caseload_info.add "X127FA5", "YET"
@@ -366,7 +370,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	pended_from_inactive = False
 	If current_caseload = user_x_number Then pended_from_inactive = True
 
-	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" Then
+	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" or current_caseload_type = "LTC+ - General" Then
 		transfer_needed = False
 		correct_caseload_type = current_caseload_type
 		new_caseload = current_caseload
@@ -382,8 +386,8 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	'   "No Application Required", application_type
 
 
-	alpha_split_one_a_l = "ABCDEFGHIJKL"
-	alpha_split_two_m_z = "MNOPQRSTUVWXYZ"
+	alpha_split_one_a_h = "ABCDEFGH"
+	alpha_split_two_i_z = "IJKLMNOPQRSTUVWXYZ"
 
 
 	If transfer_needed = True Then
@@ -408,8 +412,8 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 			If appears_ltc_checkbox = checked Then
 				correct_caseload_type = "LTC+ - General"
 				'MsgBox left(case_name, 1) & vbCr & InStr(alpha_split_two_m_z, left(case_name, 1))
-				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
-				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
+				If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
+				If InStr(alpha_split_two_i_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
 				If current_caseload = new_caseload Then transfer_needed = False
 			End If
 		End If
@@ -684,7 +688,7 @@ Else
 End If
 EMReadScreen original_app_ccap, 27, pnd2_row, 54 'Read for CCAP only as first app, if it is CCAP only, we will not count it as an application date for this script.
 If original_app_ccap = "_       _     _   _       P" Then
-    EMReadScreen additional_application_check, 14, pnd2_row + 1, 17   
+    EMReadScreen additional_application_check, 14, pnd2_row + 1, 17
     If additional_application_check = "ADDITIONAL APP" Then pnd2_row = pnd2_row + 1
 End If
 
