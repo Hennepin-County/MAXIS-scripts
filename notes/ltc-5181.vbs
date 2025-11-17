@@ -864,7 +864,7 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       'Convert phone number to ###-###-#### only if phone number is not blank 
       If trim(section_a_phone_number) <> "" Then section_a_phone_number = left(section_a_phone_number, 3) & "-" & mid(section_a_phone_number, 4, 3) & "-" & right(section_a_phone_number, 4) 
       EMReadScreen section_a_state, 2, 10, 54
-      EMReadScreen section_a_zip_code, 10, 10, 63
+      EMReadScreen section_a_zip_code, 5, 10, 63
       'Return to STAT/MEMB
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
     END IF
@@ -892,7 +892,7 @@ function button_movement() 	'Dialog movement handling for buttons displayed on t
       'Convert phone number to ###-###-#### only if phone number is not blank 
       If trim(section_e_phone_number) <> "" Then section_e_phone_number = left(section_e_phone_number, 3) & "-" & mid(section_e_phone_number, 4, 3) & "-" & right(section_e_phone_number, 4)
       EMReadScreen section_e_state, 2, 10, 54
-      EMReadScreen section_e_zip_code, 10, 10, 63
+      EMReadScreen section_e_zip_code, 5, 10, 63
     END IF
     'End at STAT/MEMB
     Call navigate_to_MAXIS_screen("STAT", "MEMB")
