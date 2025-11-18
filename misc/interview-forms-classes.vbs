@@ -97,7 +97,8 @@ class form_questions
 		If IsArray(detail_explain) 			Then ReDim Preserve detail_explain(index_add)
 	end sub
 
-	public sub display_in_dialog(y_pos, question_yn, question_notes, question_interview_notes, addtl_question, addtl_detail, TEMP_ARRAY)
+	public sub display_in_dialog(y_pos, question_yn, question_notes, question_interview_notes, addtl_question, addtl_detail, TEMP_ARRAY, full_display)
+        If full_display <> False Then full_display = True
 		question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 		If InStr(dialog_phrasing, "For MA-LTC") <> 0 Then question_answers = question_answers+chr(9)+"NoLTC"
 
@@ -178,15 +179,17 @@ class form_questions
 			next
 			If grp_len <> orig_grp_len then grp_len = grp_len + 10
 			If detail_source = "shel-hest" Then grp_len = grp_len + 20
+            If NOT full_display Then grp_len = grp_len - 20
 
 			GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
-			y_pos = y_pos + 20
-			Text 13, y_pos, 42, 10, "Form Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			EditBox 120, y_pos - 5, 350, 15, question_notes
-			PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
-
+            y_pos = y_pos + 20
+            If full_display Then
+                Text 13, y_pos, 42, 10, "Form Answer"
+                DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
+                Text 95, y_pos, 25, 10, "write-in:"
+                EditBox 120, y_pos - 5, 350, 15, question_notes
+            End If
+            PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
 			first_item = TRUE
 			for each_item = 0 to UBOUND(detail_interview_notes)
 				If detail_source = "jobs" Then
@@ -532,7 +535,7 @@ class form_questions
 			y_pos = y_pos + 20
 		End If
 
-		If detail_array_exists = False Then
+		If detail_array_exists = False and full_display Then
 			Text 15, y_pos, 60, 10, "Interview Notes:"
 			EditBox 75, y_pos - 5, 320, 15, question_interview_notes
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", verif_btn
