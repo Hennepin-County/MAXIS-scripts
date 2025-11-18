@@ -460,12 +460,13 @@ function define_main_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions   ---   Questions from " & CAF_form
 
-		Text 485, 5, 75, 10, "---   DIALOGS   ---"
-		Text 485, 17, 10, 10, "1"
-		Text 485, 32, 10, 10, "2"
-		Text 485, 47, 10, 10, "3"
-		Text 485, 62, 10, 10, "4"
-		num_pos = 77
+        ' If CAF_form = "MNbenefits" Then Text 485, 5, 10, 10, "COVER LETTER"
+        If CAF_form <> "MNbenefits" Then Text 485, 5, 75, 10, "---   DIALOGS   ---"
+		Text 485, 22, 10, 10, "1"
+		Text 485, 37, 10, 10, "2"
+		Text 485, 52, 10, 10, "3"
+		Text 485, 67, 10, 10, "4"
+		num_pos = 82
 		If last_page_of_questions => 5 Then
 			Text 485, num_pos, 10, 10, "5"
 			num_pos = num_pos + 15
@@ -530,8 +531,42 @@ function define_main_dialog()
 		num_pos = num_pos + 15
 	    ButtonGroup ButtonPressed
 
-	    If page_display = show_pg_one_memb01_and_exp Then
-			Text 497, 17, 60, 10, "INTVW / CAF 1"
+        If page_display = show_cover_letter and CAF_form = "MNbenefits" Then
+            Text 490, 7, 60, 10, "COVER LETTER"
+			Text 15, 15, 300, 10, "Before starting the interview questions, record the details from the MNBeneftis Cover Letter."
+            y_pos = 30
+
+
+            'IF EMER IS CHECKED
+            If EMER_on_CAF_checkbox = checked or emer_verbal_request = "Yes" Then
+                GroupBox 5, y_pos, 475, 50, "Since EMER is requested, the cover letter may have EMER information"
+                y_pos = y_pos + 10
+                Text 15, y_pos+5, 75, 10, "Emergency Type:"
+                ComboBox 90, y_pos, 210, 25, "Select or Type"+chr(9)+"Eviction"+chr(9)+"Forced Move"+chr(9)+"Foreclosure"+chr(9)+"Utility Disconnect"+chr(9)+"Home Repairs"+chr(9)+"Property Taxes"+chr(9)+"Bus Ticket"+chr(9)+emergency_type, emergency_type
+                Text 15, y_pos+25, 60, 10, "Comments:"
+                EditBox 75, y_pos+20, 390, 15, emergency_discussion
+                y_pos = y_pos + 50
+            End If
+
+            GroupBox 5, y_pos, 475, 220, "APPLICATION COMMENTS AND INFORMATION"
+            y_pos = y_pos + 15
+            Text 15, y_pos, 130, 10, "Additional Application Comments:"
+            EditBox 15, y_pos+10, 455, 15, additional_application_comments
+            y_pos = y_pos + 35
+
+            Text 15, y_pos, 130, 10, "Jobs and Self Employment Listed:"
+            y_pos = y_pos + 15
+            mn_ben_job_quest = 8
+            mn_ben_unea_quest = 9
+            call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "")
+            call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "")
+
+            Text 15, y_pos, 130, 10, "Additional Income Comments:"
+            EditBox 15, y_pos+10, 455, 15, additional_income_comments
+
+        End If
+        If page_display = show_pg_one_memb01_and_exp Then
+			Text 497, 22, 60, 10, "INTVW / CAF 1"
 
 			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
 			ComboBox 120, 30, 75, 45, "Select or Type"+chr(9)+"Phone"+chr(9)+"In Office"+chr(9)+how_are_we_completing_the_interview, how_are_we_completing_the_interview
@@ -587,7 +622,7 @@ function define_main_dialog()
 			End If
 
 		ElseIf page_display = show_pg_one_address Then
-			Text 504, 32, 60, 10, "CAF ADDR"
+			Text 504, 37, 60, 10, "CAF ADDR"
 			If update_addr = FALSE Then
 				Text 70, 55, 305, 15, resi_addr_street_full
 				Text 70, 75, 105, 15, resi_addr_city
@@ -680,7 +715,7 @@ function define_main_dialog()
 			Text 255, 275, 75, 10, "County of Residence:"
 
 		ElseIf page_display = show_pg_memb_list Then
-			Text 504, 47, 60, 10, "CAF MEMBs"
+			Text 504, 52, 60, 10, "CAF MEMBs"
             allow_expand = False
             If UBound(HH_MEMB_ARRAY, 2) < 10 Then allow_expand = True
 
@@ -1495,22 +1530,23 @@ function define_main_dialog()
 					End If
 				End If
 			Next
-			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 62, 55, 10, pg_4_label
-			If page_display = 5 and last_page_of_questions => 5 Then Text 505, 77, 55, 10, pg_5_label
-			If page_display = 6 and last_page_of_questions => 6 Then Text 505, 92, 55, 10, pg_6_label
-			If page_display = 7 and last_page_of_questions => 7 Then Text 505, 107, 55, 10, pg_7_label
-			If page_display = 8 and last_page_of_questions => 8 Then Text 505, 122, 55, 10, pg_8_label
-			If page_display = 9 and last_page_of_questions => 9 Then Text 505, 137, 55, 10, pg_9_label
-			If page_display = 10 and last_page_of_questions => 10 Then Text 505, 152, 55, 10, pg_10_label
-			If page_display = 11 and last_page_of_questions => 11 Then Text 505, 167, 55, 10, pg_11_label
+			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 67, 55, 10, pg_4_label
+			If page_display = 5 and last_page_of_questions => 5 Then Text 505, 82, 55, 10, pg_5_label
+			If page_display = 6 and last_page_of_questions => 6 Then Text 505, 97, 55, 10, pg_6_label
+			If page_display = 7 and last_page_of_questions => 7 Then Text 505, 112, 55, 10, pg_7_label
+			If page_display = 8 and last_page_of_questions => 8 Then Text 505, 127, 55, 10, pg_8_label
+			If page_display = 9 and last_page_of_questions => 9 Then Text 505, 142, 55, 10, pg_9_label
+			If page_display = 10 and last_page_of_questions => 10 Then Text 505, 157, 55, 10, pg_10_label
+			If page_display = 11 and last_page_of_questions => 11 Then Text 505, 172, 55, 10, pg_11_label
 
 		End If
 
 
-		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
-		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
-		If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
-		btn_pos = 60
+		If page_display <> show_cover_letter and CAF_form = "MNbenefits" Then PushButton 485, 5, 65, 13, "COVER LETTER", cover_letter_btn
+		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 20, 55, 13, "INTVW / CAF 1", caf_page_one_btn
+		If page_display <> show_pg_one_address 			Then PushButton 495, 35, 55, 13, "CAF ADDR", caf_addr_btn
+		If page_display <> show_pg_memb_list 			Then PushButton 495, 50, 55, 13, "CAF MEMBs", caf_membs_btn
+		btn_pos = 65
 		If page_display <> 4 									Then PushButton 495, btn_pos, 		55, 13, pg_4_label, caf_q_pg_4_btn
 		If page_display <> 5 and last_page_of_questions => 5 	Then PushButton 495, btn_pos + 15, 	55, 13, pg_5_label, caf_q_pg_5_btn
 		If page_display <> 6 and last_page_of_questions => 6 	Then PushButton 495, btn_pos + 30, 	55, 13, pg_6_label, caf_q_pg_6_btn
@@ -1519,7 +1555,7 @@ function define_main_dialog()
 		If page_display <> 9 and last_page_of_questions => 9 	Then PushButton 495, btn_pos + 75, 	55, 13, pg_9_label, caf_q_pg_9_btn
 		If page_display <> 10 and last_page_of_questions => 10 	Then PushButton 495, btn_pos + 90, 	55, 13, pg_10_label, caf_q_pg_10_btn
 		If page_display <> 11 and last_page_of_questions => 11 	Then PushButton 495, btn_pos + 105, 55, 13, pg_11_label, caf_q_pg_11_btn
-		btn_pos = (last_page_of_questions * 15) + 15
+		btn_pos = (last_page_of_questions * 15) + 20
 
 		If page_display <> show_qual 					Then PushButton 495, btn_pos, 		55, 13, "CAF QUAL Q", caf_qual_q_btn
 		If page_display <> emergency_questions			Then PushButton 495, btn_pos + 15, 	55, 13, "EMER Q", emer_questions_btn
@@ -1763,6 +1799,9 @@ function dialog_movement()
         End If
 	End If
 
+    If ButtonPressed = cover_letter_btn Then
+        page_display = show_cover_letter
+    End If
 	If ButtonPressed = caf_page_one_btn Then
 		page_display = show_pg_one_memb01_and_exp
 	End If
@@ -7284,6 +7323,7 @@ Dim snap_closed_in_past_30_days, snap_closed_in_past_4_months, grh_closed_in_pas
 Dim cash1_closed_in_past_30_days, cash1_closed_in_past_4_months, cash1_recently_closed_program, cash1_date_closed, cash1_closed_reason
 Dim cash2_closed_in_past_30_days, cash2_closed_in_past_4_months, cash2_recently_closed_program, cash2_date_closed, cash2_closed_reason
 
+Dim additional_application_comments, additional_income_comments
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -7336,6 +7376,7 @@ Dim income_review_completed, assets_review_completed, shel_review_completed, not
 ssn_update_attempt = False
 ssn_update_success = False
 
+show_cover_letter = 0
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
 show_pg_memb_list			= 3
@@ -7531,6 +7572,9 @@ Do
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
+If CAF_form = "MNbenefits" Then page_display = 0
+
 Call check_for_MAXIS(False)
 If switch_to_summary = True Then Call run_from_GitHub(script_repository & "notes/interview-summary.vbs" )
 
@@ -8644,6 +8688,7 @@ clear_phone_three_btn		= 5043
 add_person_btn				= 5050
 clear_job_btn				= 1100
 open_r_and_r_btn 			= 1200
+cover_letter_btn            = 1250
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
