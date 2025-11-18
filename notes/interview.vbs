@@ -548,7 +548,7 @@ function define_main_dialog()
                 y_pos = y_pos + 50
             End If
 
-            GroupBox 5, y_pos, 475, 220, "APPLICATION COMMENTS AND INFORMATION"
+            GroupBox 5, y_pos, 475, 255, "APPLICATION COMMENTS AND INFORMATION"
             y_pos = y_pos + 15
             Text 15, y_pos, 130, 10, "Additional Application Comments:"
             EditBox 15, y_pos+10, 455, 15, additional_application_comments
@@ -557,12 +557,17 @@ function define_main_dialog()
             Text 15, y_pos, 130, 10, "Jobs and Self Employment Listed:"
             y_pos = y_pos + 15
             mn_ben_job_quest = 8
-            mn_ben_unea_quest = 9
-            call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "")
-            call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "")
+            mn_ben_busi_quest = 9
+            mn_ben_unea_quest = 11
+            call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "", False)
+            call FORM_QUESTION_ARRAY(mn_ben_busi_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_busi_quest), "", False)
+            ' call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "", False)
 
             Text 15, y_pos, 130, 10, "Additional Income Comments:"
             EditBox 15, y_pos+10, 455, 15, additional_income_comments
+            y_pos = y_pos + 35
+            Text 15, y_pos, 130, 10, "Interview Notes on Cover Letter Details:"
+            EditBox 15, y_pos+10, 455, 15, cover_letter_interview_notes
 
         End If
         If page_display = show_pg_one_memb01_and_exp Then
@@ -1519,14 +1524,14 @@ function define_main_dialog()
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).dialog_page_numb = page_display Then
 					' If FORM_QUESTION_ARRAY(quest).dialog_order = display_count Then
-					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "", True)
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = true  Then
-						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
-						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "", True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY, True)
 					End If
 				End If
 			Next
@@ -7323,7 +7328,7 @@ Dim snap_closed_in_past_30_days, snap_closed_in_past_4_months, grh_closed_in_pas
 Dim cash1_closed_in_past_30_days, cash1_closed_in_past_4_months, cash1_recently_closed_program, cash1_date_closed, cash1_closed_reason
 Dim cash2_closed_in_past_30_days, cash2_closed_in_past_4_months, cash2_recently_closed_program, cash2_date_closed, cash2_closed_reason
 
-Dim additional_application_comments, additional_income_comments
+Dim additional_application_comments, additional_income_comments, cover_letter_interview_notes
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -10918,6 +10923,15 @@ If progs_verbal_request <> "" Then objSelection.TypeText "PROGRAMS REQUESTED VER
 
 objSelection.Font.Size = "11"
 
+If CAF_form = "MNbenefits" Then
+    objSelection.TypeText "MN Benefits Appliction Cover Letter Details" & vbCr
+    If trim(additional_application_comments) <> "" Then objSelection.TypeText "Additional Application Comments: " & additional_application_comments & vbCr
+    If trim(additional_application_comments) = "" Then objSelection.TypeText "No additional application comments." & vbCr
+    If trim(additional_income_comments) <> "" Then objSelection.TypeText "Additional Income Comments: " & additional_income_comments & vbCr
+    If trim(additional_income_comments) = "" Then objSelection.TypeText "No additional income comments." & vbCr
+    If trim(cover_letter_interview_notes) <> "" Then objSelection.TypeText "Interview Notes on Cover Letter Details: " & cover_letter_interview_notes & vbCr
+    objSelection.TypeText "Any income or emergency details from the cover letter can be found in the specific questions further down in this document." & vbCr & vbCr
+End If
 
 'Ennumeration for SetHeight and SetWidth
 'wdAdjustFirstColumn	2	Adjusts the left edge of the first column only, preserving the positions of the other columns and the right edge of the table.
