@@ -67,7 +67,7 @@ changelog_display
 Dim folderPath, application_ID, fso, folder, fileList, file, xml_file_path, script_testing
 
 'Initialize variables
-script_testing = false
+script_testing = true
 
 
 
@@ -174,5 +174,196 @@ DO
     If manual_file_select_checkbox = 1 and trim(file_path) = "" then err_msg = err_msg & vbCr & "* You must click the 'Select File' button and select the XML file or manually enter the file path in the field."
 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'Create XML object
+Dim xmlDoc
+Set xmlDoc = CreateObject("Microsoft.XMLDOM")
+xmlDoc.async = False
+
+'Load the XML file
+xmlDoc.load(XML_file_path)
+
+If xmlDoc.parseError.errorCode <> 0 Then
+  'Release the XML DOM object when you're done
+  Set xmlDoc = Nothing
+  script_end_procedure("Error in XML: " & xmlDoc.parseError.reason)
+End If
+
+' Get all of the members' information
+Dim memberCount
+memberCount = 0
+Dim householdMembers()
+Const MEMBER_FIRST_NAME = 0
+Const MEMBER_LAST_NAME  = 1
+Const MEMBER_DOB        = 2
+Const MEMBER_SSN        = 3
+Const MEMBER_GENDER     = 4
+ReDim householdMembers(MEMBER_GENDER, memberCount)   'Redimmed to the size of the last constant
+
+Dim objHouseholdMemberNode, objHouseholdMemberNodes
+Set objHouseholdMemberNode = xmlDoc.selectSingleNode("//ns4:HouseholdInfo")
+Set objHouseholdMemberNodes = objHouseholdMemberNode.selectNodes("ns4:HouseholdMember")
+
+Dim objMemberNode, objRoot
+Dim objFirstNameNode, objLastNameNode, objSSNNode, objDOBNode, objGenderNode
+
+Dim formattedDate, objApplicationDate, applicationDate, applicationMonth, applicationDay, applicationYear
+' Application Date - First try to get ApplicationDate (new business logic date), then fall back to SubmitDate
+
+' Try to get the new ApplicationDate field first
+Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationDate")
+If objApplicationDate Is Nothing Then
+    ' If ApplicationDate doesn't exist, fall back to SubmitDate for backward compatibility
+    Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:SubmitDate")
+End If
+
+If Not objApplicationDate Is Nothing Then
+  applicationDate = objApplicationDate.Text
+  applicationMonth = Mid(applicationDate, 6, 2)
+  applicationDay = Mid(applicationDate, 9, 2)
+  applicationYear = Mid(applicationDate, 1, 4)
+Else ' Use the current date if neither application date is available    
+  applicationMonth = Right("0" & Month(currentDate), 2)
+  applicationDay = Right("0" & Day(currentDate), 2)
+  applicationYear = Year(currentDate)
+End If
+
+formattedDate = applicationMonth & "/" & applicationDay & "/" & applicationYear
+MAXIS_footer_month = applicationMonth
+MAXIS_footer_year = Mid(applicationYear, 3, 2)
+
+Dim objApplicationId
+' Application Id
+Set objApplicationId = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationID")
+If Not objApplicationId Is Nothing Then
+  applicationId = objApplicationId.Text
+End If
+
+'Validate the provided application ID against the application ID in the XML file
+If application_ID_checkbox = 1 Then
+  If applicationId <> application_ID Then script_end_procedure_with_error_report("The application ID provided to locate the MNBenefits XML file does not match the application ID in the XML file. Please try running the script again.")
+End If
+
+For Each objMemberNode In objHouseholdMemberNodes
+  'MsgBox objMemberNode.InnerText
+  Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
+  Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
+  Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
+  Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
+  Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
+
+  If Not objFirstNameNode Is Nothing Then
+    householdMembers(MEMBER_FIRST_NAME, memberCount) = objFirstNameNode.Text
+  End If
+  If Not objLastNameNode Is Nothing Then
+    householdMembers(MEMBER_LAST_NAME, memberCount) = objLastNameNode.Text
+  End If
+  If Not objDOBNode Is Nothing Then
+    householdMembers(MEMBER_DOB, memberCount) = objDOBNode.Text
+  End If
+  If Not objSSNNode Is Nothing Then
+    householdMembers(MEMBER_SSN, memberCount) = objSSNNode.Text
+  End If
+  If Not objGenderNode Is Nothing Then
+    householdMembers(MEMBER_GENDER, memberCount) = objGenderNode.Text
+  End If
+
+  If householdMembers(MEMBER_FIRST_NAME, memberCount) = "" And householdMembers(MEMBER_LAST_NAME, memberCount) = "" Then
+    Exit For
+  End If
+
+  Dim memberNumber
+  If memberCount < 9 Then
+    memberNumber = "0" & memberCount + 1
+  Else
+    memberNumber = memberCount + 1
+  End If
+
+  memberCount = memberCount + 1
+  ReDim Preserve householdMembers(MEMBER_GENDER, memberCount)
+Next
+  
+' Release the XML DOM object when you're done
+Set xmlDoc = Nothing
+
+dialog_member_count = 0
+
+'XML File Confirmation Dialog
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 256, 245, "Verify MNBenefits XML Details - Household Members"
+  Text 5, 5, 250, 25, "Please review the XML details below and verify that the correct XML file has been selected. If you need to change the XML file, please press the 'Reselect XML' button below."
+  GroupBox 10, 35, 235, 155, "MNBenefits XML File Details"
+  Text 15, 45, 50, 10, "Application ID:"
+  Text 100, 45, 50, 10, application_ID
+  Text 15, 55, 60, 10, "Application Date:"
+  Text 100, 55, 60, 10, formattedDate
+  Text 15, 65, 75, 10, "Household Member 1:"
+  Text 100, 65, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+  dialog_member_count = dialog_member_count + 1 
+  If member_count > 1 Then
+    Text 15, 75, 75, 10, "Household Member 2:"
+    Text 100, 75, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 2 Then
+    Text 15, 85, 75, 10, "Household Member 3:"
+    Text 100, 85, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 3 Then
+    Text 15, 95, 75, 10, "Household Member 4:"
+    Text 100, 95, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 4 Then
+    Text 15, 105, 75, 10, "Household Member 5:"
+    Text 100, 105, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 5 Then
+    Text 15, 115, 75, 10, "Household Member 6:"
+    Text 100, 115, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 6 Then
+    Text 15, 125, 75, 10, "Household Member 7:"
+    Text 100, 125, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 7 Then
+    Text 15, 135, 75, 10, "Household Member 8:"
+    Text 100, 135, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 8 Then
+    Text 15, 145, 75, 10, "Household Member 9:"
+    Text 100, 145, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 9 Then
+    Text 15, 155, 80, 10, "Household Member 10:"
+    Text 100, 155, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 10 Then
+    Text 15, 165, 80, 10, "Household Member 11:"
+    Text 100, 165, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 11 Then
+    Text 15, 175, 80, 10, "Household Member 12:"
+    Text 100, 175, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    dialog_member_count = dialog_member_count + 1
+  End If
+  ButtonGroup ButtonPressed
+    PushButton 205, 225, 45, 15, "Continue", continue_button
+    PushButton 10, 225, 50, 15, "Reselect XML", reselect_xml_button
+EndDialog
+
+DO
+  dialog Dialog1
+  cancel_without_confirmation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
