@@ -177,24 +177,27 @@ class form_questions
 				End If
 				If show_info = True then grp_len = grp_len + 10
 			next
-			If grp_len <> orig_grp_len then grp_len = grp_len + 10
+			If grp_len <> orig_grp_len and full_display then grp_len = grp_len + 10
 			If detail_source = "shel-hest" Then grp_len = grp_len + 20
-            If NOT full_display Then grp_len = grp_len - 20
+            If NOT full_display Then grp_len = grp_len - 10
 
             GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
             y_pos = y_pos + 20
+            If NOT full_display Then y_pos = y_pos - 10
             If full_display Then
                 Text 13, y_pos, 42, 10, "Form Answer"
                 DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
                 Text 95, y_pos, 25, 10, "write-in:"
                 EditBox 120, y_pos - 5, 350, 15, question_notes
+                PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
             End If
-            PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
+            If NOT full_display Then PushButton 425, y_pos-10, 55, 10, detail_button_label, add_to_array_btn
 			first_item = TRUE
 			for each_item = 0 to UBOUND(detail_interview_notes)
 				If detail_source = "jobs" Then
 					If detail_business(each_item) <> "" OR detail_resident_name(each_item)<> "" OR detail_monthly_amount(each_item) <> "" OR detail_hourly_wage(each_item) <> "" OR detail_hours_per_week(each_item) <> "" Then
-						If first_item = TRUE and full_display Then y_pos = y_pos + 20
+						If first_item = TRUE Then y_pos = y_pos + 20
+                        If NOT full_display and first_item Then y_pos = y_pos - 10
 						first_item = FALSE
 						If detail_verif_status(each_item) = "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item)
 						If detail_verif_status(each_item) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item) & "   - Verification - " & detail_verif_status(each_item)
@@ -277,7 +280,8 @@ class form_questions
 				y_pos = y_pos +20
 			End If
 
-			If full_display Then y_pos = y_pos + 15
+            y_pos = y_pos + 15
+			If NOT full_display Then y_pos = y_pos - 10
 
 		ElseIf info_type = "standard" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
