@@ -551,14 +551,20 @@ function define_main_dialog()
             EditBox 15, y_pos+10, 455, 15, additional_application_comments
             y_pos = y_pos + 35
 
-            Text 15, y_pos, 130, 10, "Jobs and Self Employment Listed:"
+            Text 5, y_pos, 475, 10, "----- Jobs and Self Employment Listed ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
             y_pos = y_pos + 15
             mn_ben_job_quest = 8
             mn_ben_busi_quest = 9
             mn_ben_unea_quest = 11
             call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "", False)
             call FORM_QUESTION_ARRAY(mn_ben_busi_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_busi_quest), "", False)
+
+            Text 5, y_pos-10, 475, 10, "----- Unearned Income Listed -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+            y_pos = y_pos + 5
             ' call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "", False)
+
+            Text 5, y_pos-10, 475, 10, "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+            y_pos = y_pos + 5
 
             Text 15, y_pos, 130, 10, "Additional Income Comments:"
             EditBox 15, y_pos+10, 455, 15, additional_income_comments
@@ -3090,6 +3096,10 @@ function save_your_work()
 			objTextStream.WriteLine "PROG - NOTE - " & program_request_notes
 			objTextStream.WriteLine "VERB - NOTE - " & verbal_request_notes
 
+			objTextStream.WriteLine "CVR - CMNT - " & additional_application_comments
+			objTextStream.WriteLine "CVR - INCM - " & additional_income_comments
+			objTextStream.WriteLine "CVR - NOTE - " & cover_letter_interview_notes
+
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
 			objTextStream.WriteLine "PRE - HOW - " & how_are_we_completing_the_interview
@@ -3473,6 +3483,10 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - EMER - " & emer_other_req_detail & vbCr & vbCr
+
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - CMNT - " & additional_application_comments
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - INCM - " & additional_income_comments
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - NOTE - " & cover_letter_interview_notes & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - ATC - " & all_the_clients
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - WHO - " & who_are_we_completing_the_interview_with
@@ -3928,6 +3942,11 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 11) = "PROG - NOTE" Then program_request_notes = Mid(text_line, 15)
 					If left(text_line, 11) = "VERB - NOTE" Then verbal_request_notes = Mid(text_line, 15)
+
+			        If left(text_line, 10) = "CVR - CMNT" Then additional_application_comments = Mid(text_line, 14)
+			        If left(text_line, 10) = "CVR - INCM" Then additional_income_comments = Mid(text_line, 14)
+			        If left(text_line, 10) = "CVR - NOTE" Then cover_letter_interview_notes = Mid(text_line, 14)
+
 
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - HOW" Then how_are_we_completing_the_interview = Mid(text_line, 13)
@@ -5315,7 +5334,14 @@ function write_interview_CASE_NOTE()
 	Call write_bullet_and_variable_in_CASE_NOTE("Verbal Request Notes", verbal_request_notes)
     If all_hh_memb_progs_match Then write_variable_in_CASE_NOTE("Program requests include everyone listed on this case.")
 
-	CALL write_variable_in_CASE_NOTE("Household Members:")
+    If CAF_form = "MNbenefits" AND (trim(additional_application_comments) <> "" OR trim(additional_income_comments) <> "" OR trim(cover_letter_interview_notes) <> "") Then
+        CALL write_variable_in_CASE_NOTE("--- MN Benefits Appliction Cover Letter Details ---")
+        If trim(additional_application_comments) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Additional Application Comments", additional_application_comments)
+        If trim(additional_income_comments) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Additional Income Comments", additional_income_comments)
+        If trim(cover_letter_interview_notes) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Interview Notes on Cover Letter Details", cover_letter_interview_notes)
+    End If
+
+	CALL write_variable_in_CASE_NOTE("--- Household Members ---")
     membs_no_request = ""
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
 		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
@@ -10923,13 +10949,13 @@ If progs_verbal_request <> "" Then objSelection.TypeText "PROGRAMS REQUESTED VER
 objSelection.Font.Size = "11"
 
 If CAF_form = "MNbenefits" Then
-    objSelection.TypeText "MN Benefits Appliction Cover Letter Details" & vbCr
-    If trim(additional_application_comments) <> "" Then objSelection.TypeText "Additional Application Comments: " & additional_application_comments & vbCr
-    If trim(additional_application_comments) = "" Then objSelection.TypeText "No additional application comments." & vbCr
-    If trim(additional_income_comments) <> "" Then objSelection.TypeText "Additional Income Comments: " & additional_income_comments & vbCr
-    If trim(additional_income_comments) = "" Then objSelection.TypeText "No additional income comments." & vbCr
-    If trim(cover_letter_interview_notes) <> "" Then objSelection.TypeText "Interview Notes on Cover Letter Details: " & cover_letter_interview_notes & vbCr
-    objSelection.TypeText "Any income or emergency details from the cover letter can be found in the specific questions further down in this document." & vbCr & vbCr
+    objSelection.TypeText "MN Benefits Appliction Cover Letter Details:" & vbCr
+    If trim(additional_application_comments) <> "" Then objSelection.TypeText " - Additional Application Comments: " & additional_application_comments & vbCr
+    If trim(additional_application_comments) = "" Then objSelection.TypeText " - No additional application comments." & vbCr
+    If trim(additional_income_comments) <> "" Then objSelection.TypeText " - Additional Income Comments: " & additional_income_comments & vbCr
+    If trim(additional_income_comments) = "" Then objSelection.TypeText " - No additional income comments." & vbCr
+    If trim(cover_letter_interview_notes) <> "" Then objSelection.TypeText " - Interview Notes on Cover Letter Details: " & cover_letter_interview_notes & vbCr
+    objSelection.TypeText " - Any income or emergency details from the cover letter can be found in the specific questions further down in this document." & vbCr & vbCr
 End If
 
 'Ennumeration for SetHeight and SetWidth
