@@ -136,7 +136,7 @@ class form_questions
 
 		If detail_array_exists = true Then
 			grp_len = 35
-			If sub_phrase <> "" Then grp_len = 55
+			If sub_phrase <> "" and full_display Then grp_len = 55
 			orig_grp_len = grp_len
 
 			for each_item = 0 to UBOUND(detail_interview_notes)
@@ -181,7 +181,7 @@ class form_questions
 			If detail_source = "shel-hest" Then grp_len = grp_len + 20
             If NOT full_display Then grp_len = grp_len - 20
 
-			GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
+            GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
             y_pos = y_pos + 20
             If full_display Then
                 Text 13, y_pos, 42, 10, "Form Answer"
@@ -194,7 +194,7 @@ class form_questions
 			for each_item = 0 to UBOUND(detail_interview_notes)
 				If detail_source = "jobs" Then
 					If detail_business(each_item) <> "" OR detail_resident_name(each_item)<> "" OR detail_monthly_amount(each_item) <> "" OR detail_hourly_wage(each_item) <> "" OR detail_hours_per_week(each_item) <> "" Then
-						If first_item = TRUE Then y_pos = y_pos + 20
+						If first_item = TRUE and full_display Then y_pos = y_pos + 20
 						first_item = FALSE
 						If detail_verif_status(each_item) = "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item)
 						If detail_verif_status(each_item) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item) & "   - Verification - " & detail_verif_status(each_item)
@@ -259,7 +259,7 @@ class form_questions
 					End If
 				End If
 			next
-			If first_item = TRUE Then y_pos = y_pos + 10
+			If first_item = TRUE and full_display Then y_pos = y_pos + 10
 
 			If detail_source = "shel-hest" Then
 				housing_info_txt = "Housing Payment: $ " & housing_payment
@@ -277,7 +277,7 @@ class form_questions
 				y_pos = y_pos +20
 			End If
 
-			y_pos = y_pos + 15
+			If full_display Then y_pos = y_pos + 15
 
 		ElseIf info_type = "standard" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
@@ -491,7 +491,7 @@ class form_questions
 			If allow_prefil = true Then PushButton 385, button_pos, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
 
 		ElseIf info_type = "two-part" Then
-			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+            GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
 			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
@@ -503,9 +503,9 @@ class form_questions
 				Text 360, y_pos, 110, 10, "Q" & number & " - Verification - " & verif_status
 			End If
 			y_pos = y_pos + 20
-
 		ElseIf info_type = "single-detail" Then
-			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+			If full_display then GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+			If NOT full_display then GroupBox 5, y_pos, 475, dialog_height-25, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
 			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
