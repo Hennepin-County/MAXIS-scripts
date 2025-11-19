@@ -548,7 +548,7 @@ function define_main_dialog()
                 y_pos = y_pos + 50
             End If
 
-            GroupBox 5, y_pos, 475, 255, "APPLICATION COMMENTS AND INFORMATION"
+            GB_y_pos = y_pos
             y_pos = y_pos + 15
             Text 15, y_pos, 130, 10, "Additional Application Comments:"
             EditBox 15, y_pos+10, 455, 15, additional_application_comments
@@ -568,6 +568,8 @@ function define_main_dialog()
             y_pos = y_pos + 35
             Text 15, y_pos, 130, 10, "Interview Notes on Cover Letter Details:"
             EditBox 15, y_pos+10, 455, 15, cover_letter_interview_notes
+            y_pos = y_pos + 35
+            GroupBox 5, GB_y_pos, 475, y_pos - GB_y_pos, "APPLICATION COMMENTS AND INFORMATION"
 
         End If
         If page_display = show_pg_one_memb01_and_exp Then
