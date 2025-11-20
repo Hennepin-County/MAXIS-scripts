@@ -555,13 +555,13 @@ function define_main_dialog()
             y_pos = y_pos + 15
             mn_ben_job_quest = 8
             mn_ben_busi_quest = 9
-            mn_ben_unea_quest = 11
+            mn_ben_unea_quest = 13
             call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "", False)
             call FORM_QUESTION_ARRAY(mn_ben_busi_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_busi_quest), "", False)
 
             Text 5, y_pos-10, 475, 10, "----- Unearned Income Listed -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
             y_pos = y_pos + 5
-            ' call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "", False)
+            call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "", False)
 
             Text 5, y_pos-10, 475, 10, "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
             y_pos = y_pos + 5
@@ -7785,8 +7785,8 @@ If vars_filled = True Then
 				set xmlDoc = nothing
 
 				ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
-				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
+				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
 
 				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 					TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
