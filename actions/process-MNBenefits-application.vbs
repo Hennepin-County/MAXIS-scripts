@@ -70,12 +70,326 @@ Dim folderPath, application_ID, fso, folder, fileList, file, xml_file_path, scri
 script_testing = true
 
 
-
 'DEFINING FUNCTIONS===========================================================================
-' function dialog()
 
-' end function
-' Dim 
+'Creating Household Member dialogs as functions to more easily loop through them 
+Function household_members_dialog_1_2()
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_1
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_1
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_1_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_1
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_1
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_1
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_1_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_1_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_2
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_2
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_2_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_2
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_2
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_2
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_2_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_2_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_1, last_name_hh_memb_1, gender_hh_memb_1_list, marital_status_hh_memb_1, dob_hh_memb_1, SSN_hh_memb_1, citizenship_hh_memb_1_list, relationship_hh_memb_1_list, first_name_hh_memb_2, last_name_hh_memb_2, gender_hh_memb_2_list, marital_status_hh_memb_2, dob_hh_memb_2, SSN_hh_memb_2, citizenship_hh_memb_2_list, relationship_hh_memb_2_list
+
+Function household_members_dialog_3_4()
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_3
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_3
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_3_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_3
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_3
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_3
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_3_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_3_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_4
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_4
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_4_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_4
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_4
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_4
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_4_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_4_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_3, last_name_hh_memb_3, gender_hh_memb_3_list, marital_status_hh_memb_3, dob_hh_memb_3, SSN_hh_memb_3, citizenship_hh_memb_3_list, relationship_hh_memb_3_list, first_name_hh_memb_4, last_name_hh_memb_4, gender_hh_memb_4_list, marital_status_hh_memb_4, dob_hh_memb_4, SSN_hh_memb_4, citizenship_hh_memb_4_list, relationship_hh_memb_4_list
+
+Function household_members_dialog_5_6()
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_5
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_5
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_5_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_5
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_5
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_5
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_5_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_5_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_6
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_6
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_6_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_6
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_6
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_6
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_6_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_6_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_5, last_name_hh_memb_5, gender_hh_memb_5_list, marital_status_hh_memb_5, dob_hh_memb_5, SSN_hh_memb_5, citizenship_hh_memb_5_list, relationship_hh_memb_5_list, first_name_hh_memb_6, last_name_hh_memb_6, gender_hh_memb_6_list, marital_status_hh_memb_6, dob_hh_memb_6, SSN_hh_memb_6, citizenship_hh_memb_6_list, relationship_hh_memb_6_list
+
+Function household_members_dialog_7_8() 
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_7
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_7
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_7_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_7
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_7
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_7
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_7_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_7_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_8
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_8
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_8_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_8
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_8
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_8
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_8_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_8_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_7, last_name_hh_memb_7, gender_hh_memb_7_list, marital_status_hh_memb_7, dob_hh_memb_7, SSN_hh_memb_7, citizenship_hh_memb_7_list, relationship_hh_memb_7_list, first_name_hh_memb_8, last_name_hh_memb_8, gender_hh_memb_8_list, marital_status_hh_memb_8, dob_hh_memb_8, SSN_hh_memb_8, citizenship_hh_memb_8_list, relationship_hh_memb_8_list
+
+Function household_members_dialog_9_10()
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_9
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_9
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_9_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_9
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_9
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_9
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_9_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_9_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_10
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_10
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_10_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_10
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_10
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_10
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_10_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_10_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_9, last_name_hh_memb_9, gender_hh_memb_9_list, marital_status_hh_memb_9, dob_hh_memb_9, SSN_hh_memb_9, citizenship_hh_memb_9_list, relationship_hh_memb_9_list, first_name_hh_memb_10, last_name_hh_memb_10, gender_hh_memb_10_list, marital_status_hh_memb_10, dob_hh_memb_10, SSN_hh_memb_10, citizenship_hh_memb_10_list, relationship_hh_memb_10_list
+
+Function household_members_dialog_11_12()
+  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
+    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+    GroupBox 10, 30, 175, 140, "Household Member Information"
+    Text 15, 50, 40, 10, "First name:"
+    EditBox 70, 45, 100, 15, first_name_hh_memb_11
+    Text 15, 65, 40, 10, "Last name:"
+    EditBox 70, 60, 100, 15, last_name_hh_memb_11
+    Text 15, 80, 30, 10, "Gender:"
+    DropListBox 70, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_11_list
+    Text 15, 95, 50, 10, "Marital status:"
+    EditBox 70, 90, 30, 15, marital_status_hh_memb_11
+    Text 15, 110, 45, 10, "Date of birth:"
+    EditBox 70, 105, 100, 15, dob_hh_memb_11
+    Text 15, 125, 20, 10, "SSN:"
+    EditBox 70, 120, 100, 15, SSN_hh_memb_11
+    Text 15, 140, 45, 10, "Citizenship:"
+    DropListBox 70, 135, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_11_list
+    Text 15, 155, 45, 10, "Relationship:"
+    DropListBox 70, 150, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_11_list
+    GroupBox 10, 175, 175, 140, "Household Member Information"
+    Text 15, 195, 40, 10, "First name:"
+    EditBox 70, 190, 100, 15, first_name_hh_memb_12
+    Text 15, 210, 40, 10, "Last name:"
+    EditBox 70, 205, 100, 15, last_name_hh_memb_12
+    Text 15, 225, 30, 10, "Gender:"
+    DropListBox 70, 220, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", gender_hh_memb_12_list
+    Text 15, 240, 50, 10, "Marital status:"
+    EditBox 70, 235, 30, 15, marital_status_hh_memb_12
+    Text 15, 255, 45, 10, "Date of birth:"
+    EditBox 70, 250, 100, 15, dob_hh_memb_12
+    Text 15, 270, 20, 10, "SSN:"
+    EditBox 70, 265, 100, 15, SSN_hh_memb_12
+    Text 15, 285, 45, 10, "Citizenship:"
+    DropListBox 70, 280, 30, 15, "Yes"+chr(9)+"No", citizenship_hh_memb_12_list
+    Text 15, 300, 45, 10, "Relationship:"
+    DropListBox 70, 295, 60, 10, "Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", relationship_hh_memb_12_list
+    ButtonGroup ButtonPressed
+      PushButton 210, 330, 45, 15, "Next", next_hh_memb_btn
+      OkButton 0, 330, 45, 15
+      CancelButton 45, 330, 45, 15
+    GroupBox 195, 30, 70, 105, "Navigation"
+    ButtonGroup ButtonPressed
+      PushButton 200, 40, 60, 15, "HH Memb 1 - 2", hh_memb_1_and_2_button
+      PushButton 200, 55, 60, 15, "HH Memb 3 - 4", hh_memb_3_and_4_button
+      PushButton 200, 70, 60, 15, "HH Memb 5 - 6", hh_memb_5_and_6_button
+      PushButton 200, 85, 60, 15, "HH Memb 7 - 8", hh_memb_7_and_8_button
+      PushButton 200, 100, 60, 15, "HH Memb 9 - 10", hh_memb_9_and_10_button
+      PushButton 200, 115, 60, 15, "HH Memb 11 - 12", hh_memb_11_and_12_button
+  EndDialog
+End Function
+Dim first_name_hh_memb_11, last_name_hh_memb_11, gender_hh_memb_11_list, marital_status_hh_memb_11, dob_hh_memb_11, SSN_hh_memb_11, citizenship_hh_memb_11_list, relationship_hh_memb_11_list, first_name_hh_memb_12, last_name_hh_memb_12, gender_hh_memb_12_list, marital_status_hh_memb_12, dob_hh_memb_12, SSN_hh_memb_12, citizenship_hh_memb_12_list, relationship_hh_memb_12_list
 
 
 'THE SCRIPT=================================================================================================================
@@ -292,73 +606,73 @@ dialog_member_count = 0
 
 'XML File Confirmation Dialog
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 256, 245, "Verify MNBenefits XML Details - Household Members"
-  Text 5, 5, 250, 25, "Please review the XML details below and verify that the correct XML file has been selected. If you need to change the XML file, please press the 'Reselect XML' button below."
-  GroupBox 10, 35, 235, 155, "MNBenefits XML File Details"
+BeginDialog Dialog1, 0, 0, 285, 245, "Verify MNBenefits XML Details - Household Members"
+  Text 5, 5, 275, 20, "Please verify that the correct XML file has been selected. If you need to change the XML file, please press the 'Reselect XML' button below."  
+  GroupBox 10, 35, 270, 155, "MNBenefits XML File Details"
   Text 15, 45, 50, 10, "Application ID:"
   Text 100, 45, 50, 10, application_ID
   Text 15, 55, 60, 10, "Application Date:"
   Text 100, 55, 60, 10, formattedDate
   Text 15, 65, 75, 10, "Household Member 1:"
-  Text 100, 65, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+  Text 100, 65, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
   dialog_member_count = dialog_member_count + 1 
   If member_count > 1 Then
     Text 15, 75, 75, 10, "Household Member 2:"
-    Text 100, 75, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 75, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 2 Then
     Text 15, 85, 75, 10, "Household Member 3:"
-    Text 100, 85, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 85, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 3 Then
     Text 15, 95, 75, 10, "Household Member 4:"
-    Text 100, 95, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 95, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 4 Then
     Text 15, 105, 75, 10, "Household Member 5:"
-    Text 100, 105, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 105, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 5 Then
     Text 15, 115, 75, 10, "Household Member 6:"
-    Text 100, 115, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 115, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 6 Then
     Text 15, 125, 75, 10, "Household Member 7:"
-    Text 100, 125, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 125, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 7 Then
     Text 15, 135, 75, 10, "Household Member 8:"
-    Text 100, 135, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 135, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 8 Then
     Text 15, 145, 75, 10, "Household Member 9:"
-    Text 100, 145, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 145, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 9 Then
     Text 15, 155, 80, 10, "Household Member 10:"
-    Text 100, 155, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 155, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 10 Then
     Text 15, 165, 80, 10, "Household Member 11:"
-    Text 100, 165, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 165, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   If member_count > 11 Then
     Text 15, 175, 80, 10, "Household Member 12:"
-    Text 100, 175, 140, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 15) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 175, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   ButtonGroup ButtonPressed
-    PushButton 205, 225, 45, 15, "Continue", continue_button
+    PushButton 235, 225, 45, 15, "Continue", continue_button
     PushButton 10, 225, 50, 15, "Reselect XML", reselect_xml_button
 EndDialog
 
@@ -367,3 +681,103 @@ DO
   cancel_without_confirmation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'To do - add handling for cases where not address is provided
+
+'Dialog to confirm Application and Address Information
+BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
+  Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
+  Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
+  Text 15, 45, 60, 10, "Application Date: "
+  EditBox 80, 40, 40, 15, application_date
+  GroupBox 10, 65, 175, 90, "Household Address"
+  Text 15, 80, 35, 10, "Address:"
+  EditBox 70, 75, 100, 15, household_address
+  Text 15, 95, 25, 10, "City:"
+  EditBox 70, 90, 100, 15, household_city
+  Text 15, 110, 30, 10, "State:"
+  EditBox 70, 105, 20, 15, household_state
+  Text 15, 125, 20, 10, "Zip:"
+  EditBox 70, 120, 30, 15, household_zip
+  Text 15, 140, 55, 10, "Phone number:"
+  EditBox 70, 135, 100, 15, household_phone_number
+  GroupBox 10, 160, 175, 75, "Mailing Address"
+  Text 15, 175, 35, 10, "Address:"
+  EditBox 70, 170, 100, 15, mailing_address
+  Text 15, 190, 25, 10, "City:"
+  EditBox 70, 185, 100, 15, mailing_city
+  Text 15, 205, 30, 10, "State:"
+  EditBox 70, 200, 20, 15, mailing_state
+  Text 15, 220, 20, 10, "Zip:"
+  EditBox 70, 215, 30, 15, mailing_zip
+  ButtonGroup ButtonPressed
+    PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
+    'To do - delete if no longer needed
+    ' PushButton 5, 245, 50, 15, "Previous", previous_button
+    'To do - delete if no longer needed
+  ' GroupBox 195, 25, 55, 210, "Navigation"
+  ' ButtonGroup ButtonPressed
+  '   Text 200, 35, 45, 15, "Address", address_button
+  '   PushButton 200, 50, 45, 15, "HH Memb 1", hh_memb_1_button
+  '   'Display additional HH member buttons only if they exist
+  '   If member_count > 1 Then
+  '     PushButton 200, 65, 45, 15, "HH Memb 2", hh_memb_2_button
+  '   End If
+  '   If member_count > 2 Then
+  '       PushButton 200, 80, 45, 15, "HH Memb 3", hh_memb_3_button
+  '   End If
+  '   If member_count > 3 Then
+  '       PushButton 200, 95, 45, 15, "HH Memb 4", hh_memb_4_button
+  '   End If
+  '   If member_count > 4 Then
+  '       PushButton 200, 110, 45, 15, "HH Memb 5", hh_memb_5_button
+  '   End If
+  '   If member_count > 5 Then
+  '       PushButton 200, 125, 45, 15, "HH Memb 6", hh_memb_6_button
+  '   End If
+  '   If member_count > 6 Then
+  '       PushButton 200, 140, 45, 15, "HH Memb 7", hh_memb_7_button
+  '   End If
+  '   If member_count > 7 Then
+  '       PushButton 200, 155, 45, 15, "HH Memb 8", hh_memb_8_button
+  '   End If
+  '   If member_count > 8 Then
+  '       PushButton 200, 170, 45, 15, "HH Memb 9", hh_memb_9_button
+  '   End If
+  '   If member_count > 9 Then
+  '       PushButton 200, 185, 45, 15, "HH Memb 10", hh_memb_10_button
+  '   End If
+  '   If member_count > 10 Then
+  '       PushButton 200, 200, 45, 15, "HH Memb 11", hh_memb_11_button
+  '   End If
+  '   If member_count > 11 Then
+  '       PushButton 200, 215, 45, 15, "HH Memb 12", hh_memb_12_button
+  '   End If
+EndDialog
+
+DO
+	DO
+		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+    If ButtonPressed = file_selection_button then 
+      call file_selection_system_dialog(XML_file_path, ".xml")
+      err_msg = "LOOP"
+    End If
+    If trim(application_date) = "" OR IsDate(application_date) = False then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
+    If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+    If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
+    If trim(household_state) = "" Then err_msg = err_msg & vbCr & "* The state field cannot be blank."
+    If trim(household_zip) = "" Then err_msg = err_msg & vbCr & "* The zip code field cannot be blank."
+    'To do - confirm if phone number is required
+    ' If trim(household_phone_number) = "" Then then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+    If trim(mailing_address) = "" Then err_msg = err_msg & vbCr & "* The mailing address field cannot be blank."
+    If trim(mailing_city) = "" Then err_msg = err_msg & vbCr & "* The mailing address city field cannot be blank."
+    If trim(mailing_state) = "" Then err_msg = err_msg & vbCr & "* The mailing address state field cannot be blank."
+    If trim(mailing_zip) = "" Then err_msg = err_msg & vbCr & "* The mailing address zip code field cannot be blank."
+
+		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
