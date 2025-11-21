@@ -505,7 +505,7 @@ If xmlDoc.parseError.errorCode <> 0 Then
   script_end_procedure("Error in XML: " & xmlDoc.parseError.reason)
 End If
 
-' Get all of the members' information
+' Get all of the household members' information
 Dim memberCount
 memberCount = 0
 Dim householdMembers()
@@ -522,43 +522,6 @@ Set objHouseholdMemberNodes = objHouseholdMemberNode.selectNodes("ns4:HouseholdM
 
 Dim objMemberNode, objRoot
 Dim objFirstNameNode, objLastNameNode, objSSNNode, objDOBNode, objGenderNode
-
-Dim formattedDate, objApplicationDate, applicationDate, applicationMonth, applicationDay, applicationYear
-' Application Date - First try to get ApplicationDate (new business logic date), then fall back to SubmitDate
-
-' Try to get the new ApplicationDate field first
-Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationDate")
-If objApplicationDate Is Nothing Then
-    ' If ApplicationDate doesn't exist, fall back to SubmitDate for backward compatibility
-    Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:SubmitDate")
-End If
-
-If Not objApplicationDate Is Nothing Then
-  applicationDate = objApplicationDate.Text
-  applicationMonth = Mid(applicationDate, 6, 2)
-  applicationDay = Mid(applicationDate, 9, 2)
-  applicationYear = Mid(applicationDate, 1, 4)
-Else ' Use the current date if neither application date is available    
-  applicationMonth = Right("0" & Month(currentDate), 2)
-  applicationDay = Right("0" & Day(currentDate), 2)
-  applicationYear = Year(currentDate)
-End If
-
-formattedDate = applicationMonth & "/" & applicationDay & "/" & applicationYear
-MAXIS_footer_month = applicationMonth
-MAXIS_footer_year = Mid(applicationYear, 3, 2)
-
-Dim objApplicationId
-' Application Id
-Set objApplicationId = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationID")
-If Not objApplicationId Is Nothing Then
-  applicationId = objApplicationId.Text
-End If
-
-'Validate the provided application ID against the application ID in the XML file
-If application_ID_checkbox = 1 Then
-  If applicationId <> application_ID Then script_end_procedure_with_error_report("The application ID provided to locate the MNBenefits XML file does not match the application ID in the XML file. Please try running the script again.")
-End If
 
 For Each objMemberNode In objHouseholdMemberNodes
   'MsgBox objMemberNode.InnerText
@@ -598,7 +561,81 @@ For Each objMemberNode In objHouseholdMemberNodes
   memberCount = memberCount + 1
   ReDim Preserve householdMembers(MEMBER_GENDER, memberCount)
 Next
-  
+
+'Gather application date and application ID 
+Dim formatted_app_Date, objApplicationDate, applicationDate, applicationMonth, applicationDay, applicationYear
+' Application Date - First try to get ApplicationDate (new business logic date), then fall back to SubmitDate
+
+' Try to get the new ApplicationDate field first
+Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationDate")
+If objApplicationDate Is Nothing Then
+  ' If ApplicationDate doesn't exist, fall back to SubmitDate for backward compatibility
+  Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:SubmitDate")
+End If
+
+If Not objApplicationDate Is Nothing Then
+  applicationDate = objApplicationDate.Text
+  applicationMonth = Mid(applicationDate, 6, 2)
+  applicationDay = Mid(applicationDate, 9, 2)
+  applicationYear = Mid(applicationDate, 1, 4)
+Else ' Use the current date if neither application date is available    
+  applicationMonth = Right("0" & Month(currentDate), 2)
+  applicationDay = Right("0" & Day(currentDate), 2)
+  applicationYear = Year(currentDate)
+End If
+
+formatted_app_Date = applicationMonth & "/" & applicationDay & "/" & applicationYear
+MAXIS_footer_month = applicationMonth
+MAXIS_footer_year = Mid(applicationYear, 3, 2)
+
+Dim objApplicationId
+' Application Id
+Set objApplicationId = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:ApplicationID")
+If Not objApplicationId Is Nothing Then
+  applicationId = objApplicationId.Text
+End If
+
+'Validate the provided application ID against the application ID in the XML file
+If application_ID_checkbox = 1 Then
+  If applicationId <> application_ID Then script_end_procedure_with_error_report("The application ID provided to locate the MNBenefits XML file does not match the application ID in the XML file. Please try running the script again.")
+End If
+
+'Gather the household address and mailing address details from the XML
+Dim objHouseholdAddress, objHouseholdCity, objHouseholdState, objHouseholdZip, objMailingAddress, objMailingCity, objMailingState, objMailingZip, objCounty, objPhoneNumber
+
+'Get the household address information from the XML
+Set objHouseholdAddress = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Address/ns4:Line")
+If objHouseholdAddress Is Nothing Then
+  'To do - add handling for "No permanent address" with no details for city, zip, etc.
+  ' If ApplicationDate doesn't exist, fall back to SubmitDate for backward compatibility
+  Set objApplicationDate = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/io4:SubmitDate")
+End If
+Set objHouseholdCity = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Address/ns4:City")
+Set objHouseholdState = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Address/ns4:State/ns4:StateCode")
+Set objHouseholdZip = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Address/ns4:Zip5")
+'To do - add handling if household address info blank
+'To do - add handling if mailing address info blank
+
+Set objMailingAddress = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:Line")
+Set objMailingCity = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:City")
+Set objMailingState = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:State/ns4:StateCode")
+Set objMailingZip = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:Zip5")
+
+Set objPhoneNumber = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Phone/ns4:PhoneNumber")
+Set objCounty = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:CountyResidence/ns4:COR")
+
+'Extract text from object
+household_address       = objHouseholdAddress.Text
+household_city          = objHouseholdCity.Text
+household_state         = objHouseholdState.Text
+household_zip           = objHouseholdZip.Text
+household_phone_number  = objPhoneNumber.Text
+household_county        = objCounty.Text
+mailing_address         = objMailingAddress.Text
+mailing_city            = objMailingCity.Text
+mailing_state           = objMailingState.Text
+mailing_zip             = objMailingZip.Text
+
 ' Release the XML DOM object when you're done
 Set xmlDoc = Nothing
 
@@ -612,63 +649,63 @@ BeginDialog Dialog1, 0, 0, 285, 245, "Verify MNBenefits XML Details - Household 
   Text 15, 45, 50, 10, "Application ID:"
   Text 100, 45, 50, 10, application_ID
   Text 15, 55, 60, 10, "Application Date:"
-  Text 100, 55, 60, 10, formattedDate
+  Text 100, 55, 60, 10, formatted_app_Date
   Text 15, 65, 75, 10, "Household Member 1:"
-  Text 100, 65, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+  Text 100, 65, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
   dialog_member_count = dialog_member_count + 1 
-  If member_count > 1 Then
+  If membercount > 1 Then
     Text 15, 75, 75, 10, "Household Member 2:"
-    Text 100, 75, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 75, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 2 Then
+  If membercount > 2 Then
     Text 15, 85, 75, 10, "Household Member 3:"
-    Text 100, 85, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 85, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 3 Then
+  If membercount > 3 Then
     Text 15, 95, 75, 10, "Household Member 4:"
-    Text 100, 95, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 95, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 4 Then
+  If membercount > 4 Then
     Text 15, 105, 75, 10, "Household Member 5:"
-    Text 100, 105, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 105, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 5 Then
+  If membercount > 5 Then
     Text 15, 115, 75, 10, "Household Member 6:"
-    Text 100, 115, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 115, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 6 Then
+  If membercount > 6 Then
     Text 15, 125, 75, 10, "Household Member 7:"
-    Text 100, 125, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 125, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 7 Then
+  If membercount > 7 Then
     Text 15, 135, 75, 10, "Household Member 8:"
-    Text 100, 135, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 135, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 8 Then
+  If membercount > 8 Then
     Text 15, 145, 75, 10, "Household Member 9:"
-    Text 100, 145, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 145, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 9 Then
+  If membercount > 9 Then
     Text 15, 155, 80, 10, "Household Member 10:"
-    Text 100, 155, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 155, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 10 Then
+  If membercount > 10 Then
     Text 15, 165, 80, 10, "Household Member 11:"
-    Text 100, 165, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 165, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
-  If member_count > 11 Then
+  If membercount > 11 Then
     Text 15, 175, 80, 10, "Household Member 12:"
-    Text 100, 175, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 20) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
+    Text 100, 175, 175, 10, left(householdMembers(MEMBER_LAST_NAME, dialog_member_count) & ", " & householdMembers(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & householdMembers(MEMBER_DOB, dialog_member_count) & "; " & householdMembers(MEMBER_SSN, dialog_member_count) & ")"  
     dialog_member_count = dialog_member_count + 1
   End If
   ButtonGroup ButtonPressed
@@ -683,76 +720,38 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'To do - add handling for cases where not address is provided
-
+'To do - add county of residence
+'To do - convert county of residence to county code?
 'Dialog to confirm Application and Address Information
 BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
   Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
   Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
   Text 15, 45, 60, 10, "Application Date: "
-  EditBox 80, 40, 40, 15, application_date
-  GroupBox 10, 65, 175, 90, "Household Address"
-  Text 15, 80, 35, 10, "Address:"
-  EditBox 70, 75, 100, 15, household_address
-  Text 15, 95, 25, 10, "City:"
-  EditBox 70, 90, 100, 15, household_city
-  Text 15, 110, 30, 10, "State:"
-  EditBox 70, 105, 20, 15, household_state
-  Text 15, 125, 20, 10, "Zip:"
-  EditBox 70, 120, 30, 15, household_zip
-  Text 15, 140, 55, 10, "Phone number:"
-  EditBox 70, 135, 100, 15, household_phone_number
-  GroupBox 10, 160, 175, 75, "Mailing Address"
-  Text 15, 175, 35, 10, "Address:"
-  EditBox 70, 170, 100, 15, mailing_address
-  Text 15, 190, 25, 10, "City:"
-  EditBox 70, 185, 100, 15, mailing_city
-  Text 15, 205, 30, 10, "State:"
-  EditBox 70, 200, 20, 15, mailing_state
-  Text 15, 220, 20, 10, "Zip:"
-  EditBox 70, 215, 30, 15, mailing_zip
+  EditBox 80, 40, 40, 15, formatted_app_date
+  GroupBox 10, 60, 175, 105, "Household Address"
+  Text 15, 75, 35, 10, "Address:"
+  EditBox 70, 70, 100, 15, household_address
+  Text 15, 90, 25, 10, "City:"
+  EditBox 70, 85, 100, 15, household_city
+  Text 15, 105, 30, 10, "State:"
+  EditBox 70, 100, 20, 15, household_state
+  Text 15, 120, 20, 10, "Zip:"
+  EditBox 70, 115, 30, 15, household_zip
+  Text 15, 135, 55, 10, "Phone number:"
+  EditBox 70, 130, 100, 15, household_phone_number
+  GroupBox 10, 165, 175, 75, "Mailing Address"
+  Text 15, 180, 35, 10, "Address:"
+  EditBox 70, 175, 100, 15, mailing_address
+  Text 15, 195, 25, 10, "City:"
+  EditBox 70, 190, 100, 15, mailing_city
+  Text 15, 210, 30, 10, "State:"
+  EditBox 70, 205, 20, 15, mailing_state
+  Text 15, 225, 20, 10, "Zip:"
+  EditBox 70, 220, 30, 15, mailing_zip
+  Text 15, 150, 30, 10, "County:"
+  EditBox 70, 145, 100, 15, household_county
   ButtonGroup ButtonPressed
     PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
-    'To do - delete if no longer needed
-    ' PushButton 5, 245, 50, 15, "Previous", previous_button
-    'To do - delete if no longer needed
-  ' GroupBox 195, 25, 55, 210, "Navigation"
-  ' ButtonGroup ButtonPressed
-  '   Text 200, 35, 45, 15, "Address", address_button
-  '   PushButton 200, 50, 45, 15, "HH Memb 1", hh_memb_1_button
-  '   'Display additional HH member buttons only if they exist
-  '   If member_count > 1 Then
-  '     PushButton 200, 65, 45, 15, "HH Memb 2", hh_memb_2_button
-  '   End If
-  '   If member_count > 2 Then
-  '       PushButton 200, 80, 45, 15, "HH Memb 3", hh_memb_3_button
-  '   End If
-  '   If member_count > 3 Then
-  '       PushButton 200, 95, 45, 15, "HH Memb 4", hh_memb_4_button
-  '   End If
-  '   If member_count > 4 Then
-  '       PushButton 200, 110, 45, 15, "HH Memb 5", hh_memb_5_button
-  '   End If
-  '   If member_count > 5 Then
-  '       PushButton 200, 125, 45, 15, "HH Memb 6", hh_memb_6_button
-  '   End If
-  '   If member_count > 6 Then
-  '       PushButton 200, 140, 45, 15, "HH Memb 7", hh_memb_7_button
-  '   End If
-  '   If member_count > 7 Then
-  '       PushButton 200, 155, 45, 15, "HH Memb 8", hh_memb_8_button
-  '   End If
-  '   If member_count > 8 Then
-  '       PushButton 200, 170, 45, 15, "HH Memb 9", hh_memb_9_button
-  '   End If
-  '   If member_count > 9 Then
-  '       PushButton 200, 185, 45, 15, "HH Memb 10", hh_memb_10_button
-  '   End If
-  '   If member_count > 10 Then
-  '       PushButton 200, 200, 45, 15, "HH Memb 11", hh_memb_11_button
-  '   End If
-  '   If member_count > 11 Then
-  '       PushButton 200, 215, 45, 15, "HH Memb 12", hh_memb_12_button
-  '   End If
 EndDialog
 
 DO
