@@ -5,7 +5,7 @@ STATS_counter = 0			     'sets the stats counter at one
 STATS_manualtime = 	90			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
-run_locally = True      'TESTING ONLY - REMOVE FOR PRODUCTION
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -885,10 +885,10 @@ For duck = 0 to UBound(PM_ARRAY, 2)
     running_count = running_count + PM_ARRAY(case_count_const, duck)
 Next
 email_body = email_body & "<br>" & "<b>Please assign cases on worklist.</b>"
-send_email = False          'SET TO FALSE FOR TESTING PURPOSES
+send_email = True
 If developer_mode = True Then send_email = False
-email_recip = "hsph.ews.unit.coenen@hennepin.us"                        'TESTING ONLY - REMOVE FOR PRODUCTION
-email_recip_CC = "HSPH.EWS.BlueZoneScripts@hennepin.us"         'TESTING ONLY - REMOVE FOR PRODUCTION
+email_recip = "hsph.ews.unit.coenen@hennepin.us"                        'Initial deployment email assignment. Once this process is confirmed these may be updated.
+email_recip_CC = "HSPH.EWS.BlueZoneScripts@hennepin.us"                 'Initial deployment email assignment. Once this process is confirmed these may be updated.
 
 'function labels  		  email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
 Call create_outlook_email(email_from, email_recip, email_recip_CC, "", 			    email_subject, 1, 				 False, 	   email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				      email_attachment_array, send_email)
