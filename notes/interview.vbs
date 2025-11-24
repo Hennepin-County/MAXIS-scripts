@@ -3867,7 +3867,7 @@ function save_your_work()
 	End with
 end function
 
-function restore_your_work(vars_filled)
+function restore_your_work(vars_filled, membs_found)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
@@ -4326,118 +4326,121 @@ function restore_your_work(vars_filled)
 						If MID(text_line, 7, 13) = "HH_MEMB_ARRAY" Then
 							array_info = Mid(text_line, 23)
 							array_info = split(array_info, "~")
-							ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
-							HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
-							HH_MEMB_ARRAY(access_denied, known_membs)				= array_info(1)
-							HH_MEMB_ARRAY(full_name_const, known_membs)				= array_info(2)
-							HH_MEMB_ARRAY(last_name_const, known_membs)				= array_info(3)
-							HH_MEMB_ARRAY(first_name_const, known_membs)			= array_info(4)
-							HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
-							HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
-							HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
-							' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
-							If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
-							HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
-							HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
-							HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
-							HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(10)
-							HH_MEMB_ARRAY(birthdate_verif, known_membs)				= array_info(11)
-							HH_MEMB_ARRAY(gender, known_membs)						= array_info(12)
-							HH_MEMB_ARRAY(race, known_membs)						= array_info(13)
-							HH_MEMB_ARRAY(spoken_lang, known_membs)					= array_info(14)
-							HH_MEMB_ARRAY(written_lang, known_membs)				= array_info(15)
-							HH_MEMB_ARRAY(interpreter, known_membs)					= array_info(16)
-							HH_MEMB_ARRAY(alias_yn, known_membs)					= array_info(17)
-							HH_MEMB_ARRAY(ethnicity_yn, known_membs)				= array_info(18)
-							HH_MEMB_ARRAY(id_verif, known_membs)					= array_info(19)
-							HH_MEMB_ARRAY(rel_to_applcnt, known_membs)				= array_info(20)
-							HH_MEMB_ARRAY(cash_minor, known_membs)					= array_info(21)
-							HH_MEMB_ARRAY(snap_minor, known_membs)					= array_info(22)
-							HH_MEMB_ARRAY(marital_status, known_membs)				= array_info(23)
-							HH_MEMB_ARRAY(spouse_ref, known_membs)					= array_info(24)
-							HH_MEMB_ARRAY(spouse_name, known_membs)					= array_info(25)
-							HH_MEMB_ARRAY(last_grade_completed, known_membs) 		= array_info(26)
-							HH_MEMB_ARRAY(citizen, known_membs)						= array_info(27)
-							HH_MEMB_ARRAY(other_st_FS_end_date, known_membs) 		= array_info(28)
-							HH_MEMB_ARRAY(in_mn_12_mo, known_membs)					= array_info(29)
-							HH_MEMB_ARRAY(residence_verif, known_membs)				= array_info(30)
-							HH_MEMB_ARRAY(mn_entry_date, known_membs)				= array_info(31)
-							HH_MEMB_ARRAY(former_state, known_membs)				= array_info(32)
-							HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(33)
-							HH_MEMB_ARRAY(button_one, known_membs)					= array_info(34)
-							HH_MEMB_ARRAY(button_two, known_membs)					= array_info(35)
-                            ' 36
-                            HH_MEMB_ARRAY(imig_status, known_membs)					= array_info(36)
+                            If array_info(0) <> "" Then
+                                membs_found = True
+                                ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
+                                HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
+                                HH_MEMB_ARRAY(access_denied, known_membs)				= array_info(1)
+                                HH_MEMB_ARRAY(full_name_const, known_membs)				= array_info(2)
+                                HH_MEMB_ARRAY(last_name_const, known_membs)				= array_info(3)
+                                HH_MEMB_ARRAY(first_name_const, known_membs)			= array_info(4)
+                                HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
+                                HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
+                                HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
+                                ' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
+                                If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
+                                HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
+                                HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
+                                HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
+                                HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(10)
+                                HH_MEMB_ARRAY(birthdate_verif, known_membs)				= array_info(11)
+                                HH_MEMB_ARRAY(gender, known_membs)						= array_info(12)
+                                HH_MEMB_ARRAY(race, known_membs)						= array_info(13)
+                                HH_MEMB_ARRAY(spoken_lang, known_membs)					= array_info(14)
+                                HH_MEMB_ARRAY(written_lang, known_membs)				= array_info(15)
+                                HH_MEMB_ARRAY(interpreter, known_membs)					= array_info(16)
+                                HH_MEMB_ARRAY(alias_yn, known_membs)					= array_info(17)
+                                HH_MEMB_ARRAY(ethnicity_yn, known_membs)				= array_info(18)
+                                HH_MEMB_ARRAY(id_verif, known_membs)					= array_info(19)
+                                HH_MEMB_ARRAY(rel_to_applcnt, known_membs)				= array_info(20)
+                                HH_MEMB_ARRAY(cash_minor, known_membs)					= array_info(21)
+                                HH_MEMB_ARRAY(snap_minor, known_membs)					= array_info(22)
+                                HH_MEMB_ARRAY(marital_status, known_membs)				= array_info(23)
+                                HH_MEMB_ARRAY(spouse_ref, known_membs)					= array_info(24)
+                                HH_MEMB_ARRAY(spouse_name, known_membs)					= array_info(25)
+                                HH_MEMB_ARRAY(last_grade_completed, known_membs) 		= array_info(26)
+                                HH_MEMB_ARRAY(citizen, known_membs)						= array_info(27)
+                                HH_MEMB_ARRAY(other_st_FS_end_date, known_membs) 		= array_info(28)
+                                HH_MEMB_ARRAY(in_mn_12_mo, known_membs)					= array_info(29)
+                                HH_MEMB_ARRAY(residence_verif, known_membs)				= array_info(30)
+                                HH_MEMB_ARRAY(mn_entry_date, known_membs)				= array_info(31)
+                                HH_MEMB_ARRAY(former_state, known_membs)				= array_info(32)
+                                HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(33)
+                                HH_MEMB_ARRAY(button_one, known_membs)					= array_info(34)
+                                HH_MEMB_ARRAY(button_two, known_membs)					= array_info(35)
+                                ' 36
+                                HH_MEMB_ARRAY(imig_status, known_membs)					= array_info(36)
 
-							HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(37)
-							HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(38)
-							HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(39)
-							HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(40)
-							HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(41)
-							If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
-							If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
-							If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
-							If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
-							If array_info(46) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
-							If array_info(47) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
-							If array_info(48) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
-							If array_info(49) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
-							If array_info(50) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
-							HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(51)
-							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(52)
-							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(53)
-							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(54)
+                                HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(37)
+                                HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(38)
+                                HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(39)
+                                HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(40)
+                                HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(41)
+                                If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
+                                If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
+                                If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
+                                If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
+                                If array_info(46) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
+                                If array_info(47) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
+                                If array_info(48) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
+                                If array_info(49) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
+                                If array_info(50) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
+                                HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(51)
+                                HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(52)
+                                HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(53)
+                                HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(54)
 
-                            HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(55)
-                            HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(56)
+                                HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(55)
+                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(56)
 
-                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
-                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
 
-                            HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
-                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
+                                HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
 
-                            HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
-                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
-                            HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
-                            If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
-                            If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
-                            HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
-                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
-                            HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
-                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
-                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
+                                HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
+                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
+                                HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
+                                If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
+                                If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
+                                HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
+                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
+                                HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
+                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
+                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
 
-                            HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
-                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
-                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
-                            HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
-                            HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
+                                HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
+                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
+                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
+                                HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
+                                HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
 
-                            HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
-                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
-                            If UBound(array_info) = 69 Then
-                                HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
-                            Else
-                                HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
-                                HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
-                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
+                                HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
+                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
+                                If UBound(array_info) = 69 Then
+                                    HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
+                                Else
+                                    HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
+                                    HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
+                                    HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
+                                End If
+
+                                known_membs = known_membs + 1
                             End If
-
-							known_membs = known_membs + 1
 						End If
 
 						If MID(text_line, 7, 14) = "EXP_JOBS_ARRAY" Then
@@ -7698,11 +7701,14 @@ If select_err_msg_handling = "Alert only once completing and leaving the final d
 
 show_known_addr = FALSE
 vars_filled = FALSE
+membs_found = FALSE
 
 Orig_CAF_form = CAF_form
 
 Call back_to_SELF
-Call restore_your_work(vars_filled)			'looking for a 'restart' run
+Call restore_your_work(vars_filled, membs_found)			'looking for a 'restart' run
+'Added the membs_found variable because there were some errors when recording the member information
+'the memb array details were all blank. We do not know the source of the error in writing the member detail so all we can do at this point is handle for if it occurs.
 
 Call run_from_GitHub(script_repository & "misc/interview-forms-classes.vbs" )
 EMWaitReady 0, 0
@@ -8318,12 +8324,11 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
+End If
 
-	Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
-	list_for_array = right(all_the_clients, len(all_the_clients) - 15)			'Then we create an array of the the full hh list for looping purpoases
-	full_hh_list = Split(list_for_array, chr(9))
+If all_the_clients = "" Then Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
 
-
+If membs_found = False Then
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
     EMWriteScreen "01", 20, 76
     transmit
@@ -8583,8 +8588,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Next
     If HH_arrived_date <> "" Then all_members_listed_notes = "All members arrived in Minnesota on " & HH_arrived_date & " from " & HH_arrived_place & "."
 
-
-	Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
+    Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
     type_row = 6
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
 
@@ -8656,6 +8660,9 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		HH_MEMB_ARRAY(client_notes, the_members) = ""
 		HH_MEMB_ARRAY(imig_status, the_members) = ""
 	Next
+End If
+
+If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	'Now we gather the address information that exists in MAXIS
     Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
@@ -8928,6 +8935,7 @@ expedited_determination = start_at + 3
 show_pg_last = start_at + 4
 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
+If vars_filled = TRUE and membs_found = False Then MsgBox "The script was able to fill in the case number but not the member information." & vbCr & vbCr & "BE SURE TO REVIEW PERSON DETAILS", vbExclamation, "Member Information Not Found"
 
 interview_questions_clear = False
 leave_loop = False
