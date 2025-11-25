@@ -393,6 +393,10 @@ class form_questions
 				col_2_2 = 230
 				col_3_1 = 335
 				col_3_2 = 380
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+				    col_3_1 = ""
+				    col_3_2 = ""
+                End If
 				drplst_len = 35
 				txt_len = 80
 			End If
@@ -458,7 +462,6 @@ class form_questions
 				End If
 				y_pos = y_pos + 15
 
-				If info_type = "utilities" Then txt_len = 375
 				increase_y_pos = false
 				If i =< UBound(TEMP_ARRAY) Then
 					DropListBox 	col_1_1, y_pos - 5, drplst_len, 45, question_answers, TEMP_ARRAY(i)
@@ -834,9 +837,16 @@ class form_questions
 					End If
 				End If
 				If info_type = "utilities" Then
-					CALL write_variable_in_CASE_NOTE("        Heat/AC - " & item_ans_list(0) & " Electric - " & item_ans_list(1) & " Cooking Fuel - " & item_ans_list(2))
-					CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & item_ans_list(3) & "  Garbage - " & item_ans_list(4) & "        Phone - " & item_ans_list(5))
-					If sub_phrase = "" Then CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & item_ans_list(6))
+                    If UBound(item_ans_list) = 5 Then
+                        CALL write_variable_in_CASE_NOTE("     Heating - " & item_ans_list(0) & "     AC - " & item_ans_list(1) & "  Water/Sewer - " & item_ans_list(2))
+                        CALL write_variable_in_CASE_NOTE("    Electric - " & item_ans_list(3) & "  Phone - " & item_ans_list(4) & "      Garbage - " & item_ans_list(5))
+                    Else
+                        CALL write_variable_in_CASE_NOTE("    Heating - " & item_ans_list(0) & "        AC - " & item_ans_list(1))
+                        CALL write_variable_in_CASE_NOTE("      Phone - " & item_ans_list(2) & "  Electric - " & item_ans_list(3))
+                    End If
+					' CALL write_variable_in_CASE_NOTE("        Heat/AC - " & item_ans_list(0) & " Electric - " & item_ans_list(1) & " Cooking Fuel - " & item_ans_list(2))
+					' CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & item_ans_list(3) & "  Garbage - " & item_ans_list(4) & "        Phone - " & item_ans_list(5))
+					' If sub_phrase = "" Then CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & item_ans_list(6))
 				End If
 				If info_type = "assets" Then
 					CALL write_variable_in_CASE_NOTE("      Cash - " & item_ans_list(0) & " Bank Accounts - " & item_ans_list(1))
@@ -1239,7 +1249,10 @@ class form_questions
 			Set objRange = objSelection.Range					'range is needed to create tables
 			If info_type = "unea" Then objDoc.Tables.Add objRange, 5, 1					'This sets the rows and columns needed row then column'
 			If info_type = "housing" Then objDoc.Tables.Add objRange, 4, 1					'This sets the rows and columns needed row then column'
-			If info_type = "utilities" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
+			If info_type = "utilities" Then
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
+                If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
+            End If
 			If info_type = "msa" or info_type = "stwk" Then objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
 			If info_type = "assets" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
 			set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
@@ -1285,25 +1298,28 @@ class form_questions
 				TABLE_ARRAY(array_counters).Cell(4, 1).SetWidth 90, 2
 				TABLE_ARRAY(array_counters).Cell(4, 2).SetWidth 430, 2
 			ElseIf info_type = "utilities" Then
-				numb_of_rows = 3
+				numb_of_rows = 2
 				number_of_columns = 6
-				'note that this table does not use an autoformat - which is why there are no borders on this table.'
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then number_of_columns = 4				'note that this table does not use an autoformat - which is why there are no borders on this table.'
 				TABLE_ARRAY(array_counters).Columns(1).Width = 525
 
 				For row = 1 to 2
-					TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
+					If CAF_form = "SNAP App for Srs (DHS-5223F)" Then TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
+					If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
 
 					TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 75, 2
 					TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 100, 2
 					TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 75, 2
 					TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 100, 2
-					TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 75, 2
-					TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 100, 2
+					If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then
+                        TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 75, 2
+                        TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 100, 2
+                    End If
 				Next
-				TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 2, TRUE
+				' TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 2, TRUE
 
-				TABLE_ARRAY(array_counters).Cell(3, 1).SetWidth 75, 2
-				TABLE_ARRAY(array_counters).Cell(3, 2).SetWidth 450, 2
+				' TABLE_ARRAY(array_counters).Cell(3, 1).SetWidth 75, 2
+				' TABLE_ARRAY(array_counters).Cell(3, 2).SetWidth 450, 2
 
 			ElseIf info_type = "assets" Then
 				numb_of_rows = 3
@@ -2678,7 +2694,7 @@ Dim unea_6_yn, unea_6_amt, unea_7_yn, unea_7_amt, unea_8_yn, unea_8_amt, unea_9_
 Dim TEMP_HOUSING_ARRAY()
 Dim TEMP_UTILITIES_ARRAY()
 ReDim TEMP_HOUSING_ARRAY(6)
-ReDim TEMP_UTILITIES_ARRAY(6)
+ReDim TEMP_UTILITIES_ARRAY(5)
 DIM TEMP_ASSETS_ARRAY(4)
 DIM TEMP_MSA_ARRAY(3)
 DIM TEMP_STWK_ARRAY(3)
@@ -2692,7 +2708,7 @@ dim last_page_of_questions, numb_of_quest, form_version_date
 
 If vars_filled = False Then
 	If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-	If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+    If CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(3)
 
 	numb_of_quest = 0
 	last_page_of_questions = 4
@@ -3104,8 +3120,10 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
 
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Water and sewer", "Electricity", "Phone/cell phone", "Garbage removal")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Water/Sewer", "Electric", "Phone", "Garbage")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
 			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
@@ -3682,8 +3700,10 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
 
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Water and sewer", "Electricity", "Phone/cell phone", "Garbage removal")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Water/Sewer", "Electric", "Phone", "Garbage")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
 			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
@@ -4369,9 +4389,11 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
 
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
-			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Phone/cell phone", "Electricity")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Phone", "Electric")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
