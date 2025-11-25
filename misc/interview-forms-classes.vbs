@@ -4038,6 +4038,10 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "HUF Q7 Information (Housing Expense)"
 			FORM_QUESTION_ARRAY(question_num).add_to_array_btn		= 3000+question_num
 
+            FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
+
 			FORM_QUESTION_ARRAY(question_num).detail_array_exists	= True
 			FORM_QUESTION_ARRAY(question_num).detail_source			= "shel-hest"
 			FORM_QUESTION_ARRAY(question_num).detail_button_label 	= "ADD EXPENSE"
