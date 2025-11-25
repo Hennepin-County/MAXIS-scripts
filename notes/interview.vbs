@@ -7795,7 +7795,8 @@ If vars_filled = True Then
 
 				ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
 				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+				' If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(3)
 
 				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 					TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
@@ -10808,8 +10809,8 @@ Set objWord = CreateObject("Word.Application")
 'Adding all of the information in the dialogs into a Word Document
 If no_case_number_checkbox = checked Then objWord.Caption = "Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "Form Details - CASE #" & MAXIS_case_number			'Title of the document
-' objWord.Visible = True														'Let the worker see the document
 objWord.Visible = False 														'The worker should NOT see the docuement
+' objWord.Visible = True														'Let the worker see the document
 'allow certain workers to see the document
 ' If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True
 
