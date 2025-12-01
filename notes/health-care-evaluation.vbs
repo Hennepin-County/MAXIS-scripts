@@ -7276,14 +7276,10 @@ Do
 				Next
 
 				Call verification_dialog		'show the verification dialog if the verifs button is pressed.
-				msgbox "about to check for errors. Page display is: " & page_display
 				Call check_for_errors(eval_questions_clear)								'review entered information to see if there are dialog errors
-				msgbox "after checking for errors. err_msg is: " & err_msg
 				Call display_errors(err_msg, False, show_err_msg_during_movement)		'show the error if any exist
-				msgbox page_display
 			Loop until err_msg = ""
 			call dialog_movement				'use the buttons to change the main dialog
-			msgbox "Page display after dialog movement: " & page_display
 		Loop until leave_loop = TRUE			'keep going until the we can leave the loop (the 'complete' button is pressed)
 		'this is where we make sure the worker is done entering informaiton.
 		proceed_confirm = MsgBox("Have you completed the Health Care Evaluation?" & vbCr & vbCr &_
