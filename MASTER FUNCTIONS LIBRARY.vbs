@@ -7776,34 +7776,34 @@ function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty
 	month_to_review = footer_month & "/1/" & footer_year		'making this a date
 	month_to_review = DateAdd("d", 0, month_to_review)
 
-	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
-		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then				'on or after 10/1/24
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 292
-			If hh_size = 2 Then thrifty_food_plan = 536
-			If hh_size = 3 Then thrifty_food_plan = 768
-			If hh_size = 4 Then thrifty_food_plan = 975
-			If hh_size = 5 Then thrifty_food_plan = 1158
-			If hh_size = 6 Then thrifty_food_plan = 1390
-			If hh_size = 7 Then thrifty_food_plan = 1536
-			If hh_size = 8 Then thrifty_food_plan = 1756
+  If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+    hh_size = hh_size*1
+    If DateDiff("d", #10/1/2025#, month_to_review) >= 0 Then				'on or after 10/1/25
+      If hh_size = 0 Then thrifty_food_plan = 0
+      If hh_size = 1 Then thrifty_food_plan = 298
+      If hh_size = 2 Then thrifty_food_plan = 546
+      If hh_size = 3 Then thrifty_food_plan = 785
+      If hh_size = 4 Then thrifty_food_plan = 994
+      If hh_size = 5 Then thrifty_food_plan = 1183
+      If hh_size = 6 Then thrifty_food_plan = 1421
+      If hh_size = 7 Then thrifty_food_plan = 1571
+      If hh_size = 8 Then thrifty_food_plan = 1789
 
-			If hh_size > 8 Then thrifty_food_plan = 1756 + (220 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then			'between 10/23-09/24
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 291
-			If hh_size = 2 Then thrifty_food_plan = 535
-			If hh_size = 3 Then thrifty_food_plan = 766
-			If hh_size = 4 Then thrifty_food_plan = 973
-			If hh_size = 5 Then thrifty_food_plan = 1155
-			If hh_size = 6 Then thrifty_food_plan = 1386
-			If hh_size = 7 Then thrifty_food_plan = 1532
-			If hh_size = 8 Then thrifty_food_plan = 1751
+      If hh_size > 8 Then thrifty_food_plan = 1789 + (218 * (hh_size-8))
+    ElseIf DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then			'between 10/24-09/25
+      If hh_size = 0 Then thrifty_food_plan = 0
+      If hh_size = 1 Then thrifty_food_plan = 292
+      If hh_size = 2 Then thrifty_food_plan = 536
+      If hh_size = 3 Then thrifty_food_plan = 768
+      If hh_size = 4 Then thrifty_food_plan = 975
+      If hh_size = 5 Then thrifty_food_plan = 1158
+      If hh_size = 6 Then thrifty_food_plan = 1390
+      If hh_size = 7 Then thrifty_food_plan = 1536
+      If hh_size = 8 Then thrifty_food_plan = 1756
 
-			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
-		End If
-	End If
+      If hh_size > 8 Then thrifty_food_plan = 1756 + (220 * (hh_size-8))
+    End If
+  End If
 end function
 
 
