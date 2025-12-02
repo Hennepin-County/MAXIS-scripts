@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/02/2025", "Changed order of 'OK', 'Cancel', and 'Next' buttons to align with script standards.", "Mark Riegel, Hennepin County")
 call changelog_update("11/10/2025", "Improved background script functionality, streamlined dialog options, added signature details to final dialog, and removed unneeded dialog fields.", "Mark Riegel, Hennepin County")
 call changelog_update("09/23/2025", "Returned the Health Care Programs option for CSR Processing.##~##(It had previously been removed during the PHE.)", "Casey Love, Hennepin County")
 call changelog_update("07/11/2025", "Added MFIP and GA to CSR Program Selection to support new CSR processing on these programs.", "Casey Love, Hennepin County")
@@ -146,7 +147,7 @@ end function
 'Dialog 1 - CSR First dialog
 function CSR_details_dialog()
   dialog_count = 1
-  BeginDialog Dialog1, 0, 0, 416, 185, "CSR"
+  BeginDialog Dialog1, 0, 0, 396, 185, "CSR"
     Text 5, 10, 55, 10, "CSR datestamp:"
     EditBox 70, 5, 50, 15, CSR_datestamp
     Text 5, 30, 40, 10, "CSR status:"
@@ -177,15 +178,15 @@ function CSR_details_dialog()
       PushButton 35, 150, 25, 10, "DCEX:", DCEX_button
     EditBox 70, 145, 95, 15, COEX_DCEX
     ButtonGroup ButtonPressed
-      PushButton 360, 165, 50, 15, "Next", next_button
-      CancelButton 305, 165, 50, 15
-      GroupBox 300, 5, 90, 25, "ELIG panels:"
-      ButtonGroup ButtonPressed
+      PushButton 290, 165, 50, 15, "Next", next_button
+      CancelButton 340, 165, 50, 15
+    GroupBox 300, 5, 90, 25, "ELIG panels:"
+    ButtonGroup ButtonPressed
       PushButton 305, 15, 25, 10, "FS", ELIG_FS_button
       PushButton 330, 15, 25, 10, "HC", ELIG_HC_button
       PushButton 355, 15, 25, 10, "GRH", ELIG_GRH_button
     GroupBox 300, 35, 90, 55, "Income and asset panels"
-      ButtonGroup ButtonPressed
+    ButtonGroup ButtonPressed
       PushButton 305, 45, 25, 10, "ACCT", ACCT_button
       PushButton 330, 45, 25, 10, "BUSI", BUSI_button
       PushButton 355, 45, 25, 10, "CARS", CARS_button
@@ -197,7 +198,7 @@ function CSR_details_dialog()
       PushButton 330, 65, 25, 10, "SECU", SECU_button
       PushButton 355, 65, 25, 10, "TRAN", TRAN_button
     GroupBox 300, 95, 90, 25, "Other STAT panels:"
-      ButtonGroup ButtonPressed
+    ButtonGroup ButtonPressed
       PushButton 305, 105, 25, 10, "MEMB", MEMB_button
       PushButton 330, 105, 25, 10, "MEMI", MEMI_button
       PushButton 355, 105, 25, 10, "REVW", REVW_button
@@ -259,8 +260,8 @@ function CSR_details_cont_dialog()
       PushButton 225, 115, 50, 15, "SIR mail", SIR_mail_button
       CheckBox 5, 140, 110, 10, "Send forms to AREP?", sent_arep_checkbox
     ButtonGroup ButtonPressed
-      OkButton 340, 160, 50, 15
-      CancelButton 290, 160, 50, 15
+      OkButton 290, 160, 50, 15
+      CancelButton 340, 160, 50, 15
       PushButton 5, 160, 60, 15, "Previous", previous_button
     GroupBox 300, 5, 90, 25, "ELIG panels:"
       ButtonGroup ButtonPressed
