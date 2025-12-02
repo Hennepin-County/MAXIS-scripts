@@ -58,6 +58,8 @@ next_hh_memb_btn        = 201
 previous_hh_memb_button = 202
 next_hh_memb_btn        = 203
 submit_hh_memb_button   = 204 
+update_xml_button       = 205
+back_button             = 206
 
 
 '--Other buttons
@@ -396,6 +398,16 @@ Function household_members_dialog_11_12()
     GroupBox 195, 30, 70, 105, "Navigation"
     ButtonGroup ButtonPressed
       Call determine_hh_memb_buttons()
+  EndDialog
+End Function
+
+Function confirm_xml_update_dialog()
+  BeginDialog Dialog1, 0, 0, 281, 70, "Update XML File with Updates"
+    Text 10, 5, 265, 35, "The script will now update the XML file with any changes made to the address and/or household member details. Press 'Update XML with changes' to update the XML file. If you want to review the changes to the XML file before changing, press 'Back'. To cancel the script entirely, press 'Cancel script'."
+    ButtonGroup ButtonPressed
+      PushButton 185, 50, 90, 15, "Update XML with changes", update_xml_button
+      PushButton 160, 50, 25, 15, "Back", back_button
+      CancelButton 10, 50, 50, 15
   EndDialog
 End Function
 
@@ -1029,39 +1041,19 @@ Do
       Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
       Call button_movement()				'function to move throughout the dialogs
     Loop until err_msg = ""
+    If hh_memb_dialog_loop = "Completed" Then
+      Dialog1 = "" 'Blanking out previous dialog detail
+      Call confirm_xml_update_dialog()
+      dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+      cancel_without_confirmation
+      If ButtonPressed = back_button Then 
+        dialog_count = 1
+        hh_memb_dialog_loop = "Active"
+      End If
+    End If
   Loop until hh_memb_dialog_loop = "Completed"
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-'To do - release XML or keep open?
-
-' 'Create XML object
-' Dim xmlDoc
-' Set xmlDoc = CreateObject("Microsoft.XMLDOM")
-' xmlDoc.async = False
-
-' 'Load the XML file
-' xmlDoc.load(XML_file_path)
-
-' If xmlDoc.parseError.errorCode <> 0 Then
-'   'Release the XML DOM object when you're done
-'   Set xmlDoc = Nothing
-'   script_end_procedure("Error in XML: " & xmlDoc.parseError.reason)
-' End If
-
-' Dim member_count
-' member_count = 0
-' Dim householdMembers()
-' Const MEMBER_FIRST_NAME     = 0
-' Const MEMBER_LAST_NAME      = 1
-' Const MEMBER_DOB            = 2
-' Const MEMBER_SSN            = 3
-' Const MEMBER_RELATIONSHIP   = 4
-' Const MEMBER_MARITAL_STATUS = 5
-' Const MEMBER_CITIZENSHIP    = 6
-' Const MEMBER_GENDER         = 7
-
-' ReDim householdMembers(MEMBER_GENDER, member_count)   'Redimmed to the size of the last constant
 
 member_array_index = 0
 
@@ -1113,22 +1105,21 @@ objMailingState.Text          = mailing_state
 objMailingZip.Text            = mailing_zip
 
 ' Save the updated XML to a file
+'To do - update with actual file path once done testing
 xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
 
-msgbox "File saved!"
-
 ' Clean up
-Set objMemberNode         = Nothing
-Set objFirstNameNode      = Nothing
-Set objLastNameNode       = Nothing
-Set objDOBNode            = Nothing
-Set objSSNNode            = Nothing
-Set objRelationshipNode   = Nothing
-Set objMaritalStatusNode  = Nothing
-Set objGenderNode         = Nothing
-Set objCitizenshipNode    = Nothing
+Set objMemberNode           = Nothing
+Set objFirstNameNode        = Nothing
+Set objLastNameNode         = Nothing
+Set objDOBNode              = Nothing
+Set objSSNNode              = Nothing
+Set objRelationshipNode     = Nothing
+Set objMaritalStatusNode    = Nothing
+Set objGenderNode           = Nothing
+Set objCitizenshipNode      = Nothing
 Set objHouseholdMemberNodes = Nothing
 Set objHouseholdMemberNode  = Nothing
-Set xmlDoc                = Nothing
+Set xmlDoc                  = Nothing
 
-MsgBox "XML updated successfully from array."
+MsgBox "XML file saved and updated successfully from array."
