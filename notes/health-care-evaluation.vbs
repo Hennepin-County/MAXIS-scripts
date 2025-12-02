@@ -358,7 +358,7 @@ End Function
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 'function specific to this script that can display the errors in the err string with headers that identify the dialog page.
     If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
-        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
+	If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
         err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
 
         error_message = ""                              'blanking out variables
@@ -2601,7 +2601,8 @@ function dialog_movement()
 	If page_display = retro_page and case_has_retro_request = False Then page_display = page_display + 1
 	If page_display = verifs_page and verifs_needed = "" Then page_display = page_display + 1
 	If page_display = ltc_page and ltc_waiver_request_yn <> "Yes" Then page_display = page_display + 1
-	If page_display > last_btn Then page_display = last_page							'making sure we don't go above the last page
+	If page_display = ltc_intake_page and ltc_waiver_request_yn <> "Yes" Then page_display = page_display + 1
+	If page_display > last_page Then page_display = last_page							'making sure we don't go above the last page
 
 	'Each button pressed sets page_dsiplay to the page associated with the button
 	If ButtonPressed = hc_memb_btn Then page_display = show_member_page
@@ -4253,7 +4254,7 @@ Const video_demo_btn = 5010
 Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_cert_TIKL_check
 Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, case_details_notes
-Dim last_page_numb
+Dim last_page_numb, err_msg, the_err_msg
 Dim retro_income_detail, retro_asset_detail, retro_expense_detail, ltc_elig_notes, ltc_info_still_needed
 Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
 Dim avs_form_status, avs_form_notes, avs_portal_notes, county_of_financial_responsibility, burial_asset_droplist
@@ -5978,7 +5979,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		If mixed_household_notes <> "" Then
 			email_from = ""
-			email_recip = "Faughn.Ramisch-Church@hennepin.us"
+			email_recip = "ben.teskey@hennepin.us"
 			email_recip_CC = ""
 			email_recip_bcc = ""
 			email_subject = "Ex Parte Mixed Household Case - " & MAXIS_case_number
