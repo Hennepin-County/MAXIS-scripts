@@ -43,7 +43,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-' call run_from_GitHub(script_repository & "application-received.vbs")
+
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
@@ -129,157 +129,10 @@ CALL changelog_update("08/07/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 random_team_needed = ""
+'Load caseload directory
+Call run_from_GitHub(script_repository & "\misc\caseload-directory.vbs")
 
-'Load the list of caseloads and pms file
-Call run_from_GitHub(script_repository & "misc\caseload-directory.vbs")
 
-set caseload_info = CreateObject("Scripting.Dictionary")
-
-caseload_info.add "X127FA5", "YET"
-' caseload_info.add "X127F3P", "Families - General"		- this is MAEPD
-'Team 1 Clifton
-caseload_info.add "X127EK8", "Adults - Pending 1"
-caseload_info.add "X127EH1", "Adults - Pending 1"
-caseload_info.add "X127EP1", "Adults - Pending 1"
-caseload_info.add "X127EZ6", "Families - Pending 1"
-caseload_info.add "X127EZ8", "Families - Pending 1"
-'Active casebanks for Clifton
-caseload_info.add "X127EQ5", "Adults Active 1"
-caseload_info.add "X127EQ6", "Adults Active 1"
-caseload_info.add "X127EQ7", "Adults Active 1"
-caseload_info.add "X127EQ8", "Adults Active 1"
-caseload_info.add "X127EX1", "Adults Active 1"
-caseload_info.add "X127EX2", "Adults Active 1"
-caseload_info.add "X127EX3", "Adults Active 1"
-caseload_info.add "X127EX4", "Adults Active 1"
-caseload_info.add "X127EX5", "Adults Active 1"
-caseload_info.add "X127EX7", "Adults Active 1"
-'caseload_info.add "X127F3H", "Adults Active 1"
-caseload_info.add "X127ET5", "Families Active 1"
-caseload_info.add "X127ET6", "Families Active 1"
-caseload_info.add "X127ET7", "Families Active 1"
-caseload_info.add "X127ET8", "Families Active 1"
-caseload_info.add "X127ET9", "Families Active 1"
-caseload_info.add "X127EZ1", "Families Active 1"
-'Team 2 Coenen
-caseload_info.add "X127EP2", "Adults - Pending 2"
-caseload_info.add "X127EH8", "Adults - Pending 2"
-caseload_info.add "X127EP6", "Adults - Pending 2"
-caseload_info.add "X127EZ9", "Families - Pending 2"
-caseload_info.add "X127EH4", "Families - Pending 2"
-'Active casebanks for Coenen
-caseload_info.add "X127EL7", "Adults Active 2"
-caseload_info.add "X127EL8", "Adults Active 2"
-caseload_info.add "X127EL9", "Adults Active 2"
-caseload_info.add "X127EN1", "Adults Active 2"
-caseload_info.add "X127EN2", "Adults Active 2"
-caseload_info.add "X127EN3", "Adults Active 2"
-caseload_info.add "X127EN5", "Adults Active 2"
-caseload_info.add "X127EN4", "Adults Active 2"
-caseload_info.add "X127EN7", "Adults Active 2"
-caseload_info.add "X127ES1", "Families Active 2"
-caseload_info.add "X127ES2", "Families Active 2"
-caseload_info.add "X127ET1", "Families Active 2"
-'caseload_info.add "X127F4E", "Families Active 2"
-caseload_info.add "X127EZ7", "Families Active 2"
-caseload_info.add "X127FB7", "Families Active 2"
-'Team 3 Garrett
-caseload_info.add "X127EP7", "Adults - Pending 3"
-caseload_info.add "X127EP8", "Adults - Pending 3"
-caseload_info.add "X127EP3", "Adults - Pending 3"
-caseload_info.add "X127EH5", "Families - Pending 3"
-caseload_info.add "X127EH6", "Families - Pending 3"
-'Active casebanks for Garrett
-caseload_info.add "X127EN8", "Adults Active 3"
-caseload_info.add "X127EN9", "Adults Active 3"
-caseload_info.add "X127EQ1", "Adults Active 3"
-caseload_info.add "X127EQ2", "Adults Active 3"
-caseload_info.add "X127EQ3", "Adults Active 3"
-caseload_info.add "X127EQ4", "Adults Active 3"
-caseload_info.add "X127EX8", "Adults Active 3"
-caseload_info.add "X127EX9", "Adults Active 3"
-caseload_info.add "X127EG4", "Adults Active 3"
-caseload_info.add "X127ET2", "Families Active 3"
-caseload_info.add "X127ET3", "Families Active 3"
-caseload_info.add "X127ET4", "Families Active 3"
-'Team 4 Groves
-caseload_info.add "X127EH7", "Adults - Pending 4"
-caseload_info.add "X127EK3", "Adults - Pending 4"
-caseload_info.add "X127EK7", "Adults - Pending 4"
-caseload_info.add "X127EZ3", "Families - Pending 4"
-caseload_info.add "X127EZ4", "Families - Pending 4"
-'Active casebanks for Groves, not currently utilized for assignment
-
-caseload_info.add "X127EE1", "Adults Active 4"
-caseload_info.add "X127EE2", "Adults Active 4"
-caseload_info.add "X127EE3", "Adults Active 4"
-caseload_info.add "X127EE4", "Adults Active 4"
-caseload_info.add "X127EE5", "Adults Active 4"
-caseload_info.add "X127EE6", "Adults Active 4"
-caseload_info.add "X127EE7", "Adults Active 4"
-caseload_info.add "X127EL1", "Adults Active 4"
-caseload_info.add "X127EL2", "Adults Active 4"
-caseload_info.add "X127EL3", "Adults Active 4"
-caseload_info.add "X127EL4", "Adults Active 4"
-caseload_info.add "X127EL5", "Adults Active 4"
-caseload_info.add "X127EL6", "Adults Active 4"
-caseload_info.add "X127ES3", "Families Active 4"
-caseload_info.add "X127ES4", "Families Active 4"
-caseload_info.add "X127ES5", "Families Active 4"
-caseload_info.add "X127ES6", "Families Active 4"
-caseload_info.add "X127ES7", "Families Active 4"
-caseload_info.add "X127ES8", "Families Active 4"
-caseload_info.add "X127ES9", "Families Active 4"
-'Healthcare Pending caseloads
-caseload_info.add "X127ED8", "Healthcare - Pending"
-caseload_info.add "X127ER1", "Healthcare - Pending"
-caseload_info.add "X127ER2", "Healthcare Only Active"
-caseload_info.add "X127ER3", "Healthcare Only Active"
-caseload_info.add "X127ER4", "Healthcare Mixed Active"
-caseload_info.add "X127ER5", "Healthcare Mixed Active"
-caseload_info.add "X127ER6", "Healthcare Mixed Active"
-'This is the casebank for DWP team
-caseload_info.add "X127EY9", "Families - Cash"
-' caseload_info.add "X127EY8", "Families - Cash"		removed from assignment selection until additional process clarification can be identified. There are concerns with all cases being entered into a single basket with pending status.
-caseload_info.add "X127EN6", "TEFRA"
-caseload_info.add "X127FG1", "Foster Care / IV-E"
-caseload_info.add "X127EW6", "Foster Care / IV-E"
-caseload_info.add "X1274EC", "Foster Care / IV-E"
-caseload_info.add "X127FG2", "Foster Care / IV-E"
-caseload_info.add "X127EW4", "Foster Care / IV-E"
-
-caseload_info.add "X127EM8", "GRH / HS - Adults Pending"
-caseload_info.add "X127FE6", "GRH / HS - Adults Pending"
-caseload_info.add "X127EZ2", "GRH / HS - Families Pending"
-caseload_info.add "X127EM2", "GRH / HS - Maintenance"
-caseload_info.add "X127EH9", "GRH / HS - Maintenance"
-'caseload_info.add "X127FE6", "GRH / HS - Maintenance" This bank is being changed to accept pending, but cases already here for maintenance will not transfer.
-caseload_info.add "X127EJ4", "GRH / HS - Maintenance"
-caseload_info.add "X127EH2", "GRH / HS - Maintenance"
-caseload_info.add "X127EP4", "GRH / HS - Maintenance"
-caseload_info.add "X127EK5", "GRH / HS - Maintenance"
-caseload_info.add "X127EG5", "GRH / HS - Maintenance"
-'caseload_info.add "X127EG4", "MIPPA"
-caseload_info.add "X127F3D", "MA - BC"
-caseload_info.add "X127EK4", "LTC+ - General"
-caseload_info.add "X127EK9", "LTC+ - General"
-caseload_info.add "X127EF8", "1800 - Team 160"
-caseload_info.add "X127EF9", "1800 - Team 160"
-caseload_info.add "X1275H5", "Privileged Cases"
-caseload_info.add "X127FAT", "Privileged Cases"
-caseload_info.add "X127F3H", "Privileged Cases"
-caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
-caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
-caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
-
-caseload_info.add "X127FF8", "Contracted - North Memorial"
-caseload_info.add "X127FF6", "Contracted - HCMC"
-caseload_info.add "X127FF7", "Contracted - HCMC"
-
-caseload_info.add "X127FI1", "METS Retro Request"
-
-' MsgBox "The caseload type of Families - General is " & join(caseload_info.item("Families - General"), ", ")
-' MsgBox "The caseload type of Families - General is ~" & caseload_info.item("Families - General") & "~"
 function select_random_index(ubound_of_array, index_selection)
 	If ubound_of_array = 0 Then
 		index_selection = 0
@@ -370,7 +223,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	pended_from_inactive = False
 	If current_caseload = user_x_number Then pended_from_inactive = True
 
-	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" or current_caseload_type = "LTC+ - General" Then
+	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" or left(current_caseload_type, 3) = "LTC" or left(current_caseload_type, 8) = "GRH / HS" or current_caseload_type = "Waivers" Then
 		transfer_needed = False
 		correct_caseload_type = current_caseload_type
 		new_caseload = current_caseload
