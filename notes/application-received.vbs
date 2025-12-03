@@ -502,6 +502,9 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
         End If
     End If
 
+    'Change assignment for DWP for cases after 12/1/2025 - no DWP eligibility after that app date
+    If correct_caseload_type = "Families - Cash" AND datediff("d", #12/1/2025#, application_date) >= 0 THEN correct_caseload_type = "Families - Pending"
+
     'Adjust correct_caseload_type for correct Team
     If (correct_caseload_type = "Adults - Pending" OR correct_caseload_type = "Families - Pending") AND (case_active <> TRUE OR isnumeric(right(current_caseload_type, 1)) = False) Then random_team_needed = TRUE
 
