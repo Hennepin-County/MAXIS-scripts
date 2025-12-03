@@ -138,34 +138,34 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-IF CM_mo = "01" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #01/21/2025#
-ELSEIF CM_mo = "02" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #02/18/2025#
-ELSEIF CM_mo = "03" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #03/20/2025#
-ELSEIF CM_mo = "04" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #04/18/2025#
-ELSEIF CM_mo = "05" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #05/21/2025#
-ELSEIF CM_mo = "06" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #06/18/2025#
-ELSEIF CM_mo = "07" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #07/21/2025#
-ELSEIF CM_mo = "08" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #08/21/2025#
-ELSEIF CM_mo = "09" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #09/18/2025#
-ELSEIF CM_mo = "10" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #10/21/2025#
+IF CM_mo = "01" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #01/21/2026#
+ELSEIF CM_mo = "02" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #02/18/2026#
+ELSEIF CM_mo = "03" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #03/19/2026#
+ELSEIF CM_mo = "04" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #04/20/2026#
+ELSEIF CM_mo = "05" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #05/20/2026#
+ELSEIF CM_mo = "06" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #06/17/2026#
+ELSEIF CM_mo = "07" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #07/21/2026#
+ELSEIF CM_mo = "08" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #08/20/2026#
+ELSEIF CM_mo = "09" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #09/18/2026#
+ELSEIF CM_mo = "10" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #10/21/2026#
+ELSEIF CM_mo = "11" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #11/18/2026#
+ELSEIF CM_mo = "12" AND CM_yr = "26" THEN
+    ten_day_cutoff_date = #12/21/2026#
 ELSEIF CM_mo = "11" AND CM_yr = "25" THEN
     ten_day_cutoff_date = #11/18/2025#
 ELSEIF CM_mo = "12" AND CM_yr = "25" THEN
-    ten_day_cutoff_date = #12/19/2025#
-ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
-    ten_day_cutoff_date = #11/19/2024#
-ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
-    ten_day_cutoff_date = #12/19/2024#                              'last month of current year
+    ten_day_cutoff_date = #12/19/2025#                              'last month of current year
 ELSE
 	MsgBox "You have entered a date (" & CM_mo & "/" & CM_yr & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 END IF
@@ -7776,34 +7776,34 @@ function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty
 	month_to_review = footer_month & "/1/" & footer_year		'making this a date
 	month_to_review = DateAdd("d", 0, month_to_review)
 
-	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
-		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then				'on or after 10/1/24
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 292
-			If hh_size = 2 Then thrifty_food_plan = 536
-			If hh_size = 3 Then thrifty_food_plan = 768
-			If hh_size = 4 Then thrifty_food_plan = 975
-			If hh_size = 5 Then thrifty_food_plan = 1158
-			If hh_size = 6 Then thrifty_food_plan = 1390
-			If hh_size = 7 Then thrifty_food_plan = 1536
-			If hh_size = 8 Then thrifty_food_plan = 1756
+  If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+    hh_size = hh_size*1
+    If DateDiff("d", #10/1/2025#, month_to_review) >= 0 Then				'on or after 10/1/25
+      If hh_size = 0 Then thrifty_food_plan = 0
+      If hh_size = 1 Then thrifty_food_plan = 298
+      If hh_size = 2 Then thrifty_food_plan = 546
+      If hh_size = 3 Then thrifty_food_plan = 785
+      If hh_size = 4 Then thrifty_food_plan = 994
+      If hh_size = 5 Then thrifty_food_plan = 1183
+      If hh_size = 6 Then thrifty_food_plan = 1421
+      If hh_size = 7 Then thrifty_food_plan = 1571
+      If hh_size = 8 Then thrifty_food_plan = 1789
 
-			If hh_size > 8 Then thrifty_food_plan = 1756 + (220 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then			'between 10/23-09/24
-			If hh_size = 0 Then thrifty_food_plan = 0
-			If hh_size = 1 Then thrifty_food_plan = 291
-			If hh_size = 2 Then thrifty_food_plan = 535
-			If hh_size = 3 Then thrifty_food_plan = 766
-			If hh_size = 4 Then thrifty_food_plan = 973
-			If hh_size = 5 Then thrifty_food_plan = 1155
-			If hh_size = 6 Then thrifty_food_plan = 1386
-			If hh_size = 7 Then thrifty_food_plan = 1532
-			If hh_size = 8 Then thrifty_food_plan = 1751
+      If hh_size > 8 Then thrifty_food_plan = 1789 + (218 * (hh_size-8))
+    ElseIf DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then			'between 10/24-09/25
+      If hh_size = 0 Then thrifty_food_plan = 0
+      If hh_size = 1 Then thrifty_food_plan = 292
+      If hh_size = 2 Then thrifty_food_plan = 536
+      If hh_size = 3 Then thrifty_food_plan = 768
+      If hh_size = 4 Then thrifty_food_plan = 975
+      If hh_size = 5 Then thrifty_food_plan = 1158
+      If hh_size = 6 Then thrifty_food_plan = 1390
+      If hh_size = 7 Then thrifty_food_plan = 1536
+      If hh_size = 8 Then thrifty_food_plan = 1756
 
-			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
-		End If
-	End If
+      If hh_size > 8 Then thrifty_food_plan = 1756 + (220 * (hh_size-8))
+    End If
+  End If
 end function
 
 
