@@ -60,6 +60,9 @@ next_hh_memb_btn        = 203
 submit_hh_memb_button   = 204 
 update_xml_button       = 205
 back_button             = 206
+reselect_xml_button     = 207
+continue_button         = 208
+
 
 
 '--Other buttons
@@ -959,6 +962,7 @@ DO
   cancel_without_confirmation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+'To do - put dialog above and XML selection dialog into functions so that they can be called as a loop so user can move back and forth if needed
 
 'To do - add handling for cases where not address is provided
 'To do - add county of residence
@@ -1106,7 +1110,39 @@ objMailingZip.Text            = mailing_zip
 
 ' Save the updated XML to a file
 'To do - update with actual file path once done testing
-xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
+' xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
+' xmlDoc.Save replace(XML_file_path, application_ID, application_ID & "_" & "processed")
+
+'Save the XML document with 'processed' in file name
+' xmlDoc.Save replace(XML_file_path, application_ID, application_ID & "_" & "processed")
+
+
+On Error Resume Next
+
+' Attempt to save the XML document
+Dim XML_file_path_processed
+XML_file_path_processed = Replace(XML_file_path, application_ID, application_ID & "_processed")
+xmlDoc.Save XML_file_path_processed
+
+' Check for errors
+If Err.Number <> 0 Then
+  WScript.Echo "Error saving file: " & Err.Description
+  ' Optional: log the error or take corrective action
+  script_end_procedure_with_error_report("Script failed to save the processed XML file. The script will now end.")
+Else
+  msgbox "Success!"
+End If
+
+On Error GoTo 0 ' Reset error handling
+
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+If fso.FileExists(XML_file_path) Then
+  fso.DeleteFile XML_file_path
+Else
+  script_end_procedure_with_error_report("Script failed to delete XML file.")
+End If
+
 
 ' Clean up
 Set objMemberNode           = Nothing
