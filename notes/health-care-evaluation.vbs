@@ -414,7 +414,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = completed_hc_eval_btn Then show_msg = True
-		If page_display = show_pg_last Then
+		If page_display = last_page Then
 			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 		End If
 
@@ -435,7 +435,7 @@ function define_main_dialog()
 'This uses variables that are set to numbers to be equal to 'page_display'
 'Each section of the if statements is the details of a specific dialog page.
 'The container and buttons are defined for all the options to be the same (reducing the duplicate code)
-	BeginDialog Dialog1, 0, 0, 555, 385, "Information for Health Care Evaluation"
+    BeginDialog Dialog1, 0, 0, 555, 385, "Information for Health Care Evaluation"
 	  ButtonGroup ButtonPressed
 	  	'here starts the page specific display details
 	    If page_display = show_member_page Then																	'MEMBER page
@@ -462,7 +462,7 @@ function define_main_dialog()
  			EditBox 445, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_year, selected_memb)
  			Text 330, 60, 85, 10, "HC Recertification MM/YY"
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
-			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
+            Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
 			Text 215, 85, 75, 10, "DOB: " & HEALTH_CARE_MEMBERS(dob_const, selected_memb)
 			Text 320, 75, 110, 10, " Application Date: " & HEALTH_CARE_MEMBERS(hc_appl_date_const, selected_memb)
@@ -2001,7 +2001,7 @@ function define_main_dialog()
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "LTC Details"
 		ElseIf page_display = last_page Then															'Final detail Page
-			y_pos = 10
+            y_pos = 10
 			If arep_name <> "" Then
 				y_pos = y_pos + 10
 				Text 20, y_pos, 150, 10, "AREP Information"
@@ -2085,16 +2085,19 @@ function define_main_dialog()
 			End If
 		ElseIf page_display = verifs_page Then															'Verifs Page - this page displays only if there are verifs
 			EditBox 700, 700, 50, 15, invisible_edit_box			'this is here to capture the attention of the tab order so people don't accidentally clear their verifs
-			y_pos = 25
-			Text 20, y_pos, 150, 10, "Verifications listed:"
-			If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
-			y_pos = y_pos + 10
+			verif_y_pos = 25
+			Text 20, verif_y_pos, 150, 10, "Verifications listed:"
+			If verif_req_form_sent_date <> "" Then Text 200, verif_y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
+			verif_y_pos = verif_y_pos + 10
 
 			verifs_array = NULL
 			verif_counter = 1
 			verifs_needed = trim(verifs_needed)
 			If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
 			If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+            Do While InStr(verifs_needed, ";;") <> 0
+                verifs_needed = replace(verifs_needed, ";;", ";")
+            Loop
 			If InStr(verifs_needed, ";") <> 0 Then
 				verifs_array = split(verifs_needed, ";")
 			Else
@@ -2105,21 +2108,20 @@ function define_main_dialog()
 				verif_item = trim(verif_item)
 				If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
 				verif_counter = verif_counter + 1
-				' Call write_variable_with_indent_in_CASE_NOTE(verif_item)
-				Text 25, y_pos, 440, 10, verif_item
-				y_pos = y_pos + 10
+				Text 25, verif_y_pos, 440, 10, verif_item
+				verif_y_pos = verif_y_pos + 10
 			Next
-			y_pos = y_pos + 5
-			Text 20, y_pos, 300, 10, "(Verifications to be added to CASE/NOTE)"
-			y_pos = y_pos + 10
+			verif_y_pos = verif_y_pos + 5
+			Text 20, verif_y_pos, 300, 10, "(Verifications to be added to CASE/NOTE)"
+			verif_y_pos = verif_y_pos + 10
 
-			grp_len = y_pos
+			grp_len = verif_y_pos
 			GroupBox 10, 10, 465, grp_len, "Verifications"
-			y_pos = y_pos + 10
+			verif_y_pos = verif_y_pos + 10
 
-			Text 250, y_pos, 220, 20, "Pressing this button will remove all verifications from the list. You will need to press 'Update Verifications' to add verif information back."
-			y_pos = y_pos + 20
-			PushButton 350, y_pos, 120, 15, "Clear Verifs List", clear_verifs_btn
+			Text 250, verif_y_pos, 220, 20, "Pressing this button will remove all verifications from the list. You will need to press 'Update Verifications' to add verif information back."
+			verif_y_pos = verif_y_pos + 20
+			PushButton 350, verif_y_pos, 120, 15, "Clear Verifs List", clear_verifs_btn
 
 		ElseIf page_display = ltc_intake_page Then
 			GroupBox 10, 5, 465, 125, "LTC Intake Information"
@@ -7252,20 +7254,23 @@ show_err_msg_during_movement = True
 'These are where we start this information
 page_display = show_member_page
 month_ind = 0
+
+invisible_edit_box = ""
 Do
 	Do
 		Do
 			Do
-				Dialog1 = Empty					'blank out the dialog
-				call define_main_dialog			'create the dialog image
+				Dialog1 = ""					'blank out the dialog
+
+                call define_main_dialog			'create the dialog image
 				err_msg = ""					'blanking out the error messaging
 
 				prev_page = page_display					'setting what was previously happening on the dialog
 				previous_button_pressed = ButtonPressed
 
-				dialog Dialog1					'show the actual dialog
+                dialog Dialog1					'show the actual dialog
 
-				cancel_confirmation				'this cancels the script if the worker presses 'cancel' or 'ESC'
+                cancel_confirmation				'this cancels the script if the worker presses 'cancel' or 'ESC'
 
 				processing_an_application = False
 				processing_a_recert = False
@@ -7276,7 +7281,7 @@ Do
 					End If
 				Next
 
-				Call verification_dialog		'show the verification dialog if the verifs button is pressed.
+                Call verification_dialog		'show the verification dialog if the verifs button is pressed.
 				Call check_for_errors(eval_questions_clear)								'review entered information to see if there are dialog errors
 				Call display_errors(err_msg, False, show_err_msg_during_movement)		'show the error if any exist
 			Loop until err_msg = ""
