@@ -2113,7 +2113,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE something went wrong"
+                            MsgBox "2116 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE something went wrong"
                           End If
                           
                           ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
@@ -2327,7 +2327,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            MsgBox "2330 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
                           End If
                           
                           'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
@@ -2437,7 +2437,8 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            msgbox "check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<"
+                            MsgBox "2440 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
                           End If
                           
                           ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
@@ -2654,7 +2655,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            MsgBox "2657 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
                           End If
                           
                           'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
@@ -2824,7 +2825,7 @@ If CSES_messages = 1 Then
                           End If
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            MsgBox "2827 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
                           End If
                           
                           'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
