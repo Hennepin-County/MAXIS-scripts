@@ -933,7 +933,7 @@ class form_questions
 							For col = 1 to 3
 								TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
 								TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
-							Next
+                            Next
 							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Font.Size = 6
 							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Font.Size = 12
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Font.Size = 6
@@ -1100,16 +1100,25 @@ class form_questions
 									TABLE_ARRAY(array_counters).Cell(row+2, 1).Range.Text = "Explain the change"
 									TABLE_ARRAY(array_counters).Cell(row+3, 1).Range.Text = detail_explain(each_item)
 
+                                    text_len = CInt(len("Write-In: " & detail_write_in_info(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = text_len * 15
 									notes_detail = "Write-In: " & detail_write_in_info(each_item) & vbCr
+                                    text_len = CInt(len("Notes: " & detail_interview_notes(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = cell_height + (text_len * 15)
 									notes_detail = notes_detail & "Notes: " & detail_interview_notes(each_item)
 									If detail_verif_status(each_item) <> "" or detail_verif_notes(each_item) <> "" Then
+                                        text_len = CInt(len("Verification: " & detail_verif_status(each_item))/55)
+                                        If text_len = 0 Then text_len = 1
+                                        cell_height = cell_height + (text_len * 15)
 										notes_detail = notes_detail & vbCr & "Verification: " & detail_verif_status(each_item) & " - " & detail_verif_notes(each_item)
-										TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight 45, 2
 									End If
+                                    cell_height = cell_height + 5
+                                    TABLE_ARRAY(array_counters).Cell(row+4, 1).SetHeight cell_height, 2
 									TABLE_ARRAY(array_counters).Cell(row+4, 1).Range.ParagraphFormat.SpaceAfter = 0
 									TABLE_ARRAY(array_counters).Cell(row+4, 1).Range.Text = notes_detail
 									row = row + 5
-
 								End If
 							next
 
@@ -1187,12 +1196,22 @@ class form_questions
 									End If
 								End If
 								If enter_note = true Then
+                                    text_len = CInt(len("Write-In: " & detail_write_in_info(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = text_len * 15
 									notes_detail = "Write-In: " & detail_write_in_info(each_item) & vbCr
+                                    text_len = CInt(len("Notes: " & detail_interview_notes(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = cell_height + (text_len * 15)
 									notes_detail = notes_detail & "Notes: " & detail_interview_notes(each_item)
 									If detail_verif_status(each_item) <> "" or detail_verif_notes(each_item) <> "" Then
+                                        text_len = CInt(len("Verification: " & detail_verif_status(each_item))/55)
+                                        If text_len = 0 Then text_len = 1
+                                        cell_height = cell_height + (text_len * 15)
 										notes_detail = notes_detail & vbCr & "Verification: " & detail_verif_status(each_item) & " - " & detail_verif_notes(each_item)
-										TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight 45, 2
 									End If
+                                    cell_height = cell_height + 5
+                                    TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight cell_height, 2
 									TABLE_ARRAY(array_counters).Cell(row+1, 1).Range.ParagraphFormat.SpaceAfter = 0
 									TABLE_ARRAY(array_counters).Cell(row+1, 1).Range.Text = notes_detail
 									row = row + 2
