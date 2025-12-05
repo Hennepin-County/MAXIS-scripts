@@ -2654,13 +2654,14 @@ If operation_selection = "Review Completed Assignments" Then
 	latest_work_dated = date
 	const wrkr_name_const 		= 00
 	const supr_name_const		= 01
-	const supr_email_const		= 02
-	const wrk_date_const 		= 03
-	const complt_count_const	= 04
-	const incmplt_count_const	= 05
-	const pend_count_const 		= 06
-	const app_count_const 		= 07
-	const deny_count_const		= 08
+    const supr_id_const         = 02
+	const supr_email_const		= 03
+	const wrk_date_const 		= 04
+	const complt_count_const	= 05
+	const incmplt_count_const	= 06
+	const pend_count_const 		= 07
+	const app_count_const 		= 08
+	const deny_count_const		= 09
 	const end_numb_const 		= 20
 	Dim COMPLETED_ASSIGNMENT_ARRAY()
 	ReDim COMPLETED_ASSIGNMENT_ARRAY(end_numb_const, 0)
@@ -2930,8 +2931,11 @@ If operation_selection = "Review Completed Assignments" Then
 		If name_array(0) = "Nafiso" and name_array(1) = "A" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Nafiso Awale"
 		If name_array(0) = "Abdullahi" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Abdullahi Berka"
 		If name_array(0) = "Hannah" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Hannah Broman"
-		If name_array(0) = "Natalie" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Carlstrom"
+		If name_array(0) = "Jessilyn" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Jessilyn Boerum"
 		If name_array(0) = "Grace" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Grace Cushman"
+		If name_array(0) = "Mayra" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Mayra Cota"
+		If name_array(0) = "Natalie" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Carlstrom"
+		If name_array(0) = "Prophetia" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Prophetia Castin"
 		If name_array(0) = "Susan" and name_array(1) = "E" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Susan Eeten"
 		If name_array(0) = "Fajah" and name_array(1) = "F" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Fajah Ford"
 		If name_array(0) = "Isabella" and name_array(1) = "G" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Isabella Groulx"
@@ -2940,8 +2944,11 @@ If operation_selection = "Review Completed Assignments" Then
 		If name_array(0) = "Sartu" and name_array(1) = "H" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Sartu Hassan"
 		If name_array(0) = "Anna" and name_array(1) = "I" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Anna Inslee"
 		If name_array(0) = "Eileen" and name_array(1) = "K" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Eileen Keswani"
+		If name_array(0) = "Gawa" and name_array(1) = "K" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Gawa Kalsang"
+		If name_array(0) = "Anna" and name_array(1) = "M" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Anna Mahon"
 		If name_array(0) = "Maslah" and name_array(1) = "M" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Maslah Mohamed"
 		If name_array(0) = "Samuel" and name_array(1) = "P" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Samuel Parenteau"
+		If name_array(0) = "Kelly" and name_array(1) = "Q" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Kelly Quigley"
 		If name_array(0) = "Michelle" and name_array(1) = "Q" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Michelle Quevedo"
 		If name_array(0) = "Znia" and name_array(1) = "R" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Znia Richmond"
 		If name_array(0) = "Trenita" and name_array(1) = "R" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Trenita Rodgers"
@@ -2950,8 +2957,18 @@ If operation_selection = "Review Completed Assignments" Then
 		If name_array(0) = "Staci" and name_array(1) = "U" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Staci Ulmen"
 		If name_array(0) = "Natalie" and name_array(1) = "V" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Vue"
 		If name_array(0) = "Beverly" and name_array(1) = "W" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Beverly Wyka"
+		If name_array(0) = "Diki" and name_array(1) = "W" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Diki Wangkhang-Phuntsok"
 		If name_array(0) = "Francis" and name_array(1) = "Y" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Francis Yang"
 		If name_array(0) = "Martha" and name_array(1) = "Z" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Martha Zieman"
+
+		If temp_worker_name = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow) Then
+            email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+            email_subject = "Worker Name Unknown in HC Pending Assignments"
+            email_body = "The specific worker is not recorded in the script"
+            email_body = email_body & vbCr & vbCr & "Worker Name Found: " & temp_worker_name & vbCr & "AUTOMATED EMAIL"
+            send_email = True
+			Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
+        End If
 
 		temp_worker_name = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
 		name_array = split(temp_worker_name)
@@ -2976,7 +2993,9 @@ If operation_selection = "Review Completed Assignments" Then
 				next
 				If first_name_found = True Then
 					COMPLETED_ASSIGNMENT_ARRAY(supr_name_const, cow) = objRecordSet("L1Manager")
-					If InStr(supervisor_string, "~"&objRecordSet("L1Manager")&"~") = 0 Then supervisor_string = supervisor_string & objRecordSet("L1Manager") & "~"
+					COMPLETED_ASSIGNMENT_ARRAY(supr_id_const, cow) = objRecordSet("L1ManagerEmployeeNumber")
+					' If InStr(supervisor_string, "~"&objRecordSet("L1Manager")&"~") = 0 Then supervisor_string = supervisor_string & objRecordSet("L1Manager") & "~"
+					If InStr(supervisor_string, "~"&objRecordSet("L1ManagerEmployeeNumber")&"~") = 0 Then supervisor_string = supervisor_string & objRecordSet("L1ManagerEmployeeNumber") & "~"
 					' COMPLETED_ASSIGNMENT_ARRAY(supr_email_const, cow) = objRecordSet()
 				End If
 			End If
@@ -2997,6 +3016,7 @@ If operation_selection = "Review Completed Assignments" Then
 		for cow = 0 to UBound(COMPLETED_ASSIGNMENT_ARRAY, 2)
 			If WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = left(COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow), len(WORKER_TOTAL_ARRAY(wrkr_name_const, pig))) Then
 				WORKER_TOTAL_ARRAY(supr_name_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(supr_name_const, cow)
+                WORKER_TOTAL_ARRAY(supr_id_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(supr_id_const, cow)
 				WORKER_TOTAL_ARRAY(wrkr_name_const, pig) = COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)
 				Exit For
 			End If
@@ -3018,7 +3038,7 @@ If operation_selection = "Review Completed Assignments" Then
 		Do While NOT objRecordSet.Eof
 			email_recip = objRecordSet("EmployeeEmail")
 			email_recip_CC = "faughn.ramisch-church@hennepin.us"
-			send_email = True
+			send_email = False
 			email_subject = "HC Pending Work Report for " & date
 			email_body = "HC Pending Assignments are recorded through use of the worklist functionality in the script Health Care Pending Assignments. This information is intended to provide a summary of the work assigned and completed by HSRs through this script process.<br><br>"
 			email_body = email_body & "Incomplete assignments are not concerning as they only indicate cases that could not be processed during the processing shift.<br>"
@@ -3028,7 +3048,7 @@ If operation_selection = "Review Completed Assignments" Then
 			email_body = email_body & "Worker Assignment Information:<br>"
 
 			for pig = 0 to UBound(WORKER_TOTAL_ARRAY, 2)
-				If WORKER_TOTAL_ARRAY(supr_name_const, pig) = horse Then
+				If WORKER_TOTAL_ARRAY(supr_id_const, pig) = horse Then
 					email_body = email_body & "&emsp;<b>" & chr(149) & " " & WORKER_TOTAL_ARRAY(wrkr_name_const, pig) & ":</b>"
 					email_body = email_body & "&emsp;&emsp;TOTAL:&ensp;Complete: " & WORKER_TOTAL_ARRAY(complt_count_const, pig)
 					email_body = email_body & "&emsp;-&emsp;Incomplete: " & WORKER_TOTAL_ARRAY(incmplt_count_const, pig) & "<br>"
