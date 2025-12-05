@@ -4648,40 +4648,52 @@ If HIRE_messages = 1 Then
                             EMWriteScreen right(SNAP_req_action_appl_month, 2), 20, 58
                             Call write_value_and_transmit("FS", 20, 71)
 
-                            EMWriteScreen "99", 19, 78
-                            transmit
-                            'This brings up the FS versions of eligibility results to search for approved versions
-                            status_row = 7
-                            Do
-                              EMReadScreen app_status, 8, status_row, 50
-                              app_status = Trim(app_status)
-                              If app_status = "" Then
-                                PF3
-                                Exit Do 'if end of the list is reached then exits the do loop
-                              End If
-                              If app_status = "UNAPPROV" Then status_row = status_row + 1
-                            Loop Until app_status = "APPROVED" Or app_status = ""
-                            
-                            If app_status = "" Or app_status <> "APPROVED" Then
-                              If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then
-                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
-                              Else
-                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
-                              End If
-                              HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
-                            ElseIf app_status = "APPROVED" Then
-                              EMWriteScreen "   ", 18, 54 'blank out the version first - cause if it's double digit - everything is bad
-                              EMReadScreen vers_number, 1, status_row, 23
-                              Call write_value_and_transmit(vers_number, 18, 54)
-                              Call write_value_and_transmit("FSSM", 19, 70)
+                            'Need to verify if script successfully navigated to ELIG/FS. If it fails then script should NOT process message
+                            EmReadScreen FSPR_check, 4, 3, 48
+                            If FSPR_check = "FSPR" Then
+
+                              EMWriteScreen "99", 19, 78
+                              transmit
+                              'This brings up the FS versions of eligibility results to search for approved versions
+                              status_row = 7
+                              Do
+                                EMReadScreen app_status, 8, status_row, 50
+                                app_status = Trim(app_status)
+                                If app_status = "" Then
+                                  PF3
+                                  Exit Do 'if end of the list is reached then exits the do loop
+                                End If
+                                If app_status = "UNAPPROV" Then status_row = status_row + 1
+                              Loop Until app_status = "APPROVED" Or app_status = ""
                               
-                              EmReadscreen FSSM_approval_date, 8, 3, 14
-                              'Convert to date
-                              FSSM_approval_date = DateAdd("m", 0, FSSM_approval_date)
-                              Call ONLY_create_MAXIS_friendly_date(FSSM_approval_date)
+                              If app_status = "" Or app_status <> "APPROVED" Then
+                                If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then
+                                  HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                                Else
+                                  HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "No approved eligibility results exists in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                                End If
+                                HIRE_case_details_array(HIRE_processable_based_on_case_const, case_count) = False
+                              ElseIf app_status = "APPROVED" Then
+                                EMWriteScreen "   ", 18, 54 'blank out the version first - cause if it's double digit - everything is bad
+                                EMReadScreen vers_number, 1, status_row, 23
+                                Call write_value_and_transmit(vers_number, 18, 54)
+                                Call write_value_and_transmit("FSSM", 19, 70)
+                                
+                                EmReadscreen FSSM_approval_date, 8, 3, 14
+                                'Convert to date
+                                FSSM_approval_date = DateAdd("m", 0, FSSM_approval_date)
+                                Call ONLY_create_MAXIS_friendly_date(FSSM_approval_date)
+                              End If
+                            Else
+                              If HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) <> "" Then
+                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "; Unable to access eligibility results for SNAP in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                              Else
+                                HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) = HIRE_case_details_array(HIRE_case_processing_notes_const, case_count) & "Unable to access eligibility results for SNAP in " & left(SNAP_req_action_appl_month, 2) & "/" & right(SNAP_req_action_appl_month, 2) & " to verify for SNAP action required. "
+                              End If
+                              'Reset FSPR check
+                              FSPR_check = ""
                             End If
                           End If
-
                         Else
                           sr_report_date = "N/A"
                           recertification_date = "N/A"
@@ -5092,9 +5104,28 @@ If HIRE_messages = 1 Then
                 'PF3 back to DAIL
                 PF3
               Else
-                'Return to DAIL by PF3
-                PF3
+                'Check if script already made it to the DAIL before PF3
+                EMReadScreen dail_return_check, 4, 2, 48
                 
+                If dail_return_check <> "DAIL" Then PF3
+                dail_return_check = ""
+                'Check if we are still on ELIG screen. If so, need to navigate to DAIL/DAIL otherwise PF3 will bump back to SELF
+                EMReadScreen still_at_ELIG_check, 4, 2, 52
+                If still_at_ELIG_check = "ELIG" Then
+                  EmWriteScreen "DAIL", 20, 19
+                  Call write_value_and_transmit("DAIL", 20, 71)
+                End If
+                still_at_ELIG_check = ""
+                'Make sure we made it back to the DAIL
+                EMReadScreen dail_return_check, 4, 2, 48
+                If dail_return_check <> "DAIL" Then
+                  PF3
+                  dail_return_check = ""
+                End If
+                EMReadScreen dail_return_check, 4, 2, 48
+                If dail_return_check <> "DAIL" Then script_end_procedure("5120 Unable to get to the DAIL")
+                dail_return_check = ""
+
                 'Reset the footer month/year to CM through CASE/CURR
                 Call write_value_and_transmit("H", dail_row, 3)
                 EMWriteScreen MAXIS_footer_month, 20, 54
