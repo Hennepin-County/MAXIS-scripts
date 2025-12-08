@@ -3029,7 +3029,7 @@ If operation_selection = "Review Completed Assignments" Then
 		Set objConnection = CreateObject("ADODB.Connection")
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim WHERE EmpFullName like '%" & horse & "%'"				'identifying the table that stores the ES Staff user information
+		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim WHERE EmployeeNumber like '%" & horse & "%'"				'identifying the table that stores the ES Staff user information
 
 		objConnection.Open db_full_string
 		'objConnection.Open db_full_string
@@ -3078,7 +3078,7 @@ If operation_selection = "Review Completed Assignments" Then
 			'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 			Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
 
-			end_msg = end_msg & "Email sent to " & trim(horse) & " of completed work." & vbCr
+			end_msg = end_msg & "Email sent to " & trim(objRecordSet("EmpFullName")) & " of completed work." & vbCr
 			Exit Do
 			objRecordSet.MoveNext											'Going to the next row in the table
 		Loop
