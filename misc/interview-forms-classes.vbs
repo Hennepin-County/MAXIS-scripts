@@ -3895,7 +3895,7 @@ If vars_filled = False Then
 
 
 		Case "HUF (DHS-8107)"
-			form_version_date = "03/22"					'this is the date of the form release
+			form_version_date = "09/25"					'this is the date of the form release
 			'IF UPDATING THIS ALSO UPDATE THE VERSION DATE VARIABLE ON THE INTERVIEW SCRIPT
 
 			' ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "HUF (DHS-8107)"
@@ -4278,7 +4278,7 @@ If vars_filled = False Then
 
 
 		Case "SNAP App for Srs (DHS-5223F)"
-			form_version_date = "04/23"				'this is the date of the form release
+			form_version_date = "09/25"				'this is the date of the form release
 			'IF UPDATING THIS ALSO UPDATE THE VERSION DATE VARIABLE ON THE INTERVIEW SCRIPT
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
@@ -4313,7 +4313,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 40
 			question_num = question_num + 1
 
@@ -4336,7 +4336,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
@@ -4363,16 +4363,39 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 130
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in your household receive or expect to receive Advance Child Tax Credit payment in July through December?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q4.Does anyone receive or expect the Advanced Child Tax Credit?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 4. Does anyone receive or expect the Advanced Child Tax Credit?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q4 Information (Advanced Child Tax Credit)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 5
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q4.Are there any of the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 4. Does your household have the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q5.Are there any of the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 5. Does your household have the following housing expenses?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "housing"
 			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
 			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Do you receive a rental subsidy (ex: Section 8)?"
@@ -4385,7 +4408,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q4 Information (Housing Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q5 Information (Housing Expense)"
 			FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
@@ -4398,10 +4421,10 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 5
+			FORM_QUESTION_ARRAY(question_num).number 				= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following utility expenses any time during the year?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q5.Are there any of the following utility expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 5. Does your household have the following utility expenses any time during the year?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q6.Are there any of the following utility expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 6. Does your household have the following utility expenses any time during the year?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "utilities"
 			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
 			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
@@ -4416,7 +4439,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q5 Information (Utilities Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q6 Information (Utilities Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -4428,42 +4451,21 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 6
+			FORM_QUESTION_ARRAY(question_num).number 				= 7
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone have costs for care of an ill/disabled adult because you or they are working, looking for work or going to school?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q6.Does anyone have costs for adult care?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7.Does anyone have costs for adult care?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q6 Information (DISA Adult Care Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q7 Information (DISA Adult Care Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
-			question_num = question_num + 1
-
-			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
-			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 7
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7.Does anyone pay support to someone outside of the home?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
-			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
-			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q7 Information (Support Expense)"
-
-			FORM_QUESTION_ARRAY(question_num).mandated 				= False
-			FORM_QUESTION_ARRAY(question_num).error_info			= ""
-			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
@@ -4471,15 +4473,83 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 8
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: Does anyone in the household have medical expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. For SNAP only: Does anyone in the household have medical expenses? "
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8.Does anyone pay support to someone outside of the home?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q8 Information (Medical Expenses)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q8 Information (Support Expense)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 9
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household have medical expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q9.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 9. Does anyone in the household have medical expenses? "
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q9 Information (Medical Expenses)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 10
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household own, or is anyone buying, any of the following?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q10.Does anyone own or is anyone buying any of the following:"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 10. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. "
+			FORM_QUESTION_ARRAY(question_num).info_type				= "assets"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Cash", "Bank accounts (savings, checking, etc)", "Electronic Pymnt Card (Reliacard, debit, etc.)", "Stocks, bonds, annuities, 401k, etc", "Vehicles (cars, trucks, motorcycles, campers, trailers)")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Cash", "Bank Accounts", "Payment Card", "Stocks", "Vehicles")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q10 Information (Assets)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 120
+			question_num = question_num + 1
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 11
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household given away, sold or traded anything of value in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q11.Has anyone sold/given away/traded assets in the past 12 mos?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 11. Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q11 Information (Asset Trade)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -4488,6 +4558,12 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
+
+
+            'TODO - add questions"
+                '10 - Assets
+                '11 - Sold or traded assets
+
 
 			numb_of_quest = question_num-1
 			last_page_of_questions = 6
