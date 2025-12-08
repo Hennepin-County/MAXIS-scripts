@@ -7733,9 +7733,9 @@ Call run_from_GitHub(script_repository & "misc/interview-forms-classes.vbs" )
 EMWaitReady 0, 0
 
 caf_version_date = "03/25"
-mnbenefits_version_date = "11/16"
-huf_version_date = "03/22"
-sr_snap_version_date = "04/23"
+mnbenefits_version_date = "03/25"
+huf_version_date = "09/25"
+sr_snap_version_date = "09/25"
 car_version_date = "04/23"
 
 If vars_filled = True Then
