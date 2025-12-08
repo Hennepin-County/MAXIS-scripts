@@ -11958,8 +11958,10 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 		PF4
 	End If
-	If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
-		If arep_exists = True Then
+    If arep_exists = True Then
+        If trim(CAF_arep_relationship) = "Select or Type" Then CAF_arep_relationship = ""
+        If trim(arep_relationship) = "Select or Type" Then arep_relationship = ""
+	    If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
 			If arep_action = "Yes - keep this AREP" OR CAF_arep_action = "Yes - add to MAXIS" OR (arep_authorization <> "Select One..." AND arep_authorization <> "") Then
 				Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 				If memo_opened = True Then
@@ -12043,6 +12045,34 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 				Call write_variable_in_CASE_NOTE(worker_signature)
 				PF3
 			End If
+        Else
+            Call start_a_blank_CASE_NOTE
+            Call write_variable_in_CASE_NOTE("REQUEST TO REMOVE AREP")
+            Call write_variable_in_CASE_NOTE("In the Interview, Resident requested AREP be removed from the case.")
+            If trim(arep_name) <> "" AND arep_action = "No - remove this AREP from my case" Then
+                Call write_variable_in_CASE_NOTE("AREP Information to Remove:")
+                CALL write_bullet_and_variable_in_CASE_NOTE("Name", arep_name)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", arep_relationship)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", arep_phone_number)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", arep_addr_street)
+                CALL write_bullet_and_variable_in_CASE_NOTE("City", arep_addr_city)
+                CALL write_bullet_and_variable_in_CASE_NOTE("State", arep_addr_state)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Zip", arep_addr_zip)
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(worker_signature)
+            End If
+            If trim(CAF_arep_name) <> "" AND CAF_arep_action = "No - do not allow this AREP" Then
+                CALL write_bullet_and_variable_in_CASE_NOTE("Name", CAF_arep_name)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", CAF_arep_relationship)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", CAF_arep_phone_number)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", CAF_arep_addr_street)
+                CALL write_bullet_and_variable_in_CASE_NOTE("City", CAF_arep_addr_city)
+                CALL write_bullet_and_variable_in_CASE_NOTE("State", CAF_arep_addr_state)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Zip", CAF_arep_addr_zip)
+            End If
+            Call write_variable_in_CASE_NOTE("---")
+            Call write_variable_in_CASE_NOTE(worker_signature)
+            PF3
 		End If
 	End If
 	If expedited_determination_completed = True Then
