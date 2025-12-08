@@ -2113,7 +2113,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "2116 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE something went wrong"
+                            script_end_procedure("2116 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
@@ -2327,7 +2327,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "2330 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            script_end_procedure("2330 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
@@ -2428,7 +2428,9 @@ If CSES_messages = 1 Then
                           EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
                           EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
                           EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
+                          check_full_dail_msg_line_3 = Trim(check_full_dail_msg_line_3)
                           EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
+                          check_full_dail_msg_line_4 = Trim(check_full_dail_msg_line_4)
                           
                           If Trim(check_full_dail_msg_line_2) = "" Then
                             check_full_dail_msg_line_1 = Trim(check_full_dail_msg_line_1)
@@ -2437,8 +2439,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            msgbox "check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<"
-                            MsgBox "2440 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            script_end_procedure("2459 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
@@ -2655,7 +2656,7 @@ If CSES_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "2657 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            script_end_procedure("2659 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
@@ -2825,7 +2826,7 @@ If CSES_messages = 1 Then
                           End If
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "2827 Testing -- check_full_dail_msg <> full_dail_msg. STOP HERE. Something went wrong."
+                            script_end_procedure("2829 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
@@ -5856,7 +5857,7 @@ If HIRE_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_case_number & " " & check_full_dail_msg_case_name & " " & check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- Something went wrong around 5556. check_full_dail_msg " & check_full_dail_msg & vbNewLine & vbNewLine & " full_dail_msg " & full_dail_msg
+                            script_end_procedure("5860 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           'Read the Case Name and Case Number to process TIKLs as needed
@@ -6385,7 +6386,7 @@ If HIRE_messages = 1 Then
                           check_full_dail_msg = Trim(check_full_dail_msg_case_number & " " & check_full_dail_msg_case_name & " " & check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4)
                           
                           If check_full_dail_msg <> full_dail_msg Then
-                            MsgBox "Testing -- messages do not match. check_full_dail_msg " & check_full_dail_msg & "    " & " full_dail_msg " & full_dail_msg
+                            script_end_procedure("6380 check_full_dail_msg >" & check_full_dail_msg & "<" & vbcr & vbcr & "full_dail_msg       >" & full_dail_msg & "<")
                           End If
                           
                           'Read the Case Name and Case Number to process TIKLs as needed
