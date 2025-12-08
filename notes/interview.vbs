@@ -4674,8 +4674,10 @@ function review_for_discrepancies()
 	phone_number_entered = True
 	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then phone_number_entered = False
 
-	If caf_exp_pay_phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
-	If caf_exp_pay_phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+    If expedited_screening_on_form Then
+        If caf_exp_pay_phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+        If caf_exp_pay_phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+    End If
 
 	rent_indicated = False
 	rent_summary = ""
@@ -4684,15 +4686,24 @@ function review_for_discrepancies()
 
 	For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
 		If FORM_QUESTION_ARRAY(each_question).detail_source = "shel-hest" Then
-			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_heat_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_ac_checkbox = checked 			Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).electric_checkbox = unchecked AND caf_exp_pay_electricity_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked 	AND caf_exp_pay_phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			If caf_exp_pay_none_checkbox = checked Then
-				If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-				If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-				If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			End If
+            If expedited_screening_on_form Then
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked Then utility_summary = utility_summary & ", Heat/AC"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked Then utility_summary = utility_summary & ", Electric"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked Then utility_summary = utility_summary & ", Phone"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_heat_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_ac_checkbox = checked 			Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = unchecked AND caf_exp_pay_electricity_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked 	AND caf_exp_pay_phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked   AND caf_exp_pay_heat_checkbox = unchecked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked   AND caf_exp_pay_ac_checkbox = unchecked 			Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked   AND caf_exp_pay_electricity_checkbox = unchecked 	Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 	    AND caf_exp_pay_phone_checkbox = unchecked 		Then disc_utility_amounts = "EXISTS"
+                If caf_exp_pay_none_checkbox = checked Then
+                    If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                    If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                    If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                End If
+            End If
 			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
 			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
 			If trim(FORM_QUESTION_ARRAY(each_question).housing_payment) <> "" Then
@@ -4716,21 +4727,32 @@ function review_for_discrepancies()
 			If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
 				For each_util = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
 					If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_util) = "Yes" Then
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+                        If expedited_screening_on_form Then
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) <> "Water/Sewer" AND FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) <> "Garbage" Then utility_summary = utility_summary & ", " & FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util)
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric"   AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone"      AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    AND caf_exp_pay_heat_checkbox = unchecked           Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    AND caf_exp_pay_ac_checkbox = unchecked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric"   AND caf_exp_pay_electricity_checkbox = unchecked    Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone"      AND caf_exp_pay_phone_checkbox = unchecked          Then disc_utility_amounts = "EXISTS"
+                        End If
+                        If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
 					Else
-						If caf_exp_pay_heat_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_ac_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_electricity_checkbox = checked AND 	FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_phone_checkbox = checked AND 		FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 	Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+                        If expedited_screening_on_form Then
+                            If caf_exp_pay_heat_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_ac_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_electricity_checkbox = checked AND 	FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_phone_checkbox = checked AND 		FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 	Then disc_utility_amounts = "EXISTS"
+                        End If
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
 					End If
 				Next
 			End If
 		End If
 	Next
+    If left(utility_summary, 2) = ", " Then utility_summary = right(utility_summary, len(utility_summary) - 2)
 
 	If disc_yes_phone_no_expense <> "N/A" Then
 		If disc_yes_phone_no_expense_confirmation <> "" and disc_yes_phone_no_expense_confirmation <> "Select or Type" Then disc_yes_phone_no_expense = "RESOLVED"
