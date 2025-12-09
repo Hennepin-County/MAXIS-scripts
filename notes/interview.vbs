@@ -750,15 +750,19 @@ function define_main_dialog()
                         ' MEMB_requires_update = True
                         member_info_string = member_info_string & "ID Missing; "
                     End If
+                    If HH_MEMB_ARRAY(rel_to_applcnt, the_membs) = "Select One..." Then member_info_string = member_info_string & "Relationship Missing; "
                     If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
-                    If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
-                        If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
-                            member_info_string = member_info_string & "SSN Missing; "
-                        End If
+
+                    ssn_info_valid = True
+                    If trim(HH_MEMB_ARRAY(ssn, the_membs)) = "" Then
+                        ssn_info_valid = False
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN Applied For" Then ssn_info_valid = True
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
                     End If
-                    If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
-                        member_info_string = member_info_string & "SSN Not Provided; "
-                    End If
+                    If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - SSN Not Provided" Then ssn_info_valid = False
+                    If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then ssn_info_valid = True
+                    If ssn_info_valid = False Then member_info_string = member_info_string & "SSN Missing; "
+
                     If HH_MEMB_ARRAY(citizen, the_membs) = "No" and trim(progs) <> "(none)" Then
                         member_info_string = member_info_string & "*** Non-Citizen ***; "
                         If trim(HH_MEMB_ARRAY(imig_status, the_membs)) = "" Then
@@ -797,21 +801,27 @@ function define_main_dialog()
                     member_info_string = trim(member_info_string)
                     If right(member_info_string, 1) = ";" Then member_info_string = left(member_info_string, len(member_info_string)-1)
 
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then
-                        If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(first_name_const, the_membs)
-                        If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(first_name_const, the_membs)
-                        Text        45,  y_pos+10, 225, 10, HH_MEMB_ARRAY(last_name_const, the_membs)
-                    Else
+                    If HH_MEMB_ARRAY(ignore_person, the_membs) Then
                         If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
                         If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
+                        Text 45, y_pos+10, 250, 10, "REMOVED FROM SCRIPT RUN"
+                    Else
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then
+                            If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(first_name_const, the_membs)
+                            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(first_name_const, the_membs)
+                            Text        45,  y_pos+10, 225, 10, HH_MEMB_ARRAY(last_name_const, the_membs)
+                        Else
+                            If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
+                            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
+                        End If
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
                     End If
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                    If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
-
                     Text        180, y_pos, 75,  10, progs
 
-                    PushButton  415, y_pos, 60,  10, "UPDATE M " & HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
+                    If HH_MEMB_ARRAY(pers_in_maxis, the_membs) = True Then PushButton  415, y_pos, 60,  10, "UPDATE M " & HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
+                    If HH_MEMB_ARRAY(pers_in_maxis, the_membs) = False Then PushButton  415, y_pos, 60,  10, "UPDATE " & HH_MEMB_ARRAY(first_name_const, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
                     If allow_expand and len(member_info_string) > 130 Then
                         Text        270, y_pos, 145, 35, member_info_string
                         y_pos = y_pos + 15
@@ -866,10 +876,14 @@ function define_main_dialog()
                 EditBox 200, 30, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
                 EditBox 255, 30, 105, 15, HH_MEMB_ARRAY(other_names, selected_memb)
                 EditBox 370, 30, 60, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then Text 25, 65, 50, 10, HH_MEMB_ARRAY(ssn, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "V - SSN Verified via Interface" Then EditBox 25, 60, 50, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-                DropListBox 75, 60, 110, 15, ssn_verif_list, HH_MEMB_ARRAY(ssn_verif, selected_memb)
-                DropListBox 190, 60, 40, 45, "Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then
+                    Text 25, 65, 50, 10, HH_MEMB_ARRAY(ssn, selected_memb)
+                    Text 75, 65, 110, 10, HH_MEMB_ARRAY(ssn_verif, selected_memb)
+                Else
+                    EditBox 25, 60, 50, 15, HH_MEMB_ARRAY(ssn, selected_memb)
+                    DropListBox 75, 60, 110, 15, ssn_verif_list, HH_MEMB_ARRAY(ssn_verif, selected_memb)
+                End If
+                DropListBox 190, 60, 40, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
                 DropListBox 235, 60, 75, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
                 DropListBox 325, 60, 105, 45, marital_status_list, HH_MEMB_ARRAY(marital_status, selected_memb)
                 EditBox 25, 90, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
@@ -877,10 +891,12 @@ function define_main_dialog()
                 EditBox 215, 90, 135, 15, HH_MEMB_ARRAY(former_state, selected_memb)
                 DropListBox 355, 90, 75, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(citizen, selected_memb)
                 DropListBox 25, 120, 60, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(interpreter, selected_memb)
-                EditBox 95, 120, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
-                EditBox 95, 150, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
+                DropListBox 95, 120, 120, 45, language_list, HH_MEMB_ARRAY(spoken_lang, selected_memb)
+                DropListBox 95, 150, 120, 45, language_list, HH_MEMB_ARRAY(written_lang, selected_memb)
                 DropListBox 285, 130, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
                 DropListBox 25, 170, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
+                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False and NOT HH_MEMB_ARRAY(ignore_person, selected_memb) Then PushButton 230, 210, 105, 15, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
+                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False and HH_MEMB_ARRAY(ignore_person, selected_memb) Then PushButton 230, 210, 105, 15, "Return Member to Script", HH_MEMB_ARRAY(button_two, selected_memb)
                 PushButton 340, 210, 95, 15, "Save Information", save_information_btn
                 CheckBox 285, 155, 30, 10, "Asian", HH_MEMB_ARRAY(race_a_checkbox, selected_memb)
                 CheckBox 285, 165, 30, 10, "Black", HH_MEMB_ARRAY(race_b_checkbox, selected_memb)
@@ -911,7 +927,6 @@ function define_main_dialog()
 
                 End If
 
-                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then PushButton 330, 15, 105, 15, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
                 Text 25, 20, 50, 10, "Last Name"
                 Text 120, 20, 50, 10, "First Name"
                 Text 200, 20, 50, 10, "Middle Name"
@@ -950,7 +965,19 @@ function define_main_dialog()
                     Text 25, y_pos, 400, 10, " - NO ID Verification for MEMBER 01."
                     y_pos = y_pos + 10
                 End If
-                If (trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN") or HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
+                If HH_MEMB_ARRAY(rel_to_applcnt, selected_memb) = "Select One..." Then
+                    Text 25, y_pos, 400, 10, " - Relationship to Applicant Not Selected."
+                    y_pos = y_pos + 10
+                End If
+                ssn_info_valid = True
+                If trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "" Then
+                    ssn_info_valid = False
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN Applied For" Then ssn_info_valid = True
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+                End If
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - SSN Not Provided" Then ssn_info_valid = False
+                If HH_MEMB_ARRAY(none_req_checkbox, selected_memb) = checked Then ssn_info_valid = True
+                If ssn_info_valid = False Then
                     Text 25, y_pos, 400, 10, " - SSN Information Missing"
                     y_pos = y_pos + 10
                 End If
@@ -1655,7 +1682,7 @@ function dialog_movement()
             End If
 		End If
         If ButtonPressed = HH_MEMB_ARRAY(button_two, i) Then
-            HH_MEMB_ARRAY(ignore_person, i) = True
+            HH_MEMB_ARRAY(ignore_person, i) = NOT HH_MEMB_ARRAY(ignore_person, i)
             selected_memb = 0
         End If
 	Next
@@ -4572,7 +4599,7 @@ function review_information()
         If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_memb) = "__" or HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_memb) = True
         End If
-
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "Select One..." Then HH_MEMB_ARRAY(requires_update, the_memb) = True
         ssn_info_valid = True
         If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
             ssn_info_valid = False
@@ -4592,6 +4619,11 @@ function review_information()
             End If
         End If
 	next
+	If ButtonPressed = save_information_btn and page_display = show_pg_memb_list Then
+        If InStr(pick_a_client, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 and HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then
+            pick_a_client = pick_a_client+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
+        End If
+    End If
 end function
 
 function review_for_discrepancies()
@@ -7347,6 +7379,32 @@ ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - Member Does Not Have SSN"
 ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
 
+language_list = ""
+language_list = language_list+chr(9)+"99 - English"
+language_list = language_list+chr(9)+"01 - Spanish"
+language_list = language_list+chr(9)+"07 - Somali"
+language_list = language_list+chr(9)+"06 - Russian"
+language_list = language_list+chr(9)+"12 - Oromo"
+language_list = language_list+chr(9)+"02 - Hmong"
+language_list = language_list+chr(9)+"21 - Karen"
+language_list = language_list+chr(9)+"04 - Khmer"
+language_list = language_list+chr(9)+"09 - Amharic"
+language_list = language_list+chr(9)+"10 - Arabic"
+language_list = language_list+chr(9)+"08 - ASL"
+language_list = language_list+chr(9)+"14 - Burmese"
+language_list = language_list+chr(9)+"15 - Cantonese"
+language_list = language_list+chr(9)+"16 - French"
+language_list = language_list+chr(9)+"20 - Korean"
+language_list = language_list+chr(9)+"05 - Laotian"
+language_list = language_list+chr(9)+"17 - Mandarin"
+language_list = language_list+chr(9)+"11 - Serbo-Croatian"
+language_list = language_list+chr(9)+"18 - Swahili"
+language_list = language_list+chr(9)+"13 - Tigrinya"
+language_list = language_list+chr(9)+"03 - Vietnamese"
+language_list = language_list+chr(9)+"19 - Yoruba"
+language_list = language_list+chr(9)+"97 - Unknown"
+language_list = language_list+chr(9)+"98 - Other"
+
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
@@ -7814,7 +7872,6 @@ If vars_filled = True Then
 
 				ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
 				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-				' If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or
                 If CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(3)
 
 				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
@@ -8654,6 +8711,7 @@ If membs_found = False Then
         If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_members) = "__" or HH_MEMB_ARRAY(id_verif, the_members) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_members) = True
         End If
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "Select One..." Then HH_MEMB_ARRAY(requires_update, the_members) = True
 
         ssn_info_valid = True
         If trim(HH_MEMB_ARRAY(ssn, the_members)) = "" Then
