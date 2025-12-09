@@ -7089,16 +7089,17 @@ If vars_filled = False Then
                 If left(note_title, 14) = "INCOME DETAIL:" Then
                     member_reference = mid(note_title, 17, 2)
                     len_emp_name = len(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb))
+                    If len_emp_name > 27 Then len_emp_name = 27
                     jobs_employer_name = mid(note_title, 29, len_emp_name)
                     jobs_employer_name = UCase(jobs_employer_name)
 
-                    If member_reference = ALL_JOBS_PANELS_ARRAY(memb_numb, each_memb) AND jobs_employer_name = UCase(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb)) Then
+                    If member_reference = ALL_JOBS_PANELS_ARRAY(memb_numb, each_memb) AND jobs_employer_name = Left(UCase(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb)), len_emp_name) Then
                         ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE
                     End If
                 End If
 
                 if note_date = "        " then Exit Do
-                if ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE = TRUE then Exit Do
+                if ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE then Exit Do
 
                 note_row = note_row + 1
                 if note_row = 19 then
