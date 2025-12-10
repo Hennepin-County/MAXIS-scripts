@@ -4350,7 +4350,12 @@ function restore_your_work(vars_filled, membs_found)
 						If MID(text_line, 7, 13) = "HH_MEMB_ARRAY" Then
 							array_info = Mid(text_line, 23)
 							array_info = split(array_info, "~")
-                            If array_info(0) <> "" Then
+                            appears_to_have_info = False
+                            If array_info(0) <> "" Then appears_to_have_info = True
+                            If UBound(array_info) > 1 Then
+                                If array_info(2) <> "" Then appears_to_have_info = True
+                            End If
+                            If appears_to_have_info Then
                                 membs_found = True
                                 ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
                                 HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
@@ -4620,9 +4625,11 @@ function review_information()
         End If
 	next
 	If ButtonPressed = save_information_btn and page_display = show_pg_memb_list Then
-        If InStr(pick_a_client, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 and HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then
-            pick_a_client = pick_a_client+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
+        If NOT HH_MEMB_ARRAY(pers_in_maxis, selected_memb) Then
+            If InStr(pick_a_client, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 Then pick_a_client = pick_a_client+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
+            If InStr(all_the_clients, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 Then all_the_clients = all_the_clients+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
         End If
+
     End If
 end function
 
@@ -5401,9 +5408,13 @@ function write_interview_CASE_NOTE()
 	CALL write_variable_in_CASE_NOTE("--- Household Members ---")
     membs_no_request = ""
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then
+            If HH_MEMB_ARRAY(pers_in_maxis, the_members) Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then membs_no_request = membs_no_request & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+        End If
         If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
-            CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
+            If HH_MEMB_ARRAY(pers_in_maxis, the_members) Then CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(full_name_const, the_members))
             If NOT all_hh_memb_progs_match Then
                 prog_list = ""
                 If HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked Then prog_list = prog_list & "SNAP, "
@@ -5413,7 +5424,7 @@ function write_interview_CASE_NOTE()
                 If prog_list <> "" Then prog_list = left(prog_list, len(prog_list)-2)
                 CALL write_variable_in_CASE_NOTE("    Program Requests: " & prog_list)
             End If
-            If HH_MEMB_ARRAY(pers_in_maxis, the_members) = False Then
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then
                 CALL write_variable_in_CASE_NOTE("    Person NOT in MAXIS. Details recorded during interview:")
                 demographic_details = ""
                 If HH_MEMB_ARRAY(date_of_birth, the_members) <> "" Then demographic_details = demographic_details & "DOB: " & HH_MEMB_ARRAY(date_of_birth, the_members) & ", "
