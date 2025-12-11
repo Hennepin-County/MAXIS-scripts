@@ -934,8 +934,18 @@ class form_questions
 								TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
 								TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
                             Next
-							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Font.Size = 6
-							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Font.Size = 12
+
+							For row = 3 to 4
+								TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 2, TRUE
+
+								TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 90, 2
+								TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 310, 2
+							Next
+							For col = 1 to 2
+								TABLE_ARRAY(array_counters).Cell(3, col).Range.Font.Size = 6
+								TABLE_ARRAY(array_counters).Cell(4, col).Range.Font.Size = 12
+                            Next
+
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Font.Size = 6
 							TABLE_ARRAY(array_counters).Cell(6, 1).Range.Font.Size = 12
 							TABLE_ARRAY(array_counters).Cell(7, 1).Range.Font.Size = 6
@@ -948,8 +958,10 @@ class form_questions
 							TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = detail_hourly_wage(each_item)
 							TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = detail_monthly_amount(each_item)
 
-							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
-							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_business(each_item)
+							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "HOURS/WEEK"
+							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_hours_per_week(each_item)
+							TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "EMPLOYER/BUSINESS NAME"
+							TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = detail_business(each_item)
 
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "FORM NOTES"
 							cell_height = CInt(len(detail_write_in_info(each_item))/55) * 15
@@ -1573,6 +1585,10 @@ class form_questions
 			temp_array = left(temp_array, len(temp_array)-3)
 			If InStr(temp_array, "~!~") <> 0 Then detail_interview_notes = split(temp_array, "~!~")
 			If InStr(temp_array, "~!~") = 0 Then detail_interview_notes = array(temp_array)
+            ReDim detail_edit_btn(UBound(detail_interview_notes))
+            For dtl_ct = 0 to UBound(detail_interview_notes)
+                detail_edit_btn(dtl_ct) =(2000+question_num*10)+dtl_ct
+            Next
 		End If
 		set subNodesList = nothing
 
@@ -1615,20 +1631,6 @@ class form_questions
 			temp_array = left(temp_array, len(temp_array)-3)
 			If InStr(temp_array, "~!~") <> 0 Then detail_verif_notes = split(temp_array, "~!~")
 			If InStr(temp_array, "~!~") = 0 Then detail_verif_notes = array(temp_array)
-		End If
-		set subNodesList = nothing
-
-		set subNodesList = node.SelectNodes("/form/question[number='"& number &"']/detailEditBtn")
-		temp_array = ""
-		If Not subNodesList Is Nothing Then
-			for each nodeItem in subNodesList
-				temp_array = temp_array & nodeItem.Text & "~!~"
-			next
-		End If
-		If temp_array <> "" Then
-			temp_array = left(temp_array, len(temp_array)-3)
-			If InStr(temp_array, "~!~") <> 0 Then detail_edit_btn = split(temp_array, "~!~")
-			If InStr(temp_array, "~!~") = 0 Then detail_edit_btn = array(temp_array)
 		End If
 		set subNodesList = nothing
 
@@ -3058,7 +3060,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -3638,7 +3639,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -3955,7 +3955,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -3990,7 +3989,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_hourly_wage	= array("")
@@ -4048,7 +4046,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -4088,7 +4085,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4123,7 +4119,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4157,7 +4152,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4258,7 +4252,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_date			= array("")
@@ -4612,7 +4605,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -4666,7 +4658,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
