@@ -68,6 +68,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/11/2025", "This update includes a series of minor bug fixes and user requested improvements:##~## - Error that occasionally presents in member display review.##~## - Updated the HUF Form Version.##~## - Updated MNBenefits Version.##~## - Updated Senior SNAP App Form Version.##~## - Add a CASE/NOTE to document Remove AREP when indicated.##~## - Updates to Utilities selections.##~## - Adjustments to the clarifications functionality.##~## - Update to the format of some WIF fields to prevent data cutoff.##~## ##~##These updates should provide more alignment with the forms and more stability. As always, please report any feedback or concerns you find.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/05/2025", "Update the display of person information and adjustment to how person details needed for the interview are gathered.", "Casey Love, Hennepin County")
 call changelog_update("06/23/2025", "The CAF form question were updated by DHS. The script has been updated to align with this new CAF layout and question format.##~## ##~##NOTE - ANY INTERVIEW DETAILS SAVED PRIOR TO TODAY WILL NOT BE ABLE TO BE RESTORED.##~## ##~##The interview details restoration has been updated to ensure the same form and version were selected for the information to be restored.", "Casey Love, Hennepin County")
 call changelog_update("05/29/2025", "Condensed information displayed on EXPEDITED dialog to reduce risk of information extending past edges of dialog", "Mark Riegel, Hennepin County")
@@ -460,12 +461,13 @@ function define_main_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions   ---   Questions from " & CAF_form
 
-		Text 485, 5, 75, 10, "---   DIALOGS   ---"
-		Text 485, 17, 10, 10, "1"
-		Text 485, 32, 10, 10, "2"
-		Text 485, 47, 10, 10, "3"
-		Text 485, 62, 10, 10, "4"
-		num_pos = 77
+        ' If CAF_form = "MNbenefits" Then Text 485, 5, 10, 10, "COVER LETTER"
+        If CAF_form <> "MNbenefits" Then Text 485, 5, 75, 10, "---   DIALOGS   ---"
+		Text 485, 22, 10, 10, "1"
+		Text 485, 37, 10, 10, "2"
+		Text 485, 52, 10, 10, "3"
+		Text 485, 67, 10, 10, "4"
+		num_pos = 82
 		If last_page_of_questions => 5 Then
 			Text 485, num_pos, 10, 10, "5"
 			num_pos = num_pos + 15
@@ -530,8 +532,55 @@ function define_main_dialog()
 		num_pos = num_pos + 15
 	    ButtonGroup ButtonPressed
 
-	    If page_display = show_pg_one_memb01_and_exp Then
-			Text 497, 17, 60, 10, "INTVW / CAF 1"
+        If page_display = show_cover_letter and CAF_form = "MNbenefits" Then
+            Text 490, 7, 60, 10, "COVER LETTER"
+			Text 15, 15, 300, 10, "Before starting the interview questions, record the details from the MNBeneftis Cover Letter."
+            y_pos = 30
+
+
+            'IF EMER IS CHECKED
+            If EMER_on_CAF_checkbox = checked or emer_verbal_request = "Yes" Then
+                GroupBox 5, y_pos, 475, 50, "Since EMER is requested, the cover letter may have EMER information"
+                y_pos = y_pos + 10
+                Text 15, y_pos+5, 75, 10, "Emergency Type:"
+                ComboBox 90, y_pos, 210, 25, "Select or Type"+chr(9)+"Eviction"+chr(9)+"Forced Move"+chr(9)+"Foreclosure"+chr(9)+"Utility Disconnect"+chr(9)+"Home Repairs"+chr(9)+"Property Taxes"+chr(9)+"Bus Ticket"+chr(9)+emergency_type, emergency_type
+                Text 15, y_pos+25, 60, 10, "Comments:"
+                EditBox 75, y_pos+20, 390, 15, emergency_discussion
+                y_pos = y_pos + 50
+            End If
+
+            GB_y_pos = y_pos
+            y_pos = y_pos + 15
+            Text 15, y_pos, 130, 10, "Additional Application Comments:"
+            EditBox 15, y_pos+10, 455, 15, additional_application_comments
+            y_pos = y_pos + 35
+
+            Text 5, y_pos, 475, 10, "----- Jobs and Self Employment Listed ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+            y_pos = y_pos + 15
+            mn_ben_job_quest = 8
+            mn_ben_busi_quest = 9
+            mn_ben_unea_quest = 13
+            call FORM_QUESTION_ARRAY(mn_ben_job_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_job_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_job_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_job_quest), "", False)
+            call FORM_QUESTION_ARRAY(mn_ben_busi_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_busi_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_busi_quest), "", False)
+
+            Text 5, y_pos-10, 475, 10, "----- Unearned Income Listed -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+            y_pos = y_pos + 5
+            call FORM_QUESTION_ARRAY(mn_ben_unea_quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_write_in_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(intv_notes_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_yn_const, mn_ben_unea_quest), TEMP_INFO_ARRAY(form_second_ans_const, mn_ben_unea_quest), "", False)
+
+            Text 5, y_pos-10, 475, 10, "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+            y_pos = y_pos + 5
+
+            Text 15, y_pos, 130, 10, "Additional Income Comments:"
+            EditBox 15, y_pos+10, 455, 15, additional_income_comments
+            y_pos = y_pos + 35
+            Text 15, y_pos, 130, 10, "Interview Notes on Cover Letter Details:"
+            EditBox 15, y_pos+10, 455, 15, cover_letter_interview_notes
+            y_pos = y_pos + 35
+            GroupBox 5, GB_y_pos, 475, y_pos - GB_y_pos, "APPLICATION COMMENTS AND INFORMATION"
+
+        End If
+        If page_display = show_pg_one_memb01_and_exp Then
+			Text 497, 22, 60, 10, "INTVW / CAF 1"
 
 			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
 			ComboBox 120, 30, 75, 45, "Select or Type"+chr(9)+"Phone"+chr(9)+"In Office"+chr(9)+how_are_we_completing_the_interview, how_are_we_completing_the_interview
@@ -587,7 +636,7 @@ function define_main_dialog()
 			End If
 
 		ElseIf page_display = show_pg_one_address Then
-			Text 504, 32, 60, 10, "CAF ADDR"
+			Text 504, 37, 60, 10, "CAF ADDR"
 			If update_addr = FALSE Then
 				Text 70, 55, 305, 15, resi_addr_street_full
 				Text 70, 75, 105, 15, resi_addr_city
@@ -680,13 +729,17 @@ function define_main_dialog()
 			Text 255, 275, 75, 10, "County of Residence:"
 
 		ElseIf page_display = show_pg_memb_list Then
-			Text 504, 47, 60, 10, "CAF MEMBs"
+			Text 504, 52, 60, 10, "CAF MEMBs"
             allow_expand = False
             If UBound(HH_MEMB_ARRAY, 2) < 10 Then allow_expand = True
 
             If update_pers = FALSE Then
                 EditBox 800, 500, 50, 15, dummy_editbox_to_capture_focus
                 y_pos = 20
+                If HH_arrived_date <> "" Then
+                    Text 20, y_pos, 200, 10, "*** Household Arrived in Minnesota on " & HH_arrived_date & " from " & HH_arrived_place
+                    y_pos = y_pos + 15
+                End If
                 For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
                     progs = ""
                     If HH_MEMB_ARRAY(snap_req_checkbox, the_membs) = checked Then progs = progs & "SNAP "
@@ -701,36 +754,45 @@ function define_main_dialog()
                         ' MEMB_requires_update = True
                         member_info_string = member_info_string & "ID Missing; "
                     End If
+                    If HH_MEMB_ARRAY(rel_to_applcnt, the_membs) = "Select One..." Then member_info_string = member_info_string & "Relationship Missing; "
                     If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
-                    If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
-                        If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
-                            member_info_string = member_info_string & "SSN Missing; "
-                        End If
+
+                    ssn_info_valid = True
+                    If trim(HH_MEMB_ARRAY(ssn, the_membs)) = "" Then
+                        ssn_info_valid = False
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN Applied For" Then ssn_info_valid = True
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
                     End If
-                    If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
-                        member_info_string = member_info_string & "SSN Not Provided; "
-                    End If
+                    If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - SSN Not Provided" Then ssn_info_valid = False
+                    If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then ssn_info_valid = True
+                    If ssn_info_valid = False Then member_info_string = member_info_string & "SSN Missing; "
+
                     If HH_MEMB_ARRAY(citizen, the_membs) = "No" and trim(progs) <> "(none)" Then
                         member_info_string = member_info_string & "*** Non-Citizen ***; "
                         If trim(HH_MEMB_ARRAY(imig_status, the_membs)) = "" Then
                             ' MEMB_requires_update = True
-                            member_info_string = member_info_string & "Imig Status Missing; "
+                            If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
+                                member_info_string = member_info_string & "Imig Status and Sponsor Info Missing; "
+                            Else
+                                member_info_string = member_info_string & "Imig Status Missing; "
+                            End If
                         Else
                             member_info_string = member_info_string & "Imig Status: " & HH_MEMB_ARRAY(imig_status, the_membs) & "; "
-                        End If
-                        If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
-                            ' MEMB_requires_update = True
-                            member_info_string = member_info_string & "Sponsor Info Missing; "
+                            If HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "?" or HH_MEMB_ARRAY(clt_has_sponsor, the_membs) = "" Then
+                                ' MEMB_requires_update = True
+                                member_info_string = member_info_string & "Sponsor Info Missing; "
+                            End If
                         End If
                     End If
-                    If HH_MEMB_ARRAY(in_mn_12_mo, the_membs) = "No" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
-                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" Then member_info_string = member_info_string & "Interpreter Needed; "
+                    If HH_MEMB_ARRAY(in_mn_12_mo, the_membs) = "No" and HH_arrived_place = "" and HH_arrived_date = "" Then
+                        If HH_MEMB_ARRAY(former_state, the_membs) = "NB" Then member_info_string = member_info_string & "Born on " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & "; "
+                        If HH_MEMB_ARRAY(former_state, the_membs) <> "NB" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
+                    End If
+                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then member_info_string = member_info_string & "Interpreter Needed; "
 
-                    If trim(progs) <> "(none)" and the_membs <> 0 Then
-                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Spoken Lang: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
-                        If left(HH_MEMB_ARRAY(written_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(written_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Written Lang: " & right(HH_MEMB_ARRAY(written_lang, the_membs), len(HH_MEMB_ARRAY(written_lang, the_membs))-5) & "; "
+                    If trim(progs) <> "(none)" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then
+                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Language: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
                         If len(HH_MEMB_ARRAY(spoken_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Spoken Lang Unknown; "
-                        If len(HH_MEMB_ARRAY(written_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Written Lang Unknown; "
                     End If
                     If trim(progs) <> "(none)" Then
                         If HH_MEMB_ARRAY(race, the_membs) = "Unable To Determine" Then member_info_string = member_info_string & "Race Undetermined; "
@@ -743,21 +805,27 @@ function define_main_dialog()
                     member_info_string = trim(member_info_string)
                     If right(member_info_string, 1) = ";" Then member_info_string = left(member_info_string, len(member_info_string)-1)
 
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then
-                        If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(first_name_const, the_membs)
-                        If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(first_name_const, the_membs)
-                        Text        45,  y_pos+10, 225, 10, HH_MEMB_ARRAY(last_name_const, the_membs)
-                    Else
+                    If HH_MEMB_ARRAY(ignore_person, the_membs) Then
                         If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
                         If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
+                        Text 45, y_pos+10, 250, 10, "REMOVED FROM SCRIPT RUN"
+                    Else
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then
+                            If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(first_name_const, the_membs)
+                            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(first_name_const, the_membs)
+                            Text        45,  y_pos+10, 225, 10, HH_MEMB_ARRAY(last_name_const, the_membs)
+                        Else
+                            If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
+                            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
+                        End If
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
                     End If
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                    If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                    If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
-
                     Text        180, y_pos, 75,  10, progs
 
-                    PushButton  415, y_pos, 60,  10, "UPDATE M " & HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
+                    If HH_MEMB_ARRAY(pers_in_maxis, the_membs) = True Then PushButton  415, y_pos, 60,  10, "UPDATE M " & HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
+                    If HH_MEMB_ARRAY(pers_in_maxis, the_membs) = False Then PushButton  415, y_pos, 60,  10, "UPDATE " & HH_MEMB_ARRAY(first_name_const, the_membs), HH_MEMB_ARRAY(button_one, the_membs)
                     If allow_expand and len(member_info_string) > 130 Then
                         Text        270, y_pos, 145, 35, member_info_string
                         y_pos = y_pos + 15
@@ -812,10 +880,14 @@ function define_main_dialog()
                 EditBox 200, 30, 50, 15, HH_MEMB_ARRAY(mid_initial, selected_memb)
                 EditBox 255, 30, 105, 15, HH_MEMB_ARRAY(other_names, selected_memb)
                 EditBox 370, 30, 60, 15, HH_MEMB_ARRAY(date_of_birth, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then Text 25, 65, 50, 10, HH_MEMB_ARRAY(ssn, selected_memb)
-                If HH_MEMB_ARRAY(ssn_verif, selected_memb) <> "V - SSN Verified via Interface" Then EditBox 25, 60, 50, 15, HH_MEMB_ARRAY(ssn, selected_memb)
-                DropListBox 75, 60, 110, 15, ssn_verif_list, HH_MEMB_ARRAY(ssn_verif, selected_memb)
-                DropListBox 190, 60, 40, 45, "Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "V - SSN Verified via Interface" Then
+                    Text 25, 65, 50, 10, HH_MEMB_ARRAY(ssn, selected_memb)
+                    Text 75, 65, 110, 10, HH_MEMB_ARRAY(ssn_verif, selected_memb)
+                Else
+                    EditBox 25, 60, 50, 15, HH_MEMB_ARRAY(ssn, selected_memb)
+                    DropListBox 75, 60, 110, 15, ssn_verif_list, HH_MEMB_ARRAY(ssn_verif, selected_memb)
+                End If
+                DropListBox 190, 60, 40, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(gender, selected_memb)
                 DropListBox 235, 60, 75, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(rel_to_applcnt, selected_memb)
                 DropListBox 325, 60, 105, 45, marital_status_list, HH_MEMB_ARRAY(marital_status, selected_memb)
                 EditBox 25, 90, 110, 15, HH_MEMB_ARRAY(last_grade_completed, selected_memb)
@@ -823,10 +895,12 @@ function define_main_dialog()
                 EditBox 215, 90, 135, 15, HH_MEMB_ARRAY(former_state, selected_memb)
                 DropListBox 355, 90, 75, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(citizen, selected_memb)
                 DropListBox 25, 120, 60, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(interpreter, selected_memb)
-                EditBox 95, 120, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
-                EditBox 95, 150, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
+                DropListBox 95, 120, 120, 45, language_list, HH_MEMB_ARRAY(spoken_lang, selected_memb)
+                DropListBox 95, 150, 120, 45, language_list, HH_MEMB_ARRAY(written_lang, selected_memb)
                 DropListBox 285, 130, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
                 DropListBox 25, 170, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
+                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False and NOT HH_MEMB_ARRAY(ignore_person, selected_memb) Then PushButton 230, 210, 105, 15, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
+                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False and HH_MEMB_ARRAY(ignore_person, selected_memb) Then PushButton 230, 210, 105, 15, "Return Member to Script", HH_MEMB_ARRAY(button_two, selected_memb)
                 PushButton 340, 210, 95, 15, "Save Information", save_information_btn
                 CheckBox 285, 155, 30, 10, "Asian", HH_MEMB_ARRAY(race_a_checkbox, selected_memb)
                 CheckBox 285, 165, 30, 10, "Black", HH_MEMB_ARRAY(race_b_checkbox, selected_memb)
@@ -857,7 +931,6 @@ function define_main_dialog()
 
                 End If
 
-                If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then PushButton 330, 15, 105, 15, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
                 Text 25, 20, 50, 10, "Last Name"
                 Text 120, 20, 50, 10, "First Name"
                 Text 200, 20, 50, 10, "Middle Name"
@@ -896,7 +969,19 @@ function define_main_dialog()
                     Text 25, y_pos, 400, 10, " - NO ID Verification for MEMBER 01."
                     y_pos = y_pos + 10
                 End If
-                If (trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN") or HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
+                If HH_MEMB_ARRAY(rel_to_applcnt, selected_memb) = "Select One..." Then
+                    Text 25, y_pos, 400, 10, " - Relationship to Applicant Not Selected."
+                    y_pos = y_pos + 10
+                End If
+                ssn_info_valid = True
+                If trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "" Then
+                    ssn_info_valid = False
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN Applied For" Then ssn_info_valid = True
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+                End If
+                If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - SSN Not Provided" Then ssn_info_valid = False
+                If HH_MEMB_ARRAY(none_req_checkbox, selected_memb) = checked Then ssn_info_valid = True
+                If ssn_info_valid = False Then
                     Text 25, y_pos, 400, 10, " - SSN Information Missing"
                     y_pos = y_pos + 10
                 End If
@@ -945,7 +1030,7 @@ function define_main_dialog()
 			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
 				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
 				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
-				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+"Resident uses free phone via internet program and pays no phone or internet bill"+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
+				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+"Resident uses free phone via internet program and pays no phone or internet bill"+chr(9)+"WiFi Phone Service that has no Cost."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
 				y_pos = y_pos + 40
 			End If
 			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
@@ -1475,33 +1560,34 @@ function define_main_dialog()
 			For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 				If FORM_QUESTION_ARRAY(quest).dialog_page_numb = page_display Then
 					' If FORM_QUESTION_ARRAY(quest).dialog_order = display_count Then
-					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
+					If FORM_QUESTION_ARRAY(quest).answer_is_array = false Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "", True)
 					If FORM_QUESTION_ARRAY(quest).answer_is_array = true  Then
-						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "")
-						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY)
-						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY)
+						If FORM_QUESTION_ARRAY(quest).info_type = "unea" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), "", True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "housing" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_HOUSING_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "utilities" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_UTILITIES_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "assets" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_ASSETS_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "msa" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_MSA_ARRAY, True)
+						If FORM_QUESTION_ARRAY(quest).info_type = "stwk" Then call FORM_QUESTION_ARRAY(quest).display_in_dialog(y_pos, TEMP_INFO_ARRAY(form_yn_const, quest), TEMP_INFO_ARRAY(form_write_in_const, quest), TEMP_INFO_ARRAY(intv_notes_const, quest), TEMP_INFO_ARRAY(form_second_yn_const, quest), TEMP_INFO_ARRAY(form_second_ans_const, quest), TEMP_STWK_ARRAY, True)
 					End If
 				End If
 			Next
-			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 62, 55, 10, pg_4_label
-			If page_display = 5 and last_page_of_questions => 5 Then Text 505, 77, 55, 10, pg_5_label
-			If page_display = 6 and last_page_of_questions => 6 Then Text 505, 92, 55, 10, pg_6_label
-			If page_display = 7 and last_page_of_questions => 7 Then Text 505, 107, 55, 10, pg_7_label
-			If page_display = 8 and last_page_of_questions => 8 Then Text 505, 122, 55, 10, pg_8_label
-			If page_display = 9 and last_page_of_questions => 9 Then Text 505, 137, 55, 10, pg_9_label
-			If page_display = 10 and last_page_of_questions => 10 Then Text 505, 152, 55, 10, pg_10_label
-			If page_display = 11 and last_page_of_questions => 11 Then Text 505, 167, 55, 10, pg_11_label
+			If page_display = 4 and last_page_of_questions => 4 Then Text 505, 67, 55, 10, pg_4_label
+			If page_display = 5 and last_page_of_questions => 5 Then Text 505, 82, 55, 10, pg_5_label
+			If page_display = 6 and last_page_of_questions => 6 Then Text 505, 97, 55, 10, pg_6_label
+			If page_display = 7 and last_page_of_questions => 7 Then Text 505, 112, 55, 10, pg_7_label
+			If page_display = 8 and last_page_of_questions => 8 Then Text 505, 127, 55, 10, pg_8_label
+			If page_display = 9 and last_page_of_questions => 9 Then Text 505, 142, 55, 10, pg_9_label
+			If page_display = 10 and last_page_of_questions => 10 Then Text 505, 157, 55, 10, pg_10_label
+			If page_display = 11 and last_page_of_questions => 11 Then Text 505, 172, 55, 10, pg_11_label
 
 		End If
 
 
-		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
-		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
-		If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
-		btn_pos = 60
+		If page_display <> show_cover_letter and CAF_form = "MNbenefits" Then PushButton 485, 5, 65, 13, "COVER LETTER", cover_letter_btn
+		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 20, 55, 13, "INTVW / CAF 1", caf_page_one_btn
+		If page_display <> show_pg_one_address 			Then PushButton 495, 35, 55, 13, "CAF ADDR", caf_addr_btn
+		If page_display <> show_pg_memb_list 			Then PushButton 495, 50, 55, 13, "CAF MEMBs", caf_membs_btn
+		btn_pos = 65
 		If page_display <> 4 									Then PushButton 495, btn_pos, 		55, 13, pg_4_label, caf_q_pg_4_btn
 		If page_display <> 5 and last_page_of_questions => 5 	Then PushButton 495, btn_pos + 15, 	55, 13, pg_5_label, caf_q_pg_5_btn
 		If page_display <> 6 and last_page_of_questions => 6 	Then PushButton 495, btn_pos + 30, 	55, 13, pg_6_label, caf_q_pg_6_btn
@@ -1510,7 +1596,7 @@ function define_main_dialog()
 		If page_display <> 9 and last_page_of_questions => 9 	Then PushButton 495, btn_pos + 75, 	55, 13, pg_9_label, caf_q_pg_9_btn
 		If page_display <> 10 and last_page_of_questions => 10 	Then PushButton 495, btn_pos + 90, 	55, 13, pg_10_label, caf_q_pg_10_btn
 		If page_display <> 11 and last_page_of_questions => 11 	Then PushButton 495, btn_pos + 105, 55, 13, pg_11_label, caf_q_pg_11_btn
-		btn_pos = (last_page_of_questions * 15) + 15
+		btn_pos = (last_page_of_questions * 15) + 20
 
 		If page_display <> show_qual 					Then PushButton 495, btn_pos, 		55, 13, "CAF QUAL Q", caf_qual_q_btn
 		If page_display <> emergency_questions			Then PushButton 495, btn_pos + 15, 	55, 13, "EMER Q", emer_questions_btn
@@ -1600,7 +1686,7 @@ function dialog_movement()
             End If
 		End If
         If ButtonPressed = HH_MEMB_ARRAY(button_two, i) Then
-            HH_MEMB_ARRAY(ignore_person, i) = True
+            HH_MEMB_ARRAY(ignore_person, i) = NOT HH_MEMB_ARRAY(ignore_person, i)
             selected_memb = 0
         End If
 	Next
@@ -1754,6 +1840,9 @@ function dialog_movement()
         End If
 	End If
 
+    If ButtonPressed = cover_letter_btn Then
+        page_display = show_cover_letter
+    End If
 	If ButtonPressed = caf_page_one_btn Then
 		page_display = show_pg_one_memb01_and_exp
 	End If
@@ -3038,6 +3127,10 @@ function save_your_work()
 			objTextStream.WriteLine "PROG - NOTE - " & program_request_notes
 			objTextStream.WriteLine "VERB - NOTE - " & verbal_request_notes
 
+			objTextStream.WriteLine "CVR - CMNT - " & additional_application_comments
+			objTextStream.WriteLine "CVR - INCM - " & additional_income_comments
+			objTextStream.WriteLine "CVR - NOTE - " & cover_letter_interview_notes
+
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
 			objTextStream.WriteLine "PRE - HOW - " & how_are_we_completing_the_interview
@@ -3422,6 +3515,10 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - EMER - " & emer_other_req_detail & vbCr & vbCr
 
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - CMNT - " & additional_application_comments
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - INCM - " & additional_income_comments
+			script_run_lowdown = script_run_lowdown & vbCr & "CVR - NOTE - " & cover_letter_interview_notes & vbCr & vbCr
+
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - ATC - " & all_the_clients
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - WHO - " & who_are_we_completing_the_interview_with
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - HOW - " & how_are_we_completing_the_interview
@@ -3798,7 +3895,7 @@ function save_your_work()
 	End with
 end function
 
-function restore_your_work(vars_filled)
+function restore_your_work(vars_filled, membs_found)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
@@ -3876,6 +3973,11 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 11) = "PROG - NOTE" Then program_request_notes = Mid(text_line, 15)
 					If left(text_line, 11) = "VERB - NOTE" Then verbal_request_notes = Mid(text_line, 15)
+
+			        If left(text_line, 10) = "CVR - CMNT" Then additional_application_comments = Mid(text_line, 14)
+			        If left(text_line, 10) = "CVR - INCM" Then additional_income_comments = Mid(text_line, 14)
+			        If left(text_line, 10) = "CVR - NOTE" Then cover_letter_interview_notes = Mid(text_line, 14)
+
 
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - HOW" Then how_are_we_completing_the_interview = Mid(text_line, 13)
@@ -4252,118 +4354,126 @@ function restore_your_work(vars_filled)
 						If MID(text_line, 7, 13) = "HH_MEMB_ARRAY" Then
 							array_info = Mid(text_line, 23)
 							array_info = split(array_info, "~")
-							ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
-							HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
-							HH_MEMB_ARRAY(access_denied, known_membs)				= array_info(1)
-							HH_MEMB_ARRAY(full_name_const, known_membs)				= array_info(2)
-							HH_MEMB_ARRAY(last_name_const, known_membs)				= array_info(3)
-							HH_MEMB_ARRAY(first_name_const, known_membs)			= array_info(4)
-							HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
-							HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
-							HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
-							' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
-							If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
-							HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
-							HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
-							HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
-							HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(10)
-							HH_MEMB_ARRAY(birthdate_verif, known_membs)				= array_info(11)
-							HH_MEMB_ARRAY(gender, known_membs)						= array_info(12)
-							HH_MEMB_ARRAY(race, known_membs)						= array_info(13)
-							HH_MEMB_ARRAY(spoken_lang, known_membs)					= array_info(14)
-							HH_MEMB_ARRAY(written_lang, known_membs)				= array_info(15)
-							HH_MEMB_ARRAY(interpreter, known_membs)					= array_info(16)
-							HH_MEMB_ARRAY(alias_yn, known_membs)					= array_info(17)
-							HH_MEMB_ARRAY(ethnicity_yn, known_membs)				= array_info(18)
-							HH_MEMB_ARRAY(id_verif, known_membs)					= array_info(19)
-							HH_MEMB_ARRAY(rel_to_applcnt, known_membs)				= array_info(20)
-							HH_MEMB_ARRAY(cash_minor, known_membs)					= array_info(21)
-							HH_MEMB_ARRAY(snap_minor, known_membs)					= array_info(22)
-							HH_MEMB_ARRAY(marital_status, known_membs)				= array_info(23)
-							HH_MEMB_ARRAY(spouse_ref, known_membs)					= array_info(24)
-							HH_MEMB_ARRAY(spouse_name, known_membs)					= array_info(25)
-							HH_MEMB_ARRAY(last_grade_completed, known_membs) 		= array_info(26)
-							HH_MEMB_ARRAY(citizen, known_membs)						= array_info(27)
-							HH_MEMB_ARRAY(other_st_FS_end_date, known_membs) 		= array_info(28)
-							HH_MEMB_ARRAY(in_mn_12_mo, known_membs)					= array_info(29)
-							HH_MEMB_ARRAY(residence_verif, known_membs)				= array_info(30)
-							HH_MEMB_ARRAY(mn_entry_date, known_membs)				= array_info(31)
-							HH_MEMB_ARRAY(former_state, known_membs)				= array_info(32)
-							HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(33)
-							HH_MEMB_ARRAY(button_one, known_membs)					= array_info(34)
-							HH_MEMB_ARRAY(button_two, known_membs)					= array_info(35)
-                            ' 36
-                            HH_MEMB_ARRAY(imig_status, known_membs)					= array_info(36)
-
-							HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(37)
-							HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(38)
-							HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(39)
-							HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(40)
-							HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(41)
-							If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
-							If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
-							If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
-							If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
-							If array_info(46) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
-							If array_info(47) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
-							If array_info(48) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
-							If array_info(49) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
-							If array_info(50) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
-							HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(51)
-							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(52)
-							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(53)
-							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(54)
-
-                            HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(55)
-                            HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(56)
-
-                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
-                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
-
-                            HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
-                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
-
-                            HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
-                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
-                            HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
-                            If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
-                            If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
-                            HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
-                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
-                            HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
-                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
-                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
-
-                            HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
-                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
-                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
-                            HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
-                            HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
-
-                            HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
-                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
-                            If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
-                            HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
-                            If UBound(array_info) = 69 Then
-                                HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
-                            Else
-                                HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
-                                HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
-                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
+                            appears_to_have_info = False
+                            If array_info(0) <> "" Then appears_to_have_info = True
+                            If UBound(array_info) > 1 Then
+                                If array_info(2) <> "" Then appears_to_have_info = True
                             End If
+                            If appears_to_have_info Then
+                                membs_found = True
+                                ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
+                                HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
+                                HH_MEMB_ARRAY(access_denied, known_membs)				= array_info(1)
+                                HH_MEMB_ARRAY(full_name_const, known_membs)				= array_info(2)
+                                HH_MEMB_ARRAY(last_name_const, known_membs)				= array_info(3)
+                                HH_MEMB_ARRAY(first_name_const, known_membs)			= array_info(4)
+                                HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
+                                HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
+                                HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
+                                ' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
+                                If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
+                                HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
+                                HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
+                                HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
+                                HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(10)
+                                HH_MEMB_ARRAY(birthdate_verif, known_membs)				= array_info(11)
+                                HH_MEMB_ARRAY(gender, known_membs)						= array_info(12)
+                                HH_MEMB_ARRAY(race, known_membs)						= array_info(13)
+                                HH_MEMB_ARRAY(spoken_lang, known_membs)					= array_info(14)
+                                HH_MEMB_ARRAY(written_lang, known_membs)				= array_info(15)
+                                HH_MEMB_ARRAY(interpreter, known_membs)					= array_info(16)
+                                HH_MEMB_ARRAY(alias_yn, known_membs)					= array_info(17)
+                                HH_MEMB_ARRAY(ethnicity_yn, known_membs)				= array_info(18)
+                                HH_MEMB_ARRAY(id_verif, known_membs)					= array_info(19)
+                                HH_MEMB_ARRAY(rel_to_applcnt, known_membs)				= array_info(20)
+                                HH_MEMB_ARRAY(cash_minor, known_membs)					= array_info(21)
+                                HH_MEMB_ARRAY(snap_minor, known_membs)					= array_info(22)
+                                HH_MEMB_ARRAY(marital_status, known_membs)				= array_info(23)
+                                HH_MEMB_ARRAY(spouse_ref, known_membs)					= array_info(24)
+                                HH_MEMB_ARRAY(spouse_name, known_membs)					= array_info(25)
+                                HH_MEMB_ARRAY(last_grade_completed, known_membs) 		= array_info(26)
+                                HH_MEMB_ARRAY(citizen, known_membs)						= array_info(27)
+                                HH_MEMB_ARRAY(other_st_FS_end_date, known_membs) 		= array_info(28)
+                                HH_MEMB_ARRAY(in_mn_12_mo, known_membs)					= array_info(29)
+                                HH_MEMB_ARRAY(residence_verif, known_membs)				= array_info(30)
+                                HH_MEMB_ARRAY(mn_entry_date, known_membs)				= array_info(31)
+                                HH_MEMB_ARRAY(former_state, known_membs)				= array_info(32)
+                                HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(33)
+                                HH_MEMB_ARRAY(button_one, known_membs)					= array_info(34)
+                                HH_MEMB_ARRAY(button_two, known_membs)					= array_info(35)
+                                ' 36
+                                HH_MEMB_ARRAY(imig_status, known_membs)					= array_info(36)
 
-							known_membs = known_membs + 1
+                                HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(37)
+                                HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(38)
+                                HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(39)
+                                HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(40)
+                                HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(41)
+                                If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
+                                If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
+                                If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
+                                If array_info(45) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
+                                If array_info(46) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
+                                If array_info(47) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
+                                If array_info(48) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
+                                If array_info(49) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
+                                If array_info(50) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
+                                HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(51)
+                                HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(52)
+                                HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(53)
+                                HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(54)
+
+                                HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(55)
+                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(56)
+
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
+
+                                HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
+
+                                HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
+                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
+                                HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
+                                If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
+                                If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
+                                HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
+                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
+                                HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
+                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
+                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
+
+                                HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
+                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
+                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
+                                HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
+                                HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
+
+                                HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
+                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
+                                HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
+                                If UBound(array_info) = 69 Then
+                                    HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
+                                Else
+                                    HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
+                                    HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
+                                    HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
+                                End If
+
+                                known_membs = known_membs + 1
+                            End If
 						End If
 
 						If MID(text_line, 7, 14) = "EXP_JOBS_ARRAY" Then
@@ -4480,14 +4590,25 @@ function review_information()
         If HH_MEMB_ARRAY(race_w_checkbox, the_memb) = checked Then race_string = race_string & "White~"
         If right(race_string, 1) = "~" Then race_string = left(race_string, len(race_string) - 1)
         If InStr(race_string, "~") > 0 Then race_string = "Multiple Races"
+        If HH_MEMB_ARRAY(race, the_memb) = "Multiple Races" and race_string = "" Then race_string = "Multiple Races"
         If race_string = "" Then race_string = "Unable To Determine"
         HH_MEMB_ARRAY(race, the_memb) = race_string
+
+        If the_memb = 0 Then
+            HH_arrived_date = HH_MEMB_ARRAY(mn_entry_date, the_memb)
+            HH_arrived_place = HH_MEMB_ARRAY(former_state, the_memb)
+        Else
+            If HH_arrived_date <> HH_MEMB_ARRAY(mn_entry_date, the_memb) or HH_arrived_place <> HH_MEMB_ARRAY(former_state, the_memb)  Then
+                HH_arrived_date = ""
+                HH_arrived_place = ""
+            End If
+        End If
 
         HH_MEMB_ARRAY(requires_update, the_memb) = False
         If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_memb) = "__" or HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_memb) = True
         End If
-
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_memb) = "Select One..." Then HH_MEMB_ARRAY(requires_update, the_memb) = True
         ssn_info_valid = True
         If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
             ssn_info_valid = False
@@ -4507,6 +4628,13 @@ function review_information()
             End If
         End If
 	next
+	If ButtonPressed = save_information_btn and page_display = show_pg_memb_list Then
+        If NOT HH_MEMB_ARRAY(pers_in_maxis, selected_memb) Then
+            If InStr(pick_a_client, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 Then pick_a_client = pick_a_client+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
+            If InStr(all_the_clients, HH_MEMB_ARRAY(full_name_const, selected_memb)) = 0 Then all_the_clients = all_the_clients+chr(9)+HH_MEMB_ARRAY(full_name_const, selected_memb)
+        End If
+
+    End If
 end function
 
 function review_for_discrepancies()
@@ -4589,8 +4717,10 @@ function review_for_discrepancies()
 	phone_number_entered = True
 	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then phone_number_entered = False
 
-	If caf_exp_pay_phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
-	If caf_exp_pay_phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+    If expedited_screening_on_form Then
+        If caf_exp_pay_phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+        If caf_exp_pay_phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+    End If
 
 	rent_indicated = False
 	rent_summary = ""
@@ -4599,15 +4729,24 @@ function review_for_discrepancies()
 
 	For each_question = 0 to UBound(FORM_QUESTION_ARRAY)
 		If FORM_QUESTION_ARRAY(each_question).detail_source = "shel-hest" Then
-			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_heat_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_ac_checkbox = checked 			Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).electric_checkbox = unchecked AND caf_exp_pay_electricity_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked 	AND caf_exp_pay_phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			If caf_exp_pay_none_checkbox = checked Then
-				If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-				If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
-				If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
-			End If
+            If expedited_screening_on_form Then
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked Then utility_summary = utility_summary & ", Heat/AC"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked Then utility_summary = utility_summary & ", Electric"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked Then utility_summary = utility_summary & ", Phone"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_heat_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = unchecked AND caf_exp_pay_ac_checkbox = checked 			Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = unchecked AND caf_exp_pay_electricity_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked 	AND caf_exp_pay_phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked   AND caf_exp_pay_heat_checkbox = unchecked 		Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked   AND caf_exp_pay_ac_checkbox = unchecked 			Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked   AND caf_exp_pay_electricity_checkbox = unchecked 	Then disc_utility_amounts = "EXISTS"
+                If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 	    AND caf_exp_pay_phone_checkbox = unchecked 		Then disc_utility_amounts = "EXISTS"
+                If caf_exp_pay_none_checkbox = checked Then
+                    If FORM_QUESTION_ARRAY(each_question).heat_air_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                    If FORM_QUESTION_ARRAY(each_question).electric_checkbox = checked 	Then disc_utility_amounts = "EXISTS"
+                    If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked 		Then disc_utility_amounts = "EXISTS"
+                End If
+            End If
 			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = checked AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
 			If FORM_QUESTION_ARRAY(each_question).phone_checkbox = unchecked AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
 			If trim(FORM_QUESTION_ARRAY(each_question).housing_payment) <> "" Then
@@ -4631,21 +4770,32 @@ function review_for_discrepancies()
 			If FORM_QUESTION_ARRAY(each_question).answer_is_array = true Then
 				For each_util = 0 to UBound(FORM_QUESTION_ARRAY(each_question).item_info_list)
 					If FORM_QUESTION_ARRAY(each_question).item_ans_list(each_util) = "Yes" Then
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND caf_exp_pay_none_checkbox = checked Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
+                        If expedited_screening_on_form Then
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) <> "Water/Sewer" AND FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) <> "Garbage" Then utility_summary = utility_summary & ", " & FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util)
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric"   AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone"      AND caf_exp_pay_none_checkbox = checked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    AND caf_exp_pay_heat_checkbox = unchecked           Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    AND caf_exp_pay_ac_checkbox = unchecked             Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric"   AND caf_exp_pay_electricity_checkbox = unchecked    Then disc_utility_amounts = "EXISTS"
+                            If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone"      AND caf_exp_pay_phone_checkbox = unchecked          Then disc_utility_amounts = "EXISTS"
+                        End If
+                        If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" AND phone_number_entered = False Then disc_no_phone_yes_expense = "EXISTS"
 					Else
-						If caf_exp_pay_heat_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_ac_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat/AC" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_electricity_checkbox = checked AND 	FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then disc_utility_amounts = "EXISTS"
-						If caf_exp_pay_phone_checkbox = checked AND 		FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 	Then disc_utility_amounts = "EXISTS"
-						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 		AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
+                        If expedited_screening_on_form Then
+                            If caf_exp_pay_heat_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Heat" 	    Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_ac_checkbox = checked AND 			FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "AC" 	    Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_electricity_checkbox = checked AND 	FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Electric" 	Then disc_utility_amounts = "EXISTS"
+                            If caf_exp_pay_phone_checkbox = checked AND 		FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" 	Then disc_utility_amounts = "EXISTS"
+                        End If
+						If FORM_QUESTION_ARRAY(each_question).item_note_info_list(each_util) = "Phone" AND phone_number_entered = True Then disc_yes_phone_no_expense = "EXISTS"
 					End If
 				Next
 			End If
 		End If
 	Next
+    If left(utility_summary, 2) = ", " Then utility_summary = right(utility_summary, len(utility_summary) - 2)
 
 	If disc_yes_phone_no_expense <> "N/A" Then
 		If disc_yes_phone_no_expense_confirmation <> "" and disc_yes_phone_no_expense_confirmation <> "Select or Type" Then disc_yes_phone_no_expense = "RESOLVED"
@@ -5252,12 +5402,23 @@ function write_interview_CASE_NOTE()
 	Call write_bullet_and_variable_in_CASE_NOTE("Verbal Request Notes", verbal_request_notes)
     If all_hh_memb_progs_match Then write_variable_in_CASE_NOTE("Program requests include everyone listed on this case.")
 
-	CALL write_variable_in_CASE_NOTE("Household Members:")
+    If CAF_form = "MNbenefits" AND (trim(additional_application_comments) <> "" OR trim(additional_income_comments) <> "" OR trim(cover_letter_interview_notes) <> "") Then
+        CALL write_variable_in_CASE_NOTE("--- MN Benefits Appliction Cover Letter Details ---")
+        If trim(additional_application_comments) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Additional Application Comments", additional_application_comments)
+        If trim(additional_income_comments) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Additional Income Comments", additional_income_comments)
+        If trim(cover_letter_interview_notes) <> "" Then CALL write_bullet_and_variable_in_CASE_NOTE("Interview Notes on Cover Letter Details", cover_letter_interview_notes)
+    End If
+
+	CALL write_variable_in_CASE_NOTE("--- Household Members ---")
     membs_no_request = ""
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+		If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then
+            If HH_MEMB_ARRAY(pers_in_maxis, the_members) Then membs_no_request = membs_no_request & "M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then membs_no_request = membs_no_request & HH_MEMB_ARRAY(full_name_const, the_members) & ", "
+        End If
         If HH_MEMB_ARRAY(ignore_person, the_members) = False and HH_MEMB_ARRAY(none_req_checkbox, the_members) = unchecked Then
-            CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
+            If HH_MEMB_ARRAY(pers_in_maxis, the_members) Then CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(full_name_const, the_members))
             If NOT all_hh_memb_progs_match Then
                 prog_list = ""
                 If HH_MEMB_ARRAY(snap_req_checkbox, the_members) = checked Then prog_list = prog_list & "SNAP, "
@@ -5267,7 +5428,7 @@ function write_interview_CASE_NOTE()
                 If prog_list <> "" Then prog_list = left(prog_list, len(prog_list)-2)
                 CALL write_variable_in_CASE_NOTE("    Program Requests: " & prog_list)
             End If
-            If HH_MEMB_ARRAY(pers_in_maxis, the_members) = False Then
+            If NOT HH_MEMB_ARRAY(pers_in_maxis, the_members) Then
                 CALL write_variable_in_CASE_NOTE("    Person NOT in MAXIS. Details recorded during interview:")
                 demographic_details = ""
                 If HH_MEMB_ARRAY(date_of_birth, the_members) <> "" Then demographic_details = demographic_details & "DOB: " & HH_MEMB_ARRAY(date_of_birth, the_members) & ", "
@@ -7233,12 +7394,39 @@ ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - Member Does Not Have SSN"
 ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
 
+language_list = ""
+language_list = language_list+chr(9)+"99 - English"
+language_list = language_list+chr(9)+"01 - Spanish"
+language_list = language_list+chr(9)+"07 - Somali"
+language_list = language_list+chr(9)+"06 - Russian"
+language_list = language_list+chr(9)+"12 - Oromo"
+language_list = language_list+chr(9)+"02 - Hmong"
+language_list = language_list+chr(9)+"21 - Karen"
+language_list = language_list+chr(9)+"04 - Khmer"
+language_list = language_list+chr(9)+"09 - Amharic"
+language_list = language_list+chr(9)+"10 - Arabic"
+language_list = language_list+chr(9)+"08 - ASL"
+language_list = language_list+chr(9)+"14 - Burmese"
+language_list = language_list+chr(9)+"15 - Cantonese"
+language_list = language_list+chr(9)+"16 - French"
+language_list = language_list+chr(9)+"20 - Korean"
+language_list = language_list+chr(9)+"05 - Laotian"
+language_list = language_list+chr(9)+"17 - Mandarin"
+language_list = language_list+chr(9)+"11 - Serbo-Croatian"
+language_list = language_list+chr(9)+"18 - Swahili"
+language_list = language_list+chr(9)+"13 - Tigrinya"
+language_list = language_list+chr(9)+"03 - Vietnamese"
+language_list = language_list+chr(9)+"19 - Yoruba"
+language_list = language_list+chr(9)+"97 - Unknown"
+language_list = language_list+chr(9)+"98 - Other"
+
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
+Dim HH_arrived_date, HH_arrived_place
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim licensed_facility, meal_provided, residence_name_phone
@@ -7263,6 +7451,7 @@ Dim snap_closed_in_past_30_days, snap_closed_in_past_4_months, grh_closed_in_pas
 Dim cash1_closed_in_past_30_days, cash1_closed_in_past_4_months, cash1_recently_closed_program, cash1_date_closed, cash1_closed_reason
 Dim cash2_closed_in_past_30_days, cash2_closed_in_past_4_months, cash2_recently_closed_program, cash2_date_closed, cash2_closed_reason
 
+Dim additional_application_comments, additional_income_comments, cover_letter_interview_notes
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, need_to_update_addr
 Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
@@ -7315,6 +7504,7 @@ Dim income_review_completed, assets_review_completed, shel_review_completed, not
 ssn_update_attempt = False
 ssn_update_success = False
 
+show_cover_letter = 0
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
 show_pg_memb_list			= 3
@@ -7510,6 +7700,9 @@ Do
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
+If CAF_form = "MNbenefits" Then page_display = 0
+
 Call check_for_MAXIS(False)
 If switch_to_summary = True Then Call run_from_GitHub(script_repository & "notes/interview-summary.vbs" )
 
@@ -7600,19 +7793,22 @@ If select_err_msg_handling = "Alert only once completing and leaving the final d
 
 show_known_addr = FALSE
 vars_filled = FALSE
+membs_found = FALSE
 
 Orig_CAF_form = CAF_form
 
 Call back_to_SELF
-Call restore_your_work(vars_filled)			'looking for a 'restart' run
+Call restore_your_work(vars_filled, membs_found)			'looking for a 'restart' run
+'Added the membs_found variable because there were some errors when recording the member information
+'the memb array details were all blank. We do not know the source of the error in writing the member detail so all we can do at this point is handle for if it occurs.
 
 Call run_from_GitHub(script_repository & "misc/interview-forms-classes.vbs" )
 EMWaitReady 0, 0
 
 caf_version_date = "03/25"
-mnbenefits_version_date = "11/16"
-huf_version_date = "03/22"
-sr_snap_version_date = "04/23"
+mnbenefits_version_date = "03/25"
+huf_version_date = "09/25"
+sr_snap_version_date = "09/25"
 car_version_date = "04/23"
 
 If vars_filled = True Then
@@ -7690,8 +7886,8 @@ If vars_filled = True Then
 				set xmlDoc = nothing
 
 				ReDim TEMP_INFO_ARRAY(q_last_const, numb_of_quest)
-				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-				If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+				If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(3)
 
 				For quest = 0 to UBound(FORM_QUESTION_ARRAY)
 					TEMP_INFO_ARRAY(form_yn_const, quest) = FORM_QUESTION_ARRAY(quest).caf_answer
@@ -8220,12 +8416,11 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
+End If
 
-	Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
-	list_for_array = right(all_the_clients, len(all_the_clients) - 15)			'Then we create an array of the the full hh list for looping purpoases
-	full_hh_list = Split(list_for_array, chr(9))
+If all_the_clients = "" Then Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
 
-
+If membs_found = False Then
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
     EMWriteScreen "01", 20, 76
     transmit
@@ -8249,6 +8444,8 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	client_array = split(client_array, "|")
 
 	clt_count = 0
+    HH_arrived_date = ""
+    HH_arrived_place = ""
 
 	For each hh_clt in client_array
 
@@ -8374,6 +8571,41 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "N" Then HH_MEMB_ARRAY(ethnicity_yn, clt_count) = "No"
 
 			HH_MEMB_ARRAY(race, clt_count) = trim(HH_MEMB_ARRAY(race, clt_count))
+            HH_MEMB_ARRAY(race_a_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_b_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_n_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_p_checkbox, clt_count) = unchecked
+            HH_MEMB_ARRAY(race_w_checkbox, clt_count) = unchecked
+
+            If HH_MEMB_ARRAY(race, clt_count) = "Asian" Then                        HH_MEMB_ARRAY(race_a_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Black Or African Amer" Then        HH_MEMB_ARRAY(race_b_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Amer Indn Or Alaskan Native" Then  HH_MEMB_ARRAY(race_n_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Pacific Is Or Native Hawaii" Then  HH_MEMB_ARRAY(race_p_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "White" Then                        HH_MEMB_ARRAY(race_w_checkbox, clt_count) = checked
+            If HH_MEMB_ARRAY(race, clt_count) = "Multiple Races" Then
+                PF9
+                call write_value_and_transmit("X", 17, 34)
+                EMReadScreen race_pop_up_check, 18, 5, 12
+                If race_pop_up_check = "X AS MANY AS APPLY" Then
+                    EMReadScreen x_a, 1, 7, 12
+                    If x_a = "X" Then HH_MEMB_ARRAY(race_a_checkbox, clt_count) = checked
+                    EMReadScreen x_b, 1, 8, 12
+                    If x_b = "X" Then HH_MEMB_ARRAY(race_b_checkbox, clt_count) = checked
+                    EMReadScreen x_n, 1, 10, 12
+                    If x_n = "X" Then HH_MEMB_ARRAY(race_n_checkbox, clt_count) = checked
+                    EMReadScreen x_p, 1, 12, 12
+                    If x_p = "X" Then HH_MEMB_ARRAY(race_p_checkbox, clt_count) = checked
+                    EMReadScreen x_w, 1, 14, 12
+                    If x_w = "X" Then HH_MEMB_ARRAY(race_w_checkbox, clt_count) = checked
+                End If
+                EMReadScreen race_pop_up_check, 7, 6, 22
+                EMReadScreen memb_mode, 1, 20, 8
+                Do while race_pop_up_check <> "* Last:" and memb_mode <> "D"
+                    PF10
+                    EMReadScreen race_pop_up_check, 7, 6, 22
+                    EMReadScreen memb_mode, 1, 20, 8
+                Loop
+            End If
 
 			HH_MEMB_ARRAY(spoken_lang, clt_count) = replace(replace(HH_MEMB_ARRAY(spoken_lang, clt_count), "_", ""), "  ", " - ")
 			HH_MEMB_ARRAY(written_lang, clt_count) = trim(replace(replace(replace(HH_MEMB_ARRAY(written_lang, clt_count), "_", ""), "  ", " - "), "(HRF)", ""))
@@ -8426,6 +8658,15 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			If HH_MEMB_ARRAY(mn_entry_date, clt_count) = "__/__/__" Then HH_MEMB_ARRAY(mn_entry_date, clt_count) = ""
 			If HH_MEMB_ARRAY(former_state, clt_count) = "__" Then HH_MEMB_ARRAY(former_state, clt_count) = ""
 
+            If clt_count = 0 Then
+                HH_arrived_date = HH_MEMB_ARRAY(mn_entry_date, clt_count)
+                HH_arrived_place = HH_MEMB_ARRAY(former_state, clt_count)
+            Else
+                If HH_arrived_date <> HH_MEMB_ARRAY(mn_entry_date, clt_count) or HH_arrived_place <> HH_MEMB_ARRAY(former_state, clt_count)  Then
+                    HH_arrived_date = ""
+                    HH_arrived_place = ""
+                End If
+            End If
 
 		End If
 
@@ -8437,15 +8678,11 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		' ReDim Preserve ALL_ANSWERS_ARRAY(ans_notes, clt_count)
 		clt_count = clt_count + 1
 	Next
+    If HH_arrived_date <> "" Then all_members_listed_notes = "All members arrived in Minnesota on " & HH_arrived_date & " from " & HH_arrived_place & "."
 
-	Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
+    Call navigate_to_MAXIS_screen("STAT", "TYPE")		'===============================================================================================
     type_row = 6
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		HH_MEMB_ARRAY(race_a_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_b_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_n_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_p_checkbox, the_members) = unchecked
-		HH_MEMB_ARRAY(race_w_checkbox, the_members) = unchecked
 
         EMReadScreen type_ref_numb, 2, type_row, 3
         Do While type_ref_numb <> HH_MEMB_ARRAY(ref_number, the_members)
@@ -8489,6 +8726,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
         If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "01 Self" and (HH_MEMB_ARRAY(id_verif, the_members) = "__" or HH_MEMB_ARRAY(id_verif, the_members) = "NO - No Ver Prvd") Then
             HH_MEMB_ARRAY(requires_update, the_members) = True
         End If
+        If HH_MEMB_ARRAY(rel_to_applcnt, the_members) = "Select One..." Then HH_MEMB_ARRAY(requires_update, the_members) = True
 
         ssn_info_valid = True
         If trim(HH_MEMB_ARRAY(ssn, the_members)) = "" Then
@@ -8515,6 +8753,9 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		HH_MEMB_ARRAY(client_notes, the_members) = ""
 		HH_MEMB_ARRAY(imig_status, the_members) = ""
 	Next
+End If
+
+If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	'Now we gather the address information that exists in MAXIS
     Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, address_change_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
@@ -8580,6 +8821,7 @@ clear_phone_three_btn		= 5043
 add_person_btn				= 5050
 clear_job_btn				= 1100
 open_r_and_r_btn 			= 1200
+cover_letter_btn            = 1250
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
@@ -8786,6 +9028,7 @@ expedited_determination = start_at + 3
 show_pg_last = start_at + 4
 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
+If vars_filled = TRUE and membs_found = False Then MsgBox "The script was able to fill in the case number but not the member information." & vbCr & vbCr & "BE SURE TO REVIEW PERSON DETAILS", vbExclamation, "Member Information Not Found"
 
 interview_questions_clear = False
 leave_loop = False
@@ -10658,8 +10901,8 @@ Set objWord = CreateObject("Word.Application")
 'Adding all of the information in the dialogs into a Word Document
 If no_case_number_checkbox = checked Then objWord.Caption = "Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "Form Details - CASE #" & MAXIS_case_number			'Title of the document
-' objWord.Visible = True														'Let the worker see the document
 objWord.Visible = False 														'The worker should NOT see the docuement
+' objWord.Visible = True														'Let the worker see the document
 'allow certain workers to see the document
 ' If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True
 
@@ -10809,6 +11052,15 @@ If progs_verbal_request <> "" Then objSelection.TypeText "PROGRAMS REQUESTED VER
 
 objSelection.Font.Size = "11"
 
+If CAF_form = "MNbenefits" Then
+    objSelection.TypeText "MN Benefits Appliction Cover Letter Details:" & vbCr
+    If trim(additional_application_comments) <> "" Then objSelection.TypeText " - Additional Application Comments: " & additional_application_comments & vbCr
+    If trim(additional_application_comments) = "" Then objSelection.TypeText " - No additional application comments." & vbCr
+    If trim(additional_income_comments) <> "" Then objSelection.TypeText " - Additional Income Comments: " & additional_income_comments & vbCr
+    If trim(additional_income_comments) = "" Then objSelection.TypeText " - No additional income comments." & vbCr
+    If trim(cover_letter_interview_notes) <> "" Then objSelection.TypeText " - Interview Notes on Cover Letter Details: " & cover_letter_interview_notes & vbCr
+    objSelection.TypeText " - Any income or emergency details from the cover letter can be found in the specific questions further down in this document." & vbCr & vbCr
+End If
 
 'Ennumeration for SetHeight and SetWidth
 'wdAdjustFirstColumn	2	Adjusts the left edge of the first column only, preserving the positions of the other columns and the right edge of the table.
@@ -11779,8 +12031,10 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 		PF4
 	End If
-	If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
-		If arep_exists = True Then
+    If arep_exists = True Then
+        If trim(CAF_arep_relationship) = "Select or Type" Then CAF_arep_relationship = ""
+        If trim(arep_relationship) = "Select or Type" Then arep_relationship = ""
+	    If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
 			If arep_action = "Yes - keep this AREP" OR CAF_arep_action = "Yes - add to MAXIS" OR (arep_authorization <> "Select One..." AND arep_authorization <> "") Then
 				Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 				If memo_opened = True Then
@@ -11864,6 +12118,34 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 				Call write_variable_in_CASE_NOTE(worker_signature)
 				PF3
 			End If
+        Else
+            Call start_a_blank_CASE_NOTE
+            Call write_variable_in_CASE_NOTE("REQUEST TO REMOVE AREP")
+            Call write_variable_in_CASE_NOTE("In the Interview, Resident requested AREP be removed from the case.")
+            If trim(arep_name) <> "" AND arep_action = "No - remove this AREP from my case" Then
+                Call write_variable_in_CASE_NOTE("AREP Information to Remove:")
+                CALL write_bullet_and_variable_in_CASE_NOTE("Name", arep_name)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", arep_relationship)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", arep_phone_number)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", arep_addr_street)
+                CALL write_bullet_and_variable_in_CASE_NOTE("City", arep_addr_city)
+                CALL write_bullet_and_variable_in_CASE_NOTE("State", arep_addr_state)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Zip", arep_addr_zip)
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(worker_signature)
+            End If
+            If trim(CAF_arep_name) <> "" AND CAF_arep_action = "No - do not allow this AREP" Then
+                CALL write_bullet_and_variable_in_CASE_NOTE("Name", CAF_arep_name)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", CAF_arep_relationship)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", CAF_arep_phone_number)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", CAF_arep_addr_street)
+                CALL write_bullet_and_variable_in_CASE_NOTE("City", CAF_arep_addr_city)
+                CALL write_bullet_and_variable_in_CASE_NOTE("State", CAF_arep_addr_state)
+                CALL write_bullet_and_variable_in_CASE_NOTE("Zip", CAF_arep_addr_zip)
+            End If
+            Call write_variable_in_CASE_NOTE("---")
+            Call write_variable_in_CASE_NOTE(worker_signature)
+            PF3
 		End If
 	End If
 	If expedited_determination_completed = True Then

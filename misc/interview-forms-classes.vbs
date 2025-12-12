@@ -97,7 +97,8 @@ class form_questions
 		If IsArray(detail_explain) 			Then ReDim Preserve detail_explain(index_add)
 	end sub
 
-	public sub display_in_dialog(y_pos, question_yn, question_notes, question_interview_notes, addtl_question, addtl_detail, TEMP_ARRAY)
+	public sub display_in_dialog(y_pos, question_yn, question_notes, question_interview_notes, addtl_question, addtl_detail, TEMP_ARRAY, full_display)
+        If full_display <> False Then full_display = True
 		question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 		If InStr(dialog_phrasing, "For MA-LTC") <> 0 Then question_answers = question_answers+chr(9)+"NoLTC"
 
@@ -135,7 +136,7 @@ class form_questions
 
 		If detail_array_exists = true Then
 			grp_len = 35
-			If sub_phrase <> "" Then grp_len = 55
+			If sub_phrase <> "" and full_display Then grp_len = 55
 			orig_grp_len = grp_len
 
 			for each_item = 0 to UBOUND(detail_interview_notes)
@@ -176,22 +177,27 @@ class form_questions
 				End If
 				If show_info = True then grp_len = grp_len + 10
 			next
-			If grp_len <> orig_grp_len then grp_len = grp_len + 10
+			If grp_len <> orig_grp_len and full_display then grp_len = grp_len + 10
 			If detail_source = "shel-hest" Then grp_len = grp_len + 20
+            If NOT full_display Then grp_len = grp_len - 10
 
-			GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
-			y_pos = y_pos + 20
-			Text 13, y_pos, 42, 10, "Form Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			EditBox 120, y_pos - 5, 350, 15, question_notes
-			PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
-
+            GroupBox 5, y_pos, 475, grp_len, number & "." & dialog_phrasing
+            y_pos = y_pos + 20
+            If NOT full_display Then y_pos = y_pos - 10
+            If full_display Then
+                Text 13, y_pos, 42, 10, "Form Answer"
+                DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
+                Text 95, y_pos, 25, 10, "write-in:"
+                EditBox 120, y_pos - 5, 350, 15, question_notes
+                PushButton 425, y_pos-20, 55, 10, detail_button_label, add_to_array_btn
+            End If
+            If NOT full_display Then PushButton 425, y_pos-10, 55, 10, detail_button_label, add_to_array_btn
 			first_item = TRUE
 			for each_item = 0 to UBOUND(detail_interview_notes)
 				If detail_source = "jobs" Then
 					If detail_business(each_item) <> "" OR detail_resident_name(each_item)<> "" OR detail_monthly_amount(each_item) <> "" OR detail_hourly_wage(each_item) <> "" OR detail_hours_per_week(each_item) <> "" Then
 						If first_item = TRUE Then y_pos = y_pos + 20
+                        If NOT full_display and first_item Then y_pos = y_pos - 10
 						first_item = FALSE
 						If detail_verif_status(each_item) = "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item)
 						If detail_verif_status(each_item) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & detail_business(each_item) & "  - Employee: " & detail_resident_name(each_item) & "   - Gross Monthly Earnings: $ " & detail_monthly_amount(each_item) & "   - Verification - " & detail_verif_status(each_item)
@@ -211,6 +217,7 @@ class form_questions
 				ElseIf detail_source = "unea" Then
 					If detail_resident_name(each_item) <> "" OR detail_type(each_item) <> "" OR detail_date(each_item) <> "" OR detail_amount(each_item) <> "" OR detail_frequency(each_item) <> "" Then
 						If first_item = TRUE Then y_pos = y_pos + 20
+                        If NOT full_display and first_item Then y_pos = y_pos - 10
 						first_item = FALSE
 						If detail_verif_status(each_item) = "" Then Text 15, y_pos, 395, 10, "Name: " & detail_resident_name(each_item) & "  - Type: " & detail_type(each_item) & "   - Start Date: $ " & detail_date(each_item) & "   - Amount: $ " & detail_amount(each_item) & "   - Freq.: " & detail_frequency(each_item)
 						If detail_verif_status(each_item) <> "" Then Text 15, y_pos, 395, 10, "Name: " & detail_resident_name(each_item) & "  - Type: " & detail_type(each_item) & "   - Start Date: $ " & detail_date(each_item) & "   - Amount: $ " & detail_amount(each_item) & "   - Freq.: " & detail_frequency(each_item) & "   - Verification - " & detail_verif_status(each_item)
@@ -256,7 +263,7 @@ class form_questions
 					End If
 				End If
 			next
-			If first_item = TRUE Then y_pos = y_pos + 10
+			If first_item = TRUE and full_display Then y_pos = y_pos + 10
 
 			If detail_source = "shel-hest" Then
 				housing_info_txt = "Housing Payment: $ " & housing_payment
@@ -274,7 +281,8 @@ class form_questions
 				y_pos = y_pos +20
 			End If
 
-			y_pos = y_pos + 15
+            y_pos = y_pos + 15
+			If NOT full_display Then y_pos = y_pos - 10
 
 		ElseIf info_type = "standard" Then
 			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
@@ -385,6 +393,10 @@ class form_questions
 				col_2_2 = 230
 				col_3_1 = 335
 				col_3_2 = 380
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+				    col_3_1 = ""
+				    col_3_2 = ""
+                End If
 				drplst_len = 35
 				txt_len = 80
 			End If
@@ -450,7 +462,6 @@ class form_questions
 				End If
 				y_pos = y_pos + 15
 
-				If info_type = "utilities" Then txt_len = 375
 				increase_y_pos = false
 				If i =< UBound(TEMP_ARRAY) Then
 					DropListBox 	col_1_1, y_pos - 5, drplst_len, 45, question_answers, TEMP_ARRAY(i)
@@ -488,7 +499,7 @@ class form_questions
 			If allow_prefil = true Then PushButton 385, button_pos, 90, 13, "ALL Q. " & number & " Answered 'No'", prefil_btn
 
 		ElseIf info_type = "two-part" Then
-			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+            GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
 			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
@@ -500,9 +511,9 @@ class form_questions
 				Text 360, y_pos, 110, 10, "Q" & number & " - Verification - " & verif_status
 			End If
 			y_pos = y_pos + 20
-
 		ElseIf info_type = "single-detail" Then
-			GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+			If full_display then GroupBox 5, y_pos, 475, dialog_height-5, number & "." & dialog_phrasing
+			If NOT full_display then GroupBox 5, y_pos, 475, dialog_height-25, number & "." & dialog_phrasing
 			y_pos = y_pos + 20
 			Text 13, y_pos, 42, 10, "Form Answer"
 			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_yn
@@ -521,7 +532,7 @@ class form_questions
 			y_pos = y_pos + 25
 
 		End If
-		If sub_phrase <> "" Then
+		If sub_phrase <> "" and full_display Then
 			y_pos = y_pos - 5
 
 			phrase_width = len(number & sub_number & "." & sub_phrase)*3.5
@@ -532,7 +543,7 @@ class form_questions
 			y_pos = y_pos + 20
 		End If
 
-		If detail_array_exists = False Then
+		If detail_array_exists = False and full_display Then
 			Text 15, y_pos, 60, 10, "Interview Notes:"
 			EditBox 75, y_pos - 5, 320, 15, question_interview_notes
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", verif_btn
@@ -826,9 +837,16 @@ class form_questions
 					End If
 				End If
 				If info_type = "utilities" Then
-					CALL write_variable_in_CASE_NOTE("        Heat/AC - " & item_ans_list(0) & " Electric - " & item_ans_list(1) & " Cooking Fuel - " & item_ans_list(2))
-					CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & item_ans_list(3) & "  Garbage - " & item_ans_list(4) & "        Phone - " & item_ans_list(5))
-					If sub_phrase = "" Then CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & item_ans_list(6))
+                    If UBound(item_ans_list) = 5 Then
+                        CALL write_variable_in_CASE_NOTE("     Heating - " & item_ans_list(0) & "     AC - " & item_ans_list(1) & "  Water/Sewer - " & item_ans_list(2))
+                        CALL write_variable_in_CASE_NOTE("    Electric - " & item_ans_list(3) & "  Phone - " & item_ans_list(4) & "      Garbage - " & item_ans_list(5))
+                    Else
+                        CALL write_variable_in_CASE_NOTE("    Heating - " & item_ans_list(0) & "        AC - " & item_ans_list(1))
+                        CALL write_variable_in_CASE_NOTE("      Phone - " & item_ans_list(2) & "  Electric - " & item_ans_list(3))
+                    End If
+					' CALL write_variable_in_CASE_NOTE("        Heat/AC - " & item_ans_list(0) & " Electric - " & item_ans_list(1) & " Cooking Fuel - " & item_ans_list(2))
+					' CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & item_ans_list(3) & "  Garbage - " & item_ans_list(4) & "        Phone - " & item_ans_list(5))
+					' If sub_phrase = "" Then CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & item_ans_list(6))
 				End If
 				If info_type = "assets" Then
 					CALL write_variable_in_CASE_NOTE("      Cash - " & item_ans_list(0) & " Bank Accounts - " & item_ans_list(1))
@@ -915,9 +933,19 @@ class form_questions
 							For col = 1 to 3
 								TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
 								TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
+                            Next
+
+							For row = 3 to 4
+								TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 2, TRUE
+
+								TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 90, 2
+								TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 310, 2
 							Next
-							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Font.Size = 6
-							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Font.Size = 12
+							For col = 1 to 2
+								TABLE_ARRAY(array_counters).Cell(3, col).Range.Font.Size = 6
+								TABLE_ARRAY(array_counters).Cell(4, col).Range.Font.Size = 12
+                            Next
+
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Font.Size = 6
 							TABLE_ARRAY(array_counters).Cell(6, 1).Range.Font.Size = 12
 							TABLE_ARRAY(array_counters).Cell(7, 1).Range.Font.Size = 6
@@ -930,8 +958,10 @@ class form_questions
 							TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = detail_hourly_wage(each_item)
 							TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = detail_monthly_amount(each_item)
 
-							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
-							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_business(each_item)
+							TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "HOURS/WEEK"
+							TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = detail_hours_per_week(each_item)
+							TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "EMPLOYER/BUSINESS NAME"
+							TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = detail_business(each_item)
 
 							TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "FORM NOTES"
 							cell_height = CInt(len(detail_write_in_info(each_item))/55) * 15
@@ -1082,16 +1112,25 @@ class form_questions
 									TABLE_ARRAY(array_counters).Cell(row+2, 1).Range.Text = "Explain the change"
 									TABLE_ARRAY(array_counters).Cell(row+3, 1).Range.Text = detail_explain(each_item)
 
+                                    text_len = CInt(len("Write-In: " & detail_write_in_info(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = text_len * 15
 									notes_detail = "Write-In: " & detail_write_in_info(each_item) & vbCr
+                                    text_len = CInt(len("Notes: " & detail_interview_notes(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = cell_height + (text_len * 15)
 									notes_detail = notes_detail & "Notes: " & detail_interview_notes(each_item)
 									If detail_verif_status(each_item) <> "" or detail_verif_notes(each_item) <> "" Then
+                                        text_len = CInt(len("Verification: " & detail_verif_status(each_item))/55)
+                                        If text_len = 0 Then text_len = 1
+                                        cell_height = cell_height + (text_len * 15)
 										notes_detail = notes_detail & vbCr & "Verification: " & detail_verif_status(each_item) & " - " & detail_verif_notes(each_item)
-										TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight 45, 2
 									End If
+                                    cell_height = cell_height + 5
+                                    TABLE_ARRAY(array_counters).Cell(row+4, 1).SetHeight cell_height, 2
 									TABLE_ARRAY(array_counters).Cell(row+4, 1).Range.ParagraphFormat.SpaceAfter = 0
 									TABLE_ARRAY(array_counters).Cell(row+4, 1).Range.Text = notes_detail
 									row = row + 5
-
 								End If
 							next
 
@@ -1169,12 +1208,22 @@ class form_questions
 									End If
 								End If
 								If enter_note = true Then
+                                    text_len = CInt(len("Write-In: " & detail_write_in_info(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = text_len * 15
 									notes_detail = "Write-In: " & detail_write_in_info(each_item) & vbCr
+                                    text_len = CInt(len("Notes: " & detail_interview_notes(each_item))/55)
+                                    If text_len = 0 Then text_len = 1
+        							cell_height = cell_height + (text_len * 15)
 									notes_detail = notes_detail & "Notes: " & detail_interview_notes(each_item)
 									If detail_verif_status(each_item) <> "" or detail_verif_notes(each_item) <> "" Then
+                                        text_len = CInt(len("Verification: " & detail_verif_status(each_item))/55)
+                                        If text_len = 0 Then text_len = 1
+                                        cell_height = cell_height + (text_len * 15)
 										notes_detail = notes_detail & vbCr & "Verification: " & detail_verif_status(each_item) & " - " & detail_verif_notes(each_item)
-										TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight 45, 2
 									End If
+                                    cell_height = cell_height + 5
+                                    TABLE_ARRAY(array_counters).Cell(row+1, 1).SetHeight cell_height, 2
 									TABLE_ARRAY(array_counters).Cell(row+1, 1).Range.ParagraphFormat.SpaceAfter = 0
 									TABLE_ARRAY(array_counters).Cell(row+1, 1).Range.Text = notes_detail
 									row = row + 2
@@ -1231,7 +1280,10 @@ class form_questions
 			Set objRange = objSelection.Range					'range is needed to create tables
 			If info_type = "unea" Then objDoc.Tables.Add objRange, 5, 1					'This sets the rows and columns needed row then column'
 			If info_type = "housing" Then objDoc.Tables.Add objRange, 4, 1					'This sets the rows and columns needed row then column'
-			If info_type = "utilities" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
+			If info_type = "utilities" Then
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
+                If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
+            End If
 			If info_type = "msa" or info_type = "stwk" Then objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row then column'
 			If info_type = "assets" Then objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row then column'
 			set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
@@ -1277,25 +1329,28 @@ class form_questions
 				TABLE_ARRAY(array_counters).Cell(4, 1).SetWidth 90, 2
 				TABLE_ARRAY(array_counters).Cell(4, 2).SetWidth 430, 2
 			ElseIf info_type = "utilities" Then
-				numb_of_rows = 3
+				numb_of_rows = 2
 				number_of_columns = 6
-				'note that this table does not use an autoformat - which is why there are no borders on this table.'
+                If CAF_form = "SNAP App for Srs (DHS-5223F)" Then number_of_columns = 4				'note that this table does not use an autoformat - which is why there are no borders on this table.'
 				TABLE_ARRAY(array_counters).Columns(1).Width = 525
 
 				For row = 1 to 2
-					TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
+					If CAF_form = "SNAP App for Srs (DHS-5223F)" Then TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
+					If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 6, TRUE
 
 					TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 75, 2
 					TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 100, 2
 					TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 75, 2
 					TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 100, 2
-					TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 75, 2
-					TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 100, 2
+					If CAF_form <> "SNAP App for Srs (DHS-5223F)" Then
+                        TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 75, 2
+                        TABLE_ARRAY(array_counters).Cell(row, 6).SetWidth 100, 2
+                    End If
 				Next
-				TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 2, TRUE
+				' TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 2, TRUE
 
-				TABLE_ARRAY(array_counters).Cell(3, 1).SetWidth 75, 2
-				TABLE_ARRAY(array_counters).Cell(3, 2).SetWidth 450, 2
+				' TABLE_ARRAY(array_counters).Cell(3, 1).SetWidth 75, 2
+				' TABLE_ARRAY(array_counters).Cell(3, 2).SetWidth 450, 2
 
 			ElseIf info_type = "assets" Then
 				numb_of_rows = 3
@@ -1530,6 +1585,10 @@ class form_questions
 			temp_array = left(temp_array, len(temp_array)-3)
 			If InStr(temp_array, "~!~") <> 0 Then detail_interview_notes = split(temp_array, "~!~")
 			If InStr(temp_array, "~!~") = 0 Then detail_interview_notes = array(temp_array)
+            ReDim detail_edit_btn(UBound(detail_interview_notes))
+            For dtl_ct = 0 to UBound(detail_interview_notes)
+                detail_edit_btn(dtl_ct) =(2000+question_num*10)+dtl_ct
+            Next
 		End If
 		set subNodesList = nothing
 
@@ -1572,20 +1631,6 @@ class form_questions
 			temp_array = left(temp_array, len(temp_array)-3)
 			If InStr(temp_array, "~!~") <> 0 Then detail_verif_notes = split(temp_array, "~!~")
 			If InStr(temp_array, "~!~") = 0 Then detail_verif_notes = array(temp_array)
-		End If
-		set subNodesList = nothing
-
-		set subNodesList = node.SelectNodes("/form/question[number='"& number &"']/detailEditBtn")
-		temp_array = ""
-		If Not subNodesList Is Nothing Then
-			for each nodeItem in subNodesList
-				temp_array = temp_array & nodeItem.Text & "~!~"
-			next
-		End If
-		If temp_array <> "" Then
-			temp_array = left(temp_array, len(temp_array)-3)
-			If InStr(temp_array, "~!~") <> 0 Then detail_edit_btn = split(temp_array, "~!~")
-			If InStr(temp_array, "~!~") = 0 Then detail_edit_btn = array(temp_array)
 		End If
 		set subNodesList = nothing
 
@@ -2670,7 +2715,7 @@ Dim unea_6_yn, unea_6_amt, unea_7_yn, unea_7_amt, unea_8_yn, unea_8_amt, unea_9_
 Dim TEMP_HOUSING_ARRAY()
 Dim TEMP_UTILITIES_ARRAY()
 ReDim TEMP_HOUSING_ARRAY(6)
-ReDim TEMP_UTILITIES_ARRAY(6)
+ReDim TEMP_UTILITIES_ARRAY(5)
 DIM TEMP_ASSETS_ARRAY(4)
 DIM TEMP_MSA_ARRAY(3)
 DIM TEMP_STWK_ARRAY(3)
@@ -2683,8 +2728,8 @@ ReDim FORM_QUESTION_ARRAY(0)
 dim last_page_of_questions, numb_of_quest, form_version_date
 
 If vars_filled = False Then
-	If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
-	If CAF_form = "CAF (DHS-5223)" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(5)
+	If CAF_form = "CAF (DHS-5223)" or CAF_form = "MNbenefits" or CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_HOUSING_ARRAY(5)
+    If CAF_form = "SNAP App for Srs (DHS-5223F)" Then ReDim TEMP_UTILITIES_ARRAY(3)
 
 	numb_of_quest = 0
 	last_page_of_questions = 4
@@ -3015,7 +3060,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -3096,8 +3140,10 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
 
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Water and sewer", "Electricity", "Phone/cell phone", "Garbage removal")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Water/Sewer", "Electric", "Phone", "Garbage")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
 			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
@@ -3270,7 +3316,7 @@ If vars_filled = False Then
 
 
 		Case "MNbenefits"
-			form_version_date = "11/16"						'this is the date of the form release
+			form_version_date = "03/25"						'this is the date of the form release
 			'IF UPDATING THIS ALSO UPDATE THE VERSION DATE VARIABLE ON THE INTERVIEW SCRIPT
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
@@ -3328,9 +3374,9 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q3 Information (Attending School)"
 
-			FORM_QUESTION_ARRAY(question_num).mandated 				= False
-			FORM_QUESTION_ARRAY(question_num).error_info			= ""
-			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).mandated 				= True
+			FORM_QUESTION_ARRAY(question_num).error_info			= "school"
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= "3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
@@ -3402,15 +3448,15 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 7
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7. Has anyone stopped, quit or refused employment in the past 60 days?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For children under the age of 19, are both parents living in the home?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7. Are both parents of children under 19 living in the home?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. For children under the age of 19, are both parents living in the home?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q7 Information (Job end/reduce in past 60 Days)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q7 Information (Both Parents in Home)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3423,39 +3469,39 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 8
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household had a job or been self-employed in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8. Has anyone had a job OR been self-employed in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
-			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "In the past 36 months? (SNAP ONLY)"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "two-part"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For recertifications only: Did anyone move in or out of your home in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8. Did anyone move in/out in the past 12 months? (REVW ONLY)"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q8 Information (Employed in past 12 Months)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q8 Information (Anyone Move In or Out)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 75
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 9
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household have a job or expect to get income from a job this month or next month?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone have a job or expect to get income from a job this month or next month. Including work study and paid internships."
 			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q9. Does anyone have a job?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "jobs"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 9. Does anyone have or expect a job?"
+			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Do you expect any changes to this income or work hours?"
+			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Expect any changes to job?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "two-part"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q9 Information (Job)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q9 Information (Job))"
 			FORM_QUESTION_ARRAY(question_num).add_to_array_btn		= 3000+question_num
 
 			FORM_QUESTION_ARRAY(question_num).detail_array_exists	= True
@@ -3477,7 +3523,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 40
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 75
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
@@ -3488,6 +3534,8 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 			FORM_QUESTION_ARRAY(question_num).detail_phrase			= "Gross Earnings"
 			FORM_QUESTION_ARRAY(question_num).detail_note_phrase 	= "Gross Monthly Earnings"
+			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Do you expect any changes to this income or work hours?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "single-detail"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
@@ -3500,69 +3548,67 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 80
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 11
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Do you expect any changes in income, expenses or work hours?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q11.Do you expect any changes in income, expenses, or work hours?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 11. Do you expect any changes in income, expenses or work hours?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "In the last 60 days did anyone in the household:"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q11.In the last 60 days did anyone in the household:"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 11. In the last 60 days did anyone in the household:"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "stwk"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
+			FORM_QUESTION_ARRAY(question_num).make_array_checkboxes = true
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Stop Working or Quit?", "Refuse a Job?", "Ask to Work Fewer Hours?", "Go on Strike?")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Stop Working", "Refuse a Job", "Request Fewer Hours", "Strike")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q11 Information (Income Changes)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q11 Information (Job end/reduce in past 60 Days)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 100
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 12
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household applied for or does anyone get any of the following type of income each month?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q12.Does anyone have any unearned income?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "unea"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).allow_prefil 			= True
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("RSDI", "SSI", "VA", "UI", "WC", "Retirement Ben", "Tribal Payments", "CSES", "Other Unearned")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("RSDI", "SSI", "Veteran Benefits (VA)", "Unemployment Insurance", "Workers' Compensation", "Retirement Benefits", "Tribal payments", "Child or Spousal support", "Other unearned income")
-			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "", "", "", "")
-			FORM_QUESTION_ARRAY(question_num).item_detail_list		= array("", "", "", "", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: If not currently working or self-employed, has anyone had a job or been self-employed in the past 36 months?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q12.Has anyone had a job or been self-employed in last 36 months?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 12. Has anyone had a job or been self-employed in last 36 months?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q12 Information (UNEA Income)"
-			FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q12 Information (Income Changes)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 7
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 130
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 13
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q13.Does anyone receive financial aid for attending school?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: Does anyone in your household receive or expect to receive Advance Child Tax Credit payment in July through December?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q13.Does anyone receive or expect the Advanced Child Tax Credit?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 13. Does anyone receive or expect the Advanced Child Tax Credit?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q13 Information (School Financial Aid)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q13 Information (Advanced Child Tax Credit)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3575,19 +3621,81 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 14
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q14.Are there any of the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 14. Does your household have the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "housing"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).allow_prefil 			= True
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Rent", "Rental or Section 8 Subsidy", "Mortgage/contract for deed payment", "Association fees", "Homeowner's insurance", "Room and/or Board", "Real estate taxes")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Rent (include mobile home lot rental)", "Rent or Section 8 subsidy", "Mortgage/contract for deed payment", "Association fees", "Homeowner's insurance (if not included in mortgage) ", "Room and/or board", "Real estate taxes (if not included in mortgage)")
-			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household applied for or does anyone get any unearned income each month?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q14.Does anyone have any unearned income?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 14. Does anyone in your household get money or expect to get money from sources other than work?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q14 Information (Housing Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "HUF Q14 Information (UNEA Income)"
+			FORM_QUESTION_ARRAY(question_num).add_to_array_btn		= 3000+question_num
+
+			FORM_QUESTION_ARRAY(question_num).detail_array_exists	= True
+			FORM_QUESTION_ARRAY(question_num).detail_source			= "unea"
+			FORM_QUESTION_ARRAY(question_num).detail_button_label 	= "ADD INCOME"
+			FORM_QUESTION_ARRAY(question_num).detail_interview_notes= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
+			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_date			= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
+			FORM_QUESTION_ARRAY(question_num).detail_frequency		= array("")
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 7
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 15
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q15.Does anyone receive financial aid for attending school?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 15. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q15 Information (School Financial Aid)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 7
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 16
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q16.Are there any of the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 16. Does your household have the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "housing"
+
+			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Do you receive a rental subsidy (ex: Section 8)?"
+			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Do you receive a rental subsidy (ex: Section 8)?"
+
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
+			FORM_QUESTION_ARRAY(question_num).allow_prefil 			= True
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Rent", "Mortgage/contract for deed payment", "Association fees", "Homeowner's insurance", "Room and/or Board", "Real estate taxes")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Rent (include mobile home lot rental)", "Mortgage/contract for deed payment", "Association fees", "Homeowner's insurance (if not included in mortgage) ", "Room and/or board", "Real estate taxes (if not included in mortgage)")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q16 Information (Housing Expense)"
 			FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
@@ -3595,45 +3703,52 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 8
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 135
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 140
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 15
+			FORM_QUESTION_ARRAY(question_num).number 				= 17
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following utility expenses any time during the year?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q15.Are there any of the following utility expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 15. Does your household have the following utility expenses any time during the year?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q17.Are there any of the following utility expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 17. Does your household have the following utility expenses any time during the year?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "utilities"
+
+			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
+
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone", "Did you or anyone in your houehold receive LIHEAP (energy assistance) for more than $20 in the past 12 months?")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone", "LIHEAP/Energy Assistance in past 12 months")
-			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Water and sewer", "Electricity", "Phone/cell phone", "Garbage removal")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Water/Sewer", "Electric", "Phone", "Garbage")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q15 Information (Utilities Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q17 Information (Utilities Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 8
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 120
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 125
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 16
+			FORM_QUESTION_ARRAY(question_num).number 				= 18
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q16.Does anyone have costs for childcare?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q18.Does anyone have costs for childcare?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 18. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q16 Information (Child Care Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q18 Information (Child Care Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3645,16 +3760,16 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 17
+			FORM_QUESTION_ARRAY(question_num).number 				= 19
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone have costs for care of an ill/disabled adult because you or they are working, looking for work or going to school?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q17.Does anyone have costs for adult care?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q19.Does anyone have costs for adult care?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 19. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q17 Information (DISA Adult Care Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q19 Information (DISA Adult Care Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3666,16 +3781,16 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 18
+			FORM_QUESTION_ARRAY(question_num).number 				= 20
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q18.Does anyone pay support to someone outside of the home?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q20.Does anyone pay support to someone outside of the home?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 20. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q18 Information (Child Support Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q20 Information (Child Support Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3687,16 +3802,16 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 19
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: Does anyone in the household have medical expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q19.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 19. For SNAP only: Does anyone in the household have medical expenses? "
+			FORM_QUESTION_ARRAY(question_num).number 				= 21
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: Is there anyone who has a disability OR is age 60 or older and has medical expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q21.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 21. For SNAP only: Does anyone in the household have medical expenses? "
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q19 Information (Medical Expenses)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q21 Information (Medical Expenses)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -3708,10 +3823,10 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 20
+			FORM_QUESTION_ARRAY(question_num).number 				= 22
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household own, or is anyone buying, any of the following?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q20.Does anyone own or is anyone buying any of the following:"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 20. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. "
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q22.Does anyone own or is anyone buying any of the following:"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 22. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. "
 			FORM_QUESTION_ARRAY(question_num).info_type				= "assets"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
 			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Cash", "Bank accounts (savings, checking, etc)", "Stocks, bonds, annuities, 401k, etc", "Vehicles (cars, trucks, motorcycles, campers, trailers)", "Electronic Payment Card (Reliacard, debit, etc.)")
@@ -3720,75 +3835,33 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q20 Information (Assets)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q22 Information (Assets)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 10
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 105
-			question_num = question_num + 1
-
-			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
-			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 21
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q21.Has anyone sold/given away/traded assets in the past 12 mos?(CASH ONLY)"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
-			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
-			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q21 Information (Asset Trade)"
-
-			FORM_QUESTION_ARRAY(question_num).mandated 				= False
-			FORM_QUESTION_ARRAY(question_num).error_info			= ""
-			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 10
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
-			question_num = question_num + 1
-
-			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
-			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 22
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q22.Did anyone move in/out in the past 12 months? (REVW ONLY)"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
-			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
-			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q22 Information (Anyone Move In or Out)"
-
-			FORM_QUESTION_ARRAY(question_num).mandated 				= False
-			FORM_QUESTION_ARRAY(question_num).error_info			= ""
-			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 11
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 120
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "MNbenefits"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 23
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For children under the age of 19, are both parents living in the home?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q23.Are both parents of children under 19 living in the home?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 23. For children under the age of 19, are both parents living in the home?"
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household given away, sold or traded anything of value in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q23.Has anyone sold/given away/traded assets in the past 12 mos?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 23. Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q23 Information (Both Parents in Home)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "CAF Q23 Information (Asset Trade)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 11
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 10
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
@@ -3812,17 +3885,17 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 11
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 10
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 105
 			question_num = question_num + 1
 
 			numb_of_quest = question_num-1
-			last_page_of_questions = 11
+			last_page_of_questions = 10
 
 
 		Case "HUF (DHS-8107)"
-			form_version_date = "03/22"					'this is the date of the form release
+			form_version_date = "09/25"					'this is the date of the form release
 			'IF UPDATING THIS ALSO UPDATE THE VERSION DATE VARIABLE ON THE INTERVIEW SCRIPT
 
 			' ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "HUF (DHS-8107)"
@@ -3882,7 +3955,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -3917,7 +3989,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_hourly_wage	= array("")
@@ -3975,7 +4046,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -4004,6 +4074,10 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "HUF Q7 Information (Housing Expense)"
 			FORM_QUESTION_ARRAY(question_num).add_to_array_btn		= 3000+question_num
 
+            FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
+			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
+
 			FORM_QUESTION_ARRAY(question_num).detail_array_exists	= True
 			FORM_QUESTION_ARRAY(question_num).detail_source			= "shel-hest"
 			FORM_QUESTION_ARRAY(question_num).detail_button_label 	= "ADD EXPENSE"
@@ -4011,7 +4085,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4046,7 +4119,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4080,7 +4152,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
@@ -4181,7 +4252,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_date			= array("")
@@ -4201,7 +4271,7 @@ If vars_filled = False Then
 
 
 		Case "SNAP App for Srs (DHS-5223F)"
-			form_version_date = "04/23"				'this is the date of the form release
+			form_version_date = "09/25"				'this is the date of the form release
 			'IF UPDATING THIS ALSO UPDATE THE VERSION DATE VARIABLE ON THE INTERVIEW SCRIPT
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
@@ -4236,7 +4306,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 40
 			question_num = question_num + 1
 
@@ -4259,7 +4329,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
 
@@ -4286,16 +4356,39 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 130
 			question_num = question_num + 1
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in your household receive or expect to receive Advance Child Tax Credit payment in July through December?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q4.Does anyone receive or expect the Advanced Child Tax Credit?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 4. Does anyone receive or expect the Advanced Child Tax Credit?"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q4 Information (Advanced Child Tax Credit)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 5
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q4.Are there any of the following housing expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 4. Does your household have the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q5.Are there any of the following housing expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 5. Does your household have the following housing expenses?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "housing"
 			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
 			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Do you receive a rental subsidy (ex: Section 8)?"
@@ -4308,7 +4401,7 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q4 Information (Housing Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q5 Information (Housing Expense)"
 			FORM_QUESTION_ARRAY(question_num).prefil_btn			= 2000+question_num
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
@@ -4321,23 +4414,25 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 5
+			FORM_QUESTION_ARRAY(question_num).number 				= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does your household have the following utility expenses any time during the year?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q5.Are there any of the following utility expenses?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 5. Does your household have the following utility expenses any time during the year?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q6.Are there any of the following utility expenses?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 6. Does your household have the following utility expenses any time during the year?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "utilities"
 			FORM_QUESTION_ARRAY(question_num).sub_number			= "a"
 			FORM_QUESTION_ARRAY(question_num).sub_phrase			= "Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
 			FORM_QUESTION_ARRAY(question_num).sub_note_phrase 		= "Did anyone receive energy assistance?"
 
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
-			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
-			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
-			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating", "Air conditioning", "Phone/cell phone", "Electricity")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat", "AC", "Phone", "Electric")
+			' FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Heating/air conditioning", "Electricity", "Cooking fuel", "Water and sewer", "Garbage removal", "Phone/cell phone")
+			' FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Heat/AC", "Electric", "Cooking Fuel", "Water/Sewer", "Garbage", "Phone")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "")
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q5 Information (Utilities Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q6 Information (Utilities Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -4349,42 +4444,21 @@ If vars_filled = False Then
 
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 6
+			FORM_QUESTION_ARRAY(question_num).number 				= 7
 			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone have costs for care of an ill/disabled adult because you or they are working, looking for work or going to school?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q6.Does anyone have costs for adult care?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7.Does anyone have costs for adult care?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q6 Information (DISA Adult Care Expense)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q7 Information (DISA Adult Care Expense)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
 			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
 			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 5
-			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
-			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
-			question_num = question_num + 1
-
-			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
-			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
-			FORM_QUESTION_ARRAY(question_num).number 				= 7
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q7.Does anyone pay support to someone outside of the home?"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 7. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
-			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
-			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
-			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
-			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q7 Information (Support Expense)"
-
-			FORM_QUESTION_ARRAY(question_num).mandated 				= False
-			FORM_QUESTION_ARRAY(question_num).error_info			= ""
-			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
-			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
@@ -4392,15 +4466,83 @@ If vars_filled = False Then
 			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
 			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
 			FORM_QUESTION_ARRAY(question_num).number 				= 8
-			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "For SNAP only: Does anyone in the household have medical expenses?"
-			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
-			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. For SNAP only: Does anyone in the household have medical expenses? "
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q8.Does anyone pay support to someone outside of the home?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 8. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
 			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
 			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
 			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
 			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
 			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
-			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q8 Information (Medical Expenses)"
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q8 Information (Support Expense)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 1
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 9
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household have medical expenses?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q9.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 9. Does anyone in the household have medical expenses? "
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q9 Information (Medical Expenses)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 2
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
+			question_num = question_num + 1
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 10
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Does anyone in the household own, or is anyone buying, any of the following?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q10.Does anyone own or is anyone buying any of the following:"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 10. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. "
+			FORM_QUESTION_ARRAY(question_num).info_type				= "assets"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= true
+			FORM_QUESTION_ARRAY(question_num).item_info_list 		= array("Cash", "Bank accounts (savings, checking, etc)", "Electronic Pymnt Card (Reliacard, debit, etc.)", "Stocks, bonds, annuities, 401k, etc", "Vehicles (cars, trucks, motorcycles, campers, trailers)")
+			FORM_QUESTION_ARRAY(question_num).item_note_info_list	= array("Cash", "Bank Accounts", "Payment Card", "Stocks", "Vehicles")
+			FORM_QUESTION_ARRAY(question_num).item_ans_list			= array("", "", "", "", "")
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q10 Information (Assets)"
+
+			FORM_QUESTION_ARRAY(question_num).mandated 				= False
+			FORM_QUESTION_ARRAY(question_num).error_info			= ""
+			FORM_QUESTION_ARRAY(question_num).error_verbiage		= ""
+			FORM_QUESTION_ARRAY(question_num).dialog_page_numb 		= 6
+			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 3
+			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 120
+			question_num = question_num + 1
+
+
+			ReDim preserve FORM_QUESTION_ARRAY(question_num)		'Case "SNAP App for Srs (DHS-5223F)"
+			Set FORM_QUESTION_ARRAY(question_num) = new form_questions
+			FORM_QUESTION_ARRAY(question_num).number 				= 11
+			FORM_QUESTION_ARRAY(question_num).dialog_phrasing		= "Has anyone in the household given away, sold or traded anything of value in the past 12 months?"
+			FORM_QUESTION_ARRAY(question_num).note_phrasing			= "Q11.Has anyone sold/given away/traded assets in the past 12 mos?"
+			FORM_QUESTION_ARRAY(question_num).doc_phrasing			= "Q 11. Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)"
+			FORM_QUESTION_ARRAY(question_num).info_type				= "standard"
+			FORM_QUESTION_ARRAY(question_num).answer_is_array 		= false
+			FORM_QUESTION_ARRAY(question_num).supplemental_questions= array("")
+			FORM_QUESTION_ARRAY(question_num).guide_btn 			= 500+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_btn 			= 1000+question_num
+			FORM_QUESTION_ARRAY(question_num).verif_verbiage 		= "SR SNAP APP Q11 Information (Asset Trade)"
 
 			FORM_QUESTION_ARRAY(question_num).mandated 				= False
 			FORM_QUESTION_ARRAY(question_num).error_info			= ""
@@ -4409,6 +4551,12 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).dialog_order 			= 4
 			FORM_QUESTION_ARRAY(question_num).dialog_height 		= 60
 			question_num = question_num + 1
+
+
+            'TODO - add questions"
+                '10 - Assets
+                '11 - Sold or traded assets
+
 
 			numb_of_quest = question_num-1
 			last_page_of_questions = 6
@@ -4457,7 +4605,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_type			= array("")
@@ -4511,7 +4658,6 @@ If vars_filled = False Then
 			FORM_QUESTION_ARRAY(question_num).detail_write_in_info	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_status	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_verif_notes	= array("")
-			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_edit_btn		= array(2000+question_num*10)
 			FORM_QUESTION_ARRAY(question_num).detail_resident_name	= array("")
 			FORM_QUESTION_ARRAY(question_num).detail_amount			= array("")
