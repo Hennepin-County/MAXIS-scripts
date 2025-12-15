@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2025", "BUG FIX to GHR Supportive Housing review. Update to GRH/HS Personal Needs amount comparison.", "Casey Love, Hennepin County")
 call changelog_update("11/10/2025", "* * * SHUTDOWN WCOM REMOVED * * *##~## ##~##The function that added WCOM to Eligible SNAP or MFIP to inform November Food Benefits will not be issued has been removed.##~##", "Dave Courtright, Hennepin County")
 call changelog_update("10/29/2025", "Updates to Eligibility Summary: ##~## - Added RSDI Disregard detail for MFIP approvals that include this information. ##~## - Resolved issues with GA and MFIP SR Review CASE/NOTEs. ##~## - Some minor bug fixes to the GRH Supportive Housing Disregard functionality.##~## ##~##As with any changes to script operation please report any additional feedback or information.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/22/2025", "* * * SHUTDOWN WCOM ADDED * * *##~## ##~##A WCOM will be added to any notices for Eligible SNAP or MFIP to inform November Food Benefits will not be issued.##~## ##~##No selection needs to be made, the WCOM will be added automatically to notices for all months. WCOM success will be indicated in CASE/NOTE.##~##", "Casey Love, Hennepin County")
@@ -15050,6 +15051,8 @@ class grh_eligibility_detail
 		footer_month_date = elig_footer_month & "/1/" & elig_footer_year
 		footer_month_date = DateAdd("d", 0, footer_month_date)
 		If DateDiff("d", #10/1/24#, footer_month_date) >= 0 Then supportive_housing_disregard_applies_to_this_month = True
+        personal_needs_amount = 128
+        If DateDiff("d", #1/1/26#, footer_month_date) >= 0 Then personal_needs_amount = 132
 
 		call navigate_to_MAXIS_screen("ELIG", "GRH ")
 		EMWriteScreen elig_footer_month, 20, 55
@@ -15329,10 +15332,10 @@ class grh_eligibility_detail
 					If grh_elig_budg_RSDI_income = "0.00" and grh_elig_budg_other_unearned_income = "0.00" Then appears_supportive_housing_disregard_case = False
                     If IsNumeric(grh_elig_budg_total_income) Then
                         grh_elig_budg_total_income = grh_elig_budg_total_income * 1
-                        supp_housing_amount = grh_elig_budg_total_income * .3
-                        If appears_supportive_housing_disregard_case and grh_elig_budg_personal_needs <> "________" and supp_housing_amount =< 128 Then income_too_low_for_supportive_housing_disregard = True
-                        If supp_housing_amount < 128 Then appears_supportive_housing_disregard_case = False
-                        If supp_housing_amount = 128 Then ignore_supportive_housing = True
+                        supp_housing_amount = grh_elig_budg_total_income * .7
+                        If appears_supportive_housing_disregard_case and grh_elig_budg_personal_needs <> "________" and supp_housing_amount < personal_needs_amount Then income_too_low_for_supportive_housing_disregard = True
+                        If supp_housing_amount < personal_needs_amount Then appears_supportive_housing_disregard_case = False
+                        If supp_housing_amount = personal_needs_amount Then ignore_supportive_housing = True
                     End If
 
 					grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
