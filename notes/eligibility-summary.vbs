@@ -13,7 +13,7 @@ If db_full_string = "" Then
 	fso_command.Close
 	Execute text_from_the_other_script
 End If
-
+MsgBox "TESTING"
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -3251,6 +3251,12 @@ function define_hc_elig_dialog()
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+
+        If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
+            GroupBox 10, 335, 310, 30, "ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS."
+            Text 15, 350, 140, 10, "Provide the reason for entering in MAXIS:"
+            DropListBox 150, 345, 150, 15, "Select One..."+chr(9)+"Temporary Eligibility"+chr(9)+"Auto Newborn"+chr(9)+"Retro Request"+chr(9)+"Safety Net"+chr(9)+"TMA/TYMA", HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected)
+        End If
 
 		y_pos = 10
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
@@ -7278,6 +7284,11 @@ function hc_elig_case_note()
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard(memb_ind) <> "_" Then Call write_variable_in_CASE_NOTE("   Standard:  " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard_percent(memb_ind) & "% FPG")
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then Call write_variable_in_CASE_NOTE("     Method:  " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind))
 
+            If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
+                If HC_UNIQUE_APPROVALS(reason_in_MX_const, unique_app) <> "" and HC_UNIQUE_APPROVALS(reason_in_MX_const, unique_app) <> "Select One..." Then
+                    Call write_variable_in_CASE_NOTE("  MAGI Eligibility Processed in MAXIS reason: " & HC_UNIQUE_APPROVALS(reason_in_MX_const, unique_app))
+                End If
+            End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" Then
 				Call write_variable_in_CASE_NOTE("MEMB " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) & " has been approved for a WAIVER.")
 				Call write_variable_in_CASE_NOTE("  Waiver Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver_detail(memb_ind))
@@ -17779,6 +17790,8 @@ class hc_eligibility_detail
 	public hc_prog_elig_worker_msg_one()
 	public hc_prog_elig_worker_msg_two()
 	public hc_prog_elig_elig_type()
+    public hc_elig_type_belongs_in_METS()
+    public reason_in_MX()
 	public hc_prog_elig_elig_standard()
 	public hc_prog_elig_method()
 	public hc_prog_elig_waiver()
@@ -17984,6 +17997,8 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_worker_msg_one(0)
 		ReDim hc_prog_elig_worker_msg_two(0)
 		ReDim hc_prog_elig_elig_type(0)
+        ReDim hc_elig_type_belongs_in_METS(0)
+        ReDim reason_in_MX(0)
 		ReDim hc_prog_elig_elig_standard(0)
 		ReDim hc_prog_elig_method(0)
 		ReDim hc_prog_elig_waiver(0)
@@ -18209,6 +18224,8 @@ class hc_eligibility_detail
 				ReDim preserve hc_prog_elig_worker_msg_one(hc_prog_count)
 				ReDim preserve hc_prog_elig_worker_msg_two(hc_prog_count)
 				ReDim preserve hc_prog_elig_elig_type(hc_prog_count)
+                ReDim preserve hc_elig_type_belongs_in_METS(hc_prog_count)
+                ReDim preserve reason_in_MX(hc_prog_count)
 				ReDim preserve hc_prog_elig_elig_standard(hc_prog_count)
 				ReDim preserve hc_prog_elig_method(hc_prog_count)
 				ReDim preserve hc_prog_elig_waiver(hc_prog_count)
@@ -20221,7 +20238,7 @@ class hc_eligibility_detail
 
 								transmit
 							End If
-							If trim(hc_prog_elig_elig_type(hc_prog_count)) = "" Then
+							If trim(hc_prog_elig_basis(hc_prog_count)) = "" Then
 								If hc_prog_elig_elig_type(hc_prog_count) = "" Then hc_prog_elig_basis(hc_prog_count) = ""
 
 								If hc_prog_elig_elig_type(hc_prog_count) = "1A" Then hc_prog_elig_basis(hc_prog_count) = "MFIP Eligble End 06/30/02"
@@ -20232,7 +20249,7 @@ class hc_eligibility_detail
 								If hc_prog_elig_elig_type(hc_prog_count) = "PX" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Woman"
 								If hc_prog_elig_elig_type(hc_prog_count) = "PC" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Women - CHIP"
 								If hc_prog_elig_elig_type(hc_prog_count) = "CB" Then hc_prog_elig_basis(hc_prog_count) = "Child 0-2, Not Auto Newborn"
-								If hc_prog_elig_elig_type(hc_prog_count) = "CK" Then hc_prog_elig_basis(hc_prog_count) = " Child 2-18"
+								If hc_prog_elig_elig_type(hc_prog_count) = "CK" Then hc_prog_elig_basis(hc_prog_count) = "Child 2-18"
 								If hc_prog_elig_elig_type(hc_prog_count) = "CX" Then hc_prog_elig_basis(hc_prog_count) = "Child 19-20"
 								If hc_prog_elig_elig_type(hc_prog_count) = "CM" Then hc_prog_elig_basis(hc_prog_count) = "21, In An IMD"
 								If hc_prog_elig_elig_type(hc_prog_count) = "AA" Then hc_prog_elig_basis(hc_prog_count) = "AFDC-Related"
@@ -20255,6 +20272,18 @@ class hc_eligibility_detail
 								If hc_prog_elig_elig_type(hc_prog_count) = "25" Then hc_prog_elig_basis(hc_prog_count) = "IV-E Foster Care"
 
 							End If
+                            hc_elig_type_belongs_in_METS(hc_prog_count) = False
+                            If hc_prog_elig_elig_type(hc_prog_count) = "11" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "PX" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "PC" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "CB" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "CK" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "CX" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "AA" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "AX" Then hc_elig_type_belongs_in_METS(hc_prog_count) = True
+                            If hc_prog_elig_elig_type(hc_prog_count) = "11" Then reason_in_MX(hc_prog_count) = "Auto Newborn"
+                            ' MsgBox "ELIG Type: " & hc_prog_elig_elig_type(hc_prog_count) & vbCr & "Belongs in METS: " & hc_elig_type_belongs_in_METS(hc_prog_count)
+
 						' Else
 						' 	hc_prog_elig_appd(hc_prog_count) = False
 						End If
@@ -22399,7 +22428,8 @@ const mfip_inelig_SNAP_note			= 43
 const income_disregard_note			= 44
 const earned_income_exists			= 45
 const six_mo_rept_wcom_sent			= 46
-const approval_confirmed			= 47
+const reason_in_MX_const            = 47
+const approval_confirmed			= 48
 date_of_3050 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -25313,6 +25343,12 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				err_msg = ""
 				move_from_dialog = False
 
+                HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = trim(HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected))
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
+                    If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
+                        If HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = "" OR HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS, indicate why it is being processed in MAXIS."
+                    End If
+                End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) <> "ELIGIBLE" Then
 					If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" and HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 						If Isdate(HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
