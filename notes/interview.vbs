@@ -458,7 +458,7 @@ function check_for_errors(interview_questions_clear)
 end function
 
 function define_main_dialog()
-
+    Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions   ---   Questions from " & CAF_form
 
         ' If CAF_form = "MNbenefits" Then Text 485, 5, 10, 10, "COVER LETTER"
@@ -9036,7 +9036,7 @@ Do
 	Do
 		Do
 			Do
-				Dialog1 = Empty
+				Dialog1 = ""
 				call define_main_dialog
 
 				err_msg = ""
@@ -9046,7 +9046,7 @@ Do
 
 				dialog Dialog1
 
-				save_your_work
+                save_your_work
 				cancel_confirmation
 
                 'This sets the button pressed to a non-button incase 'Cancel' is pressed but the script is not actually cancelled.
