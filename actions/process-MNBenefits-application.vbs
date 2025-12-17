@@ -84,7 +84,7 @@ hh_memb_11_and_12_button  = 306
 Dim folderPath, application_ID, fso, folder, fileList, file, xml_file_path, script_testing
 
 'Initialize variables
-script_testing = true
+script_testing = false
 
 
 'DEFINING FUNCTIONS===========================================================================
@@ -632,6 +632,67 @@ function determine_member_dialogs_display()
 End function
 Dim member_dialogs_to_display
 
+Function GetMAXISRelationshipCode(relationship, gender)
+    Dim returnCode
+    Select Case relationship
+        Case "applicant", "self"
+            returnCode = "01"     
+        Case "spouse"
+            returnCode = "02"
+        Case "child"
+            returnCode = "03"
+        Case "parent"
+            returnCode = "04"
+        Case "sibling", "brother or sister", "brother", "sister", "half-brother or half-sister", "half-brother", "half-sister"
+            returnCode = "05"
+        Case "step sibling", "step brother or sister", "step brother", "step sister"
+            returnCode = "06"
+        Case "step child", "step-child", "step son", "step daughter"
+            returnCode = "08"
+        Case "step parent"
+            returnCode = "09"
+        Case "aunt", "aunt or uncle"
+            returnCode = "10"
+            If gender = "male" Then
+                returnCode = "11" 'uncle
+            End If
+        Case "uncle"
+            returnCode = "11"
+        Case "niece", "niece or nephew", "nephew or niece"
+            returnCode = "12"
+            If gender = "male" Then
+                returnCode = "13" 'nephew
+            End If
+        Case "nephew"
+            returnCode = "13"
+        Case "cousin"
+            returnCode = "14"
+        Case "grandparent"
+            returnCode = "15"
+        Case "grandchild"
+            returnCode = "16"
+        Case "other relative"
+            returnCode = "17"
+        Case "legal guardian", "parent or guardian", "guardian"
+            returnCode = "18"
+        Case "live-in attendent"
+            returnCode = "25"
+        Case "unknown on caf i", "other"
+            returnCode = "27"
+        Case "child's parent"
+            returnCode = "24" ' Not Related for now, but should find out from group what they use.
+        Case "partner"
+            returnCode = "24" ' Not Related for now, but should find out from group what they use.
+        Case "roommate", "friend"
+            returnCode = "24" ' Not Related
+        Case Else
+            returnCode = "27" ' Unknown/Not Indc On CAF I      
+    End Select
+
+	GetMAXISRelationshipCode = returnCode
+		
+End Function
+
 
 'THE SCRIPT=================================================================================================================
 EMConnect "" 'Connects to BlueZone
@@ -677,12 +738,14 @@ DO
       If ButtonPressed = search_button Then
 
         If script_testing = false Then
+          startTime = Timer
 
           folderPath = "T:\Eligibility Support\EA_ADAD\EA_ADAD_Common\CASE ASSIGNMENT\MNB_XML_files\"
 
           Set fso = CreateObject("Scripting.FileSystemObject")
           Set folder = fso.GetFolder(folderPath)
           XML_file_found = False
+          file_count = 0
 
           For Each file In folder.Files
             If InStr(1, file.Name, "_" & application_ID & "_", vbTextCompare) > 0 Then
@@ -692,10 +755,15 @@ DO
               err_msg = "LOOP"
               Exit For
             End If
+            file_count = file_count + 1
           Next
           If XML_file_found = False Then
             err_msg = err_msg & vbCr & "* The script was unable to locate a MNBenefits XML file with the application ID you provided. You must click the 'Select File' button and select the XML file or manually enter the file path in the field."
           End If
+          'To do - delete after testing
+          endTime = Timer
+          duration = endTime - startTime
+          msgbox "Search took " & duration & " seconds. It evaluated " & file_count & " files."
         Else
           startTime = Timer
           folderPath = "C:\Users\mari001\OneDrive - Hennepin County\Desktop\XML Files"
@@ -1116,32 +1184,34 @@ objMailingZip.Text            = mailing_zip
 'Save the XML document with 'processed' in file name
 ' xmlDoc.Save replace(XML_file_path, application_ID, application_ID & "_" & "processed")
 
+'To do - uncomment after testing, this is where file is saved and moved
+'----
+' On Error Resume Next
 
-On Error Resume Next
+' ' Attempt to save the XML document
+' Dim XML_file_path_processed
+' XML_file_path_processed = Replace(XML_file_path, application_ID, application_ID & "_processed")
+' xmlDoc.Save XML_file_path_processed
 
-' Attempt to save the XML document
-Dim XML_file_path_processed
-XML_file_path_processed = Replace(XML_file_path, application_ID, application_ID & "_processed")
-xmlDoc.Save XML_file_path_processed
+' ' Check for errors
+' If Err.Number <> 0 Then
+'   WScript.Echo "Error saving file: " & Err.Description
+'   ' Optional: log the error or take corrective action
+'   script_end_procedure_with_error_report("Script failed to save the processed XML file. The script will now end.")
+' Else
+'   msgbox "Success!"
+' End If
 
-' Check for errors
-If Err.Number <> 0 Then
-  WScript.Echo "Error saving file: " & Err.Description
-  ' Optional: log the error or take corrective action
-  script_end_procedure_with_error_report("Script failed to save the processed XML file. The script will now end.")
-Else
-  msgbox "Success!"
-End If
+' On Error GoTo 0 ' Reset error handling
 
-On Error GoTo 0 ' Reset error handling
+' Set fso = CreateObject("Scripting.FileSystemObject")
 
-Set fso = CreateObject("Scripting.FileSystemObject")
-
-If fso.FileExists(XML_file_path) Then
-  fso.DeleteFile XML_file_path
-Else
-  script_end_procedure_with_error_report("Script failed to delete XML file.")
-End If
+' If fso.FileExists(XML_file_path) Then
+'   fso.DeleteFile XML_file_path
+' Else
+'   script_end_procedure_with_error_report("Script failed to delete XML file.")
+' End If
+'----
 
 
 ' Clean up
@@ -1158,4 +1228,276 @@ Set objHouseholdMemberNodes = Nothing
 Set objHouseholdMemberNode  = Nothing
 Set xmlDoc                  = Nothing
 
-MsgBox "XML file saved and updated successfully from array."
+' MsgBox "XML file saved and updated successfully from array."
+
+' Complete PERS search for every member listed on the application
+'Navigate to PERS
+Call navigate_to_MAXIS_screen("PERS", "")
+
+'Validation to confirm PERS search reached
+EmReadScreen PERS_panel_check, 4, 2, 47
+If PERS_panel_check <> "PERS" Then 
+  Call back_to_SELF
+End If
+EmReadScreen PERS_panel_check, 4, 2, 47
+If PERS_panel_check <> "PERS" Then 
+  script_end_procedure_with_error_report("Script was unable to navigate to PERS search. Script will now end")
+End If
+
+' Script will search for person using all details provided EXCEPT SSN
+'   --> Script reads through all results on first page until end reached or match found
+'   --> Script matches based on the first and last name and then DOB (if provided) and SSN (if provided)
+
+For member = 0 to Ubound(householdMembers, 2)
+  'Setting variables for search
+  ssn_match_found = False
+  PERS_search_results_string = ""
+  MTCH_row = 8
+  SSN_search = True
+  PERS_second_search = False
+  ' NOTES: DOB can be blank ('          '), SSN can be blank ('   -  -    ')
+
+  Do 
+
+    'Conduct initial search with all details provided EXCEPT SSN
+    EmWriteScreen householdMembers(MEMBER_LAST_NAME, member), 4, 36
+    EmWriteScreen householdMembers(MEMBER_FIRST_NAME, member), 10, 36
+    EmWriteScreen Left(householdMembers(MEMBER_DOB, member), 2), 11, 53
+    EmWriteScreen Mid(householdMembers(MEMBER_DOB, member), 4, 2), 11, 56
+    EmWriteScreen Mid(householdMembers(MEMBER_DOB, member), 7, 4), 11, 59
+    EmWriteScreen Left(householdMembers(MEMBER_GENDER, member), 1), 11, 36
+    'To do - ssn search
+    If PERS_second_search = True Then
+      EmWriteScreen Left(householdMembers(MEMBER_SSN, member), 3), 14, 36
+      EmWriteScreen Mid(householdMembers(MEMBER_SSN, member), 5, 2), 14, 40
+      EmWriteScreen right(householdMembers(MEMBER_SSN, member), 4), 14, 43
+    End If
+    transmit
+
+    'If a SSN was provided from application, script will check if any MTCH results match the SSN (despite not using that as a search criteria) since a SSN match is a guaranteed match
+    If householdMembers(MEMBER_SSN, member) <> "" and SSN_search = True Then
+      Do
+        EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
+        SSN_MTCH_panel = trim(SSN_MTCH_panel)
+        If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) then
+          ssn_match_found = True
+          'No more searches needed since match found
+          SSN_search = False
+
+          EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
+          last_name_MTCH_panel = trim(last_name_MTCH_panel)
+          
+          EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
+          first_name_MTCH_panel = trim(first_name_MTCH_panel)
+          
+          EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
+          gender_MTCH_panel = trim(gender_MTCH_panel)
+          
+          EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
+          dob_MTCH_panel = trim(dob_MTCH_panel)
+          If dob_MTCH_panel = "" Then dob_MTCH_panel = "Blank"
+            
+          EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
+          pmi_MTCH_panel = trim(pmi_MTCH_panel)
+
+          'Validate the PMI number. Script will only display a potential match if the PMI number exists
+          CALL write_value_and_transmit("X", MTCH_row, 5)
+          EMReadScreen PMI_exists_check, 24, 24, 2
+          If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
+            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#") = 0 Then PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+            PF3   'Back to MTCH panel
+          Else
+            'Clear the X
+            EMWriteScreen "_", MTCH_row, 5
+            
+          End If
+
+          'To do - add handling for how to capture and display match
+          Exit Do
+        End If
+        MTCH_row = MTCH_row + 1
+        If MTCH_row = 17 then 
+          SSN_search = False
+          MTCH_row = 8
+          Exit Do
+        End If
+      Loop
+    End If
+
+    'If we found a match then no more searching needed so we can exit next do loop
+    If SSN_search = False and ssn_match_found = True Then 
+      Exit Do
+    End If
+    
+    If ssn_match_found <> True then
+      Do
+        'Don't need to check SSN as already completed
+        'Read the data from the corresponding MTCH row
+        match_rating = 0
+
+        EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
+        SSN_MTCH_panel = trim(SSN_MTCH_panel)
+
+        EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
+        last_name_MTCH_panel = trim(last_name_MTCH_panel)
+        If last_name_MTCH_panel = UCase(householdMembers(MEMBER_LAST_NAME, member)) Then match_rating = match_rating + .2
+        
+        EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
+        first_name_MTCH_panel = trim(first_name_MTCH_panel)
+        If first_name_MTCH_panel = UCase(householdMembers(MEMBER_FIRST_NAME, member)) Then match_rating = match_rating + .1
+        
+        EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
+        gender_MTCH_panel = trim(gender_MTCH_panel)
+        ' If gender_MTCH_panel = householdMembers(MEMBER_GENDER, member) Then match_rating = match_rating + .1
+        'To do - does it make sense to use gender to match?
+
+        EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
+        dob_MTCH_panel = trim(dob_MTCH_panel)
+        If dob_MTCH_panel = replace(householdMembers(MEMBER_DOB, member), "/", "-") Then match_rating = match_rating + .2
+        ' msgbox "dob_MTCH_panel > " & dob_MTCH_panel & "replace(householdMembers(MEMBER_DOB, member), '/', '-') " & replace(householdMembers(MEMBER_DOB, member), "/", "-")
+          
+        EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
+        pmi_MTCH_panel = trim(pmi_MTCH_panel)
+
+        If match_rating > .2 Then         
+          'Validate the PMI number. Script will only display a potential match if the PMI number exists
+          CALL write_value_and_transmit("X", MTCH_row, 5)
+          EMReadScreen PMI_exists_check, 24, 24, 2
+          If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
+            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#") = 0 Then PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+            PF3   'Back to MTCH panel
+          Else
+            'Clear the X
+            EMWriteScreen "_", MTCH_row, 5
+          End If
+        End If
+
+        MTCH_row = MTCH_row + 1
+        If MTCH_row = 17 then Exit Do
+      Loop
+    End If
+
+    'If we made it through second search then we need to exit loop
+    If PERS_second_search = True Then Exit Do
+
+    'If no SSN match found, then we will search again with SSN
+    If PERS_second_search = False Then
+      'Conduct a second search using SSN for search criteria
+      PERS_second_search = True
+      'Setting variables for search
+      MTCH_row = 8
+      SSN_search = True
+
+      Call back_to_SELF
+      Call navigate_to_MAXIS_screen("PERS", "")
+
+      'Validation to confirm PERS search reached
+      EmReadScreen PERS_panel_check, 4, 2, 47
+      If PERS_panel_check <> "PERS" Then 
+        Call back_to_SELF
+      End If
+      EmReadScreen PERS_panel_check, 4, 2, 47
+      If PERS_panel_check <> "PERS" Then 
+        script_end_procedure_with_error_report("Script was unable to navigate to PERS search. Script will now end")
+      End If
+    End If
+  LOOP
+
+  'Need to determine if any matches found and if so, format for the dialog
+  PERS_match_found = false
+  If Instr(PERS_search_results_string, "#") Then PERS_match_found = True
+  checkbox_y = 85
+  msgbox "PERS_search_results_string is " & PERS_search_results_string
+
+  If PERS_match_found Then PERS_search_results_string_array = split(PERS_search_results_string, "#")
+  
+  PERS_search_criteria = householdMembers(MEMBER_FIRST_NAME, member) & " " & householdMembers(MEMBER_LAST_NAME, member) & " (DOB: " & householdMembers(MEMBER_DOB, member) & "; SSN: " & householdMembers(MEMBER_SSN, member) & "; Gender: " & householdMembers(MEMBER_GENDER, member) & ")"
+
+  groupbox_height = 30 + (Ubound(PERS_search_results_string_array) * 10)
+  dialog_height = 130 + + (Ubound(PERS_search_results_string_array) * 10)
+
+  'Call dialog to update information - provide the 
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 350, dialog_height, "PERS Search Results"
+    Text 5, 5, 330, 10, "Please review the potential matches found, if any, and select the best applicable checkbox."
+    GroupBox 5, 30, 340, 30, "Household Member Details from XML File"
+    Text 15, 45, 325, 10, PERS_search_criteria
+    GroupBox 5, 75, 340, groupbox_height, "Review potential PERS matches (select ONE option):"
+    If PERS_match_found = False Then
+      Text 15, checkbox_y, 325, 10, "No potential matches found. You must complete a manual search. Press 'OK' to continue"
+    ElseIf PERS_match_found = True Then
+      CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(0), pers_search_results_0
+      If UBound(PERS_search_results_string_array) > 0 Then
+        If PERS_search_results_string_array(1) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(1), pers_search_results_1
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 1 Then
+        If PERS_search_results_string_array(2) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(2), pers_search_results_2
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 2 Then
+        If PERS_search_results_string_array(3) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(3), pers_search_results_3
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 3 Then
+        If PERS_search_results_string_array(4) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(4), pers_search_results_4
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 4 Then
+        If PERS_search_results_string_array(5) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(5), pers_search_results_5
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 5 Then
+        If PERS_search_results_string_array(6) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(6), pers_search_results_6
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 6 Then
+        If PERS_search_results_string_array(7) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(7), pers_search_results_7
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 7 Then
+        If PERS_search_results_string_array(8) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(8), pers_search_results_8
+        End If 
+      End If
+      If UBound(PERS_search_results_string_array) > 8 Then
+        If PERS_search_results_string_array(9) <> "" Then
+          checkbox_y = checkbox_y + 10
+          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(9), pers_search_results_9
+        End If 
+      End If
+      CheckBox 15, checkbox_y + 10, 325, 10, "None of these matches are correct. I will complete a manual search.", no_match_search_manually
+    End If
+    ButtonGroup ButtonPressed
+      OkButton 245, checkbox_y + 35, 50, 15
+      CancelButton 295, checkbox_y + 35, 50, 15
+  EndDialog
+
+
+  DO
+    DO
+      err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+      dialog Dialog1				'main dialog
+      cancel_without_confirmation
+      'to do - add error handling
+      If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+  
+Next
