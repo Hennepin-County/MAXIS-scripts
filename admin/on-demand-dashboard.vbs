@@ -1276,7 +1276,7 @@ If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR u
     If local_demo = False Then ADMIN_run = True
 End If
 'this defines workers that have access to the Admmin functions along with the BZST writers
-If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'TP, FRC, JF
+If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFU851" or user_ID_for_validation = "WFV833" Then ADMIN_run = True   'TP, JF, RK
 
 'the scripts should have loaded the tester array from GlobVar but if it did not, this will load it
 If IsArray(tester_array) = False Then
@@ -1647,7 +1647,7 @@ If BULK_Run_completed = False and finish_day_completed_yesterday = False and ADM
 	end_msg = end_msg & vbCr & " - In progress"
 	end_msg = end_msg & vbCr & " - On Hold"
 	end_msg = end_msg & vbCr & " - Review Completed and 'Finish Day' has not been run"
-	end_msg = end_msg & vbCr & vbCr & "In order to resolve this issue and run the On Demand Dashboard, you will need to contact Tanya Payne (or her coverage) to have these statuses cleared or the 'Finish Day' functionality for a different day run."
+	end_msg = end_msg & vbCr & vbCr & "In order to resolve this issue and run the On Demand Dashboard, you will need to contact your Supervisor or the BlueZone Script Team to have these statuses cleared or the 'Finish Day' functionality for a different day run."
 	end_msg = end_msg & vbCr & vbCr & "The script will now end"
 	call script_end_procedure_with_error_report(end_msg)
 End If
