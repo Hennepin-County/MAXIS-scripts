@@ -908,7 +908,7 @@ function define_main_dialog()
                 CheckBox 80, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(cash_req_checkbox, selected_memb)
                 CheckBox 150, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(emer_req_checkbox, selected_memb)
                 CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(none_req_checkbox, selected_memb)
-                EditBox 110, 210, 95, 15, HH_MEMB_ARRAY(remo_info_const, known_membs)
+                EditBox 110, 210, 95, 15, HH_MEMB_ARRAY(remo_info_const, selected_memb)
                 If selected_memb = 0 Then
                     DropListBox 25, 250, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
                 Else
