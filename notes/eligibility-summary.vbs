@@ -3253,9 +3253,11 @@ function define_hc_elig_dialog()
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
         If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
-            GroupBox 10, 335, 310, 30, "ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS."
+            GroupBox 10, 335, 525, 30, "ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS."
             Text 15, 350, 140, 10, "Provide the reason for entering in MAXIS:"
             DropListBox 150, 345, 150, 15, "Select One..."+chr(9)+"Temporary Eligibility"+chr(9)+"Auto Newborn"+chr(9)+"Retro Request"+chr(9)+"Safety Net"+chr(9)+"TMA/TYMA", HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected)
+            Text 315, 350, 100, 10, "METS Case Number:"
+            EditBox 415, 345, 100, 15, HC_UNIQUE_APPROVALS(METS_case_const, approval_selected)
         End If
 
 		y_pos = 10
@@ -7274,8 +7276,9 @@ function hc_elig_case_note()
 		Call write_bullet_and_variable_in_CASE_NOTE("Date Communication Form Sent to Facility", date_of_3050)			'script is no longer referencing a specific form as HC process is not documented and has diverged from DHS forms
 	End If
 	If STAT_INFORMATION(month_ind).no_stat_data = True Then Call write_variable_in_CASE_NOTE("Health Care Retro Month Approval")
+    If HC_UNIQUE_APPROVALS(METS_case_const, unique_app) <> "" Then Call write_variable_in_CASE_NOTE("Affiliated METS Case Number: "& HC_UNIQUE_APPROVALS(METS_case_const, unique_app))
 
-	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
+    If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 			Call write_variable_in_CASE_NOTE("============================= ELIGIBLITY DETAILS ============================")
@@ -22429,7 +22432,8 @@ const income_disregard_note			= 44
 const earned_income_exists			= 45
 const six_mo_rept_wcom_sent			= 46
 const reason_in_MX_const            = 47
-const approval_confirmed			= 48
+const METS_case_const               = 48
+const approval_confirmed			= 49
 date_of_3050 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -25344,9 +25348,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				move_from_dialog = False
 
                 HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = trim(HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected))
+                HC_UNIQUE_APPROVALS(METS_case_const, approval_selected) = trim(HC_UNIQUE_APPROVALS(METS_case_const, approval_selected))
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
                     If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
                         If HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = "" OR HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS, indicate why it is being processed in MAXIS."
+                        If HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected) = "Temporary Eligibility" Then
+                            If HC_UNIQUE_APPROVALS(METS_case_const, approval_selected) = "" Then err_msg = err_msg & vbNewLine & "* Since this approval is covering METS eligibility, provide the METS Case Number for Noting purposes."
+                        End If
                     End If
                 End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) <> "ELIGIBLE" Then
@@ -25440,7 +25448,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			enter_CNOTE_for_HC = False
 			end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 		End if
-	End If
+    End If
 End If
 
 If cancel_out_of_hc = False Then
@@ -26974,6 +26982,99 @@ If enter_CNOTE_for_HC = True Then
 		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call hc_elig_case_note
+
+        ' 'TODO - NEEDS TESTING AND BEFORE RELEASE
+        ' 'This block of code captures additional information for Temporary Eligibility approvals and creates a separate CASE NOTE for them.
+        ' 'ONE SOURCE reference: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-154
+        ' If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then                  'MAGI based ELIG
+        '     If HC_UNIQUE_APPROVALS(reason_in_MX_const, unique_app) = "Temporary Eligibility" Then   'REason for MAXIS entry is Temporary Eligibility
+        '         'TODO - add special functionality for TEFRA approvals
+        '         temp_elig_8431_checkbox = checked       'Default the forms that are typically sent
+        '         temp_elig_6696A_checkbox = checked
+        '         temp_elig_7823_checkbox = checked
+
+        '         'special actions dialog to capture additional information for temporary approvals
+        '         Dialog1 = ""
+        '         BeginDialog Dialog1, 0, 0, 291, 255, "Temporary Eligibility Additional Information"
+        '             Text 10, 10, 285, 10, "Additional Actions and Details for Approval: "
+        '             Text 115, 30, 100, 10, "Enrollment entered in MMIS?"
+        '             DropListBox 215, 25, 60, 45, "Select"+chr(9)+"Yes"+chr(9)+"No", temp_elig_MMIS_updated
+        '             Text 20, 50, 195, 10, "Resident was Re-Enrolled into METS Managed Care Plan?"
+        '             DropListBox 215, 45, 60, 45, "Select"+chr(9)+"Yes"+chr(9)+"No", temp_elig_MHCP_re_enrolled
+        '             Text 105, 70, 115, 10, "MHCP ID Card Sent to Resident?"
+        '             DropListBox 215, 65, 60, 45, "Select"+chr(9)+"Yes"+chr(9)+"No", temp_elig_MHCP_ID_sent
+        '             Text 75, 90, 140, 15, "Date the 'Change in Basis METS to MAXIS non-MAGI Closure' Notice was sent:"
+        '             EditBox 215, 90, 50, 15, temp_elig_date_closure_notice_sent
+        '             GroupBox 15, 120, 255, 100, "Recertification Forms Sent to Resident"
+        '             Text 25, 135, 95, 10, "What date were forms sent?"
+        '             EditBox 125, 130, 50, 15, temp_elig_renewal_forms_sent_date
+        '             Text 25, 150, 110, 10, "Check all forms that were sent:"
+        '             CheckBox 35, 165, 50, 10, "DHS-8431", temp_elig_8431_checkbox
+        '             CheckBox 125, 165, 50, 10, "DHS-6696A", temp_elig_6696A_checkbox
+        '             CheckBox 35, 180, 50, 10, "DHS-7823", temp_elig_7823_checkbox
+        '             CheckBox 125, 180, 50, 10, "DHS-3271", temp_elig_3271_checkbox
+        '             Text 35, 200, 175, 20, "NOT ALL FORMS ARE REQUIRED FOR ALL CASES. Review OneSource for Direction."
+        '             ButtonGroup ButtonPressed
+        '                 OkButton 225, 225, 50, 15
+        '         EndDialog
+
+        '         Do
+        '             temp_elig_err_msg = ""
+        '             dialog Dialog1
+
+
+        '             If temp_elig_MMIS_updated = "Select" Then temp_elig_err_msg = temp_elig_err_msg & vbCr & " - You must indicate if enrollment was entered into MMIS."
+        '             If temp_elig_MHCP_re_enrolled = "Select" Then temp_elig_err_msg = temp_elig_err_msg & vbCr & " - Was the resident re-enrolled into a METS managed care plan?"
+        '             If temp_elig_MHCP_ID_sent = "Select" Then temp_elig_err_msg = temp_elig_err_msg & vbCr & " - Was a new MHCP ID card sent to the resident?"
+        '             temp_elig_date_closure_notice_sent = trim(temp_elig_date_closure_notice_sent)
+        '             If temp_elig_date_closure_notice_sent <> "" Then
+        '                 If IsDate(temp_elig_date_closure_notice_sent) = False Then
+        '                     temp_elig_err_msg = temp_elig_err_msg & vbCr & " - The 'Date the Closure Notice was Sent' is not a valid date."
+        '                 End If
+        '             End If
+        '             temp_elig_form_sent = False
+        '             If temp_elig_8431_checkbox = checked Then temp_elig_form_sent = True
+        '             If temp_elig_6696A_checkbox = checked Then temp_elig_form_sent = True
+        '             If temp_elig_7823_checkbox = checked Then temp_elig_form_sent = True
+        '             If temp_elig_3271_checkbox = checked Then temp_elig_form_sent = True
+        '             If temp_elig_form_sent Then
+        '                 If IsDate(temp_elig_renewal_forms_sent_date) = False Then temp_elig_err_msg = temp_elig_err_msg & vbCr & " - You indicated that you sent recertification forms to the resident. You must enter the date the forms were sent."
+        '             End If
+
+        '             If temp_elig_err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbCr & temp_elig_err_msg
+        '         Loop until temp_elig_err_msg = ""
+
+
+        '         If temp_elig_form_sent Then
+        '             TIKL_text = "Temporary MAGI eligibility opened in MAXIS. Review for Recertification paperwork and ongoing eligibility."
+        '             Call create_TIKL(TIKL_text, 35, temp_elig_renewal_forms_sent_date, True, TIKL_note_text)
+        '         End If
+        '         temp_elig_forms_list = ""
+        '         If temp_elig_8431_checkbox = checked Then temp_elig_forms_list = temp_elig_forms_list & "DHS-8431, "
+        '         If temp_elig_6696A_checkbox = checked Then temp_elig_forms_list = temp_elig_forms_list & "DHS-8431, "
+        '         If temp_elig_7823_checkbox = checked Then temp_elig_forms_list = temp_elig_forms_list & "DHS-8431, "
+        '         If right(temp_elig_forms_list, 2) = ", " Then temp_elig_forms_list = left(temp_elig_forms_list, len(temp_elig_forms_list) - 2)
+
+
+	    '         call start_a_blank_case_note
+        '         Call write_variable_in_CASE_NOTE("Temporary MAGI eligibility for MEMB " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) & " opened due to potential change in basis")
+        '         Call write_variable_in_CASE_NOTE("Affiliated MAXIS/METS case number: " & HC_UNIQUE_APPROVALS(METS_case_const, unique_app))
+        '         Call write_variable_in_CASE_NOTE("Entered ongoing MAGI MA eligibility while a new non-MAGI determination in MAXIS pends for " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind))
+        '         Call write_variable_in_CASE_NOTE("Non-MAGI in MAXIS effective " & first_month)
+        '         If temp_elig_MMIS_updated = "Yes" Then Call write_variable_in_CASE_NOTE("Entered coverage into MMIS")
+        '         Call write_variable_in_CASE_NOTE("Re-enrolled into METS managed care plan: " & temp_elig_MHCP_re_enrolled)
+        '         If temp_elig_forms_list <> "" Then Call write_variable_in_CASE_NOTE("Sent " & temp_elig_forms_list & " to resident on " & temp_elig_renewal_forms_sent_date & ".")
+        '         If temp_elig_3271_checkbox = checked Then Call write_variable_in_CASE_NOTE("Sent DHS 3271 for MA TEFRA: Y")
+        '         If temp_elig_3271_checkbox = unchecked Then Call write_variable_in_CASE_NOTE("Sent DHS 3271 for MA TEFRA: N")
+        '         If temp_elig_form_sent Then Call write_variable_in_CASE_NOTE(TIKL_note_text)
+        '         If temp_elig_MHCP_ID_sent = "Yes" Then Call write_variable_in_CASE_NOTE("Sent MHCP ID card.")
+        '         If IsDate(temp_elig_date_closure_notice_sent) Then Call write_variable_in_CASE_NOTE("Sent Change in Basis METS to MAXIS non-MAGI Closure Notice on " & temp_elig_date_closure_notice_sent)
+        '         Call write_variable_in_CASE_NOTE("Added WCOM to approval notice.")
+
+        '         Call write_variable_in_CASE_NOTE("---")
+        '         Call write_variable_in_CASE_NOTE(worker_signature)
+        '     End If
+        ' End If
 
 		If developer_mode = True Then
 			MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind)		'TESTING OPTION'
