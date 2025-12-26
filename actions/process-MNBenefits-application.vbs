@@ -81,7 +81,7 @@ hh_memb_11_and_12_button  = 306
 
 
 'Dimming variables
-Dim folderPath, application_ID, fso, folder, fileList, file, xml_file_path, script_testing
+Dim folderPath, confirmation_number, fso, folder, fileList, file, xml_file_path, script_testing
 
 'Initialize variables
 script_testing = false
@@ -699,44 +699,33 @@ EMConnect "" 'Connects to BlueZone
 
 'Initial Dialog - Instructions
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 281, 220, "Process MNBenefits Application"
-  Text 10, 5, 245, 20, "Script Purpose: This script performs a PERS search, APPLs the case using the MNBenefits XML file details, and then moves the case to PND2 status."
+BeginDialog Dialog1, 0, 0, 341, 70, "Process MNBenefits Application"
+  Text 10, 5, 255, 20, "Script Purpose: This script performs a PERS search, APPLs the case using the MNBenefits XML file details, and then moves the case to PND2 status."
+  GroupBox 10, 35, 255, 30, "Enter 10-digit confirmation number for XML file and then press 'Search'."
+  Text 15, 50, 75, 10, "Confirmation Number:"
+  EditBox 95, 45, 60, 15, confirmation_number
   ButtonGroup ButtonPressed
-    PushButton 10, 30, 65, 15, "Script Instructions", instructions_btn
-  GroupBox 5, 50, 270, 100, "Choose one option"
-  CheckBox 15, 65, 250, 10, "Enter 10-digit application ID for the XML file. Then press the Search button.", application_ID_checkbox
-  EditBox 20, 80, 55, 15, application_ID
-  ButtonGroup ButtonPressed
-    PushButton 80, 80, 40, 15, "Search", search_button
-  CheckBox 15, 100, 215, 10, "Press button below to locate XML file using Windows Explorer", manual_file_select_checkbox
-  ButtonGroup ButtonPressed
-    PushButton 25, 115, 85, 15, "Open Windows Explorer", file_selection_button
-  CheckBox 15, 135, 205, 10, "Enter application details manually to perform PERS search", enter_app_manually_checkbox
-  Text 10, 160, 95, 10, "XML File Path (if applicable):"
-  EditBox 10, 170, 265, 15, XML_file_path
-  ButtonGroup ButtonPressed
-    OkButton 185, 200, 45, 15
-    CancelButton 230, 200, 45, 15
+    PushButton 175, 45, 40, 15, "Search", search_button
+    PushButton 270, 5, 65, 15, "Script Instructions", instructions_btn
 EndDialog
+
 
 DO
 	DO
 		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-    If ButtonPressed = file_selection_button then 
-      call file_selection_system_dialog(XML_file_path, ".xml")
-      err_msg = "LOOP"
-    End If
     If ButtonPressed = instructions_btn Then
       'To do - update with instructions 
       Call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/") 
       err_msg = "LOOP"
     End IF 
 
-    If trim(application_ID) <> "" and len(application_ID) = 10 and IsNumeric(application_ID) then
-      If ButtonPressed = search_button Then
+    If trim(confirmation_number) = "" OR len(confirmation_number) <> 10 OR Not IsNumeric(confirmation_number) then err_msg = err_msg & vbCr & "* You must enter the 10-digit confirmation number before pressing 'Search'."
 
+
+    If trim(confirmation_number) <> "" and len(confirmation_number) = 10 and IsNumeric(confirmation_number) then
+      If ButtonPressed = search_button Then
         If script_testing = false Then
           startTime = Timer
 
@@ -748,11 +737,11 @@ DO
           file_count = 0
 
           For Each file In folder.Files
-            If InStr(1, file.Name, "_" & application_ID & "_", vbTextCompare) > 0 Then
-              msgbox "Found: " & file.Path
+            If InStr(1, file.Name, "_" & confirmation_number & "_", vbTextCompare) > 0 Then
+              ' msgbox "Found: " & file.Path
               XML_file_path = file.Path
               XML_file_found = True
-              err_msg = "LOOP"
+              ' err_msg = "LOOP"
               Exit For
             End If
             file_count = file_count + 1
@@ -763,7 +752,7 @@ DO
           'To do - delete after testing
           endTime = Timer
           duration = endTime - startTime
-          msgbox "Search took " & duration & " seconds. It evaluated " & file_count & " files."
+          ' msgbox "Search took " & duration & " seconds. It evaluated " & file_count & " files."
         Else
           startTime = Timer
           folderPath = "C:\Users\mari001\OneDrive - Hennepin County\Desktop\XML Files"
@@ -774,8 +763,8 @@ DO
           file_count = 0
 
           For Each file In folder.Files
-            If InStr(1, file.Name, "_" & application_ID & "_", vbTextCompare) > 0 Then
-              msgbox "Found: " & file.Path
+            If InStr(1, file.Name, "_" & confirmation_number & "_", vbTextCompare) > 0 Then
+              ' msgbox "Found: " & file.Path
               XML_file_path = file.Path
               XML_file_found = True
               Exit For
@@ -787,14 +776,10 @@ DO
           End If
           endTime = Timer
           duration = endTime - startTime
-          msgbox "Search took " & duration & " seconds. It evaluated " & file_count & " files."
+          ' msgbox "Search took " & duration & " seconds. It evaluated " & file_count & " files."
         End If
       End If
     End If
-    If application_ID_checkbox + manual_file_select_checkbox + enter_app_manually_checkbox = 0 then err_msg = err_msg & vbCr & "* You must check the box for one of the options to locate the MNBenefits XML File or enter application details manually."
-    If application_ID_checkbox + manual_file_select_checkbox + enter_app_manually_checkbox > 1 then err_msg = err_msg & vbCr & "* You must only check ONE checkbox."
-    If application_ID_checkbox = 1 and (trim(application_ID) = "" OR len(application_ID) <> 10 OR IsNumeric(application_ID) = false) then err_msg = err_msg & vbCr & "* You must enter the 10-digit application ID."
-    If manual_file_select_checkbox = 1 and trim(file_path) = "" then err_msg = err_msg & vbCr & "* You must click the 'Select File' button and select the XML file or manually enter the file path in the field."
 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -907,8 +892,8 @@ If Not objApplicationId Is Nothing Then
 End If
 
 'Validate the provided application ID against the application ID in the XML file
-If application_ID_checkbox = 1 Then
-  If applicationId <> application_ID Then script_end_procedure_with_error_report("The application ID provided to locate the MNBenefits XML file does not match the application ID in the XML file. Please try running the script again.")
+If confirmation_number_checkbox = 1 Then
+  If applicationId <> confirmation_number Then script_end_procedure_with_error_report("The application ID provided to locate the MNBenefits XML file does not match the application ID in the XML file. Please try running the script again.")
 End If
 
 'Gather the household address and mailing address details from the XML
@@ -959,7 +944,7 @@ BeginDialog Dialog1, 0, 0, 285, 245, "Verify MNBenefits XML Details - Household 
   Text 5, 5, 275, 20, "Please verify that the correct XML file has been selected. If you need to change the XML file, please press the 'Reselect XML' button below."  
   GroupBox 10, 35, 270, 155, "MNBenefits XML File Details"
   Text 15, 45, 50, 10, "Application ID:"
-  Text 100, 45, 50, 10, application_ID
+  Text 100, 45, 50, 10, confirmation_number
   Text 15, 55, 60, 10, "Application Date:"
   Text 100, 55, 60, 10, formatted_app_date
   Text 15, 65, 75, 10, "Household Member 1:"
@@ -1036,153 +1021,155 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'To do - add county of residence
 'To do - convert county of residence to county code?
 'Dialog to confirm Application and Address Information
-BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
-  Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
-  Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
-  Text 15, 45, 60, 10, "Application Date: "
-  EditBox 80, 40, 40, 15, formatted_app_date
-  GroupBox 10, 60, 175, 105, "Household Address"
-  Text 15, 75, 35, 10, "Address:"
-  EditBox 70, 70, 100, 15, household_address
-  Text 15, 90, 25, 10, "City:"
-  EditBox 70, 85, 100, 15, household_city
-  Text 15, 105, 30, 10, "State:"
-  EditBox 70, 100, 20, 15, household_state
-  Text 15, 120, 20, 10, "Zip:"
-  EditBox 70, 115, 30, 15, household_zip
-  Text 15, 135, 55, 10, "Phone number:"
-  EditBox 70, 130, 100, 15, household_phone_number
-  GroupBox 10, 165, 175, 75, "Mailing Address"
-  Text 15, 180, 35, 10, "Address:"
-  EditBox 70, 175, 100, 15, mailing_address
-  Text 15, 195, 25, 10, "City:"
-  EditBox 70, 190, 100, 15, mailing_city
-  Text 15, 210, 30, 10, "State:"
-  EditBox 70, 205, 20, 15, mailing_state
-  Text 15, 225, 20, 10, "Zip:"
-  EditBox 70, 220, 30, 15, mailing_zip
-  Text 15, 150, 30, 10, "County:"
-  EditBox 70, 145, 100, 15, household_county
-  ButtonGroup ButtonPressed
-    PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
-EndDialog
 
-DO
-	DO
-		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
-		dialog Dialog1				'main dialog
-		cancel_without_confirmation
-    If ButtonPressed = file_selection_button then 
-      call file_selection_system_dialog(XML_file_path, ".xml")
-      err_msg = "LOOP"
-    End If
-    If trim(formatted_app_date) = "" OR IsDate(formatted_app_date) = False OR Len(trim(formatted_app_date)) <> 10 then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
-    If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
-    If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
-    If trim(household_state) = "" Then err_msg = err_msg & vbCr & "* The state field cannot be blank."
-    If trim(household_zip) = "" Then err_msg = err_msg & vbCr & "* The zip code field cannot be blank."
-    'To do - confirm if phone number is required
-    ' If trim(household_phone_number) = "" Then then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
-    If trim(mailing_address) = "" Then err_msg = err_msg & vbCr & "* The mailing address field cannot be blank."
-    If trim(mailing_city) = "" Then err_msg = err_msg & vbCr & "* The mailing address city field cannot be blank."
-    If trim(mailing_state) = "" Then err_msg = err_msg & vbCr & "* The mailing address state field cannot be blank."
-    If trim(mailing_zip) = "" Then err_msg = err_msg & vbCr & "* The mailing address zip code field cannot be blank."
+'To do - move this to end once PERS search completed
+' BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
+'   Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
+'   Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
+'   Text 15, 45, 60, 10, "Application Date: "
+'   EditBox 80, 40, 40, 15, formatted_app_date
+'   GroupBox 10, 60, 175, 105, "Household Address"
+'   Text 15, 75, 35, 10, "Address:"
+'   EditBox 70, 70, 100, 15, household_address
+'   Text 15, 90, 25, 10, "City:"
+'   EditBox 70, 85, 100, 15, household_city
+'   Text 15, 105, 30, 10, "State:"
+'   EditBox 70, 100, 20, 15, household_state
+'   Text 15, 120, 20, 10, "Zip:"
+'   EditBox 70, 115, 30, 15, household_zip
+'   Text 15, 135, 55, 10, "Phone number:"
+'   EditBox 70, 130, 100, 15, household_phone_number
+'   GroupBox 10, 165, 175, 75, "Mailing Address"
+'   Text 15, 180, 35, 10, "Address:"
+'   EditBox 70, 175, 100, 15, mailing_address
+'   Text 15, 195, 25, 10, "City:"
+'   EditBox 70, 190, 100, 15, mailing_city
+'   Text 15, 210, 30, 10, "State:"
+'   EditBox 70, 205, 20, 15, mailing_state
+'   Text 15, 225, 20, 10, "Zip:"
+'   EditBox 70, 220, 30, 15, mailing_zip
+'   Text 15, 150, 30, 10, "County:"
+'   EditBox 70, 145, 100, 15, household_county
+'   ButtonGroup ButtonPressed
+'     PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
+' EndDialog
 
-		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+' DO
+' 	DO
+' 		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+' 		dialog Dialog1				'main dialog
+' 		cancel_without_confirmation
+'     If ButtonPressed = file_selection_button then 
+'       call file_selection_system_dialog(XML_file_path, ".xml")
+'       err_msg = "LOOP"
+'     End If
+'     If trim(formatted_app_date) = "" OR IsDate(formatted_app_date) = False OR Len(trim(formatted_app_date)) <> 10 then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
+'     If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+'     If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
+'     If trim(household_state) = "" Then err_msg = err_msg & vbCr & "* The state field cannot be blank."
+'     If trim(household_zip) = "" Then err_msg = err_msg & vbCr & "* The zip code field cannot be blank."
+'     'To do - confirm if phone number is required
+'     ' If trim(household_phone_number) = "" Then then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+'     If trim(mailing_address) = "" Then err_msg = err_msg & vbCr & "* The mailing address field cannot be blank."
+'     If trim(mailing_city) = "" Then err_msg = err_msg & vbCr & "* The mailing address city field cannot be blank."
+'     If trim(mailing_state) = "" Then err_msg = err_msg & vbCr & "* The mailing address state field cannot be blank."
+'     If trim(mailing_zip) = "" Then err_msg = err_msg & vbCr & "* The mailing address zip code field cannot be blank."
 
-'Start at the first dialog and start dialog loop
-dialog_count = 1
-hh_memb_dialog_loop = "Active"
-Call determine_member_dialogs_display()
+' 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+' 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+' 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+' Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Do
-  Do
-    Do
-      Dialog1 = "" 'Blanking out previous dialog detail
+' 'Start at the first dialog and start dialog loop
+' dialog_count = 1
+' hh_memb_dialog_loop = "Active"
+' Call determine_member_dialogs_display()
 
-      Call dialog_selection(dialog_count)
+' Do
+'   Do
+'     Do
+'       Dialog1 = "" 'Blanking out previous dialog detail
 
-      'Blank out variables on each new dialog
-      err_msg = ""
+'       Call dialog_selection(dialog_count)
 
-      dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-      cancel_confirmation
-      Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
-      Call button_movement()				'function to move throughout the dialogs
-    Loop until err_msg = ""
-    If hh_memb_dialog_loop = "Completed" Then
-      Dialog1 = "" 'Blanking out previous dialog detail
-      Call confirm_xml_update_dialog()
-      dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-      cancel_without_confirmation
-      If ButtonPressed = back_button Then 
-        dialog_count = 1
-        hh_memb_dialog_loop = "Active"
-      End If
-    End If
-  Loop until hh_memb_dialog_loop = "Completed"
-  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+'       'Blank out variables on each new dialog
+'       err_msg = ""
 
-member_array_index = 0
+'       dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+'       cancel_confirmation
+'       Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
+'       Call button_movement()				'function to move throughout the dialogs
+'     Loop until err_msg = ""
+'     If hh_memb_dialog_loop = "Completed" Then
+'       Dialog1 = "" 'Blanking out previous dialog detail
+'       Call confirm_xml_update_dialog()
+'       dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
+'       cancel_without_confirmation
+'       If ButtonPressed = back_button Then 
+'         dialog_count = 1
+'         hh_memb_dialog_loop = "Active"
+'       End If
+'     End If
+'   Loop until hh_memb_dialog_loop = "Completed"
+'   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+' Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-For Each objMemberNode In objHouseholdMemberNodes
-  Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
-  Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
-  Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
-  Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
-  Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
-  Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
-  Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
-  Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
+' member_array_index = 0
 
-  If householdMembers(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = householdMembers(MEMBER_FIRST_NAME, member_array_index)
+' For Each objMemberNode In objHouseholdMemberNodes
+'   Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
+'   Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
+'   Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
+'   Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
+'   Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
+'   Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
+'   Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
+'   Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
 
-  If householdMembers(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = householdMembers(MEMBER_LAST_NAME, member_array_index)
+'   If householdMembers(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = householdMembers(MEMBER_FIRST_NAME, member_array_index)
 
-  If householdMembers(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = householdMembers(MEMBER_DOB, member_array_index)
+'   If householdMembers(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = householdMembers(MEMBER_LAST_NAME, member_array_index)
 
-  If householdMembers(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = householdMembers(MEMBER_SSN, member_array_index)
+'   If householdMembers(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = householdMembers(MEMBER_DOB, member_array_index)
 
-  If householdMembers(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = householdMembers(MEMBER_RELATIONSHIP, member_array_index)
+'   If householdMembers(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = householdMembers(MEMBER_SSN, member_array_index)
 
-  If householdMembers(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = householdMembers(MEMBER_MARITAL_STATUS, member_array_index)
+'   If householdMembers(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = householdMembers(MEMBER_RELATIONSHIP, member_array_index)
 
-  If householdMembers(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = householdMembers(MEMBER_GENDER, member_array_index)
+'   If householdMembers(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = householdMembers(MEMBER_MARITAL_STATUS, member_array_index)
 
-  If householdMembers(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
+'   If householdMembers(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = householdMembers(MEMBER_GENDER, member_array_index)
 
-  member_array_index = member_array_index + 1
-Next
+'   If householdMembers(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
+
+'   member_array_index = member_array_index + 1
+' Next
 
 'Replace the application date
 'Format 2025-11-26
 
-current_XML_app_date = left(objApplicationDate.Text, 10)
-'Convert the formatted_app_date to XML format and replace
-updated_XML_app_date = right(formatted_app_date, 4) & "-" & left(formatted_app_date, 2) & "-" & mid(formatted_app_date, 4, 2)
-objApplicationDate.Text       = replace(objApplicationDate.Text, current_XML_app_date, updated_XML_app_date)
-objHouseholdAddress.Text      = household_address
-objHouseholdCity.Text         = household_city
-objHouseholdState.Text        = household_state
-objHouseholdZip.Text          = household_zip
-objPhoneNumber.Text           = household_phone_number
-objCounty.Text                = household_county
-objMailingAddress.Text        = mailing_address
-objMailingCity.Text           = mailing_city
-objMailingState.Text          = mailing_state
-objMailingZip.Text            = mailing_zip
+' current_XML_app_date = left(objApplicationDate.Text, 10)
+' 'Convert the formatted_app_date to XML format and replace
+' updated_XML_app_date = right(formatted_app_date, 4) & "-" & left(formatted_app_date, 2) & "-" & mid(formatted_app_date, 4, 2)
+' objApplicationDate.Text       = replace(objApplicationDate.Text, current_XML_app_date, updated_XML_app_date)
+' objHouseholdAddress.Text      = household_address
+' objHouseholdCity.Text         = household_city
+' objHouseholdState.Text        = household_state
+' objHouseholdZip.Text          = household_zip
+' objPhoneNumber.Text           = household_phone_number
+' objCounty.Text                = household_county
+' objMailingAddress.Text        = mailing_address
+' objMailingCity.Text           = mailing_city
+' objMailingState.Text          = mailing_state
+' objMailingZip.Text            = mailing_zip
 
 ' Save the updated XML to a file
 'To do - update with actual file path once done testing
 ' xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
-' xmlDoc.Save replace(XML_file_path, application_ID, application_ID & "_" & "processed")
+' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
 
 'Save the XML document with 'processed' in file name
-' xmlDoc.Save replace(XML_file_path, application_ID, application_ID & "_" & "processed")
+' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
 
 'To do - uncomment after testing, this is where file is saved and moved
 '----
@@ -1190,7 +1177,7 @@ objMailingZip.Text            = mailing_zip
 
 ' ' Attempt to save the XML document
 ' Dim XML_file_path_processed
-' XML_file_path_processed = Replace(XML_file_path, application_ID, application_ID & "_processed")
+' XML_file_path_processed = Replace(XML_file_path, confirmation_number, confirmation_number & "_processed")
 ' xmlDoc.Save XML_file_path_processed
 
 ' ' Check for errors
@@ -1212,7 +1199,6 @@ objMailingZip.Text            = mailing_zip
 '   script_end_procedure_with_error_report("Script failed to delete XML file.")
 ' End If
 '----
-
 
 ' Clean up
 Set objMemberNode           = Nothing
@@ -1248,6 +1234,21 @@ End If
 '   --> Script reads through all results on first page until end reached or match found
 '   --> Script matches based on the first and last name and then DOB (if provided) and SSN (if provided)
 
+'Create array to track the final details for every household member listed on the application
+Dim MAXIS_member_count
+MAXIS_member_count = 0
+Dim MAXIS_household_members()
+Const MAXIS_MEMBER_FIRST_NAME     = 0
+Const MAXIS_MEMBER_LAST_NAME      = 1
+Const MAXIS_MEMBER_DOB            = 2
+Const MAXIS_MEMBER_SSN            = 3
+Const MAXIS_MEMBER_RELATIONSHIP   = 4
+Const MAXIS_MEMBER_MARITAL_STATUS = 5
+Const MAXIS_MEMBER_CITIZENSHIP    = 6
+Const MAXIS_MEMBER_GENDER         = 7
+
+ReDim MAXIS_household_members(MAXIS_MEMBER_GENDER, MAXIS_member_count)   'Redimmed to the size of the last constant
+
 For member = 0 to Ubound(householdMembers, 2)
   'Setting variables for search
   ssn_match_found = False
@@ -1274,15 +1275,15 @@ For member = 0 to Ubound(householdMembers, 2)
     End If
     transmit
 
-    'If a SSN was provided from application, script will check if any MTCH results match the SSN (despite not using that as a search criteria) since a SSN match is a guaranteed match
+    'If a SSN was provided from application, script will check if any MTCH results match the SSN (despite not using that as a search criteria) since a SSN match is a guaranteed match. Script will review all results on first page since there can be repeating SSN matches
     If householdMembers(MEMBER_SSN, member) <> "" and SSN_search = True Then
       Do
         EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
         SSN_MTCH_panel = trim(SSN_MTCH_panel)
         If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) then
-          ssn_match_found = True
+          ' ssn_match_found = True
           'No more searches needed since match found
-          SSN_search = False
+          ' SSN_search = False
 
           EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
           last_name_MTCH_panel = trim(last_name_MTCH_panel)
@@ -1304,16 +1305,38 @@ For member = 0 to Ubound(householdMembers, 2)
           CALL write_value_and_transmit("X", MTCH_row, 5)
           EMReadScreen PMI_exists_check, 24, 24, 2
           If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
-            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#") = 0 Then PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then
+
+              ' msgbox "1310 Should be a new PERS search result " & vbCr & vbcr & "PERS_search_results_string >" & PERS_search_results_string & vbcr & vbcr & " PERS search result: " & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+              ' Read all of the case numbers and add to array
+              DSPL_row = 10
+              DSPL_case_number_string = "*"
+              Do 
+                EmReadScreen DSPL_case_number, 12, DSPL_row, 6
+                DSPL_case_number = trim(DSPL_case_number)
+                If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
+                DSPL_row = DSPL_row + 1
+                EmReadScreen blank_case_number_check, 12, DSPL_row, 6
+                If trim(blank_case_number_check) = "" then Exit Do
+
+                If DSPL_row = 20 then 
+                  EMReadScreen more_check, 9, 20, 3
+                  more_check = trim(more_check)
+                  If more_check = "" or more_check = "More: -" Then Exit Do
+                  If more_check = "More: +" OR more_check = "More: +/-" Then 
+                    PF8
+                    DSPL_row = 10
+                  End If
+                End If
+              Loop
+              PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
+            End If
             PF3   'Back to MTCH panel
           Else
             'Clear the X
             EMWriteScreen "_", MTCH_row, 5
-            
           End If
-
-          'To do - add handling for how to capture and display match
-          Exit Do
+          ' Exit Do
         End If
         MTCH_row = MTCH_row + 1
         If MTCH_row = 17 then 
@@ -1324,12 +1347,12 @@ For member = 0 to Ubound(householdMembers, 2)
       Loop
     End If
 
-    'If we found a match then no more searching needed so we can exit next do loop
-    If SSN_search = False and ssn_match_found = True Then 
-      Exit Do
-    End If
+    'If we found a match then no more searching needed so we can exit next do loop. Changed to conduct second search no matter what due to possibility of duplicate SSNs and/or PMIs
+    ' If SSN_search = False and ssn_match_found = True Then 
+    '   Exit Do
+    ' End If
     
-    If ssn_match_found <> True then
+    ' If ssn_match_found <> True then
       Do
         'Don't need to check SSN as already completed
         'Read the data from the corresponding MTCH row
@@ -1337,6 +1360,7 @@ For member = 0 to Ubound(householdMembers, 2)
 
         EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
         SSN_MTCH_panel = trim(SSN_MTCH_panel)
+        If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) Then match_rating = match_rating + .2
 
         EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
         last_name_MTCH_panel = trim(last_name_MTCH_panel)
@@ -1364,7 +1388,31 @@ For member = 0 to Ubound(householdMembers, 2)
           CALL write_value_and_transmit("X", MTCH_row, 5)
           EMReadScreen PMI_exists_check, 24, 24, 2
           If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
-            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#") = 0 Then PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then 
+
+              ' msgbox "1391 Should be a new PERS search result " & vbCr & vbcr & "PERS_search_results_string >" & PERS_search_results_string & vbcr & vbcr & " PERS search result: " & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
+              ' Read all of the case numbers and add to array
+              DSPL_row = 10
+              DSPL_case_number_string = "*"
+              Do 
+                EmReadScreen DSPL_case_number, 12, DSPL_row, 6
+                DSPL_case_number = trim(DSPL_case_number)
+                If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
+                DSPL_row = DSPL_row + 1
+                EmReadScreen blank_case_number_check, 12, DSPL_row, 6
+                If trim(blank_case_number_check) = "" then Exit Do
+                If DSPL_row = 20 then 
+                  EMReadScreen more_check, 9, 20, 3
+                  more_check = trim(more_check)
+                  If more_check = "" or more_check = "More: -" Then Exit Do
+                  If more_check = "More: +" OR more_check = "More: +/-" Then 
+                    PF8
+                    DSPL_row = 10
+                  End If
+                End If
+              Loop
+              PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
+            End If
             PF3   'Back to MTCH panel
           Else
             'Clear the X
@@ -1373,9 +1421,11 @@ For member = 0 to Ubound(householdMembers, 2)
         End If
 
         MTCH_row = MTCH_row + 1
-        If MTCH_row = 17 then Exit Do
+        If MTCH_row = 17 then 
+          Exit Do
+        End If
       Loop
-    End If
+    ' End If
 
     'If we made it through second search then we need to exit loop
     If PERS_second_search = True Then Exit Do
@@ -1407,14 +1457,14 @@ For member = 0 to Ubound(householdMembers, 2)
   PERS_match_found = false
   If Instr(PERS_search_results_string, "#") Then PERS_match_found = True
   checkbox_y = 85
-  msgbox "PERS_search_results_string is " & PERS_search_results_string
 
+  msgbox PERS_search_results_string
   If PERS_match_found Then PERS_search_results_string_array = split(PERS_search_results_string, "#")
   
   PERS_search_criteria = householdMembers(MEMBER_FIRST_NAME, member) & " " & householdMembers(MEMBER_LAST_NAME, member) & " (DOB: " & householdMembers(MEMBER_DOB, member) & "; SSN: " & householdMembers(MEMBER_SSN, member) & "; Gender: " & householdMembers(MEMBER_GENDER, member) & ")"
 
   groupbox_height = 30 + (Ubound(PERS_search_results_string_array) * 10)
-  dialog_height = 130 + + (Ubound(PERS_search_results_string_array) * 10)
+  dialog_height = 130 + (Ubound(PERS_search_results_string_array) * 10)
 
   'Call dialog to update information - provide the 
   Dialog1 = "" 'Blanking out previous dialog detail
@@ -1426,59 +1476,59 @@ For member = 0 to Ubound(householdMembers, 2)
     If PERS_match_found = False Then
       Text 15, checkbox_y, 325, 10, "No potential matches found. You must complete a manual search. Press 'OK' to continue"
     ElseIf PERS_match_found = True Then
-      CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(0), pers_search_results_0
+      CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(0), 1, instr(PERS_search_results_string_array(0), "*") - 1), pers_search_results_0
       If UBound(PERS_search_results_string_array) > 0 Then
         If PERS_search_results_string_array(1) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(1), pers_search_results_1
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(1), 1, instr(PERS_search_results_string_array(1), "*") - 1), pers_search_results_1
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 1 Then
         If PERS_search_results_string_array(2) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(2), pers_search_results_2
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(2), 1, instr(PERS_search_results_string_array(2), "*") - 1), pers_search_results_2
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 2 Then
         If PERS_search_results_string_array(3) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(3), pers_search_results_3
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(3), 1, instr(PERS_search_results_string_array(3), "*") - 1), pers_search_results_3
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 3 Then
         If PERS_search_results_string_array(4) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(4), pers_search_results_4
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(4), 1, instr(PERS_search_results_string_array(4), "*") - 1), pers_search_results_4
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 4 Then
         If PERS_search_results_string_array(5) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(5), pers_search_results_5
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(5), 1, instr(PERS_search_results_string_array(5), "*") - 1), pers_search_results_5
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 5 Then
         If PERS_search_results_string_array(6) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(6), pers_search_results_6
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(6), 1, instr(PERS_search_results_string_array(6), "*") - 1), pers_search_results_6
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 6 Then
         If PERS_search_results_string_array(7) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(7), pers_search_results_7
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(7), 1, instr(PERS_search_results_string_array(7), "*") - 1), pers_search_results_7
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 7 Then
         If PERS_search_results_string_array(8) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(8), pers_search_results_8
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(8), 1, instr(PERS_search_results_string_array(8), "*") - 1), pers_search_results_8
         End If 
       End If
       If UBound(PERS_search_results_string_array) > 8 Then
         If PERS_search_results_string_array(9) <> "" Then
           checkbox_y = checkbox_y + 10
-          CheckBox 15, checkbox_y, 325, 10, PERS_search_results_string_array(9), pers_search_results_9
+          CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(9), 1, instr(PERS_search_results_string_array(9), "*") - 1), pers_search_results_9
         End If 
       End If
       CheckBox 15, checkbox_y + 10, 325, 10, "None of these matches are correct. I will complete a manual search.", no_match_search_manually
@@ -1495,9 +1545,56 @@ For member = 0 to Ubound(householdMembers, 2)
       dialog Dialog1				'main dialog
       cancel_without_confirmation
       'to do - add error handling
-      If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      If PERS_match_found = True Then
+        If pers_search_results_0 + pers_search_results_1 + pers_search_results_2 + pers_search_results_3 + pers_search_results_4 + pers_search_results_5 + pers_search_results_6 + pers_search_results_7 + pers_search_results_8 + pers_search_results_9 + no_match_search_manually > 1 Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+        If pers_search_results_0 + pers_search_results_1 + pers_search_results_2 + pers_search_results_3 + pers_search_results_4 + pers_search_results_5 + pers_search_results_6 + pers_search_results_7 + pers_search_results_8 + pers_search_results_9 + no_match_search_manually = 0 Then err_msg = err_msg & vbNewLine & "* You must check one of the checkboxes in the PERS results section."
+      End If
+      If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
   
+
+  'Determine which option selected
+  If PERS_match_found = False Or no_match_search_manually = 1 Then
+    'Call dialog for worker to identify the PMI or indicate if a new person
+  Else
+    'Determine which result selected
+    If pers_search_results_0 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(0)
+    If pers_search_results_1 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(1)
+    If pers_search_results_2 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(2)
+    If pers_search_results_3 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(3)
+    If pers_search_results_4 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(4)
+    If pers_search_results_5 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(5)
+    If pers_search_results_6 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(6)
+    If pers_search_results_7 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(7)
+    If pers_search_results_8 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(8)
+    If pers_search_results_9 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(9)
+
+    'Display dialog with details from MAXIS compared to details from XML
+    
+    
+    ' 'Add the person match selected to the array
+    ' Const MAXIS_MEMBER_FIRST_NAME     = 0
+    ' Const MAXIS_MEMBER_LAST_NAME      = 1
+    ' Const MAXIS_MEMBER_DOB            = 2
+    ' Const MAXIS_MEMBER_SSN            = 3
+    ' Const MAXIS_MEMBER_RELATIONSHIP   = 4
+    ' Const MAXIS_MEMBER_MARITAL_STATUS = 5
+    ' Const MAXIS_MEMBER_CITIZENSHIP    = 6
+    ' Const MAXIS_MEMBER_GENDER         = 7
+
+    ' ReDim MAXIS_household_members(MAXIS_MEMBER_GENDER, MAXIS_member_count)
+
+
+    ' Display the matching CASE numbers with the household member number and relationship code
+
+    ' Process
+    ' Display member code and relationship code for each household member for each case
+    ' worker confirms PMI and correct case
+    ' Need to compare against multiple SSNs so can't just stop after first match
+    ' Move the XML detail verifications to the end once match identified, not at start
+  End If
 Next
