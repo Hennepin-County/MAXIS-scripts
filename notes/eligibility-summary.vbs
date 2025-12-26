@@ -13,7 +13,6 @@ If db_full_string = "" Then
 	fso_command.Close
 	Execute text_from_the_other_script
 End If
-MsgBox "TESTING"
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
