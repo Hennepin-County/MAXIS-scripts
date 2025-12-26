@@ -10434,13 +10434,13 @@ class mfip_eligibility_detail
 	public mfip_elig_membs_deemer_BUSI_inc()
 	public mfip_elig_membs_deemer_JOBS_inc()
 	public mfip_elig_membs_deemer_counted_earned_inc()
-	public mfip_elig_membs_deemer_stndrd_earned_disrgrd()
-	public mfip_elig_membs_deemer_earned_subtotal()
 	public mfip_elig_membs_deemer_earned_dsrgrd()
 	public mfip_elig_membs_deemer_total_dsrgrd()
-	public mfip_elig_membs_deemer_unearned_inc()
+	public mfip_elig_membs_deemer_other_unearned_inc()
+	public mfip_elig_membs_deemer_RSDI_inc()
+	public mfip_elig_membs_deemer_RSDI_disrgd_inc()
 	public mfip_elig_membs_deemer_sub_total_counted_inc()
-	public mfip_elig_membs_deemer_unmet_need()
+	public mfip_elig_membs_deemer_HH_need()
 	public mfip_elig_membs_deemer_allocation()
 	public mfip_elig_membs_deemer_cs_alimny()
 	public mfip_elig_membs_deemer_counted_income()
@@ -10858,13 +10858,13 @@ class mfip_eligibility_detail
 			ReDim mfip_elig_membs_deemer_BUSI_inc(0)
 			ReDim mfip_elig_membs_deemer_JOBS_inc(0)
 			ReDim mfip_elig_membs_deemer_counted_earned_inc(0)
-			ReDim mfip_elig_membs_deemer_stndrd_earned_disrgrd(0)
-			ReDim mfip_elig_membs_deemer_earned_subtotal(0)
 			ReDim mfip_elig_membs_deemer_earned_dsrgrd(0)
 			ReDim mfip_elig_membs_deemer_total_dsrgrd(0)
-			ReDim mfip_elig_membs_deemer_unearned_inc(0)
+            ReDim mfip_elig_membs_deemer_other_unearned_inc(0)
+            ReDim mfip_elig_membs_deemer_RSDI_inc(0)
+            ReDim mfip_elig_membs_deemer_RSDI_disrgd_inc(0)
 			ReDim mfip_elig_membs_deemer_sub_total_counted_inc(0)
-			ReDim mfip_elig_membs_deemer_unmet_need(0)
+			ReDim mfip_elig_membs_deemer_HH_need(0)
 			ReDim mfip_elig_membs_deemer_allocation(0)
 			ReDim mfip_elig_membs_deemer_cs_alimny(0)
 			ReDim mfip_elig_membs_deemer_counted_income(0)
@@ -11005,13 +11005,13 @@ class mfip_eligibility_detail
 				ReDim preserve mfip_elig_membs_deemer_BUSI_inc(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_JOBS_inc(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_counted_earned_inc(elig_memb_count)
-				ReDim preserve mfip_elig_membs_deemer_stndrd_earned_disrgrd(elig_memb_count)
-				ReDim preserve mfip_elig_membs_deemer_earned_subtotal(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_earned_dsrgrd(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_total_dsrgrd(elig_memb_count)
-				ReDim preserve mfip_elig_membs_deemer_unearned_inc(elig_memb_count)
+                ReDim preserve mfip_elig_membs_deemer_other_unearned_inc(elig_memb_count)
+                ReDim preserve mfip_elig_membs_deemer_RSDI_inc(elig_memb_count)
+                ReDim preserve mfip_elig_membs_deemer_RSDI_disrgd_inc(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_sub_total_counted_inc(elig_memb_count)
-				ReDim preserve mfip_elig_membs_deemer_unmet_need(elig_memb_count)
+				ReDim preserve mfip_elig_membs_deemer_HH_need(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_allocation(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_cs_alimny(elig_memb_count)
 				ReDim preserve mfip_elig_membs_deemer_counted_income(elig_memb_count)
@@ -11120,6 +11120,7 @@ class mfip_eligibility_detail
 			Loop until next_ref_numb = "  "
 
 			transmit			'MFCR
+            ' MsgBox "MFCR"
 
 			EMReadScreen mfip_case_test_appl_withdraw, 		6, 6, 7
 			EMReadScreen mfip_case_test_asset, 				6, 7, 7
@@ -11455,6 +11456,7 @@ class mfip_eligibility_detail
 			PF3
 
 			transmit			'MFBF
+            ' MsgBox "MFBF"
 
 			mfbf_row = 7
 			Do
@@ -11494,6 +11496,7 @@ class mfip_eligibility_detail
 			mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
 			transmit			'MFB1
+            ' MsgBox "MFB1"
 
 			EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
 			EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 6, 32
@@ -11667,31 +11670,33 @@ class mfip_eligibility_detail
 			End if
 
 			Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
-			dm_row = 1
+            pers_header = False
+            inc_header = False
+            dm_row = 1
 			dm_col = 1
-			EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
-			If dm_row = 0 Then
-				dm_row = 1
-				dm_col = 1
-				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
-			End If
+			EMSearch "MAXIS Person", dm_row, dm_col
+            If dm_row <> 0 Then pers_header = True
             If dm_row = 0 Then
-				dm_row = 1
+            	dm_row = 1
 				dm_col = 1
-				EMSearch "Maxis Person Monthly Income Budget", dm_row, dm_col
-			End If
-            If dm_row = 0 Then
-				dm_row = 1
-				dm_col = 1
-				EMSearch "MAXIS Person Monthly Income Budget", dm_row, dm_col
-			End If
-			Do while dm_row <> 0
+				EMSearch "Maxis Person", dm_row, dm_col
+                If dm_row <> 0 Then pers_header = True
+            End If
+            dm_row = 1
+			dm_col = 1
+			EMSearch "Income Budget", dm_row, dm_col
+            If dm_row <> 0 Then inc_header = True
+
+            Do while pers_header and inc_header
 				pers_row = 1
 				pers_col = 1
 				EMSearch "Mbrsp Code", pers_row, pers_col
 				EMReadScreen pop_up_name, 40, pers_row-1, pers_col+5
 				pop_up_name = trim(pop_up_name)
 				pop_up_name_array = split(pop_up_name, ",")
+
+                info_row = pers_row+2
+                info_col = pers_col+31
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 					If mfip_elig_membs_last_name_complete(case_memb) = False Then
 						pop_up_last_name = left(pop_up_name, 10)
@@ -11704,36 +11709,36 @@ class mfip_eligibility_detail
 						compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
 					End If
 					If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-						EMReadScreen mfip_elig_membs_deemer_counted_earned_inc(case_memb), 8, 11, 53
-						EMReadScreen mfip_elig_membs_deemer_unearned_inc(case_memb), 8, 15, 53
+						EMReadScreen mfip_elig_membs_deemer_counted_earned_inc(case_memb),  8, info_row+2, info_col
+						EMReadScreen mfip_elig_membs_deemer_other_unearned_inc(case_memb),  8, info_row+4, info_col
+						EMReadScreen mfip_elig_membs_deemer_RSDI_inc(case_memb),            8, info_row+5, info_col
 
-						mfip_elig_membs_deemer_counted_earned_inc(case_memb) 	= trim(mfip_elig_membs_deemer_counted_earned_inc(case_memb))
-						mfip_elig_membs_deemer_unearned_inc(case_memb) 			= trim(mfip_elig_membs_deemer_unearned_inc(case_memb))
+						mfip_elig_membs_deemer_counted_earned_inc(case_memb)    = trim(mfip_elig_membs_deemer_counted_earned_inc(case_memb))
+						mfip_elig_membs_deemer_other_unearned_inc(case_memb)    = trim(mfip_elig_membs_deemer_other_unearned_inc(case_memb))
+						mfip_elig_membs_deemer_RSDI_inc(case_memb) 			    = trim(mfip_elig_membs_deemer_RSDI_inc(case_memb))
 
-						If mfip_elig_membs_deemer_counted_earned_inc(case_memb) <> "0.00" OR mfip_elig_membs_deemer_unearned_inc(case_memb) <> "0.00" Then
+						If mfip_elig_membs_deemer_counted_earned_inc(case_memb) <> "0.00" OR mfip_elig_membs_deemer_other_unearned_inc(case_memb) <> "0.00" OR mfip_elig_membs_deemer_RSDI_inc(case_memb) <> "0.00" Then
 							mfip_deemed_income_exists = True
-							EMReadScreen mfip_elig_membs_deemer_BUSI_inc(case_memb), 				8, 9, 53
-							EMReadScreen mfip_elig_membs_deemer_JOBS_inc(case_memb), 				8, 10, 53
-							EMReadScreen mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb), 	8, 12, 53
-							EMReadScreen mfip_elig_membs_deemer_earned_subtotal(case_memb), 		8, 13, 53
-							EMReadScreen mfip_elig_membs_deemer_earned_dsrgrd(case_memb), 			8, 14, 53
-							EMReadScreen mfip_elig_membs_deemer_sub_total_counted_inc(case_memb), 	8, 17, 53
-							EMReadScreen mfip_elig_membs_deemer_unmet_need(case_memb), 				8, 18, 53
-							EMReadScreen mfip_elig_membs_deemer_allocation(case_memb), 				8, 19, 53
-							EMReadScreen mfip_elig_membs_deemer_cs_alimny(case_memb), 				8, 20, 53
-							EMReadScreen mfip_elig_membs_deemer_counted_income(case_memb), 			8, 21, 53
+							EMReadScreen mfip_elig_membs_deemer_BUSI_inc(case_memb), 				8, info_row,  info_col
+							EMReadScreen mfip_elig_membs_deemer_JOBS_inc(case_memb), 				8, info_row+1, info_col
+							EMReadScreen mfip_elig_membs_deemer_earned_dsrgrd(case_memb), 			8, info_row+3, info_col
+							EMReadScreen mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb), 	    8, info_row+6, info_col
+							EMReadScreen mfip_elig_membs_deemer_sub_total_counted_inc(case_memb), 	8, info_row+8, info_col
+							EMReadScreen mfip_elig_membs_deemer_HH_need(case_memb), 				8, info_row+9, info_col
+							EMReadScreen mfip_elig_membs_deemer_allocation(case_memb), 				8, info_row+10, info_col
+							EMReadScreen mfip_elig_membs_deemer_cs_alimny(case_memb), 				8, info_row+11, info_col
+							EMReadScreen mfip_elig_membs_deemer_counted_income(case_memb), 			8, info_row+12, info_col
 
-							mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb) = mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb) * 1
-							mfip_elig_membs_deemer_earned_dsrgrd(case_memb) = mfip_elig_membs_deemer_earned_dsrgrd(case_memb) * 1
-							mfip_elig_membs_deemer_total_dsrgrd(case_memb) = mfip_elig_membs_deemer_earned_dsrgrd(case_memb) + mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb)
+							mfip_elig_membs_deemer_earned_dsrgrd(case_memb)     = trim(mfip_elig_membs_deemer_earned_dsrgrd(case_memb))
+							mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb)   = trim(mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb))
+							mfip_elig_membs_deemer_earned_dsrgrd(case_memb)     = mfip_elig_membs_deemer_earned_dsrgrd(case_memb) * 1
+							mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb)   = mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb) * 1
+							mfip_elig_membs_deemer_total_dsrgrd(case_memb) = mfip_elig_membs_deemer_earned_dsrgrd(case_memb) + mfip_elig_membs_deemer_RSDI_disrgd_inc(case_memb)
 
 							mfip_elig_membs_deemer_BUSI_inc(case_memb) 				= trim(mfip_elig_membs_deemer_BUSI_inc(case_memb))
 							mfip_elig_membs_deemer_JOBS_inc(case_memb) 				= trim(mfip_elig_membs_deemer_JOBS_inc(case_memb))
-							mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb) = trim(mfip_elig_membs_deemer_stndrd_earned_disrgrd(case_memb))
-							mfip_elig_membs_deemer_earned_subtotal(case_memb) 		= trim(mfip_elig_membs_deemer_earned_subtotal(case_memb))
-							mfip_elig_membs_deemer_earned_dsrgrd(case_memb) 		= trim(mfip_elig_membs_deemer_earned_dsrgrd(case_memb))
 							mfip_elig_membs_deemer_sub_total_counted_inc(case_memb) = trim(mfip_elig_membs_deemer_sub_total_counted_inc(case_memb))
-							mfip_elig_membs_deemer_unmet_need(case_memb) 			= trim(mfip_elig_membs_deemer_unmet_need(case_memb))
+							mfip_elig_membs_deemer_HH_need(case_memb) 			= trim(mfip_elig_membs_deemer_HH_need(case_memb))
 							mfip_elig_membs_deemer_allocation(case_memb) 			= trim(mfip_elig_membs_deemer_allocation(case_memb))
 							mfip_elig_membs_deemer_cs_alimny(case_memb) 			= trim(mfip_elig_membs_deemer_cs_alimny(case_memb))
 							mfip_elig_membs_deemer_counted_income(case_memb) 		= trim(mfip_elig_membs_deemer_counted_income(case_memb))
@@ -11743,24 +11748,22 @@ class mfip_eligibility_detail
 					End If
 				Next
 				transmit
-				dm_row = 1
-				dm_col = 1
-				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
-				If dm_row = 0 Then
-					dm_row = 1
-					dm_col = 1
-					EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
-				End If
+                pers_header = False
+                inc_header = False
+                dm_row = 1
+                dm_col = 1
+                EMSearch "MAXIS Person", dm_row, dm_col
+                If dm_row <> 0 Then pers_header = True
                 If dm_row = 0 Then
                     dm_row = 1
                     dm_col = 1
-                    EMSearch "Maxis Person Monthly Income Budget", dm_row, dm_col
+                    EMSearch "Maxis Person", dm_row, dm_col
+                    If dm_row <> 0 Then pers_header = True
                 End If
-                If dm_row = 0 Then
-                    dm_row = 1
-                    dm_col = 1
-                    EMSearch "MAXIS Person Monthly Income Budget", dm_row, dm_col
-                End If
+                dm_row = 1
+                dm_col = 1
+                EMSearch "Income Budget", dm_row, dm_col
+                If dm_row <> 0 Then inc_header = True
 			Loop
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
@@ -11894,6 +11897,7 @@ class mfip_eligibility_detail
 			transmit
 
 			transmit			'MFB2
+            ' MsgBox "MFB2"
 			EMReadScreen mfip_case_budg_prorate_date, 8, 5, 19
 
 			EMReadScreen mfip_case_budg_fed_food_benefit, 			10, 7, 32
@@ -11984,6 +11988,8 @@ class mfip_eligibility_detail
 			transmit
 			' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 			transmit			'MFSM
+            ' MsgBox "MFSM"
+
 			EMReadScreen mfip_approved_date, 8, 3, 14
 			EMReadScreen mfip_process_date, 8, 2, 73
 			EMReadScreen mfip_prev_approval, 4, 3, 73
@@ -23461,9 +23467,10 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					GroupBox 10, 10, 535, dm_grp_bx, "Case Deemed Income"
 					Text 20, 28, 50, 10, "Member"
 					Text 140, 20, 45, 20, "Counted Earned Inc"
-					Text 190, 28, 50, 10, "(-) Disregards"
-					Text 255, 28, 50, 10, "Unearned Inc"
-					Text 315, 20, 50, 20, "(-) Deemer's Unmet Need"
+					Text 190, 20, 50, 20, "Other Unearned Inc"
+					Text 240, 28, 50, 10, "RSDI Inc"
+					Text 290, 20, 50, 20, "(-) ALL Disregards"
+					Text 330, 28, 50, 10, "(-) HH Need"
 					Text 380, 28, 50, 10, "(-) Allocation"
 					Text 435, 20, 50, 20, "(-) Suuport Payments"
 					Text 500, 20, 40, 20, "Counted Deemed Inc"
@@ -23472,11 +23479,12 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					For case_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
 						If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_counted_earned_inc(case_memb) <> "" Then
 							Text 20, y_pos, 115, 10, "M " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(case_memb) & " - " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_full_name(case_memb)
-							If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_counted_earned_inc(case_memb) <> "0.00" OR MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_unearned_inc(case_memb) <> "0.00" Then
+							If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_counted_earned_inc(case_memb) <> "0.00" OR MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_other_unearned_inc(case_memb) <> "0.00" OR MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_RSDI_inc(case_memb) <> "0.00" Then
 								Text 140, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_counted_earned_inc(case_memb)
-								Text 190, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_total_dsrgrd(case_memb)
-								Text 255, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_unearned_inc(case_memb)
-								Text 315, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_unmet_need(case_memb)
+								Text 190, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_other_unearned_inc(case_memb)
+								Text 240, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_RSDI_inc(case_memb)
+								Text 290, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_total_dsrgrd(case_memb)
+								Text 330, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_HH_need(case_memb)
 								Text 380, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_allocation(case_memb)
 								Text 435, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_cs_alimny(case_memb)
 								Text 500, y_pos, 40, 10, "$ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_deemer_counted_income(case_memb)
