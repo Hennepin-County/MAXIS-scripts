@@ -255,23 +255,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
         End If
 	End if
 
-	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th
-	''<<<<<<<<<<PROG for Foster care
-	'Person-based evaluation
-    CALL navigate_to_MAXIS_screen("STAT", "PROG")
-	EmReadScreen IV-E_prog, 8, 11, 33
-	EMReadScreen IV-E_status, 4, 11, 74
-	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then
-		foster_care = False
-	else
-		If Trim(IV-E_status) <> "DENY" then
-			foster_care = True
-		else
-			foster_care = False
-		End if
-	End if
-
-	Call HCRE_panel_bypass	'making sure we don't get stuck
 
 	'Case-based determination
     IF memb_found = True THEN
