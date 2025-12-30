@@ -298,8 +298,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			End if
 
 		    'person-based determination
-			age_50 = False
-            age_53_54 = False
+			age_50_thru_59 = False
+			age_50_thru_55 = False 'This boolean is used for case note workaround. If anyone 50-55, we note that in case note the date of TLR is not specific to 11/01/25 implementation date.
+			age_60_thru_64 = False
 
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
@@ -323,32 +324,31 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    		verified_wreg = verified_wreg & "06" & "|"
 		    	End if
 		    End if
-		    '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
-		    If cl_age => 55 then
-		    	If cl_age < 60 then
+		     '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
+		    If cl_age => 50 then
+		    	If cl_age =< 59 then
 		    		If age_verif_code <> "NO" then
 		    			verified_wreg = verified_wreg & "16" & "|"
+                        age_50_thru_59 = True
 		    		End if
 		    	End if
+				If (cl_age => 50 and cl_age =< 55) then age_50_thru_55 = True
 		    End if
 		    '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
-		    If cl_age => 60 then
+		    If cl_age => 65 then
 		    If age_verif_code <> "NO" then
 		    	verified_wreg = verified_wreg & "05" & "|"
 		    	End if
 		    End if
 
-			'----------------------------------------------------------------------------------------------------special temp handling for 50-52 year olds later on based on age_50 = True
-			If cl_age = 50 or _
-				cl_age = 51 or _
-				cl_age = 52 then
-				age_50 = True
-			End if
-
-            If cl_age = 53 or _
-                cl_age = 54 then
-                age_53_54 = True
-            End if
+             If cl_age => 60 then
+		    	If cl_age < 65 then
+		    		If age_verif_code <> "NO" then
+		    			verified_wreg = verified_wreg & "05" & "|"
+                        age_60_thru_64  = True
+		    		End if
+		    	End if
+		    End if
 
 			'----------------------------------------------------------------------------------------------------Native American Exemption
 			native = False
@@ -816,38 +816,45 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
 
         manual_code = "F"  'manual code for exemption cases
-        age_50_workaround = False
+        age_50_thru_59_workaround = False
+		age_60_thru_64_workaround = False
 
-	    If best_abawd_code = "10" then manual_code = "M"
+		If best_wreg_code = "30" then
+			If age_50_thru_59 = True then
+				If (best_abawd_code = "10") then
+			        'changing codes per temp policy
+			        best_wreg_code = "16"
+			        best_abawd_code = "03"
+					age_50_thru_59_workaround = True
+					manual_code = "M"
+				End if
+			End if
 
-        If (age_50 = True or age_53_54 = True) then
-            If (best_wreg_code = "30" and best_abawd_code = "10") then
-		        'changing codes per temp policy
-		        best_wreg_code = "16"
-		        best_abawd_code = "03"
-                age_50_workaround = True
-                manual_code = "M"
-            End if
-        End if
+		    If age_60_thru_64 = True then
+				If (best_abawd_code = "10") then
+			        'changing codes per temp policy
+			        best_wreg_code = "15"
+			        best_abawd_code = "02"
+					age_60_thru_64_workaround = True
+					manual_code = "M"
+				End if
+			End if
+
+		    If best_abawd_code = "10" then manual_code = "M"
+    	End if
 
         updates_needed = True   'default set
 
-		'----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling
+		'----------------------------------------------------------------------------------------------------Age 50 - 64 WREG and ABAWD Tracking Record Handling
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
-		panel_date = cdate(MAXIS_footer_month & "/01/" & MAXIS_footer_year)
-    	If panel_date > cdate("6/30/2025") Then
-        	ET_col = 78
-    	Else
-        	ET_col = 80
-    	End If
         Call write_value_and_transmit(member_number, 20, 76)
         PF9
 		EMWriteScreen best_wreg_code, 8, 50
 		EMWriteScreen best_abawd_code, 13, 50
 		If best_wreg_code = "30" then
-		    EmWriteScreen "N", 8, ET_col
+		    EmWriteScreen "N", 8, 78
 		Else
-		    EMWriteScreen "_", 8, ET_col
+		    EMWriteScreen "_", 8, 78
 		End if
 
         'Updating the ATR if the codes are already not updated for the CM
@@ -889,18 +896,29 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    PF3 'to save and exit to stat/wrap
 
 	    'case note workaround
-        If age_50_workaround = True then
+        If (age_50_thru_59_workaround = True or age_60_thru_64_workaround = True) then
             Call navigate_to_MAXIS_screen("CASE", "NOTE")
             EMReadScreen first_case_note, 34, 5, 25
             If first_case_note <> "--SNAP Time Limited Recipient: Age" then
-                If age_50 = True then TLR_text = "10/23, 50-52"
-                If age_53_54 = True then TLR_text = "10/24, 53-54"
-	            start_a_blank_CASE_NOTE
+                If age_50_thru_59 = True then
+					If age_50_thru_55 = False then
+						TLR_text = "55-59"
+						TLR_coding = "16/03"
+					Else
+						TLR_text = "50-54"
+						TLR_coding = "16/03"
+					End if
+                If age_60_thru_64 = True then
+					TLR_text = "60-64"
+					TLR_coding = "05/01"
+				End if
+	            Call start_a_blank_CASE_NOTE
                 Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")
 		        Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
 	            Call write_variable_in_CASE_NOTE("---")
-	            Call write_variable_in_CASE_NOTE("* Effective " & TLR_text & " year olds are no longer exempt from SNAP time limits due solely to age.")
-	            Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
+	            Call write_variable_in_CASE_NOTE("* " & TLR_text & " year olds are no longer exempt from SNAP time limits due solely to age.")
+				'TODO Add ER or Application date >= 11/01/2025 case noting here when updating that section of the script.
+	            Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be " & TLR_coding & " until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	            PF3
