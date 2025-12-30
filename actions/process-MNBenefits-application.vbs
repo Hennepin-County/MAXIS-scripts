@@ -1259,7 +1259,6 @@ For member = 0 to Ubound(householdMembers, 2)
   ' NOTES: DOB can be blank ('          '), SSN can be blank ('   -  -    ')
 
   Do 
-
     'Conduct initial search with all details provided EXCEPT SSN
     EmWriteScreen householdMembers(MEMBER_LAST_NAME, member), 4, 36
     EmWriteScreen householdMembers(MEMBER_FIRST_NAME, member), 10, 36
@@ -1276,155 +1275,145 @@ For member = 0 to Ubound(householdMembers, 2)
     transmit
 
     'If a SSN was provided from application, script will check if any MTCH results match the SSN (despite not using that as a search criteria) since a SSN match is a guaranteed match. Script will review all results on first page since there can be repeating SSN matches
-    If householdMembers(MEMBER_SSN, member) <> "" and SSN_search = True Then
-      Do
-        EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
-        SSN_MTCH_panel = trim(SSN_MTCH_panel)
-        If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) then
-          ' ssn_match_found = True
-          'No more searches needed since match found
-          ' SSN_search = False
+    ' If householdMembers(MEMBER_SSN, member) <> "" and SSN_search = True Then
+    '   Do
+    '     EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
+    '     SSN_MTCH_panel = trim(SSN_MTCH_panel)
+    '     If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) then
+    '       ' ssn_match_found = True
+    '       'No more searches needed since match found
+    '       ' SSN_search = False
 
-          EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
-          last_name_MTCH_panel = trim(last_name_MTCH_panel)
+    '       EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
+    '       last_name_MTCH_panel = trim(last_name_MTCH_panel)
           
-          EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
-          first_name_MTCH_panel = trim(first_name_MTCH_panel)
+    '       EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
+    '       first_name_MTCH_panel = trim(first_name_MTCH_panel)
           
-          EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
-          gender_MTCH_panel = trim(gender_MTCH_panel)
+    '       EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
+    '       gender_MTCH_panel = trim(gender_MTCH_panel)
           
-          EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
-          dob_MTCH_panel = trim(dob_MTCH_panel)
-          If dob_MTCH_panel = "" Then dob_MTCH_panel = "Blank"
+    '       EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
+    '       dob_MTCH_panel = trim(dob_MTCH_panel)
+    '       If dob_MTCH_panel = "" Then dob_MTCH_panel = "Blank"
             
-          EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
-          pmi_MTCH_panel = trim(pmi_MTCH_panel)
+    '       EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
+    '       pmi_MTCH_panel = trim(pmi_MTCH_panel)
 
-          'Validate the PMI number. Script will only display a potential match if the PMI number exists
-          CALL write_value_and_transmit("X", MTCH_row, 5)
-          EMReadScreen PMI_exists_check, 24, 24, 2
-          If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
-            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then
+    '       'Validate the PMI number. Script will only display a potential match if the PMI number exists
+    '       CALL write_value_and_transmit("X", MTCH_row, 5)
+    '       EMReadScreen PMI_exists_check, 24, 24, 2
+    '       If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
+    '         If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then
 
-              ' msgbox "1310 Should be a new PERS search result " & vbCr & vbcr & "PERS_search_results_string >" & PERS_search_results_string & vbcr & vbcr & " PERS search result: " & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
-              ' Read all of the case numbers and add to array
-              DSPL_row = 10
-              DSPL_case_number_string = "*"
-              Do 
-                EmReadScreen DSPL_case_number, 12, DSPL_row, 6
-                DSPL_case_number = trim(DSPL_case_number)
-                If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
-                DSPL_row = DSPL_row + 1
-                EmReadScreen blank_case_number_check, 12, DSPL_row, 6
-                If trim(blank_case_number_check) = "" then Exit Do
+    '           ' Read all of the case numbers and add to array
+    '           DSPL_row = 10
+    '           DSPL_case_number_string = "*"
+    '           Do 
+    '             EmReadScreen DSPL_case_number, 12, DSPL_row, 6
+    '             DSPL_case_number = trim(DSPL_case_number)
+    '             If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
+    '             DSPL_row = DSPL_row + 1
+    '             EmReadScreen blank_case_number_check, 12, DSPL_row, 6
+    '             If trim(blank_case_number_check) = "" then Exit Do
 
-                If DSPL_row = 20 then 
-                  EMReadScreen more_check, 9, 20, 3
-                  more_check = trim(more_check)
-                  If more_check = "" or more_check = "More: -" Then Exit Do
-                  If more_check = "More: +" OR more_check = "More: +/-" Then 
-                    PF8
-                    DSPL_row = 10
-                  End If
-                End If
-              Loop
-              PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
-            End If
-            PF3   'Back to MTCH panel
-          Else
-            'Clear the X
-            EMWriteScreen "_", MTCH_row, 5
-          End If
-          ' Exit Do
-        End If
-        MTCH_row = MTCH_row + 1
-        If MTCH_row = 17 then 
-          SSN_search = False
-          MTCH_row = 8
-          Exit Do
-        End If
-      Loop
-    End If
-
-    'If we found a match then no more searching needed so we can exit next do loop. Changed to conduct second search no matter what due to possibility of duplicate SSNs and/or PMIs
-    ' If SSN_search = False and ssn_match_found = True Then 
-    '   Exit Do
+    '             If DSPL_row = 20 then 
+    '               EMReadScreen more_check, 9, 20, 3
+    '               more_check = trim(more_check)
+    '               If more_check = "" or more_check = "More: -" Then Exit Do
+    '               If more_check = "More: +" OR more_check = "More: +/-" Then 
+    '                 PF8
+    '                 DSPL_row = 10
+    '               End If
+    '             End If
+    '           Loop
+    '           PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
+    '         End If
+    '         PF3   'Back to MTCH panel
+    '       Else
+    '         'Clear the X
+    '         EMWriteScreen "_", MTCH_row, 5
+    '       End If
+    '       ' Exit Do
+    '     End If
+    '     MTCH_row = MTCH_row + 1
+    '     If MTCH_row = 17 then 
+    '       SSN_search = False
+    '       MTCH_row = 8
+    '       Exit Do
+    '     End If
+    '   Loop
     ' End If
-    
-    ' If ssn_match_found <> True then
-      Do
-        'Don't need to check SSN as already completed
-        'Read the data from the corresponding MTCH row
-        match_rating = 0
 
-        EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
-        SSN_MTCH_panel = trim(SSN_MTCH_panel)
-        If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) Then match_rating = match_rating + .2
+    Do
+      'Read the data from the corresponding MTCH row
+      match_rating = 0
 
-        EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
-        last_name_MTCH_panel = trim(last_name_MTCH_panel)
-        If last_name_MTCH_panel = UCase(householdMembers(MEMBER_LAST_NAME, member)) Then match_rating = match_rating + .2
+      EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
+      SSN_MTCH_panel = trim(SSN_MTCH_panel)
+      If SSN_MTCH_panel = householdMembers(MEMBER_SSN, member) Then match_rating = match_rating + .2
+
+      EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
+      last_name_MTCH_panel = trim(last_name_MTCH_panel)
+      If last_name_MTCH_panel = UCase(householdMembers(MEMBER_LAST_NAME, member)) Then match_rating = match_rating + .2
+      
+      EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
+      first_name_MTCH_panel = trim(first_name_MTCH_panel)
+      If first_name_MTCH_panel = UCase(householdMembers(MEMBER_FIRST_NAME, member)) Then match_rating = match_rating + .1
+      
+      EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
+      gender_MTCH_panel = trim(gender_MTCH_panel)
+      ' If gender_MTCH_panel = householdMembers(MEMBER_GENDER, member) Then match_rating = match_rating + .1
+      'To do - does it make sense to use gender to match?
+
+      EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
+      dob_MTCH_panel = trim(dob_MTCH_panel)
+      If dob_MTCH_panel = replace(householdMembers(MEMBER_DOB, member), "/", "-") Then match_rating = match_rating + .2
         
-        EmReadScreen first_name_MTCH_panel, 12, MTCH_row, 42
-        first_name_MTCH_panel = trim(first_name_MTCH_panel)
-        If first_name_MTCH_panel = UCase(householdMembers(MEMBER_FIRST_NAME, member)) Then match_rating = match_rating + .1
-        
-        EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
-        gender_MTCH_panel = trim(gender_MTCH_panel)
-        ' If gender_MTCH_panel = householdMembers(MEMBER_GENDER, member) Then match_rating = match_rating + .1
-        'To do - does it make sense to use gender to match?
+      EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
+      pmi_MTCH_panel = trim(pmi_MTCH_panel)
 
-        EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
-        dob_MTCH_panel = trim(dob_MTCH_panel)
-        If dob_MTCH_panel = replace(householdMembers(MEMBER_DOB, member), "/", "-") Then match_rating = match_rating + .2
-        ' msgbox "dob_MTCH_panel > " & dob_MTCH_panel & "replace(householdMembers(MEMBER_DOB, member), '/', '-') " & replace(householdMembers(MEMBER_DOB, member), "/", "-")
-          
-        EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
-        pmi_MTCH_panel = trim(pmi_MTCH_panel)
+      If match_rating > .2 Then         
+        'Validate the PMI number. Script will only display a potential match if the PMI number exists
+        CALL write_value_and_transmit("X", MTCH_row, 5)
+        EMReadScreen PMI_exists_check, 24, 24, 2
+        If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
+          If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then 
 
-        If match_rating > .2 Then         
-          'Validate the PMI number. Script will only display a potential match if the PMI number exists
-          CALL write_value_and_transmit("X", MTCH_row, 5)
-          EMReadScreen PMI_exists_check, 24, 24, 2
-          If Instr(PMI_exists_check, "PMI NBR ASSIGNED") = 0 Then
-            If Instr(PERS_search_results_string, first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")") = 0 Then 
-
-              ' msgbox "1391 Should be a new PERS search result " & vbCr & vbcr & "PERS_search_results_string >" & PERS_search_results_string & vbcr & vbcr & " PERS search result: " & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")#"
-              ' Read all of the case numbers and add to array
-              DSPL_row = 10
-              DSPL_case_number_string = "*"
-              Do 
-                EmReadScreen DSPL_case_number, 12, DSPL_row, 6
-                DSPL_case_number = trim(DSPL_case_number)
-                If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
-                DSPL_row = DSPL_row + 1
-                EmReadScreen blank_case_number_check, 12, DSPL_row, 6
-                If trim(blank_case_number_check) = "" then Exit Do
-                If DSPL_row = 20 then 
-                  EMReadScreen more_check, 9, 20, 3
-                  more_check = trim(more_check)
-                  If more_check = "" or more_check = "More: -" Then Exit Do
-                  If more_check = "More: +" OR more_check = "More: +/-" Then 
-                    PF8
-                    DSPL_row = 10
-                  End If
+            ' Read all of the case numbers and add to array
+            DSPL_row = 10
+            DSPL_case_number_string = "*"
+            Do 
+              EmReadScreen DSPL_case_number, 12, DSPL_row, 6
+              DSPL_case_number = trim(DSPL_case_number)
+              If Instr(DSPL_case_number_string, DSPL_case_number) = 0 Then DSPL_case_number_string = DSPL_case_number_string & DSPL_case_number & "*"  
+              DSPL_row = DSPL_row + 1
+              EmReadScreen blank_case_number_check, 12, DSPL_row, 6
+              If trim(blank_case_number_check) = "" then Exit Do
+              If DSPL_row = 20 then 
+                EMReadScreen more_check, 9, 20, 3
+                more_check = trim(more_check)
+                If more_check = "" or more_check = "More: -" Then Exit Do
+                If more_check = "More: +" OR more_check = "More: +/-" Then 
+                  PF8
+                  DSPL_row = 10
                 End If
-              Loop
-              PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
-            End If
-            PF3   'Back to MTCH panel
-          Else
-            'Clear the X
-            EMWriteScreen "_", MTCH_row, 5
+              End If
+            Loop
+            PERS_search_results_string = PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
           End If
+          PF3   'Back to MTCH panel
+        Else
+          'Clear the X
+          EMWriteScreen "_", MTCH_row, 5
         End If
+      End If
 
-        MTCH_row = MTCH_row + 1
-        If MTCH_row = 17 then 
-          Exit Do
-        End If
-      Loop
+      MTCH_row = MTCH_row + 1
+      If MTCH_row = 17 then 
+        Exit Do
+      End If
+    Loop
     ' End If
 
     'If we made it through second search then we need to exit loop
@@ -1458,7 +1447,6 @@ For member = 0 to Ubound(householdMembers, 2)
   If Instr(PERS_search_results_string, "#") Then PERS_match_found = True
   checkbox_y = 85
 
-  msgbox PERS_search_results_string
   If PERS_match_found Then PERS_search_results_string_array = split(PERS_search_results_string, "#")
   
   PERS_search_criteria = householdMembers(MEMBER_FIRST_NAME, member) & " " & householdMembers(MEMBER_LAST_NAME, member) & " (DOB: " & householdMembers(MEMBER_DOB, member) & "; SSN: " & householdMembers(MEMBER_SSN, member) & "; Gender: " & householdMembers(MEMBER_GENDER, member) & ")"
@@ -1554,12 +1542,45 @@ For member = 0 to Ubound(householdMembers, 2)
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
-  
-
   'Determine which option selected
   If PERS_match_found = False Or no_match_search_manually = 1 Then
     'Call dialog for worker to identify the PMI or indicate if a new person
+
+    BeginDialog Dialog1, 0, 0, 321, 180, "Manual PERS Search"
+      Text 5, 5, 300, 25, "You indicated that none of the matches identified by the script were correct. Please complete a manual search for the household member identified below and provide the corresponding PMI and MAXIS case number, if applicable."
+      GroupBox 5, 40, 310, 30, "Household Member Details from XML File"
+      Text 15, 55, 295, 10, PERS_search_criteria
+      GroupBox 5, 75, 310, 65, "Check one option below:"
+      CheckBox 10, 90, 60, 10, "I found a match", manual_match_found_checkbox
+      Text 25, 105, 50, 10, "Case Number:"
+      EditBox 80, 100, 50, 15, MAXIS_case_number
+      Text 145, 105, 20, 10, "PMI:"
+      EditBox 170, 100, 50, 15, PMI_number
+      CheckBox 10, 125, 185, 10, "No match found. This person does not exist in MAXIS.", manual_no_match_found_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 215, 160, 50, 15
+        CancelButton 265, 160, 50, 15
+    EndDialog
+
+    DO
+      DO
+        err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+        dialog Dialog1				'main dialog
+        cancel_without_confirmation
+        'to do - add error handling
+        If manual_match_found_checkbox = 1 Then
+          If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+          If trim(PMI_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+        End If
+        If manual_match_found_checkbox + manual_no_match_found_checkbox = 2 then err_msg = err_msg & vbNewLine & "* You can only check one checkbox."
+        If manual_match_found_checkbox + manual_no_match_found_checkbox = 0 then err_msg = err_msg & vbNewLine & "* You must check one of the checkboxes."
+        If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    'Proceed depending on options selected
+
   Else
     'Determine which result selected
     If pers_search_results_0 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(0)
@@ -1573,7 +1594,185 @@ For member = 0 to Ubound(householdMembers, 2)
     If pers_search_results_8 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(8)
     If pers_search_results_9 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(9)
 
+    ' Split out the case numbers from the selected PERS search result
+
+    'Pull out the PMI number
+    PMI_number = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "PMI: ") + 5, instr(selected_PERS_search_results_string, "; Gender: ") - instr(selected_PERS_search_results_string, "PMI: ") - 5)
+
+    'Pull out the case numbers
+    selected_PERS_search_case_numbers = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "*"), len(selected_PERS_search_results_string) - instr(selected_PERS_search_results_string, "*"))
+    selected_PERS_search_case_numbers = right(selected_PERS_search_case_numbers, len(selected_PERS_search_case_numbers) - 1)
+    'to do - remove leading and ending asterisk
+
+    selected_PERS_search_case_numbers_array = split(selected_PERS_search_case_numbers, "*")
+
+
+    For case_number = 0 to Ubound(selected_PERS_search_case_numbers_array)
+      'Navigate to STAT/MEMB to pull the household member number and relationship code
+      Call back_to_SELF
+      'Write the MAXIS case code
+      EMWriteScreen "________", 18, 43
+      EMWriteScreen selected_PERS_search_case_numbers_array(case_number), 18, 43 
+      EMWriteScreen "STAT", 16, 43 
+      CALL write_value_and_transmit("MEMB", 21, 70)
+      'Script will read each PMI number to see if there is a match
+      Do
+        ref_nbr = ""
+        rel_code = ""
+        pmi_number_check = ""
+        last_memb_check = ""
+
+        EmReadScreen pmi_number_check, 11, 4, 46
+        pmi_number_check = trim(pmi_number_check)
+        If pmi_number_check = pmi_number then
+          EmReadScreen ref_nbr, 2, 4, 33
+          EmReadScreen rel_code, 18, 10, 42
+          Call back_to_SELF
+          Exit Do
+        End If
+        transmit
+        EmReadScreen last_memb_check, 5, 24, 2
+        If last_memb_check = "ENTER" then Exit Do
+      Loop
+      'Update the array item with the details from STAT/MEMB
+      If ref_nbr <> "" Then
+        selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & ref_nbr & "                         " & rel_code 
+      Else
+        selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & "Person does not appear on case" 
+      End If
+    Next 
+
+    'Set the variables to resizing the dialog
+    case_num_btn_y = 60
+    ref_rel_y = 60
+
     'Display dialog with details from MAXIS compared to details from XML
+    BeginDialog Dialog1, 0, 0, 271, 365, "Verify MNBenefits XML Details - Household Members"
+      Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+      GroupBox 10, 30, 255, 85, "Review the Cases below for PERS Match"
+      Text 20, 40, 185, 10, "Nav to case                  Ref nbr                 Rel code"
+      ButtonGroup ButtonPressed
+        PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0
+        Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
+        ' Text 70, 50, 190, 10, "1234567         01                         01 Spouse or partner test for"
+
+        If UBound(PERS_search_results_string_array) > 0 Then
+          If selected_PERS_search_case_numbers_array(1) <> "" Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1
+            case_num_btn_y = case_num_btn_y + 10
+            Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
+            ref_rel_y = ref_rel_y + 10
+          End If
+        End If
+        If UBound(PERS_search_results_string_array) > 1 Then
+          If selected_PERS_search_case_numbers_array(2) <> "" Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2
+            case_num_btn_y = case_num_btn_y + 10
+            Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(2), instr(selected_PERS_search_case_numbers_array(2), "&") + 1)
+            ref_rel_y = ref_rel_y + 10
+          End If
+        End If
+        If UBound(PERS_search_results_string_array) > 2 Then
+          If selected_PERS_search_case_numbers_array(3) <> "" Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3
+            case_num_btn_y = case_num_btn_y + 10
+            Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(3), instr(selected_PERS_search_case_numbers_array(3), "&") + 1)
+            ref_rel_y = ref_rel_y + 10
+          End If
+        End If
+        If UBound(PERS_search_results_string_array) > 3 Then
+          If selected_PERS_search_case_numbers_array(4) <> "" Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4
+            case_num_btn_y = case_num_btn_y + 10
+            Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(4), instr(selected_PERS_search_case_numbers_array(4), "&") + 1)
+            ref_rel_y = ref_rel_y + 10
+          End If
+        End If
+      GroupBox 10, 120, 255, 80, "PERS Search Result Details"
+      Text 15, 135, 40, 10, "First name:"
+      Text 65, 135, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
+      Text 15, 145, 40, 10, "Last name:"
+      Text 65, 145, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
+      Text 15, 155, 45, 10, "Date of birth:"
+      Text 65, 155, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
+      Text 15, 165, 20, 10, "SSN:"
+      Text 65, 165, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
+      Text 15, 175, 20, 10, "PMI:"
+      Text 65, 175, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
+      Text 15, 185, 30, 10, "Gender:"
+      Text 65, 185, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
+      GroupBox 10, 205, 255, 140, "Verify the XML details below (update as needed):"
+      Text 15, 225, 40, 10, "First name:"
+      EditBox 70, 220, 100, 15, householdMembers(MEMBER_FIRST_NAME, member)
+      Text 15, 240, 40, 10, "Last name:"
+      EditBox 70, 235, 100, 15, householdMembers(MEMBER_LAST_NAME, member)
+      Text 15, 255, 30, 10, "Gender:"
+      DropListBox 70, 250, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", householdMembers(MEMBER_GENDER, member)
+      Text 15, 270, 50, 10, "Marital status:"
+      DropListBox 70, 265, 100, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", householdMembers(MEMBER_MARITAL_STATUS, member) 
+      Text 15, 285, 45, 10, "Date of birth:"
+      EditBox 70, 280, 100, 15, householdMembers(MEMBER_DOB, member)
+      Text 15, 300, 20, 10, "SSN:"
+      EditBox 70, 295, 100, 15, householdMembers(MEMBER_SSN, member)
+      Text 15, 315, 45, 10, "Citizenship:"
+      DropListBox 70, 310, 30, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", householdMembers(MEMBER_CITIZENSHIP, member)
+      Text 15, 330, 45, 10, "Relationship:"
+      DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", householdMembers(MEMBER_RELATIONSHIP, member)
+      ButtonGroup ButtonPressed
+        PushButton 175, 355, 45, 15, "Next", next_hh_memb_btn
+        CancelButton 220, 355, 45, 15
+    EndDialog
+
+    DO
+      DO
+        err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+        dialog Dialog1				'main dialog
+        cancel_without_confirmation
+        'to do - add error handling
+
+        If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+        If trim(PMI_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+
+        If ButtonPressed = case_number_nav_0 Then
+          Call back_to_SELF
+          EMWriteScreen "________", 18, 43 
+          EMWriteScreen mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), 18, 43
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+        End If  
+        If ButtonPressed = case_number_nav_1 Then
+          Call back_to_SELF
+          EMWriteScreen "________", 18, 43 
+          EMWriteScreen mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), 18, 43
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+        End If
+        If ButtonPressed = case_number_nav_2 Then
+          Call back_to_SELF
+          EMWriteScreen "________", 18, 43 
+          EMWriteScreen mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), 18, 43
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+        End If
+        If ButtonPressed = case_number_nav_3 Then
+          Call back_to_SELF
+          EMWriteScreen "________", 18, 43 
+          EMWriteScreen mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), 18, 43
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+        End If
+        If ButtonPressed = case_number_nav_4 Then
+          Call back_to_SELF
+          EMWriteScreen "________", 18, 43 
+          EMWriteScreen mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), 18, 43
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+        End If
+
+        If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
     
     
     ' 'Add the person match selected to the array
