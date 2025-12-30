@@ -350,6 +350,25 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 age_53_54 = True
             End if
 
+			'----------------------------------------------------------------------------------------------------Native American Exemption
+			native = False
+
+            EMReadScreen tribal_indicator, 2, 18, 42
+            ObjExcel.Cells(excel_row, tribal_col).Value = replace(tribal_indicator, "_", "")        'Tribal Indicator
+            native = False  'default to not Native American
+            EmReadScreen race_detail, 37, 17, 42
+            If trim(race_detail) = "Amer Indn Or Alaskan Native" then native = True
+            If trim(race_detail) = "Unable To Determine" then possible_exemptions = possible_exemptions & "No race indicated. "
+            If trim(race_detail) = "Multiple Races" then
+                PF9
+                Call write_value_and_transmit("X", 17, 34)
+                EMReadScreen native_indicator, 1, 10, 12
+                If native_indicator = "X" then native = True
+                transmit 'to exit pop up
+                transmit 'to exit MEMB
+            End if
+			If native = true then verified_wreg = verified_wreg & "30" & "|"
+
 			'----------------------------------------------------------------------------------------------------DISA Exemption
 			'Case-based evaluation
             CALL navigate_to_MAXIS_screen("STAT", "DISA")
@@ -784,7 +803,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	        If best_wreg_code = "21" then best_abawd_code = "04"
 	        If best_wreg_code = "17" then best_abawd_code = "12"
 	        If best_wreg_code = "23" then best_abawd_code = "05"
-            If best_wreg_code = "30" then best_abawd_code = "09" 'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
+            If best_wreg_code = "30" then best_abawd_code = "09" 'This is for native exemption folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
         End If
 
         '----------------------------------------------------------------------------------------------------STAT/REVW
