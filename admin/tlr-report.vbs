@@ -350,12 +350,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 age_53_54 = True
             End if
 
-			'----------------------------------------------------------------------------------------------------possible exemption for foster care members under 24 YO.
-			If cl_age < 24 then
-				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case. "
-			End if
-
-			'<<<<<<<<<<DISA
+			'----------------------------------------------------------------------------------------------------DISA Exemption
 			'Case-based evaluation
             CALL navigate_to_MAXIS_screen("STAT", "DISA")
             FOR EACH eats_pers IN eats_group_members
