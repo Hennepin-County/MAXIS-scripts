@@ -688,16 +688,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 					End If
 				End if
             End If
-		    '----------------------------------------------------------------------------------------------------30/09 - Military Servive
-            '>>>>>>>>>>MEMI
-		    'Person-based determination
-            CALL navigate_to_MAXIS_screen("STAT", "MEMI")
-			Call write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen military_service_code, 1, 12, 78
-            If military_service_code = "Y" then
-                verified_wreg = verified_wreg & "30" & "|"
-            End if
-
+		    '----------------------------------------------------------------------------------------------------03/01 – Homeless
             '>>>>>>>>>>ADDR
 		    'Case based determination
 			homeless_exemption = False
