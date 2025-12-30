@@ -773,7 +773,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    Elseif len(verified_wreg) = 3 then
             best_wreg_code = left(verified_wreg,2) 'resetting variable
         Else
-            wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
+			'Multiple wreg heirarchies possible based on the person situations and system workarounds required.
+			If age_50_thru_59 = True then
+				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","30","16")
+			ElseIf age_60_thru_64 = True then
+				wreg_hierarchy = array("03","04","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30","05")
+            ElseIf (child_under_14 = False and child_14_to_17 = True) then
+				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","17","23","30","21")
+			Else
+				'this is for non-workarounds
+				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
+			End if
             for each code in wreg_hierarchy
                 If instr(verified_wreg, code) then
                     best_wreg_code = code
