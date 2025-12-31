@@ -158,7 +158,7 @@ Call find_user_name(worker_name)						'defaulting the name of the suer running t
 CALL MAXIS_case_number_finder (MAXIS_case_number)		'try to find the case number
 
 
-subject_list = "Type or Select"+chr(9)+"SNAP - Policy Question"+chr(9)+"MFIP - Policy Question"+chr(9)+"GA - Policy Question"+chr(9)+"MSA - Policy Question"+chr(9)+"GHR/HS - Policy Question"+chr(9)+"HC - Policy"+chr(9)+"Immigration Question"+chr(9)+"Expedited SNAP Question"+chr(9)+"SNAP Procedure"+chr(9)+"MFIP Procedure"+chr(9)+"GA Procedure"+chr(9)+"MSA Procedure"+chr(9)+"GRH/GA Procedure"+chr(9)+"HC Procedure"
+subject_list = "Type or Select"+chr(9)+"SNAP - Policy Question"+chr(9)+"MFIP - Policy Question"+chr(9)+"GA - Policy Question"+chr(9)+"MSA - Policy Question"+chr(9)+"GRH/HS - Policy Question"+chr(9)+"HC - Policy"+chr(9)+"Immigration Question"+chr(9)+"Expedited SNAP Question"+chr(9)+"SNAP Procedure"+chr(9)+"MFIP Procedure"+chr(9)+"GA Procedure"+chr(9)+"MSA Procedure"+chr(9)+"GRH/GA Procedure"+chr(9)+"HC Procedure"
 
 'One and only dialog for this script
 DO
