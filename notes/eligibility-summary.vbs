@@ -3254,7 +3254,7 @@ function define_hc_elig_dialog()
         If HC_ELIG_APPROVALS(elig_ind).hc_elig_type_belongs_in_METS(memb_ind) Then
             GroupBox 10, 335, 525, 30, "ELIG TYPE " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " is typically processed in METS."
             Text 15, 350, 140, 10, "Provide the reason for entering in MAXIS:"
-            DropListBox 150, 345, 150, 15, "Select One..."+chr(9)+"Temporary Eligibility"+chr(9)+"Auto Newborn"+chr(9)+"Retro Request"+chr(9)+"Safety Net"+chr(9)+"TMA/TYMA", HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected)
+            DropListBox 150, 345, 150, 15, "Select One..."+chr(9)+"Temporary Eligibility"+chr(9)+"Auto Newborn"+chr(9)+"EMA"+chr(9)+"Retro Request"+chr(9)+"Safety Net"+chr(9)+"Spenddown"+chr(9)+"TMA/TYMA", HC_UNIQUE_APPROVALS(reason_in_MX_const, approval_selected)
             Text 315, 350, 100, 10, "METS Case Number:"
             EditBox 415, 345, 100, 15, HC_UNIQUE_APPROVALS(METS_case_const, approval_selected)
         End If
