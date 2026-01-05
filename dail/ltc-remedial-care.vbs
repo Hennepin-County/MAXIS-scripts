@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/02/2026", "Updated remedial care amount to $267.00 for January 2026.", "Dave Courtright, Hennepin County")
 call changelog_update("12/28/2024", "Updated remedial care amount to $281.00 for January 2025.", "Dave Courtright, Hennepin County")
 call changelog_update("06/05/2024", "Updated remedial care amount to $278.00 for July 2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2023", "Updated remedial care amount to $275.00 for January 2024.", "Ilse Ferris, Hennepin County") ''#873
@@ -64,8 +65,8 @@ changelog_display
 
 EMConnect ""
 'EPM Reference for Remedial Care: http://hcopub.dhs.state.mn.us/epm/appendix_f.htm?rhhlterm=remedial%20care&rhsearch=remedial%20care
-remedial_care_amt = "281.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "01/01/2025" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
+remedial_care_amt = "267.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "01/01/2026" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
