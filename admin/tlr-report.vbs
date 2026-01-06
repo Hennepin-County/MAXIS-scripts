@@ -277,486 +277,468 @@ Function BULK_ABAWD_FSET_exemption_finder()
                         cl_age = cl_age * 1
 			    		If cl_age < 6 then child_under_six = True
                         If cl_age <= 13 then child_under_14 = true
-						If cl_age >= 14 and memb_age <= 17 then child_14_to_17 = true
+						If (cl_age >= 14 and memb_age <= 17) then child_14_to_17 = true
                         IF cl_age => 17 THEN adult_HH_count = adult_HH_count + 1
                     END IF
                 NEXT
             End if
         END IF
 
-		    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
- 		    If child_under_14 = True then verified_wreg = verified_wreg & "21" & "|"
-
-			'----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
-			If child_under_six = True then
-				If adult_HH_count = 1 then
-					verified_wreg = verified_wreg & "08" & "|"
-				Else
-					possible_exemptions = possible_exemptions & vbcr & "Child under 6 is in the SNAP Household. "
+		'----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
+ 		If child_under_14 = True then verified_wreg = verified_wreg & "21" & "|"
+		'----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
+		If child_under_six = True then
+			If adult_HH_count = 1 then
+				verified_wreg = verified_wreg & "08" & "|"
+			Else
+				possible_exemptions = possible_exemptions & vbcr & "Child under 6 is in the SNAP Household. "
+			End if
+		End if
+		'person-based determination
+		age_50_thru_59 = False
+		age_50_thru_55 = False 'This boolean is used for case note workaround. If anyone 50-55, we note that in case note the date of TLR is not specific to 11/01/25 implementation date.
+		age_60_thru_64 = False
+        CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen cl_age, 2, 8, 76
+        cl_age = trim(cl_age)
+		EMReadScreen age_verif_code, 2, 8, 68
+        IF cl_age = "" THEN cl_age = 0
+        cl_age = cl_age * 1
+		'----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
+		If cl_age = 16 or cl_age = 17 then
+			EMReadScreen age_verif_code, 2, 8, 68
+			If age_verif_code <> "NO" then
+				verified_wreg = verified_wreg & "07" & "|"
+			End if
+		End if
+		'----------------------------------------------------------------------------------------------------06 – Under age 16
+		If cl_age < 16 then
+			If age_verif_code <> "NO" then
+				verified_wreg = verified_wreg & "06" & "|"
+			End if
+		End if
+		 '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
+		If cl_age => 50 then
+			If cl_age =< 59 then
+				If age_verif_code <> "NO" then
+					verified_wreg = verified_wreg & "16" & "|"
+                    age_50_thru_59 = True
 				End if
 			End if
-
-		    'person-based determination
-			age_50_thru_59 = False
-			age_50_thru_55 = False 'This boolean is used for case note workaround. If anyone 50-55, we note that in case note the date of TLR is not specific to 11/01/25 implementation date.
-			age_60_thru_64 = False
-
-            CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen cl_age, 2, 8, 76
-            cl_age = trim(cl_age)
-		    EMReadScreen age_verif_code, 2, 8, 68
-            IF cl_age = "" THEN cl_age = 0
-            cl_age = cl_age * 1
-
-		    '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
-		    If cl_age = 16 or cl_age = 17 then
-		    	EMReadScreen age_verif_code, 2, 8, 68
-		    	If age_verif_code <> "NO" then
-		    		verified_wreg = verified_wreg & "07" & "|"
-		    	End if
-		    End if
-
-		    '----------------------------------------------------------------------------------------------------06 – Under age 16
-		    If cl_age < 16 then
-		    	If age_verif_code <> "NO" then
-		    		verified_wreg = verified_wreg & "06" & "|"
-		    	End if
-		    End if
-		     '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
-		    If cl_age => 50 then
-		    	If cl_age =< 59 then
-		    		If age_verif_code <> "NO" then
-		    			verified_wreg = verified_wreg & "16" & "|"
-                        age_50_thru_59 = True
-		    		End if
-		    	End if
-				If (cl_age => 50 and cl_age =< 55) then age_50_thru_55 = True
-		    End if
-		    '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
-		    If cl_age => 65 then
-		    If age_verif_code <> "NO" then
-		    	verified_wreg = verified_wreg & "05" & "|"
-		    	End if
-		    End if
-
-             If cl_age => 60 then
-		    	If cl_age < 65 then
-		    		If age_verif_code <> "NO" then
-		    			verified_wreg = verified_wreg & "05" & "|"
-                        age_60_thru_64  = True
-		    		End if
-		    	End if
-		    End if
-
-			'----------------------------------------------------------------------------------------------------Native American Exemption
-			native = False
-            EMReadScreen tribal_indicator, 2, 18, 42
-            EmReadScreen race_detail, 37, 17, 42
-            If trim(race_detail) = "Amer Indn Or Alaskan Native" then native = True
-            If trim(race_detail) = "Unable To Determine" then possible_exemptions = possible_exemptions & "No race indicated. "
-            If trim(race_detail) = "Multiple Races" then
-                PF9
-                Call write_value_and_transmit("X", 17, 34)
-                EMReadScreen native_indicator, 1, 10, 12
-                If native_indicator = "X" then native = True
-                transmit 'to exit pop up
-                transmit 'to exit MEMB
-            End if
-			If native = true then verified_wreg = verified_wreg & "30" & "|"
-
-			'----------------------------------------------------------------------------------------------------DISA Exemption
-			'Case-based evaluation
-            CALL navigate_to_MAXIS_screen("STAT", "DISA")
-            FOR EACH eats_pers IN eats_group_members
-            	disa_status = false
-            	IF eats_pers <> "" THEN
-            		CALL write_value_and_transmit(eats_pers, 20, 76)
-            		EMReadScreen num_of_DISA, 1, 2, 78
-            		IF num_of_DISA <> "0" THEN
-            			EMReadScreen disa_end_dt, 10, 6, 69
-            			disa_end_dt = replace(disa_end_dt, " ", "/")
-            			EMReadScreen cert_end_dt, 10, 7, 69
-            			cert_end_dt = replace(cert_end_dt, " ", "/")
-            			IF IsDate(disa_end_dt) = True THEN
-            				IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN
-								disa_status = True
-            					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & ". "
-            				END IF
-            			ELSE
-            				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-								disa_status = True
-								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date. "
-            				END IF
-            			END IF
-            			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            				IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN
-								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & ". "
-							End if
-						ELSE
-            				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
-            					EMReadScreen cert_begin_dt, 8, 7, 47
-            					IF cert_begin_dt <> "__ __ __" THEN
-									If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date. "
-								End if
-							END IF
-            			END IF
-            		END IF
-            	END IF
-            NEXT
-
-			'Person based evaluation
-            'Still in DISA
-            CALL write_value_and_transmit(member_number, 20, 76)
-			verified_disa = False
-			disa_status = False
-            EMReadScreen num_of_DISA, 1, 2, 78
-
-			IF num_of_DISA <> "0" THEN
-            	EMReadScreen disa_end_dt, 10, 6, 69
-            	disa_end_dt = replace(disa_end_dt, " ", "/")
-            	EMReadScreen cert_end_dt, 10, 7, 69
-            	cert_end_dt = replace(cert_end_dt, " ", "/")
-            	IF IsDate(disa_end_dt) = True THEN
-            		IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN disa_status = True
-            	ELSE
-            		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
-            	END IF
-            	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            		IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN disa_status = True
-				ELSE
-            		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
-            			EMReadScreen cert_begin_dt, 8, 7, 47
-            			IF cert_begin_dt <> "__ __ __" THEN disa_status = True
-					End if
+			If (cl_age => 50 and cl_age =< 55) then age_50_thru_55 = True
+		End if
+		'----------------------------------------------------------------------------------------------------'05 - Age 60 or older
+		If cl_age => 65 then
+		If age_verif_code <> "NO" then
+			verified_wreg = verified_wreg & "05" & "|"
+			End if
+		End if
+         If cl_age => 60 then
+			If cl_age < 65 then
+				If age_verif_code <> "NO" then
+					verified_wreg = verified_wreg & "05" & "|"
+                    age_60_thru_64  = True
 				End if
-			END IF
+			End if
+		End if
+		'----------------------------------------------------------------------------------------------------Native American Exemption
+		native = False
+        EMReadScreen tribal_indicator, 2, 18, 42
+        EmReadScreen race_detail, 37, 17, 42
+        If trim(race_detail) = "Amer Indn Or Alaskan Native" then native = True
+        If trim(race_detail) = "Unable To Determine" then possible_exemptions = possible_exemptions & "No race indicated. "
+        If trim(race_detail) = "Multiple Races" then
+            PF9
+            Call write_value_and_transmit("X", 17, 34)
+            EMReadScreen native_indicator, 1, 10, 12
+            If native_indicator = "X" then native = True
+            transmit 'to exit pop up
+            transmit 'to exit MEMB
+        End if
+		If native = true then verified_wreg = verified_wreg & "30" & "|"
 
-            If disa_status = True then
-                row = 11
-                Do
-                    EmReadscreen prog_disa_code, 2, row, 59
-                    If prog_disa_code <> "__" then
-                        EmReadscreen prog_disa_verif, 1, row, 69
-                        If prog_disa_verif <> "N" then
-                            If row = 11 or row = 13 then
+		'----------------------------------------------------------------------------------------------------DISA Exemption
+		'Case-based evaluation
+        CALL navigate_to_MAXIS_screen("STAT", "DISA")
+        FOR EACH eats_pers IN eats_group_members
+        	disa_status = false
+        	IF eats_pers <> "" THEN
+        		CALL write_value_and_transmit(eats_pers, 20, 76)
+        		EMReadScreen num_of_DISA, 1, 2, 78
+        		IF num_of_DISA <> "0" THEN
+        			EMReadScreen disa_end_dt, 10, 6, 69
+        			disa_end_dt = replace(disa_end_dt, " ", "/")
+        			EMReadScreen cert_end_dt, 10, 7, 69
+        			cert_end_dt = replace(cert_end_dt, " ", "/")
+        			IF IsDate(disa_end_dt) = True THEN
+        				IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN
+							disa_status = True
+        					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & ". "
+        				END IF
+        			ELSE
+        				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
+							disa_status = True
+							If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date. "
+        				END IF
+        			END IF
+        			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+        				IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN
+							If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & ". "
+						End if
+					ELSE
+        				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
+        					EMReadScreen cert_begin_dt, 8, 7, 47
+        					IF cert_begin_dt <> "__ __ __" THEN
+								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date. "
+							End if
+						END IF
+        			END IF
+        		END IF
+        	END IF
+        NEXT
+
+		'Person based evaluation
+        'Still in DISA
+        CALL write_value_and_transmit(member_number, 20, 76)
+		verified_disa = False
+		disa_status = False
+        EMReadScreen num_of_DISA, 1, 2, 78
+		IF num_of_DISA <> "0" THEN
+        	EMReadScreen disa_end_dt, 10, 6, 69
+        	disa_end_dt = replace(disa_end_dt, " ", "/")
+        	EMReadScreen cert_end_dt, 10, 7, 69
+        	cert_end_dt = replace(cert_end_dt, " ", "/")
+        	IF IsDate(disa_end_dt) = True THEN
+        		IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN disa_status = True
+        	ELSE
+        		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
+        	END IF
+        	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+        		IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN disa_status = True
+			ELSE
+        		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
+        			EMReadScreen cert_begin_dt, 8, 7, 47
+        			IF cert_begin_dt <> "__ __ __" THEN disa_status = True
+				End if
+			End if
+		END IF
+        If disa_status = True then
+            row = 11
+            Do
+                EmReadscreen prog_disa_code, 2, row, 59
+                If prog_disa_code <> "__" then
+                    EmReadscreen prog_disa_verif, 1, row, 69
+                    If prog_disa_verif <> "N" then
+                        If row = 11 or row = 13 then
+                            verified_disa = True
+                            exit do
+                        Else
+                            If prog_disa_verif = "7" then
+                                verified_disa = False
+                            Else
                                 verified_disa = True
                                 exit do
-                            Else
-                                If prog_disa_verif = "7" then
-                                    verified_disa = False
-                                Else
-                                    verified_disa = True
-                                    exit do
-                                End if
                             End if
-                        End if
-                    End if
-                    row = row + 1
-                Loop until row = 14
-
-				If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
-			End if
-
-            '>>>>>>>>>>>>>>EARNED INCOME
-		    'Person-based determination for Earned Income
-            prosp_inc = 0
-            prosp_hrs = 0
-            prospective_hours = 0
-            CALL navigate_to_MAXIS_screen("STAT", "JOBS")
-            EMWritescreen member_number, 20, 76
-		    Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
-            EMReadScreen num_of_JOBS, 1, 2, 78
-            IF num_of_JOBS <> "0" THEN
-            	DO
-            	 	EMReadScreen jobs_end_dt, 8, 9, 49
-            		EMReadScreen cont_end_dt, 8, 9, 73
-            		IF jobs_end_dt = "__ __ __" THEN
-		    			EMReadScreen jobs_verif_code, 1, 6, 34
-            			CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC
-            			EMReadScreen prosp_monthly, 8, 18, 56
-            			prosp_monthly = trim(prosp_monthly)
-            			IF prosp_monthly = "" THEN prosp_monthly = 0
-            			prosp_inc = prosp_inc + prosp_monthly
-            			EMReadScreen prosp_hrs, 8, 16, 50
-            			IF prosp_hrs = "        " THEN prosp_hrs = 0
-            			prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
-            			EMReadScreen pay_freq, 1, 5, 64
-            			IF pay_freq = "1" THEN
-            				prosp_hrs = prosp_hrs
-            			ELSEIF pay_freq = "2" THEN
-            				prosp_hrs = (2 * prosp_hrs)
-            			ELSEIF pay_freq = "3" THEN
-            				prosp_hrs = (2.15 * prosp_hrs)
-            			ELSEIF pay_freq = "4" THEN
-            				prosp_hrs = (4.3 * prosp_hrs)
-            			END IF
-                        transmit		'to exit PIC
-            			prospective_hours = prospective_hours + prosp_hrs
-            		ELSE
-            			jobs_end_dt = replace(jobs_end_dt, " ", "/")
-            			IF DateDiff("D", ABAWD_eval_date, jobs_end_dt) > 0 THEN
-            				'Going into the PIC for a job with an end date in the future
-            				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
-            				EMReadScreen prosp_monthly, 8, 18, 56
-            				prosp_monthly = trim(prosp_monthly)
-            				IF prosp_monthly = "" THEN prosp_monthly = 0
-            				prosp_inc = prosp_inc + prosp_monthly
-            				EMReadScreen prosp_hrs, 8, 16, 50
-            				IF prosp_hrs = "        " THEN prosp_hrs = 0
-            				prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
-            				EMReadScreen pay_freq, 1, 5, 64
-            				IF pay_freq = "1" THEN
-            					prosp_hrs = prosp_hrs
-            				ELSEIF pay_freq = "2" THEN
-            					prosp_hrs = (2 * prosp_hrs)
-            				ELSEIF pay_freq = "3" THEN
-            					prosp_hrs = (2.15 * prosp_hrs)
-            				ELSEIF pay_freq = "4" THEN
-            					prosp_hrs = (4.3 * prosp_hrs)
-            				END IF
-                            transmit		'to exit PIC
-            				'added separate incremental variable to account for multiple jobs
-            				prospective_hours = prospective_hours + prosp_hrs
-            			END IF
-            		END IF
-            		EMReadScreen JOBS_panel_current, 1, 2, 73
-            		'looping until all the jobs panels are calculated
-            		If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
-            	Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
-            END IF
-
-		    'Person-based determination
-            EMWriteScreen "BUSI", 20, 71
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen num_of_BUSI, 1, 2, 78
-            IF num_of_BUSI <> "0" THEN
-            	DO
-            		EMReadScreen busi_end_dt, 8, 5, 72
-            		busi_end_dt = replace(busi_end_dt, " ", "/")
-            		IF IsDate(busi_end_dt) = True THEN
-		    			Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
-		    			EMReadScreen busi_verif_code, 1, 11, 73
-		    			PF3 'to exit pop up
-            			IF DateDiff("D", ABAWD_eval_date, busi_end_dt) > 0 THEN
-            				EMReadScreen busi_inc, 8, 10, 69
-            				busi_inc = trim(busi_inc)
-            				EMReadScreen busi_hrs, 3, 13, 74
-            				busi_hrs = trim(busi_hrs)
-            				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
-            				prosp_inc = prosp_inc + busi_inc
-            				prosp_hrs = prosp_hrs + busi_hrs
-            				prospective_hours = prospective_hours + busi_hrs
-            			END IF
-            		ELSE
-            			IF busi_end_dt = "__/__/__" THEN
-            				EMReadScreen busi_inc, 8, 10, 69
-            				busi_inc = trim(busi_inc)
-            				EMReadScreen busi_hrs, 3, 13, 74
-            				busi_hrs = trim(busi_hrs)
-            				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
-            				prosp_inc = prosp_inc + busi_inc
-            				prosp_hrs = prosp_hrs + busi_hrs
-            				prospective_hours = prospective_hours + busi_hrs
-            			END IF
-            		END IF
-            		transmit
-            		EMReadScreen enter_a_valid, 13, 24, 2
-            	LOOP UNTIL enter_a_valid = "ENTER A VALID"
-            END IF
-
-		    'Person based since very unlikely to be case based at this point.
-            EMWriteScreen "RBIC", 20, 71
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen num_of_RBIC, 1, 2, 78
-            IF num_of_RBIC <> "0" then report_notes = report_notes & "Actually found an RBIC."
-
-            IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
-		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
-		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then
-		    			verified_wreg = verified_wreg & "09" & "|"
-		    		End if
-		    	End if
-            ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
-		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
-		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then
-		    			verified_abawd = verified_wreg & "06"
-		    		End if
-		    	End if
-            END IF
-
-            '>>>>>>>>>>>>UNEA
-		    '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
-		    'Person-based determination
-            Call navigate_to_MAXIS_screen("STAT", "UNEA")
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen num_of_UNEA, 1, 2, 78
-            IF num_of_UNEA <> "0" THEN
-            	DO
-            		EMReadScreen unea_type, 2, 5, 37
-            		EMReadScreen unea_end_dt, 8, 7, 68
-            		unea_end_dt = replace(unea_end_dt, " ", "/")
-            		IF IsDate(unea_end_dt) = True THEN
-            			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-            				IF unea_type = "11" then
-		    					EmReadScreen VA_verif_code, 1, 5, 65
-		    					If VA_verif_code <> "N" then
-		    						verified_wreg = verified_wreg & "03" & "|"
-		    						Exit do
-		    					Else
-		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have VA disability benefits. "
-		    					End if
-		    				End if
-            			END IF
-            		END IF
-            		transmit
-            		EMReadScreen enter_a_valid, 13, 24, 2
-            	LOOP UNTIL enter_a_valid = "ENTER A VALID"
-            END IF
-
-		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
-		    'Person-based determination
-            uc_unea = False
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen num_of_UNEA, 1, 2, 78
-            IF num_of_UNEA <> "0" THEN
-            	DO
-            		EMReadScreen unea_type, 2, 5, 37
-            		EMReadScreen unea_end_dt, 8, 7, 68
-            		unea_end_dt = replace(unea_end_dt, " ", "/")
-            		IF IsDate(unea_end_dt) = True THEN
-            			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-            				IF unea_type = "14" then
-		    					EmReadScreen UC_verif_code, 1, 5, 65
-		    					If UC_verif_code <> "N" then
-                                    uc_unea = True
-		    						verified_wreg = verified_wreg & "11" & "|"
-		    						Exit do
-		    					Else
-		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active unemployment benefits. "
-		    					End if
-		    				End if
-            			END IF
-            		END IF
-            		transmit
-            		EMReadScreen enter_a_valid, 13, 24, 2
-            	LOOP UNTIL enter_a_valid = "ENTER A VALID"
-            END IF
-
-		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
-            '>>>>>>>>>PBEN
-		    'Person based determination
-            CALL navigate_to_MAXIS_screen("STAT", "PBEN")
-		    Call write_value_and_transmit(member_number, 20, 76)
-		    EMReadScreen num_of_PBEN, 1, 2, 78
-            IF num_of_PBEN <> "0" THEN
-            	pben_row = 8
-            	DO
-                    EMreadscreen pben_type, 2, pben_row, 24
-                    If pben_type = "__" then exit do
-            	    IF pben_type = "12" THEN		'UI pending'
-            			EMReadScreen pben_disp, 1, pben_row, 77
-            			IF pben_disp = "A" OR pben_disp = "P" THEN
-		    				verified_wreg = verified_wreg & "11" & "|"
-		    				EXIT DO
-                        elseif pben_disp = "E" then
-                            if uc_unea = True then
-                                verified_wreg = verified_wreg & "11" & "|"
-                                Exit do
-                            Else
-                                pben_row = pben_row + 1
-                            End if
-            			Else
-		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits. "
-                            pben_row = pben_row + 1
-            			END IF
-            		ELSE
-            			pben_row = pben_row + 1
-            		END IF
-            	LOOP UNTIL pben_row = 12
-		    End if
-
-		    '----------------------------------------------------------------------------------------------------23 – Pregnant
-            '>>>>>>>>>>PREG
-		    'Person based determination
-            CALL navigate_to_MAXIS_screen("STAT", "PREG")
-			Call write_value_and_transmit(member_number, 20, 76)
-		    EMReadScreen num_of_PREG, 1, 2, 78
-            IF num_of_PREG <> "0" THEN
-                EMReadScreen preg_due_dt, 8, 10, 53
-                preg_due_dt = replace(preg_due_dt, " ", "/")
-            	EMReadScreen preg_end_dt, 8, 12, 53
-
-                If preg_due_dt <> "__/__/__" Then
-		    		EMReadscreen preg_verif, 1, 6, 75
-                    If DateDiff("d", ABAWD_eval_date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
-
-						If preg_verif = "Y" then
-							verified_wreg = verified_wreg & "23" & "|"
-						Elseif preg_verif = "N" then
-							verified_wreg = verified_wreg & "23" & "|"
-						Elseif preg_verif = "?" then
-							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption.
-						Else
-							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy. "
-						End if
-					End If
-				End if
-            End If
-		    '----------------------------------------------------------------------------------------------------03/01 – Homeless
-            '>>>>>>>>>>ADDR
-		    'Case based determination
-			homeless_exemption = False
-            CALL navigate_to_MAXIS_screen("STAT", "ADDR")
-            EMReadScreen homeless_code, 1, 10, 43
-			EMReadScreen living_situation, 2, 11, 43
-            EmReadscreen addr_line_01, 16, 6, 43
-
-            IF homeless_code = "Y" then
-				If living_situation = "02" or _
-					living_situation = "06" or _
-					living_situation = "07" or _
-					living_situation = "08" then
-					verified_wreg = verified_wreg & "03" & "|"
-					homeless_exemption = True
-				Else
-					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match. "
-				End if
-            Elseif addr_line_01 = "GENERAL DELIVERY" THEN
-                possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery. "
-			Else
-				homeless_exemption = False
-            End if
-
-            '>>>>>>>>>SCHL/STIN/STEC
-		    'person based determination
-		    CALL navigate_to_MAXIS_screen("STAT", "SCHL")
-            CALL write_value_and_transmit(member_number, 20, 76)
-            EMReadScreen num_of_SCHL, 1, 2, 78
-            IF num_of_SCHL = "1" THEN
-            	EMReadScreen school_status, 1, 6, 40
-                EMReadScreen school_verif, 2, 6, 63
-                EMReadScreen SNAP_code, 2, 16, 63
-            	IF school_status = "F" or school_status = "H" then
-                    If school_verif = "SC" or school_verif = "OT" then
-                        If  SNAP_code = "01" or _
-                            SNAP_code = "02" or _
-                            SNAP_code = "04" or _
-                            SNAP_code = "05" or _
-                            SNAP_code = "06" or _
-                            SNAP_code = "07" or _
-                            SNAP_code = "09" or _
-                            SNAP_code = "10" then
-                            verified_wreg = verified_wreg & "12" & "|"
-                        Else
-                            If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be in school w/ unverified school status. "
                         End if
                     End if
                 End if
-		    End if
-
-            IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions. "
+                row = row + 1
+            Loop until row = 14
+			If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
 		End if
+
+        '>>>>>>>>>>>>>>EARNED INCOME
+		'Person-based determination for Earned Income
+        prosp_inc = 0
+        prosp_hrs = 0
+        prospective_hours = 0
+        CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+        EMWritescreen member_number, 20, 76
+		Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
+        EMReadScreen num_of_JOBS, 1, 2, 78
+        IF num_of_JOBS <> "0" THEN
+        	DO
+        	 	EMReadScreen jobs_end_dt, 8, 9, 49
+        		EMReadScreen cont_end_dt, 8, 9, 73
+        		IF jobs_end_dt = "__ __ __" THEN
+					EMReadScreen jobs_verif_code, 1, 6, 34
+        			CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC
+        			EMReadScreen prosp_monthly, 8, 18, 56
+        			prosp_monthly = trim(prosp_monthly)
+        			IF prosp_monthly = "" THEN prosp_monthly = 0
+        			prosp_inc = prosp_inc + prosp_monthly
+        			EMReadScreen prosp_hrs, 8, 16, 50
+        			IF prosp_hrs = "        " THEN prosp_hrs = 0
+        			prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        			EMReadScreen pay_freq, 1, 5, 64
+        			IF pay_freq = "1" THEN
+        				prosp_hrs = prosp_hrs
+        			ELSEIF pay_freq = "2" THEN
+        				prosp_hrs = (2 * prosp_hrs)
+        			ELSEIF pay_freq = "3" THEN
+        				prosp_hrs = (2.15 * prosp_hrs)
+        			ELSEIF pay_freq = "4" THEN
+        				prosp_hrs = (4.3 * prosp_hrs)
+        			END IF
+                    transmit		'to exit PIC
+        			prospective_hours = prospective_hours + prosp_hrs
+        		ELSE
+        			jobs_end_dt = replace(jobs_end_dt, " ", "/")
+        			IF DateDiff("D", ABAWD_eval_date, jobs_end_dt) > 0 THEN
+        				'Going into the PIC for a job with an end date in the future
+        				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
+        				EMReadScreen prosp_monthly, 8, 18, 56
+        				prosp_monthly = trim(prosp_monthly)
+        				IF prosp_monthly = "" THEN prosp_monthly = 0
+        				prosp_inc = prosp_inc + prosp_monthly
+        				EMReadScreen prosp_hrs, 8, 16, 50
+        				IF prosp_hrs = "        " THEN prosp_hrs = 0
+        				prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        				EMReadScreen pay_freq, 1, 5, 64
+        				IF pay_freq = "1" THEN
+        					prosp_hrs = prosp_hrs
+        				ELSEIF pay_freq = "2" THEN
+        					prosp_hrs = (2 * prosp_hrs)
+        				ELSEIF pay_freq = "3" THEN
+        					prosp_hrs = (2.15 * prosp_hrs)
+        				ELSEIF pay_freq = "4" THEN
+        					prosp_hrs = (4.3 * prosp_hrs)
+        				END IF
+                        transmit		'to exit PIC
+        				'added separate incremental variable to account for multiple jobs
+        				prospective_hours = prospective_hours + prosp_hrs
+        			END IF
+        		END IF
+        		EMReadScreen JOBS_panel_current, 1, 2, 73
+        		'looping until all the jobs panels are calculated
+        		If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+        	Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
+        END IF
+		'Person-based determination
+        EMWriteScreen "BUSI", 20, 71
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_BUSI, 1, 2, 78
+        IF num_of_BUSI <> "0" THEN
+        	DO
+        		EMReadScreen busi_end_dt, 8, 5, 72
+        		busi_end_dt = replace(busi_end_dt, " ", "/")
+        		IF IsDate(busi_end_dt) = True THEN
+					Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
+					EMReadScreen busi_verif_code, 1, 11, 73
+					PF3 'to exit pop up
+        			IF DateDiff("D", ABAWD_eval_date, busi_end_dt) > 0 THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		ELSE
+        			IF busi_end_dt = "__/__/__" THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+		'Person based since very unlikely to be case based at this point.
+        EMWriteScreen "RBIC", 20, 71
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_RBIC, 1, 2, 78
+        IF num_of_RBIC <> "0" then report_notes = report_notes & "Actually found an RBIC."
+        IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
+			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+				If busi_verif_code <> "_" or busi_verif_code <> "N" then
+					verified_wreg = verified_wreg & "09" & "|"
+				End if
+			End if
+        ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
+			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+				If busi_verif_code <> "_" or busi_verif_code <> "N" then
+					verified_abawd = verified_wreg & "06"
+				End if
+			End if
+        END IF
+
+        '>>>>>>>>>>>>UNEA
+		'----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
+		'Person-based determination
+        Call navigate_to_MAXIS_screen("STAT", "UNEA")
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_UNEA, 1, 2, 78
+        IF num_of_UNEA <> "0" THEN
+        	DO
+        		EMReadScreen unea_type, 2, 5, 37
+        		EMReadScreen unea_end_dt, 8, 7, 68
+        		unea_end_dt = replace(unea_end_dt, " ", "/")
+        		IF IsDate(unea_end_dt) = True THEN
+        			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+        				IF unea_type = "11" then
+							EmReadScreen VA_verif_code, 1, 5, 65
+							If VA_verif_code <> "N" then
+								verified_wreg = verified_wreg & "03" & "|"
+								Exit do
+							Else
+								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have VA disability benefits. "
+							End if
+						End if
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+		'----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
+		'Person-based determination
+        uc_unea = False
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_UNEA, 1, 2, 78
+        IF num_of_UNEA <> "0" THEN
+        	DO
+        		EMReadScreen unea_type, 2, 5, 37
+        		EMReadScreen unea_end_dt, 8, 7, 68
+        		unea_end_dt = replace(unea_end_dt, " ", "/")
+        		IF IsDate(unea_end_dt) = True THEN
+        			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+        				IF unea_type = "14" then
+							EmReadScreen UC_verif_code, 1, 5, 65
+							If UC_verif_code <> "N" then
+                                uc_unea = True
+								verified_wreg = verified_wreg & "11" & "|"
+								Exit do
+							Else
+								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active unemployment benefits. "
+							End if
+						End if
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+		'----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
+        '>>>>>>>>>PBEN
+		'Person based determination
+        CALL navigate_to_MAXIS_screen("STAT", "PBEN")
+		Call write_value_and_transmit(member_number, 20, 76)
+		EMReadScreen num_of_PBEN, 1, 2, 78
+        IF num_of_PBEN <> "0" THEN
+        	pben_row = 8
+        	DO
+                EMreadscreen pben_type, 2, pben_row, 24
+                If pben_type = "__" then exit do
+        	    IF pben_type = "12" THEN		'UI pending'
+        			EMReadScreen pben_disp, 1, pben_row, 77
+        			IF pben_disp = "A" OR pben_disp = "P" THEN
+						verified_wreg = verified_wreg & "11" & "|"
+						EXIT DO
+                    elseif pben_disp = "E" then
+                        if uc_unea = True then
+                            verified_wreg = verified_wreg & "11" & "|"
+                            Exit do
+                        Else
+                            pben_row = pben_row + 1
+                        End if
+        			Else
+						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits. "
+                        pben_row = pben_row + 1
+        			END IF
+        		ELSE
+        			pben_row = pben_row + 1
+        		END IF
+        	LOOP UNTIL pben_row = 12
+		End if
+		'----------------------------------------------------------------------------------------------------23 – Pregnant
+        '>>>>>>>>>>PREG
+		'Person based determination
+        CALL navigate_to_MAXIS_screen("STAT", "PREG")
+		Call write_value_and_transmit(member_number, 20, 76)
+		EMReadScreen num_of_PREG, 1, 2, 78
+        IF num_of_PREG <> "0" THEN
+            EMReadScreen preg_due_dt, 8, 10, 53
+            preg_due_dt = replace(preg_due_dt, " ", "/")
+        	EMReadScreen preg_end_dt, 8, 12, 53
+            If preg_due_dt <> "__/__/__" Then
+				EMReadscreen preg_verif, 1, 6, 75
+                If DateDiff("d", ABAWD_eval_date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
+					If preg_verif = "Y" then
+						verified_wreg = verified_wreg & "23" & "|"
+					Elseif preg_verif = "N" then
+						verified_wreg = verified_wreg & "23" & "|"
+					Elseif preg_verif = "?" then
+						verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption.
+					Else
+						possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy. "
+					End if
+				End If
+			End if
+        End If
+
+		'----------------------------------------------------------------------------------------------------03/01 – Homeless
+        '>>>>>>>>>>ADDR
+		'Case based determination
+		homeless_exemption = False
+        CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+        EMReadScreen homeless_code, 1, 10, 43
+		EMReadScreen living_situation, 2, 11, 43
+        EmReadscreen addr_line_01, 16, 6, 43
+
+        IF homeless_code = "Y" then
+			If living_situation = "02" or _
+				living_situation = "06" or _
+				living_situation = "07" or _
+				living_situation = "08" then
+				verified_wreg = verified_wreg & "03" & "|"
+				homeless_exemption = True
+			Else
+				possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match. "
+			End if
+        Elseif addr_line_01 = "GENERAL DELIVERY" THEN
+            possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery. "
+		Else
+			homeless_exemption = False
+        End if
+        '>>>>>>>>>SCHL/STIN/STEC
+		'person based determination
+		CALL navigate_to_MAXIS_screen("STAT", "SCHL")
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_SCHL, 1, 2, 78
+        IF num_of_SCHL = "1" THEN
+        	EMReadScreen school_status, 1, 6, 40
+            EMReadScreen school_verif, 2, 6, 63
+            EMReadScreen SNAP_code, 2, 16, 63
+        	IF school_status = "F" or school_status = "H" then
+                If school_verif = "SC" or school_verif = "OT" then
+                    If  SNAP_code = "01" or _
+                        SNAP_code = "02" or _
+                        SNAP_code = "04" or _
+                        SNAP_code = "05" or _
+                        SNAP_code = "06" or _
+                        SNAP_code = "07" or _
+                        SNAP_code = "09" or _
+                        SNAP_code = "10" then
+                        verified_wreg = verified_wreg & "12" & "|"
+                    Else
+                        If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be in school w/ unverified school status. "
+                    End if
+                End if
+            End if
+		End if
+
+        IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions. "
+
 
 	    'filter the list here for best_wreg_code
 	    If trim(verified_wreg) = "" then
