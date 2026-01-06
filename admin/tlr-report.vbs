@@ -255,18 +255,18 @@ Function BULK_ABAWD_FSET_exemption_finder()
         End If
 	End if
 
-
 	'Case-based determination
-    IF memb_found = True THEN
-		If SNAP_status <> "INACTIVE" then
-            eats_group_members = trim(eats_group_members)
-            eats_group_members = split(eats_group_members, ",")
+    If SNAP_status <> "INACTIVE" then
+        eats_group_members = trim(eats_group_members)
+        eats_group_members = split(eats_group_members, ",")
 
-		    child_under_six = False 	'defaulting to False
-		    child_under_18 = False		'defaulting to False
-			adult_HH_count = 0
+		child_under_six = False 	'defaulting to False
+		adult_HH_count = 0
+        child_under_14 = false
+        child_14_to_17 = false
 
-            IF all_eat_together <> "_" THEN
+        IF all_eat_together <> "_" THEN
+            If eats_HH_count > 1 then
                 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
                 FOR EACH eats_pers IN eats_group_members
                     IF trim(eats_pers) <> "" THEN
@@ -275,18 +275,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
                         cl_age = trim(cl_age)
                         IF cl_age = "" THEN cl_age = 0
                         cl_age = cl_age * 1
-						If cl_age < 6 then child_under_six = True
-                        IF cl_age =< 17 THEN
-							child_under_18 = True
-		    			Else
-							adult_HH_count = adult_HH_count + 1
-		    			End if
+			    		If cl_age < 6 then child_under_six = True
+                        If cl_age <= 13 then child_under_14 = true
+						If cl_age >= 14 and memb_age <= 17 then child_14_to_17 = true
+                        IF cl_age => 17 THEN adult_HH_count = adult_HH_count + 1
                     END IF
                 NEXT
-            END IF
+            End if
+        END IF
 
 		    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
- 		    If child_under_18 = True then verified_wreg = verified_wreg & "21" & "|"
+ 		    If child_under_14 = True then verified_wreg = verified_wreg & "21" & "|"
 
 			'----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
 			If child_under_six = True then
@@ -352,10 +351,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 			'----------------------------------------------------------------------------------------------------Native American Exemption
 			native = False
-
             EMReadScreen tribal_indicator, 2, 18, 42
-            ObjExcel.Cells(excel_row, tribal_col).Value = replace(tribal_indicator, "_", "")        'Tribal Indicator
-            native = False  'default to not Native American
             EmReadScreen race_detail, 37, 17, 42
             If trim(race_detail) = "Amer Indn Or Alaskan Native" then native = True
             If trim(race_detail) = "Unable To Determine" then possible_exemptions = possible_exemptions & "No race indicated. "
@@ -778,12 +774,13 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","30","16")
 			ElseIf age_60_thru_64 = True then
 				wreg_hierarchy = array("03","04","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30","05")
-            ElseIf (child_under_14 = False and child_14_to_17 = True) then
-				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","17","23","30","21")
+			Elseif (child_under_14 = False and child_14_to_17 = True) then
+				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","17","23","30")
 			Else
 				'this is for non-workarounds
 				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
 			End if
+
             for each code in wreg_hierarchy
                 If instr(verified_wreg, code) then
                     best_wreg_code = code
@@ -909,6 +906,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
         If (age_50_thru_59_workaround = True or age_60_thru_64_workaround = True) then
             Call navigate_to_MAXIS_screen("CASE", "NOTE")
             EMReadScreen first_case_note, 34, 5, 25
+
             If first_case_note <> "--SNAP Time Limited Recipient: Age" then
                 If age_50_thru_59 = True then
 					If age_50_thru_55 = False then
@@ -918,6 +916,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 						TLR_text = "50-54"
 						TLR_coding = "16/03"
 					End if
+				End if
+
                 If age_60_thru_64 = True then
 					TLR_text = "60-64"
 					TLR_coding = "05/01"
