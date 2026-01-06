@@ -1361,7 +1361,6 @@ For member = 0 to Ubound(household_members, 2)
   PERS_match_found = false
   If Instr(PERS_search_results_string, "#") Then PERS_match_found = True
   
-  'To do - remove trailing #
   If PERS_match_found Then 
     'Remove trailing * before splitting  
     PERS_search_results_string = Left(PERS_search_results_string, Len(PERS_search_results_string) - 1)
@@ -1376,7 +1375,7 @@ For member = 0 to Ubound(household_members, 2)
   dialog_height = 130
   If PERS_match_found Then dialog_height = dialog_height + (Ubound(PERS_search_results_string_array) * 10)
 
-  'Call dialog to update information - provide the 
+  'Call dialog to display matches (if found) and option to indicate if no match found 
   Dialog1 = "" 'Blanking out previous dialog detail
   BeginDialog Dialog1, 0, 0, 350, dialog_height, "PERS Search Results"
     Text 5, 5, 330, 10, "Please review the potential matches found, if any, and select the best applicable checkbox."
@@ -1467,6 +1466,8 @@ For member = 0 to Ubound(household_members, 2)
   If PERS_match_found = False Or no_match_search_manually = 1 Then
     'Call dialog for worker to identify the PMI or indicate if a new person
 
+    'To do - for applicant, enter the case number AND PMI number (if exists). For all other HH members, just enter the PMI #
+
     BeginDialog Dialog1, 0, 0, 321, 180, "Manual PERS Search"
       Text 5, 5, 300, 25, "You indicated that none of the matches identified by the script were correct. Please complete a manual search for the household member identified below and provide the corresponding PMI and MAXIS case number, if applicable."
       GroupBox 5, 40, 310, 30, "Household Member Details from XML File"
@@ -1503,7 +1504,6 @@ For member = 0 to Ubound(household_members, 2)
     'Proceed depending on options selected
     If manual_match_found_checkbox = 1 Then
       'Conduct a PERS search using the PMI number to find match and display for worker
-
       pmi_number = trim(pmi_number)
 
       'Navigate to PERS
@@ -1521,6 +1521,9 @@ For member = 0 to Ubound(household_members, 2)
 
       EMWriteScreen pmi_number, 15, 36
       transmit
+
+      'To do - add handling for no PMI match when trying to search
+
 
       'Open the PMI match to gather details
       'Read the data from the corresponding MTCH row
@@ -1570,7 +1573,7 @@ For member = 0 to Ubound(household_members, 2)
         PF3   'Back to MTCH panel
       Else
         'Clear the X
-        script_end_procedure_with_error_report("1584 Found matching PMI but it doesn't exist in MAXIS. Shouldn't happen")
+        script_end_procedure_with_error_report("1573 The script failed to open the PMI match. The PMI does not exist in MAXIS.")
         EMWriteScreen "_", MTCH_row, 5
       End If
 
@@ -1578,15 +1581,13 @@ For member = 0 to Ubound(household_members, 2)
       household_members(MEMBER_PMI, member) = pmi_number
       household_members(MEMBER_EXISTS, member) = True
 
-      'Pull out the PMI number
+      'Pull out the PMI number from the PERS_search_results_string
       PMI_number = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "PMI: ") + 5, instr(selected_PERS_search_results_string, "; Gender: ") - instr(selected_PERS_search_results_string, "PMI: ") - 5)
   
-      'Pull out the case numbers
+      'Pull out the case numbers identified for the PMI # and remove the trailing *
       selected_PERS_search_case_numbers = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "*"), len(selected_PERS_search_results_string) - instr(selected_PERS_search_results_string, "*"))
       selected_PERS_search_case_numbers = right(selected_PERS_search_case_numbers, len(selected_PERS_search_case_numbers) - 1)
 
-      msgbox "selected_PERS_search_case_numbers " & selected_PERS_search_case_numbers
-  
       selected_PERS_search_case_numbers_array = split(selected_PERS_search_case_numbers, "*")
   
       For case_number = 0 to Ubound(selected_PERS_search_case_numbers_array)
@@ -1636,7 +1637,6 @@ For member = 0 to Ubound(household_members, 2)
         ButtonGroup ButtonPressed
           PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0
           Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
-          ' Text 70, 50, 190, 10, "1234567         01                         01 Spouse or partner test for"
   
           If UBound(selected_PERS_search_case_numbers_array) > 0 Then
             ' If selected_PERS_search_case_numbers_array(1) <> "" Then
@@ -1700,6 +1700,7 @@ For member = 0 to Ubound(household_members, 2)
         DropListBox 70, 310, 30, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
         Text 15, 330, 45, 10, "Relationship:"
         DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+        'To do - would the worker confirm the case number here?
         ButtonGroup ButtonPressed
           PushButton 175, 355, 45, 15, "Next", next_hh_memb_btn
           CancelButton 220, 355, 45, 15
