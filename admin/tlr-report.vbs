@@ -64,7 +64,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
 		report_notes = report_notes & "Error accessing ATR. "
     ELSE
         TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients
-	    TLR_fixed_clock_yr = "23"
+	    TLR_fixed_clock_yr = "26"
 
 	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         abawd_counted_months = 0					'declares the variables values at 0
