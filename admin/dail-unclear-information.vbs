@@ -3529,6 +3529,9 @@ If CSES_messages = 1 Then
                               End If
                             End If
                           End If
+
+                          'ERror handling - some CS messages are getting deleted erroneously
+                          If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "processable") OR InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Processable") Then script_end_procedure("3534 Script somehow attempted to process a message that was identified as not processable. Seems to occur for CS NEW REPORTED EMPLOYER messages.") 
                           
                           If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
                             'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
@@ -6106,6 +6109,9 @@ If HIRE_messages = 1 Then
                                 
                               End If
                             End If
+
+                            EMReadScreen summ_panel_check_test, 4, 2, 46
+                            If summ_panel_check_test <> "SUMM" Then msgbox "6111 Where is the script erroring here?"
                             
                             EMWriteScreen "MEMB", 20, 71
                             Call write_value_and_transmit(HIRE_memb_number, 20, 76)
@@ -6654,6 +6660,9 @@ If HIRE_messages = 1 Then
                                 
                               End If
                             End If
+
+                            EMReadScreen summ_panel_check_test, 4, 2, 46
+                            If summ_panel_check_test <> "SUMM" Then msgbox "6659 Where is the script erroring here?"
                             
                             EMWriteScreen "MEMB", 20, 71
                             Call write_value_and_transmit(HIRE_memb_number, 20, 76)
