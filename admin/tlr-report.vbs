@@ -739,6 +739,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
         IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions. "
 
+		If (child_under_14 = False and child_14_to_17 = True) then meets_childcare_exemption = False
 
 	    'filter the list here for best_wreg_code
 	    If trim(verified_wreg) = "" then
@@ -756,7 +757,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","21","17","23","30","16")
 			ElseIf age_60_thru_64 = True then
 				wreg_hierarchy = array("03","04","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30","05")
-			Elseif (child_under_14 = False and child_14_to_17 = True) then
+			Elseif meets_childcare_exemption = False then
 				wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","17","23","30")
 			Else
 				'this is for non-workarounds
@@ -804,46 +805,47 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		If next_SNAP_revw = next_month then report_notes = report_notes & "SNAP Review Next Month. "
 
-        manual_code = "F"  'manual code for exemption cases
-        age_50_thru_59_workaround = False
-		age_60_thru_64_workaround = False
+		'----------------------------------------------------------------------------------------------------WREG and ABAWD Workarounds/TLR Record Updates
+		'Commenting out manual code for exempt cases. Business has asked that staff update their own TLR Exemptions, including the TLR record.
+        manual_code = "M"  'default manual code for exemption cases/counted month code
+		counted_month = False 'initializing
+
+        age_50_thru_59_workaround = False ' initializing
+		If age_50_thru_59 = True then
+			If best_wreg_code = "16" then
+				age_50_thru_59_workaround = True
+				counted_month = True
+			End if
+		End if
+
+		age_60_thru_64_workaround = False ' initializing
+		If age_60_thru_64 = True then
+			If best_wreg_code = "05" then
+				age_60_thru_64_workaround = True
+				counted_month = True
+			End if
+		End if
 
 		If best_wreg_code = "30" then
-			If age_50_thru_59 = True then
-				If (best_abawd_code = "10") then
-			        'changing codes per temp policy
-			        best_wreg_code = "16"
-			        best_abawd_code = "03"
-					age_50_thru_59_workaround = True
-					manual_code = "M"
-				End if
+			If best_abawd_code = "06" then
+				manual_code = "F"	'Does NOT count on the tracking record, and will remove any counted months.
+				counted_month = True 'Identifying here as counted month so that ATR is updated to remove any counted months.
 			End if
-
-		    If age_60_thru_64 = True then
-				If (best_abawd_code = "10") then
-			        'changing codes per temp policy
-			        best_wreg_code = "15"
-			        best_abawd_code = "02"
-					age_60_thru_64_workaround = True
-					manual_code = "M"
-				End if
+			If meets_childcare_exemption = False then counted_months = True
 			End if
+		End if
 
-		    If best_abawd_code = "10" then manual_code = "M"
-    	End if
-
-        updates_needed = True   'default set
-
-		'----------------------------------------------------------------------------------------------------Age 50 - 64 WREG and ABAWD Tracking Record Handling
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
-        PF9
-		EMWriteScreen best_wreg_code, 8, 50
-		EMWriteScreen best_abawd_code, 13, 50
-		If best_wreg_code = "30" then
-		    EmWriteScreen "N", 8, 78
-		Else
-		    EMWriteScreen "_", 8, 78
+		If counted_month = True then
+        	PF9
+			EMWriteScreen best_wreg_code, 8, 50
+			EMWriteScreen best_abawd_code, 13, 50
+			If best_wreg_code = "30" then
+		    	EmWriteScreen "N", 8, 78
+			Else
+		    	EMWriteScreen "_", 8, 78
+			End if
 		End if
 
         'Updating the ATR if the codes are already not updated for the CM
@@ -875,7 +877,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
         Next
 
         Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
-        If (best_abawd_code = "10" or age_50_workaround = True) then
+        If (counted_month = True and manual_code <> "M") then
+			'Only 30/06's meet this the above criteria. All other counted months will have the assess for closure note added.
             If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
         End if
 
@@ -935,25 +938,24 @@ Function BULK_ABAWD_FSET_exemption_finder()
     End if
 
     'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned.
-    If updates_needed = True then
-        If snap_status = "ACTIVE" then
-            If data_wreg = best_wreg_code then
-                If data_abawd = best_abawd_code then
-                    If instr(report_notes, "Assess TLR for closure for next month.") then
-                        updates_needed = true
-                    Else
-	    			    updates_needed = False
-                        report_notes = report_notes & "No Updates Needed. "
-                    End if
-                End if
-                If (data_abawd = "06" and best_abawd_code = "01") then
-                    updates_needed = False
+    updates_needed = True   'default se
+    If snap_status = "ACTIVE" then
+        If data_wreg = best_wreg_code then
+            If data_abawd = best_abawd_code then
+                If instr(report_notes, "Assess TLR for closure for next month.") then
+                    updates_needed = true
+                Else
+				    updates_needed = False
                     report_notes = report_notes & "No Updates Needed. "
                 End if
             End if
-	    Else
-            report_notes = report_notes & "SNAP is " & snap_status & ". "
+            If (data_abawd = "06" and best_abawd_code = "01") then
+                updates_needed = False
+                report_notes = report_notes & "No Updates Needed. "
+            End if
         End if
+	Else
+        report_notes = report_notes & "SNAP is " & snap_status & ". "
     End if
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
