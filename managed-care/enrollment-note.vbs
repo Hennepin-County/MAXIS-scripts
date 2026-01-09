@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/09/2026", "Update to UCare Health Plan Code.", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "Updates made for the 2025 AHPS.##~## ##~##- Enrollment dates updated for 2025.##~##- Removed United HealthCare from a selection option for enrollment.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
 call changelog_update("04/24/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -260,7 +261,7 @@ For each member in HH_member_array
             EMReadScreen hp_code, 10, row, 23
 
             If hp_code = "A585713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "HealthPartners"
-            If hp_code = "A565813600" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Ucare"
+            If hp_code = "A390628400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "UCare"
             If hp_code = "A405713900" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "Medica"
             If hp_code = "A065813800" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "BluePlus"
 			If hp_code = "A168407400" then MMIS_clients_array(current_plan, MMIS_clients_arrays) = "United Healthcare"
@@ -333,7 +334,7 @@ BeginDialog Dialog1, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
     CheckBox 5, (x * 20) + y_pos, 25, 10, "Yes", MMIS_clients_array(case_note_checkbox, person)
   	Text 40, (x * 20) + y_pos, 95, 10, MMIS_clients_array(client_name, person)
   	Text 135, (x * 20) + y_pos, 35, 10, MMIS_clients_array(client_pmi, person)
-    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", MMIS_clients_array(current_plan, person)
+    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"UCare", MMIS_clients_array(current_plan, person)
   	DropListBox 295, (x * 20) + y_pos - 5, 40, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"MA 37", MMIS_clients_array(contr_code, person)
 	DropListBox 365, (x * 20) + y_pos - 5, 105, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
 	x = x + 1
