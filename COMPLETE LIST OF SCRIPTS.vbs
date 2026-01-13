@@ -444,7 +444,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/14/2025#
 script_array(script_num).hot_topic_link			    = ""
 script_array(script_num).used_for_elig			    = False
-script_array(script_num).policy_references		  = array("TE02.07.259 TE 1619_A_AND_B_STATUS 02.07.259", "ONESOURCE 1619_Status https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170311", "SHAREPOINT INFO https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/INFO.aspx#prsn-01-1619-status-updated-on-disa-check-ma-elig")						'SEE Line 58 for format'
+script_array(script_num).policy_references		  = array("TE 1619_A_AND_B_STATUS 02.07.259", "ONESOURCE 1619_Status https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170311", "SHAREPOINT INFO https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/INFO.aspx#prsn-01-1619-status-updated-on-disa-check-ma-elig")						'SEE Line 58 for format'
 script_array(script_num).usage_eval				      = "STANDARD"
 
 script_num = script_num + 1						'Increment by one
