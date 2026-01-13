@@ -444,6 +444,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			If err_msg <> "" Then MsgBox "Need to Resolve:" & vbCr & err_msg
 		Loop until err_msg = ""
 
+		If trim(ObjExcel.Cells(next_blank_row, 2).Value) = "" Then ObjExcel.Cells(next_blank_row, 2).Value = "=C"&(next_blank_row-1)
 		ObjExcel.Cells(current_task_row, 3).Value = end_time					'enter the end time and time spent calculation for the current activity
 		ObjExcel.Cells(current_task_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"
 
