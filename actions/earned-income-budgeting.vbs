@@ -5461,20 +5461,13 @@ If vars_filled Then
     For each_job = 0 to UBound(JOBS_PANELS)
         all_checks = 0
         Do
-        ' For all_checks = 0 to UBound(JOBS_PANELS(each_job).pay_date)
-            ' MsgBox JOBS_PANELS(each_job).employer & vbCr & "all_checks - " & all_checks & vbCr & "UBOUND - " & ubound(JOBS_PANELS(each_job).pay_date)
             necessary_info_valid = True
             check_deleted = False
             If NOT IsDate   (Trim(JOBS_PANELS(each_job).pay_date(all_checks)))      Then necessary_info_valid = False
             If NOT IsNumeric(Trim(JOBS_PANELS(each_job).gross_amount(all_checks)))  Then necessary_info_valid = False
             If NOT IsNumeric(Trim(JOBS_PANELS(each_job).hours(all_checks)))         Then necessary_info_valid = False
-            ' MsgBox "necessary_info_valid - " & necessary_info_valid & vbCr &_
-            '         "JOBS_PANELS(each_job).pay_date(all_checks) - ~" & JOBS_PANELS(each_job).pay_date(all_checks) & "~" & vbCr &_
-            '         "JOBS_PANELS(each_job).gross_amount(all_checks) - ~" & JOBS_PANELS(each_job).gross_amount(all_checks) & "~" & vbCr &_
-            '         "JOBS_PANELS(each_job).hours(all_checks) - ~" & JOBS_PANELS(each_job).hours(all_checks) & "~"
             If Trim(JOBS_PANELS(each_job).pay_date(all_checks)) = "" and Trim(JOBS_PANELS(each_job).gross_amount(all_checks)) = "" and Trim(JOBS_PANELS(each_job).hours(all_checks)) = "" Then
                 If all_checks <> 0 Then JOBS_PANELS(each_job).delete_one_check(all_checks)
-                ' MsgBox "Deleted check since no valid info found."
                 check_deleted = True
             ElseIf NOT necessary_info_valid Then
                 Call JOBS_PANELS(each_job).check_details_dialog(True, all_checks, ButtonPressed)
@@ -5485,11 +5478,8 @@ If vars_filled Then
                     Call JOBS_PANELS(each_job).delete_one_check(all_checks)
                     check_deleted = True
                 End If
-
-                ' MsgBox "It appears that the information saved for this case from a previous run of this script is not valid. Please review the information and update as needed."
             End If
             If NOT check_deleted Then all_checks = all_checks + 1
-        ' Next
         Loop until all_checks >= UBound(JOBS_PANELS(each_job).pay_date)
 		Call JOBS_PANELS(each_job).evaluate_checks
 		If JOBS_PANELS(each_job).checks_exist Then Call JOBS_PANELS(each_job).order_checks
