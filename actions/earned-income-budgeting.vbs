@@ -257,7 +257,6 @@ class jobs_income
 	public split_check_string()
     public split_check_excld_string()
     public split_exclude_amount()
-	public duplct_pay_date()
 	public calculated_by_ytd()
 	public ytd_calc_notes()
 	public pay_detail_exists()
@@ -339,7 +338,7 @@ class jobs_income
                     reason_to_exclude(check_count) = "Bonus Check is not expected to continue."
                 End If
 				pay_detail_btn(check_count) = 2000+check_count
-				duplct_pay_date(check_count) = False
+				duplicate_pay_date(check_count) = False
 				check_info_entered(check_count) = True
 				future_check(check_count) = False
                 If IsDate(fs_appl_date) Then
@@ -1081,7 +1080,10 @@ class jobs_income
 
 			Call check_details_error_handling(err_msg, edit_base_info, check_count)
 
-			If ButtonPressed = delete_check_btn Then err_msg = ""
+			If ButtonPressed = delete_check_btn Then
+                delete_check_confirm = MsgBox ("Are you sure you want to DELETE this check (" & pay_date(check_count) & ") from the JOBS income information?", vbYesNo + vbQuestion, "Confirm Delete Check")
+                If delete_check_confirm = vbYes Then  err_msg = ""
+            End If
 
 			If err_msg <> "" Then MsgBox "*  *  *  NOTICE  *  *  *" & vbCr & "Please Update the information in the dialog to continue:" & vbCr & err_msg
 
@@ -1154,17 +1156,18 @@ class jobs_income
 
 		If exclude_from_SNAP(check_index) = checked and exclude_from_CASH(check_index) = checked then
 			exclude_all_checkbox = checked
+            exclude_entirely(check_index) = True
 			If trim(reason_to_exclude(check_index)) = "" Then
 				If trim(reason_CASH_amt_excluded(check_index)) <> "" Then reason_to_exclude(check_index) = reason_CASH_amt_excluded(check_index)
 				If trim(reason_SNAP_amt_excluded(check_index)) <> "" Then reason_to_exclude(check_index) = reason_SNAP_amt_excluded(check_index)
 			End If
 		End If
-		If bonus_check(check_index) = True and exclude_all_checkbox = checked Then
+		If bonus_check(check_index) = True and (exclude_all_checkbox = checked or exclude_entirely(check_index)) Then
 			If Instr(reason_to_exclude(check_index), bonus_exclude_txt) = 0 Then
 				reason_to_exclude(check_index) = bonus_exclude_txt
 			End If
 		End If
-		If exclude_all_checkbox = checked or IsNumeric(exclude_ALL_amount(check_index)) Then
+		If exclude_all_checkbox = checked or exclude_entirely(check_index) or IsNumeric(exclude_ALL_amount(check_index)) Then
 			'need to explain excluding a check
 			If trim(reason_to_exclude(check_index)) = "" Then err_msg = err_msg & vbCr & "* To exclude the entire check, list a reason for excluding it."
 		Else
@@ -1962,7 +1965,7 @@ class jobs_income
                 Text 10, y_pos, 215, 10, " * ! * ! * CHECK CM 22.03.01    FOR BUDGETING POLICY * ! * ! * "
                 cm_budg_y_pos = y_pos
 
-                If pick_one = use_actual Then Text 225, y_pos, 200, 10, "Income provided covers the period " & first_check & " to " & last_check & "."
+                If pick_one = use_actual Then Text 225, y_pos, 220, 10, "Income provided covers the period " & first_check & " to " & last_check & "."
 				If pick_one = use_estimate Then Text 225, y_pos, 200, 10, "Income is based on anticipated hours and rate of pay."
 				y_pos = y_pos + 15
 
@@ -2229,7 +2232,6 @@ class jobs_income
 			ReDim split_check_string(0)
 			ReDim split_check_excld_string(0)
             ReDim split_exclude_amount(0)
-			ReDim duplct_pay_date(0)
 			ReDim calculated_by_ytd(0)
 			ReDim ytd_calc_notes(0)
 			ReDim pay_detail_exists(0)
@@ -2282,7 +2284,6 @@ class jobs_income
 						split_check_string(check_item)			= split_check_string(check_item + 1)
                         split_check_excld_string(check_item)    = split_check_excld_string(check_item + 1)
                         split_exclude_amount(check_tem)         = split_exclude_amount(check_item + 1)
-						duplct_pay_date(check_item)				= duplct_pay_date(check_item + 1)
 						calculated_by_ytd(check_item) 			= calculated_by_ytd(check_item + 1)
 						ytd_calc_notes(check_item) 				= ytd_calc_notes(check_item + 1)
 						pay_detail_exists(check_item) 			= pay_detail_exists(check_item + 1)
@@ -2565,7 +2566,7 @@ class jobs_income
 						view_pay_date(all_income) = pay_date(all_income)        'view pay date is the actual date that is always seen and typically is the same as the regular pay date
 						frequency_issue(all_income) = FALSE                                           'defaulting this to false
 
-						If NOT bonus_check(all_income) Then
+						If NOT bonus_check(all_income) and NOT duplicate_pay_date(all_income) Then
 							If prev_date <> "" Then     'we can't compare the first date to anything, so it skips the first date
 								days_between_checks = DateDiff("d", prev_date, pay_date(all_income))      'determines how many days from one check to the next
 
@@ -2602,21 +2603,17 @@ class jobs_income
 										End If
 									End If
 								ElseIf pay_freq = "3 - Every Other Week" Then
-									If duplct_pay_date(all_income) <> TRUE Then
-										If WeekDayName(Weekday(pay_date(all_income))) <> pay_weekday OR days_between_checks <> 14 Then
-											issues_with_frequency = TRUE
-											frequency_issue(all_income) = TRUE
-											pay_date(all_income) = DateAdd("d", 14, prev_date)
-										End If
-									End If
+                                    If WeekDayName(Weekday(pay_date(all_income))) <> pay_weekday OR days_between_checks <> 14 Then
+                                        issues_with_frequency = TRUE
+                                        frequency_issue(all_income) = TRUE
+                                        pay_date(all_income) = DateAdd("d", 14, prev_date)
+                                    End If
 								ElseIf pay_freq = "4 - Every Week" Then
-									If duplct_pay_date(all_income) <> TRUE Then
-										If WeekDayName(Weekday(pay_date(all_income))) <> pay_weekday OR days_between_checks <> 7 Then
-											issues_with_frequency = TRUE
-											frequency_issue(all_income) = TRUE
-											pay_date(all_income) = DateAdd("d", 7, prev_date)
-										End If
-									End If
+                                    If WeekDayName(Weekday(pay_date(all_income))) <> pay_weekday OR days_between_checks <> 7 Then
+                                        issues_with_frequency = TRUE
+                                        frequency_issue(all_income) = TRUE
+                                        pay_date(all_income) = DateAdd("d", 7, prev_date)
+                                    End If
 								ElseIf pay_freq = "5 - Other" Then
 
 								'REMOVE CODE
@@ -2824,25 +2821,26 @@ class jobs_income
 						If pay_freq = "1 - One Time Per Month" Then
 							date_in_range = DateDiff("d", pay_date(all_income), expected_check_array(expected_check_index))
 							date_in_range = Abs(date_in_range)
-							If date_in_range > 8 AND duplicate_pay_date(all_income) <> TRUE Then missing_check = TRUE      '8 day allowance
+							If date_in_range > 8 AND NOT duplicate_pay_date(all_income) Then missing_check = TRUE      '8 day allowance
 						ElseIf pay_freq = "2 - Two Times Per Month" Then
 							date_in_range = DateDiff("d", pay_date(all_income), expected_check_array(expected_check_index))
 							date_in_range = Abs(date_in_range)
-							If date_in_range > 5 AND duplicate_pay_date(all_income) <> TRUE Then missing_check = TRUE      '5 day allowance
+							If date_in_range > 5 AND NOT duplicate_pay_date(all_income) Then missing_check = TRUE      '5 day allowance
 						ElseIf pay_freq = "3 - Every Other Week" Then
 							date_in_range = DateDiff("d", pay_date(all_income), expected_check_array(expected_check_index))
 							date_in_range = Abs(date_in_range)
-							If date_in_range > 3 AND duplicate_pay_date(all_income) <> TRUE Then missing_check = TRUE      '3 day allowance
+							If date_in_range > 3 AND NOT duplicate_pay_date(all_income) Then missing_check = TRUE      '3 day allowance
 						ElseIf pay_freq = "4 - Every Week" Then
 							date_in_range = DateDiff("d", pay_date(all_income), expected_check_array(expected_check_index))
 							date_in_range = Abs(date_in_range)
-							If date_in_range > 3 AND duplicate_pay_date(all_income) <> TRUE Then missing_check = TRUE      '3 day allowance
+							If date_in_range > 3 AND NOT duplicate_pay_date(all_income) Then missing_check = TRUE      '3 day allowance
 						End If
 
-						If missing_check = TRUE Then        'if the date difference was too much then we save the date to a list
+                        If missing_check Then           'if the date difference was too much then we save the date to a list
 							missing_checks_list = missing_checks_list & "~" & expected_check_array(expected_check_index)
+                        Else                            'if the check was found, we move to the next expected check
+                            order_number = order_number + 1
 						End If
-                        order_number = order_number + 1
 
                         If duplicate_pay_date(all_income) <> TRUE Then expected_check_index = expected_check_index + 1
 						If order_number > order_ubound Then Exit For            'if we have reached the end of the entered checks OR the end of the expected checks, we need to leave the loop
@@ -3086,10 +3084,11 @@ class jobs_income
 			For all_income = 0 to UBound(pay_date)           'Now loop through all of the listed income - again
 				If check_info_entered(all_income) Then
 					If check = pay_date(all_income) Then
+                        duplicate_pay_date(all_income) = False
 						pay_date(all_income) = DateValue(pay_date(all_income))
 						check_order(all_income) = the_counter
 						If InStr(assessed_checks_list, "~" & pay_date(all_income) & "~") <> 0 Then
-							duplicate_pay_date(all_income) = True
+                            duplicate_pay_date(all_income) = True
 						Else
 							assessed_checks_list = assessed_checks_list & pay_date(all_income) & "~"
 						End If
@@ -3150,7 +3149,6 @@ class jobs_income
 		ReDim split_check_string(0)
         ReDim split_check_excld_string(0)
         ReDim split_exclude_amount(0)
-		ReDim duplct_pay_date(0)
 		ReDim calculated_by_ytd(0)
 		ReDim ytd_calc_notes(0)
 		ReDim pay_detail_exists(0)
@@ -3266,7 +3264,6 @@ class jobs_income
 		ReDim preserve split_check_string(top_index)
         ReDim preserve split_check_excld_string(top_index)
         ReDim preserve split_exclude_amount(top_index)
-		ReDim preserve duplct_pay_date(top_index)
 		ReDim preserve calculated_by_ytd(top_index)
 		ReDim preserve ytd_calc_notes(top_index)
 		ReDim preserve pay_detail_exists(top_index)
@@ -3456,7 +3453,6 @@ class jobs_income
         If header = "split_check_string" Then Call read_txt_array(split_check_string, info, "String", "^&**&^", False)
         If header = "split_check_excld_string" Then Call read_txt_array(split_check_excld_string, info, "String", "^&**&^", False)
         If header = "split_exclude_amount" Then Call read_txt_array(split_exclude_amount, info, "Amount", "^&**&^", False)
-        If header = "duplct_pay_date" Then Call read_txt_array(duplct_pay_date, info, "Date", "^&**&^", False)
         If header = "calculated_by_ytd" Then Call read_txt_array(calculated_by_ytd, info, "Boolean", "^&**&^", False)
         If header = "ytd_calc_notes" Then Call read_txt_array(ytd_calc_notes, info, "String", "^&**&^", False)
         If header = "pay_detail_exists" Then Call read_txt_array(pay_detail_exists, info, "Boolean", "^&**&^", False)
@@ -3630,7 +3626,6 @@ class jobs_income
         objTextStream.WriteLine "split_check_string~%~%~%~%~" & join(split_check_string, "^&**&^")
         objTextStream.WriteLine "split_check_excld_string~%~%~%~%~" & join(split_check_excld_string, "^&**&^")
         objTextStream.WriteLine "split_exclude_amount~%~%~%~%~" & join(split_exclude_amount, "^&**&^")
-        objTextStream.WriteLine "duplct_pay_date~%~%~%~%~" & join(duplct_pay_date, "^&**&^")
         objTextStream.WriteLine "calculated_by_ytd~%~%~%~%~" & join(calculated_by_ytd, "^&**&^")
         objTextStream.WriteLine "ytd_calc_notes~%~%~%~%~" & join(ytd_calc_notes, "^&**&^")
         objTextStream.WriteLine "pay_detail_exists~%~%~%~%~" & join(pay_detail_exists, "^&**&^")
@@ -3965,6 +3960,7 @@ class jobs_income
 					If actual_checks_provided = False Then
 						err_msg = err_msg & vbCr & "* You selected to have the script complete a YTD calculation, but there are no check detials entered and this functionality cannot operate."
 					ElseIf pay_freq <> "" Then
+						Call order_checks
 						Call create_expected_check_array
 						Call find_missing_checks
 						Call ytd_calculator(err_msg)
@@ -4010,8 +4006,10 @@ class jobs_income
 						duplicate_pay_date(pay_item) = False
 						check_info_entered(pay_item) = True
 						future_check(pay_item) = False
-						If DatePart("m", fs_appl_date) = DatePart("m", pay_date(pay_item)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(pay_item)) Then   'if the paydate is in the application month
-							If DateDiff("d", date, pay_date(pay_item)) > 0 Then future_check(pay_item) = TRUE   'this is a future check
+                        If IsDate(fs_appl_date) Then
+                            If DatePart("m", fs_appl_date) = DatePart("m", pay_date(pay_item)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(pay_item)) Then   'if the paydate is in the application month
+                                If DateDiff("d", date, pay_date(pay_item)) > 0 Then future_check(pay_item) = TRUE   'this is a future check
+                            End If
 						End If
 
                         Dialog1 = ""
@@ -4729,13 +4727,15 @@ class jobs_income
 				Call resize_check_list(pay_item)
 				pay_date(pay_item) = check_missed
 				pay_detail_btn(pay_item) = 2000+pay_item
-				duplct_pay_date(pay_item) = False
+				duplicate_pay_date(pay_item) = False
 				calculated_by_ytd(pay_item) = True
 				duplicate_pay_date(pay_item) = False
 				check_info_entered(pay_item) = True
 				future_check(pay_item) = False
-				If DatePart("m", fs_appl_date) = DatePart("m", pay_date(pay_item)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(pay_item)) Then   'if the paydate is in the application month
-					If DateDiff("d", date, pay_date(pay_item)) > 0 Then future_check(pay_item) = TRUE   'this is a future check
+                If IsDate(fs_appl_date) Then
+                    If DatePart("m", fs_appl_date) = DatePart("m", pay_date(pay_item)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", pay_date(pay_item)) Then   'if the paydate is in the application month
+                        If DateDiff("d", date, pay_date(pay_item)) > 0 Then future_check(pay_item) = TRUE   'this is a future check
+                    End If
 				End If
 
 				For each_expctd_chk = 0 to UBound(expected_check_array)
@@ -5458,71 +5458,85 @@ Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
 If vars_filled Then
     For each_job = 0 to UBound(JOBS_PANELS)
-        For all_checks = 0 to UBound(JOBS_PANELS(each_job).pay_date)
+        all_checks = 0
+        Do
+        ' For all_checks = 0 to UBound(JOBS_PANELS(each_job).pay_date)
+            ' MsgBox JOBS_PANELS(each_job).employer & vbCr & "all_checks - " & all_checks & vbCr & "UBOUND - " & ubound(JOBS_PANELS(each_job).pay_date)
             necessary_info_valid = True
-            If NOT IsDate(JOBS_PANELS(each_job).pay_date(all_checks)) Then necessary_info_valid = False
-            If NOT IsNumeric(JOBS_PANELS(each_job).gross_amount(all_checks)) Then necessary_info_valid = False
-            If NOT IsNumeric(JOBS_PANELS(each_job).hours(all_checks)) Then necessary_info_valid = False
-            If NOT necessary_info_valid Then
+            check_deleted = False
+            If NOT IsDate   (Trim(JOBS_PANELS(each_job).pay_date(all_checks)))      Then necessary_info_valid = False
+            If NOT IsNumeric(Trim(JOBS_PANELS(each_job).gross_amount(all_checks)))  Then necessary_info_valid = False
+            If NOT IsNumeric(Trim(JOBS_PANELS(each_job).hours(all_checks)))         Then necessary_info_valid = False
+            ' MsgBox "necessary_info_valid - " & necessary_info_valid & vbCr &_
+            '         "JOBS_PANELS(each_job).pay_date(all_checks) - ~" & JOBS_PANELS(each_job).pay_date(all_checks) & "~" & vbCr &_
+            '         "JOBS_PANELS(each_job).gross_amount(all_checks) - ~" & JOBS_PANELS(each_job).gross_amount(all_checks) & "~" & vbCr &_
+            '         "JOBS_PANELS(each_job).hours(all_checks) - ~" & JOBS_PANELS(each_job).hours(all_checks) & "~"
+            If Trim(JOBS_PANELS(each_job).pay_date(all_checks)) = "" and Trim(JOBS_PANELS(each_job).gross_amount(all_checks)) = "" and Trim(JOBS_PANELS(each_job).hours(all_checks)) = "" Then
+                If all_checks <> 0 Then JOBS_PANELS(each_job).delete_one_check(all_checks)
+                ' MsgBox "Deleted check since no valid info found."
+                check_deleted = True
+            ElseIf NOT necessary_info_valid Then
                 Call JOBS_PANELS(each_job).check_details_dialog(True, all_checks, ButtonPressed)
                 If ButtonPressed = save_details_btn Then
                     JOBS_PANELS(each_job).check_info_entered(all_checks) = True
                 End If
                 If ButtonPressed = delete_check_btn Then
                     Call JOBS_PANELS(each_job).delete_one_check(all_checks)
+                    check_deleted = True
                 End If
 
                 ' MsgBox "It appears that the information saved for this case from a previous run of this script is not valid. Please review the information and update as needed."
             End If
-        Next
+            If NOT check_deleted Then all_checks = all_checks + 1
+        ' Next
+        Loop until all_checks >= UBound(JOBS_PANELS(each_job).pay_date)
 		Call JOBS_PANELS(each_job).evaluate_checks
 		If JOBS_PANELS(each_job).checks_exist Then Call JOBS_PANELS(each_job).order_checks
     Next
 End If
 
-If vars_filled = False Then
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)                           'Going to find the FS Application Date
+If is_this_priv = True Then call script_end_procedure("This script will now end because it appears this case is privileged.")
+curr_row = 1
+curr_col = 1
+EMSearch " FS:", curr_row, curr_col
+If curr_row <> 0 Then
+    EMReadScreen fs_prog_status, 7, curr_row, curr_col + 5
+    fs_prog_status = trim(fs_prog_status)
+    If fs_prog_status <> "" Then
+        EMReadScreen fs_appl_date, 8, curr_row, curr_col + 25
+        If NOT IsDate(fs_appl_date) Then fs_appl_date = ""
+    End If
+End If
+fs_appl_footer_month = left(fs_appl_date, 2)                            'Making a footer month and year for the FS Application'
+fs_appl_footer_year = right(fs_appl_date, 2)
 
-	Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)                           'Going to find the FS Application Date
-	If is_this_priv = True Then call script_end_procedure("This script will now end because it appears this case is privileged.")
-	curr_row = 1
-	curr_col = 1
-	EMSearch " FS:", curr_row, curr_col
-	If curr_row <> 0 Then
-		EMReadScreen fs_prog_status, 7, curr_row, curr_col + 5
-		fs_prog_status = trim(fs_prog_status)
-		If fs_prog_status <> "" Then
-			EMReadScreen fs_appl_date, 8, curr_row, curr_col + 25
-            If NOT IsDate(fs_appl_date) Then fs_appl_date = ""
-		End If
-	End If
-	fs_appl_footer_month = left(fs_appl_date, 2)                            'Making a footer month and year for the FS Application'
-	fs_appl_footer_year = right(fs_appl_date, 2)
+Do                                                                      'Getting in to STA (making sure we get past background)
+    Call navigate_to_MAXIS_screen ("STAT", "SUMM")
+    EMReadScreen summ_check, 4, 2, 46
+Loop until summ_check = "SUMM"
 
-	Do                                                                      'Getting in to STA (making sure we get past background)
-		Call navigate_to_MAXIS_screen ("STAT", "SUMM")
-		EMReadScreen summ_check, 4, 2, 46
-	Loop until summ_check = "SUMM"
+CASH_case = FALSE       'defining these as a default
+SNAP_case = FALSE
+HC_case = FALSE
 
-	CASH_case = FALSE       'defining these as a default
-	SNAP_case = FALSE
-	HC_case = FALSE
+Call Navigate_to_MAXIS_screen("STAT", "PROG")                           'Getting program status to identify potential programs the income should apply to
 
-	Call Navigate_to_MAXIS_screen("STAT", "PROG")                           'Getting program status to identify potential programs the income should apply to
+EMReadScreen cash_one_status, 4, 6, 74                                  'reading each program status
+EMReadScreen cash_two_status, 4, 7, 74
+EMReadScreen cash_one_prog, 2, 6, 64                                  'reading each program status
+EMReadScreen cash_two_prog, 2, 7, 64
+EMReadScreen grh_status, 4, 9, 74
+EMReadScreen snap_status, 4, 10, 74
+EMReadScreen hc_status, 4, 12, 74
 
-	EMReadScreen cash_one_status, 4, 6, 74                                  'reading each program status
-	EMReadScreen cash_two_status, 4, 7, 74
-	EMReadScreen cash_one_prog, 2, 6, 64                                  'reading each program status
-	EMReadScreen cash_two_prog, 2, 7, 64
-	EMReadScreen grh_status, 4, 9, 74
-	EMReadScreen snap_status, 4, 10, 74
-	EMReadScreen hc_status, 4, 12, 74
+If cash_one_status = "ACTV" OR cash_one_status = "PEND" Then CASH_case = TRUE   'setting programs to TRUE based on PROG status
+If cash_two_status = "ACTV" OR cash_two_status = "PEND" Then CASH_case = TRUE
+If grh_status = "ACTV" OR grh_status = "PEND" Then GRH_case = TRUE
+If snap_status = "ACTV" OR snap_status = "PEND" Then SNAP_case = TRUE
+If hc_status = "ACTV" OR hc_status = "PEND" Then HC_case = TRUE
 
-	If cash_one_status = "ACTV" OR cash_one_status = "PEND" Then CASH_case = TRUE   'setting programs to TRUE based on PROG status
-	If cash_two_status = "ACTV" OR cash_two_status = "PEND" Then CASH_case = TRUE
-	If grh_status = "ACTV" OR grh_status = "PEND" Then GRH_case = TRUE
-	If snap_status = "ACTV" OR snap_status = "PEND" Then SNAP_case = TRUE
-	If hc_status = "ACTV" OR hc_status = "PEND" Then HC_case = TRUE
-
+If NOT vars_filled Then
 
 	panels_count = 0								'this is our counter to add new panels to the EARNED_INCOME_PANELS_ARRAY
 	panel_exists = False
