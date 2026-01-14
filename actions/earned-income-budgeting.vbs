@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/14/2026", "BUGS fixed with some check date handling, where the script was finding checks to have unexpected dates incorrectly and some errors that terminated the script run. Additionally, updated the handling of check details to ensure explanations are provided.", "Casey Love, Hennepin County")
 Call changelog_update("10/07/2025", "NEW SCRIPT VERSION - MAJOR UPDATE##~## ##~##Primary update is to allow for budgeting details of CASH to align with the process for the SNAP budgeting.##~## - Check details now entered on individual dialogs.##~## - Exclusions can be indicated on any check for SNAP, CASH, or both.##~## - Some updates to the format of the CASE/NOTE.##~## - Base functionality should all remain.##~## ##~##Interactions with this script will take some time to become familiar - additional information is available in the instructions (look for the button on the main dialog).", "Casey Love, Hennepin County")
 Call changelog_update("04/18/2025", "Fixed issue with dialog sizing for entered checks.", "Mark Riegel, Hennepin County")
 Call changelog_update("03/31/2025", "Updated script to display conversation/clarification field regardless of program(s).", "Mark Riegel, Hennepin County")
