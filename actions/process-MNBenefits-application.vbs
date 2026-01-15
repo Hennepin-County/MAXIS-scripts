@@ -62,6 +62,8 @@ update_xml_button       = 205
 back_button             = 206
 reselect_xml_button     = 207
 continue_button         = 208
+proceed_button          = 209
+return_button           = 210
 
 
 
@@ -74,6 +76,11 @@ hh_memb_5_and_6_button    = 303
 hh_memb_7_and_8_button    = 304
 hh_memb_9_and_10_button   = 305
 hh_memb_11_and_12_button  = 306
+case_number_nav_0_button  = 307
+case_number_nav_1_button  = 308
+case_number_nav_2_button  = 309
+case_number_nav_3_button  = 310
+case_number_nav_4_button  = 311
 
 
 
@@ -81,7 +88,7 @@ hh_memb_11_and_12_button  = 306
 
 
 'Dimming variables
-Dim folderPath, confirmation_number, fso, folder, fileList, file, xml_file_path, script_testing
+Dim folderPath, confirmation_number, fso, folder, fileList, file, xml_file_path, script_testing, proceed_new_case
 
 'Initialize variables
 script_testing = true
@@ -100,7 +107,7 @@ Function household_members_dialog_1_2()
     Text 15, 65, 40, 10, "Last name:"
     EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 0)
     Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 0)
+    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 0)
     Text 15, 95, 50, 10, "Marital status:"
     DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 0)
     Text 15, 110, 45, 10, "Date of birth:"
@@ -812,7 +819,8 @@ Const MEMBER_MARITAL_STATUS = 5
 Const MEMBER_CITIZENSHIP    = 6
 Const MEMBER_PMI            = 7
 Const MEMBER_EXISTS_MAXIS   = 8
-Const MEMBER_GENDER         = 9
+Const APPL_CASE_NUMBER      = 9
+Const MEMBER_GENDER         = 10
 
 ReDim household_members(MEMBER_GENDER, member_count)   'Redimmed to the size of the last constant
 
@@ -859,6 +867,10 @@ For Each objMemberNode In objHouseholdMemberNodes
   member_count = member_count + 1
   ReDim Preserve household_members(MEMBER_GENDER, member_count)
 Next
+
+'Remove the empty household member from the array
+' member_count = member_count - 1
+ReDim Preserve household_members(MEMBER_GENDER, member_count - 1)
 
 'Gather application date and application ID 
 Dim formatted_app_date, objApplicationDate, applicationDate, applicationMonth, applicationDay, applicationYear
@@ -1010,6 +1022,7 @@ BeginDialog Dialog1, 0, 0, 285, 245, "Verify MNBenefits XML Details - Household 
   ButtonGroup ButtonPressed
     PushButton 235, 225, 45, 15, "Continue", continue_button
     PushButton 10, 225, 50, 15, "Reselect XML", reselect_xml_button
+    'To do - add functionality for reselect xml button
 EndDialog
 
 DO
@@ -1235,6 +1248,10 @@ End If
 '   --> Script reads through all results on first page until end reached or match found
 '   --> Script matches based on the first and last name and then DOB (if provided) and SSN (if provided)
 
+' msgbox "Ubound(household_members, 2) " & Ubound(household_members, 2) 
+' msgbox "first name of last member " & household_members(MEMBER_FIRST_NAME, Ubound(household_members, 2))
+' msgbox "last name of last member " & household_members(MEMBER_LAST_NAME, Ubound(household_members, 2))
+
 For member = 0 to Ubound(household_members, 2)
   'Setting variables for search
   ssn_match_found = False
@@ -1370,7 +1387,7 @@ For member = 0 to Ubound(household_members, 2)
   PERS_search_criteria = household_members(MEMBER_FIRST_NAME, member) & " " & household_members(MEMBER_LAST_NAME, member) & " (DOB: " & household_members(MEMBER_DOB, member) & "; SSN: " & household_members(MEMBER_SSN, member) & "; Gender: " & household_members(MEMBER_GENDER, member) & ")"
   
   checkbox_y = 85
-  groupbox_height = 30
+  groupbox_height = 35
   If PERS_match_found Then groupbox_height = groupbox_height + (Ubound(PERS_search_results_string_array) * 10)
   dialog_height = 130
   If PERS_match_found Then dialog_height = dialog_height + (Ubound(PERS_search_results_string_array) * 10)
@@ -1443,8 +1460,8 @@ For member = 0 to Ubound(household_members, 2)
       CheckBox 15, checkbox_y + 10, 325, 10, "None of these matches are correct. I will complete a manual search.", no_match_search_manually
     End If
     ButtonGroup ButtonPressed
-      OkButton 245, checkbox_y + 35, 50, 15
-      CancelButton 295, checkbox_y + 35, 50, 15
+      OkButton 245, checkbox_y + 30, 50, 15
+      CancelButton 295, checkbox_y + 30, 50, 15
   EndDialog
 
   DO
@@ -1466,18 +1483,16 @@ For member = 0 to Ubound(household_members, 2)
   If PERS_match_found = False Or no_match_search_manually = 1 Then
     'Call dialog for worker to identify the PMI or indicate if a new person
 
-    'To do - for applicant, enter the case number AND PMI number (if exists). For all other HH members, just enter the PMI #
-
+    'Enter the PMI number. If script is on the applicant then worker will need to select whether case already exists or if a new one is needed
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 321, 180, "Manual PERS Search"
       Text 5, 5, 300, 25, "You indicated that none of the matches identified by the script were correct. Please complete a manual search for the household member identified below and provide the corresponding PMI and MAXIS case number, if applicable."
       GroupBox 5, 40, 310, 30, "Household Member Details from XML File"
       Text 15, 55, 295, 10, PERS_search_criteria
       GroupBox 5, 75, 310, 65, "Check one option below:"
       CheckBox 10, 90, 60, 10, "I found a match", manual_match_found_checkbox
-      Text 25, 105, 50, 10, "Case Number:"
-      EditBox 80, 100, 50, 15, MAXIS_case_number
-      Text 145, 105, 20, 10, "PMI:"
-      EditBox 170, 100, 50, 15, PMI_number
+      Text 20, 105, 20, 10, "PMI:"
+      EditBox 40, 100, 50, 15, PMI_number
       CheckBox 10, 125, 185, 10, "No match found. This person does not exist in MAXIS.", manual_no_match_found_checkbox
       ButtonGroup ButtonPressed
         OkButton 215, 160, 50, 15
@@ -1491,7 +1506,7 @@ For member = 0 to Ubound(household_members, 2)
         cancel_without_confirmation
         'to do - add error handling
         If manual_match_found_checkbox = 1 Then
-          If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the case number."
+          ' If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the case number."
           If trim(PMI_number) = "" Then err_msg = err_msg & vbNewLine & "* You must enter the PMI number."
         End If
         If manual_match_found_checkbox + manual_no_match_found_checkbox = 2 then err_msg = err_msg & vbNewLine & "* You can only check one checkbox."
@@ -1501,7 +1516,7 @@ For member = 0 to Ubound(household_members, 2)
       CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-    'Proceed depending on options selected
+    'If manual match found, need to verify PMI number entered correctly. If this is applicant, worker needs to select case number or indicate that this is a new case
     If manual_match_found_checkbox = 1 Then
       'Conduct a PERS search using the PMI number to find match and display for worker
       pmi_number = trim(pmi_number)
@@ -1524,12 +1539,17 @@ For member = 0 to Ubound(household_members, 2)
 
       'To do - add handling for no PMI match when trying to search
 
+      'Reset the pers search result string 
+      selected_PERS_search_results_string = ""
+
+      'Reset the MTCH_row
+      MTCH_row = 8
 
       'Open the PMI match to gather details
       'Read the data from the corresponding MTCH row
-      EmReadScreen SSN_MTCH_panel, 11, 8, 7
+      EmReadScreen SSN_MTCH_panel, 11, MTCH_row, 7
       SSN_MTCH_panel = trim(SSN_MTCH_panel)
-
+      
       EmReadScreen last_name_MTCH_panel, 20, MTCH_row, 21
       last_name_MTCH_panel = trim(last_name_MTCH_panel)
       
@@ -1538,12 +1558,13 @@ For member = 0 to Ubound(household_members, 2)
       
       EmReadScreen gender_MTCH_panel, 1, MTCH_row, 58
       gender_MTCH_panel = trim(gender_MTCH_panel)
-
+      
       EmReadScreen dob_MTCH_panel, 10, MTCH_row, 60
       dob_MTCH_panel = trim(dob_MTCH_panel)
-        
+      
       EmReadScreen pmi_MTCH_panel, 10, MTCH_row, 71
       pmi_MTCH_panel = trim(pmi_MTCH_panel)
+      ' msgbox "first_name_MTCH_panel > " & first_name_MTCH_panel & vbcr & "last_name_MTCH_panel >" & last_name_MTCH_panel & vbcr & "gender_MTCH_panel >" & gender_MTCH_panel & vbcr & "dob_MTCH_panel >" & dob_MTCH_panel & vbcr & "SSN_MTCH_panel >" & vbcr & "pmi_MTCH_panel >" & pmi_MTCH_panel & vbcr & "SSN_MTCH_panel >" & SSN_MTCH_panel
 
       'Validate the PMI number. Script will only display a potential match if the PMI number exists
       CALL write_value_and_transmit("X", MTCH_row, 5)
@@ -1570,6 +1591,7 @@ For member = 0 to Ubound(household_members, 2)
           End If
         Loop
         selected_PERS_search_results_string = selected_PERS_search_results_string & first_name_MTCH_panel & " " & last_name_MTCH_panel & " " & "(DOB: " & dob_MTCH_panel & "; SSN: " & SSN_MTCH_panel & "; PMI: " & pmi_MTCH_panel & "; Gender: " & gender_MTCH_panel & ")" & DSPL_case_number_string & "#"
+        ' msgbox "selected_PERS_search_results_string >" & selected_PERS_search_results_string
         PF3   'Back to MTCH panel
       Else
         'Clear the X
@@ -1579,131 +1601,179 @@ For member = 0 to Ubound(household_members, 2)
 
       ' Set PMI number in array and set exists to True
       household_members(MEMBER_PMI, member) = pmi_number
-      household_members(MEMBER_EXISTS, member) = True
+      household_members(MEMBER_EXISTS_MAXIS, member) = True
 
       'Pull out the PMI number from the PERS_search_results_string
       PMI_number = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "PMI: ") + 5, instr(selected_PERS_search_results_string, "; Gender: ") - instr(selected_PERS_search_results_string, "PMI: ") - 5)
   
-      'Pull out the case numbers identified for the PMI # and remove the trailing *
+      'Pull out the case numbers identified for the PMI # and remove the leading and trailing *
       selected_PERS_search_case_numbers = mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "*"), len(selected_PERS_search_results_string) - instr(selected_PERS_search_results_string, "*"))
       selected_PERS_search_case_numbers = right(selected_PERS_search_case_numbers, len(selected_PERS_search_case_numbers) - 1)
+      selected_PERS_search_case_numbers = left(selected_PERS_search_case_numbers, len(selected_PERS_search_case_numbers) - 1)
 
       selected_PERS_search_case_numbers_array = split(selected_PERS_search_case_numbers, "*")
-  
-      For case_number = 0 to Ubound(selected_PERS_search_case_numbers_array)
-        'Navigate to STAT/MEMB to pull the household member number and relationship code
-        Call back_to_SELF
-        'Write the MAXIS case code
-        EMWriteScreen "________", 18, 43
-        EMWriteScreen selected_PERS_search_case_numbers_array(case_number), 18, 43 
-        EMWriteScreen "STAT", 16, 43 
-        CALL write_value_and_transmit("MEMB", 21, 70)
-        'Script will read each PMI number to see if there is a match
-        Do
-          ref_nbr = ""
-          rel_code = ""
-          pmi_number_check = ""
-          last_memb_check = ""
-  
-          EmReadScreen pmi_number_check, 11, 4, 46
-          pmi_number_check = trim(pmi_number_check)
-          If pmi_number_check = pmi_number then
-            EmReadScreen ref_nbr, 2, 4, 33
-            EmReadScreen rel_code, 18, 10, 42
-            Call back_to_SELF
-            Exit Do
+
+      If Ubound(selected_PERS_search_case_numbers_array) = 0 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0)
+      If Ubound(selected_PERS_search_case_numbers_array) = 1 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1)
+      If Ubound(selected_PERS_search_case_numbers_array) = 2 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2)
+      If Ubound(selected_PERS_search_case_numbers_array) = 3 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2) + chr(9) + selected_PERS_search_case_numbers_array(3)
+      If Ubound(selected_PERS_search_case_numbers_array) = 4 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2) + chr(9) + selected_PERS_search_case_numbers_array(3) + chr(9) + selected_PERS_search_case_numbers_array(4)
+      
+      'Only need to evaluate case numbers if we are on the applicant
+      If member = 0 Then
+        For case_number = 0 to Ubound(selected_PERS_search_case_numbers_array)
+          'Navigate to STAT/MEMB to pull the household member number and relationship code
+          Call back_to_SELF
+          'Write the MAXIS case code
+          EMWriteScreen "________", 18, 43
+          ' msgbox selected_PERS_search_case_numbers_array(case_number)
+          EMWriteScreen selected_PERS_search_case_numbers_array(case_number), 18, 43 
+          EMWriteScreen "STAT", 16, 43 
+          CALL write_value_and_transmit("MEMB", 21, 70)
+          'Script will read each PMI number to see if there is a match
+          Do
+            ref_nbr = ""
+            rel_code = ""
+            pmi_number_check = ""
+            last_memb_check = ""
+    
+            EmReadScreen pmi_number_check, 11, 4, 46
+            pmi_number_check = trim(pmi_number_check)
+            If pmi_number_check = pmi_number then
+              EmReadScreen ref_nbr, 2, 4, 33
+              EmReadScreen rel_code, 18, 10, 42
+              Call back_to_SELF
+              Exit Do
+            End If
+            transmit
+            EmReadScreen last_memb_check, 5, 24, 2
+            If last_memb_check = "ENTER" then Exit Do
+          Loop
+          'Update the array item with the details from STAT/MEMB
+          If ref_nbr <> "" Then
+            selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & ref_nbr & "                         " & rel_code 
+          Else
+            selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & "Person does not appear on case" 
           End If
-          transmit
-          EmReadScreen last_memb_check, 5, 24, 2
-          If last_memb_check = "ENTER" then Exit Do
-        Loop
-        'Update the array item with the details from STAT/MEMB
-        If ref_nbr <> "" Then
-          selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & ref_nbr & "                         " & rel_code 
-        Else
-          selected_PERS_search_case_numbers_array(case_number) = selected_PERS_search_case_numbers_array(case_number) & "&" & "Person does not appear on case" 
-        End If
-      Next 
-  
+        Next 
+      End If
       'Set the variables to resizing the dialog
       case_num_btn_y = 60
       ref_rel_y = 60
-  
+
+      ' msgbox "selected_PERS_search_results_string " & selected_PERS_search_results_string
+      If UBound(selected_PERS_search_case_numbers_array) > 4 Then msgbox "There are more case numbers than can be displayed. There are " & ubound(selected_PERS_search_case_numbers_array) + 1 & " cases."
+
       'Display dialog with details from MAXIS compared to details from XML
-      BeginDialog Dialog1, 0, 0, 270, 375, "Verify MNBenefits XML Details - Household Members"
+      Dialog1 = "" 'Blanking out previous dialog detail
+      BeginDialog Dialog1, 0, 0, 270, 385, "Verify MNBenefits XML Details - Household Members"
         Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-        GroupBox 10, 30, 255, 85, "Review the Cases below for PERS Match"
-        Text 20, 40, 185, 10, "Nav to case                  Ref nbr                 Rel code"
+        If member = 0 Then
+          GroupBox 10, 30, 255, 85, "Review the Cases below for PERS Match"
+          Text 20, 40, 185, 10, "Nav to case                  Ref nbr                 Rel code"
+          ButtonGroup ButtonPressed
+            PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0_button
+            Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
+    
+            If UBound(selected_PERS_search_case_numbers_array) > 0 Then
+              ' If selected_PERS_search_case_numbers_array(1) <> "" Then
+                PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1_button
+                case_num_btn_y = case_num_btn_y + 10
+                Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
+                ref_rel_y = ref_rel_y + 10
+              ' End If
+            End If
+            If UBound(selected_PERS_search_case_numbers_array) > 1 Then
+              ' If selected_PERS_search_case_numbers_array(2) <> "" Then
+                PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2_button
+                case_num_btn_y = case_num_btn_y + 10
+                Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(2), instr(selected_PERS_search_case_numbers_array(2), "&") + 1)
+                ref_rel_y = ref_rel_y + 10
+              ' End If
+            End If
+            If UBound(selected_PERS_search_case_numbers_array) > 2 Then
+              ' If selected_PERS_search_case_numbers_array(3) <> "" Then
+                PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3_button
+                case_num_btn_y = case_num_btn_y + 10
+                Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(3), instr(selected_PERS_search_case_numbers_array(3), "&") + 1)
+                ref_rel_y = ref_rel_y + 10
+              ' End If
+            End If
+            If UBound(selected_PERS_search_case_numbers_array) > 3 Then
+              ' If selected_PERS_search_case_numbers_array(4) <> "" Then
+                PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4_button
+                case_num_btn_y = case_num_btn_y + 10
+                Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(4), instr(selected_PERS_search_case_numbers_array(4), "&") + 1)
+                ref_rel_y = ref_rel_y + 10
+              ' End If
+            End If
+          GroupBox 10, 120, 255, 80, "PERS Search Result Details"
+          Text 15, 135, 40, 10, "First name:"
+          Text 65, 135, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
+          Text 15, 145, 40, 10, "Last name:"
+          Text 65, 145, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
+          Text 15, 155, 45, 10, "Date of birth:"
+          Text 65, 155, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
+          Text 15, 165, 20, 10, "SSN:"
+          Text 65, 165, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
+          Text 15, 175, 20, 10, "PMI:"
+          Text 65, 175, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
+          Text 15, 185, 30, 10, "Gender:"
+          Text 65, 185, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
+          GroupBox 10, 205, 255, 140, "Verify the XML details below (update as needed):"
+          Text 15, 225, 40, 10, "First name:"
+          EditBox 70, 220, 100, 15, household_members(MEMBER_FIRST_NAME, member)
+          Text 15, 240, 40, 10, "Last name:"
+          EditBox 70, 235, 100, 15, household_members(MEMBER_LAST_NAME, member)
+          Text 15, 255, 30, 10, "Gender:"
+          DropListBox 70, 250, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+          Text 15, 270, 50, 10, "Marital status:"
+          DropListBox 70, 265, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
+          Text 15, 285, 45, 10, "Date of birth:"
+          EditBox 70, 280, 100, 15, household_members(MEMBER_DOB, member)
+          Text 15, 300, 20, 10, "SSN:"
+          EditBox 70, 295, 100, 15, household_members(MEMBER_SSN, member)
+          Text 15, 315, 45, 10, "Citizenship:"
+          DropListBox 70, 310, 60, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+          Text 15, 330, 45, 10, "Relationship:"
+          DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+          Text 10, 350, 165, 10, "Select existing case number or indicate new case:"
+          DropListBox 180, 350, 80, 15, case_selection_list_options, case_selection_list
+        Else
+          GroupBox 10, 25, 255, 80, "PERS Search Result Details"
+          Text 15, 40, 40, 10, "First name:"
+          Text 65, 40, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
+          Text 15, 50, 40, 10, "Last name:"
+          Text 65, 50, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
+          Text 15, 60, 45, 10, "Date of birth:"
+          Text 65, 60, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
+          Text 15, 70, 20, 10, "SSN:"
+          Text 65, 70, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
+          Text 15, 80, 20, 10, "PMI:"
+          Text 65, 80, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
+          Text 15, 90, 30, 10, "Gender:"
+          Text 65, 90, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
+          GroupBox 10, 110, 255, 140, "Verify the XML details below (update as needed):"
+          Text 15, 130, 40, 10, "First name:"
+          EditBox 70, 125, 100, 15, household_members(MEMBER_FIRST_NAME, member)
+          Text 15, 145, 40, 10, "Last name:"
+          EditBox 70, 140, 100, 15, household_members(MEMBER_LAST_NAME, member)
+          Text 15, 160, 30, 10, "Gender:"
+          DropListBox 70, 155, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+          Text 15, 175, 50, 10, "Marital status:"
+          DropListBox 70, 170, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
+          Text 15, 190, 45, 10, "Date of birth:"
+          EditBox 70, 185, 100, 15, household_members(MEMBER_DOB, member)
+          Text 15, 205, 20, 10, "SSN:"
+          EditBox 70, 200, 100, 15, household_members(MEMBER_SSN, member)
+          Text 15, 220, 45, 10, "Citizenship:"
+          DropListBox 70, 215, 60, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+          Text 15, 235, 45, 10, "Relationship:"
+          DropListBox 70, 230, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+        End If
         ButtonGroup ButtonPressed
-          PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0
-          Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
-  
-          If UBound(selected_PERS_search_case_numbers_array) > 0 Then
-            ' If selected_PERS_search_case_numbers_array(1) <> "" Then
-              PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1
-              case_num_btn_y = case_num_btn_y + 10
-              Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
-              ref_rel_y = ref_rel_y + 10
-            ' End If
-          End If
-          If UBound(selected_PERS_search_case_numbers_array) > 1 Then
-            ' If selected_PERS_search_case_numbers_array(2) <> "" Then
-              PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2
-              case_num_btn_y = case_num_btn_y + 10
-              Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(2), instr(selected_PERS_search_case_numbers_array(2), "&") + 1)
-              ref_rel_y = ref_rel_y + 10
-            ' End If
-          End If
-          If UBound(selected_PERS_search_case_numbers_array) > 2 Then
-            ' If selected_PERS_search_case_numbers_array(3) <> "" Then
-              PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3
-              case_num_btn_y = case_num_btn_y + 10
-              Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(3), instr(selected_PERS_search_case_numbers_array(3), "&") + 1)
-              ref_rel_y = ref_rel_y + 10
-            ' End If
-          End If
-          If UBound(selected_PERS_search_case_numbers_array) > 3 Then
-            ' If selected_PERS_search_case_numbers_array(4) <> "" Then
-              PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4
-              case_num_btn_y = case_num_btn_y + 10
-              Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(4), instr(selected_PERS_search_case_numbers_array(4), "&") + 1)
-              ref_rel_y = ref_rel_y + 10
-            ' End If
-          End If
-        GroupBox 10, 120, 255, 80, "PERS Search Result Details"
-        Text 15, 135, 40, 10, "First name:"
-        Text 65, 135, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
-        Text 15, 145, 40, 10, "Last name:"
-        Text 65, 145, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
-        Text 15, 155, 45, 10, "Date of birth:"
-        Text 65, 155, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
-        Text 15, 165, 20, 10, "SSN:"
-        Text 65, 165, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
-        Text 15, 175, 20, 10, "PMI:"
-        Text 65, 175, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
-        Text 15, 185, 30, 10, "Gender:"
-        Text 65, 185, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
-        GroupBox 10, 205, 255, 140, "Verify the XML details below (update as needed):"
-        Text 15, 225, 40, 10, "First name:"
-        EditBox 70, 220, 100, 15, household_members(MEMBER_FIRST_NAME, member)
-        Text 15, 240, 40, 10, "Last name:"
-        EditBox 70, 235, 100, 15, household_members(MEMBER_LAST_NAME, member)
-        Text 15, 255, 30, 10, "Gender:"
-        DropListBox 70, 250, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
-        Text 15, 270, 50, 10, "Marital status:"
-        DropListBox 70, 265, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
-        Text 15, 285, 45, 10, "Date of birth:"
-        EditBox 70, 280, 100, 15, household_members(MEMBER_DOB, member)
-        Text 15, 300, 20, 10, "SSN:"
-        EditBox 70, 295, 100, 15, household_members(MEMBER_SSN, member)
-        Text 15, 315, 45, 10, "Citizenship:"
-        DropListBox 70, 310, 30, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
-        Text 15, 330, 45, 10, "Relationship:"
-        DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
-        'To do - would the worker confirm the case number here?
-        ButtonGroup ButtonPressed
-          PushButton 175, 355, 45, 15, "Next", next_hh_memb_btn
-          CancelButton 220, 355, 45, 15
+        PushButton 175, 365, 45, 15, "Next", next_hh_memb_btn
+        CancelButton 220, 365, 45, 15
       EndDialog
   
       DO
@@ -1712,44 +1782,56 @@ For member = 0 to Ubound(household_members, 2)
           dialog Dialog1				'main dialog
           cancel_without_confirmation
           'to do - add error handling
-  
-          If ButtonPressed = case_number_nav_0 Then
-            Call back_to_SELF
-            EMWriteScreen "________", 18, 43 
-            EMWriteScreen mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), 18, 43
-            EMWriteScreen "STAT", 16, 43 
-            CALL write_value_and_transmit("MEMB", 21, 70)
-          End If  
-          If ButtonPressed = case_number_nav_1 Then
-            Call back_to_SELF
-            EMWriteScreen "________", 18, 43 
-            EMWriteScreen mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), 18, 43
-            EMWriteScreen "STAT", 16, 43 
-            CALL write_value_and_transmit("MEMB", 21, 70)
+
+          If member = 0 Then
+            If ButtonPressed = case_number_nav_0_button Then
+              Call back_to_SELF
+              EMWriteScreen "________", 18, 43 
+              EMWriteScreen mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), 18, 43
+              EMWriteScreen "STAT", 16, 43 
+              CALL write_value_and_transmit("MEMB", 21, 70)
+              err_msg = "LOOP"
+            End If  
+            If ButtonPressed = case_number_nav_1_button Then
+              Call back_to_SELF
+              EMWriteScreen "________", 18, 43 
+              EMWriteScreen mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), 18, 43
+              EMWriteScreen "STAT", 16, 43 
+              CALL write_value_and_transmit("MEMB", 21, 70)
+              err_msg = "LOOP"
+            End If
+            If ButtonPressed = case_number_nav_2_button Then
+              Call back_to_SELF
+              EMWriteScreen "________", 18, 43 
+              EMWriteScreen mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), 18, 43
+              EMWriteScreen "STAT", 16, 43 
+              CALL write_value_and_transmit("MEMB", 21, 70)
+              err_msg = "LOOP"
+            End If
+            If ButtonPressed = case_number_nav_3_button Then
+              Call back_to_SELF
+              EMWriteScreen "________", 18, 43 
+              EMWriteScreen mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), 18, 43
+              EMWriteScreen "STAT", 16, 43 
+              CALL write_value_and_transmit("MEMB", 21, 70)
+              err_msg = "LOOP"
+            End If
+            If ButtonPressed = case_number_nav_4_button Then
+              Call back_to_SELF
+              EMWriteScreen "________", 18, 43 
+              EMWriteScreen mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), 18, 43
+              EMWriteScreen "STAT", 16, 43 
+              CALL write_value_and_transmit("MEMB", 21, 70)
+              err_msg = "LOOP"
+            End If
+
+            If case_selection_list = "Create new case" and err_msg = "" Then
+              proceed_new_case = MsgBox("You selected the 'Create new case' option despite the household member appearing on one or more existing cases. If you want to proceed with this selection then press 'Yes', otherwise you can return to previous dialog by pressing 'No'.", vbYesNo)
+              If proceed_new_case = vbNo then err_msg = "LOOP"
+            End If
           End If
-          If ButtonPressed = case_number_nav_2 Then
-            Call back_to_SELF
-            EMWriteScreen "________", 18, 43 
-            EMWriteScreen mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), 18, 43
-            EMWriteScreen "STAT", 16, 43 
-            CALL write_value_and_transmit("MEMB", 21, 70)
-          End If
-          If ButtonPressed = case_number_nav_3 Then
-            Call back_to_SELF
-            EMWriteScreen "________", 18, 43 
-            EMWriteScreen mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), 18, 43
-            EMWriteScreen "STAT", 16, 43 
-            CALL write_value_and_transmit("MEMB", 21, 70)
-          End If
-          If ButtonPressed = case_number_nav_4 Then
-            Call back_to_SELF
-            EMWriteScreen "________", 18, 43 
-            EMWriteScreen mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), 18, 43
-            EMWriteScreen "STAT", 16, 43 
-            CALL write_value_and_transmit("MEMB", 21, 70)
-          End If
-  
-          If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+
+          If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
       Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1757,8 +1839,9 @@ For member = 0 to Ubound(household_members, 2)
 
     If manual_no_match_found_checkbox = 1 Then
       ' Set exists to False
-      household_members(MEMBER_EXISTS, member) = False
+      household_members(MEMBER_EXISTS_MAXIS, member) = False
 
+      Dialog1 = "" 'Blanking out previous dialog detail
       BeginDialog Dialog1, 0, 0, 271, 375, "Verify MNBenefits XML Details - Household Member"
         Text 5, 5, 250, 20, "Please review and verify the household member details for the household member pulled from the XML file below. Make any updates as needed."
         GroupBox 5, 30, 255, 140, "Verify the XML details below (update as needed):"
@@ -1767,7 +1850,7 @@ For member = 0 to Ubound(household_members, 2)
         Text 10, 65, 40, 10, "Last name:"
         EditBox 65, 60, 100, 15, household_members(MEMBER_LAST_NAME, member)
         Text 10, 80, 30, 10, "Gender:"
-        DropListBox 65, 75, 60, 10, "Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+        DropListBox 65, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
         Text 10, 95, 50, 10, "Marital status:"
         DropListBox 65, 90, 100, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member)
         Text 10, 110, 45, 10, "Date of birth:"
@@ -1775,9 +1858,13 @@ For member = 0 to Ubound(household_members, 2)
         Text 10, 125, 20, 10, "SSN:"
         EditBox 65, 120, 100, 15, household_members(MEMBER_SSN, member)
         Text 10, 140, 45, 10, "Citizenship:"
-        DropListBox 65, 135, 30, 15, "Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+        DropListBox 65, 135, 60, 15, "Select one:" +chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
         Text 10, 155, 45, 10, "Relationship:"
         DropListBox 65, 150, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+        If member = 0 Then
+          Text 5, 175, 170, 10, "Enter an existing case number or indicate new case:"
+          Text 185, 175, 75, 15, "New case"
+        End If
         ButtonGroup ButtonPressed
           PushButton 175, 355, 45, 15, "Next", next_hh_memb_btn
           CancelButton 220, 355, 45, 15
@@ -1797,8 +1884,6 @@ For member = 0 to Ubound(household_members, 2)
       Loop until are_we_passworded_out = false					'loops until user passwords back in
     End If
 
-
-
   Else
     'Determine which result selected
     If pers_search_results_0 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(0)
@@ -1812,6 +1897,9 @@ For member = 0 to Ubound(household_members, 2)
     If pers_search_results_8 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(8)
     If pers_search_results_9 = 1 Then selected_PERS_search_results_string = PERS_search_results_string_array(9)
 
+    ' Set exists to True
+    household_members(MEMBER_EXISTS_MAXIS, member) = True
+
     ' Split out the case numbers from the selected PERS search result
 
     'Pull out the PMI number
@@ -1823,6 +1911,12 @@ For member = 0 to Ubound(household_members, 2)
     'to do - remove leading and ending asterisk
 
     selected_PERS_search_case_numbers_array = split(selected_PERS_search_case_numbers, "*")
+
+    If Ubound(selected_PERS_search_case_numbers_array) = 0 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0)
+    If Ubound(selected_PERS_search_case_numbers_array) = 1 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1)
+    If Ubound(selected_PERS_search_case_numbers_array) = 2 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2)
+    If Ubound(selected_PERS_search_case_numbers_array) = 3 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2) + chr(9) + selected_PERS_search_case_numbers_array(3)
+    If Ubound(selected_PERS_search_case_numbers_array) = 4 then case_selection_list_options = "Select one:" + chr(9) + "Create new case" + chr(9) + selected_PERS_search_case_numbers_array(0) + chr(9) + selected_PERS_search_case_numbers_array(1) + chr(9) + selected_PERS_search_case_numbers_array(2) + chr(9) + selected_PERS_search_case_numbers_array(3) + chr(9) + selected_PERS_search_case_numbers_array(4)
 
 
     For case_number = 0 to Ubound(selected_PERS_search_case_numbers_array)
@@ -1860,85 +1954,114 @@ For member = 0 to Ubound(household_members, 2)
       End If
     Next 
 
+
     'Set the variables to resizing the dialog
     case_num_btn_y = 60
     ref_rel_y = 60
 
-    'Display dialog with details from MAXIS compared to details from XML
-    BeginDialog Dialog1, 0, 0, 270, 375, "Verify MNBenefits XML Details - Household Members"
-      Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-      GroupBox 10, 30, 255, 85, "Review the Cases below for PERS Match"
-      Text 20, 40, 185, 10, "Nav to case                  Ref nbr                 Rel code"
-      ButtonGroup ButtonPressed
-        PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0
-        Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
-        ' Text 70, 50, 190, 10, "1234567         01                         01 Spouse or partner test for"
+    If UBound(selected_PERS_search_case_numbers_array) > 4 Then msgbox "There are more case numbers than can be displayed. There are " & ubound(selected_PERS_search_case_numbers_array) + 1 & " cases."
 
-        If UBound(selected_PERS_search_case_numbers_array) > 0 Then
-          ' If selected_PERS_search_case_numbers_array(1) <> "" Then
-            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1
-            case_num_btn_y = case_num_btn_y + 10
-            Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
+    'Display dialog with details from MAXIS compared to details from XML
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 270, 385, "Verify MNBenefits XML Details - Household Members"
+      Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
+      If member = 0 Then
+        GroupBox 10, 30, 255, 85, "Review the Cases below for PERS Match"
+        Text 20, 40, 185, 10, "Nav to case                  Ref nbr                 Rel code"
+        ButtonGroup ButtonPressed
+          PushButton 15, 50, 55, 10, mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), case_number_nav_0_button
+          Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
+          If UBound(selected_PERS_search_case_numbers_array) > 0 Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1_button
+              case_num_btn_y = case_num_btn_y + 10
+              Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
             ref_rel_y = ref_rel_y + 10
-          ' End If
-        End If
-        If UBound(selected_PERS_search_case_numbers_array) > 1 Then
-          ' If selected_PERS_search_case_numbers_array(2) <> "" Then
-            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2
+          End If
+          If UBound(selected_PERS_search_case_numbers_array) > 1 Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2_button
             case_num_btn_y = case_num_btn_y + 10
             Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(2), instr(selected_PERS_search_case_numbers_array(2), "&") + 1)
             ref_rel_y = ref_rel_y + 10
-          ' End If
-        End If
-        If UBound(selected_PERS_search_case_numbers_array) > 2 Then
-          ' If selected_PERS_search_case_numbers_array(3) <> "" Then
-            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3
+          End If
+          If UBound(selected_PERS_search_case_numbers_array) > 2 Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3_button
             case_num_btn_y = case_num_btn_y + 10
             Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(3), instr(selected_PERS_search_case_numbers_array(3), "&") + 1)
             ref_rel_y = ref_rel_y + 10
-          ' End If
-        End If
-        If UBound(selected_PERS_search_case_numbers_array) > 3 Then
-          ' If selected_PERS_search_case_numbers_array(4) <> "" Then
-            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4
+          End If
+          If UBound(selected_PERS_search_case_numbers_array) > 3 Then
+            PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4_button
             case_num_btn_y = case_num_btn_y + 10
             Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(4), instr(selected_PERS_search_case_numbers_array(4), "&") + 1)
             ref_rel_y = ref_rel_y + 10
-          ' End If
-        End If
-      GroupBox 10, 120, 255, 80, "PERS Search Result Details"
-      Text 15, 135, 40, 10, "First name:"
-      Text 65, 135, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
-      Text 15, 145, 40, 10, "Last name:"
-      Text 65, 145, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
-      Text 15, 155, 45, 10, "Date of birth:"
-      Text 65, 155, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
-      Text 15, 165, 20, 10, "SSN:"
-      Text 65, 165, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
-      Text 15, 175, 20, 10, "PMI:"
-      Text 65, 175, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
-      Text 15, 185, 30, 10, "Gender:"
-      Text 65, 185, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
-      GroupBox 10, 205, 255, 140, "Verify the XML details below (update as needed):"
-      Text 15, 225, 40, 10, "First name:"
-      EditBox 70, 220, 100, 15, household_members(MEMBER_FIRST_NAME, member)
-      Text 15, 240, 40, 10, "Last name:"
-      EditBox 70, 235, 100, 15, household_members(MEMBER_LAST_NAME, member)
-      Text 15, 255, 30, 10, "Gender:"
-      DropListBox 70, 250, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
-      Text 15, 270, 50, 10, "Marital status:"
-      DropListBox 70, 265, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
-      Text 15, 285, 45, 10, "Date of birth:"
-      EditBox 70, 280, 100, 15, household_members(MEMBER_DOB, member)
-      Text 15, 300, 20, 10, "SSN:"
-      EditBox 70, 295, 100, 15, household_members(MEMBER_SSN, member)
-      Text 15, 315, 45, 10, "Citizenship:"
-      DropListBox 70, 310, 30, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
-      Text 15, 330, 45, 10, "Relationship:"
-      DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+          End If
+        GroupBox 10, 120, 255, 80, "PERS Search Result Details"
+        Text 15, 135, 40, 10, "First name:"
+        Text 65, 135, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
+        Text 15, 145, 40, 10, "Last name:"
+        Text 65, 145, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
+        Text 15, 155, 45, 10, "Date of birth:"
+        Text 65, 155, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
+        Text 15, 165, 20, 10, "SSN:"
+        Text 65, 165, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
+        Text 15, 175, 20, 10, "PMI:"
+        Text 65, 175, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
+        Text 15, 185, 30, 10, "Gender:"
+        Text 65, 185, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
+        GroupBox 10, 205, 255, 140, "Verify the XML details below (update as needed):"
+        Text 15, 225, 40, 10, "First name:"
+        EditBox 70, 220, 100, 15, household_members(MEMBER_FIRST_NAME, member)
+        Text 15, 240, 40, 10, "Last name:"
+        EditBox 70, 235, 100, 15, household_members(MEMBER_LAST_NAME, member)
+        Text 15, 255, 30, 10, "Gender:"
+        DropListBox 70, 250, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+        Text 15, 270, 50, 10, "Marital status:"
+        DropListBox 70, 265, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
+        Text 15, 285, 45, 10, "Date of birth:"
+        EditBox 70, 280, 100, 15, household_members(MEMBER_DOB, member)
+        Text 15, 300, 20, 10, "SSN:"
+        EditBox 70, 295, 100, 15, household_members(MEMBER_SSN, member)
+        Text 15, 315, 45, 10, "Citizenship:"
+        DropListBox 70, 310, 60, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+        Text 15, 330, 45, 10, "Relationship:"
+        DropListBox 70, 325, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+        Text 10, 350, 165, 10, "Select existing case number or indicate new case:"
+        DropListBox 180, 350, 80, 15, case_selection_list_options, case_selection_list
+      Else
+        GroupBox 10, 25, 255, 80, "PERS Search Result Details"
+        Text 15, 40, 40, 10, "First name:"
+        Text 65, 40, 190, 10, mid(selected_PERS_search_results_string, 1, instr(selected_PERS_search_results_string, " ") - 1)
+        Text 15, 50, 40, 10, "Last name:"
+        Text 65, 50, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " ") + 1, instr(selected_PERS_search_results_string, " (DOB:") - instr(selected_PERS_search_results_string, " "))
+        Text 15, 60, 45, 10, "Date of birth:"
+        Text 65, 60, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, " (DOB:") + 7, instr(selected_PERS_search_results_string, "; SSN:") - instr(selected_PERS_search_results_string, " (DOB:") - 7) 
+        Text 15, 70, 20, 10, "SSN:"
+        Text 65, 70, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; SSN:") + 7, 11)
+        Text 15, 80, 20, 10, "PMI:"
+        Text 65, 80, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; PMI:") + 7, instr(selected_PERS_search_results_string, "; Gen") - instr(selected_PERS_search_results_string, "; PMI:") - 7)
+        Text 15, 90, 30, 10, "Gender:"
+        Text 65, 90, 190, 10, mid(selected_PERS_search_results_string, instr(selected_PERS_search_results_string, "; Gender: ") + 10, 1)
+        GroupBox 10, 110, 255, 140, "Verify the XML details below (update as needed):"
+        Text 15, 130, 40, 10, "First name:"
+        EditBox 70, 125, 100, 15, household_members(MEMBER_FIRST_NAME, member)
+        Text 15, 145, 40, 10, "Last name:"
+        EditBox 70, 140, 100, 15, household_members(MEMBER_LAST_NAME, member)
+        Text 15, 160, 30, 10, "Gender:"
+        DropListBox 70, 155, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+        Text 15, 175, 50, 10, "Marital status:"
+        DropListBox 70, 170, 120, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member) 
+        Text 15, 190, 45, 10, "Date of birth:"
+        EditBox 70, 185, 100, 15, household_members(MEMBER_DOB, member)
+        Text 15, 205, 20, 10, "SSN:"
+        EditBox 70, 200, 100, 15, household_members(MEMBER_SSN, member)
+        Text 15, 220, 45, 10, "Citizenship:"
+        DropListBox 70, 215, 60, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+        Text 15, 235, 45, 10, "Relationship:"
+        DropListBox 70, 230, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+      End If  
       ButtonGroup ButtonPressed
-        PushButton 175, 355, 45, 15, "Next", next_hh_memb_btn
-        CancelButton 220, 355, 45, 15
+        PushButton 175, 365, 45, 15, "Next", next_hh_memb_btn
+        CancelButton 220, 365, 45, 15
     EndDialog
 
     DO
@@ -1946,113 +2069,259 @@ For member = 0 to Ubound(household_members, 2)
         err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
         dialog Dialog1				'main dialog
         cancel_without_confirmation
-        'to do - add error handling
+        If member = 0 Then
+          If ButtonPressed = case_number_nav_0_button Then
+            Call back_to_SELF
+            EMWriteScreen "________", 18, 43 
+            EMWriteScreen mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), 18, 43
+            EMWriteScreen "STAT", 16, 43 
+            CALL write_value_and_transmit("MEMB", 21, 70)
+            err_msg = "LOOP"
+          End If  
+          If ButtonPressed = case_number_nav_1_button Then
+            Call back_to_SELF
+            EMWriteScreen "________", 18, 43 
+            EMWriteScreen mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), 18, 43
+            EMWriteScreen "STAT", 16, 43 
+            CALL write_value_and_transmit("MEMB", 21, 70)
+            err_msg = "LOOP"
+          End If
+          If ButtonPressed = case_number_nav_2_button Then
+            Call back_to_SELF
+            EMWriteScreen "________", 18, 43 
+            EMWriteScreen mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), 18, 43
+            EMWriteScreen "STAT", 16, 43 
+            CALL write_value_and_transmit("MEMB", 21, 70)
+            err_msg = "LOOP"
+          End If
+          If ButtonPressed = case_number_nav_3_button Then
+            Call back_to_SELF
+            EMWriteScreen "________", 18, 43 
+            EMWriteScreen mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), 18, 43
+            EMWriteScreen "STAT", 16, 43 
+            CALL write_value_and_transmit("MEMB", 21, 70)
+            err_msg = "LOOP"
+          End If
+          If ButtonPressed = case_number_nav_4_button Then
+            Call back_to_SELF
+            EMWriteScreen "________", 18, 43 
+            EMWriteScreen mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), 18, 43
+            EMWriteScreen "STAT", 16, 43 
+            CALL write_value_and_transmit("MEMB", 21, 70)
+            err_msg = "LOOP"
+          End If
 
-        If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
-        If trim(PMI_number) = "" Then err_msg = err_msg & vbNewLine & "* You can only check one checkbox for the PERS results section."
+          'To do - add error handling here
 
-        If ButtonPressed = case_number_nav_0 Then
-          Call back_to_SELF
-          EMWriteScreen "________", 18, 43 
-          EMWriteScreen mid(selected_PERS_search_case_numbers_array(0), 1, instr(selected_PERS_search_case_numbers_array(0), "&") - 1), 18, 43
-          EMWriteScreen "STAT", 16, 43 
-          CALL write_value_and_transmit("MEMB", 21, 70)
-        End If  
-        If ButtonPressed = case_number_nav_1 Then
-          Call back_to_SELF
-          EMWriteScreen "________", 18, 43 
-          EMWriteScreen mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), 18, 43
-          EMWriteScreen "STAT", 16, 43 
-          CALL write_value_and_transmit("MEMB", 21, 70)
-        End If
-        If ButtonPressed = case_number_nav_2 Then
-          Call back_to_SELF
-          EMWriteScreen "________", 18, 43 
-          EMWriteScreen mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), 18, 43
-          EMWriteScreen "STAT", 16, 43 
-          CALL write_value_and_transmit("MEMB", 21, 70)
-        End If
-        If ButtonPressed = case_number_nav_3 Then
-          Call back_to_SELF
-          EMWriteScreen "________", 18, 43 
-          EMWriteScreen mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), 18, 43
-          EMWriteScreen "STAT", 16, 43 
-          CALL write_value_and_transmit("MEMB", 21, 70)
-        End If
-        If ButtonPressed = case_number_nav_4 Then
-          Call back_to_SELF
-          EMWriteScreen "________", 18, 43 
-          EMWriteScreen mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), 18, 43
-          EMWriteScreen "STAT", 16, 43 
-          CALL write_value_and_transmit("MEMB", 21, 70)
+          If case_selection_list = "Create new case" and err_msg = "" Then
+            proceed_new_case = MsgBox("You selected the 'Create new case' option despite the household member appearing on one or more existing cases. If you want to proceed with this selection then press 'Yes', otherwise you can return to previous dialog by pressing 'No'.", vbYesNo)
+            If proceed_new_case = vbNo then err_msg = "LOOP"
+          End If
         End If
 
-        If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
       LOOP UNTIL err_msg = ""									'loops until all errors are resolved
       CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-    
-    
-    ' 'Add the person match selected to the array
-    ' Const MAXIS_MEMBER_FIRST_NAME     = 0
-    ' Const MAXIS_MEMBER_LAST_NAME      = 1
-    ' Const MAXIS_MEMBER_DOB            = 2
-    ' Const MAXIS_MEMBER_SSN            = 3
-    ' Const MAXIS_MEMBER_RELATIONSHIP   = 4
-    ' Const MAXIS_MEMBER_MARITAL_STATUS = 5
-    ' Const MAXIS_MEMBER_CITIZENSHIP    = 6
-    ' Const MAXIS_MEMBER_GENDER         = 7
-
-    ' ReDim MAXIS_household_members(MAXIS_MEMBER_GENDER, MAXIS_member_count)
-
-
-    ' Display the matching CASE numbers with the household member number and relationship code
-
-    ' Process
-    ' Display member code and relationship code for each household member for each case
-    ' worker confirms PMI and correct case
-    ' Need to compare against multiple SSNs so can't just stop after first match
-    ' Move the XML detail verifications to the end once match identified, not at start
   End If
+
+  'Set the case number based on selection
+  If member = 0 Then
+    household_members(APPL_CASE_NUMBER, member) = case_selection_list
+  End If 
+
+  'Reset all dialog fields that may carry forward
+  pers_search_results_0           = 0
+  pers_search_results_1           = 0
+  pers_search_results_2           = 0
+  pers_search_results_3           = 0
+  pers_search_results_4           = 0
+  pers_search_results_5           = 0
+  pers_search_results_6           = 0
+  pers_search_results_7           = 0
+  pers_search_results_8           = 0
+  pers_search_results_9           = 0
+  no_match_search_manually        = 0
+  manual_match_found_checkbox     = 0
+  PMI_number                      = ""
+  manual_no_match_found_checkbox  = 0
 Next
 
 'To do - include dialog to review address details
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
+  Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
+  Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
+  Text 15, 45, 60, 10, "Application Date: "
+  EditBox 80, 40, 50, 15, formatted_app_date
+  GroupBox 10, 60, 175, 105, "Household Address"
+  Text 15, 75, 35, 10, "Address:"
+  EditBox 70, 70, 100, 15, household_address
+  Text 15, 90, 25, 10, "City:"
+  EditBox 70, 85, 100, 15, household_city
+  Text 15, 105, 30, 10, "State:"
+  EditBox 70, 100, 20, 15, household_state
+  Text 15, 120, 20, 10, "Zip:"
+  EditBox 70, 115, 45, 15, household_zip
+  Text 15, 135, 55, 10, "Phone number:"
+  EditBox 70, 130, 100, 15, household_phone_number
+  Text 15, 150, 30, 10, "County:"
+  EditBox 70, 145, 100, 15, household_county
+  GroupBox 10, 165, 175, 75, "Mailing Address"
+  Text 15, 180, 35, 10, "Address:"
+  EditBox 70, 175, 100, 15, mailing_address
+  Text 15, 195, 25, 10, "City:"
+  EditBox 70, 190, 100, 15, mailing_city
+  Text 15, 210, 30, 10, "State:"
+  EditBox 70, 205, 20, 15, mailing_state
+  Text 15, 225, 20, 10, "Zip:"
+  EditBox 70, 220, 45, 15, mailing_zip
+  ButtonGroup ButtonPressed
+    PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
+EndDialog
 
+DO
+	DO
+		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+    If ButtonPressed = file_selection_button then 
+      call file_selection_system_dialog(XML_file_path, ".xml")
+      err_msg = "LOOP"
+    End If
+    'To do - verify which fields are REQUIRED
+    If trim(formatted_app_date) = "" OR IsDate(formatted_app_date) = False OR Len(trim(formatted_app_date)) <> 10 then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
+    If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+    If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
+    If trim(household_state) = "" Then err_msg = err_msg & vbCr & "* The state field cannot be blank."
+    If trim(household_zip) = "" Then err_msg = err_msg & vbCr & "* The zip code field cannot be blank."
+    'To do - confirm if phone number is required
+    ' If trim(household_phone_number) = "" Then then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
+    If trim(mailing_address) = "" Then err_msg = err_msg & vbCr & "* The mailing address field cannot be blank."
+    If trim(mailing_city) = "" Then err_msg = err_msg & vbCr & "* The mailing address city field cannot be blank."
+    If trim(mailing_state) = "" Then err_msg = err_msg & vbCr & "* The mailing address state field cannot be blank."
+    If trim(mailing_zip) = "" Then err_msg = err_msg & vbCr & "* The mailing address zip code field cannot be blank."
+
+		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'After PERS search complete, update the XML file
-' member_array_index = 0
+member_array_index = 0
 
-' For Each objMemberNode In objHouseholdMemberNodes
-'   Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
-'   Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
-'   Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
-'   Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
-'   Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
-'   Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
-'   Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
-'   Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
+For Each objMemberNode In objHouseholdMemberNodes
+  Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
+  Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
+  Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
+  Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
+  Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
+  Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
+  Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
+  Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
 
-'   If household_members(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = household_members(MEMBER_FIRST_NAME, member_array_index)
+  If household_members(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = household_members(MEMBER_FIRST_NAME, member_array_index)
 
-'   If household_members(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = household_members(MEMBER_LAST_NAME, member_array_index)
+  If household_members(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = household_members(MEMBER_LAST_NAME, member_array_index)
 
-'   If household_members(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = household_members(MEMBER_DOB, member_array_index)
+  If household_members(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = household_members(MEMBER_DOB, member_array_index)
 
-'   If household_members(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = household_members(MEMBER_SSN, member_array_index)
+  If household_members(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = household_members(MEMBER_SSN, member_array_index)
 
-'   If household_members(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = household_members(MEMBER_RELATIONSHIP, member_array_index)
+  If household_members(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = household_members(MEMBER_RELATIONSHIP, member_array_index)
 
-'   If household_members(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = household_members(MEMBER_MARITAL_STATUS, member_array_index)
+  If household_members(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = household_members(MEMBER_MARITAL_STATUS, member_array_index)
 
-'   If household_members(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = household_members(MEMBER_GENDER, member_array_index)
+  If household_members(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = household_members(MEMBER_GENDER, member_array_index)
 
-'   If household_members(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
+  If household_members(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
 
-'   member_array_index = member_array_index + 1
-' Next
+  member_array_index = member_array_index + 1
+Next
 
-' 'Replace the application date
-' 'Format 2025-11-26
+'Display the details before proceeding to APPL case or update existing case
+dialog_member_count = 0
+
+'XML File Confirmation Dialog
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 256, 245, "Verify MNBenefits XML Details - Household Members"
+  Text 5, 5, 250, 25, "The script will now proceed to make updates in MAXIS to APPL the case or update an existing case based on the information entered. Please review the information below and then press 'Continue' to proceed. "
+  GroupBox 10, 50, 270, 155, "Household members listed on MNBenefits Application"
+  Text 15, 60, 75, 10, "Confirmation number:"
+  Text 100, 45, 50, 10, confirmation_number
+  Text 15, 70, 60, 10, "Application Date:"
+  Text 100, 70, 60, 10, formatted_app_date
+  Text 15, 80, 75, 10, "Household Member 1:"
+  Text 100, 80, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+  dialog_member_count = dialog_member_count + 1
+  If member_count > 1 Then
+    Text 15, 90, 75, 10, "Household Member 2:"
+    Text 100, 90, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 2 Then
+    Text 15, 100, 75, 10, "Household Member 3:"
+    Text 100, 100, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 3 Then
+    Text 15, 110, 75, 10, "Household Member 4:"
+    Text 100, 110, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 4 Then
+    Text 15, 120, 75, 10, "Household Member 5:"
+    Text 100, 120, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 5 Then
+    Text 15, 130, 75, 10, "Household Member 6:"
+    Text 100, 130, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 6 Then
+    Text 15, 140, 75, 10, "Household Member 7:"
+    Text 100, 140, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 7 Then
+    Text 15, 150, 75, 10, "Household Member 8:"
+    Text 100, 150, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 8 Then
+    Text 15, 160, 75, 10, "Household Member 9:"
+    Text 100, 160, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 9 Then
+    Text 15, 170, 80, 10, "Household Member 10:"
+    Text 100, 170, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 10 Then
+    Text 15, 180, 80, 10, "Household Member 11:"
+    Text 100, 180, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+  If member_count > 11 Then
+    Text 15, 190, 80, 10, "Household Member 12:"
+    Text 100, 190, 175, 10, left(household_members(MEMBER_LAST_NAME, dialog_member_count) & ", " & household_members(MEMBER_FIRST_NAME, dialog_member_count), 25) & " (" & household_members(MEMBER_DOB, dialog_member_count) & "; " & household_members(MEMBER_SSN, dialog_member_count) & ")"
+    dialog_member_count = dialog_member_count + 1
+  End If
+    ButtonGroup ButtonPressed
+      PushButton 235, 225, 45, 15, "Continue", continue_button
+  EndDialog
+
+DO
+  dialog Dialog1
+  cancel_without_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'---Update XML - add to very end
+'Replace the application date
+'Format 2025-11-26
 
 ' current_XML_app_date = left(objApplicationDate.Text, 10)
 ' 'Convert the formatted_app_date to XML format and replace
@@ -2074,7 +2343,7 @@ Next
 ' xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
 ' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
 
-' Save the XML document with 'processed' in file name
+' ' Save the XML document with 'processed' in file name
 ' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
 
 ' ' To do - uncomment after testing, this is where file is saved and moved
@@ -2119,4 +2388,5 @@ Next
 ' Set objHouseholdMemberNode  = Nothing
 ' Set xmlDoc                  = Nothing
 
-' ' MsgBox "XML file saved and updated successfully from array."
+' MsgBox "XML file saved and updated successfully from array."
+'---update XML code
