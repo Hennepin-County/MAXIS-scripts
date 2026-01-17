@@ -101,15 +101,20 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
         	'counting and checking for counted ABAWD months
         	IF is_counted_month = "X" or is_counted_month = "M" THEN
-        		EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+        		EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
         		abawd_counted_months = abawd_counted_months + 1				'adding counted months
         	END IF
-        	bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
-        	IF bene_mo_col = 15 THEN
-        		bene_yr_row = bene_yr_row - 1
-        		bene_mo_col = 63
-        	END IF
-	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members.
+
+			If (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr) then
+				exit do
+			Else
+        		bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
+        		IF bene_mo_col = 15 THEN
+        			bene_yr_row = bene_yr_row - 1
+        			bene_mo_col = 63
+        		END IF
+			End if
+	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/26 for all members.
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
         PF3	' to exit tracking record
     End if
@@ -827,16 +832,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		End if
 
 		If best_wreg_code = "30" then
+			If best_abawd_code = "10" then counted_month = True
 			If best_abawd_code = "06" then
 				manual_code = "F"	'Does NOT count on the tracking record, and will remove any counted months.
-				counted_month = True 'Identifying here as counted month so that ATR is updated to remove any counted months.
+				counted_month = True	'Identified as counted so that the TLR record is updated, but again, not counted.
 			End if
-			If meets_childcare_exemption = False then counted_months = True
-			End if
+			If meets_childcare_exemption = False then counted_month = True
 		End if
 
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
+
 		If counted_month = True then
         	PF9
 			EMWriteScreen best_wreg_code, 8, 50
@@ -846,43 +852,46 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			Else
 		    	EMWriteScreen "_", 8, 78
 			End if
-		End if
 
-        'Updating the ATR if the codes are already not updated for the CM
-        ATR_updates = array("D",manual_code)
-        For each update_code in ATR_updates
-           Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'
-            bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))      'col to search starts at 15, increased by 4 for each footer month
-            If MAXIS_footer_year = CM_yr then
-                bene_yr_row = 10
-            Else
-                bene_yr_row = 9
-            End if
-            EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
-            'This bit will only update to the manual codes if the month isn't already reflecting that.
-            If manual_code = "F" then
-                If ATR_code = "E" or ATR_code = "F" then
-                    exit for 'F and E are exmept
-                Else
-                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                End if
-            ELSEIF manual_code = "M" then
-                If ATR_code = "X" or ATR_code = "M" then
-                    exit for 'X and M are counted months
-                Else
-                    Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-                End if
-            End if
-           PF3 'to go back to WREG/Panel
-        Next
+        	'Updating the ATR if the codes are already not updated for the CM
+        	ATR_updates = array("D",manual_code)
+        	For each update_code in ATR_updates
+        	   Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'
+        	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))      'col to search starts at 15, increased by 4 for each footer month
+        	    If MAXIS_footer_year = CM_yr then
+        	        bene_yr_row = 10
+        	    Else
+        	        bene_yr_row = 9
+        	    End if
+        	    EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
+        	    'This bit will only update to the manual codes if the month isn't already reflecting that.
+        	    If manual_code = "F" then
+        	        If ATR_code = "E" or ATR_code = "F" then
+        	            exit for 'F and E are exmept
+        	        Else
+        	            Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+						PF3 'to go back to WREG/Panel
+        	        End if
+        	    ELSEIF manual_code = "M" then
+        	        If ATR_code = "X" or ATR_code = "M" then
+        	            exit for 'X and M are counted months
+        	        Else
+        	            Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+						PF3 'to go back to WREG/Panel
+        	        End if
+        	    End if
+			Next
+			'PF3 'to go back to WREG/Panel
 
-        Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+        End if
+
+		Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
         If (counted_month = True and manual_code <> "M") then
 			'Only 30/06's meet this the above criteria. All other counted months will have the assess for closure note added.
             If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
         End if
 
-	    transmit ' to save
+		transmit ' to save
 		EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
 		If orientation_warning = "WARNING" then transmit
 	    PF3 'to save and exit to stat/wrap
@@ -938,7 +947,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
     End if
 
     'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned.
-    updates_needed = True   'default se
+    updates_needed = True   'defaulting to true
     If snap_status = "ACTIVE" then
         If data_wreg = best_wreg_code then
             If data_abawd = best_abawd_code then
