@@ -359,7 +359,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
             EMReadScreen native_indicator, 1, 10, 12
             If native_indicator = "X" then native = True
             transmit 'to exit pop up
-            transmit 'to exit MEMB
+            PF10
+			Call MAXIS_background_check
         End if
 		If native = true then verified_wreg = verified_wreg & "30" & "|"
 
