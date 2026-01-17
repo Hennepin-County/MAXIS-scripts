@@ -745,6 +745,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
         IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions. "
 
+	    'Determining if childcare exemption applies for wreg hierarchy
+	    meets_childcare_exemption = True 'defaulting to true
+
 		If (child_under_14 = False and child_14_to_17 = True) then meets_childcare_exemption = False
 
 	    'filter the list here for best_wreg_code
