@@ -246,7 +246,7 @@ function CSR_details_cont_dialog()
     Text 5, 70, 50, 10, "Actions taken:"
     EditBox 60, 65, 230, 15, actions_taken
     Text 5, 90, 90, 10, "Signature of Primary Adult:"
-    If SNAP_checkbox = 1 Then 
+    If SNAP_checkbox = 1 Then
       ComboBox 100, 85, 75, 15, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required", signature
     Else
       ComboBox 100, 85, 75, 15, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Not Required", signature
@@ -289,24 +289,24 @@ function CSR_details_cont_dialog()
 end function
 Dim FIAT_reasons, other_notes, changes, verifs_needed, actions_taken, signature, HH_Memb_DropDown, signature_memb, sent_arep_checkbox, MAEPD_premium, MADE_checkbox
 
-Function dialog_selection(dialog_selected) 	
+Function dialog_selection(dialog_selected)
   'Selects the correct dialog based
   If dialog_selected = 1 then call CSR_details_dialog()
   If dialog_selected = 2 then call CSR_income_notes_dialog()
   If dialog_selected = 3 then call CSR_details_cont_dialog()
 End Function
 
-Function dialog_specific_error_handling() 
+Function dialog_specific_error_handling()
   If ButtonPressed = next_button or ButtonPressed = previous_button Or ButtonPressed = -1 Then
 
-    If dialog_count = 1 then 
+    If dialog_count = 1 then
       If isdate(CSR_datestamp) = False THEN err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
       If CSR_status = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select the status of the CSR."
       If trim(HH_comp) = "" THEN err_msg = err_msg & vbCr & "* Please enter household composition information."
       If (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = err_msg & vbCr & "* You must provide some information about income. Please complete the 'Notes on Income' field."
     End If
 
-    If dialog_count = 3 then 
+    If dialog_count = 3 then
       If trim(actions_taken) = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
       If signature = "Select or Type" Then err_msg = err_msg & vbCr & "* You must select or type in one of the signature options."
       If signature_memb = "Select One:" Then err_msg = err_msg & vbCr & "* You must select the household member."
@@ -467,7 +467,7 @@ If signature = "Accepted Verbally" Then
     Text 25, 115, 20, 10, "Time: "
     EditBox 50, 110, 50, 15, verbal_sig_time
     Text 20, 140, 85, 10, "Resident Phone Number:"
-    DropListBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
+    ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
     ButtonGroup ButtonPressed
       OkButton 190, 180, 50, 15
     Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
