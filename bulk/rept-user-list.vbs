@@ -221,6 +221,7 @@ Else
     supervisor_array = split(supervisor_array, ",")
     FOR EACH unit_supervisor IN supervisor_array
         IF unit_supervisor <> "" THEN
+            last_page_check = ""
             'Entering the supervisor number and sending a transmit
             CALL write_value_and_transmit(unit_supervisor, 21, 12)
 
