@@ -6138,7 +6138,6 @@ If vars_filled = False Then
 	If cash_interview_missing = True Then PROG_interview_date = ""
 	If emer_interview_missing = True Then PROG_interview_date = ""
 	If snap_interview_missing = True Then PROG_interview_date = ""
-	PROG_interview_date = PROG_CAF_datestamp									'REMOVE!!! -  TESTING FUNCTIONALITY $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &  $  &
 
 	multiple_CAF_dates = False
 	multiple_interview_dates = False
