@@ -101,20 +101,40 @@ mmis_last_day_after_cap = last_day_mo & "/" & last_day_day & "/" & last_day_yr
 
 'Setting amounts
 total_savings = 0                   'setting this at zero so that we can add up what we save
-capitation_11x      = 1051.66'938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
-capitation_PW       = 791.45'1241.53
-capitation_1        = 256.59'235.68
-capitation_2_15     = 256.57'236.03
-capitation_16_20    = 282.16'261.67
-capitation_21_49    = 932.53'808.96
-capitation_21_49_ax = 996.84'800.89
-capitation_50_64    = 1260.16'1118.34
-capitation_50_64_ax = 988.53'801.27
-capitation_65       = 3094.54'2681.89
 
-capitation_QMB      = 164.90'135.50
-capitation_SLMB     = 164.90'135.50
-capitation_QI1      = 164.90'135.50
+'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
+'defined in the form for Determination of Cost Effectiveness - https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3767D-ENG-dform
+If MAXIS_footer_year = "26" or (MAXIS_footer_year = "25" and MAXIS_footer_month = "12") Then
+    capitation_11x      = 1348.12
+    capitation_PW       = 931.87
+    capitation_1        = 321.26
+    capitation_2_15     = 321.26
+    capitation_16_20    = 321.26
+    capitation_21_49    = 1358.70
+    capitation_21_49_ax = 1298.01
+    capitation_50_64    = 1358.70
+    capitation_50_64_ax = 1298.01
+    capitation_65       = 3495.35
+
+    capitation_QMB      = 202.90
+    capitation_SLMB     = 202.90
+    capitation_QI1      = 202.90
+Else
+    capitation_11x      = 1051.66   '938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
+    capitation_PW       = 791.45    '1241.53
+    capitation_1        = 256.59    '235.68
+    capitation_2_15     = 256.57    '236.03
+    capitation_16_20    = 282.16    '261.67
+    capitation_21_49    = 932.53    '808.96
+    capitation_21_49_ax = 996.84    '800.89
+    capitation_50_64    = 1260.16   '1118.34
+    capitation_50_64_ax = 988.53    '801.27
+    capitation_65       = 3094.54   '2681.89
+
+    capitation_QMB      = 164.90    '135.50
+    capitation_SLMB     = 164.90    '135.50
+    capitation_QI1      = 164.90    '135.50
+End If
 
 Const xlSrcRange = 1
 Const xlYes = 1
