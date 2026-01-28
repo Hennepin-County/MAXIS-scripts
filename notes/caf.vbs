@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2026", "BUG FIX - Error with verifications note that sometimes creates a blank note. This is now resolved and the CASE NOTE for Verifications should only occur with details.", "Casey Love, Hennepin County")
 call changelog_update("01/28/2026", "Added a 'Refresh' button to the program selection so the dates can be reloaded when processes are changed.", "Casey Love, Hennepin County")
 call changelog_update("11/10/2025", "Updated handling for reading the EATS panel to determine groups correctly.", "Mark Riegel, Hennepin County")
 call changelog_update("07/25/2025", "Update the determination of Eligibility Review to have more accuracy in determining the difference between an SR and ER. This script is not intended for use to process Six-Month Reviews and is built to attempt to ignore these types of REVW processes. This determination can be challenging and any cases that do not function properly should be reported.##~##", "Casey Love, Hennepin County")
@@ -5745,7 +5746,6 @@ If vars_filled = False Then
 						processing_footer_year = MAXIS_footer_year
 					End If
 				End If
-				' MsgBox "next_revw_process - " & next_revw_process & vbCr & "sr_date_month - " & sr_date_month & vbCr & "er_date_month - " & er_date_month & vbCr & "the_review_is_ER - " & the_review_is_ER & vbCr & "the_process_for_grh - " & the_process_for_grh
 			End If
 			If mfip_case = True Then snap_with_mfip = True
 		End If
@@ -5778,17 +5778,6 @@ If vars_filled = False Then
 				End If
 			End If
 		End If
-		'TODO - remove this? Why do we have it? How does this help us?
-		' If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" or hc_revw_code = "T" Then
-		' 	get_dates = True
-		' 	the_process_for_hc = "Recertification"
-		' 	hc_recert_mo = MAXIS_footer_month
-		' 	hc_recert_yr = MAXIS_footer_year
-		' 	If processing_footer_month = "" Then
-		' 		processing_footer_month = MAXIS_footer_month
-		' 		processing_footer_year = MAXIS_footer_year
-		' 	End If
-		' End If
 
 		If get_dates = True Then
 			EMReadScreen REVW_CAF_datestamp, 8, 13, 37                       'reading theform date on REVW
@@ -5806,9 +5795,7 @@ If vars_filled = False Then
 			Else
 				REVW_interview_date = ""
 			End if
-
 		End If
-		' MsgBox "MAXIS_footer_month - " & MAXIS_footer_month & vbCr & "get_dates - " & get_dates & vbCr & "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "REVW_interview_date - " & REVW_interview_date
 
 		IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
 			EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
@@ -6142,18 +6129,14 @@ If vars_filled = False Then
 
 	multiple_CAF_dates = False
 	multiple_interview_dates = False
-	' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "1"
 	If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
 		CAF_datestamp = REVW_CAF_datestamp
 		If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
-		' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "2"
 		multiple_CAF_dates = True
 	Else
 		If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
 		If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
-		' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "3"
 	End If
-	' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "4"
 
 	If IsDate(PROG_interview_date) = True Then Call convert_date_into_MAXIS_footer_month(PROG_interview_date, processing_footer_month, processing_footer_year)
 	If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
@@ -10208,7 +10191,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
 End If
 
 'If the verifs_needed has not been changed from what was initially generated, then no new case/note is needed. If it has, then a new case/note is needed
-If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed Then
+If previous_verifs_requested <> "" AND previous_verifs_requested <> verifs_needed and trim(verifs_needed) <> "" Then
     verifs_case_note_needed = True
 End If
 
