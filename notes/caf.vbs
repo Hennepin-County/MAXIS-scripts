@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2026", "Added a 'Refresh' button to the program selection so the dates can be reloaded when processes are changed.", "Casey Love, Hennepin County")
 call changelog_update("11/10/2025", "Updated handling for reading the EATS panel to determine groups correctly.", "Mark Riegel, Hennepin County")
 call changelog_update("07/25/2025", "Update the determination of Eligibility Review to have more accuracy in determining the difference between an SR and ER. This script is not intended for use to process Six-Month Reviews and is built to attempt to ignore these types of REVW processes. This determination can be challenging and any cases that do not function properly should be reported.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/16/2025", "Display of unearned income and job information updated in line with the changes to these panels in allowing the inclusion of information from the CASH PIC.##~##", "Casey Love, Hennepin County")
@@ -6364,9 +6365,11 @@ If vars_filled = False Then
 					y_pos = 35
 				End If
 				Text 10, y_pos, 200, 10, "Program(s) Requiring review and determinations:"
+                Text dlg_wdth-115, y_pos-5, 110, 20, "Use 'REFRESH' to update dates used if Processes have changed."
 				Text 10, y_pos+15, 35, 10, "Program"
 				Text 85, y_pos+15, 65, 10, "Eligibility Process"
 				Text 160, y_pos+15, 50, 10, "Recert MM/YY"
+                PushButton dlg_wdth-65, y_pos+12, 60, 13, "Refresh", prog_refresh_btn
 				y_pos = y_pos + 25
 
 				If CASH_checkbox = checked Then
@@ -6469,21 +6472,38 @@ If vars_filled = False Then
 			If len(grh_recert_yr) = 4 AND left(grh_recert_yr, 2) = "20" Then grh_recert_yr = right(grh_recert_yr, 2)
 			If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
 			If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
+            temp_recert_mo = ""
+            temp_recert_yr = ""
 
 			Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 			If CASH_checkbox = checked Then
 				If type_of_cash = "Select" Then err_msg = err_msg & vbNewLine & "* Indicate if the cash program is a family or adult cash request."
 				If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
-				If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+				If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then
+                    err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+                Else
+                    temp_recert_mo = cash_recert_mo
+                    temp_recert_yr = cash_recert_yr
+                End If
 			    If type_of_cash = "Adult" Then adult_cash_case = TRUE
-			End If
-			If GRH_checkbox = checked Then
-				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
-				If the_process_for_grh = "Recertification" AND (len(grh_recert_mo) <> 2 or len(grh_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For GRH at recertification, enter the footer month and year the of the recertification."
 			End If
 			If SNAP_checkbox = checked Then
 				If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
-				If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+				If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then
+                    err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+                ElseIf temp_recert_mo = "" Then
+                    temp_recert_mo = snap_recert_mo
+                    temp_recert_yr = snap_recert_yr
+                End If
+			End If
+			If GRH_checkbox = checked Then
+				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+				If the_process_for_grh = "Recertification" AND (len(grh_recert_mo) <> 2 or len(grh_recert_yr) <> 2) Then
+                    err_msg = err_msg & vbNewLine & "* For GRH at recertification, enter the footer month and year the of the recertification."
+                ElseIf temp_recert_mo = "" Then
+                    temp_recert_mo = grh_recert_mo
+                    temp_recert_yr = grh_recert_yr
+                End If
 			End If
 			If HC_checkbox = checked Then
 				If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
@@ -6528,6 +6548,7 @@ If vars_filled = False Then
 			If ButtonPressed = untrack_emer_btn Then EMER_checkbox = unchecked
 
 			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
+            If ButtonPressed = prog_refresh_btn Then err_msg = "LOOP"
 
 			'This part of the script will reset the CAF date and Interview date and reassess if there are multiple dates for the next loop.
 			'This way if a program is untracked - it won't force date information or form information for a program process that is not being handled with the script run
@@ -6586,6 +6607,13 @@ If vars_filled = False Then
 					ElseIf RECERT_being_assessed = True Then		'set if only recert
 						CAF_datestamp = REVW_CAF_datestamp
 						interview_date = REVW_interview_date
+                        curr_footer_month_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+                        recert_footer_month_date = temp_recert_mo & "/1/" & temp_recert_yr
+                        If DateDiff("d", recert_footer_month_date, curr_footer_month_date) < 0 Then
+                            MAXIS_footer_month = temp_recert_mo
+                            MAXIS_footer_year = temp_recert_yr
+                            err_msg = err_msg & vbCr & "* The recertification month/year entered is after the current MAXIS footer month/year. Please correct."
+                        End If
 					Else											'set if only APPL
 						CAF_datestamp = PROG_CAF_datestamp
 						interview_date = PROG_interview_date
@@ -6598,7 +6626,7 @@ If vars_filled = False Then
 			End If
 
 			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+        LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	If REVW_CAF_Form = "MNbenefits" Then REVW_CAF_Form = "CAF (DHS-5223) from MNbenefits"
