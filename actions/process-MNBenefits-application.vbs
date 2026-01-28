@@ -2207,48 +2207,24 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'After PERS search complete, update the XML file
-member_array_index = 0
-
-For Each objMemberNode In objHouseholdMemberNodes
-  Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
-  Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
-  Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
-  Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
-  Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
-  Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
-  Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
-  Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
-
-  If household_members(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = household_members(MEMBER_FIRST_NAME, member_array_index)
-
-  If household_members(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = household_members(MEMBER_LAST_NAME, member_array_index)
-
-  If household_members(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = household_members(MEMBER_DOB, member_array_index)
-
-  If household_members(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = household_members(MEMBER_SSN, member_array_index)
-
-  If household_members(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = household_members(MEMBER_RELATIONSHIP, member_array_index)
-
-  If household_members(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = household_members(MEMBER_MARITAL_STATUS, member_array_index)
-
-  If household_members(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = household_members(MEMBER_GENDER, member_array_index)
-
-  If household_members(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
-
-  member_array_index = member_array_index + 1
-Next
 
 'Display the details before proceeding to APPL case or update existing case
 dialog_member_count = 0
+If case_selection_list = "Create new case" then 
+  case_action_selection = "Create new case"
+else
+  case_action_selection = "Update existing case #" & case_selection_list
+End If
 
 'XML File Confirmation Dialog
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 256, 245, "Verify MNBenefits XML Details - Household Members"
   Text 5, 5, 250, 25, "The script will now proceed to make updates in MAXIS to APPL the case or update an existing case based on the information entered. Please review the information below and then press 'Continue' to proceed. "
+  Text 10, 35, 45, 10, "Case action:"
+  Text 60, 35, 185, 10, case_action_selection
   GroupBox 10, 50, 270, 155, "Household members listed on MNBenefits Application"
   Text 15, 60, 75, 10, "Confirmation number:"
-  Text 100, 45, 50, 10, confirmation_number
+  Text 100, 60, 50, 10, confirmation_number
   Text 15, 70, 60, 10, "Application Date:"
   Text 100, 70, 60, 10, formatted_app_date
   Text 15, 80, 75, 10, "Household Member 1:"
@@ -2320,6 +2296,38 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '---Update XML - add to very end
+'After PERS search complete, update the XML file
+' member_array_index = 0
+
+' For Each objMemberNode In objHouseholdMemberNodes
+'   Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
+'   Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
+'   Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
+'   Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
+'   Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
+'   Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
+'   Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
+'   Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
+
+'   If household_members(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = household_members(MEMBER_FIRST_NAME, member_array_index)
+
+'   If household_members(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = household_members(MEMBER_LAST_NAME, member_array_index)
+
+'   If household_members(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = household_members(MEMBER_DOB, member_array_index)
+
+'   If household_members(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = household_members(MEMBER_SSN, member_array_index)
+
+'   If household_members(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = household_members(MEMBER_RELATIONSHIP, member_array_index)
+
+'   If household_members(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = household_members(MEMBER_MARITAL_STATUS, member_array_index)
+
+'   If household_members(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = household_members(MEMBER_GENDER, member_array_index)
+
+'   If household_members(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
+
+'   member_array_index = member_array_index + 1
+' Next
+
 'Replace the application date
 'Format 2025-11-26
 
