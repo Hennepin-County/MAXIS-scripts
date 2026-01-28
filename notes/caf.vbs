@@ -6348,11 +6348,16 @@ If vars_filled = False Then
 					y_pos = 35
 				End If
 				Text 10, y_pos, 200, 10, "Program(s) Requiring review and determinations:"
-                Text dlg_wdth-115, y_pos-5, 110, 20, "Use 'REFRESH' to update dates used if Processes have changed."
 				Text 10, y_pos+15, 35, 10, "Program"
 				Text 85, y_pos+15, 65, 10, "Eligibility Process"
 				Text 160, y_pos+15, 50, 10, "Recert MM/YY"
-                PushButton dlg_wdth-65, y_pos+12, 60, 13, "Refresh", prog_refresh_btn
+    			If dlg_wdth = 275 Then
+                    Text dlg_wdth-115, 10, 110, 20, "Use 'REFRESH' to update dates used if Processes have changed."
+                    PushButton dlg_wdth-65, 27, 60, 13, "Refresh", prog_refresh_btn
+                Else
+                    Text dlg_wdth-115, y_pos-5, 110, 20, "Use 'REFRESH' to update dates used if Processes have changed."
+                    PushButton dlg_wdth-65, y_pos+12, 60, 13, "Refresh", prog_refresh_btn
+                End If
 				y_pos = y_pos + 25
 
 				If CASH_checkbox = checked Then
@@ -6531,7 +6536,7 @@ If vars_filled = False Then
 			If ButtonPressed = untrack_emer_btn Then EMER_checkbox = unchecked
 
 			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
-            If ButtonPressed = prog_refresh_btn Then err_msg = "LOOP"
+            If ButtonPressed = prog_refresh_btn and err_msg = "" Then err_msg = "LOOP"
 
 			'This part of the script will reset the CAF date and Interview date and reassess if there are multiple dates for the next loop.
 			'This way if a program is untracked - it won't force date information or form information for a program process that is not being handled with the script run
