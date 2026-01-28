@@ -16185,7 +16185,10 @@ class grh_eligibility_detail
 			If supportive_housing_vendor = False Then appears_supportive_housing_disregard_case = False
             If supportive_housing_vendor = False Then income_too_low_for_supportive_housing_disregard = False
 			'If there is no income at all, we don't need to flag an error for supportive housing disregard
-			If appears_supportive_housing_disregard_case = True and grh_elig_budg_counted_income = "0.00" Then appears_supportive_housing_disregard_case = False
+			If appears_supportive_housing_disregard_case = True and grh_elig_budg_counted_income = "0.00" Then
+                appears_supportive_housing_disregard_case = False
+                ignore_supportive_housing = True
+            End If
 			If supportive_housing_disregard_applies_to_this_month = False Then appears_supportive_housing_disregard_case = False
 		End if
 
