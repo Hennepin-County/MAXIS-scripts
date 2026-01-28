@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2026", "Added AREP, SNAP Alt Rep, and SWKR as signature option if already in MAXIS. These persons can be selected as the person who signed the CSR form.", "Casey Love, Hennepin County")
 call changelog_update("12/02/2025", "Changed order of 'OK', 'Cancel', and 'Next' buttons to align with script standards.", "Mark Riegel, Hennepin County")
 call changelog_update("11/10/2025", "Improved background script functionality, streamlined dialog options, added signature details to final dialog, and removed unneeded dialog fields.", "Mark Riegel, Hennepin County")
 call changelog_update("09/23/2025", "Returned the Health Care Programs option for CSR Processing.##~##(It had previously been removed during the PHE.)", "Casey Love, Hennepin County")
@@ -233,7 +234,7 @@ Dim see_other_note_checkbox, not_verified_checkbox, jobs_anticipated_checkbox, n
 'Dialog 3 - CSR Details Cont'd Dialog
 function CSR_details_cont_dialog()
   dialog_count = 3
-  BeginDialog Dialog1, 0, 0, 396, 180, "CSR (cont)"
+  BeginDialog Dialog1, 0, 0, 396, 195, "CSR (cont)"
     Text 5, 10, 50, 10, "FIAT reasons:"
     EditBox 60, 5, 150, 15, FIAT_reasons
     Text 215, 10, 45, 10, "(if applicable)"
@@ -251,18 +252,18 @@ function CSR_details_cont_dialog()
     Else
       ComboBox 100, 85, 75, 15, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Not Required", signature
     End If
-    Text 180, 90, 30, 10, "Person:"
-    DropListBox 210, 85, 80, 15, HH_Memb_DropDown, signature_memb
-    GroupBox 5, 105, 280, 30, "If MA-EPD..."
-      Text 10, 120, 50, 10, "New premium:"
-      EditBox 65, 115, 80, 15, MAEPD_premium
-      CheckBox 155, 120, 65, 10, "Emailed MADE?", MADE_checkbox
-      PushButton 225, 115, 50, 15, "SIR mail", SIR_mail_button
-      CheckBox 5, 140, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+    Text 70, 105, 30, 10, "Person:"
+    DropListBox 100, 100, 190, 15, HH_Memb_DropDown, signature_memb
+    GroupBox 5, 120, 280, 30, "If MA-EPD..."
+      Text 10, 135, 50, 10, "New premium:"
+      EditBox 65, 130, 80, 15, MAEPD_premium
+      CheckBox 155, 135, 65, 10, "Emailed MADE?", MADE_checkbox
+      PushButton 225, 130, 50, 15, "SIR mail", SIR_mail_button
+      CheckBox 5, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
     ButtonGroup ButtonPressed
-      OkButton 290, 160, 50, 15
-      CancelButton 340, 160, 50, 15
-      PushButton 5, 160, 60, 15, "Previous", previous_button
+      OkButton 290, 175, 50, 15
+      CancelButton 340, 175, 50, 15
+      PushButton 5, 175, 60, 15, "Previous", previous_button
     GroupBox 300, 5, 90, 25, "ELIG panels:"
       ButtonGroup ButtonPressed
       PushButton 305, 15, 25, 10, "FS", ELIG_FS_button
@@ -385,6 +386,21 @@ If is_this_priv = True then script_end_procedure("This case is privileged. The s
 
 'Creating a custom dialog for determining who the HH members are
 Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+
+'Adding AREP and SWKR to the HH member drop down for signature selection
+Call navigate_to_MAXIS_screen("STAT", "AREP")
+EMReadScreen arep_name, 37, 4, 32
+EMReadScreen alt_rep_name, 37, 13, 32
+arep_name = replace(arep_name, "_", "")
+alt_rep_name = replace(alt_rep_name, "_", "")
+If arep_name <> "" Then HH_Memb_DropDown = HH_Memb_DropDown+chr(9)+"AREP: " & arep_name
+If alt_rep_name <> "" Then HH_Memb_DropDown = HH_Memb_DropDown+chr(9)+"SNAP Alt Rep: " & alt_rep_name
+
+Call navigate_to_MAXIS_screen("STAT", "SWKR")
+EMReadScreen swkr_name, 35, 6, 32
+swkr_name = replace(swkr_name, "_", "")
+If swkr_name <> "" Then HH_Memb_DropDown = HH_Memb_DropDown+chr(9)+"SWKR: " & swkr_name
+
 call HH_member_custom_dialog(HH_member_array)
 
 'Grabbing SHEL/HEST first, and putting them in this special order that everyone seems to like
