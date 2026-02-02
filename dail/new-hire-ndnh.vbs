@@ -387,10 +387,10 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	DO
         EMReadScreen case_number, 8, row, 5
         case_number = trim(case_number)
+        If case_number = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
         IF case_number = MAXIS_case_number THEN
     		EMReadScreen employer_match, 20, row, 36
     		employer_match = trim(employer_match)
-    		IF trim(employer_match) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
     	  	IF employer_match = employer THEN
     	   		EMReadScreen cleared_value, 1, row, 61
     			IF cleared_value = " " THEN
