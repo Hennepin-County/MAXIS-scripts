@@ -79,31 +79,31 @@ families_checkbox = 1
 adults_checkbox = 1
 
 'Creating 10-day/10-day variable to determine which dates to create list of DAILs to capture
-IF CM_mo = "01" AND CM_yr = "25" THEN
-    ten_day_10_day = #01/21/2025#
-ELSEIF CM_mo = "02" AND CM_yr = "25" THEN
-    ten_day_10_day = #02/18/2025#
-ELSEIF CM_mo = "03" AND CM_yr = "25" THEN
-    ten_day_10_day = #03/20/2025#
-ELSEIF CM_mo = "04" AND CM_yr = "25" THEN
-    ten_day_10_day = #04/18/2025#
-ELSEIF CM_mo = "05" AND CM_yr = "25" THEN
-    ten_day_10_day = #05/21/2025#
-ELSEIF CM_mo = "06" AND CM_yr = "25" THEN
-    ten_day_10_day = #06/18/2025#
-ELSEIF CM_mo = "07" AND CM_yr = "25" THEN
-    ten_day_10_day = #07/21/2025#
-ELSEIF CM_mo = "08" AND CM_yr = "25" THEN
-    ten_day_10_day = #08/21/2025#
-ELSEIF CM_mo = "09" AND CM_yr = "25" THEN
-    ten_day_10_day = #09/18/2025#
-ELSEIF CM_mo = "10" AND CM_yr = "25" THEN
-    ten_day_10_day = #10/21/2025#
-ELSEIF CM_mo = "11" AND CM_yr = "25" THEN
-    ten_day_10_day = #11/18/2025#
-ELSEIF CM_mo = "12" AND CM_yr = "25" THEN
-    ten_day_10_day = #12/19/2025#
-END IF
+'IF CM_mo = "01" AND CM_yr = "25" THEN
+    'ten_day_10_day = #01/21/2025#
+'ELSEIF CM_mo = "02" AND CM_yr = "25" THEN
+    'ten_day_10_day = #02/18/2025#
+'ELSEIF CM_mo = "03" AND CM_yr = "25" THEN
+    'ten_day_10_day = #03/20/2025#
+'ELSEIF CM_mo = "04" AND CM_yr = "25" THEN
+    'ten_day_10_day = #04/18/2025#
+'ELSEIF CM_mo = "05" AND CM_yr = "25" THEN
+    'ten_day_10_day = #05/21/2025#
+'ELSEIF CM_mo = "06" AND CM_yr = "25" THEN
+    'ten_day_10_day = #06/18/2025#
+'ELSEIF CM_mo = "07" AND CM_yr = "25" THEN
+    'ten_day_10_day = #07/21/2025#
+'ELSEIF CM_mo = "08" AND CM_yr = "25" THEN
+    'ten_day_10_day = #08/21/2025#
+'ELSEIF CM_mo = "09" AND CM_yr = "25" THEN
+    'ten_day_10_day = #09/18/2025#
+'ELSEIF CM_mo = "10" AND CM_yr = "25" THEN
+    'ten_day_10_day = #10/21/2025#
+'ELSEIF CM_mo = "11" AND CM_yr = "25" THEN
+   ' ten_day_10_day = #11/18/2025#
+'ELSEIF CM_mo = "12" AND CM_yr = "25" THEN
+   'ten_day_10_day = #12/19/2025#
+'END IF
 
 'last day of the month logic
 next_month = DateAdd("M", 1, date)
@@ -385,7 +385,7 @@ Next
 objConnection.Close
 
 'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
-Call create_outlook_email("", "David.Courtright@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
+Call create_outlook_email("", "David.Courtright@hennepin.us", "Mary.McGuinness@Hennepin.us", "Travis.Farleigh@hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
 stats_counter = stats_counter -1
 script_end_procedure("Success! Actionable DAILs have been added to the database.")
 
