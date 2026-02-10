@@ -163,7 +163,40 @@ const choice_form_done_const        = 67
 const orientation_notes             = 68
 const remo_info_const               = 69
 const requires_update               = 70
-const last_const					= 71
+const tlr_screening_needed          = 71
+const tlr_info_evaluated            = 72
+const tlr_eval_string               = 73
+const tlr_wreg_status               = 74
+const tlr_status                    = 75
+const tlr_panel_code                = 76
+const tlr_homeless                  = 77
+const tlr_dv_victim                 = 78
+const tlr_caregiver_in_home         = 79
+const tlr_treatment                 = 80
+const tlr_children_under_14         = 81
+const tlr_pregnant                  = 82
+const tlr_american_indian           = 83
+const tlr_schl_training             = 84
+const tlr_disability_info           = 85
+const tlr_unea_income               = 86
+const tlr_other_benefit             = 87
+const tlr_person_requiring_care     = 88
+const tlr_person_care_reason        = 89
+const tlr_child_under_6             = 90
+const tlr_hrs_per_week              = 91
+const tlr_wage_per_week             = 92
+const tlr_wage_per_month            = 93
+const tlr_wreg_selection            = 94
+const wreg_exists                   = 95
+const curr_wreg_code                = 96
+const curr_tlr_code                 = 97
+const counted_months                = 98
+const second_set_count              = 99
+const counted_months_string         = 100
+const second_set_string             = 101
+const tlr_output                    = 102
+const second_set_output             = 103
+const last_const					= 110
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -376,6 +409,28 @@ function check_for_errors(interview_questions_clear)
 		If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 
+    'ensuring the information entered into the TLR screening are numeric for the wage and hour details.
+	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+        HH_MEMB_ARRAY(tlr_hrs_per_week, the_memb) = trim(HH_MEMB_ARRAY(tlr_hrs_per_week, the_memb))
+        If HH_MEMB_ARRAY(tlr_hrs_per_week, the_memb) <> "" Then
+            If NOT IsNumeric(HH_MEMB_ARRAY(tlr_hrs_per_week, the_memb)) Then
+                err_msg = err_msg & "~!~" & tlr_numb & "^* Average HOURS per week for " & HH_MEMB_ARRAY(full_name_const, the_memb) & "##~##   - The average hours worked per week must be entered as a number. This does not appear to be a number value, please review and reenter."
+            End If
+        End If
+        HH_MEMB_ARRAY(tlr_wage_per_week, the_memb) = trim(HH_MEMB_ARRAY(tlr_wage_per_week, the_memb))
+        If HH_MEMB_ARRAY(tlr_wage_per_week, the_memb) <> "" Then
+            If NOT IsNumeric(HH_MEMB_ARRAY(tlr_wage_per_week, the_memb)) Then
+                err_msg = err_msg & "~!~" & tlr_numb & "^* Average WAGE per week for " & HH_MEMB_ARRAY(full_name_const, the_memb) & "##~##   - The average wage per week must be entered as a number. This does not appear to be a number value, please review and reenter."
+            End If
+        End If
+        HH_MEMB_ARRAY(tlr_wage_per_month, the_memb) = trim(HH_MEMB_ARRAY(tlr_wage_per_month, the_memb))
+        If HH_MEMB_ARRAY(tlr_wage_per_month, the_memb) <> "" Then
+            If NOT IsNumeric(HH_MEMB_ARRAY(tlr_wage_per_month, the_memb)) Then
+                err_msg = err_msg & "~!~" & tlr_numb & "^* Average HOURS per MONTH for " & HH_MEMB_ARRAY(full_name_const, the_memb) & "##~##   - The average hours worked per month must be entered as a number. This does not appear to be a number value, please review and reenter."
+            End If
+        End If
+    Next
+
 	If expedited_determination_needed = True Then
 		If run_by_interview_team = False AND expedited_determination_completed = False Then err_msg = err_msg & "~!~" & exp_num & "^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
 		If run_by_interview_team = True Then
@@ -522,6 +577,12 @@ function define_main_dialog()
 			running_num = running_num + 1
 			num_pos = num_pos + 15
 		End If
+
+		tlr_numb = running_num
+		Text 485, num_pos, 10, 10, running_num
+		tlr_pos = num_pos
+		running_num = running_num + 1
+		num_pos = num_pos + 15
 
 		last_num = running_num
 		Text 485, num_pos, 10, 10, running_num
@@ -1333,6 +1394,63 @@ function define_main_dialog()
 			Text 15, 105, 170, 10, "What is the deadline to resolve the emergency?"
 			EditBox 190, 100, 45, 15, emergency_deadline
 		' ElseIf page_display =  Then
+		ElseIf page_display = tlr_screening Then
+			Text 498, tlr_pos, 60, 10, "TLR Screening"
+            If screen_individual = "" Then
+                Text 10, 10, 475, 10, "Review the information below for each household member to determine if TLR/WREG screening is required. -------------------------------------------------"
+                Text 10, 20, 475, 10, "--- If screening is required, click the 'Complete Screening' button to open the TLR/WREG screening form for that individual."
+                y_pos = 35
+                For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+                    Text 15, y_pos, 155, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & " - " & HH_MEMB_ARRAY(full_name_const, the_membs)
+                    If HH_MEMB_ARRAY(tlr_screening_needed, the_membs) Then
+                        Text 175, y_pos, 150, 10, "*** COMPLETE SCREENING ***"
+                    ElseIf HH_MEMB_ARRAY(tlr_info_evaluated, the_membs) Then
+                        Text 175, y_pos, 150, 10, "Screening completed"
+                    Else
+                        Text 175, y_pos, 150, 10, "No screening required"
+                    End If
+                    If HH_MEMB_ARRAY(tlr_panel_code, the_membs) <> "Panel Not Needed" Then Text 335, y_pos, 100, 10, "Panel Code: " & HH_MEMB_ARRAY(tlr_panel_code, the_membs)
+                    scrn_btn_lbl = "Complete Screening"
+                    If HH_MEMB_ARRAY(tlr_info_evaluated, the_membs) Then scrn_btn_lbl = "Update Screening"
+                    PushButton 400, y_pos - 2, 80, 13, scrn_btn_lbl, HH_MEMB_ARRAY(button_one, the_membs)
+                    y_pos = y_pos + 10
+                    If HH_MEMB_ARRAY(wreg_exists, the_membs) Then
+                        wreg_display_details = "WREG Panel Counts: "
+                        wreg_display_details = wreg_display_details & " Counted Months: " & HH_MEMB_ARRAY(counted_months, the_membs)
+                        If HH_MEMB_ARRAY(counted_months, the_membs) <> 0 Then wreg_display_details = wreg_display_details & " - " & HH_MEMB_ARRAY(counted_months_string, the_membs)
+                        wreg_display_details = wreg_display_details & ",  Second Set Months: " & HH_MEMB_ARRAY(second_set_count, the_membs)
+                        If HH_MEMB_ARRAY(second_set_count, the_membs) <> 0 Then wreg_display_details = wreg_display_details & " - " & HH_MEMB_ARRAY(second_set_string, the_membs)
+                        Text 25, y_pos, 400, 10, wreg_display_details
+                        y_pos = y_pos + 10
+                    End If
+                    If HH_MEMB_ARRAY(tlr_wreg_selection, the_membs) <> "" and HH_MEMB_ARRAY(tlr_wreg_selection, the_membs) <> "Unknown or Not Selected" Then
+                        Text 25, y_pos, 350, 10, "WREG/TLR Selected Directly: " & HH_MEMB_ARRAY(tlr_wreg_selection, the_membs)
+                        y_pos = y_pos + 10
+                    End If
+                    If right(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), 1) = ";" Then HH_MEMB_ARRAY(tlr_eval_string, the_membs) = left(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), len(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))) - 1)
+                    If InStr(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";") Then
+                        Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs)
+                        y_pos = y_pos + 10
+                        eval_array = split(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";")
+                        for each eval_info in eval_array
+                            If trim(eval_info) <> "" Then
+                                Text 35, y_pos, 400, 10, trim(eval_info)
+                                y_pos = y_pos + 10
+                            End If
+                        next
+                    Else
+                        Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs) & "  --  " & trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))
+                        y_pos = y_pos + 10
+                    End If
+                    ' Text 25, y_pos+10, 400, 10, HH_MEMB_ARRAY(tlr_eval_string, the_membs)
+                    y_pos = y_pos + 5
+                Next
+            Else
+                Text 10, 10, 475, 10, "Select any and all details that apply based on the statement of the resident. ----------------------------------"
+                person_info = "M " & HH_MEMB_ARRAY(ref_number, screen_individual) & " - " & HH_MEMB_ARRAY(full_name_const, screen_individual)
+                Call wreg_person_info_display(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), person_info, all_the_clients, membs_under_6, HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual), tlr_screen_save_btn, HH_MEMB_ARRAY(tlr_output, screen_individual), HH_MEMB_ARRAY(second_set_output, screen_individual), HH_MEMB_ARRAY(wreg_exists, screen_individual))
+            End If
+
 		ElseIf page_display = show_pg_last Then
 			If second_signature_detail = "Select or Type" or second_signature_detail = "" Then
 				If UBound(HH_MEMB_ARRAY, 2) = 0 Then second_signature_detail = "Not Required"
@@ -1607,7 +1725,8 @@ function define_main_dialog()
 			If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
 			btn_pos = btn_pos + 15
 		End If
-
+        If page_display <> tlr_screening 				Then PushButton 495, btn_pos, 55, 13, "TLR Screening", tlr_screening_btn
+		btn_pos = btn_pos + 15
 		If page_display <> show_pg_last 				Then PushButton 495, btn_pos, 55, 13, "CAF Last Page", caf_last_page_btn
 		PushButton 485, btn_pos+25, 66, 13, "Prog Request", program_requests_btn
 
@@ -1680,6 +1799,9 @@ function dialog_movement()
 			If page_display = show_pg_memb_list Then
                 selected_memb = i
                 update_pers = True
+            End If
+            If page_display = tlr_screening Then
+                screen_individual = i
             End If
 		End If
         If ButtonPressed = HH_MEMB_ARRAY(button_two, i) Then
@@ -1861,6 +1983,9 @@ function dialog_movement()
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
 	End If
+    If ButtonPressed = tlr_screening_btn Then
+        page_display = tlr_screening
+    End If
 	If ButtonPressed = caf_last_page_btn Then
 		page_display = show_pg_last
 	End If
@@ -1934,6 +2059,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					If current_listing = qual_numb 		Then tagline = ": CAF QUAL Q"
 					If current_listing = emer_numb 		Then tagline = ": Emergency Questions"
 					If current_listing = discrep_num 	Then tagline = ": Clarifications"
+					If current_listing = tlr_numb 		Then tagline = ": TLR Screening"
 					If current_listing = last_num 		Then tagline = ": CAF Last Page"
 
 					error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
@@ -1950,6 +2076,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				If page_display = emergency_questions Then page_to_review = emer_numb
 				If page_display = discrepancy_questions Then page_to_review = discrep_num
 				If page_display = expedited_determination Then page_to_review = exp_num
+				If page_display = tlr_screening Then page_to_review = tlr_numb
 				If page_display = show_pg_last Then page_to_review = last_num
 				page_to_review = trim(page_to_review) & ""
 
@@ -1979,6 +2106,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					If current_listing = qual_numb 		Then tagline = ": CAF QUAL Q"
 					If current_listing = emer_numb 		Then tagline = ": Emergency Questions"
 					If current_listing = discrep_num 	Then tagline = ": Clarifications"
+					If current_listing = tlr_numb 		Then tagline = ": TLR Screening"
 					If current_listing = last_num 		Then tagline = ": CAF Last Page"
 					If error_message = "" Then error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 					message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
@@ -2034,6 +2162,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				If back_to_dialog = show_pg_one_address			Then ButtonPressed = caf_addr_btn
 				If back_to_dialog = show_pg_memb_list			Then ButtonPressed = caf_membs_btn
 				If back_to_dialog = show_qual					Then ButtonPressed = caf_qual_q_btn
+                If back_to_dialog = tlr_screening				Then ButtonPressed = tlr_screening_btn
 				If back_to_dialog = show_pg_last				Then ButtonPressed = caf_last_page_btn
 				If back_to_dialog = discrepancy_questions		Then ButtonPressed = discrepancy_questions_btn
 				If back_to_dialog = expedited_determination		Then ButtonPressed = expedited_determination_btn
@@ -7289,6 +7418,519 @@ function send_support_email_to_KN()
 end function
 '---------------------------------------------------------------------------------------------------------------------------
 
+' TLR SCREENING FUNCTIONS --------------------------------------------------------------------------------------------------
+
+function case_note_person_tlr_screening(person_info, info_evaluated, screening_needed, eval_string, wreg_status, tlr_status, panel_code, wreg_selection, include_panel_code, tlr_output, second_set_output, wreg_exists)
+    If wreg_exists or (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
+        call write_variable_in_CASE_NOTE("* " & person_info & ":")
+        call write_variable_in_CASE_NOTE("  WREG Status - " & wreg_status & ", TLR Status - " & tlr_status & ", Panel Code - " & panel_code & ".")
+    End If
+
+    If wreg_exists Then
+        Call write_variable_in_CASE_NOTE("  Current Detail from WREG:")
+        Call write_variable_in_CASE_NOTE("  - Counted TLR Months: " & tlr_output)
+        Call write_variable_in_CASE_NOTE("  - Counted 2nd Set Months: " & second_set_output)
+    End If
+
+    If (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
+        If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
+            call write_variable_in_CASE_NOTE("  WREG/TLR Identified by Worker: " & wreg_selection)
+        End If
+        If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)
+        If InStr(eval_string, ";") Then
+            call write_variable_in_CASE_NOTE("  Exemption Evaluation:")
+            eval_array = split(eval_string, ";")
+            for each eval_info in eval_array
+                If trim(eval_info) <> "" Then call write_variable_in_CASE_NOTE("  - " & trim(eval_info))
+            next
+        Else
+            call write_variable_in_CASE_NOTE("  Exemption Evaluation: " & trim(replace(trim(eval_string), ";", "")))
+        End If
+    End If
+end function
+
+function determine_wreg_status(info_evaluated, screening_needed, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection)
+    wreg_status = ""
+    tlr_status = ""
+    panel_code = ""
+    eval_string = ""
+    screening_needed = False
+
+    If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
+        wreg_tlr_from_selection = right(wreg_selection, 6)
+        wreg_tlr_from_selection = replace(wreg_tlr_from_selection, ")", "")
+        panel_code_array = split(wreg_tlr_from_selection, "/")
+        wreg_status = panel_code_array(0)
+        tlr_status = panel_code_array(1)
+    End If
+
+    If homeless = "Yes" Then homeless = True
+    If homeless = "No" Then homeless = False
+    If dv_victim = "Yes" Then dv_victim = True
+    If dv_victim = "No" Then dv_victim = False
+    If caregiver_in_home = "Yes" Then caregiver_in_home = True
+    If caregiver_in_home = "No" Then caregiver_in_home = False
+    If treatment = "Yes" Then treatment = True
+    If treatment = "No" Then treatment = False
+    If children_under_14 = "Yes" Then children_under_14 = True
+    If children_under_14 = "No" Then children_under_14 = False
+    If pregnant = "Yes" Then pregnant = True
+    If pregnant = "No" Then pregnant = False
+    If american_indian = "Yes" Then american_indian = True
+    If american_indian = "No" Then american_indian = False
+
+
+    ' AGE is detertmened to be the last day of next month from the current date
+    first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
+    last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
+    fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    If IsNumeric(wage_per_week) and NOT IsNumeric(wage_per_month) Then
+        wage_per_month = wage_per_week * 4.3
+    End If
+    If IsNumeric(wage_per_month) and NOT IsNumeric(wage_per_week) Then
+        wage_per_week = wage_per_month / 4.3
+    End If
+    fed_min_wage = 7.25
+    min_wage_per_week = fed_min_wage * 30
+
+    If fn_age > 64 Then
+        panel_code = "05/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = "Age over 64; "
+    ElseIf fn_age >= 60 Then
+        panel_code = "05/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = "Age between 60 and 64; "
+    ElseIf fn_age < 16 Then
+        panel_code = "Panel Not Needed"     '06/01 if created
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = "Age under 16; "
+    ElseIf fn_age >= 16 AND fn_age < 18 Then
+        If caregiver_in_home = True Then
+            tlr_status = "Exempt"
+            panel_code = "06/01"
+            wreg_status = "Exempt"
+            eval_string = "Age 16 or 17 living with Caregiver; "
+        End If
+    End If
+
+    unfit_for_employment = False
+    If unea_income = "SSI" or unea_income = "RSDI - Disability" or unea_income = "VA Disability" or unea_income = "WC" Then
+        eval_string = eval_string & "Unfit for Employment - Receiving Disability Benefits - " & unea_income & "; "
+        unfit_for_employment = True
+    ElseIf disability_info <> "" Then
+        eval_string = eval_string & "Unfit for Ewmployment - " & disability_info & "; "
+        unfit_for_employment = True
+    ElseIf homeless Then
+        eval_string = eval_string & "Experiencing Housing Instability; "
+        unfit_for_employment = True
+    ElseIf dv_victim Then
+        eval_string = eval_string & "Victim of DV; "
+        unfit_for_employment = True
+    End If
+    If unfit_for_employment Then
+        If panel_code = "" Then panel_code = "03/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    caregiver =  False
+    person_requiring_care = trim(person_requiring_care)
+    If trim(person_requiring_care) = "Select or Type" Then person_requiring_care = ""
+    child_under_6_requiring_care = trim(child_under_6_requiring_care)
+    If trim(child_under_6_requiring_care) = "Select or Type" Then child_under_6_requiring_care = ""
+
+    If person_requiring_care <> "" Then
+        eval_string = eval_string & "Caregiver for " & person_requiring_care & " due to " & person_care_reason & "; "
+        caregiver = True
+    ElseIf child_under_6_requiring_care <> "" Then
+        eval_string = eval_string & "Caregiver for Child (" & child_under_6_requiring_care & ") under 6; "
+        caregiver = True
+    End If
+    If caregiver Then
+        If panel_code = "" Then panel_code = "04/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    working_exempt = False
+    If IsNumeric(hrs_per_week) Then
+        If hrs_per_week >= 30 Then
+            eval_string = eval_string & "Working at least 30 hours per week (Hrs/Wk: " & hrs_per_week & "); "
+            working_exempt = True
+        End If
+    End If
+    If NOT working_exempt Then
+        If IsNumeric(wage_per_week) Then
+            If wage_per_week >= min_wage_per_week Then
+                eval_string = eval_string & "Earning wage at least the equivalent of 30 hours at minimum wage (Weekly Wage: $ " & wage_per_week & "); "
+                working_exempt = True
+            End If
+        End If
+    End If
+    If NOT working_exempt Then
+        If IsNumeric(wage_per_month) Then
+            If wage_per_month >= (min_wage_per_week*4.3) Then
+                eval_string = eval_string & "Earning wage at least the equivalent of 30 hours at minimum wage (Monthly Wage: $ " & wage_per_month & "); "
+                working_exempt = True
+            End If
+        End If
+    End If
+    If working_exempt Then
+        If panel_code = "" Then panel_code = "09/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    If unea_income = "UI" or unea_income = "Applied for UI" or other_benefit = "Matching Grant" or other_benefit = "MFIP" or other_benefit = "DWP" Then
+        If panel_code = "" Then panel_code = "11/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        If unea_income = "UI" Then
+            eval_string = eval_string & "Receiving for Unemployment Benefits; "
+        ElseIf unea_income = "Applied for UI" Then
+            eval_string = eval_string & "Applied for Unemployment Benefits; "
+        Else
+            eval_string = eval_string & "Receiving " & other_benefit & "; "
+        End If
+    End If
+
+    If schl_training = "High School - Full Time" or schl_training = "High School - Half Time" or schl_training = "Recognized Training Program - Full Time" or schl_training = "Recognized Training Program - Half Time" or schl_training = "Vocational Training - Full Time" or schl_training = "Vocational Training - Half Time" or schl_training = "Higher Education - Full Time" or schl_training = "Higher Education - Half Time" Then
+        If panel_code = "" Then panel_code = "12/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Attending " & schl_training & "; "
+    End If
+    If treatment Then
+        If panel_code = "" Then panel_code = "12/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Attends regular Chemical Dependancy Treatment; "
+    End If
+
+    If panel_code = "" Then screening_needed = True
+    If wreg_status = "" Then wreg_status = "Subject to General Work Rules"
+
+    If american_indian Then
+        If panel_code = "" Then panel_code = "30/09"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "American Indian; "
+    End If
+
+    If fn_age >= 16 AND fn_age < 18 Then
+        If NOT caregiver_in_home Then
+            If panel_code = "" Then panel_code = "15/02"
+            tlr_status = "Exempt"
+            eval_string = eval_string & "Age 16 or 17 NOT living with Caregiver; "
+        End If
+    End If
+
+    If children_under_14 Then
+        If panel_code = "" Then panel_code = "21/04"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Child under 14 in the household; "
+    End If
+
+    If pregnant Then
+        If panel_code = "" Then panel_code = "23/05"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Pregnancy; "
+    End If
+
+    If other_benefit = "RCA" Then
+        If panel_code = "" Then panel_code = "17/12"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Receiving RCA; "
+    End If
+
+    If eval_string = "" Then eval_string = "No exemptions identified; "
+    If tlr_status = "" Then tlr_status = "Subject to Time Limited Rules"
+    If panel_code = "" Then panel_code = "30/10"
+end function
+
+function read_WREG_details(memb_numb, wreg_exists, curr_wreg_code, curr_tlr_code, counted_months, second_set_count, counted_months_string, second_set_string, tlr_output, second_set_output)
+    ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    Call navigate_to_MAXIS_screen("STAT", "WREG")
+    Call write_value_and_transmit(memb_numb, 20, 76)
+    ' EMReadScreen WREG_MEMB_check, 14, 24, 2
+    ' IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure("The member number that you entered is not valid.  Please check the member number, and start the script again.")
+
+    wreg_exists = False
+    EMReadScreen panel_exists, 1, 2, 78
+    If panel_exists = "1" then
+        wreg_exists = True
+        EMreadScreen curr_wreg_code, 2, 8, 50
+        EMReadScreen curr_tlr_code, 2, 13, 50
+
+        Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
+
+        'Resetting the variables
+        bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+        bene_yr_row = 10
+        counted_months = 0					'declares the variables values at 0 or blanks
+        second_set_count = 0
+        counted_months_string = ""
+        second_set_string = ""
+
+        TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients
+        TLR_fixed_clock_yr = "23"
+
+        DO
+            'establishing variables for specific ABAWD counted month dates
+            If bene_mo_col = "19" then counted_date_month = "01"
+            If bene_mo_col = "23" then counted_date_month = "02"
+            If bene_mo_col = "27" then counted_date_month = "03"
+            If bene_mo_col = "31" then counted_date_month = "04"
+            If bene_mo_col = "35" then counted_date_month = "05"
+            If bene_mo_col = "39" then counted_date_month = "06"
+            If bene_mo_col = "43" then counted_date_month = "07"
+            If bene_mo_col = "47" then counted_date_month = "08"
+            If bene_mo_col = "51" then counted_date_month = "09"
+            If bene_mo_col = "55" then counted_date_month = "10"
+            If bene_mo_col = "59" then counted_date_month = "11"
+            If bene_mo_col = "63" then counted_date_month = "12"
+            'counted date year: this is found on rows 7-10. Row 11 is current year plus one, so this will be exclude this list.
+            If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", ABAWD_eval_date), 2)
+            If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, ABAWD_eval_date)), 2)
+            If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, ABAWD_eval_date)), 2)
+            If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, ABAWD_eval_date)), 2)
+
+            'reading to see if a month is counted month or not
+            EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+
+            'counting and checking for counted ABAWD months
+            IF is_counted_month = "X" or is_counted_month = "M" THEN
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
+                counted_months = counted_months + 1				'adding counted months
+                counted_months_string = counted_months_string & counted_date_month & "/" & counted_date_year & " | "
+            END IF
+
+            'counting and checking for counted 2nd set months
+            IF is_counted_month = "Y" or is_counted_month = "N" THEN
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
+                second_set_count = second_set_count + 1				'adding counted months
+                second_set_string = second_set_string & counted_date_month & "/" & counted_date_year & " |"
+            END IF
+
+            bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
+            IF bene_mo_col = 15 THEN
+                bene_yr_row = bene_yr_row - 1
+                bene_mo_col = 63
+            END IF
+            'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members.
+            ' MsgBox "counted_date_month - " & counted_date_month & vbCr & "counted_date_year - " & counted_date_year & vbCr & "TLR_fixed_clock_mo - " & TLR_fixed_clock_mo & vbCr & "TLR_fixed_clock_yr - " & TLR_fixed_clock_yr & vbCr & "bene_yr_row - " & bene_yr_row & vbCr & "bene_mo_col - " & bene_mo_col
+        LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
+
+        'cleaning up these variables for dialog display
+        If trim(right(counted_months_string, 1)) = "|" THEN counted_months_string = left(counted_months_string, len(counted_months_string) - 1)
+        If trim(right(second_set_string, 1)) = "|" THEN second_set_string = left(second_set_string, len(second_set_string) - 1)
+        PF3	' to exit tracking record
+
+        tlr_output = counted_months
+        If counted_months <> 0 Then tlr_output = tlr_output & " - " & counted_months_string
+        second_set_output = second_set_count
+        If second_set_count <> 0 Then second_set_output = second_set_output & " - " & second_set_string
+    End if
+
+end function
+
+function wreg_person_info_display(info_evaluated, person_info, person_droplist, child_droplist, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection, tlr_screen_save_btn, tlr_output, second_set_output, wreg_exists)
+
+    ' QUESTION - what date should we use for age (today, end of the month, end of next month?)
+    first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
+    last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
+    fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    ' age = DateDiff("yyyy", dob, Date)
+    If homeless Then homeless = "Yes"
+    If NOT homeless Then homeless = "No"
+    If dv_victim Then dv_victim = "Yes"
+    If NOT dv_victim Then dv_victim = "No"
+    If caregiver_in_home Then caregiver_in_home = "Yes"
+    If NOT caregiver_in_home Then caregiver_in_home = "No"
+    If treatment Then treatment = "Yes"
+    If NOT treatment Then treatment = "No"
+    If children_under_14 Then children_under_14 = "Yes"
+    If NOT children_under_14 Then children_under_14 = "No"
+    If pregnant Then pregnant = "Yes"
+    If NOT pregnant Then pregnant = "No"
+    If american_indian Then american_indian = "Yes"
+    If NOT american_indian Then american_indian = "No"
+
+    If InStr(schl_training, "-") Then
+        schl_array = split(schl_training, "-")
+
+        schl_training = trim(schl_array(0))
+        schl_amt = trim(schl_array(1))
+    End If
+    yes_no_list = ""+chr(9)+"Yes"+chr(9)+"No"
+
+    disability_info_list = ""
+    disability_info_list = disability_info_list+chr(9)+"Temporary Disability"
+    disability_info_list = disability_info_list+chr(9)+"Permanent Disability"
+    disability_info_list = disability_info_list+chr(9)+"Illness"
+    disability_info_list = disability_info_list+chr(9)+"Injury"
+    disability_info_list = disability_info_list+chr(9)+"Surgery Recovery"
+    disability_info_list = disability_info_list+chr(9)+"Rehabilitation"
+    disability_info_list = disability_info_list+chr(9)+"Physical Limitation"
+    disability_info_list = disability_info_list+chr(9)+"Mental Health Condition"
+    disability_info_list = disability_info_list+chr(9)+"Substance Use Disorder"
+    disability_info_list = disability_info_list+chr(9)+"Addiction Dependency"
+
+    unea_income_list = ""
+    unea_income_list = unea_income_list+chr(9)+"SSI"
+    unea_income_list = unea_income_list+chr(9)+"RSDI - Disability"
+    unea_income_list = unea_income_list+chr(9)+"VA Disability"
+    unea_income_list = unea_income_list+chr(9)+"WC"
+    unea_income_list = unea_income_list+chr(9)+"UI"
+    unea_income_list = unea_income_list+chr(9)+"Applied for UI"
+
+    other_benefit_list = ""
+    other_benefit_list = other_benefit_list+chr(9)+"MFIP"
+    other_benefit_list = other_benefit_list+chr(9)+"DWP"
+    other_benefit_list = other_benefit_list+chr(9)+"Matching Grant"
+    other_benefit_list = other_benefit_list+chr(9)+"RCA"
+
+    schl_amt_list = "Not Attending"
+    schl_amt_list = schl_amt_list+chr(9)+"Full Time"
+    schl_amt_list = schl_amt_list+chr(9)+"Half Time"
+    schl_amt_list = schl_amt_list+chr(9)+"Less than Half Time"
+
+    schl_training = ""
+    schl_training = schl_training+chr(9)+"High School"
+    schl_training = schl_training+chr(9)+"Recognized Training Program"
+    schl_training = schl_training+chr(9)+"Vocational Training"
+    schl_training = schl_training+chr(9)+"Higher Education"
+
+    care_for_another_reason = ""
+    care_for_another_reason = care_for_another_reason+chr(9)+"Illness"
+    care_for_another_reason = care_for_another_reason+chr(9)+"Injury"
+    care_for_another_reason = care_for_another_reason+chr(9)+"Disability"
+
+    wreg_selection_list = "Unknown or Not Selected"
+    'note that these selections are less specific because the droplist breaks if all are included.
+    wreg_selection_list = wreg_selection_list+chr(9)+"Unfit for Employment (WREG 03/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Responsible for Care of Another (WREG 04/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Responsible for Care of a Child under 6 (WREG 04/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age under 16 (WREG 06/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 65 or Older (WREG 05/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 16 or 17 Living with Parent/Caretaker (WREG 07/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Employed (WREG 09/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - MFIP (WREG 14/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - DWP (WREG 20/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - Matching Grant (WREG 10/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - UI (WREG 11/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Pending Additional Benefits - UI (WREG 11/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Program Participation - Chemical Dependency Treatment (WREG 13/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Program Participation - School (WREG 12/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 16 or 17 NOT Living with Parent/Caretaker (WREG 15/02)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Child under 14 lives in the home (WREG 21/04)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Pregnant (WREG 23/05)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Participant of RCA (WREG 17/12)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"American Indian (WREG 30/09)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 50 - 59 (WREG 16/03)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 60 - 64 (WREG 05/01)"
+
+
+    Text 15, 25, 155, 10, person_info
+    If fn_age = 16 or fn_age = 17 Then
+        Text 235, 25, 155, 10, "Age 16 or 17: Living with a parent or caretaker?"
+        DropListBox 395, 20, 35, 45, yes_no_list, caregiver_in_home
+    End If
+
+    'UNFIT FOR EMPLOYMENT
+    Text 55, 45, 70, 10, "Currently Homeless?"
+    DropListBox 130, 40, 35, 45, yes_no_list, homeless
+    Text 175, 45, 185, 10, "Has Illness / Injury / Diability(temporary or permanent)?"
+    DropListBox 360, 40, 100, 45, disability_info_list, disability_info
+    Text 15, 60, 110, 10, "Experiencing Domestic Violence?"
+    DropListBox 130, 55, 35, 45, yes_no_list, dv_victim
+    Text 15, 70, 170, 20, "(Including but not limited to physical, emotional, psychological, abuse and stalking or harassment.)"
+
+    'RECEIVING ADDITIONAL BENEFITS
+    Text 260, 60, 100, 10, "Receiving Unearned Income?"
+    DropListBox 360, 55, 100, 45, unea_income_list, unea_income
+    Text 270, 75, 85, 10, "Receiving other Benefits?"
+    DropListBox 360, 70, 100, 45, other_benefit_list, other_benefit
+
+    'CARE OF ANOTHER
+    GroupBox 10, 95, 465, 45, "Caring for Another Person - CAN BE SOMEONE OUTSIDE OF THE HOUSEHOLD"
+    Text 90, 110, 35, 10, "Caring for "
+    ComboBox 130, 105, 115, 45, person_droplist, person_requiring_care
+    Text 250, 110, 25, 10, "due to:"
+    DropListBox 280, 105, 100, 45, care_for_another_reason, person_care_reason
+    Text 50, 125, 75, 10, "Care of a child under 6:"
+    ComboBox 130, 120, 115, 45, child_droplist, child_under_6_requiring_care
+    Text 250, 125, 155, 10, "(Only one adult can claim each child under 6)"
+
+    'EMPLOYED
+    GroupBox 10, 145, 465, 30, "Employed - AT LEAST 30 HOURS WEEKLY AT FEDERAL MINIMUM WAGE LEVEL"
+    Text 15, 160, 110, 10, "Average hours worked per week:"
+    EditBox 130, 155, 40, 15, hrs_per_week
+    Text 190, 160, 85, 10, "Average Wage per week:"
+    EditBox 280, 155, 50, 15, wage_per_week
+    Text 335, 160, 35, 10, "or Month:"
+    EditBox 370, 155, 50, 15, wage_per_month
+
+    'ATTENDING SCHOOL
+    GroupBox 10, 180, 465, 45, "Attending School / Training Program"
+    Text 70, 195, 60, 10, "Attending School "
+    DropListBox 130, 190, 100, 45, schl_amt_list, schl_amt
+    Text 230, 195, 50, 10, ", school type:"
+    DropListBox 280, 190, 100, 45, schl_training, schl_training
+
+    'CHEMICAL DEPENDENCY TREATMENT
+    Text 60, 210, 220, 10, "Participating a regular Chemical Dependency Treatment Program?"
+    DropListBox 280, 205, 35, 45, yes_no_list, treatment
+    Text 320, 210, 110, 10, "(This does not include AA or NA)"
+
+    'NOT WREG EXEMPT BUT TLR EXEMPT
+    GroupBox 10, 230, 465, 30, "Not WREG Exempt but TLR Exempt"
+    Text 15, 245, 70, 10, "Currently Pregnant?"
+    DropListBox 85, 240, 35, 45, yes_no_list, pregnant
+    Text 135, 245, 110, 10, "American Indian/Alaskan Native"
+    DropListBox 245, 240, 35, 45, yes_no_list, american_indian
+    Text 295, 245, 115, 10, "Child under 14 lives in the home?"
+    DropListBox 410, 240, 35, 45, yes_no_list, children_under_14
+
+    'DIRECT SCREENING SELECTION
+    Text 15, 270, 450, 10, "Based on known information and policy guidance, which WREG/TLR exemption applies to " & person_info & "?"
+    DropListBox 15, 280, 450, 45, wreg_selection_list, wreg_selection
+    PushButton 400, 300, 75, 15, "Save", tlr_screen_save_btn
+
+    If wreg_exists Then
+        GroupBox 10, 300, 350, 35, "TLR Counts"
+        Text 20, 310, 300, 10, "TLR Counts: " & tlr_output
+        Text 20, 320, 300, 10, "Second Set Counts: " & second_set_output
+    End If
+    info_evaluated = True
+end function
+
+function write_tlr_screening_CASE_NOTE()
+    create_note = False
+    For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+        If HH_MEMB_ARRAY(tlr_info_evaluated, the_membs) Then create_note = True
+    Next
+
+    If create_note Then
+        start_a_blank_CASE_NOTE
+        call write_variable_in_CASE_NOTE("----- TLR Screening Information -----")
+        call write_variable_in_CASE_NOTE("TLR Screening completed on " & interview_date & " with " & who_are_we_completing_the_interview_with & ".")
+        call write_variable_in_CASE_NOTE("- TLR Screening is Based on Resident Declaration -")
+        include_panel_code = False
+        For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+            person_info = "MEMB " & HH_MEMB_ARRAY(ref_number, the_membs) & " - " & HH_MEMB_ARRAY(full_name_const, the_membs)
+            call case_note_person_tlr_screening(person_info, HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs), include_panel_code, HH_MEMB_ARRAY(tlr_output, the_membs), HH_MEMB_ARRAY(second_set_output, the_membs), HH_MEMB_ARRAY(wreg_exists, the_membs))
+        Next
+        call write_variable_in_CASE_NOTE("---")
+        call write_variable_in_CASE_NOTE(worker_signature)
+        PF3
+    End If
+end function
+
+'---------------------------------------------------------------------------------------------------------------------------
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -7465,9 +8107,9 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim pwe_selection
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
-Dim qual_numb, exp_num, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
-
+Dim qual_numb, exp_num, tlr_numb, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
 'R&R
+
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
 Dim DHS_2929_checkbox, DHS_3323_checkbox, DHS_3393_checkbox, DHS_3163B_checkbox, DHS_2338_checkbox, DHS_5561_checkbox, DHS_2961_checkbox, DHS_2887_checkbox, DHS_3238_checkbox, DHS_2625_checkbox
 Dim case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month, confirm_recap_read, confirm_cover_letter_read, case_summary, phone_number_selection, leave_a_message, resident_questions
@@ -8415,6 +9057,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Call back_to_SELF
 End If
 
+membs_under_6 = "Select or Type"
 If all_the_clients = "" Then Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
 
 If membs_found = False Then
@@ -8491,6 +9134,7 @@ If membs_found = False Then
 			HH_MEMB_ARRAY(first_name_const, clt_count) = trim(replace(HH_MEMB_ARRAY(first_name_const, clt_count), "_", ""))
 			HH_MEMB_ARRAY(mid_initial, clt_count) = replace(HH_MEMB_ARRAY(mid_initial, clt_count), "_", "")
 			HH_MEMB_ARRAY(full_name_const, clt_count) = HH_MEMB_ARRAY(first_name_const, clt_count) & " " & HH_MEMB_ARRAY(last_name_const, clt_count)
+            If HH_MEMB_ARRAY(age, clt_count) < 6 Then membs_under_6 = membs_under_6+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count)&" - "&HH_MEMB_ARRAY(full_name_const, clt_count)
 			EMReadScreen HH_MEMB_ARRAY(id_verif, clt_count), 2, 9, 68
 
 			EMReadScreen HH_MEMB_ARRAY(rel_to_applcnt, clt_count), 2, 10, 42              'reading the relationship from MEMB'
@@ -8833,6 +9477,8 @@ caf_q_pg_11_btn				= 1950
 
 caf_qual_q_btn				= 2200
 caf_last_page_btn			= 2300
+tlr_screening_btn           = 2350
+tlr_screen_save_btn         = 2355
 finish_interview_btn		= 2400
 exp_income_guidance_btn 	= 2500
 discrepancy_questions_btn	= 2600
@@ -9022,10 +9668,17 @@ show_qual = start_at
 emergency_questions = start_at + 1
 discrepancy_questions = start_at + 2
 expedited_determination = start_at + 3
-show_pg_last = start_at + 4
+tlr_screening = start_at + 4
+show_pg_last = start_at + 5
 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 If vars_filled = TRUE and membs_found = False Then MsgBox "The script was able to fill in the case number but not the member information." & vbCr & vbCr & "BE SURE TO REVIEW PERSON DETAILS", vbExclamation, "Member Information Not Found"
+
+' Call wreg_person_info_display(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), person_info, person_droplist, HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs))
+For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+    Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs))
+    Call read_WREG_details(HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(wreg_exists, the_membs), HH_MEMB_ARRAY(curr_wreg_code, the_membs), HH_MEMB_ARRAY(curr_tlr_code, the_membs), HH_MEMB_ARRAY(counted_months, the_membs), HH_MEMB_ARRAY(second_set_count, the_membs), HH_MEMB_ARRAY(counted_months_string, the_membs), HH_MEMB_ARRAY(second_set_string, the_membs), HH_MEMB_ARRAY(tlr_output, the_membs), HH_MEMB_ARRAY(second_set_output, the_membs))
+Next
 
 interview_questions_clear = False
 leave_loop = False
@@ -9060,6 +9713,10 @@ Do
                     run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
                 Else
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
+                End If
+                If screen_individual <> "" Then
+                    Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), HH_MEMB_ARRAY(tlr_screening_needed, screen_individual), HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual))
+                    If err_msg = ""  Then screen_individual = ""
                 End If
 				If run_by_interview_team = True and page_display = expedited_determination and err_msg = "" Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 
@@ -12542,6 +13199,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 	Call write_verification_CASE_NOTE(create_verif_note)
 	call write_interview_CASE_NOTE
+    call write_tlr_screening_CASE_NOTE
 
 	'setting the end message
 	end_msg = "Success! The information you have provided about the interview and all of the notes have been saved in a PDF. This PDF will be uploaded to ECF by the ES Support Team for Case # " & MAXIS_case_number & " and will remain in the CASE RECORD. CASE:NOTES have also been entered with the full interview detail."
