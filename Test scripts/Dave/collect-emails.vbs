@@ -265,27 +265,30 @@ CALL check_for_MAXIS(false)
 	    LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-
+email_col = 32
 	CALL check_for_MAXIS(false)
 	'Generating a TIKL for each case.
-	objExcelSheet.Cells(1, email_col).Value = "Email Addresses"
-    FOR i = excel_row TO end_row
-		IF objExcel.Cells(i, case_col).Value <> "" THEN
+	objExcel.Cells(1, email_col).Value = "Email Addresses"
+    FOR row_to_read = excel_row TO end_row
+		IF objExcel.Cells(row_to_read, excel_col).Value <> "" THEN
 			'Checking PRIV status
-             Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
+            MAXIS_case_number = objExcel.Cells(row_to_read, excel_col).Value
+			Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 		    If is_this_priv = True then
 			    Objexcel.Cells(excel_row, email_col).Value = "PRIV CASE"
             ELSE
                 EMReadScreen email_address, 50, 19, 31
+				email_address = replace(email_address, "_", " ")
                 email_address = trim(email_address)
 
-                objExcel.Cells(excel_row, email_col).Value = email_address
+                objExcel.Cells(row_to_read, email_col).Value = email_address
+
 		    END IF
 
 
-        END IF
+      END IF
 	NEXT
-END IF
+'END IF
 
 'The business of sending TIKLSs
 'case_number_array = trim(case_number_array)
@@ -296,7 +299,7 @@ privileged_array = ""
 'Objexcel.Visible = True
 'Set objWorkbook = Objexcel.Workbooks.Add()
 'Set objExcelSheet = objWorkbook.Sheets(1)
-objExcelSheet.Cells(1, email_col).Value = "Email Addresses"
+'objExcelSheet.Cells(1, email_col).Value = "Email Addresses"
 
 
 
