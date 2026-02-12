@@ -1088,7 +1088,7 @@ function define_main_dialog()
 			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
 				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
 				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
-				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+"Resident uses free phone via internet program and pays no phone or internet bill"+chr(9)+"WiFi Phone Service that has no Cost."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
+				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Resident DOES pay for phone."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+"Resident uses free phone via internet program and pays no phone or internet bill"+chr(9)+"WiFi Phone Service that has no Cost."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
 				y_pos = y_pos + 40
 			End If
 			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
