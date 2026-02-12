@@ -12789,8 +12789,6 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
                 CALL write_bullet_and_variable_in_CASE_NOTE("City", arep_addr_city)
                 CALL write_bullet_and_variable_in_CASE_NOTE("State", arep_addr_state)
                 CALL write_bullet_and_variable_in_CASE_NOTE("Zip", arep_addr_zip)
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(worker_signature)
             End If
             If trim(CAF_arep_name) <> "" AND CAF_arep_action = "No - do not allow this AREP" Then
                 CALL write_bullet_and_variable_in_CASE_NOTE("Name", CAF_arep_name)
