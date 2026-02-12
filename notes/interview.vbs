@@ -340,7 +340,7 @@ function check_for_errors(interview_questions_clear)
 
             If HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
                 If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
-                    If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" Then
+                    If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN list on a duplicate PMI" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "SSN Requested" Then
                         pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank and should be requested now."
                     End If
                 End If
@@ -819,7 +819,9 @@ function define_main_dialog()
                     If trim(HH_MEMB_ARRAY(ssn, the_membs)) = "" Then
                         ssn_info_valid = False
                         If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN Applied For" Then ssn_info_valid = True
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
                         If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "SSN Requested" Then ssn_info_valid = True
                     End If
                     If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - SSN Not Provided" Then ssn_info_valid = False
                     If HH_MEMB_ARRAY(none_req_checkbox, the_membs) = checked Then ssn_info_valid = True
@@ -1035,7 +1037,9 @@ function define_main_dialog()
                 If trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "" Then
                     ssn_info_valid = False
                     If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN Applied For" Then ssn_info_valid = True
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
                     If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "SSN Requested" Then ssn_info_valid = True
                 End If
                 If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - SSN Not Provided" Then ssn_info_valid = False
                 If HH_MEMB_ARRAY(none_req_checkbox, selected_memb) = checked Then ssn_info_valid = True
@@ -4704,6 +4708,16 @@ function review_information()
 				End If
 			End If
 		End If
+        If HH_MEMB_ARRAY(ssn_verif, the_memb) = "SSN Requested" Then
+			If Instr(HH_MEMB_ARRAY(client_verification_details, the_memb), "SSN for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)) = 0 Then
+				HH_MEMB_ARRAY(client_verification, the_memb) = "Requested"
+				If HH_MEMB_ARRAY(client_verification_details, the_memb) <> "" Then
+					HH_MEMB_ARRAY(client_verification_details, the_memb) = HH_MEMB_ARRAY(client_verification_details, the_memb) & ", SSN for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
+				Else
+					HH_MEMB_ARRAY(client_verification_details, the_memb) = "SSN for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
+				End If
+			End If
+        End If
 
         HH_MEMB_ARRAY(last_name_const, the_memb) = UCase(trim(HH_MEMB_ARRAY(last_name_const, the_memb)))
         HH_MEMB_ARRAY(first_name_const, the_memb) = UCase(trim(HH_MEMB_ARRAY(first_name_const, the_memb)))
@@ -4743,7 +4757,9 @@ function review_information()
         If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
             ssn_info_valid = False
             If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "SSN Requested" Then ssn_info_valid = True
         End If
         If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then ssn_info_valid = False
         If HH_MEMB_ARRAY(none_req_checkbox, the_memb) = checked Then ssn_info_valid = True
@@ -8036,6 +8052,8 @@ ssn_verif_list = ssn_verif_list+chr(9)+"P - SSN Provided, verif Pending"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - Member Does Not Have SSN"
 ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
+ssn_verif_list = ssn_verif_list+chr(9)+"A - SSN list on a duplicate PMI"
+ssn_verif_list = ssn_verif_list+chr(9)+"SSN Requested"
 
 language_list = ""
 language_list = language_list+chr(9)+"99 - English"
@@ -9377,7 +9395,9 @@ If membs_found = False Then
         If trim(HH_MEMB_ARRAY(ssn, the_members)) = "" Then
             ssn_info_valid = False
             If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN Applied For" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_members) = "SSN Requested" Then ssn_info_valid = True
         End If
         If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - SSN Not Provided" Then ssn_info_valid = False
         If HH_MEMB_ARRAY(none_req_checkbox, the_members) = checked Then ssn_info_valid = True
