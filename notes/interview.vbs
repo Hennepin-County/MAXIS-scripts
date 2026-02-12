@@ -1773,7 +1773,11 @@ function dialog_movement()
 		End If
 
 		If arep_on_CAF_checkbox = checked OR trim(CAF_arep_name) <> "" Then arep_authorization = "AREP Authorized by entry on the CAF"
-		If arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
+        If arep_authorization = "Select One..." OR trim(arep_authorization) = "" Then
+			If arep_action = "No - remove this AREP from my case" Then arep_authorization = "DO NOT AUTHORIZE AN AREP"
+			If CAF_arep_action = "No - do not allow this AREP" Then arep_authorization = "DO NOT AUTHORIZE AN AREP"
+        End If
+        If arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
 			arep_action = "No - remove this AREP from my case"
 			CAF_arep_action = "No - do not allow this AREP"
 			arep_exists = False
