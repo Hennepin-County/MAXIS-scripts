@@ -196,7 +196,7 @@ const counted_months_string         = 100
 const second_set_string             = 101
 const tlr_output                    = 102
 const second_set_output             = 103
-const last_const					= 110
+const last_const					= 104
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -3266,6 +3266,7 @@ function save_your_work()
 			objTextStream.WriteLine "CVR - NOTE - " & cover_letter_interview_notes
 
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
+            objTextStream.WriteLine "PRE - MU6 - " & membs_under_6
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
 			objTextStream.WriteLine "PRE - HOW - " & how_are_we_completing_the_interview
 			objTextStream.WriteLine "PRE - ITP - " & interpreter_information
@@ -3632,7 +3633,15 @@ function save_your_work()
                 HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
-                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
+                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_screening_needed, known_membs)&"~"&HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)&"~"&HH_MEMB_ARRAY(tlr_eval_string, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wreg_status, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_status, known_membs)&"~"&HH_MEMB_ARRAY(tlr_panel_code, known_membs)&"~"&HH_MEMB_ARRAY(tlr_homeless, known_membs)&"~"&HH_MEMB_ARRAY(tlr_dv_victim, known_membs)&"~"&HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_treatment, known_membs)&"~"&HH_MEMB_ARRAY(tlr_children_under_14, known_membs)&"~"&HH_MEMB_ARRAY(tlr_pregnant, known_membs)&"~"&HH_MEMB_ARRAY(tlr_american_indian, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_schl_training, known_membs)&"~"&HH_MEMB_ARRAY(tlr_disability_info, known_membs)&"~"&HH_MEMB_ARRAY(tlr_unea_income, known_membs)&"~"&HH_MEMB_ARRAY(tlr_other_benefit, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_person_requiring_care, known_membs)&"~"&HH_MEMB_ARRAY(tlr_person_care_reason, known_membs)&"~"&HH_MEMB_ARRAY(tlr_child_under_6, known_membs)&"~"&HH_MEMB_ARRAY(tlr_hrs_per_week, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_wage_per_week, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wage_per_month, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wreg_selection, known_membs)&"~"&HH_MEMB_ARRAY(wreg_exists, known_membs)&"~"&_
+                HH_MEMB_ARRAY(curr_wreg_code, known_membs)&"~"&HH_MEMB_ARRAY(curr_tlr_code, known_membs)&"~"&HH_MEMB_ARRAY(counted_months, known_membs)&"~"&HH_MEMB_ARRAY(second_set_count, known_membs)&"~"&_
+                HH_MEMB_ARRAY(counted_months_string, known_membs)&"~"&HH_MEMB_ARRAY(second_set_string, known_membs)&"~"&HH_MEMB_ARRAY(tlr_output, known_membs)&"~"&HH_MEMB_ARRAY(second_set_output, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
 			'Close the object so it can be opened again shortly
@@ -3654,6 +3663,7 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "CVR - NOTE - " & cover_letter_interview_notes & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - ATC - " & all_the_clients
+            script_run_lowdown = script_run_lowdown & vbCr & "PRE - MU6 - " & membs_under_6
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - WHO - " & who_are_we_completing_the_interview_with
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - HOW - " & how_are_we_completing_the_interview
 			script_run_lowdown = script_run_lowdown & vbCr & "PRE - ITP - " & interpreter_information
@@ -4020,7 +4030,15 @@ function save_your_work()
                 HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
-                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
+                HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(remo_info_const, known_membs)&"~"&HH_MEMB_ARRAY(requires_update, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_screening_needed, known_membs)&"~"&HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)&"~"&HH_MEMB_ARRAY(tlr_eval_string, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wreg_status, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_status, known_membs)&"~"&HH_MEMB_ARRAY(tlr_panel_code, known_membs)&"~"&HH_MEMB_ARRAY(tlr_homeless, known_membs)&"~"&HH_MEMB_ARRAY(tlr_dv_victim, known_membs)&"~"&HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_treatment, known_membs)&"~"&HH_MEMB_ARRAY(tlr_children_under_14, known_membs)&"~"&HH_MEMB_ARRAY(tlr_pregnant, known_membs)&"~"&HH_MEMB_ARRAY(tlr_american_indian, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_schl_training, known_membs)&"~"&HH_MEMB_ARRAY(tlr_disability_info, known_membs)&"~"&HH_MEMB_ARRAY(tlr_unea_income, known_membs)&"~"&HH_MEMB_ARRAY(tlr_other_benefit, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_person_requiring_care, known_membs)&"~"&HH_MEMB_ARRAY(tlr_person_care_reason, known_membs)&"~"&HH_MEMB_ARRAY(tlr_child_under_6, known_membs)&"~"&HH_MEMB_ARRAY(tlr_hrs_per_week, known_membs)&"~"&_
+                HH_MEMB_ARRAY(tlr_wage_per_week, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wage_per_month, known_membs)&"~"&HH_MEMB_ARRAY(tlr_wreg_selection, known_membs)&"~"&HH_MEMB_ARRAY(wreg_exists, known_membs)&"~"&_
+                HH_MEMB_ARRAY(curr_wreg_code, known_membs)&"~"&HH_MEMB_ARRAY(curr_tlr_code, known_membs)&"~"&HH_MEMB_ARRAY(counted_months, known_membs)&"~"&HH_MEMB_ARRAY(second_set_count, known_membs)&"~"&_
+                HH_MEMB_ARRAY(counted_months_string, known_membs)&"~"&HH_MEMB_ARRAY(second_set_string, known_membs)&"~"&HH_MEMB_ARRAY(tlr_output, known_membs)&"~"&HH_MEMB_ARRAY(second_set_output, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
 			'Since the file was new, we can simply exit the function
@@ -4116,6 +4134,7 @@ function restore_your_work(vars_filled, membs_found)
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - HOW" Then how_are_we_completing_the_interview = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - ATC" Then all_the_clients = Mid(text_line, 13)
+                    If left(text_line, 9) = "PRE - MU6" Then membs_under_6 = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - ITP" Then interpreter_information = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - LNG" Then interpreter_language = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - AID" Then arep_interview_id_information = Mid(text_line, 13)
@@ -4598,12 +4617,65 @@ function restore_your_work(vars_filled, membs_found)
                                 If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
                                 HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
-                                If UBound(array_info) = 69 Then
-                                    HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
+                                HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
+                                HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
+                                If UBound(array_info) = 71 Then
+                                    HH_MEMB_ARRAY(last_const, known_membs)			= array_info(71)
                                 Else
-                                    HH_MEMB_ARRAY(remo_info_const, known_membs)         = array_info(69)
-                                    HH_MEMB_ARRAY(requires_update, known_membs)         = array_info(70)
-                                    HH_MEMB_ARRAY(last_const, known_membs)				= array_info(71)
+                                    HH_MEMB_ARRAY(tlr_screening_needed, known_membs)        = array_info(71)
+                                    If UCASE(HH_MEMB_ARRAY(tlr_screening_needed, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_screening_needed, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = False
+                                    HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)          = array_info(72)
+                                    If UCASE(HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = False
+                                    HH_MEMB_ARRAY(tlr_eval_string, known_membs)             = array_info(73)
+                                    HH_MEMB_ARRAY(tlr_wreg_status, known_membs)             = array_info(74)
+                                    HH_MEMB_ARRAY(tlr_status, known_membs)                  = array_info(75)
+                                    HH_MEMB_ARRAY(tlr_panel_code, known_membs)              = array_info(76)
+                                    HH_MEMB_ARRAY(tlr_homeless, known_membs)                = array_info(77)
+                                    HH_MEMB_ARRAY(tlr_homeless, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_homeless, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_homeless, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_dv_victim, known_membs)               = array_info(78)
+                                    HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_dv_victim, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)       = array_info(79)
+                                    HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_treatment, known_membs)               = array_info(80)
+                                    HH_MEMB_ARRAY(tlr_treatment, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_treatment, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_treatment, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_children_under_14, known_membs)       = array_info(81)
+                                    HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_children_under_14, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_pregnant, known_membs)                = array_info(82)
+                                    HH_MEMB_ARRAY(tlr_pregnant, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_pregnant, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_pregnant, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_american_indian, known_membs)         = array_info(83)
+                                    HH_MEMB_ARRAY(tlr_american_indian, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_american_indian, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_american_indian, known_membs) = True
+                                    HH_MEMB_ARRAY(tlr_schl_training, known_membs)           = array_info(84)
+                                    HH_MEMB_ARRAY(tlr_disability_info, known_membs)         = array_info(85)
+                                    HH_MEMB_ARRAY(tlr_unea_income, known_membs)             = array_info(86)
+                                    HH_MEMB_ARRAY(tlr_other_benefit, known_membs)           = array_info(87)
+                                    HH_MEMB_ARRAY(tlr_person_requiring_care, known_membs)   = array_info(88)
+                                    HH_MEMB_ARRAY(tlr_person_care_reason, known_membs)      = array_info(89)
+                                    HH_MEMB_ARRAY(tlr_child_under_6, known_membs)           = array_info(90)
+                                    HH_MEMB_ARRAY(tlr_hrs_per_week, known_membs)            = array_info(91)
+                                    HH_MEMB_ARRAY(tlr_wage_per_week, known_membs)           = array_info(92)
+                                    HH_MEMB_ARRAY(tlr_wage_per_month, known_membs)          = array_info(93)
+                                    HH_MEMB_ARRAY(tlr_wreg_selection, known_membs)          = array_info(94)
+                                    HH_MEMB_ARRAY(wreg_exists, known_membs)                 = array_info(95)
+                                    If UCASE(HH_MEMB_ARRAY(wreg_exists, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(wreg_exists, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(wreg_exists, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(wreg_exists, known_membs) = False
+                                    HH_MEMB_ARRAY(curr_wreg_code, known_membs)              = array_info(96)
+                                    HH_MEMB_ARRAY(curr_tlr_code, known_membs)               = array_info(97)
+                                    HH_MEMB_ARRAY(counted_months, known_membs)              = array_info(98)
+                                    HH_MEMB_ARRAY(second_set_count, known_membs)            = array_info(99)
+                                    HH_MEMB_ARRAY(counted_months_string, known_membs)       = array_info(100)
+                                    HH_MEMB_ARRAY(second_set_string, known_membs)           = array_info(101)
+                                    HH_MEMB_ARRAY(tlr_output, known_membs)                  = array_info(102)
+                                    HH_MEMB_ARRAY(second_set_output, known_membs)           = array_info(103)
+                                    HH_MEMB_ARRAY(last_const, known_membs)				    = array_info(104)
                                 End If
 
                                 known_membs = known_membs + 1
@@ -7441,8 +7513,25 @@ end function
 ' TLR SCREENING FUNCTIONS --------------------------------------------------------------------------------------------------
 
 function case_note_person_tlr_screening(person_info, info_evaluated, screening_needed, eval_string, wreg_status, tlr_status, panel_code, wreg_selection, include_panel_code, tlr_output, second_set_output, wreg_exists)
-    If wreg_exists or (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
+    ' If wreg_exists or (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
+    If wreg_exists or info_evaluated Then
         call write_variable_in_CASE_NOTE("* " & person_info & ":")
+        ' If (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
+        If info_evaluated Then
+            If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
+                call write_variable_in_CASE_NOTE("  WREG/TLR Identified by Worker: " & wreg_selection)
+            End If
+            If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)
+            If InStr(eval_string, ";") Then
+                call write_variable_in_CASE_NOTE("  Exemption Evaluation:")
+                eval_array = split(eval_string, ";")
+                for each eval_info in eval_array
+                    If trim(eval_info) <> "" Then call write_variable_in_CASE_NOTE("  - " & trim(eval_info))
+                next
+            Else
+                call write_variable_in_CASE_NOTE("  Exemption Evaluation: " & trim(replace(trim(eval_string), ";", "")))
+            End If
+        End If
         call write_variable_in_CASE_NOTE("  WREG Status - " & wreg_status & ", TLR Status - " & tlr_status & ", Panel Code - " & panel_code & ".")
     End If
 
@@ -7450,22 +7539,6 @@ function case_note_person_tlr_screening(person_info, info_evaluated, screening_n
         Call write_variable_in_CASE_NOTE("  Current Detail from WREG:")
         Call write_variable_in_CASE_NOTE("  - Counted TLR Months: " & tlr_output)
         Call write_variable_in_CASE_NOTE("  - Counted 2nd Set Months: " & second_set_output)
-    End If
-
-    If (NOT info_evaluated and NOT screening_needed) or info_evaluated Then
-        If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
-            call write_variable_in_CASE_NOTE("  WREG/TLR Identified by Worker: " & wreg_selection)
-        End If
-        If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)
-        If InStr(eval_string, ";") Then
-            call write_variable_in_CASE_NOTE("  Exemption Evaluation:")
-            eval_array = split(eval_string, ";")
-            for each eval_info in eval_array
-                If trim(eval_info) <> "" Then call write_variable_in_CASE_NOTE("  - " & trim(eval_info))
-            next
-        Else
-            call write_variable_in_CASE_NOTE("  Exemption Evaluation: " & trim(replace(trim(eval_string), ";", "")))
-        End If
     End If
 end function
 
@@ -7475,6 +7548,7 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
     panel_code = ""
     eval_string = ""
     screening_needed = False
+    If info_evaluated = "" Then info_evaluated = False
 
     If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
         wreg_tlr_from_selection = right(wreg_selection, 6)
@@ -7938,7 +8012,7 @@ function write_tlr_screening_CASE_NOTE()
         start_a_blank_CASE_NOTE
         call write_variable_in_CASE_NOTE("----- TLR Screening Information -----")
         call write_variable_in_CASE_NOTE("TLR Screening completed on " & interview_date & " with " & who_are_we_completing_the_interview_with & ".")
-        call write_variable_in_CASE_NOTE("- TLR Screening is Based on Resident Declaration -")
+        call write_variable_in_CASE_NOTE("--- TLR Screening is Based on Resident Declaration ---")
         include_panel_code = False
         For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
             person_info = "MEMB " & HH_MEMB_ARRAY(ref_number, the_membs) & " - " & HH_MEMB_ARRAY(full_name_const, the_membs)
@@ -9454,6 +9528,14 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	show_known_addr = True
 
+    'Reading WREG details and completing an initial wreg/tlr assessment for each member.
+    'currently the wreg determination can only identify age based exemptions at this point in the script run. Other eexemptions require the screening display for the individual
+    For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+        Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs))
+        Call read_WREG_details(HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(wreg_exists, the_membs), HH_MEMB_ARRAY(curr_wreg_code, the_membs), HH_MEMB_ARRAY(curr_tlr_code, the_membs), HH_MEMB_ARRAY(counted_months, the_membs), HH_MEMB_ARRAY(second_set_count, the_membs), HH_MEMB_ARRAY(counted_months_string, the_membs), HH_MEMB_ARRAY(second_set_string, the_membs), HH_MEMB_ARRAY(tlr_output, the_membs), HH_MEMB_ARRAY(second_set_output, the_membs))
+    Next
+
+
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 361, 130, "Interview Start Message"
 	  ButtonGroup ButtonPressed
@@ -9697,12 +9779,6 @@ show_pg_last = start_at + 5
 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 If vars_filled = TRUE and membs_found = False Then MsgBox "The script was able to fill in the case number but not the member information." & vbCr & vbCr & "BE SURE TO REVIEW PERSON DETAILS", vbExclamation, "Member Information Not Found"
-
-' Call wreg_person_info_display(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), person_info, person_droplist, HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs))
-For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
-    Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs))
-    Call read_WREG_details(HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(wreg_exists, the_membs), HH_MEMB_ARRAY(curr_wreg_code, the_membs), HH_MEMB_ARRAY(curr_tlr_code, the_membs), HH_MEMB_ARRAY(counted_months, the_membs), HH_MEMB_ARRAY(second_set_count, the_membs), HH_MEMB_ARRAY(counted_months_string, the_membs), HH_MEMB_ARRAY(second_set_string, the_membs), HH_MEMB_ARRAY(tlr_output, the_membs), HH_MEMB_ARRAY(second_set_output, the_membs))
-Next
 
 interview_questions_clear = False
 leave_loop = False
