@@ -65,6 +65,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/17/2026", "The Interview process now includes the ability to complete a TLR/WREG screening for any member on the case. The screening is not required and the script will only determine exemptions based solely on age without screening details being manually entered.##~## ##~##The TLR/WREG screening will be recorded in CASE/NOTE only.##~##The CASE/NOTE will occur only for household members that have been manually screened during the script run.##~## ##~##Additionally - New options for verification of blank SSNs.##~## - Requested SSN - will add SSN for the member to the list of verifications.##~## - A - SSN listed on a duplicate PMI (to support this workaround).##~## ##~##Bug fixed for Removal of AREP CASE/NOTE not being created when it should.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/11/2025", "This update includes a series of minor bug fixes and user requested improvements:##~## - Error that occasionally presents in member display review.##~## - Updated the HUF Form Version.##~## - Updated MNBenefits Version.##~## - Updated Senior SNAP App Form Version.##~## - Add a CASE/NOTE to document Remove AREP when indicated.##~## - Updates to Utilities selections.##~## - Adjustments to the clarifications functionality.##~## - Update to the format of some WIF fields to prevent data cutoff.##~## ##~##These updates should provide more alignment with the forms and more stability. As always, please report any feedback or concerns you find.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/05/2025", "Update the display of person information and adjustment to how person details needed for the interview are gathered.", "Casey Love, Hennepin County")
 call changelog_update("06/23/2025", "The CAF form question were updated by DHS. The script has been updated to align with this new CAF layout and question format.##~## ##~##NOTE - ANY INTERVIEW DETAILS SAVED PRIOR TO TODAY WILL NOT BE ABLE TO BE RESTORED.##~## ##~##The interview details restoration has been updated to ensure the same form and version were selected for the information to be restored.", "Casey Love, Hennepin County")
@@ -340,7 +341,7 @@ function check_for_errors(interview_questions_clear)
 
             If HH_MEMB_ARRAY(none_req_checkbox, the_memb) = unchecked Then
                 If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
-                    If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN list on a duplicate PMI" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "SSN Requested" Then
+                    If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN listed on a duplicate PMI" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "SSN Requested" Then
                         pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank and should be requested now."
                     End If
                 End If
@@ -819,7 +820,7 @@ function define_main_dialog()
                     If trim(HH_MEMB_ARRAY(ssn, the_membs)) = "" Then
                         ssn_info_valid = False
                         If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN Applied For" Then ssn_info_valid = True
-                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
+                        If HH_MEMB_ARRAY(ssn_verif, the_membs) = "A - SSN listed on a duplicate PMI" Then ssn_info_valid = True
                         If HH_MEMB_ARRAY(ssn_verif, the_membs) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
                         If HH_MEMB_ARRAY(ssn_verif, the_membs) = "SSN Requested" Then ssn_info_valid = True
                     End If
@@ -1037,7 +1038,7 @@ function define_main_dialog()
                 If trim(HH_MEMB_ARRAY(ssn, selected_memb)) = "" Then
                     ssn_info_valid = False
                     If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN Applied For" Then ssn_info_valid = True
-                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
+                    If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "A - SSN listed on a duplicate PMI" Then ssn_info_valid = True
                     If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
                     If HH_MEMB_ARRAY(ssn_verif, selected_memb) = "SSN Requested" Then ssn_info_valid = True
                 End If
@@ -4829,7 +4830,7 @@ function review_information()
         If trim(HH_MEMB_ARRAY(ssn, the_memb)) = "" Then
             ssn_info_valid = False
             If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For" Then ssn_info_valid = True
-            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_memb) = "A - SSN listed on a duplicate PMI" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_memb) = "SSN Requested" Then ssn_info_valid = True
         End If
@@ -8126,7 +8127,7 @@ ssn_verif_list = ssn_verif_list+chr(9)+"P - SSN Provided, verif Pending"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - SSN Not Provided"
 ssn_verif_list = ssn_verif_list+chr(9)+"N - Member Does Not Have SSN"
 ssn_verif_list = ssn_verif_list+chr(9)+"V - SSN Verified via Interface"
-ssn_verif_list = ssn_verif_list+chr(9)+"A - SSN list on a duplicate PMI"
+ssn_verif_list = ssn_verif_list+chr(9)+"A - SSN listed on a duplicate PMI"
 ssn_verif_list = ssn_verif_list+chr(9)+"SSN Requested"
 
 language_list = ""
@@ -9469,7 +9470,7 @@ If membs_found = False Then
         If trim(HH_MEMB_ARRAY(ssn, the_members)) = "" Then
             ssn_info_valid = False
             If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN Applied For" Then ssn_info_valid = True
-            If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN list on a duplicate PMI" Then ssn_info_valid = True
+            If HH_MEMB_ARRAY(ssn_verif, the_members) = "A - SSN listed on a duplicate PMI" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_members) = "N - Member Does Not Have SSN" Then ssn_info_valid = True
             If HH_MEMB_ARRAY(ssn_verif, the_members) = "SSN Requested" Then ssn_info_valid = True
         End If
