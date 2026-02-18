@@ -7685,7 +7685,7 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
         wreg_status = "Exempt"
         tlr_status = "Exempt"
         If unea_income = "UI" Then
-            eval_string = eval_string & "Receiving for Unemployment Benefits; "
+            eval_string = eval_string & "Receiving Unemployment Benefits; "
         ElseIf unea_income = "Applied for UI" Then
             eval_string = eval_string & "Applied for Unemployment Benefits; "
         Else
