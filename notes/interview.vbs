@@ -7626,7 +7626,6 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
     fed_min_wage = 7.25
     min_wage_per_week = fed_min_wage * 30
 
-    ' MsgBox "fn_age: " & fn_age & vbCr & "IsNumeric(fn_age): " & IsNumeric(fn_age) & vbCr & "dob: " & dob & vbCr & "IsDate(dob): " & IsDate(dob)
     If IsDate(dob) Then
         If fn_age > 64 Then
             panel_code = "05/01"
