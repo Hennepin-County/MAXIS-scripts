@@ -11574,7 +11574,7 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         curr_last_name = trim(replace(curr_last_name, "_", ""))
         curr_first_name = trim(replace(curr_first_name, "_", ""))
         curr_mid_initial = trim(replace(curr_mid_initial, "_", ""))
-        If curr_date_of_birth - "__ __ ____" Then curr_date_of_birth  = ""
+        If curr_date_of_birth = "__ __ ____" Then curr_date_of_birth  = ""
         curr_age = trim(curr_age)
         If curr_age = "" and curr_date_of_birth  <> "" Then curr_age = 0
         curr_age = curr_age * 1
