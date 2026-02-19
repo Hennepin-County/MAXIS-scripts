@@ -11601,7 +11601,7 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         If curr_date_of_birth = "__ __ ____" Then curr_date_of_birth  = ""
         curr_age = trim(curr_age)
         If curr_age = "" and curr_date_of_birth  <> "" Then curr_age = 0
-        curr_age = curr_age * 1
+        If curr_age <> "" Then curr_age = curr_age * 1
 
         If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
         If curr_first_name <> HH_MEMB_ARRAY(first_name_const, the_memb) Then CHANGES_ARRAY(first_name_const, the_memb) = curr_first_name
