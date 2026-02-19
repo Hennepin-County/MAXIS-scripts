@@ -1943,6 +1943,7 @@ function dialog_movement()
 		HH_MEMB_ARRAY(button_one, new_clt) = 500 + new_clt
 		HH_MEMB_ARRAY(button_two, new_clt) = 600 + new_clt
         HH_MEMB_ARRAY(pers_in_maxis, new_clt) = False
+        HH_MEMB_ARRAY(tlr_info_evaluated, new_clt) = False
 
 		selected_memb = new_clt
 		update_pers = TRUE
@@ -7587,7 +7588,6 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
     panel_code = ""
     eval_string = ""
     screening_needed = False
-    If info_evaluated = "" Then info_evaluated = False
 
     If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
         wreg_tlr_from_selection = right(wreg_selection, 6)
@@ -7880,21 +7880,42 @@ function wreg_person_info_display(info_evaluated, person_info, person_droplist, 
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
     If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
-    ' age = DateDiff("yyyy", dob, Date)
-    If homeless Then homeless = "Yes"
-    If NOT homeless Then homeless = "No"
-    If dv_victim Then dv_victim = "Yes"
-    If NOT dv_victim Then dv_victim = "No"
-    If caregiver_in_home Then caregiver_in_home = "Yes"
-    If NOT caregiver_in_home Then caregiver_in_home = "No"
-    If treatment Then treatment = "Yes"
-    If NOT treatment Then treatment = "No"
-    If children_under_14 Then children_under_14 = "Yes"
-    If NOT children_under_14 Then children_under_14 = "No"
-    If pregnant Then pregnant = "Yes"
-    If NOT pregnant Then pregnant = "No"
-    If american_indian Then american_indian = "Yes"
-    If NOT american_indian Then american_indian = "No"
+
+    If homeless Then
+        homeless = "Yes"
+    Else
+        homeless = "No"
+    End If
+    If dv_victim Then
+        dv_victim = "Yes"
+    Else
+        dv_victim = "No"
+    End If
+    If caregiver_in_home Then
+        caregiver_in_home = "Yes"
+    Else
+        caregiver_in_home = "No"
+    End If
+    If treatment Then
+        treatment = "Yes"
+    Else
+        treatment = "No"
+    End If
+    If children_under_14 Then
+        children_under_14 = "Yes"
+    Else
+        children_under_14 = "No"
+    End If
+    If pregnant Then
+        pregnant = "Yes"
+    Else
+        pregnant = "No"
+    End If
+    If american_indian Then
+        american_indian = "Yes"
+    Else
+        american_indian = "No"
+    End If
 
     If InStr(schl_training, "-") Then
         schl_array = split(schl_training, "-")
@@ -9237,6 +9258,7 @@ If membs_found = False Then
 		HH_MEMB_ARRAY(ref_number, clt_count) = hh_clt
         HH_MEMB_ARRAY(pers_in_maxis, clt_count) = True
         HH_MEMB_ARRAY(ignore_person, clt_count) = False
+        HH_MEMB_ARRAY(tlr_info_evaluated, clt_count) = False
 		' HH_MEMB_ARRAY(define_the_member, clt_count)
 
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
@@ -9876,6 +9898,8 @@ Do
                 End If
                 If screen_individual <> "" Then
                     Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), HH_MEMB_ARRAY(tlr_screening_needed, screen_individual), HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual))
+                    HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual) = True
+                    HH_MEMB_ARRAY(tlr_screening_needed, screen_individual) = False
                     If err_msg = ""  Then screen_individual = ""
                 End If
 				If run_by_interview_team = True and page_display = expedited_determination and err_msg = "" Then Call determine_calculations(exp_det_income, exp_det_assets, exp_det_housing, exp_det_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
