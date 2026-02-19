@@ -849,11 +849,13 @@ function define_main_dialog()
                         If HH_MEMB_ARRAY(former_state, the_membs) = "NB" Then member_info_string = member_info_string & "Born on " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & "; "
                         If HH_MEMB_ARRAY(former_state, the_membs) <> "NB" Then member_info_string = member_info_string & "MN Entry: " & HH_MEMB_ARRAY(mn_entry_date, the_membs) & " from " & HH_MEMB_ARRAY(former_state, the_membs) & "; "
                     End If
-                    If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then member_info_string = member_info_string & "Interpreter Needed; "
+                    If IsNumeric(HH_MEMB_ARRAY(age, the_membs)) Then
+                        If HH_MEMB_ARRAY(interpreter, the_membs) = "Yes" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then member_info_string = member_info_string & "Interpreter Needed; "
 
-                    If trim(progs) <> "(none)" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then
-                        If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Language: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
-                        If len(HH_MEMB_ARRAY(spoken_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Spoken Lang Unknown; "
+                        If trim(progs) <> "(none)" and (HH_MEMB_ARRAY(age, the_membs) > 17 OR the_membs = 0) Then
+                            If left(HH_MEMB_ARRAY(spoken_lang, the_membs), 2) <> "99" and len(HH_MEMB_ARRAY(spoken_lang, the_membs)) > 5 Then member_info_string = member_info_string & "Language: " & right(HH_MEMB_ARRAY(spoken_lang, the_membs), len(HH_MEMB_ARRAY(spoken_lang, the_membs))-5) & "; "
+                            If len(HH_MEMB_ARRAY(spoken_lang, the_membs)) < 6 Then member_info_string = member_info_string & "Spoken Lang Unknown; "
+                        End If
                     End If
                     If trim(progs) <> "(none)" Then
                         If HH_MEMB_ARRAY(race, the_membs) = "Unable To Determine" Then member_info_string = member_info_string & "Race Undetermined; "
@@ -879,8 +881,10 @@ function define_main_dialog()
                             If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
                             If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
                         End If
-                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                        If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If IsNumeric(HH_MEMB_ARRAY(age, the_membs)) Then
+                            If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                            If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        End If
                         If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
                     End If
                     Text        180, y_pos, 75,  10, progs
@@ -1414,7 +1418,7 @@ function define_main_dialog()
                     Else
                         Text 175, y_pos, 150, 10, "No screening required"
                     End If
-                    If HH_MEMB_ARRAY(tlr_panel_code, the_membs) <> "Panel Not Needed" Then Text 335, y_pos, 100, 10, "Panel Code: " & HH_MEMB_ARRAY(tlr_panel_code, the_membs)
+                    If HH_MEMB_ARRAY(tlr_panel_code, the_membs) <> "Panel Not Needed" and trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)) <> "" Then Text 335, y_pos, 100, 10, "Panel Code: " & HH_MEMB_ARRAY(tlr_panel_code, the_membs)
                     scrn_btn_lbl = "Complete Screening"
                     If HH_MEMB_ARRAY(tlr_info_evaluated, the_membs) Then scrn_btn_lbl = "Update Screening"
                     PushButton 400, y_pos - 2, 80, 13, scrn_btn_lbl, HH_MEMB_ARRAY(button_one, the_membs)
@@ -1432,20 +1436,25 @@ function define_main_dialog()
                         Text 25, y_pos, 350, 10, "WREG/TLR Selected Directly: " & HH_MEMB_ARRAY(tlr_wreg_selection, the_membs)
                         y_pos = y_pos + 10
                     End If
-                    If right(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), 1) = ";" Then HH_MEMB_ARRAY(tlr_eval_string, the_membs) = left(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), len(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))) - 1)
-                    If InStr(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";") Then
-                        Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs)
+                    If trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)) = "" Then
+                        Text 25, y_pos, 350, 10, "No WREG/TLR determination details to display."
                         y_pos = y_pos + 10
-                        eval_array = split(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";")
-                        for each eval_info in eval_array
-                            If trim(eval_info) <> "" Then
-                                Text 35, y_pos, 400, 10, trim(eval_info)
-                                y_pos = y_pos + 10
-                            End If
-                        next
                     Else
-                        Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs) & "  --  " & trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))
-                        y_pos = y_pos + 10
+                        If right(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), 1) = ";" Then HH_MEMB_ARRAY(tlr_eval_string, the_membs) = left(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs)), len(trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))) - 1)
+                        If InStr(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";") Then
+                            Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs)
+                            y_pos = y_pos + 10
+                            eval_array = split(HH_MEMB_ARRAY(tlr_eval_string, the_membs), ";")
+                            for each eval_info in eval_array
+                                If trim(eval_info) <> "" Then
+                                    Text 35, y_pos, 400, 10, trim(eval_info)
+                                    y_pos = y_pos + 10
+                                End If
+                            next
+                        Else
+                            Text 25, y_pos, 350, 10, "WREG - " & HH_MEMB_ARRAY(tlr_wreg_status, the_membs) & ", TLR - " & HH_MEMB_ARRAY(tlr_status, the_membs) & "  --  " & trim(HH_MEMB_ARRAY(tlr_eval_string, the_membs))
+                            y_pos = y_pos + 10
+                        End If
                     End If
                     ' Text 25, y_pos+10, 400, 10, HH_MEMB_ARRAY(tlr_eval_string, the_membs)
                     y_pos = y_pos + 5
@@ -4524,9 +4533,7 @@ function restore_your_work(vars_filled, membs_found)
                                 HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
                                 HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
                                 HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
-                                ' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
-                                If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
-                                HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
+                                If trim(HH_MEMB_ARRAY(age, known_membs)) <> "" Then HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
                                 HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
                                 HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
                                 HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(10)
@@ -4624,36 +4631,63 @@ function restore_your_work(vars_filled, membs_found)
                                     HH_MEMB_ARRAY(last_const, known_membs)			= array_info(71)
                                 Else
                                     HH_MEMB_ARRAY(tlr_screening_needed, known_membs)        = array_info(71)
-                                    If UCASE(HH_MEMB_ARRAY(tlr_screening_needed, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = True
-                                    If UCASE(HH_MEMB_ARRAY(tlr_screening_needed, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_screening_needed, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_screening_needed, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)          = array_info(72)
-                                    If UCASE(HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = True
-                                    If UCASE(HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(tlr_info_evaluated, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_info_evaluated, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_eval_string, known_membs)             = array_info(73)
                                     HH_MEMB_ARRAY(tlr_wreg_status, known_membs)             = array_info(74)
                                     HH_MEMB_ARRAY(tlr_status, known_membs)                  = array_info(75)
                                     HH_MEMB_ARRAY(tlr_panel_code, known_membs)              = array_info(76)
                                     HH_MEMB_ARRAY(tlr_homeless, known_membs)                = array_info(77)
-                                    HH_MEMB_ARRAY(tlr_homeless, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_homeless, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_homeless, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_homeless, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_homeless, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_homeless, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_dv_victim, known_membs)               = array_info(78)
-                                    HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_dv_victim, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_dv_victim, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_dv_victim, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)       = array_info(79)
-                                    HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_caregiver_in_home, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_treatment, known_membs)               = array_info(80)
-                                    HH_MEMB_ARRAY(tlr_treatment, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_treatment, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_treatment, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_treatment, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_treatment, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_treatment, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_children_under_14, known_membs)       = array_info(81)
-                                    HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_children_under_14, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_children_under_14, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_children_under_14, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_pregnant, known_membs)                = array_info(82)
-                                    HH_MEMB_ARRAY(tlr_pregnant, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_pregnant, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_pregnant, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_pregnant, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_pregnant, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_pregnant, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_american_indian, known_membs)         = array_info(83)
-                                    HH_MEMB_ARRAY(tlr_american_indian, known_membs) = False
-                                    If UCASE(HH_MEMB_ARRAY(tlr_american_indian, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(tlr_american_indian, known_membs) = True
+                                    If UCASE(HH_MEMB_ARRAY(tlr_american_indian, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(tlr_american_indian, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(tlr_american_indian, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(tlr_schl_training, known_membs)           = array_info(84)
                                     HH_MEMB_ARRAY(tlr_disability_info, known_membs)         = array_info(85)
                                     HH_MEMB_ARRAY(tlr_unea_income, known_membs)             = array_info(86)
@@ -4666,10 +4700,14 @@ function restore_your_work(vars_filled, membs_found)
                                     HH_MEMB_ARRAY(tlr_wage_per_month, known_membs)          = array_info(93)
                                     HH_MEMB_ARRAY(tlr_wreg_selection, known_membs)          = array_info(94)
                                     HH_MEMB_ARRAY(wreg_exists, known_membs)                 = array_info(95)
-                                    If UCASE(HH_MEMB_ARRAY(wreg_exists, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(wreg_exists, known_membs) = True
-                                    If UCASE(HH_MEMB_ARRAY(wreg_exists, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(wreg_exists, known_membs) = False
+                                    If UCASE(HH_MEMB_ARRAY(wreg_exists, known_membs)) = "TRUE" Then
+                                        HH_MEMB_ARRAY(wreg_exists, known_membs) = True
+                                    Else
+                                        HH_MEMB_ARRAY(wreg_exists, known_membs) = False
+                                    End If
                                     HH_MEMB_ARRAY(curr_wreg_code, known_membs)              = array_info(96)
                                     HH_MEMB_ARRAY(curr_tlr_code, known_membs)               = array_info(97)
+                                    If HH_MEMB_ARRAY(curr_wreg_code, known_membs) <> "" OR HH_MEMB_ARRAY(curr_tlr_code, known_membs) <> "" Then HH_MEMB_ARRAY(wreg_exists, known_membs) = True
                                     HH_MEMB_ARRAY(counted_months, known_membs)              = array_info(98)
                                     HH_MEMB_ARRAY(second_set_count, known_membs)            = array_info(99)
                                     HH_MEMB_ARRAY(counted_months_string, known_membs)       = array_info(100)
@@ -4797,7 +4835,7 @@ function review_information()
 		HH_MEMB_ARRAY(mid_initial, the_memb) = UCase(trim(HH_MEMB_ARRAY(mid_initial, the_memb)))
 
 		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
-        If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) and IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
+        If IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) and (NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) or HH_MEMB_ARRAY(age, the_memb) = 0) Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
 
         race_string = ""
         If HH_MEMB_ARRAY(race_a_checkbox, the_memb) = checked Then race_string = race_string & "Asian~"
@@ -7578,7 +7616,7 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
     ' AGE is detertmened to be the last day of next month from the current date
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
-    fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
     If IsNumeric(wage_per_week) and NOT IsNumeric(wage_per_month) Then
         wage_per_month = wage_per_week * 4.3
     End If
@@ -7588,27 +7626,30 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
     fed_min_wage = 7.25
     min_wage_per_week = fed_min_wage * 30
 
-    If fn_age > 64 Then
-        panel_code = "05/01"
-        wreg_status = "Exempt"
-        tlr_status = "Exempt"
-        eval_string = "Age over 64; "
-    ElseIf fn_age >= 60 Then
-        panel_code = "05/01"
-        wreg_status = "Exempt"
-        tlr_status = "Exempt"
-        eval_string = "Age between 60 and 64; "
-    ElseIf fn_age < 16 Then
-        panel_code = "Panel Not Needed"     '06/01 if created
-        wreg_status = "Exempt"
-        tlr_status = "Exempt"
-        eval_string = "Age under 16; "
-    ElseIf fn_age >= 16 AND fn_age < 18 Then
-        If caregiver_in_home = True Then
-            tlr_status = "Exempt"
-            panel_code = "06/01"
+    ' MsgBox "fn_age: " & fn_age & vbCr & "IsNumeric(fn_age): " & IsNumeric(fn_age) & vbCr & "dob: " & dob & vbCr & "IsDate(dob): " & IsDate(dob)
+    If IsDate(dob) Then
+        If fn_age > 64 Then
+            panel_code = "05/01"
             wreg_status = "Exempt"
-            eval_string = "Age 16 or 17 living with Caregiver; "
+            tlr_status = "Exempt"
+            eval_string = "Age over 64; "
+        ElseIf fn_age >= 60 Then
+            panel_code = "05/01"
+            wreg_status = "Exempt"
+            tlr_status = "Exempt"
+            eval_string = "Age between 60 and 64; "
+        ElseIf fn_age < 16 Then
+            panel_code = "Panel Not Needed"     '06/01 if created
+            wreg_status = "Exempt"
+            tlr_status = "Exempt"
+            eval_string = "Age under 16; "
+        ElseIf fn_age >= 16 AND fn_age < 18 Then
+            If caregiver_in_home = True Then
+                tlr_status = "Exempt"
+                panel_code = "06/01"
+                wreg_status = "Exempt"
+                eval_string = "Age 16 or 17 living with Caregiver; "
+            End If
         End If
     End If
 
@@ -7715,11 +7756,13 @@ function determine_wreg_status(info_evaluated, screening_needed, eval_string, wr
         eval_string = eval_string & "American Indian; "
     End If
 
-    If fn_age >= 16 AND fn_age < 18 Then
-        If NOT caregiver_in_home Then
-            If panel_code = "" Then panel_code = "15/02"
-            tlr_status = "Exempt"
-            eval_string = eval_string & "Age 16 or 17 NOT living with Caregiver; "
+    If IsDate(dob) Then
+        If fn_age >= 16 AND fn_age < 18 Then
+            If NOT caregiver_in_home Then
+                If panel_code = "" Then panel_code = "15/02"
+                tlr_status = "Exempt"
+                eval_string = eval_string & "Age 16 or 17 NOT living with Caregiver; "
+            End If
         End If
     End If
 
@@ -7837,7 +7880,7 @@ function wreg_person_info_display(info_evaluated, person_info, person_droplist, 
     ' QUESTION - what date should we use for age (today, end of the month, end of next month?)
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
-    fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
     ' age = DateDiff("yyyy", dob, Date)
     If homeless Then homeless = "Yes"
     If NOT homeless Then homeless = "No"
@@ -7930,9 +7973,14 @@ function wreg_person_info_display(info_evaluated, person_info, person_droplist, 
 
 
     Text 15, 25, 155, 10, person_info
-    If fn_age = 16 or fn_age = 17 Then
-        Text 235, 25, 155, 10, "Age 16 or 17: Living with a parent or caretaker?"
-        DropListBox 395, 20, 35, 45, yes_no_list, caregiver_in_home
+    If IsDate(dob) Then
+        If fn_age = 16 or fn_age = 17 Then
+            Text 235, 25, 155, 10, "Age 16 or 17: Living with a parent or caretaker?"
+            DropListBox 395, 20, 35, 45, yes_no_list, caregiver_in_home
+        End If
+    Else
+        Text 235, 25, 120, 10, "What is this member's date of birth?"
+        EditBox 360, 20, 35, 15, dob
     End If
 
     'UNFIT FOR EMPLOYMENT
@@ -9223,15 +9271,19 @@ If membs_found = False Then
 			EMReadScreen HH_MEMB_ARRAY(alias_yn, clt_count), 1, 15, 42
 			EMReadScreen HH_MEMB_ARRAY(ethnicity_yn, clt_count), 1, 16, 68
 
+            If HH_MEMB_ARRAY(date_of_birth, clt_count) = "__ __ ____" Then HH_MEMB_ARRAY(date_of_birth, clt_count) = ""
 			HH_MEMB_ARRAY(age, clt_count) = trim(HH_MEMB_ARRAY(age, clt_count))
 			If HH_MEMB_ARRAY(age, clt_count) = "" Then HH_MEMB_ARRAY(age, clt_count) = 0
-			HH_MEMB_ARRAY(age, clt_count) = HH_MEMB_ARRAY(age, clt_count) * 1
+            If HH_MEMB_ARRAY(date_of_birth, clt_count) = "" Then HH_MEMB_ARRAY(age, clt_count) = ""
+			If IsNumeric(HH_MEMB_ARRAY(age, clt_count)) Then HH_MEMB_ARRAY(age, clt_count) = HH_MEMB_ARRAY(age, clt_count) * 1
 
 			HH_MEMB_ARRAY(last_name_const, clt_count) = trim(replace(HH_MEMB_ARRAY(last_name_const, clt_count), "_", ""))
 			HH_MEMB_ARRAY(first_name_const, clt_count) = trim(replace(HH_MEMB_ARRAY(first_name_const, clt_count), "_", ""))
 			HH_MEMB_ARRAY(mid_initial, clt_count) = replace(HH_MEMB_ARRAY(mid_initial, clt_count), "_", "")
 			HH_MEMB_ARRAY(full_name_const, clt_count) = HH_MEMB_ARRAY(first_name_const, clt_count) & " " & HH_MEMB_ARRAY(last_name_const, clt_count)
-            If HH_MEMB_ARRAY(age, clt_count) < 6 Then membs_under_6 = membs_under_6+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count)&" - "&HH_MEMB_ARRAY(full_name_const, clt_count)
+            If IsNumeric(HH_MEMB_ARRAY(age, clt_count)) Then
+                If HH_MEMB_ARRAY(age, clt_count) < 6 Then membs_under_6 = membs_under_6+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count)&" - "&HH_MEMB_ARRAY(full_name_const, clt_count)
+            End If
 			EMReadScreen HH_MEMB_ARRAY(id_verif, clt_count), 2, 9, 68
 
 			EMReadScreen HH_MEMB_ARRAY(rel_to_applcnt, clt_count), 2, 10, 42              'reading the relationship from MEMB'
@@ -9267,15 +9319,17 @@ If membs_found = False Then
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "OT" Then HH_MEMB_ARRAY(id_verif, clt_count) = "OT - Other Document"
 			If HH_MEMB_ARRAY(id_verif, clt_count) = "NO" Then HH_MEMB_ARRAY(id_verif, clt_count) = "NO - No Ver Prvd"
 
-			If HH_MEMB_ARRAY(age, clt_count) > 18 then
-				HH_MEMB_ARRAY(cash_minor, clt_count) = FALSE
-			Else
-				HH_MEMB_ARRAY(cash_minor, clt_count) = TRUE
-			End If
-			If HH_MEMB_ARRAY(age, clt_count) > 21 then
-				HH_MEMB_ARRAY(snap_minor, clt_count) = FALSE
-			Else
-				HH_MEMB_ARRAY(snap_minor, clt_count) = TRUE
+            If IsNumeric(HH_MEMB_ARRAY(age, clt_count)) Then
+                If HH_MEMB_ARRAY(age, clt_count) > 18 then
+                    HH_MEMB_ARRAY(cash_minor, clt_count) = FALSE
+                Else
+                    HH_MEMB_ARRAY(cash_minor, clt_count) = TRUE
+                End If
+                If HH_MEMB_ARRAY(age, clt_count) > 21 then
+                    HH_MEMB_ARRAY(snap_minor, clt_count) = FALSE
+                Else
+                    HH_MEMB_ARRAY(snap_minor, clt_count) = TRUE
+                End If
 			End If
 
 			HH_MEMB_ARRAY(date_of_birth, clt_count) = replace(HH_MEMB_ARRAY(date_of_birth, clt_count), " ", "/")
@@ -9532,7 +9586,6 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
     'Reading WREG details and completing an initial wreg/tlr assessment for each member.
     'currently the wreg determination can only identify age based exemptions at this point in the script run. Other eexemptions require the screening display for the individual
     For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
-        Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs))
         Call read_WREG_details(HH_MEMB_ARRAY(ref_number, the_membs), HH_MEMB_ARRAY(wreg_exists, the_membs), HH_MEMB_ARRAY(curr_wreg_code, the_membs), HH_MEMB_ARRAY(curr_tlr_code, the_membs), HH_MEMB_ARRAY(counted_months, the_membs), HH_MEMB_ARRAY(second_set_count, the_membs), HH_MEMB_ARRAY(counted_months_string, the_membs), HH_MEMB_ARRAY(second_set_string, the_membs), HH_MEMB_ARRAY(tlr_output, the_membs), HH_MEMB_ARRAY(second_set_output, the_membs))
     Next
 
@@ -9556,6 +9609,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	oExec.Terminate()
 End If
+
+For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+    If (HH_MEMB_ARRAY(snap_req_checkbox, the_membs) = checked or HH_MEMB_ARRAY(cash_req_checkbox, the_membs) = checked or HH_MEMB_ARRAY(emer_req_checkbox, the_membs) = checked) and HH_MEMB_ARRAY(tlr_eval_string, the_membs) = ""Then
+        Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, the_membs), HH_MEMB_ARRAY(tlr_screening_needed, the_membs), HH_MEMB_ARRAY(tlr_eval_string, the_membs), HH_MEMB_ARRAY(tlr_wreg_status, the_membs), HH_MEMB_ARRAY(tlr_status, the_membs), HH_MEMB_ARRAY(tlr_panel_code, the_membs), HH_MEMB_ARRAY(date_of_birth, the_membs), HH_MEMB_ARRAY(tlr_disability_info, the_membs), HH_MEMB_ARRAY(tlr_homeless, the_membs), HH_MEMB_ARRAY(tlr_dv_victim, the_membs), HH_MEMB_ARRAY(tlr_schl_training, the_membs), HH_MEMB_ARRAY(tlr_person_requiring_care, the_membs), HH_MEMB_ARRAY(tlr_person_care_reason, the_membs), HH_MEMB_ARRAY(tlr_child_under_6, the_membs), HH_MEMB_ARRAY(tlr_caregiver_in_home, the_membs), HH_MEMB_ARRAY(tlr_hrs_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_week, the_membs), HH_MEMB_ARRAY(tlr_wage_per_month, the_membs), HH_MEMB_ARRAY(tlr_other_benefit, the_membs), HH_MEMB_ARRAY(tlr_unea_income, the_membs), HH_MEMB_ARRAY(tlr_treatment, the_membs), HH_MEMB_ARRAY(tlr_children_under_14, the_membs), HH_MEMB_ARRAY(tlr_pregnant, the_membs), HH_MEMB_ARRAY(tlr_american_indian, the_membs), HH_MEMB_ARRAY(tlr_wreg_selection, the_membs))
+    End If
+Next
 
 'Giving the buttons specific unumerations so they don't think they are eachother
 next_btn					= 100
@@ -9687,10 +9746,11 @@ btn_placeholder = 4000
 For btn_count = 0 to UBound(HH_MEMB_ARRAY, 2)
 	HH_MEMB_ARRAY(button_one, btn_count) = 500 + btn_count
 	HH_MEMB_ARRAY(button_two, btn_count) = 600 + btn_count
-
-	If HH_MEMB_ARRAY(age, btn_count) < 18 Then children_under_18_in_hh = True
-	If HH_MEMB_ARRAY(age, btn_count) < 22 Then children_under_22_in_hh = True
-	If HH_MEMB_ARRAY(age, btn_count) > 4 AND HH_MEMB_ARRAY(age, btn_count) < 18 Then school_age_children_in_hh = True
+    If IsNumeric(HH_MEMB_ARRAY(age, btn_count)) Then
+        If HH_MEMB_ARRAY(age, btn_count) < 18 Then children_under_18_in_hh = True
+        If HH_MEMB_ARRAY(age, btn_count) < 22 Then children_under_22_in_hh = True
+        If HH_MEMB_ARRAY(age, btn_count) > 4 AND HH_MEMB_ARRAY(age, btn_count) < 18 Then school_age_children_in_hh = True
+    End If
 Next
 interview_date = interview_date & ""
 selected_memb = 0
@@ -11510,12 +11570,14 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         EMReadscreen curr_first_name, 12, 6, 63
         EMReadscreen curr_mid_initial, 1, 6, 79
         EMReadScreen curr_age, 3, 8, 76
+        EMReadScreen curr_date_of_birth, 10, 8, 42
 
         curr_last_name = trim(replace(curr_last_name, "_", ""))
         curr_first_name = trim(replace(curr_first_name, "_", ""))
         curr_mid_initial = trim(replace(curr_mid_initial, "_", ""))
+        If curr_date_of_birth - "__ __ ____" Then curr_date_of_birth  = ""
         curr_age = trim(curr_age)
-        If curr_age = "" Then curr_age = 0
+        If curr_age = "" and curr_date_of_birth  <> "" Then curr_age = 0
         curr_age = curr_age * 1
 
         If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
@@ -11523,7 +11585,6 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         If curr_mid_initial <> HH_MEMB_ARRAY(mid_initial, the_memb)     Then CHANGES_ARRAY(mid_initial, the_memb) = curr_mid_initial
         If curr_age <> HH_MEMB_ARRAY(age, the_memb)                     Then CHANGES_ARRAY(age, the_memb) = curr_age
 
-        EMReadScreen curr_date_of_birth, 10, 8, 42
         EMReadScreen curr_ssn, 11, 7, 42
         EMReadScreen curr_ssn_verif, 1, 7, 68
         EMReadScreen curr_birthdate_verif, 2, 8, 68
