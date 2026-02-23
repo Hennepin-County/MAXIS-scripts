@@ -1462,7 +1462,8 @@ function define_main_dialog()
             Else
                 Text 10, 10, 475, 10, "Select any and all details that apply based on the statement of the resident. ----------------------------------"
                 person_info = "M " & HH_MEMB_ARRAY(ref_number, screen_individual) & " - " & HH_MEMB_ARRAY(full_name_const, screen_individual)
-                Call wreg_person_info_display(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), person_info, all_the_clients, membs_under_6, HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual), tlr_screen_save_btn, HH_MEMB_ARRAY(tlr_output, screen_individual), HH_MEMB_ARRAY(second_set_output, screen_individual), HH_MEMB_ARRAY(wreg_exists, screen_individual))
+                schl_amt = ""           ' This should always be blank before calling this function because this information is recorded in the schl_training array item and will be split out as a part of the display function to be changed seperately.
+                Call wreg_person_info_display(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), person_info, all_the_clients, membs_under_6, HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), schl_amt, HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual), tlr_screen_save_btn, HH_MEMB_ARRAY(tlr_output, screen_individual), HH_MEMB_ARRAY(second_set_output, screen_individual), HH_MEMB_ARRAY(wreg_exists, screen_individual))
             End If
 
 		ElseIf page_display = show_pg_last Then
@@ -7874,7 +7875,7 @@ function read_WREG_details(memb_numb, wreg_exists, curr_wreg_code, curr_tlr_code
 
 end function
 
-function wreg_person_info_display(info_evaluated, person_info, person_droplist, child_droplist, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection, tlr_screen_save_btn, tlr_output, second_set_output, wreg_exists)
+function wreg_person_info_display(info_evaluated, person_info, person_droplist, child_droplist, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, schl_amt, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection, tlr_screen_save_btn, tlr_output, second_set_output, wreg_exists)
 
     ' QUESTION - what date should we use for age (today, end of the month, end of next month?)
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
@@ -7956,11 +7957,11 @@ function wreg_person_info_display(info_evaluated, person_info, person_droplist, 
     schl_amt_list = schl_amt_list+chr(9)+"Half Time"
     schl_amt_list = schl_amt_list+chr(9)+"Less than Half Time"
 
-    schl_training = ""
-    schl_training = schl_training+chr(9)+"High School"
-    schl_training = schl_training+chr(9)+"Recognized Training Program"
-    schl_training = schl_training+chr(9)+"Vocational Training"
-    schl_training = schl_training+chr(9)+"Higher Education"
+    schl_training_list = ""
+    schl_training_list = schl_training_list+chr(9)+"High School"
+    schl_training_list = schl_training_list+chr(9)+"Recognized Training Program"
+    schl_training_list = schl_training_list+chr(9)+"Vocational Training"
+    schl_training_list = schl_training_list+chr(9)+"Higher Education"
 
     care_for_another_reason = ""
     care_for_another_reason = care_for_another_reason+chr(9)+"Illness"
@@ -8042,7 +8043,7 @@ function wreg_person_info_display(info_evaluated, person_info, person_droplist, 
     Text 70, 195, 60, 10, "Attending School "
     DropListBox 130, 190, 100, 45, schl_amt_list, schl_amt
     Text 230, 195, 50, 10, ", school type:"
-    DropListBox 280, 190, 100, 45, schl_training, schl_training
+    DropListBox 280, 190, 100, 45, schl_training_list, schl_training
 
     'CHEMICAL DEPENDENCY TREATMENT
     Text 60, 210, 220, 10, "Participating a regular Chemical Dependency Treatment Program?"
@@ -8269,7 +8270,7 @@ Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_che
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
 Dim resident_emergency_yn, emergency_type, emergency_discussion, emergency_amount, emergency_deadline
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
-Dim pwe_selection
+Dim pwe_selection, schl_amt
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
 Dim qual_numb, exp_num, tlr_numb, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
@@ -9897,6 +9898,7 @@ Do
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
                 End If
                 If screen_individual <> "" Then
+                    If schl_amt <> "" Then HH_MEMB_ARRAY(tlr_schl_training, screen_individual) = HH_MEMB_ARRAY(tlr_schl_training, screen_individual) & " - " & schl_amt     ' the school type and enrollment amount are separate in the display and this puts them back together.
                     Call determine_wreg_status(HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual), HH_MEMB_ARRAY(tlr_screening_needed, screen_individual), HH_MEMB_ARRAY(tlr_eval_string, screen_individual), HH_MEMB_ARRAY(tlr_wreg_status, screen_individual), HH_MEMB_ARRAY(tlr_status, screen_individual), HH_MEMB_ARRAY(tlr_panel_code, screen_individual), HH_MEMB_ARRAY(date_of_birth, screen_individual), HH_MEMB_ARRAY(tlr_disability_info, screen_individual), HH_MEMB_ARRAY(tlr_homeless, screen_individual), HH_MEMB_ARRAY(tlr_dv_victim, screen_individual), HH_MEMB_ARRAY(tlr_schl_training, screen_individual), HH_MEMB_ARRAY(tlr_person_requiring_care, screen_individual), HH_MEMB_ARRAY(tlr_person_care_reason, screen_individual), HH_MEMB_ARRAY(tlr_child_under_6, screen_individual), HH_MEMB_ARRAY(tlr_caregiver_in_home, screen_individual), HH_MEMB_ARRAY(tlr_hrs_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_week, screen_individual), HH_MEMB_ARRAY(tlr_wage_per_month, screen_individual), HH_MEMB_ARRAY(tlr_other_benefit, screen_individual), HH_MEMB_ARRAY(tlr_unea_income, screen_individual), HH_MEMB_ARRAY(tlr_treatment, screen_individual), HH_MEMB_ARRAY(tlr_children_under_14, screen_individual), HH_MEMB_ARRAY(tlr_pregnant, screen_individual), HH_MEMB_ARRAY(tlr_american_indian, screen_individual), HH_MEMB_ARRAY(tlr_wreg_selection, screen_individual))
                     HH_MEMB_ARRAY(tlr_info_evaluated, screen_individual) = True
                     HH_MEMB_ARRAY(tlr_screening_needed, screen_individual) = False
