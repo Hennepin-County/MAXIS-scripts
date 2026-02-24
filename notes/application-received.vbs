@@ -224,7 +224,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	pended_from_inactive = False
 	If current_caseload = user_x_number Then pended_from_inactive = True
 
-	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" or left(current_caseload_type, 3) = "LTC" or left(current_caseload_type, 8) = "GRH / HS" or current_caseload_type = "Waivers" Then
+	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" or left(current_caseload_type, 3) = "LTC" or left(current_caseload_type, 8) = "GRH / HS" or left(current_caseload_type, 7) = "Waivers" Then
 		transfer_needed = False
 		correct_caseload_type = current_caseload_type
 		new_caseload = current_caseload
