@@ -4837,7 +4837,9 @@ function review_information()
 		HH_MEMB_ARRAY(mid_initial, the_memb) = UCase(trim(HH_MEMB_ARRAY(mid_initial, the_memb)))
 
 		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
-        If IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) and (NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) or HH_MEMB_ARRAY(age, the_memb) = 0) Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
+        If IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then
+            If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) or HH_MEMB_ARRAY(age, the_memb) = 0 Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
+        End If
 
         race_string = ""
         If HH_MEMB_ARRAY(race_a_checkbox, the_memb) = checked Then race_string = race_string & "Asian~"
