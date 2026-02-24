@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/24/2026", "Update to how the script deals with the Open Enrollment period. When the dates are set for the year, specific open enrollment functionality will make selection OE as the change reason easier. Additionally added a default OE time period in case the specific dates for the year have not been entered.", "Casey Love, Hennepin County")
 call changelog_update("01/09/2026", "Update to UCare Health Plan Code.", "Casey Love, Hennepin County")
 call changelog_update("11/20/2024", "Updates made for the 2025 AHPS.##~## ##~##- Enrollment dates updated for 2025.##~##- Removed United HealthCare from a selection option for enrollment.", "Casey Love, Hennepin County")
 call changelog_update("10/01/2024", "Enrollment for AHPS is set to process the 2025 year.", "Casey Love, Hennepin County")
@@ -156,24 +157,46 @@ If MMIS_case_number = "" Then
     MMIS_case_number= trim(MMIS_case_number)
 End If
 
-open_enrollment_case = FALSE
-ask_about_oe = FALSE
-nov_cut_off_date = #11/17/2024#		'THIS MIGHT NOT BE THE RIGHT DATE EXACTLY - the year was updated for this option to trigger
-If Month(date) = 10 OR Month(date) = 11 Then
-	If DateDiff("d", date, nov_cut_off_date) >= 0 Then ask_about_oe = TRUE
+'This block allows us to manually set the open enrollment period directly as it can vary from year to year.
+'UPDATE ANNUALLY
+open_enrollment_period = False
+open_enrollment_period_start_date = #02/01/2026#
+open_enrollment_period_end_date = #04/01/2026#
+current_oe_month = "04"
+current_oe_year = "26"
+
+'This block will create a default open enrollment period if we are after the manually defined OE period.
+'This allows the script to adapt when we have not received details of the upcoming OE period, supporting workers when administrative tasks get delayed
+'The default is Oct 1 - Dec 31 of each year and the OE enrollment month is Jan of the coming year.
+If DateDiff("d", open_enrollment_period_end_date, date) > 0 Then
+    open_enrollment_period_start_date = "10/1/" & DatePart("yyyy", date)
+    open_enrollment_period_end_date = "12/31/" & DatePart("yyyy", date)
+    open_enrollment_period_start_date = DateAdd("d", 0, open_enrollment_period_start_date)
+    open_enrollment_period_end_date = DateAdd("d", 0, open_enrollment_period_end_date)
+    current_oe_month = "01"
+    current_oe_year = right(DatePart("yyyy", DateAdd("yyyy", 1, date)), 2)
 End If
 
-If ask_about_oe = TRUE Then
+'Here we determine if it is currently the open enrollment time period, which adds functionality to the enrollment selections.
+If DateDiff("d", open_enrollment_period_start_date, date) >= 0 AND DateDiff("d", date, open_enrollment_period_end_date) >= 0 Then
+    open_enrollment_period = True
+End If
+
+'Setting OE variables.
+'During the OE period, the worker will be asked prior to the initial dialog if this is a OE case, which preselects some variables.
+open_enrollment_case = FALSE
+If open_enrollment_period Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
-		enrollment_month = "01"
-		enrollment_year = "25"
+		enrollment_month = current_oe_month
+		enrollment_year = current_oe_year
 		open_enrollment_case = TRUE
 		case_open_enrollment_yn = "Yes"
 	End If
 End If
 
 'enrollment date details
+'UPDATE ANNUALLY
 'https://mn.gov/dhs/partners-and-providers/policies-procedures/minnesota-health-care-programs/provider/mcos/contract-information-forms-and-resources/health-plan-systems-workgroup/
 IF open_enrollment_case = FALSE Then
 	enrollment_month = CM_plus_1_mo
@@ -209,8 +232,8 @@ IF open_enrollment_case = FALSE Then
 			if this_year = 2025 Then cut_off_date = #12/19/2025#
 			if this_year = 2026 Then cut_off_date = #12/21/2026#
 	End Select
-	'MsgBox cut_off_date
-	If cut_off_date <> "" Then
+
+    If cut_off_date <> "" Then
 	    If DateDiff("d", date, cut_off_date) < 0 Then
 	        'MsgBox DateDiff("d", date, cut_off_date)
 	        enrollment_month = CM_plus_2_mo
@@ -228,7 +251,7 @@ BeginDialog Dialog1, 0, 0, 206, 180, "Enrollment Information"
   CheckBox 120, 95, 25, 10, "Yes", Insurance_yes
   CheckBox 120, 105, 25, 10, "Yes", foster_care_yes
   DropListBox 110, 120, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
-  DropListBox 110, 140, 50, 45, "No"+chr(9)+"Yes", case_open_enrollment_yn
+  If open_enrollment_period Then DropListBox 110, 140, 50, 45, "No"+chr(9)+"Yes", case_open_enrollment_yn
   ButtonGroup ButtonPressed
     OkButton 95, 160, 50, 15
     CancelButton 150, 160, 50, 15
@@ -239,7 +262,7 @@ BeginDialog Dialog1, 0, 0, 206, 180, "Enrollment Information"
   Text 10, 95, 100, 10, "Other Insurance for this case?"
   Text 10, 105, 50, 10, "Foster Care?"
   Text 10, 125, 100, 10, "Enrollment was requested via"
-  Text 20, 145, 85, 10, "Is this Open Enrollment?"
+  If open_enrollment_period Then Text 20, 145, 85, 10, "Is this Open Enrollment?"
 EndDialog
 
 'do the dialog here
@@ -254,8 +277,8 @@ Do
     If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
 	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 	If case_open_enrollment_yn = "Yes" Then
-		enrollment_month = "01"
-		enrollment_year = "25"
+		enrollment_month = current_oe_month
+		enrollment_year = current_oe_year
 		open_enrollment_case = TRUE
 	Else
 		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
@@ -264,7 +287,7 @@ Do
 
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
-If case_open_enrollment_yn = "No" Then open_enrollment_case = FALSE
+If case_open_enrollment_yn = "No" or case_open_enrollment_yn = "" Then open_enrollment_case = FALSE
 MAXIS_case_number = MMIS_case_number
 
 If Insurance_yes = checked then
