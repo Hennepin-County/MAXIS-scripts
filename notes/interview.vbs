@@ -65,6 +65,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2026", "Script handling update:##~## ##~##Update to ensure large households are all correctly displayed in the script dialog for household members.##~## ##~##Confirm SSNs are entered in the correct format.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/17/2026", "The Interview process now includes the ability to complete a TLR/WREG screening for any member on the case. The screening is not required and the script will only determine exemptions based solely on age without screening details being manually entered.##~## ##~##The TLR/WREG screening will be recorded in CASE/NOTE only.##~##The CASE/NOTE will occur only for household members that have been manually screened during the script run.##~## ##~##Additionally - New options for verification of blank SSNs.##~## - Requested SSN - will add SSN for the member to the list of verifications.##~## - A - SSN listed on a duplicate PMI (to support this workaround).##~## ##~##Bug fixed for Removal of AREP CASE/NOTE not being created when it should.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/11/2025", "This update includes a series of minor bug fixes and user requested improvements:##~## - Error that occasionally presents in member display review.##~## - Updated the HUF Form Version.##~## - Updated MNBenefits Version.##~## - Updated Senior SNAP App Form Version.##~## - Add a CASE/NOTE to document Remove AREP when indicated.##~## - Updates to Utilities selections.##~## - Adjustments to the clarifications functionality.##~## - Update to the format of some WIF fields to prevent data cutoff.##~## ##~##These updates should provide more alignment with the forms and more stability. As always, please report any feedback or concerns you find.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/05/2025", "Update the display of person information and adjustment to how person details needed for the interview are gathered.", "Casey Love, Hennepin County")
@@ -344,6 +345,10 @@ function check_for_errors(interview_questions_clear)
                     If HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN Applied For" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "A - SSN listed on a duplicate PMI" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "N - Member Does Not Have SSN" and HH_MEMB_ARRAY(ssn_verif, the_memb) <> "SSN Requested" Then
                         pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN is blank and should be requested now."
                     End If
+                Else
+                    numbs_only_ssn = replace(replace(trim(HH_MEMB_ARRAY(ssn, the_memb)), "-", ""), " ", "")
+                    If NOT IsNumeric(numbs_only_ssn) Then pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN field should only include a SSN, it does not appear to be numeric."
+                    If len(numbs_only_ssn) <> 9 Then pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN does not include 9 digits, all SSNs should be entered with the full 9 digits."
                 End If
                 If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided" Then
                     pers_err = pers_err & "~!~" & "3 ^* SSN##~##   - SSN Verification indicates not provided and should be requested now."
@@ -800,6 +805,7 @@ function define_main_dialog()
                     y_pos = y_pos + 15
                 End If
                 For the_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+                    reduce_expand = False
                     progs = ""
                     If HH_MEMB_ARRAY(snap_req_checkbox, the_membs) = checked Then progs = progs & "SNAP "
                     If HH_MEMB_ARRAY(cash_req_checkbox, the_membs) = checked Then progs = progs & "CASH "
@@ -814,7 +820,7 @@ function define_main_dialog()
                         member_info_string = member_info_string & "ID Missing; "
                     End If
                     If HH_MEMB_ARRAY(rel_to_applcnt, the_membs) = "Select One..." Then member_info_string = member_info_string & "Relationship Missing; "
-                    If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
+                    If HH_MEMB_ARRAY(spouse_ref, the_membs) <> "" and HH_MEMB_ARRAY(spouse_ref, the_membs) <> "01" Then member_info_string = member_info_string & "Spouse: M " & HH_MEMB_ARRAY(spouse_ref, the_membs) & "; "
 
                     ssn_info_valid = True
                     If trim(HH_MEMB_ARRAY(ssn, the_membs)) = "" Then
@@ -881,11 +887,18 @@ function define_main_dialog()
                             If HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then     Text 15,  y_pos, 225, 10, "M " & HH_MEMB_ARRAY(ref_number, the_membs) & "   -   " & HH_MEMB_ARRAY(full_name_const, the_membs)
                             If NOT HH_MEMB_ARRAY(pers_in_maxis, the_membs) Then Text 15,  y_pos, 225, 10, HH_MEMB_ARRAY(full_name_const, the_membs)
                         End If
-                        If IsNumeric(HH_MEMB_ARRAY(age, the_membs)) Then
-                            If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
-                            If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                        If allow_expand OR (NOT allow_expand and len(member_info_string) <> 0) Then
+                            If IsNumeric(HH_MEMB_ARRAY(age, the_membs)) Then
+                                If len(HH_MEMB_ARRAY(full_name_const, the_membs)) < 26 Then Text 45,  y_pos+10, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                                If len(HH_MEMB_ARRAY(full_name_const, the_membs)) > 25 Then Text 125,  y_pos, 50, 10, "Age: " & HH_MEMB_ARRAY(age, the_membs)
+                            End If
+                            If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
                         End If
-                        If the_membs <> 0 Then Text        185,  y_pos+10, 100, 10, "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
+                        If NOT allow_expand and len(member_info_string) = 0 Then
+                            member_info_string = "Rel to 01: " & right(HH_MEMB_ARRAY(rel_to_applcnt, the_membs), len(HH_MEMB_ARRAY(rel_to_applcnt, the_membs))-3)
+                            If IsNumeric(HH_MEMB_ARRAY(age, the_membs)) Then member_info_string = member_info_string & "; Age: " & HH_MEMB_ARRAY(age, the_membs)
+                            reduce_expand = True
+                        End If
                     End If
                     Text        180, y_pos, 75,  10, progs
 
@@ -902,6 +915,7 @@ function define_main_dialog()
                     End If
 
                     y_pos = y_pos + 20
+                    If reduce_expand Then y_pos = y_pos - 10
                 Next
                 GroupBox 5, 5, 470, y_pos, "All Household MEMBERs"
                 Text 180, 5, 50, 10, "REQUESTING:"
@@ -920,19 +934,19 @@ function define_main_dialog()
                 DropListBox 150, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", all_members_in_MN_yn
                 Text 190, y_pos+5, 25, 10, "Notes:"
                 EditBox 215, y_pos, 260, 15, all_members_in_MN_notes
-                y_pos = y_pos + 25
+                y_pos = y_pos + 20
 
                 Text 10, y_pos+5, 70, 10, "Is Anyone Pregnant?"
                 DropListBox 80, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", anyone_pregnant_yn
                 Text 120, y_pos+5, 25, 10, "Notes:"
                 EditBox 145, y_pos, 330, 15, anyone_pregnant_notes
-                y_pos = y_pos + 25
+                y_pos = y_pos + 20
 
                 Text 10, y_pos+5, 115, 10, "Has Anyone Served in the Military?"
                 DropListBox 125, y_pos, 35, 45, ""+chr(9)+"Yes"+chr(9)+"No", anyone_served_yn
                 Text 165, y_pos+5, 25, 10, "Notes:"
                 EditBox 190, y_pos, 285, 15, anyone_served_notes
-                y_pos = y_pos + 25
+                y_pos = y_pos + 20
 
                 Text 10, y_pos+5, 75, 10, "Principal Wage Earner:"
                 DropListBox 85, y_pos, 130, 45, pick_a_client, pwe_selection
