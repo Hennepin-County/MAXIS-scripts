@@ -65,8 +65,6 @@ continue_button         = 208
 proceed_button          = 209
 return_button           = 210
 
-
-
 '--Other buttons
 ' instructions_btn
 ' file_selection_button
@@ -82,10 +80,7 @@ case_number_nav_2_button  = 309
 case_number_nav_3_button  = 310
 case_number_nav_4_button  = 311
 
-
-
 'Defining variables
-
 
 'Dimming variables
 Dim folderPath, confirmation_number, fso, folder, fileList, file, xml_file_path, script_testing, proceed_new_case
@@ -93,551 +88,7 @@ Dim folderPath, confirmation_number, fso, folder, fileList, file, xml_file_path,
 'Initialize variables
 script_testing = true
 
-
 'DEFINING FUNCTIONS===========================================================================
-
-'Creating Household Member dialogs as functions to more easily loop through them 
-Function household_members_dialog_1_2()
-  hh_memb_dialog_count = 1
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 0)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 0)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 0)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 0)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 0)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 0)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 0)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 0)
-    If member_count > 1 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 1)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 1)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 1)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 1)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 1)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 1)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 1)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 1)
-    End If
-    ButtonGroup ButtonPressed
-      If member_count = 1 or member_count = 2 Then
-        PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      Else
-        PushButton 230, 325, 45, 15, "Next", next_hh_memb_btn
-      End If
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-    Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function household_members_dialog_3_4()
-  hh_memb_dialog_count = 2
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 2)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 2)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 2)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 2)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 2)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 2)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 2)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 2)
-    If member_count > 3 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 3)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 3)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 3)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 3)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 3)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 3)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 3)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 3)
-    End If
-    ButtonGroup ButtonPressed
-      If member_count = 3 or member_count = 4 Then
-        PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      Else
-        PushButton 230, 325, 45, 15, "Next", next_hh_memb_btn
-      End If
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-      Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function household_members_dialog_5_6()
-hh_memb_dialog_count = 3
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 4)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 4)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 4)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 4)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 4)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 4)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 4)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 4)
-    If member_count > 5 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 5)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 5)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 5)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 5)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 5)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 5)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 5)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 5)
-    End If
-    ButtonGroup ButtonPressed
-      If member_count = 5 or member_count = 6 Then
-        PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      Else
-        PushButton 230, 325, 45, 15, "Next", next_hh_memb_btn
-      End If
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-      Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function household_members_dialog_7_8()   
-  hh_memb_dialog_count = 4
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 6)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 6)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 6)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 6)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 6)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 6)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 6)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 6)
-    If member_count > 7 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 7)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 7)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 7)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 7)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 7)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 7)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 7)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 7)
-    End If
-    ButtonGroup ButtonPressed
-      If member_count = 7 or member_count = 8 Then
-        PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      Else
-        PushButton 230, 325, 45, 15, "Next", next_hh_memb_btn
-      End If
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-      Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function household_members_dialog_9_10()
-  hh_memb_dialog_count = 5
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 8)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 8)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 8)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 8)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 8)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 8)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 8)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 8)
-    If member_count > 9 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 9)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 9)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 9)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 9)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 9)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 9)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 9)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 9)
-    End If
-    ButtonGroup ButtonPressed
-      If member_count = 9 or member_count = 10 Then
-        PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      Else
-        PushButton 230, 325, 45, 15, "Next", next_hh_memb_btn
-      End If
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-      Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function household_members_dialog_11_12()
-  hh_memb_dialog_count = 6
-  BeginDialog Dialog1, 0, 0, 281, 345, "Verify MNBenefits XML Details - Household Members"
-    Text 5, 5, 250, 20, "Please review and verify the household member details for each household member pulled from the XML file below. Make any updates as needed."
-    GroupBox 10, 30, 175, 140, "Household Member Information"
-    Text 15, 50, 40, 10, "First name:"
-    EditBox 70, 45, 100, 15, household_members(MEMBER_FIRST_NAME, 10)
-    Text 15, 65, 40, 10, "Last name:"
-    EditBox 70, 60, 100, 15, household_members(MEMBER_LAST_NAME, 10)
-    Text 15, 80, 30, 10, "Gender:"
-    DropListBox 70, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 10)
-    Text 15, 95, 50, 10, "Marital status:"
-    DropListBox 70, 90, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 10)
-    Text 15, 110, 45, 10, "Date of birth:"
-    EditBox 70, 105, 100, 15, household_members(MEMBER_DOB, 10)
-    Text 15, 125, 20, 10, "SSN:"
-    EditBox 70, 120, 100, 15, household_members(MEMBER_SSN, 10)
-    Text 15, 140, 45, 10, "Citizenship:"
-    DropListBox 70, 135, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 10)
-    Text 15, 155, 45, 10, "Relationship:"
-    DropListBox 70, 150, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 10)
-    If member_count > 11 Then
-      GroupBox 10, 175, 175, 140, "Household Member Information"
-      Text 15, 195, 40, 10, "First name:"
-      EditBox 70, 190, 100, 15, household_members(MEMBER_FIRST_NAME, 11)
-      Text 15, 210, 40, 10, "Last name:"
-      EditBox 70, 205, 100, 15, household_members(MEMBER_LAST_NAME, 11)
-      Text 15, 225, 30, 10, "Gender:"
-      DropListBox 70, 220, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, 11)
-      Text 15, 240, 50, 10, "Marital status:"
-      DropListBox 70, 235, 100, 15, "Select one:"+chr(9)+"Never married"+chr(9)+"Married"+chr(9)+"Married living with spouse"+chr(9)+"Married living apart"+chr(9)+"Separated"+chr(9)+"Legally separated"+chr(9)+"Divorced"+chr(9)+"Widowed", household_members(MEMBER_MARITAL_STATUS, 11)
-      Text 15, 255, 45, 10, "Date of birth:"
-      EditBox 70, 250, 100, 15, household_members(MEMBER_DOB, 11)
-      Text 15, 270, 20, 10, "SSN:"
-      EditBox 70, 265, 100, 15, household_members(MEMBER_SSN, 11)
-      Text 15, 285, 45, 10, "Citizenship:"
-      DropListBox 70, 280, 100, 15, "Select one:"+chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, 11)
-      Text 15, 300, 45, 10, "Relationship:"
-      DropListBox 70, 295, 100, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, 11)
-    End If
-    ButtonGroup ButtonPressed
-      PushButton 230, 325, 45, 15, "Submit", submit_hh_memb_button
-      PushButton 5, 325, 45, 15, "Previous", previous_hh_memb_button
-    GroupBox 195, 30, 70, 105, "Navigation"
-    ButtonGroup ButtonPressed
-      Call determine_hh_memb_buttons()
-  EndDialog
-End Function
-
-Function confirm_xml_update_dialog()
-  BeginDialog Dialog1, 0, 0, 281, 70, "Update XML File with Updates"
-    Text 10, 5, 265, 35, "The script will now update the XML file with any changes made to the address and/or household member details. Press 'Update XML with changes' to update the XML file. If you want to review the changes to the XML file before changing, press 'Back'. To cancel the script entirely, press 'Cancel script'."
-    ButtonGroup ButtonPressed
-      PushButton 185, 50, 90, 15, "Update XML with changes", update_xml_button
-      PushButton 160, 50, 25, 15, "Back", back_button
-      CancelButton 10, 50, 50, 15
-  EndDialog
-End Function
-
-Function determine_hh_memb_buttons()
-  hh_memb_1_and_2_button_text = "HH Memb 1 - 2" 
-  hh_memb_3_and_4_button_text = "HH Memb 3 - 4"
-  If member_count = 3 Then hh_memb_3_and_4_button_text = "HH Memb 3"
-  hh_memb_5_and_6_button_text = "HH Memb 5 - 6"
-  If member_count = 5 Then hh_memb_5_and_6_button_text = "HH Memb 5"
-  hh_memb_7_and_8_button_text = "HH Memb 7 - 8"
-  If member_count = 7 Then hh_memb_7_and_8_button_text = "HH Memb 7"
-  hh_memb_9_and_10_button_text = "HH Memb 9 - 10"
-  If member_count = 9 Then hh_memb_9_and_10_button_text = "HH Memb 9"
-  hh_memb_11_and_12_button_text = "HH Memb 11 - 12"
-  If member_count = 11 Then hh_memb_11_and_12_button_text = "HH Memb 11"
-
-  If member_count > 2 Then
-    GroupBox 195, 30, 70, 105, "Navigation"
-    If dialog_count = 1 Then
-      Text 205, 45, 55, 10, hh_memb_1_and_2_button_text
-    Else
-      PushButton 200, 40, 60, 15, hh_memb_1_and_2_button_text, hh_memb_1_and_2_button
-    End If
-    If dialog_count = 2 Then
-      Text 205, 55, 55, 10, hh_memb_3_and_4_button_text
-    Else
-      PushButton 200, 55, 60, 15, hh_memb_3_and_4_button_text, hh_memb_3_and_4_button
-    End If
-  End If
-  
-  If member_count > 4 Then
-    If dialog_count = 3 Then
-      Text 205, 70, 55, 10, hh_memb_5_and_6_button_text
-    Else
-      PushButton 200, 70, 60, 15, hh_memb_5_and_6_button_text, hh_memb_5_and_6_button
-    End If
-  End If
-
-
-  If member_count > 6 Then
-    If dialog_count = 4 Then
-      Text 205, 85, 55, 10, hh_memb_7_and_8_button_text
-    Else
-      PushButton 200, 85, 60, 15, hh_memb_7_and_8_button_text, hh_memb_7_and_8_button
-    End If
-  End If
-
-  If member_count > 8 Then
-    If dialog_count = 5 then
-      Text 205, 100, 55, 10, hh_memb_9_and_10_button_text
-    Else
-      PushButton 200, 100, 60, 15, hh_memb_9_and_10_button_text, hh_memb_9_and_10_button
-    End If
-  End If
-
-  If member_count > 10 Then
-    If dialog_count = 6 Then
-      Text 205, 115, 55, 10, hh_memb_11_and_12_button_text
-    Else  
-      PushButton 200, 115, 60, 15, hh_memb_11_and_12_button_text, hh_memb_11_and_12_button
-    End If
-  End If
-End Function
-
-function dialog_specific_error_handling()	'Error handling for main dialog of forms
-  'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
-  If hh_memb_dialog_loop = "Active" Then
-    If dialog_count = 1 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 0)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 0)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 0)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 0)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 0)) <> "" AND Len(trim(household_members(MEMBER_SSN, 0))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 1 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 1)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 1)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 1)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 1)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 1)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 1)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 1)) <> "" AND Len(trim(household_members(MEMBER_SSN, 1))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 1)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-    
-    If dialog_count = 2 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 2)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 2)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 2)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 2)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 2)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 2)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 2)) <> "" AND Len(trim(household_members(MEMBER_SSN, 2))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 2)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 3 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 3)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 3)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 3)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 3)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 3)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 3)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 3)) <> "" AND Len(trim(household_members(MEMBER_SSN, 3))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 3)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-    
-    If dialog_count = 3 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 4)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 4)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 4)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 4)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 4)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 4)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 4)) <> "" AND Len(trim(household_members(MEMBER_SSN, 4))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 4)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 5 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 5)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 5)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 5)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 5)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 5)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 5)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 5)) <> "" AND Len(trim(household_members(MEMBER_SSN, 5))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 5)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-    
-    If dialog_count = 4 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 6)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 6)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 6)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 6)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 6)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 6)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 6)) <> "" AND Len(trim(household_members(MEMBER_SSN, 6))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 6)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 7 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 7)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 7)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 7)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 7)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 7)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 7)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 7)) <> "" AND Len(trim(household_members(MEMBER_SSN, 7))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 7)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-    
-    If dialog_count = 5 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 8)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 8)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 8)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 8)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 8)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 8)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 8)) <> "" AND Len(trim(household_members(MEMBER_SSN, 8))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 8)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 9 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 9)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 9)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 9)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 9)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 9)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 9)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 9)) <> "" AND Len(trim(household_members(MEMBER_SSN, 9))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 9)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-    
-    If dialog_count = 6 Then
-      If trim(household_members(MEMBER_FIRST_NAME, 10)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-      If trim(household_members(MEMBER_LAST_NAME, 10)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-      If trim(household_members(MEMBER_GENDER, 10)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_MARITAL_STATUS, 10)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-      If trim(household_members(MEMBER_DOB, 10)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 10)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-      If trim(household_members(MEMBER_SSN, 10)) <> "" AND Len(trim(household_members(MEMBER_SSN, 10))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-      If trim(household_members(MEMBER_RELATIONSHIP, 10)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      If member_count > 11 Then
-        If trim(household_members(MEMBER_FIRST_NAME, 11)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
-        If trim(household_members(MEMBER_LAST_NAME, 11)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
-        If trim(household_members(MEMBER_GENDER, 11)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_MARITAL_STATUS, 11)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
-        If trim(household_members(MEMBER_DOB, 11)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 11)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
-        If trim(household_members(MEMBER_SSN, 11)) <> "" AND Len(trim(household_members(MEMBER_SSN, 11))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
-        If trim(household_members(MEMBER_RELATIONSHIP, 11)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
-      End If
-    End If
-  End If
-
-	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-end function
-
-Function dialog_selection(dialog_selected) 	
-  'Selects the correct dialog based
-  If dialog_selected = 1 then call household_members_dialog_1_2()
-  If dialog_selected = 2 then call household_members_dialog_3_4()
-  If dialog_selected = 3 then call household_members_dialog_5_6()
-  If dialog_selected = 4 then call household_members_dialog_7_8()
-  If dialog_selected = 5 then call household_members_dialog_9_10()
-  If dialog_selected = 6 then call household_members_dialog_11_12()
-End Function
-
-function button_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs.
-  'To do - add handling for future dialogs
-  If err_msg = "" AND (ButtonPressed = next_hh_memb_btn or ButtonPressed = -1) Then dialog_count = dialog_count + 1
-	If err_msg = "" AND ButtonPressed = previous_hh_memb_button Then dialog_count = dialog_count - 1
-
-  If err_msg = "" AND ButtonPressed = submit_hh_memb_button then 
-    hh_memb_dialog_loop = "Completed"
-  End If
-
-  If err_msg = "" AND ButtonPressed = hh_memb_1_and_2_button then dialog_count = 1
-  If err_msg = "" AND ButtonPressed = hh_memb_3_and_4_button then dialog_count = 2
-  If err_msg = "" AND ButtonPressed = hh_memb_5_and_6_button then dialog_count = 3
-  If err_msg = "" AND ButtonPressed = hh_memb_7_and_8_button then dialog_count = 4
-  If err_msg = "" AND ButtonPressed = hh_memb_9_and_10_button then dialog_count = 5
-  If err_msg = "" AND ButtonPressed = hh_memb_11_and_12_button then dialog_count = 6
-end function
-Dim hh_memb_dialog_loop
-
-function determine_member_dialogs_display()
-  member_dialogs_to_display = "*"
-  For member = 1 to member_count 
-    member_dialogs_to_display = member_dialogs_to_display & member & "*"
-  Next
-End function
-Dim member_dialogs_to_display
 
 Function GetMAXISRelationshipCode(relationship, gender)
     Dim returnCode
@@ -699,7 +150,6 @@ Function GetMAXISRelationshipCode(relationship, gender)
 	GetMAXISRelationshipCode = returnCode
 		
 End Function
-
 
 'THE SCRIPT=================================================================================================================
 EMConnect "" 'Connects to BlueZone
@@ -946,10 +396,6 @@ mailing_city            = objMailingCity.Text
 mailing_state           = objMailingState.Text
 mailing_zip             = objMailingZip.Text
 
-' Release the XML DOM object when you're done
-'To do - determine if best practice to release the XML doc now, or wait until update to avoid need to reopen
-' Set xmlDoc = Nothing
-
 dialog_member_count = 0
 
 'XML File Confirmation Dialog
@@ -1028,207 +474,13 @@ EndDialog
 DO
   dialog Dialog1
   cancel_without_confirmation
+
+  If ButtonPressed = reselect_xml_button Then
+    script_end_procedure("You indicated that you need to reselect the XML file. Please rerun the script and ensure you enter the confirmation number correctly.")
+  End If
+
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-'To do - put dialog above and XML selection dialog into functions so that they can be called as a loop so user can move back and forth if needed
-
-'To do - add handling for cases where not address is provided
-'To do - add county of residence
-'To do - convert county of residence to county code?
-'Dialog to confirm Application and Address Information
-
-'To do - move this to end once PERS search completed
-' BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
-'   Text 10, 5, 240, 20, "Please verify the application and address details pulled from the XML file below. Make updates as needed."
-'   Text 15, 30, 150, 10, "Adjust date to correct business day, if needed"
-'   Text 15, 45, 60, 10, "Application Date: "
-'   EditBox 80, 40, 40, 15, formatted_app_date
-'   GroupBox 10, 60, 175, 105, "Household Address"
-'   Text 15, 75, 35, 10, "Address:"
-'   EditBox 70, 70, 100, 15, household_address
-'   Text 15, 90, 25, 10, "City:"
-'   EditBox 70, 85, 100, 15, household_city
-'   Text 15, 105, 30, 10, "State:"
-'   EditBox 70, 100, 20, 15, household_state
-'   Text 15, 120, 20, 10, "Zip:"
-'   EditBox 70, 115, 30, 15, household_zip
-'   Text 15, 135, 55, 10, "Phone number:"
-'   EditBox 70, 130, 100, 15, household_phone_number
-'   GroupBox 10, 165, 175, 75, "Mailing Address"
-'   Text 15, 180, 35, 10, "Address:"
-'   EditBox 70, 175, 100, 15, mailing_address
-'   Text 15, 195, 25, 10, "City:"
-'   EditBox 70, 190, 100, 15, mailing_city
-'   Text 15, 210, 30, 10, "State:"
-'   EditBox 70, 205, 20, 15, mailing_state
-'   Text 15, 225, 20, 10, "Zip:"
-'   EditBox 70, 220, 30, 15, mailing_zip
-'   Text 15, 150, 30, 10, "County:"
-'   EditBox 70, 145, 100, 15, household_county
-'   ButtonGroup ButtonPressed
-'     PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
-' EndDialog
-
-' DO
-' 	DO
-' 		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
-' 		dialog Dialog1				'main dialog
-' 		cancel_without_confirmation
-'     If ButtonPressed = file_selection_button then 
-'       call file_selection_system_dialog(XML_file_path, ".xml")
-'       err_msg = "LOOP"
-'     End If
-'     If trim(formatted_app_date) = "" OR IsDate(formatted_app_date) = False OR Len(trim(formatted_app_date)) <> 10 then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
-'     If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
-'     If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
-'     If trim(household_state) = "" Then err_msg = err_msg & vbCr & "* The state field cannot be blank."
-'     If trim(household_zip) = "" Then err_msg = err_msg & vbCr & "* The zip code field cannot be blank."
-'     'To do - confirm if phone number is required
-'     ' If trim(household_phone_number) = "" Then then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
-'     If trim(mailing_address) = "" Then err_msg = err_msg & vbCr & "* The mailing address field cannot be blank."
-'     If trim(mailing_city) = "" Then err_msg = err_msg & vbCr & "* The mailing address city field cannot be blank."
-'     If trim(mailing_state) = "" Then err_msg = err_msg & vbCr & "* The mailing address state field cannot be blank."
-'     If trim(mailing_zip) = "" Then err_msg = err_msg & vbCr & "* The mailing address zip code field cannot be blank."
-
-' 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-' 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-' 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-' Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-' 'Start at the first dialog and start dialog loop
-' dialog_count = 1
-' hh_memb_dialog_loop = "Active"
-' Call determine_member_dialogs_display()
-
-' Do
-'   Do
-'     Do
-'       Dialog1 = "" 'Blanking out previous dialog detail
-
-'       Call dialog_selection(dialog_count)
-
-'       'Blank out variables on each new dialog
-'       err_msg = ""
-
-'       dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-'       cancel_confirmation
-'       Call dialog_specific_error_handling()	'function for error handling of main dialog of forms
-'       Call button_movement()				'function to move throughout the dialogs
-'     Loop until err_msg = ""
-'     If hh_memb_dialog_loop = "Completed" Then
-'       Dialog1 = "" 'Blanking out previous dialog detail
-'       Call confirm_xml_update_dialog()
-'       dialog Dialog1 					'Calling a dialog without an assigned variable will call the most recently defined dialog
-'       cancel_without_confirmation
-'       If ButtonPressed = back_button Then 
-'         dialog_count = 1
-'         hh_memb_dialog_loop = "Active"
-'       End If
-'     End If
-'   Loop until hh_memb_dialog_loop = "Completed"
-'   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-' Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-' member_array_index = 0
-
-' For Each objMemberNode In objHouseholdMemberNodes
-'   Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
-'   Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
-'   Set objSSNNode = objMemberNode.selectSingleNode("ns4:CitizenshipInfo/ns4:SSNInfo/ns4:SSN")
-'   Set objDOBNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:DOB")
-'   Set objRelationshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Relationship") 
-'   Set objMaritalStatusNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:MaritalStatus")
-'   Set objCitizenshipNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:CitizenshipInfo")
-'   Set objGenderNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Gender")
-
-'   If household_members(MEMBER_FIRST_NAME, member_array_index) <> "" Then objFirstNameNode.Text = household_members(MEMBER_FIRST_NAME, member_array_index)
-
-'   If household_members(MEMBER_LAST_NAME, member_array_index) <> "" Then objLastNameNode.Text = household_members(MEMBER_LAST_NAME, member_array_index)
-
-'   If household_members(MEMBER_DOB, member_array_index) <> "" Then objDOBNode.Text = household_members(MEMBER_DOB, member_array_index)
-
-'   If household_members(MEMBER_SSN, member_array_index) <> "" Then objSSNNode.Text = household_members(MEMBER_SSN, member_array_index)
-
-'   If household_members(MEMBER_RELATIONSHIP, member_array_index) <> "" Then objRelationshipNode.Text = household_members(MEMBER_RELATIONSHIP, member_array_index)
-
-'   If household_members(MEMBER_MARITAL_STATUS, member_array_index) <> "" Then objMaritalStatusNode.Text = household_members(MEMBER_MARITAL_STATUS, member_array_index)
-
-'   If household_members(MEMBER_GENDER, member_array_index) <> "" Then objGenderNode.Text = household_members(MEMBER_GENDER, member_array_index)
-
-'   If household_members(MEMBER_FIRST_NAME, member_array_index) = "" Then Exit For
-
-'   member_array_index = member_array_index + 1
-' Next
-
-' 'Replace the application date
-' 'Format 2025-11-26
-
-' current_XML_app_date = left(objApplicationDate.Text, 10)
-' 'Convert the formatted_app_date to XML format and replace
-' updated_XML_app_date = right(formatted_app_date, 4) & "-" & left(formatted_app_date, 2) & "-" & mid(formatted_app_date, 4, 2)
-' objApplicationDate.Text       = replace(objApplicationDate.Text, current_XML_app_date, updated_XML_app_date)
-' objHouseholdAddress.Text      = household_address
-' objHouseholdCity.Text         = household_city
-' objHouseholdState.Text        = household_state
-' objHouseholdZip.Text          = household_zip
-' objPhoneNumber.Text           = household_phone_number
-' objCounty.Text                = household_county
-' objMailingAddress.Text        = mailing_address
-' objMailingCity.Text           = mailing_city
-' objMailingState.Text          = mailing_state
-' objMailingZip.Text            = mailing_zip
-
-' ' Save the updated XML to a file
-' ' To do - update with actual file path once done testing
-' xmlDoc.Save "C:\Users\mari001\OneDrive - Hennepin County\Desktop\New XML Files\new xml file success.xml"
-' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
-
-' Save the XML document with 'processed' in file name
-' xmlDoc.Save replace(XML_file_path, confirmation_number, confirmation_number & "_" & "processed")
-
-' ' To do - uncomment after testing, this is where file is saved and moved
-
-' On Error Resume Next
-
-' ' Attempt to save the XML document
-' Dim XML_file_path_processed
-' XML_file_path_processed = Replace(XML_file_path, confirmation_number, confirmation_number & "_processed")
-' xmlDoc.Save XML_file_path_processed
-
-' ' Check for errors
-' If Err.Number <> 0 Then
-'   WScript.Echo "Error saving file: " & Err.Description
-'   ' Optional: log the error or take corrective action
-'   script_end_procedure_with_error_report("Script failed to save the processed XML file. The script will now end.")
-' Else
-'   msgbox "Success!"
-' End If
-
-' On Error GoTo 0 ' Reset error handling
-
-' Set fso = CreateObject("Scripting.FileSystemObject")
-
-' If fso.FileExists(XML_file_path) Then
-'   fso.DeleteFile XML_file_path
-' Else
-'   script_end_procedure_with_error_report("Script failed to delete XML file.")
-' End If
-
-' ' Clean up
-' Set objMemberNode           = Nothing
-' Set objFirstNameNode        = Nothing
-' Set objLastNameNode         = Nothing
-' Set objDOBNode              = Nothing
-' Set objSSNNode              = Nothing
-' Set objRelationshipNode     = Nothing
-' Set objMaritalStatusNode    = Nothing
-' Set objGenderNode           = Nothing
-' Set objCitizenshipNode      = Nothing
-' Set objHouseholdMemberNodes = Nothing
-' Set objHouseholdMemberNode  = Nothing
-' Set xmlDoc                  = Nothing
-
-' ' MsgBox "XML file saved and updated successfully from array."
 
 ' Complete PERS search for every member listed on the application
 'Navigate to PERS
@@ -1404,58 +656,40 @@ For member = 0 to Ubound(household_members, 2)
     ElseIf PERS_match_found = True Then
       CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(0), 1, instr(PERS_search_results_string_array(0), "*") - 1), pers_search_results_0
       If UBound(PERS_search_results_string_array) > 0 Then
-        ' If PERS_search_results_string_array(1) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(1), 1, instr(PERS_search_results_string_array(1), "*") - 1), pers_search_results_1
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 1 Then
-        ' If PERS_search_results_string_array(2) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(2), 1, instr(PERS_search_results_string_array(2), "*") - 1), pers_search_results_2
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 2 Then
-        ' If PERS_search_results_string_array(3) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(3), 1, instr(PERS_search_results_string_array(3), "*") - 1), pers_search_results_3
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 3 Then
-        ' If PERS_search_results_string_array(4) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(4), 1, instr(PERS_search_results_string_array(4), "*") - 1), pers_search_results_4
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 4 Then
-        ' If PERS_search_results_string_array(5) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(5), 1, instr(PERS_search_results_string_array(5), "*") - 1), pers_search_results_5
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 5 Then
-        ' If PERS_search_results_string_array(6) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(6), 1, instr(PERS_search_results_string_array(6), "*") - 1), pers_search_results_6
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 6 Then
-        ' If PERS_search_results_string_array(7) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(7), 1, instr(PERS_search_results_string_array(7), "*") - 1), pers_search_results_7
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 7 Then
-        ' If PERS_search_results_string_array(8) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(8), 1, instr(PERS_search_results_string_array(8), "*") - 1), pers_search_results_8
-        ' End If 
       End If
       If UBound(PERS_search_results_string_array) > 8 Then
-        ' If PERS_search_results_string_array(9) <> "" Then
           checkbox_y = checkbox_y + 10
           CheckBox 15, checkbox_y, 325, 10, mid(PERS_search_results_string_array(9), 1, instr(PERS_search_results_string_array(9), "*") - 1), pers_search_results_9
-        ' End If 
       End If
       CheckBox 15, checkbox_y + 10, 325, 10, "None of these matches are correct. I will complete a manual search.", no_match_search_manually
     End If
@@ -1676,36 +910,28 @@ For member = 0 to Ubound(household_members, 2)
             Text 95, 50, 165, 10, mid(selected_PERS_search_case_numbers_array(0), instr(selected_PERS_search_case_numbers_array(0), "&") + 1)
     
             If UBound(selected_PERS_search_case_numbers_array) > 0 Then
-              ' If selected_PERS_search_case_numbers_array(1) <> "" Then
                 PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(1), 1, instr(selected_PERS_search_case_numbers_array(1), "&") - 1), case_number_nav_1_button
                 case_num_btn_y = case_num_btn_y + 10
                 Text 95, ref_rel_y, 165, 10, mid(selected_PERS_search_case_numbers_array(1), instr(selected_PERS_search_case_numbers_array(1), "&") + 1)
                 ref_rel_y = ref_rel_y + 10
-              ' End If
             End If
             If UBound(selected_PERS_search_case_numbers_array) > 1 Then
-              ' If selected_PERS_search_case_numbers_array(2) <> "" Then
                 PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(2), 1, instr(selected_PERS_search_case_numbers_array(2), "&") - 1), case_number_nav_2_button
                 case_num_btn_y = case_num_btn_y + 10
                 Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(2), instr(selected_PERS_search_case_numbers_array(2), "&") + 1)
                 ref_rel_y = ref_rel_y + 10
-              ' End If
             End If
             If UBound(selected_PERS_search_case_numbers_array) > 2 Then
-              ' If selected_PERS_search_case_numbers_array(3) <> "" Then
                 PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(3), 1, instr(selected_PERS_search_case_numbers_array(3), "&") - 1), case_number_nav_3_button
                 case_num_btn_y = case_num_btn_y + 10
                 Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(3), instr(selected_PERS_search_case_numbers_array(3), "&") + 1)
                 ref_rel_y = ref_rel_y + 10
-              ' End If
             End If
             If UBound(selected_PERS_search_case_numbers_array) > 3 Then
-              ' If selected_PERS_search_case_numbers_array(4) <> "" Then
                 PushButton 15, case_num_btn_y, 55, 10, mid(selected_PERS_search_case_numbers_array(4), 1, instr(selected_PERS_search_case_numbers_array(4), "&") - 1), case_number_nav_4_button
                 case_num_btn_y = case_num_btn_y + 10
                 Text 95, ref_rel_y, 165, ref_rel_y, mid(selected_PERS_search_case_numbers_array(4), instr(selected_PERS_search_case_numbers_array(4), "&") + 1)
                 ref_rel_y = ref_rel_y + 10
-              ' End If
             End If
           GroupBox 10, 120, 255, 80, "PERS Search Result Details"
           Text 15, 135, 40, 10, "First name:"
@@ -1954,7 +1180,6 @@ For member = 0 to Ubound(household_members, 2)
       End If
     Next 
 
-
     'Set the variables to resizing the dialog
     case_num_btn_y = 60
     ref_rel_y = 60
@@ -2112,6 +1337,13 @@ For member = 0 to Ubound(household_members, 2)
           End If
 
           'To do - add error handling here
+          ' If trim(household_members(MEMBER_FIRST_NAME, 0)) = "" Then err_msg = err_msg & vbNewLine & "* The first name field cannot be left blank."
+          ' If trim(household_members(MEMBER_LAST_NAME, 0)) = "" Then err_msg = err_msg & vbNewLine & "* The last name field cannot be left blank."
+          ' If trim(household_members(MEMBER_GENDER, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A gender option must be selected from the dropdown list."
+          ' If trim(household_members(MEMBER_MARITAL_STATUS, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A marital status option must be selected from the dropdown list."
+          ' If trim(household_members(MEMBER_DOB, 0)) = "" OR (Not IsDate(trim(household_members(MEMBER_DOB, 0)))) Then err_msg = err_msg & vbNewLine & "* The date of birth field must be filled out in the MM/DD/YYYY format."
+          ' If trim(household_members(MEMBER_SSN, 0)) <> "" AND Len(trim(household_members(MEMBER_SSN, 0))) <> 11 Then err_msg = err_msg & vbNewLine & "* The SSN must be in the format ###-##-####."
+          ' If trim(household_members(MEMBER_RELATIONSHIP, 0)) = "Select one:" Then err_msg = err_msg & vbNewLine & "* A relationship option must be selected from the dropdown list."
 
           If case_selection_list = "Create new case" and err_msg = "" Then
             proceed_new_case = MsgBox("You selected the 'Create new case' option despite the household member appearing on one or more existing cases. If you want to proceed with this selection then press 'Yes', otherwise you can return to previous dialog by pressing 'No'.", vbYesNo)
@@ -2190,6 +1422,9 @@ DO
       err_msg = "LOOP"
     End If
     'To do - verify which fields are REQUIRED
+    'To do - add handling for cases where not address is provided
+    'To do - add county of residence
+    'To do - convert county of residence to county code?
     If trim(formatted_app_date) = "" OR IsDate(formatted_app_date) = False OR Len(trim(formatted_app_date)) <> 10 then err_msg = err_msg & vbCr & "* You must enter the application date in the format MM/DD/YYYY."
     If trim(household_address) = "" Then err_msg = err_msg & vbCr & "* The household address field cannot be blank."
     If trim(household_city) = "" Then err_msg = err_msg & vbCr & "* The city field cannot be blank."
