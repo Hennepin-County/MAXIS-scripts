@@ -1562,18 +1562,14 @@ If case_action_selection = "Create new case" Then
 
   'To do - do we have a variable to calculate the number of HH members?
 
-  'Starts with the applicant and adds additional household members as necessary
-  If household_members(MEMBER_EXISTS_MAXIS, 0) = true Then
-    EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
-    transmit
-
+  Function pmi_mtch_check()
     mtch_row = 8
 
     Do
       EmReadScreen pmi_nbr_mtch_check, 10, mtch_row, 71
       pmi_nbr_mtch_check = trim(pmi_nbr_mtch_check)
       If pmi_nbr_mtch_check = "" Then
-        script_end
+        script_end_procedure("Script was unable to find the PMI match. The script will now end.")
         Exit Do
       If pmi_nbr_mtch_check = household_members(MEMBER_PMI, member) Then
         'Match found, view the match, select the match, then resolve data differences
@@ -1591,41 +1587,52 @@ If case_action_selection = "Create new case" Then
         mtch_row = 8
       End If
     Loop
+  End Function
+  Dim mtch_row, pmi_nbr_mtch_check
 
-  Else
-    'Person does not exist in MAXIS, will create a new person
-    EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
-    transmit
+  Function mtch_add_new_person()
     PF8
     PF8
     PF5
     CALL write_value_and_transmit("Y", 6, 67)
+  End Function
 
-    'Now at MEMI > MEMB > ADDR
-    '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
-    '->After pressing transmit, move to ADDR
+  'Starts with the applicant and adds additional household members as necessary
+  EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
+  transmit
 
-    'MEMI 
-    'add marital status details if provided
-    If household_members(MEMBER_MARITAL_STATUS, 0) = "Never Married" Then
-      EMWriteScreen "N", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Married Living w/Spouse" Then
-      EMWriteScreen "M", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Divorced" Then
-      EMWriteScreen "D", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Separated (Married but living apart)" Then
-      EMWriteScreen "S", 7, 40
-    End If
+  If household_members(MEMBER_EXISTS_MAXIS, 0) = true Then
+    pmi_mtch_check()
 
-    'add citizenship details if provided
-    If household_members(MEMBER_CITIZENSHIP, 0) = "Yes" Then
-      EMWriteScreen "Y", 11, 49
-    ElseIf household_members(MEMBER_CITIZENSHIP, 0) = "No" Then
-      EMWriteScreen "N", 11, 49
-    End If
-
-    transmit
+  Else
+    'Person does not exist in MAXIS, will create a new person
+    mtch_add_new_person()
   End If
+
+  'Now at MEMI > MEMB > ADDR
+  '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
+  '->After pressing transmit, move to ADDR
+
+  'MEMI 
+  'add marital status details if provided
+  If household_members(MEMBER_MARITAL_STATUS, 0) = "Never Married" Then
+    EMWriteScreen "N", 7, 40
+  ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Married Living w/Spouse" Then
+    EMWriteScreen "M", 7, 40
+  ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Divorced" Then
+    EMWriteScreen "D", 7, 40
+  ElseIf household_members(MEMBER_MARITAL_STATUS, 0) = "Separated (Married but living apart)" Then
+    EMWriteScreen "S", 7, 40
+  End If
+
+  'add citizenship details if provided
+  If household_members(MEMBER_CITIZENSHIP, 0) = "Yes" Then
+    EMWriteScreen "Y", 11, 49
+  ElseIf household_members(MEMBER_CITIZENSHIP, 0) = "No" Then
+    EMWriteScreen "N", 11, 49
+  End If
+
+  transmit
 
   'If there are other HH members, script will add MEMB panels
   If Ubound(household_members, 2) > 0 Then
@@ -1635,11 +1642,47 @@ If case_action_selection = "Create new case" Then
       '-> Gender (9, 42)
       '-> Relationship (10, 42)
 
+      'To do - need to confirm how ref nbr determined (i.e. 02, 03, 04, etc.)
+      'To do - need to confirm how relationships determined (i.e. 02, 03, 04, etc.)
+      EmWriteScreen left(household_members(MEMBER_GENDER, i), 1), 9, 42
+      transmit
+
+      'Handling if PMI exists
+      If household_members(MEMBER_EXISTS_MAXIS, i) = true Then
+        pmi_mtch_check()
+      Else
+        mtch_add_new_person()
+
+      End If
+
+      'Handling if PMI does not exist
+      'Now at MEMI > MEMB > ADDR
+      '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
+      '->After pressing transmit, move to ADDR
+    
+      'MEMI 
+      'add marital status details if provided
+      If household_members(MEMBER_MARITAL_STATUS, i) = "Never Married" Then
+        EMWriteScreen "N", 7, 40
+      ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Married Living w/Spouse" Then
+        EMWriteScreen "M", 7, 40
+      ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Divorced" Then
+        EMWriteScreen "D", 7, 40
+      ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Separated (Married but living apart)" Then
+        EMWriteScreen "S", 7, 40
+      End If
+    
+      'add citizenship details if provided
+      If household_members(MEMBER_CITIZENSHIP, i) = "Yes" Then
+        EMWriteScreen "Y", 11, 49
+      ElseIf household_members(MEMBER_CITIZENSHIP, i) = "No" Then
+        EMWriteScreen "N", 11, 49
+      End If
+    
+      transmit
       
     Next
   End If
-
-
   
   'MEMB
   '-> Must enter gender and transmit to find the match or not
@@ -1650,53 +1693,39 @@ If case_action_selection = "Create new case" Then
       EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
       transmit
 
-      mtch_row = 8
-
-      Do
-        EmReadScreen pmi_nbr_mtch_check, 10, mtch_row, 71
-        pmi_nbr_mtch_check = trim(pmi_nbr_mtch_check)
-        If pmi_nbr_mtch_check = "" Then
-          script_end
-          Exit Do
-        If pmi_nbr_mtch_check = household_members(MEMBER_PMI, member) Then
-          'Match found, view the match, select the match, then resolve data differences
-          CALL write_value_and_transmit("X", MTCH_row, 5)
-          PF3
-          CALL write_value_and_transmit("S", MTCH_row, 5) 
-          CALL write_value_and_transmit("Y", 18, 64)
-          Exit Do
-        'To do - now what if selecting existing case? 
-        Else
-          mtch_row = mtch_row + 1
-        End If
-        If mtch_row = 17 Then
-          PF8
-          mtch_row = 8
-        End If
-      Loop
+      pmi_mtch_check()
 
     Else
       'Person does not exist in MAXIS, will create a new person
-      EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
-      transmit
-      PF8
-      PF8
-      PF5
-      CALL write_value_and_transmit("Y", 6, 67)
-
-      'Now at MEMI - add details to MEMI
-      'Write marital status
-    
-      'Now at MEMI > MEMB > ADDR
-      '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
-      '->After pressing transmit, move to ADDR
-
-
-
-
+      mtch_add_new_person()
     End If
 
-
+    'Now at MEMI - add details to MEMI
+    'Write marital status
+  
+    'Now at MEMI > MEMB > ADDR
+    '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
+    '->After pressing transmit, move to ADDR      If household_members(MEMBER_MARITAL_STATUS, i) = "Never Married" Then
+    'MEMI 
+    'add marital status details if provided
+    If household_members(MEMBER_MARITAL_STATUS, i) = "Never Married" Then
+      EMWriteScreen "N", 7, 40
+    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Married Living w/Spouse" Then
+      EMWriteScreen "M", 7, 40
+    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Divorced" Then
+      EMWriteScreen "D", 7, 40
+    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Separated (Married but living apart)" Then
+      EMWriteScreen "S", 7, 40
+    End If
+  
+    'add citizenship details if provided
+    If household_members(MEMBER_CITIZENSHIP, i) = "Yes" Then
+      EMWriteScreen "Y", 11, 49
+    ElseIf household_members(MEMBER_CITIZENSHIP, i) = "No" Then
+      EMWriteScreen "N", 11, 49
+    End If
+  
+    transmit
   Next 
 
 
