@@ -6111,7 +6111,7 @@ If HIRE_messages = 1 Then
                             End If
 
                             EMReadScreen summ_panel_check_test, 4, 2, 46
-                            If summ_panel_check_test <> "SUMM" Then msgbox "6111 Where is the script erroring here?"
+                            ' If summ_panel_check_test <> "SUMM" Then msgbox "6111 Where is the script erroring here?"
                             
                             EMWriteScreen "MEMB", 20, 71
                             Call write_value_and_transmit(HIRE_memb_number, 20, 76)
