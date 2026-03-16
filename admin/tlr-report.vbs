@@ -51,6 +51,41 @@ call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+Function add_pages(page_name)
+	ObjExcel.Worksheets.Add().Name = page_name
+
+	'Creating the Excel document w/ columns for assignment
+	ObjExcel.Cells(1, 1).Value = "Case number"
+	ObjExcel.Cells(1, 2).Value = "Person ID"
+	ObjExcel.Cells(1, 3).Value = "SNAP Status"
+	ObjExcel.Cells(1, 4).Value = "MEMB #"
+	ObjExcel.Cells(1, 5).Value = "Member Age"
+	ObjExcel.Cells(1, 6).Value = "Eats HH"
+	ObjExcel.Cells(1, 7).Value = "Data ABWAD"
+	ObjExcel.Cells(1, 8).Value = "Data WREG"
+	ObjExcel.Cells(1, 9).Value = "CM WREG"
+	ObjExcel.Cells(1, 10).Value = "CM ABAWD"
+	ObjExcel.Cells(1, 11).Value = "Best Verified WREG"
+	ObjExcel.Cells(1, 12).Value = "Best Verified ABAWD"
+	ObjExcel.Cells(1, 13).Value = "Processing Notes"
+	ObjExcel.Cells(1, 14).Value = "Assignee Name"
+	ObjExcel.Cells(1, 15).Value = "Assignment Notes"
+	ObjExcel.Cells(1, 16).Value = "Verified WREG String"
+	ObjExcel.Cells(1, 17).Value = "Counted Months Used"
+	ObjExcel.Cells(1, 18).Value = "All Possible Exemptions"
+	ObjExcel.Cells(1, 19).Value = "App Date"
+	ObjExcel.Cells(1, 20).Value = "Next SNAP ER"
+	ObjExcel.Cells(1, 21).Value = "Last SNAP ER"
+
+	FOR i = 19 to 21		'formatting the columns
+		objExcel.Columns(i).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
+	NEXT
+
+	FOR i = 1 to 21		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
 Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
     EMReadScreen wreg_panel, 4, 2, 48
     If wreg_panel <> "WREG" then Call navigate_to_MAXIS_screen("STAT","WREG")		'navigates to stat/wreg
@@ -986,25 +1021,8 @@ worker_county_code = "X127"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
-
-'column constants
-case_number_col 	= 1		'Col A
-pmi_col         	= 2		'Col B
-SNAP_status_col	    = 3		'Col C
-memb_numb_col   	= 4		'Col D
-eats_HH_col			= 5		'Col E
-Data_ABAWD_col		= 6		'Col F
-Data_wreg_col 		= 7		'Col G
-CM_wreg_col		   	= 8		'Col H
-CM_abawd_col		= 9		'Col I
-best_wreg_col		= 10	'Col J
-best_abawd_col		= 11	'Col K
-notes_col			= 12	'Col L
-                            'Col M - 13 Assignee Name
-verified_wreg_col 	= 14	'Col N
-counted_months_col	= 15	'Col O
-all_exemptions_col	= 16	'Col P
+'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
+file_selection_path = t_drive & "\Restricted\QI - Quality Improvement\REPORTS\ABAWD\" & CM_mo & "-20" & CM_yr & " Active SNAP Report.xlsx"
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -1035,7 +1053,142 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Call check_for_MAXIS(False)
+'column constants
+case_number_col 	= 1		'Col A
+pmi_col         	= 2		'Col B
+SNAP_status_col	    = 3		'Col C
+memb_numb_col   	= 4		'Col D
+age_col 			= 5		'Col E
+eats_HH_col			= 6		'Col F
+data_ABAWD_col		= 7		'Col G
+data_wreg_col 		= 8		'Col H
+CM_wreg_col		   	= 9		'Col I
+CM_abawd_col		= 10	'Col J
+best_wreg_col		= 11	'Col K
+best_abawd_col		= 12	'Col L
+notes_col			= 13    'Col M
+                    '= 14	'Col N - Assignee Name
+					'= 15	'Col O - Assignment Notes
+verified_wreg_col 	= 16	'Col P
+counted_months_col	= 17	'Col Q
+all_exemptions_col	= 18	'Col R
+app_date_col 		= 19	'Col S
+next_snap_col		= 20	'Col T
+last_snap_col		= 21	'Col U
+
+DIM tlr_array()
+DIM tlr_array(7,0)
+
+'Creating constants to value the array elements
+const case_number_const	= 0
+const pmi_const			= 1
+const app_date_const	= 2
+const abawd_const		= 3
+const wreg_const		= 4
+const age_const			= 5
+const next_snap_const	= 6
+const last_snap_const	= 7
+
+excel_row = 2
+entry_record = 0                'incrementer for the array and count
+all_pmi_array = "*"    'setting up string to find duplicate pmi's
+Do
+
+	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value) 	'Col A
+	If trim(MAXIS_case_number) = "" then exit do
+	PMI_number = trim(ObjExcel.Cells(excel_row, 5).Value) 			'Col E
+
+	If instr(all_pmi_array, PMI_number) then
+		assess_case = False
+	else
+		all_pmi_array = trim(all_pmi_array & "*") 'Adding PMI to list
+
+		app_date = trim(ObjExcel.Cells(excel_row, 4).Value) 		'Col D
+		data_abawd = trim(ObjExcel.Cells(excel_row, 9).Value) 		'Col I
+		data_wreg =  trim(ObjExcel.Cells(excel_row, 14).Value) 		'Col O
+		age = trim(ObjExcel.Cells(excel_row, 22).Value)				'Col W
+		'Age based booleans
+		age = age * 1
+		If age < 55 then under_55 = True
+		If (age > 54 and age < 60) then age_55_59 = True
+		If (age > 59 and age < 65) then age_60_64 = True
+
+		next_snap = trim(ObjExcel.Cells(excel_row, 23).Value)		'Col X
+		last_snap = trim(ObjExcel.Cells(excel_row, 24).Value)		'Col Y
+
+		'Determines if you apply HR1 rules or not based on new app or recert since 11/01/2025.
+		apply HR1_rules = False
+		HR1_date = "11/1/2025"
+		If datediff("D", HR1_date, app_date) => 0 then
+			apply_HR1_rules = True
+		Elseif datediff("D", HR1_date, last_snap) => 0 then
+			apply_HR1_rules = True
+		End if
+
+		'Classic TLR rules
+		If data_wreg = "30" then assess_case = True
+		If data_abawd = "06" or _
+		   data_abawd = "08" or _
+		   data_abawd = "09" or _
+		   data_abawd = "10" or _
+		   data_abawd = "11" or _
+		   data_abawd = "13" then
+			assess_case = True
+		Elseif (data_abawd = "16" and under_55 = True ) then
+			assess_case = True
+		End if
+
+		'HR1 rules
+		If apply_HR1_rules = True then
+			If (data_wreg = "16" and age_55_59 = True) then assess_case = True
+			If (data_wreg = "05" and age_60_64 = True) then assess_case = True
+			If 	data_wreg = "21" then assess_case = True
+		End if
+	End if
+
+	If assess_case = True then
+		'Adding client information to the array
+        ReDim Preserve tlr_array(7, entry_record)	'This resizes the array based on the number of members
+        tlr_array(case_number_const, entry_record) = MAXIS_case_number
+        tlr_array(pmi_const, entry_record) = PMI_number
+        tlr_array(app_date_const, entry_record) = app_date
+        tlr_array(abawd_const, entry_record) = data_abawd
+        tlr_array(wreg_const, entry_record) = data_wreg
+        tlr_array(age_const, entry_record) = age
+		tlr_array(next_snap_const, entry_record) = next_snap
+		tlr_array(last_snap_const, entry_record) = last_snap
+        entry_record = entry_record + 1			'This increments to the next entry in the array
+        stats_counter = stats_counter + 1       'Increment for stats counter
+    End if
+Loop
+
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = False
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+call add_pages("Assess TLR Recipients")
+excel_row = 2
+
+For tlr_pers = 0 to Ubound(tlr_array,2)
+	objExcel.Cells(excel_row, case_number_col).Value 	= tlr_array(case_number_const, tlr_pers)
+    objExcel.Cells(excel_row, pmi_col).Value 			= tlr_array(pmi_const, tlr_pers)
+    objExcel.Cells(excel_row, age_col).Value 			= tlr_array(app_date_const, tlr_pers)
+    objExcel.Cells(excel_row, data_wreg_col).Value 		= tlr_array(abawd_const, tlr_pers)
+    objExcel.Cells(excel_row, data_abawd_col).Value 	= tlr_array(wreg_const, tlr_pers)
+    objExcel.Cells(excel_row, app_date_col).Value 		= tlr_array(age_const, tlr_pers)
+    objExcel.Cells(excel_row, next_snap_col).Value 		= tlr_array(next_snap_const, tlr_pers)
+	objExcel.Cells(excel_row, last_snap_col).Value 		= tlr_array(last_snap_const, tlr_pers)
+	excel_row = excel_row + 1
+Next
+
+Const xlSrcRange = 1			'creating a table
+Const xlYes = 1
+table1Range = "A1:" & T & excel_row
+'ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Assess TLR Recipients"
+
+msgbox "assessment list has been created!"
 
 ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
