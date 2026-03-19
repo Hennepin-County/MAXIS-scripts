@@ -5447,21 +5447,38 @@ function collect_script_usage_data(script_to_record, closing_message, timer_begi
 end function
 
 function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_name_const, memb_age_const, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
-'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE
-
-	'first - assess if caregiver meets an exemption
+'--- This function guides worker through the MFIP orientation process and documents completion along with allowing for the update of the EMPS panel but does not update it directly
+'~~~~~ CAREGIVER_ARRAY: The parameters for this function are all assuming there is an array for the members of the HH. This parameter is the name of the array created in the the script calling the funciton, this should be a two dimensional array.
+'~~~~~ memb_ref_numb_const: INTEGER - array index for reference number information.
+'~~~~~ memb_name_const: INTEGER - array index for name information.
+'~~~~~ memb_age_const: INTEGER - array index for age information
+'~~~~~ memb_is_caregiver: INTEGER - array index for boolean about caregiver information.
+'~~~~~ cash_request_const: INTEGER - array index for boolean about cash request by person.
+'~~~~~ hours_per_week_const: INTEGER - array index for number of hours worked per week information.
+'~~~~~ exempt_from_ed_const: INTEGER - array index for boolean about minor caregiver being exempt from education requirement.
+'~~~~~ comply_with_ed_const: INTEGER - array index for boolean about minor caregiver complying with education requirement.
+'~~~~~ orientation_needed_const: INTEGER - array index for boolean about if the orientation is required for a caregiver.
+'~~~~~ orientation_done_const: INTEGER - array index for boolean about if the orientation is completed for a caregiver.
+'~~~~~ orientation_exempt_const: INTEGER - array index for boolean about if the caregiver is exempt from an orientation.
+'~~~~~ exemption_reason_const: INTEGER - array index for information about why a caregiver is exempt from the orientation.
+'~~~~~ emps_exemption_code_const: INTEGER - array index for the code on EMPS panel to document the exemption.
+'~~~~~ choice_form_done_const: INTEGER - array index for boolean about if the ECF MFIP choice form is completed.
+'~~~~~ orientation_notes: STRING - notes about the MFIP orientation process.
+'~~~~~ family_cash_program: STRING - Selection of the family cash program the case is being assessed for.
+'===== Keywords: MAXIS, dialog, client, MFIP, Communication
+    'first - assess if caregiver meets an exemption
 		'- Single parent household employed at least 35 hours per week
 		'- 2 Parent household where the 1st parent is employed at least 35 hours per week
 		'- 2 Parened household where the 2nd parent is employed at least 20 hours per week and the 1st is employed 35
 		'- Pregnant or parenting minor under 20 who is coplying with the educational requirements
 		'- Caregiver is not receiving MFIP
-
 	'Identify the caregivers
 	'Identify if they are requesting Cash
 	'Indicate if this will be DWP or MFIP
 	'Identify if the caregiver is a minor
 	'List the hours employed for each caregiver
-	'
+
+    orientation_reviewed = False
 	person_list = "Select One..."+chr(9)+"No Caregiver"
 	second_person_list = "Select One..."+chr(9)+"No Second Caregiver"
 
@@ -5541,8 +5558,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 	If caregiver_two = "Select One..." or caregiver_two = "No Second Caregiver" Then
         caregiver_two_name = caregiver_two
     Else
-        caregiver_two_name = mid(caregiver_one, instr(caregiver_one, "-") + 2)
-        caregiver_two_ref  = mid(caregiver_one, 2, instr(caregiver_one, " ") - 2)
+        caregiver_two_name = mid(caregiver_two, instr(caregiver_two, "-") + 2)
+        caregiver_two_ref  = mid(caregiver_two, 2, instr(caregiver_two, " ") - 2)
     End If
 
 	If family_cash_program = "MFIP" or family_cash_program = "Unable to Determine" Then
@@ -5558,6 +5575,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_one_name and CAREGIVER_ARRAY(memb_ref_numb_const, person) = caregiver_one_ref Then
 				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
 				CAREGIVER_ARRAY(orientation_needed_const, person) = True
+                CAREGIVER_ARRAY(orientation_exempt_const, person) = False
 
 				If caregiver_one_req_cash = "Yes" Then CAREGIVER_ARRAY(cash_request_const, person) = True
 				If caregiver_one_req_cash <> "Yes" Then
@@ -5593,6 +5611,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_two_name and CAREGIVER_ARRAY(memb_ref_numb_const, person) = caregiver_two_ref Then
 				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
 				CAREGIVER_ARRAY(orientation_needed_const, person) = True
+                CAREGIVER_ARRAY(orientation_exempt_const, person) = False
 
 				If caregiver_two_req_cash = "Yes" Then CAREGIVER_ARRAY(cash_request_const, person) = True
 				If caregiver_two_req_cash <> "Yes" Then
@@ -5714,21 +5733,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		const mf_step_hc			= 11
 		const mf_completion			= 12
 
-		' mf_step_rights_resp_viewed = False
-		' mf_step_time_limits_viewed = False
-		' mf_step_extension_viewed = False
-		' mf_step_dv_viewed = False
-		' mf_step_expectations_viewed = False
-		' mf_step_esp_viewed = False
-		' mf_step_compliance_viewed = False
-		' mf_step_ep_viewed = False
-		' mf_step_ccap_viewed = False
-		' mf_step_incentives_viewed = False
-		' mf_step_hc_viewed = False
-		' mf_completion_viewed = False
-		'
-		' orientation_script_document_viewed = False
-		'
 		'FIRST - Participant Responsibilities and Rights'
 		'SECOND - MFIP Time Limits'
 		'THIRD - MFIp Extension Eligibility'
@@ -5740,9 +5744,10 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		'NINTH - CCAP'
 		'TENTH - Incentives'
 		'ELEVENTH - Health Care'
-		' all_mfip_orientation_info_viewed = False
-		For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
 
+        For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
+            finished_orientation = ""
+            form_submitted = ""
 			If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then
                 Call Navigate_to_MAXIS_screen("STAT", "EMPS")
     			If CAREGIVER_ARRAY(memb_ref_numb_const, caregiver) <> "" Then
@@ -5768,13 +5773,13 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 				orientation_script_document_viewed = False
 
 				all_mfip_orientation_info_viewed = False
-
+                finished_orientation = "Select One..."
+                form_submitted = "Select One..."
 				Do
 					err_msg = ""
 
 					Dialog1 = ""
-					BeginDialog Dialog1, 0, 0, 551, 385, "MFIP Orientation"
-					  ' GroupBox 10, 10, 450, 45, "Group1"
+					BeginDialog Dialog1, 0, 0, 551, 385, "MFIP Orientation for " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 					  ButtonGroup ButtonPressed
 					  	If MFIP_orientation_step <> mf_completion Then PushButton 495, 365, 50, 15, "NEXT", next_btn
 
@@ -5806,7 +5811,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 30, 110, 350, 10, "5. Months you are a parent under 18 years of age and complying with your school or social service plan"
 						  Text 30, 120, 395, 10, "6. Months you are 18 or 19 years old and do not have a high school diploma/GED AND complying with a school plan"
 						  Text 40, 135, 355, 25, "Note: If you are eligible for an exemption but you are not complying with program requirements and do not meet a good cause reason, those months will count toward the lifetime limit. If you have questions about possible good cause reasons, talk to a worker."
-							  Text 10, 175, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 175, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 
 						  mf_step_time_limits_viewed = True
 						End If
@@ -5828,7 +5833,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 35, 225, 275, 20, "You have significant barriers to employment and determined Unemployable by a vocational specialist or other qualified professional designated by the county"
 						  Text 35, 250, 165, 10, "You are a victim of family violence"
 						  Text 20, 265, 415, 30, "If you believe you meet any of the criteria's above it's important to discuss with your financial worker AND your employment counselor. You may qualify for a modified employment plan prior to reaching your 60-month as well as receive an extension of your cash benefits."
-							  Text 10, 310, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 310, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 
 						  mf_step_extension_viewed = True
 						End If
@@ -5838,7 +5843,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  GroupBox 10, 10, 450, 75, "Family Violence Resources/Supports"
 						  Text 20, 30, 390, 10, "Your financial worker discussed and provided information regarding resources if you are a victim of family violence."
 						  Text 20, 45, 375, 35, " Please review that brochure if you need assistance with shelter and/or supports Domestic Violence Information (DHS 3477) and Family Violence Referral (DHS 3323). If you are a victim of domestic violence, you may choose to work with your assigned Employment Counselor to determine if you are eligible for a Family Violence Waiver to allow your family time and flexibility to focus on safety issues."
-							  Text 10, 90, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 90, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 						  PushButton 385, 90, 75, 15, "DHS - 3477", open_dhs_3477_btn
 						  PushButton 385, 105, 75, 15, "DHS - 3323", open_dhs_3323_btn
 
@@ -5853,7 +5858,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 20, 30, 360, 20, "MFIP services focus on putting you on the most direct path to employment and other related steps that will support long-term economic stability."
 						  Text 20, 55, 375, 20, "While you are expected to work, look for work, or participate in activities to prepare for work, the steps toward economic stability look different for all families and participants."
 						  Text 20, 80, 405, 20, "Employment Services have a variety of tools to address the unique needs of each family. You will hear more about these tools and resources during your Employment Services Overview."
-							  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 
 						  mf_step_expectations_viewed = True
 						End If
@@ -5868,7 +5873,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 40, 100, 345, 10, "If you have worked with an MFIP ESP in the past ninety (90) days, you may be referred to that provider."
 						  Text 40, 115, 350, 20, "If you are under 18 and do not have a HS diploma/GED, you will be referred to Minnesota Visiting Nurse Association to discuss your education and employment options"
 						  Text 40, 140, 345, 20, "If you have used 60 months or more of your TANF time limit and granted an extension under a specific category you will be referred to an agency that specializes in that type of extension."
-							  Text 10, 170, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 170, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 						  ' PushButton 385, 170, 75, 15, "Choice Sheet", open_choice_sheet_btn
 
 						  mf_step_esp_viewed = True
@@ -5882,7 +5887,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 25, 45, 375, 20, "In Hennepin County, many of the Employment Services Providers are community based nonprofit organizations who partner with Hennepin County to deliver services."
 						  Text 25, 70, 410, 20, "The provider will send you a notice to attend an MFIP Employment Service Overview. You are required to attend the overview and work with your assigned employment service counselor."
 						  Text 25, 95, 400, 20, "If you choose not to comply with program requirements, your case may be sanctioned resulting in a reduction of your cash and/or food benefits."
-							  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 
 						  mf_step_compliance_viewed = True
 						End If
@@ -5906,7 +5911,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 20, 190, 430, 25, "You are required to follow through with the activities in your employment plan. If you are unable to complete the activities, contact your Employment Counselor right away to determine if your plan need to be updated. Good communication with your employment counselor can help prevent reduction in your grant (sanctions)."
 						  Text 20, 220, 425, 30, "Your Employment Counselor may conduct assessments with you to support you in selecting an education and training path that creates opportunities for long term economic stability. If you have more questions about education and training options, you can also see the Education and Training Brochure (DHS 3366)."
 						  Text 20, 255, 420, 20, "Work study programs under the higher education systems may also be available.  Your assigned employment counselor will discuss this opportunity in more detail."
-							  Text 10, 285, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 285, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 						  PushButton 385, 285, 75, 15, "DHS - 3366", open_dhs_3366_btn
 
 						  mf_step_ep_viewed = True
@@ -5936,7 +5941,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 35, 305, 235, 10, "- Provider does not meet health and safety standards for the child(ren)"
 						  Text 35, 315, 275, 10, "- The provider charges an excess amount above the maximum the county can pay"
 						  Text 25, 330, 335, 10, "Your Childcare Worker or Employment Counselor can discuss good cause reasons in more detail"
-							  Text 10, 365, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 365, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 
 						  mf_step_ccap_viewed = True
 						End If
@@ -5949,7 +5954,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 25, 85, 425, 10, "If you are working, when you file your taxes apply for the Earned Income Credit and the Minnesota Working Family Credit."
 						  Text 25, 100, 225, 10, "Getting a tax refund will NOT affect your eligibility for MFIP."
 						  Text 25, 115, 425, 35, "Have your taxes done for FREE! For a list of free tax preparation sites call the Minnesota Department of Revenue at 651-296-3781 or 1-800-652-9094. Neighborhood Volunteer Income Tax Assistance (VITA) sites are available throughout the state. They are open from February 1 through April 15. Some sites are open year around to help you file back taxes. Search for free tax preparation sites at Department of Revenue."
-							  Text 10, 165, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 165, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 						  PushButton 385, 165, 75, 15, "DHS Bulletin 21-11-01", open_dhs_bulletin_21_11_01_btn
 
 						  mf_step_incentives_viewed = True
@@ -5962,7 +5967,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  Text 25, 30, 230, 10, "You may qualify for Minnesota Health Care programs."
 						  Text 25, 45, 410, 20, "You can apply for health care online at www.mnsure.org (for assistance completing an online application call 1-855-366-7873) or we can mail you a paper application (DHS 6696)."
 						  Text 25, 70, 425, 20, "For help with age-appropriate preventive health services check out the Child and Teen Checkup program at: http://edocs.dhs.state.mn.us/lfserver/public/DHS-1826-ENG"
-							  Text 10, 105, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 10, 105, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 						  PushButton 385, 105, 75, 15, "DHS - 1826", open_dhs_1826_btn
 
 						  mf_step_hc_viewed = True
@@ -5973,13 +5978,13 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						  GroupBox 10, 10, 450, 140, "Document MFIP Orientation Completion"
 						  Text 20, 30, 135, 10, "For " & CAREGIVER_ARRAY(memb_name_const, caregiver) & ":"
 						  Text 25, 50, 215, 10, "Did you verbally review all information in the MFIP Orientation?"
-						  DropListBox 240, 45, 210, 45, "Select One..."+chr(9)+"Yes - all information has been reviewed"+chr(9)+"No - could not complete", CAREGIVER_ARRAY(orientation_done_const, caregiver)
+						  DropListBox 240, 45, 210, 45, "Select One..."+chr(9)+"Yes - all information has been reviewed"+chr(9)+"No - could not complete", finished_orientation
 						  Text 25, 65, 240, 10, "Notes from any questions/conversation during the MFIP Orientation:"
 						  EditBox 25, 75, 425, 15, CAREGIVER_ARRAY(orientation_notes, caregiver)
 						  Text 25, 105, 125, 10, "IF COMPLETE - OPEN ECF NOW"
 						  Text 35, 120, 220, 10, "Complete the ESP Choice Sheet (D387) with the resident now."
 						  Text 35, 135, 175, 10, "Confirm Choice Sheet Completed and saved to ECF:"
-						  DropListBox 205, 130, 140, 45, "Select One..."+chr(9)+"Yes - Choice Sheet Saved to ECF"+chr(9)+"No - could not complete", CAREGIVER_ARRAY(choice_form_done_const, caregiver)
+						  DropListBox 205, 130, 140, 45, "Select One..."+chr(9)+"Yes - Choice Sheet Saved to ECF"+chr(9)+"No - could not complete", form_submitted
 						  Text 210, 155, 250, 25, "MFIP Orientation is now complete for this resident. If this case has a second caregiver that requires the MFIP Orientation, this dialog will reappear for the next caregiver as this is a person based process."
 						  PushButton 385, 180, 75, 15, "HSR Manual", open_hsr_manual_btn
 						  PushButton 385, 195, 75, 15, "CM 05.12.12.06", cm_05_12_12_06_btn
@@ -6003,9 +6008,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						If MFIP_orientation_step = mf_step_hc Then 			Text 505, 168, 55, 10, "Health Care"
 						If MFIP_orientation_step = mf_completion Then 		Text 502, 188, 55, 10, "Confirmation"
 
-
 					    If MFIP_orientation_step = mf_completion Then PushButton 495, 365, 50, 15, "DONE", done_btn
-
 
 					    If MFIP_orientation_step <> mf_step_rights_resp Then 	PushButton 495, 15, 55, 15, "Rights / Resp", button_one
 					    If MFIP_orientation_step <> mf_step_time_limits Then 	PushButton 495, 30, 55, 15, "Time Limits", button_two
@@ -6020,13 +6023,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					    If MFIP_orientation_step <> mf_step_hc Then 			PushButton 495, 165, 55, 15, "Health Care", button_eleven
 					    If MFIP_orientation_step <> mf_completion Then 			PushButton 495, 185, 55, 15, "Confirmation", button_twelve
 
-					    ' PushButton 495, 195, 55, 15, "Button 2", Button13
-					    ' PushButton 495, 210, 55, 15, "Button 2", Button14
-					    ' PushButton 495, 225, 55, 15, "Button 2", Button15
-					    ' PushButton 495, 240, 55, 15, "Button 2", Button16
 						PushButton 205, 360, 135, 15, "MFIP Oriendation Document", mfip_orientation_word_doc_btn
-						' OkButton 495, 365, 50, 15
-
 					EndDialog
 
 					dialog Dialog1
@@ -6063,61 +6060,84 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 					If ButtonPressed = open_hsr_manual_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
 					If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
-					' If ButtonPressed = cm_28_12_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_002812"
-
-
-
 
 					If mf_step_rights_resp_viewed = True and mf_step_time_limits_viewed = True and mf_step_extension_viewed = True and mf_step_dv_viewed = True and mf_step_expectations_viewed = True and mf_step_esp_viewed = True and mf_step_compliance_viewed = True and mf_step_ep_viewed = True and mf_step_ccap_viewed = True and mf_step_incentives_viewed = True and mf_step_hc_viewed = True and mf_completion_viewed = True Then all_mfip_orientation_info_viewed = True
 					If orientation_script_document_viewed = True and mf_completion_viewed = True Then all_mfip_orientation_info_viewed = True
 
 
-					' MsgBox "DONE? - " & CAREGIVER_ARRAY(orientation_done_const, caregiver) & vbCr & "CHOICE SHEET? - " & CAREGIVER_ARRAY(choice_form_done_const, caregiver)
-					If all_mfip_orientation_info_viewed = False and CAREGIVER_ARRAY(orientation_done_const, caregiver) = "No - could not complete" Then err_msg = err_msg & vbCr & "* You must review the entire MFIP Orientation before continuing."
-					If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP Orientation has been completed."
-					If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Yes - all information has been reviewed" and CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP ESP Choice Sheet has been completed in ECF."
+					If all_mfip_orientation_info_viewed = False and finished_orientation <> "No - could not complete" Then err_msg = err_msg & vbCr & "* You must review the entire MFIP Orientation before continuing."
+					If finished_orientation = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP Orientation has been completed."
+					If finished_orientation = "Yes - all information has been reviewed" and form_submitted = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP ESP Choice Sheet has been completed in ECF."
 
 					If ButtonPressed = done_btn and err_msg <> "" Then MsgBox err_msg
-					' If ButtonPressed = done_btn Then MsgBox err_msg
 					If ButtonPressed <> done_btn Then err_msg = "HOLD"
-
-				Loop Until all_mfip_orientation_info_viewed = True and err_msg = ""
+                Loop Until err_msg = ""
 			End If
-			If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Yes - all information has been reviewed" Then CAREGIVER_ARRAY(orientation_done_const, caregiver) = True
-			If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "No - could not complete" Then CAREGIVER_ARRAY(orientation_done_const, caregiver) = False
-			If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "Yes - Choice Sheet Saved to ECF" Then CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True
-			If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "No - could not complete" Then CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False
+            CAREGIVER_ARRAY(orientation_done_const, caregiver) = False
+			If finished_orientation = "Yes - all information has been reviewed" Then CAREGIVER_ARRAY(orientation_done_const, caregiver) = True
+
+            CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False
+			If form_submitted = "Yes - Choice Sheet Saved to ECF" Then CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True
 
 			'HERE WE HAVE A DIALOG TO GO TO EMPS AND GIVE INSTRUCTION ON HOW TO COMPLETE IT
 			If (CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True and CAREGIVER_ARRAY(orientation_done_const, caregiver) = True) or CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then
-				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 281, 185, "Update EMPS Panel"
-				  ButtonGroup ButtonPressed
-				    PushButton 125, 135, 145, 15, "The EMPS Panel Update is Complete", emps_update_complete_btn
-				  Text 15, 10, 125, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
-				  If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then Text 35, 20, 205, 10, "NEEDS an MFIP Orientation"
-				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 35, 20, 205, 10, "Is Exempt from having an MFIP Orientation"
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is Completed"
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is NOT Completed"
-				  If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is Completed"
-				  If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is NOT Completed"
+                orientation_reviewed = True
 
-				  Text 15, 65, 260, 10, "This person has met the requirement for the MFIP Orientation."
-				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 20, 75, 260, 10, "Exemption Reason: " & CAREGIVER_ARRAY(exemption_reason_const, caregiver)
-				  GroupBox 15, 90, 255, 65, "Update EMPS Panel Now"
-				  Text 25, 105, 210, 10, "Update panel: EMPS for " & CAREGIVER_ARRAY(memb_name_const, caregiver)
-				  Text 30, 115, 45, 10, "Fin Orient Dt: "
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 115, 40, 10, date
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 115, 40, 10, "__ __ __"
-				  Text 45, 125, 35, 10, "Attended: "
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 125, 20, 10, "Y"
-				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 125, 20, 10, "N"
-				  Text 30, 135, 45, 10, "Good Cause:"
-				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = False Then Text 85, 135, 20, 10, "__"
-				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 85, 135, 20, 10, CAREGIVER_ARRAY(emps_exemption_code_const, caregiver)
-				EndDialog
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 281, 185, "Update EMPS Panel"
+                    ButtonGroup ButtonPressed
+                        PushButton 125, 135, 145, 15, "The EMPS Panel Update is Complete", emps_update_complete_btn
+                    Text 15, 10, 125, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+                    If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then Text 35, 20, 205, 10, "NEEDS an MFIP Orientation"
+                    If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 35, 20, 205, 10, "Is Exempt from having an MFIP Orientation"
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is Completed"
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is NOT Completed"
+                    If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is Completed"
+                    If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is NOT Completed"
 
-				dialog Dialog1
+                    Text 15, 65, 260, 10, "This person has met the requirement for the MFIP Orientation."
+                    If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 20, 75, 260, 10, "Exemption Reason: " & CAREGIVER_ARRAY(exemption_reason_const, caregiver)
+                    GroupBox 15, 90, 255, 65, "Update EMPS Panel Now"
+                    Text 25, 105, 210, 10, "Update panel: EMPS for " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+                    Text 30, 115, 45, 10, "Fin Orient Dt: "
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 115, 40, 10, date
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 115, 40, 10, "__ __ __"
+                    Text 45, 125, 35, 10, "Attended: "
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 125, 20, 10, "Y"
+                    If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 125, 20, 10, "N"
+                    Text 30, 135, 45, 10, "Good Cause:"
+                    If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = False Then Text 85, 135, 20, 10, "__"
+                    If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 85, 135, 20, 10, CAREGIVER_ARRAY(emps_exemption_code_const, caregiver)
+                EndDialog
+
+				Do
+                    off_emps = False
+
+                    dialog Dialog1
+
+                    EMReadScreen emps_check, 4, 2, 50
+                    EMReadScreen panel_mode, 1, 20, 8
+
+                    If emps_check <> "EMPS" Then
+                        off_emps = True
+                    Else
+                        If panel_mode <> "D" Then transmit
+                        EMReadScreen panel_mode, 1, 20, 8
+                        If panel_mode = "D" Then
+                            Call write_value_and_transmit("SUMM", 20, 71)
+                            EMReadScreen emps_check, 4, 2, 50
+                            If emps_check <> "EMPS" Then off_emps = True
+                        End If
+                    End If
+                    msg_txt =   "*  *  *  Resolve EMPS Edit  *  *  *" & vbCr & vbCr &_
+                                "It appears the script run is stuck on EMPS and cannot move to CASE/NOTE." & vbCr & vbCr &_
+                                "Please resolve EMPS and ensure it is no longer in EDIT MODE for the script to continue." & vbCr & vbCr &_
+                                "The EMPS detail dialog will reapper allowing update in MAXIS. Resolve any messages or warnings and try again."
+                    If NOT off_emps Then MsgBox msg_txt
+                Loop until off_emps
+
+                EMReadScreen stat_check, 4, 20, 21
+                If stat_check = "STAT" Then PF4
 
 				Call start_a_blank_CASE_NOTE        'QUESTION - I believe we are going to lose the tie to the DAIL here - do we care? We could update the function 'navigat5e_to_MAXIS_screen' to support usng PF4 to get to CNOTE from STAT.
 
@@ -6149,13 +6169,35 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 				PF3
 
                 'We leave the CNOTE becaose this runs in a loop and may have more than one note.
-                call back_to_SELF       'QUESTION This will definitely lose the tie to the DAIL - Again - do we care?'
-
+                EMReadScreen stat_check, 4, 20, 22
+                If stat_check = "STAT" Then
+                    PF3
+                Else
+                    call back_to_SELF       'QUESTION This will definitely lose the tie to the DAIL - Again - do we care?'
+                End If
 			End If
-			' MsgBox CAREGIVER_ARRAY(memb_name_const, caregiver) & " - DONE"
 		Next
+        If orientation_reviewed Then
+            Do
+                EMReadScreen emps_check, 4, 2, 50
+                EMReadScreen panel_mode, 1, 20, 8
+                off_emps = False
+                If emps_check <> "EMPS" Then off_emps = True
+                If emps_check = "EMPS" Then
+                    If panel_mode <> "D" Then transmit
+                    If attempt_count > 2 Then
+                        If panel_mode = "E" or panel_mode = "A" Then PF10
+                    End If
+                    attempt_count = attempt_count + 1
+                    Call write_value_and_transmit("SUMM", 20, 71)
+                End If
+                EMReadScreen stat_check, 4, 20, 21
+                If stat_check = "STAT" Then PF4
+            Loop until off_emps
+
+            call back_to_SELF
+        End If
 	End If
-	' MsgBox "STOP HERE"
 end function
 
 function confirm_docs_accepted_in_ecf(closing_msg)
