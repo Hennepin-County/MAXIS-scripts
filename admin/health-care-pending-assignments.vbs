@@ -250,6 +250,7 @@ worker_array = worker_array & " X127ET1"
 worker_array = worker_array & " X127J8C"
 worker_array = worker_array & " X127PB6"
 worker_array = worker_array & " X127GS2"
+worker_array = ""
 
 'FOR REVIEW COUNTS
 total_cases_count			= 0
@@ -2932,6 +2933,7 @@ If operation_selection = "Review Completed Assignments" Then
 		If name_array(0) = "Abdullahi" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Abdullahi Berka"
 		If name_array(0) = "Hannah" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Hannah Broman"
 		If name_array(0) = "Jessilyn" and name_array(1) = "B" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Jessilyn Boerum"
+		If name_array(0) = "Cornel" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Cornel Culp"
 		If name_array(0) = "Grace" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Grace Cushman"
 		If name_array(0) = "Mayra" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Mayra Cota"
 		If name_array(0) = "Natalie" and name_array(1) = "C" Then COMPLETED_ASSIGNMENT_ARRAY(wrkr_name_const, cow)  =  "Natalie Carlstrom"
