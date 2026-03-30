@@ -1175,7 +1175,7 @@ If faci_1800_question = "Yes" Then addr_on_1800_faci_list = True
 
 caseload_contract_facility = contracted_facility
 If caseload_contract_facility = "Estates at Bloomington " Then caseload_contract_facility = "Monarch Facilities Contract"
-If caseload_contract_facility = "Estates at Chateau " Then caseload_contract_facility = "Monarch Facilities Contract"
+If caseload_contract_facility = "Estates at Chateau" Then caseload_contract_facility = "Monarch Facilities Contract"
 If caseload_contract_facility = "Estates at Excelsior" Then caseload_contract_facility = "Monarch Facilities Contract"
 If caseload_contract_facility = "Estates at St. Louis Park" Then caseload_contract_facility = "Monarch Facilities Contract"
 
