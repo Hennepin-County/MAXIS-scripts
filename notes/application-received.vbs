@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("03/31/2026", "TEFRA cases will now transfer only if the TEFRA checkbox is selected. Updated contract facility names for Villas to reflect accurate locations and case routing.", "David Courtright, Hennepin County")
 Call changelog_update("12/03/2025", "Updated transfer logic for the following: LTC alpha split, family cash cases 12/1/25 or later, certain specialty caseloads do not transfer for added program.", "Dave Courtright, Hennepin County.")
 Call changelog_update("08/08/2025", "Updated logic for selecting application date to ignore CCAP only app dates prior to other program applications.", "Dave Courtright, Hennepin County.")
 Call changelog_update("09/27/2024", "Fixed an isssue with identifying case status when a second cash program is pending. New functionality will be more reliable in these situations.##~##", "Casey Love, Hennepin County.")
@@ -214,7 +215,7 @@ function gather_current_caseload(current_caseload, secondary_caseload, find_prev
 	End If
 end function
 
-function find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+function find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, METS_retro_checkbox, TEFRA_check, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
 	transfer_needed = True
 
 	current_caseload_type = caseload_info.item(current_caseload)		'this could be blank if the basket is not identified in the dictionary
@@ -296,7 +297,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 
 	If correct_caseload_type = "" Then
 		If application_form = "MHCP App for Certain Populations - 3876" or application_form = "MNsure App for HC - 6696" or application_form = "No Application Required" Then
-			If age_of_memb_01 < 18 Then
+			If TEFRA_check = checked Then
 				correct_caseload_type = "TEFRA"
 				If correct_caseload_type = current_caseload_type Then transfer_needed = False
 			End If
@@ -924,15 +925,14 @@ app_facilities = app_facilities+chr(9)+"Estates at Bloomington "			'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at Chateau"					'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at Excelsior"				'MONARCH
 app_facilities = app_facilities+chr(9)+"Estates at St. Louis Park"			'MONARCH
-app_facilities = app_facilities+chr(9)+"A Villa Facilities Contract"		'VILLA
-app_facilities = app_facilities+chr(9)+"Brookview"							'VILLA
-app_facilities = app_facilities+chr(9)+"Park Health and Rehab"				'VILLA
-app_facilities = app_facilities+chr(9)+"Richfield Villa Center/ Rehab"		'VILLA
-app_facilities = app_facilities+chr(9)+"Robbinsdale Rehab and Care Center"	'VILLA
-app_facilities = app_facilities+chr(9)+"Texas Terrace"						'VILLA
-app_facilities = app_facilities+chr(9)+"Villa at Bryn Mawr"					'VILLA
-app_facilities = app_facilities+chr(9)+"Villa at Osseo"						'VILLA
-app_facilities = app_facilities+chr(9)+"Villa at St. Louis Park"			'VILLA
+app_facilities = app_facilities+chr(9)+"Villas at Brookview"				'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at The Park"				    'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Richfield"		        'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Robbinsdale"	            'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at The Cedars"				'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Bryn Mawr"			    'VILLAS 2
+app_facilities = app_facilities+chr(9)+"Villas at Osseo"					'VILLAS 2
+app_facilities = app_facilities+chr(9)+"Villas at St. Louis Park"			'VILLAS 2
 app_facilities = app_facilities+chr(9)+"Ebenezer Care Center/ Martin Luther Care Center"	'EBENEZER/MARTIN LUTHER
 app_facilities = app_facilities+chr(9)+"Ebenezer Care Center"				'EBENEZER/MARTIN LUTHER
 app_facilities = app_facilities+chr(9)+"Ebenezer Loren on Park"				'EBENEZER/MARTIN LUTHER
@@ -949,12 +949,13 @@ If snap_status = "PENDING" Then dlg_len = 280
 Dialog1 = "" 'Blanking out previous dialog detail
 '265 - previous dlg width
 BeginDialog Dialog1, 0, 0, 515, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
-  GroupBox 5, 5, 255, 115, "Application Information"
+  GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 30, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
   DropListBox 85, 50, 170, 45, "Select One:"+app_form_list, application_type
   EditBox 85, 75, 105, 15, confirmation_number
-  CheckBox 85, 95, 160, 10, "Check here if LTC or a Waiver is indicated.", appears_ltc_checkbox
-  CheckBox 85, 110, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+  CheckBox 15, 95, 160, 10, "Check here if LTC or a Waiver is indicated.", appears_ltc_checkbox
+  CheckBox 15, 110, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+  Checkbox 110, 110, 85, 10, "TEFRA Application", TEFRA_check
 
 
   '   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
@@ -1174,18 +1175,18 @@ If faci_1800_question = "Yes" Then addr_on_1800_faci_list = True
 
 caseload_contract_facility = contracted_facility
 If caseload_contract_facility = "Estates at Bloomington " Then caseload_contract_facility = "Monarch Facilities Contract"
-If caseload_contract_facility = "Estates at Chateau " Then caseload_contract_facility = "Monarch Facilities Contract"
+If caseload_contract_facility = "Estates at Chateau" Then caseload_contract_facility = "Monarch Facilities Contract"
 If caseload_contract_facility = "Estates at Excelsior" Then caseload_contract_facility = "Monarch Facilities Contract"
 If caseload_contract_facility = "Estates at St. Louis Park" Then caseload_contract_facility = "Monarch Facilities Contract"
 
-If caseload_contract_facility = "Brookview" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Park Health and Rehab" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Richfield Villa Center/ Rehab" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Robbinsdale Rehab and Care Center" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Texas Terrace" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Villa at Bryn Mawr" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Villa at Osseo" Then caseload_contract_facility = "A Villa Facilities Contract"
-If caseload_contract_facility = "Villa at St. Louis Park" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Villas at Brookview" Then caseload_contract_facility = "Villas: Brookview, The Park, Richfield, Robbinsdale, The Cedars"
+If caseload_contract_facility = "Villas at The Park" Then caseload_contract_facility = "Villas: Brookview, The Park, Richfield, Robbinsdale, The Cedars"
+If caseload_contract_facility = "Villas at Richfield" Then caseload_contract_facility = "Villas: Brookview, The Park, Richfield, Robbinsdale, The Cedars"
+If caseload_contract_facility = "Villas at Robbinsdale" Then caseload_contract_facility = "Villas: Brookview, The Park, Richfield, Robbinsdale, The Cedars"
+If caseload_contract_facility = "Villas at The Cedars" Then caseload_contract_facility = "Villas: Brookview, The Park, Richfield, Robbinsdale, The Cedars"
+If caseload_contract_facility = "Villas at Bryn Mawr" Then caseload_contract_facility = "Villas: St Louis Park, Bryn Mawr, Osseo"
+If caseload_contract_facility = "Villas at Osseo" Then caseload_contract_facility = "Villas: St Louis Park, Bryn Mawr, Osseo"
+If caseload_contract_facility = "Villas at St. Louis Park" Then caseload_contract_facility = "Villas: St Louis Park, Bryn Mawr, Osseo"
 
 If caseload_contract_facility = "Ebenezer Care Center" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
 If caseload_contract_facility = "Ebenezer Loren on Park" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
@@ -1193,7 +1194,7 @@ If caseload_contract_facility = "Martin Luther Care Center" Then caseload_contra
 If caseload_contract_facility = "Meadow Woods" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
 
 If application_type = "App for MA for LTC - 3531" Then appears_ltc_checkbox = checked
-call find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_type, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+call find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_type, appears_ltc_checkbox, METS_retro_checkbox, TEFRA_check, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
 
 'Calculates expedited status based on above numbers - only for snap pending cases
 If snap_status = "PENDING" Then
