@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/31/2026", "Fixed logic to reduce false positives due to recoupment, supplements and approved packages with no change.", "Dave Courtright, Hennepin County")
 call changelog_update("09/22/2017", "Added identifier that reflects true if case is set to close, false if it is not for the following month.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Added safety functionality for if MAXIS is passworded out.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -79,7 +80,7 @@ DO
 		Cancel_without_confirmation
 	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF all_worker_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
@@ -193,25 +194,25 @@ FOR EACH MAXIS_case_number IN case_array
 	pa_amount = trim(pa_amount)
 	IF pa_amount = "" THEN pa_amount = "0.00"
 	CALL navigate_to_MAXIS_screen("CASE", "CURR")
-	
+
 	CALL find_variable("GA: ", ga_status, 6)
-	IF ga_status = "ACTIVE" then 
+	IF ga_status = "ACTIVE" then
 	 	cash_prog = "GA"
-		case_closing = False 
+		case_closing = False
 	Elseif ga_status = "APP CL" THEN
 		cash_prog = "GA"
-		case_closing = True 
-	End if 
-	
+		case_closing = True
+	End if
+
 	CALL find_variable("RCA: ", rca_status, 6)
-	IF rca_status = "ACTIVE" THEN 
+	IF rca_status = "ACTIVE" THEN
 		cash_prog = "RCA"
 		case_closing = False
-	elseif rca_status = "APP CL" THEN 
+	elseif rca_status = "APP CL" THEN
 		cash_prog = "RCA"
 		case_closing = True
-	End if 
-	
+	End if
+
 	IF cash_prog = "GA" THEN
 		CALL navigate_to_MAXIS_screen("ELIG", "GA")
 		EMReadScreen approved, 8, 3, 3
@@ -227,9 +228,21 @@ FOR EACH MAXIS_case_number IN case_array
 		transmit
 			CALL find_variable("Monthly Grant............$", ga_amount, 9)
 			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
+			CALL find_variable("Amount Already Issued....$", ga_already_issued, 9)
+		'Turn the monthly grant amount, amount to be paid, and amount already issued into numbers that can be added together and compared to the PA amount, which is also turned into a number.
 		ga_amount = trim(ga_amount)
+		if ga_amount = "" then ga_amount = "0.00"
+		ga_amount = CDbl(ga_amount)
 		ga_to_be_paid = trim(ga_to_be_paid)
-		IF pa_amount <> ga_amount OR pa_amount <> ga_to_be_paid THEN
+		if ga_to_be_paid = "" then ga_to_be_paid = "0.00"
+		ga_to_be_paid = CDBl(ga_to_be_paid)
+		ga_already_issued = trim(ga_already_issued)
+		If ga_already_issued = "" then ga_already_issued = "0.00"
+		ga_already_issued = CDBl(ga_already_issued)
+		ga_amount = CDbl(ga_amount)
+		total_ga = (ga_to_be_paid + ga_already_issued) 'Total grant amount that will be paid for the month, must add together to account for supplements or re-approvals with no change that read as $0.00 for amount to be paid.
+		'Compare total issued GA to the amount of PA budgeted for SNAP. If the amounts are different, check to see if the reason is because it's the review month. If it is not the review month, then flag as a discrepancy.
+		IF cdbl(pa_amount) <> total_ga THEN
 			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
@@ -240,15 +253,15 @@ FOR EACH MAXIS_case_number IN case_array
 				objExcel.Cells(excel_row, 5).Value = "REVW MONTH"
 			ELSEIF bene_date <> cash_revw_date AND bene_date <> snap_revw_date THEN
 				objExcel.Cells(excel_row, 5).Value = ("Yes")
-				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
-				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
-				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
+				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & formatNumber(pa_amount, 2, -1))
+				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & formatNumber(ga_amount, 2, -1))
+				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & formatNumber(total_ga, 2, -1))
 			END IF
-		ELSEIF pa_amount = ga_amount AND pa_amount = ga_to_be_paid THEN
+		ELSEIF cdbl(pa_amount) = total_ga THEN
 			objExcel.Cells(excel_row, 5).Value = ("No")
-			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
-			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
-			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & ga_to_be_paid)
+			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & formatNumber(pa_amount, 2, -1))
+			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & formatNumber(ga_amount, 2, -1))
+			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & formatNumber(total_ga, 2, -1))
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
 		CALL navigate_to_MAXIS_screen("ELIG", "RCA")
@@ -284,7 +297,9 @@ FOR EACH MAXIS_case_number IN case_array
 	ELSEIF cash_prog = "SET TO CLOSE" THEN
 		objExcel.Cells(excel_row, 4).Value = ("CASH set to close")
 	END IF
-	
+	total_ga = ""
+	ga_to_be_paid = ""
+	ga_already_issued = ""
 	objExcel.Cells(excel_row, 9).Value = case_closing
 	excel_row = excel_row + 1
 
