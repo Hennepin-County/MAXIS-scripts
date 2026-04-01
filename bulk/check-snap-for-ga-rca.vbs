@@ -230,18 +230,19 @@ FOR EACH MAXIS_case_number IN case_array
 			CALL find_variable("Amount To Be Paid........$", ga_to_be_paid, 9)
 			CALL find_variable("Amount Already Issued....$", ga_already_issued, 9)
 		'Turn the monthly grant amount, amount to be paid, and amount already issued into numbers that can be added together and compared to the PA amount, which is also turned into a number.
+		ga_amount = trim(ga_amount)
 		if ga_amount = "" then ga_amount = "0.00"
-		ga_amount = ga_amount + 0
+		ga_amount = CDbl(ga_amount)
 		ga_to_be_paid = trim(ga_to_be_paid)
 		if ga_to_be_paid = "" then ga_to_be_paid = "0.00"
-		ga_to_be_paid = ga_to_be_paid + 0
+		ga_to_be_paid = CDBl(ga_to_be_paid)
 		ga_already_issued = trim(ga_already_issued)
-		if ga_already_issued = "" then ga_already_issued = "0.00"
-		ga_already_issued = ga_already_issued + 0
-		ga_amount = FormatNumber(ga_amount, 2, -1)
-		total_ga = FormatNumber(ga_to_be_paid + ga_already_issued, 2, -1) 'Total grant amount that will be paid for the month, must add together to account for supplements or re-approvals with no change that read as $0.00 for amount to be paid.
+		If ga_already_issued = "" then ga_already_issued = "0.00"
+		ga_already_issued = CDBl(ga_already_issued)
+		ga_amount = CDbl(ga_amount)
+		total_ga = (ga_to_be_paid + ga_already_issued) 'Total grant amount that will be paid for the month, must add together to account for supplements or re-approvals with no change that read as $0.00 for amount to be paid.
 		'Compare total issued GA to the amount of PA budgeted for SNAP. If the amounts are different, check to see if the reason is because it's the review month. If it is not the review month, then flag as a discrepancy.
-		IF pa_amount <> total_ga THEN
+		IF cdbl(pa_amount) <> total_ga THEN
 			CALL navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen cash_revw_date, 8, 9, 37
 			EMReadScreen snap_revw_date, 8, 9, 57
@@ -252,15 +253,15 @@ FOR EACH MAXIS_case_number IN case_array
 				objExcel.Cells(excel_row, 5).Value = "REVW MONTH"
 			ELSEIF bene_date <> cash_revw_date AND bene_date <> snap_revw_date THEN
 				objExcel.Cells(excel_row, 5).Value = ("Yes")
-				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
-				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
-				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & total_ga)
+				objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & formatNumber(pa_amount, 2, -1))
+				objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & formatNumber(ga_amount, 2, -1))
+				objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & formatNumber(total_ga, 2, -1))
 			END IF
-		ELSEIF pa_amount = total_ga THEN
+		ELSEIF cdbl(pa_amount) = total_ga THEN
 			objExcel.Cells(excel_row, 5).Value = ("No")
-			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & pa_amount)
-			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & ga_amount)
-			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & total_ga)
+			objExcel.Cells(excel_row, 6).Value = ("SNAP Budg = " & formatNumber(pa_amount, 2, -1))
+			objExcel.Cells(excel_row, 7).Value = ("Mo Grant = " & formatNumber(ga_amount, 2, -1))
+			objExcel.Cells(excel_row, 8).Value = ("Amt Paid = " & formatNumber(total_ga, 2, -1))
 		END IF
 	ELSEIF cash_prog = "RCA" THEN
 		CALL navigate_to_MAXIS_screen("ELIG", "RCA")
