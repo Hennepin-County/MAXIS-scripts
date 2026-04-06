@@ -151,6 +151,42 @@ Function GetMAXISRelationshipCode(relationship, gender)
 		
 End Function
 
+Function pmi_mtch_check()
+  mtch_row = 8
+
+  Do
+    EmReadScreen pmi_nbr_mtch_check, 10, mtch_row, 71
+    pmi_nbr_mtch_check = trim(pmi_nbr_mtch_check)
+    If pmi_nbr_mtch_check = "" Then
+      script_end_procedure("Script was unable to find the PMI match. The script will now end.")
+      Exit Do
+    End If
+    If pmi_nbr_mtch_check = household_members(MEMBER_PMI, member) Then
+      'Match found, view the match, select the match, then resolve data differences
+      CALL write_value_and_transmit("X", MTCH_row, 5)
+      PF3
+      CALL write_value_and_transmit("S", MTCH_row, 5) 
+      CALL write_value_and_transmit("Y", 18, 64)
+      Exit Do
+    'To do - now what if selecting existing case? 
+    Else
+      mtch_row = mtch_row + 1
+    End If
+    If mtch_row = 17 Then
+      PF8
+      mtch_row = 8
+    End If
+  Loop
+End Function
+Dim mtch_row, pmi_nbr_mtch_check
+
+Function mtch_add_new_person()
+  PF8
+  PF8
+  PF5
+  CALL write_value_and_transmit("Y", 6, 67)
+End Function
+
 'THE SCRIPT=================================================================================================================
 EMConnect "" 'Connects to BlueZone
 
@@ -281,6 +317,8 @@ Set objHouseholdMemberNodes = objHouseholdMemberNode.selectNodes("ns4:HouseholdM
 Dim objMemberNode, objRoot
 Dim objFirstNameNode, objLastNameNode, objSSNNode, objDOBNode, objRelationshipNode, objMaritalStatusNode, objGenderNode
 
+'To do - need to add handling for apartment number - displays apt twice (Apt 104 Apt 104) in XML file
+
 For Each objMemberNode In objHouseholdMemberNodes
   Set objFirstNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:FirstName")
   Set objLastNameNode = objMemberNode.selectSingleNode("ns4:PersonalInfo/ns4:Person/ns4:LastName")
@@ -375,6 +413,7 @@ Set objHouseholdState = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactI
 Set objHouseholdZip = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:Address/ns4:Zip5")
 'To do - add handling if household address info blank
 'To do - add handling if mailing address info blank
+'To do - add handling to capture phone number
 
 Set objMailingAddress = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:Line")
 Set objMailingCity = xmlDoc.selectSingleNode("//CONTENT/ap:Bytes/ns4:ContactInfo/ns4:MailingAddress/ns4:City")
@@ -1407,6 +1446,7 @@ BeginDialog Dialog1, 0, 0, 256, 265, "Process MNBenefits Application"
   EditBox 70, 205, 20, 15, mailing_state
   Text 15, 225, 20, 10, "Zip:"
   EditBox 70, 220, 45, 15, mailing_zip
+  'To do - add phone number?
   ButtonGroup ButtonPressed
     PushButton 200, 245, 50, 15, "Confirm", confirm_address_button
 EndDialog
@@ -1529,16 +1569,24 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'If new case selected, script will APPL, then move from PND1 to PND2
+
+'To do - if creating new case BUT person is known to MAXIS then it won't work. How to handle?
+'--> If person is NOT member 01 on another case then it will work to create a new case. Need to add handling for workers to alert them to this
+' If new case selected, script will APPL, then move from PND1 to PND2
+'--
 If case_action_selection = "Create new case" Then
   Call back_to_self
-  'Set the footer month
+  'Set the footer month to match month of application
+  ONLY_create_MAXIS_friendly_date(formatted_app_date)
+  EMWriteScreen left(formatted_app_date, 2), 20, 43
+  EMWriteScreen right(formatted_app_date, 2), 20, 46
 
-  'Goes to APPL function
 	call navigate_to_MAXIS_screen("APPL", "____")
 
 	'Enters info in APPL and transmits
-	call create_MAXIS_friendly_date(formatted_app_date, 0, 4, 63)
+  EMWriteScreen left(formatted_app_date, 2), 4, 63
+  EMWriteScreen mid(formatted_app_date, 4, 2), 4, 66
+  EMWriteScreen right(formatted_app_date, 2), 4, 69
 	EMWriteScreen household_members(MEMBER_FIRST_NAME, 0), 7, 30
 	EMWriteScreen household_members(MEMBER_LAST_NAME, 0), 7, 63
   transmit
@@ -1557,45 +1605,6 @@ If case_action_selection = "Create new case" Then
   Const MEMBER_EXISTS_MAXIS   = 8
   Const APPL_CASE_NUMBER      = 9
   Const MEMBER_GENDER         = 10
-  
-  ReDim household_members(MEMBER_GENDER, member_count)   'Redimmed to the size of the last constant
-
-  'To do - do we have a variable to calculate the number of HH members?
-
-  Function pmi_mtch_check()
-    mtch_row = 8
-
-    Do
-      EmReadScreen pmi_nbr_mtch_check, 10, mtch_row, 71
-      pmi_nbr_mtch_check = trim(pmi_nbr_mtch_check)
-      If pmi_nbr_mtch_check = "" Then
-        script_end_procedure("Script was unable to find the PMI match. The script will now end.")
-        Exit Do
-      If pmi_nbr_mtch_check = household_members(MEMBER_PMI, member) Then
-        'Match found, view the match, select the match, then resolve data differences
-        CALL write_value_and_transmit("X", MTCH_row, 5)
-        PF3
-        CALL write_value_and_transmit("S", MTCH_row, 5) 
-        CALL write_value_and_transmit("Y", 18, 64)
-        Exit Do
-      'To do - now what if selecting existing case? 
-      Else
-        mtch_row = mtch_row + 1
-      End If
-      If mtch_row = 17 Then
-        PF8
-        mtch_row = 8
-      End If
-    Loop
-  End Function
-  Dim mtch_row, pmi_nbr_mtch_check
-
-  Function mtch_add_new_person()
-    PF8
-    PF8
-    PF5
-    CALL write_value_and_transmit("Y", 6, 67)
-  End Function
 
   'Starts with the applicant and adds additional household members as necessary
   EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
@@ -1603,15 +1612,10 @@ If case_action_selection = "Create new case" Then
 
   If household_members(MEMBER_EXISTS_MAXIS, 0) = true Then
     pmi_mtch_check()
-
   Else
     'Person does not exist in MAXIS, will create a new person
     mtch_add_new_person()
   End If
-
-  'Now at MEMI > MEMB > ADDR
-  '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
-  '->After pressing transmit, move to ADDR
 
   'MEMI 
   'add marital status details if provided
@@ -1637,10 +1641,6 @@ If case_action_selection = "Create new case" Then
   'If there are other HH members, script will add MEMB panels
   If Ubound(household_members, 2) > 0 Then
     For i = 1 to Ubound(household_members, 2)
-      'Must provide the following before MTCH search:
-      '-> Ref Nbr (4, 33)
-      '-> Gender (9, 42)
-      '-> Relationship (10, 42)
 
       'To do - need to confirm how ref nbr determined (i.e. 02, 03, 04, etc.)
       'To do - need to confirm how relationships determined (i.e. 02, 03, 04, etc.)
@@ -1652,7 +1652,6 @@ If case_action_selection = "Create new case" Then
         pmi_mtch_check()
       Else
         mtch_add_new_person()
-
       End If
 
       'Handling if PMI does not exist
@@ -1684,65 +1683,37 @@ If case_action_selection = "Create new case" Then
     Next
   End If
   
-  'MEMB
-  '-> Must enter gender and transmit to find the match or not
-  '-> If person exists, then need to find match. If person is new to MAXIS, then need to create new PMI
-  
-  For each person in household_members
-    If household_members(MEMBER_EXISTS_MAXIS, member) = true Then
-      EMWriteScreen left(household_members(MEMBER_GENDER, member), 1), 9, 42
-      transmit
+  'Update ADDR
+  'To do - need to adjust handling as needed for second address line, apartment number
+  'To do - handling for homeless
+  'To do - add phone number
+  Call access_ADDR_panel("WRITE", notes_on_address, household_address, resi_line_two, resi_street_full, household_city, household_state, household_zip, household_county, "NO", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mailing_address, mail_line_two, mail_street_full, mailing_city, mailing_state, mailing_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-      pmi_mtch_check()
+  transmit
 
-    Else
-      'Person does not exist in MAXIS, will create a new person
-      mtch_add_new_person()
-    End If
+  'APPLing new case is complete
+End If
 
-    'Now at MEMI - add details to MEMI
-    'Write marital status
-  
-    'Now at MEMI > MEMB > ADDR
-    '-> Do not need to fill out any details on MEMI, after transmit script moves to MEMB
-    '->After pressing transmit, move to ADDR      If household_members(MEMBER_MARITAL_STATUS, i) = "Never Married" Then
-    'MEMI 
-    'add marital status details if provided
-    If household_members(MEMBER_MARITAL_STATUS, i) = "Never Married" Then
-      EMWriteScreen "N", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Married Living w/Spouse" Then
-      EMWriteScreen "M", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Divorced" Then
-      EMWriteScreen "D", 7, 40
-    ElseIf household_members(MEMBER_MARITAL_STATUS, i) = "Separated (Married but living apart)" Then
-      EMWriteScreen "S", 7, 40
-    End If
-  
-    'add citizenship details if provided
-    If household_members(MEMBER_CITIZENSHIP, i) = "Yes" Then
-      EMWriteScreen "Y", 11, 49
-    ElseIf household_members(MEMBER_CITIZENSHIP, i) = "No" Then
-      EMWriteScreen "N", 11, 49
-    End If
-  
-    transmit
-  Next 
+'Navigate to STAT/SPAN (ensure STAT/PROG, STAT/TYPE, and STAT/REVW are checked)
+
+'STAT/TYPE
 
 
-  
-  'MTCH
-  '--> Must find match or create a new person
+'STAT/PROG
+'To do - what do we enter for interview date?
+
+'STAT/REVW
+'To do - what do we enter on this panel?
 
 
-
-  household_members(MEMBER_FIRST_NAME, member)
-  household_members(MEMBER_LAST_NAME, member)
-  DropListBox 65, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
-  DropListBox 65, 90, 100, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member)
-  EditBox 65, 105, 100, 15, household_members(MEMBER_DOB, member)
-  EditBox 65, 120, 100, 15, household_members(MEMBER_SSN, member)
-  DropListBox 65, 135, 60, 15, "Select one:" +chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
-  DropListBox 65, 150, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
+household_members(MEMBER_FIRST_NAME, member)
+household_members(MEMBER_LAST_NAME, member)
+DropListBox 65, 75, 60, 10, "Select one:"+chr(9)+"Male"+chr(9)+"Female"+chr(9)+"Other", household_members(MEMBER_GENDER, member)
+DropListBox 65, 90, 100, 20, "Select one:"+chr(9)+"Never Married"+chr(9)+"Married Living w/Spouse"+chr(9)+"Divorced"+chr(9)+"Separated (Married but living apart)", household_members(MEMBER_MARITAL_STATUS, member)
+EditBox 65, 105, 100, 15, household_members(MEMBER_DOB, member)
+EditBox 65, 120, 100, 15, household_members(MEMBER_SSN, member)
+DropListBox 65, 135, 60, 15, "Select one:" +chr(9)+"Yes"+chr(9)+"No", household_members(MEMBER_CITIZENSHIP, member)
+DropListBox 65, 150, 60, 10, "Select one:"+chr(9)+"Self"+chr(9)+"Spouse"+chr(9)+"Child"+chr(9)+"Step Child"+chr(9)+"Parent"+chr(9)+"Sibling"+chr(9)+"Other Relative"+chr(9)+"Other", household_members(MEMBER_RELATIONSHIP, member)
 
 
 '---Update XML - add to very end
