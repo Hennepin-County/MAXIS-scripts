@@ -14295,6 +14295,622 @@ function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_a
 	If memo_opened = False AND end_script = True Then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 end function
 
+function tlr_screening_case_note_person_info(person_info, info_evaluated, eval_string, wreg_status, tlr_status, panel_code, wreg_selection, include_panel_code, tlr_output, second_set_output, wreg_exists)
+'--- This function creates the details of a person's TLR screening information as a part of a CASE/NOTE - does NOT start a CASE/NOTE or write an entire CASE/NOTE
+'~~~~~ person_info: STRING - details of the member's information, typically name and possibly reference number.
+'~~~~~ info_evaluated: BOOLEAN - indicates if a tlr screening was completed for this individual.
+'~~~~~ eval_string: STRING - details of the TLR screening with TLR and WREG exemptions.
+'~~~~~ wreg_status: STRING - WREG exemption status.
+'~~~~~ tlr_status: STRING - TLR exemption status.
+'~~~~~ panel_code: STRING - codes for WREG and TLR fields of WREG panel
+'~~~~~ wreg_selection: STRING - if the WRED/TLR status was manually selected by a worker during the screening, this records that detail.
+'~~~~~ include_panel_code: BOOLEAN - indicates if the panel code should be included in the CASE NOTE.
+'~~~~~ tlr_output: STRING - details of the TLR months counted if the WREG/TLR information was pulled from WREG
+'~~~~~ second_set_output: STRING - details of the 2nd set months counted if the WREG/TLR information was pulled from WREG
+'~~~~~ wreg_exists: BOOLEAN - indicates if a WREG panel exists for the individual
+'===== Keywords: MAXIS, case note, TLR, WREG, exemption, screening
+
+    'the function will only output case note details if the member has a WREG panel or if a TLR screening was completed.
+    If wreg_exists or info_evaluated Then
+        call write_variable_in_CASE_NOTE("* " & person_info & ":")                                                          'Member information
+        If info_evaluated Then
+            If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then                                    'manual selection of WREG/TLR status by worker during screening
+                call write_variable_in_CASE_NOTE("  WREG/TLR Identified by Worker: " & wreg_selection)
+            End If
+            If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)     'formatting the eval string to remove any trailing semicolons that would cause a blank bullet point in the case note
+            If InStr(eval_string, ";") Then                                                                                 'if there are multiple details in the eval string, the note will enter details on separate lines
+                call write_variable_in_CASE_NOTE("  Exemption Evaluation:")
+                eval_array = split(eval_string, ";")                                                                        'create an array of eval information
+                for each eval_info in eval_array
+                    If trim(eval_info) <> "" Then call write_variable_in_CASE_NOTE("  - " & trim(eval_info))                'enter each detail seperately on different lines
+                next
+            Else
+                call write_variable_in_CASE_NOTE("  Exemption Evaluation: " & trim(replace(trim(eval_string), ";", "")))    'if there is only one eval detail, it will be written on a single line with the header
+            End If
+        End If
+        'status detail entered here. function can include the panel code, though some scripts may not require this level of detail.
+        If include_panel_code Then call write_variable_in_CASE_NOTE("  WREG Status - " & wreg_status & ", TLR Status - " & tlr_status & ", Panel Code - " & panel_code & ".")
+        If NOT include_panel_code Then call write_variable_in_CASE_NOTE("  WREG Status - " & wreg_status & ", TLR Status - " & tlr_status & ".")
+    End If
+
+    'if a WREG panel already exists, the details from the tracking record can be entered here
+    If wreg_exists Then
+        Call write_variable_in_CASE_NOTE("  Current Detail from WREG:")
+        Call write_variable_in_CASE_NOTE("  - Counted TLR Months: " & tlr_output)
+        Call write_variable_in_CASE_NOTE("  - Counted 2nd Set Months: " & second_set_output)
+    End If
+end function
+
+function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection)
+'--- This function uses the information from tlr_screening_wreg_person_info_display to determing the correct TLR/WREG status, exemptions, and panel code for a person being screened for TLR.
+'~~~~~ info_evaluated: BOOLEAN - indicates if a tlr screening was completed for this individual.
+'~~~~~ screening_needed: BOOLEAN - indicates if a screening is required for this individual, typically when WREG exemptions cannot be determined by age alone.
+'~~~~~ eval_string: STRING - details of the TLR screening with TLR and WREG exemptions.
+'~~~~~ wreg_status: STRING - WREG exemption status.
+'~~~~~ tlr_status: STRING - TLR exemption status.
+'~~~~~ panel_code: STRING - codes for WREG and TLR fields of WREG panel
+'~~~~~ dob: DATE - date of birth for the person being screened, which is used to determine age-based exemptions
+'~~~~~ disability_info: STRING - selection from screening dialog for disability details that may indicate an exemption
+'~~~~~ homeless: STRING or BOOLEAN - Binary selection from screening dialog of if the member is experiencing homelessness. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ dv_victim: STRING or BOOLEAN - Binary selection from screening dialog of if the member is a domestic violence victim. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ schl_training: STRING - selection from screening dialog for school type and enrollment time
+'~~~~~ person_requiring_care: STRING - selection from screening dialog of the name of a person requiring care that may indicate an exemption
+'~~~~~ person_care_reason: STRING - selection from screening dialog with the reason for care for the person identified in person_requiring_care that may indicate an exemption
+'~~~~~ child_under_6_requiring_care: STRING - selection from screening dialog of the name of a child under 6 requiring care that may indicate an exemption
+'~~~~~ caregiver_in_home: STRING or BOOLEAN - Binary selection from screening dialog of if the member has a caregiver in the home, specific to 16/17 year olds. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ hrs_per_week: FLOAT - entry from the screening dialog of the number of hours the member works in a week.
+'~~~~~ wage_per_week: FLOAT - entry from the screening dialog of the amount the member earns in a week.
+'~~~~~ wage_per_month: FLOAT - entry from the screening dialog of the amount the member earns in a month.
+'~~~~~ other_benefit: STRING - selection from screening dialog of other public assistance benefits that may indicate an exemption
+'~~~~~ unea_income: STRING - selection from screening dialog of unearned income received by the member that may indicate an exemption
+'~~~~~ treatment: STRING - selection from screening dialog for treatment details that may indicate an exemption
+'~~~~~ children_under_14: STRING or BOOLEAN - Binary selection from screening dialog of if the member has children under 14, which may indicate an exemption for caregivers. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ pregnant: STRING or BOOLEAN - Binary selection from screening dialog of if the member is pregnant. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ american_indian: STRING or BOOLEAN - Binary selection from screening dialog of if the member is an American Indian. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ wreg_selection: STRING - selection from screening dialog for worker selection of wreg and tlr status.
+'===== Keywords: MAXIS, evaluator, TLR, WREG, exemption, screening
+
+    wreg_status = ""                'reset the WREG and TLR status and panel code each time this function is run to ensure it is only pulling the information from the current screening
+    tlr_status = ""
+    panel_code = ""
+    eval_string = ""
+    screening_needed = False
+
+    'if the worker has directly selected the WREG/TLR status, this information is given priority in the evaluation
+    If wreg_selection <> "" and wreg_selection <> "Unknown or Not Selected" Then
+        wreg_tlr_from_selection = right(wreg_selection, 6)
+        wreg_tlr_from_selection = replace(wreg_tlr_from_selection, ")", "")
+        panel_code_array = split(wreg_tlr_from_selection, "/")
+        wreg_status = panel_code_array(0)
+        tlr_status = panel_code_array(1)
+    End If
+
+    'ensuring variables that could be strings or booleans are all converted to booleans for the evaluation process
+    If homeless = "Yes" Then homeless = True
+    If homeless = "No" Then homeless = False
+    If dv_victim = "Yes" Then dv_victim = True
+    If dv_victim = "No" Then dv_victim = False
+    If caregiver_in_home = "Yes" Then caregiver_in_home = True
+    If caregiver_in_home = "No" Then caregiver_in_home = False
+    If treatment = "Yes" Then treatment = True
+    If treatment = "No" Then treatment = False
+    If children_under_14 = "Yes" Then children_under_14 = True
+    If children_under_14 = "No" Then children_under_14 = False
+    If pregnant = "Yes" Then pregnant = True
+    If pregnant = "No" Then pregnant = False
+    If american_indian = "Yes" Then american_indian = True
+    If american_indian = "No" Then american_indian = False
+
+    'formatting and standardising numbers
+    ' AGE is detertmened to be the last day of next month from the current date
+    first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
+    last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
+    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    If IsNumeric(wage_per_week) and NOT IsNumeric(wage_per_month) Then
+        wage_per_month = wage_per_week * 4.3
+    End If
+    If IsNumeric(wage_per_month) and NOT IsNumeric(wage_per_week) Then
+        wage_per_week = wage_per_month / 4.3
+    End If
+    fed_min_wage = 7.25
+    min_wage_per_week = fed_min_wage * 30
+
+    If IsDate(dob) Then                         'AGE based exemptions are determined first.
+        If fn_age > 64 Then
+            panel_code = "05/01"
+            wreg_status = "Exempt"
+            tlr_status = "Exempt"
+            eval_string = "Age over 64; "
+        ElseIf fn_age >= 60 Then
+            panel_code = "05/01"
+            wreg_status = "Exempt"
+            tlr_status = "Exempt"
+            eval_string = "Age between 60 and 64; "
+        ElseIf fn_age < 16 Then
+            panel_code = "Panel Not Needed"     '06/01 if created
+            wreg_status = "Exempt"
+            tlr_status = "Exempt"
+            eval_string = "Age under 16; "
+        ElseIf fn_age >= 16 AND fn_age < 18 Then
+            If caregiver_in_home = True Then
+                tlr_status = "Exempt"
+                panel_code = "06/01"
+                wreg_status = "Exempt"
+                eval_string = "Age 16 or 17 living with Caregiver; "
+            End If
+        End If
+    End If
+
+    unfit_for_employment = False                    'Unfit for employment exemptions
+    If unea_income = "SSI" or unea_income = "RSDI - Disability" or unea_income = "VA Disability" or unea_income = "WC" Then
+        eval_string = eval_string & "Unfit for Employment - Receiving Disability Benefits - " & unea_income & "; "
+        unfit_for_employment = True
+    ElseIf disability_info <> "" Then
+        eval_string = eval_string & "Unfit for Ewmployment - " & disability_info & "; "
+        unfit_for_employment = True
+    ElseIf homeless Then
+        eval_string = eval_string & "Experiencing Housing Instability; "
+        unfit_for_employment = True
+    ElseIf dv_victim Then
+        eval_string = eval_string & "Victim of DV; "
+        unfit_for_employment = True
+    End If
+    If unfit_for_employment Then
+        If panel_code = "" Then panel_code = "03/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    caregiver =  False                              'caregiver based exemptions
+    person_requiring_care = trim(person_requiring_care)
+    If trim(person_requiring_care) = "Select or Type" Then person_requiring_care = ""
+    child_under_6_requiring_care = trim(child_under_6_requiring_care)
+    If trim(child_under_6_requiring_care) = "Select or Type" Then child_under_6_requiring_care = ""
+
+    If person_requiring_care <> "" Then
+        eval_string = eval_string & "Caregiver for " & person_requiring_care & " due to " & person_care_reason & "; "
+        caregiver = True
+    ElseIf child_under_6_requiring_care <> "" Then
+        eval_string = eval_string & "Caregiver for Child (" & child_under_6_requiring_care & ") under 6; "
+        caregiver = True
+    End If
+    If caregiver Then
+        If panel_code = "" Then panel_code = "04/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    working_exempt = False                              'working based exemptions
+    If IsNumeric(hrs_per_week) Then
+        If hrs_per_week >= 30 Then
+            eval_string = eval_string & "Working at least 30 hours per week (Hrs/Wk: " & hrs_per_week & "); "
+            working_exempt = True
+        End If
+    End If
+    If NOT working_exempt Then
+        If IsNumeric(wage_per_week) Then
+            If wage_per_week >= min_wage_per_week Then
+                eval_string = eval_string & "Earning wage at least the equivalent of 30 hours at minimum wage (Weekly Wage: $ " & wage_per_week & "); "
+                working_exempt = True
+            End If
+        End If
+    End If
+    If NOT working_exempt Then
+        If IsNumeric(wage_per_month) Then
+            If wage_per_month >= (min_wage_per_week*4.3) Then
+                eval_string = eval_string & "Earning wage at least the equivalent of 30 hours at minimum wage (Monthly Wage: $ " & wage_per_month & "); "
+                working_exempt = True
+            End If
+        End If
+    End If
+    If working_exempt Then
+        If panel_code = "" Then panel_code = "09/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+    End If
+
+    'other benefit or unearned income based exemptions
+    If unea_income = "UI" or unea_income = "Applied for UI" or other_benefit = "Matching Grant" or other_benefit = "MFIP" or other_benefit = "DWP" Then
+        If panel_code = "" Then panel_code = "11/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        If unea_income = "UI" Then
+            eval_string = eval_string & "Receiving Unemployment Benefits; "
+        ElseIf unea_income = "Applied for UI" Then
+            eval_string = eval_string & "Applied for Unemployment Benefits; "
+        Else
+            eval_string = eval_string & "Receiving " & other_benefit & "; "
+        End If
+    End If
+
+    'school or training or treatment based exemptions
+    If schl_training = "High School - Full Time" or schl_training = "High School - Half Time" or schl_training = "Recognized Training Program - Full Time" or schl_training = "Recognized Training Program - Half Time" or schl_training = "Vocational Training - Full Time" or schl_training = "Vocational Training - Half Time" or schl_training = "Higher Education - Full Time" or schl_training = "Higher Education - Half Time" Then
+        If panel_code = "" Then panel_code = "12/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Attending " & schl_training & "; "
+    End If
+    If treatment Then
+        If panel_code = "" Then panel_code = "12/01"
+        wreg_status = "Exempt"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Attends regular Chemical Dependancy Treatment; "
+    End If
+
+    'All of the WREG exemptions have been evaluated at this point, so if wreg is not exempt, the member is subject to WREG
+    'If exemptions have not been found, a screening is recommended.
+    If panel_code = "" Then screening_needed = True
+    If wreg_status = "" Then wreg_status = "Subject to General Work Rules"
+
+    'Now we evaluation TLR only exemptions.
+    If american_indian Then                                         'indigenous exemption
+        If panel_code = "" Then panel_code = "30/09"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "American Indian; "
+    End If
+
+    If IsDate(dob) Then                                             'age based exemption
+        If fn_age >= 16 AND fn_age < 18 Then
+            If NOT caregiver_in_home Then
+                If panel_code = "" Then panel_code = "15/02"
+                tlr_status = "Exempt"
+                eval_string = eval_string & "Age 16 or 17 NOT living with Caregiver; "
+            End If
+        End If
+    End If
+
+    If children_under_14 Then                                       'caregiver based exemption
+        If panel_code = "" Then panel_code = "21/04"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Child under 14 in the household; "
+    End If
+
+    If pregnant Then                                                'pregnancy based exemption
+        If panel_code = "" Then panel_code = "23/05"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Pregnancy; "
+    End If
+
+    If other_benefit = "RCA" Then                                   'other benefits based exemption
+        If panel_code = "" Then panel_code = "17/12"
+        tlr_status = "Exempt"
+        eval_string = eval_string & "Receiving RCA; "
+    End If
+
+    'if no exemption is found at this point, the member is subject to TLR and WREG
+    If eval_string = "" Then eval_string = "No exemptions identified; "
+    If tlr_status = "" Then tlr_status = "Subject to Time Limited Rules"
+    If panel_code = "" Then panel_code = "30/10"
+end function
+
+function tlr_screening_read_WREG_details(memb_numb, wreg_exists, curr_wreg_code, curr_tlr_code, counted_months, second_set_count, counted_months_string, second_set_string, tlr_output, second_set_output)
+'--- This functions navigates to WREG for a specific member and gathers WREG details relevant to TLR and WREG status, including months used in the tracking record.
+'~~~~~ memb_numb: STRING - member reference number (eg 01) from MAXIS to navigate to the member's WREG panel
+'~~~~~ wreg_exists: BOOLEAN - indicates if the WREG panel exists for the member
+'~~~~~ curr_wreg_code: STRING - current WREG code from WREG panel for the member
+'~~~~~ curr_tlr_code: STRING - current TLR code from WREG panel for the member
+'~~~~~ counted_months: STRING - number of regular months counted in the tracking record
+'~~~~~ second_set_count: STRING - number of second set months in the tracking record
+'~~~~~ counted_months_string: STRING - string representation of counted months
+'~~~~~ second_set_string: STRING - string representation of second set months
+'~~~~~ tlr_output: STRING - information for case note about TLR months
+'~~~~~ second_set_output: STRING - information for case note about 2nd set months
+'===== Keywords: MAXIS, TLR, WREG, exemption, screening
+    ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    Call navigate_to_MAXIS_screen("STAT", "WREG")                               'navigate to WREG
+    Call write_value_and_transmit(memb_numb, 20, 76)                            'navigate to the member's WREG panel using the member number
+
+    wreg_exists = False
+    EMReadScreen panel_exists, 1, 2, 78
+    If panel_exists = "1" then
+        wreg_exists = True
+        EMreadScreen curr_wreg_code, 2, 8, 50                                   'reading current WREG panel details.
+        EMReadScreen curr_tlr_code, 2, 13, 50
+
+        Call write_value_and_transmit("X", 13, 57)		                        'navigate to ABAWD/TLR Tracking panel and check for historical months
+
+        'Resetting the variables
+        bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		                'col to search starts at 15, increased by 4 for each footer month
+        bene_yr_row = 10
+        counted_months = 0					                                    'declares the variables values at 0 or blanks
+        second_set_count = 0
+        counted_months_string = ""
+        second_set_string = ""
+
+        TLR_fixed_clock_mo = "01"                                               'fixed clock dates for all recipients
+        TLR_fixed_clock_yr = "26"
+
+        DO
+            'establishing variables for specific ABAWD counted month dates
+            If bene_mo_col = "19" then counted_date_month = "01"
+            If bene_mo_col = "23" then counted_date_month = "02"
+            If bene_mo_col = "27" then counted_date_month = "03"
+            If bene_mo_col = "31" then counted_date_month = "04"
+            If bene_mo_col = "35" then counted_date_month = "05"
+            If bene_mo_col = "39" then counted_date_month = "06"
+            If bene_mo_col = "43" then counted_date_month = "07"
+            If bene_mo_col = "47" then counted_date_month = "08"
+            If bene_mo_col = "51" then counted_date_month = "09"
+            If bene_mo_col = "55" then counted_date_month = "10"
+            If bene_mo_col = "59" then counted_date_month = "11"
+            If bene_mo_col = "63" then counted_date_month = "12"
+            'counted date year: this is found on rows 7-10. Row 11 is current year plus one, so this will be exclude this list.
+            If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", ABAWD_eval_date), 2)
+            If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, ABAWD_eval_date)), 2)
+            If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, ABAWD_eval_date)), 2)
+            If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, ABAWD_eval_date)), 2)
+
+            'reading to see if a month is counted month or not
+            EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+
+            'counting and checking for counted ABAWD months
+            IF is_counted_month = "X" or is_counted_month = "M" THEN
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
+                counted_months = counted_months + 1				'adding counted months
+                counted_months_string = counted_months_string & counted_date_month & "/" & counted_date_year & " | "
+            END IF
+
+            'counting and checking for counted 2nd set months
+            IF is_counted_month = "Y" or is_counted_month = "N" THEN
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
+                second_set_count = second_set_count + 1				'adding counted months
+                second_set_string = second_set_string & counted_date_month & "/" & counted_date_year & " |"
+            END IF
+
+            bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
+            IF bene_mo_col = 15 THEN
+                bene_yr_row = bene_yr_row - 1
+                bene_mo_col = 63
+            END IF
+            'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members.
+            ' MsgBox "counted_date_month - " & counted_date_month & vbCr & "counted_date_year - " & counted_date_year & vbCr & "TLR_fixed_clock_mo - " & TLR_fixed_clock_mo & vbCr & "TLR_fixed_clock_yr - " & TLR_fixed_clock_yr & vbCr & "bene_yr_row - " & bene_yr_row & vbCr & "bene_mo_col - " & bene_mo_col
+        LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
+
+        'cleaning up these variables for dialog display
+        If trim(right(counted_months_string, 1)) = "|" THEN counted_months_string = left(counted_months_string, len(counted_months_string) - 1)
+        If trim(right(second_set_string, 1)) = "|" THEN second_set_string = left(second_set_string, len(second_set_string) - 1)
+        PF3	' to exit tracking record
+
+        tlr_output = counted_months
+        If counted_months <> 0 Then tlr_output = tlr_output & " - " & counted_months_string
+        second_set_output = second_set_count
+        If second_set_count <> 0 Then second_set_output = second_set_output & " - " & second_set_string
+    End if
+end function
+
+function tlr_screening_wreg_person_info_display(info_evaluated, person_info, person_droplist, child_droplist, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, schl_amt, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection, tlr_screen_save_btn, tlr_output, second_set_output, wreg_exists)
+'--- This function displays the dialog elements for an individual's TLR screening information, including exemptions and WREG panel details if they exist. DOES NOT include all dialog syntax and should be used within a dialog block
+'~~~~~ info_evaluated: BOOLEAN - indicates if a tlr screening was completed for this individual.
+'~~~~~ person_info: STRING - member information for the dialog display
+'~~~~~ person_droplist: STRING - list of people to select in dialog for screening, delimited by chr(9) for dropdown display
+'~~~~~ child_droplist: STRING - list of children under 6 to select in dialog for screening, delimited by chr(9) for dropdown display
+'~~~~~ eval_string: STRING - details of the TLR screening with TLR and WREG exemptions.
+'~~~~~ wreg_status: STRING - WREG exemption status.
+'~~~~~ tlr_status: STRING - TLR exemption status.
+'~~~~~ panel_code: STRING - codes for WREG and TLR fields of WREG panel
+'~~~~~ dob: DATE - date of birth for the person being screened, which is used to determine age-based exemptions
+'~~~~~ disability_info: STRING - selection from screening dialog for disability details that may indicate an exemption
+'~~~~~ homeless: STRING or BOOLEAN - Binary selection from screening dialog of if the member is experiencing homelessness. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ dv_victim: STRING or BOOLEAN - Binary selection from screening dialog of if the member is a domestic violence victim. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ schl_training: STRING - selection from screening dialog for school type and enrollment time
+'~~~~~ schl_amt: STRING - selection from screening dialog for the enrollment time for school/training
+'~~~~~ person_requiring_care: STRING - selection from screening dialog of the name of a person requiring care that may indicate an exemption
+'~~~~~ person_care_reason: STRING - selection from screening dialog with the reason for care for the person identified in person_requiring_care that may indicate an exemption
+'~~~~~ child_under_6_requiring_care: STRING - selection from screening dialog of the name of a child under 6 requiring care that may indicate an exemption
+'~~~~~ caregiver_in_home: STRING or BOOLEAN - Binary selection from screening dialog of if the member has a caregiver in the home, specific to 16/17 year olds. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ hrs_per_week: FLOAT - entry from the screening dialog of the number of hours the member works in a week.
+'~~~~~ wage_per_week: FLOAT - entry from the screening dialog of the amount the member earns in a week.
+'~~~~~ wage_per_month: FLOAT - entry from the screening dialog of the amount the member earns in a month.
+'~~~~~ other_benefit: STRING - selection from screening dialog of other public assistance benefits that may indicate an exemption
+'~~~~~ unea_income: STRING - selection from screening dialog of unearned income received by the member that may indicate an exemption
+'~~~~~ treatment: STRING - selection from screening dialog for treatment details that may indicate an exemption
+'~~~~~ children_under_14: STRING or BOOLEAN - Binary selection from screening dialog of if the member has children under 14, which may indicate an exemption for caregivers. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ pregnant: STRING or BOOLEAN - Binary selection from screening dialog of if the member is pregnant. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ american_indian: STRING or BOOLEAN - Binary selection from screening dialog of if the member is an American Indian. (This could be in the form of a boolean or Yes/No string.)
+'~~~~~ wreg_selection: STRING - selection from screening dialog for worker selection of wreg and tlr status.
+'~~~~~ tlr_screen_save_btn: INTEGER - button identification number for dialog operation
+'~~~~~ tlr_output: STRING - information for case note about TLR months
+'~~~~~ second_set_output: STRING - information for case note about 2nd set months
+'~~~~~ wreg_exists: BOOLEAN - indicates if the WREG panel exists for the member
+'===== Keywords: MAXIS, TLR, WREG, exemption, screening
+
+    'formatting variables for use in a dialog
+    first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
+    last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
+    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+
+    If homeless Then
+        homeless = "Yes"
+    Else
+        homeless = "No"
+    End If
+    If dv_victim Then
+        dv_victim = "Yes"
+    Else
+        dv_victim = "No"
+    End If
+    If caregiver_in_home Then
+        caregiver_in_home = "Yes"
+    Else
+        caregiver_in_home = "No"
+    End If
+    If treatment Then
+        treatment = "Yes"
+    Else
+        treatment = "No"
+    End If
+    If children_under_14 Then
+        children_under_14 = "Yes"
+    Else
+        children_under_14 = "No"
+    End If
+    If pregnant Then
+        pregnant = "Yes"
+    Else
+        pregnant = "No"
+    End If
+    If american_indian Then
+        american_indian = "Yes"
+    Else
+        american_indian = "No"
+    End If
+
+    If InStr(schl_training, "-") Then
+        schl_array = split(schl_training, "-")
+
+        schl_training = trim(schl_array(0))
+        schl_amt = trim(schl_array(1))
+    End If
+
+    'creating droplist selections
+    yes_no_list = ""+chr(9)+"Yes"+chr(9)+"No"
+
+    disability_info_list = ""
+    disability_info_list = disability_info_list+chr(9)+"Temporary Disability"
+    disability_info_list = disability_info_list+chr(9)+"Permanent Disability"
+    disability_info_list = disability_info_list+chr(9)+"Illness"
+    disability_info_list = disability_info_list+chr(9)+"Injury"
+    disability_info_list = disability_info_list+chr(9)+"Surgery Recovery"
+    disability_info_list = disability_info_list+chr(9)+"Rehabilitation"
+    disability_info_list = disability_info_list+chr(9)+"Physical Limitation"
+    disability_info_list = disability_info_list+chr(9)+"Mental Health Condition"
+    disability_info_list = disability_info_list+chr(9)+"Substance Use Disorder"
+    disability_info_list = disability_info_list+chr(9)+"Addiction Dependency"
+
+    unea_income_list = ""
+    unea_income_list = unea_income_list+chr(9)+"SSI"
+    unea_income_list = unea_income_list+chr(9)+"RSDI - Disability"
+    unea_income_list = unea_income_list+chr(9)+"VA Disability"
+    unea_income_list = unea_income_list+chr(9)+"WC"
+    unea_income_list = unea_income_list+chr(9)+"UI"
+    unea_income_list = unea_income_list+chr(9)+"Applied for UI"
+
+    other_benefit_list = ""
+    other_benefit_list = other_benefit_list+chr(9)+"MFIP"
+    other_benefit_list = other_benefit_list+chr(9)+"DWP"
+    other_benefit_list = other_benefit_list+chr(9)+"Matching Grant"
+    other_benefit_list = other_benefit_list+chr(9)+"RCA"
+
+    schl_amt_list = "Not Attending"
+    schl_amt_list = schl_amt_list+chr(9)+"Full Time"
+    schl_amt_list = schl_amt_list+chr(9)+"Half Time"
+    schl_amt_list = schl_amt_list+chr(9)+"Less than Half Time"
+
+    schl_training_list = ""
+    schl_training_list = schl_training_list+chr(9)+"High School"
+    schl_training_list = schl_training_list+chr(9)+"Recognized Training Program"
+    schl_training_list = schl_training_list+chr(9)+"Vocational Training"
+    schl_training_list = schl_training_list+chr(9)+"Higher Education"
+
+    care_for_another_reason = ""
+    care_for_another_reason = care_for_another_reason+chr(9)+"Illness"
+    care_for_another_reason = care_for_another_reason+chr(9)+"Injury"
+    care_for_another_reason = care_for_another_reason+chr(9)+"Disability"
+
+    wreg_selection_list = "Unknown or Not Selected"
+    'note that these selections are less specific because the droplist breaks if all are included.
+    wreg_selection_list = wreg_selection_list+chr(9)+"Unfit for Employment (WREG 03/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Responsible for Care of Another (WREG 04/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Responsible for Care of a Child under 6 (WREG 04/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age under 16 (WREG 06/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 65 or Older (WREG 05/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 16 or 17 Living with Parent/Caretaker (WREG 07/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Employed (WREG 09/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - MFIP (WREG 14/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - DWP (WREG 20/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - Matching Grant (WREG 10/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - UI (WREG 11/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Pending Additional Benefits - UI (WREG 11/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Program Participation - Chemical Dependency Treatment (WREG 13/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Program Participation - School (WREG 12/01)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 16 or 17 NOT Living with Parent/Caretaker (WREG 15/02)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Child under 14 lives in the home (WREG 21/04)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Pregnant (WREG 23/05)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Participant of RCA (WREG 17/12)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"American Indian (WREG 30/09)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 50 - 59 (WREG 16/03)"
+    wreg_selection_list = wreg_selection_list+chr(9)+"Age 60 - 64 (WREG 05/01)"
+
+    'DIALOG ELEMENTS
+    Text 15, 25, 155, 10, person_info
+    If IsDate(dob) Then
+        If fn_age = 16 or fn_age = 17 Then
+            Text 235, 25, 155, 10, "Age 16 or 17: Living with a parent or caretaker?"
+            DropListBox 395, 20, 35, 45, yes_no_list, caregiver_in_home
+        End If
+    Else
+        Text 235, 25, 120, 10, "What is this member's date of birth?"
+        EditBox 360, 20, 35, 15, dob
+    End If
+
+    'UNFIT FOR EMPLOYMENT
+    Text 55, 45, 70, 10, "Currently Homeless?"
+    DropListBox 130, 40, 35, 45, yes_no_list, homeless
+    Text 175, 45, 185, 10, "Has Illness / Injury / Diability(temporary or permanent)?"
+    DropListBox 360, 40, 100, 45, disability_info_list, disability_info
+    Text 15, 60, 110, 10, "Experiencing Domestic Violence?"
+    DropListBox 130, 55, 35, 45, yes_no_list, dv_victim
+    Text 15, 70, 170, 20, "(Including but not limited to physical, emotional, psychological, abuse and stalking or harassment.)"
+
+    'RECEIVING ADDITIONAL BENEFITS
+    Text 260, 60, 100, 10, "Receiving Unearned Income?"
+    DropListBox 360, 55, 100, 45, unea_income_list, unea_income
+    Text 270, 75, 85, 10, "Receiving other Benefits?"
+    DropListBox 360, 70, 100, 45, other_benefit_list, other_benefit
+
+    'CARE OF ANOTHER
+    GroupBox 10, 95, 465, 45, "Caring for Another Person - CAN BE SOMEONE OUTSIDE OF THE HOUSEHOLD"
+    Text 90, 110, 35, 10, "Caring for "
+    ComboBox 130, 105, 115, 45, person_droplist, person_requiring_care
+    Text 250, 110, 25, 10, "due to:"
+    DropListBox 280, 105, 100, 45, care_for_another_reason, person_care_reason
+    Text 50, 125, 75, 10, "Care of a child under 6:"
+    ComboBox 130, 120, 115, 45, child_droplist, child_under_6_requiring_care
+    Text 250, 125, 155, 10, "(Only one adult can claim each child under 6)"
+
+    'EMPLOYED
+    GroupBox 10, 145, 465, 30, "Employed - AT LEAST 30 HOURS WEEKLY AT FEDERAL MINIMUM WAGE LEVEL"
+    Text 15, 160, 110, 10, "Average hours worked per week:"
+    EditBox 130, 155, 40, 15, hrs_per_week
+    Text 190, 160, 85, 10, "Average Wage per week:"
+    EditBox 280, 155, 50, 15, wage_per_week
+    Text 335, 160, 35, 10, "or Month:"
+    EditBox 370, 155, 50, 15, wage_per_month
+
+    'ATTENDING SCHOOL
+    GroupBox 10, 180, 465, 45, "Attending School / Training Program"
+    Text 70, 195, 60, 10, "Attending School "
+    DropListBox 130, 190, 100, 45, schl_amt_list, schl_amt
+    Text 230, 195, 50, 10, ", school type:"
+    DropListBox 280, 190, 100, 45, schl_training_list, schl_training
+
+    'CHEMICAL DEPENDENCY TREATMENT
+    Text 60, 210, 220, 10, "Participating a regular Chemical Dependency Treatment Program?"
+    DropListBox 280, 205, 35, 45, yes_no_list, treatment
+    Text 320, 210, 110, 10, "(This does not include AA or NA)"
+
+    'NOT WREG EXEMPT BUT TLR EXEMPT
+    GroupBox 10, 230, 465, 30, "Not WREG Exempt but TLR Exempt"
+    Text 15, 245, 70, 10, "Currently Pregnant?"
+    DropListBox 85, 240, 35, 45, yes_no_list, pregnant
+    Text 135, 245, 110, 10, "American Indian/Alaskan Native"
+    DropListBox 245, 240, 35, 45, yes_no_list, american_indian
+    Text 295, 245, 115, 10, "Child under 14 lives in the home?"
+    DropListBox 410, 240, 35, 45, yes_no_list, children_under_14
+
+    'DIRECT SCREENING SELECTION
+    Text 15, 270, 450, 10, "Based on known information and policy guidance, which WREG/TLR exemption applies to " & person_info & "?"
+    DropListBox 15, 280, 450, 45, wreg_selection_list, wreg_selection
+    PushButton 400, 300, 75, 15, "Save", tlr_screen_save_btn
+
+    If wreg_exists Then
+        GroupBox 10, 300, 350, 35, "TLR Counts"
+        Text 20, 310, 300, 10, "TLR Counts: " & tlr_output
+        Text 20, 320, 300, 10, "Second Set Counts: " & second_set_output
+    End If
+    info_evaluated = True
+end function
+
 function transmit()
 '--- This function sends or hits the transmit key.
  '===== Keywords: MAXIS, MMIS, PRISM, transmit
