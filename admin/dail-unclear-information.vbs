@@ -1620,10 +1620,9 @@ If CSES_messages = 1 Then
                         Call write_value_and_transmit("X", 5, 35)
                         EmReadScreen cash_reports_check, 15, 5, 35
                         If InStr(cash_reports_check, "CASH Reports") = 0 Then
-                          ' msgbox "It failed to open CASH Reports, try again"
                           Call write_value_and_transmit("X", 5, 35)
-                          ' msgbox "Did it open CASH Reports now?"
                         End If
+
                         'Assuming it opens cash reports, clear the variable
                         cash_reports_check = ""
                         
@@ -4145,7 +4144,8 @@ If HIRE_messages = 1 Then
               
               'Delete after testing - trying to figure out when and why script sometimes does not clear the X
               EmReadScreen multiple_selections_error_check, 20, 24, 2
-              If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "4126 It failed to clear the previous X"
+              If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "4126 It failed to clear the previous X. Take a screen capture!!!!"
+              multiple_selections_error_check = ""
               
               'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
               'Set row and col
@@ -4199,10 +4199,9 @@ If HIRE_messages = 1 Then
               transmit
               
               'Handling to ensure X is removed
-              x_not_removed = ""
-              EMReadScreen x_not_removed, 1, dail_row, 3
-              If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "4193 It failed to remove the X"
-              x_not_removed = ""
+              EmReadScreen multiple_selections_error_check, 20, 24, 2
+              If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "4204 It failed to clear the previous X. Take a screen capture!!!!"
+              multiple_selections_error_check = ""
               
             End If
           End If
@@ -4647,7 +4646,32 @@ If HIRE_messages = 1 Then
                             PF3
 
                             'Navigate to Elig for footer month of approval month determined above
-                            Call write_value_and_transmit("E", 6, 3)
+                            'Add handling for ELIG results not existing for specific month
+                            elig_check_row = 6
+                            Do
+                              'Error handling to make sure we did not lose the case number
+                              EMReadScreen new_case, 8, elig_check_row, 63
+                              new_case = Trim(new_case)
+                              If new_case = "CASE NBR" Then
+                                'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                Call script_end_procedure("4664 Something went wrong trying to find a month to check ELIG without invalid month. It has gotten to a new case number.")
+                              End If
+
+                              Call write_value_and_transmit("E", elig_check_row, 3)
+                              'Check if got kicked back to SELF
+                              EMReadScreen invalid_self_check, 50, 24, 2
+                              If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                                EMWriteScreen "DAIL", 16, 43
+                                EMWriteScreen MAXIS_footer_month, 20, 43
+                                Call write_value_and_transmit("DAIL", 21, 70)
+                                ' msgbox "4673 Did it make it back to the DAIL?"
+                                elig_check_row = elig_check_row + 1
+                                If elig_check_row = 19 Then Call script_end_procedure("4666 Something went wrong trying to find a month to check ELIG without invalid month")
+                              Else
+                                Exit Do
+                              End If
+                            Loop
+                          
                             EMWriteScreen left(SNAP_req_action_appl_month, 2), 20, 55
                             EMWriteScreen right(SNAP_req_action_appl_month, 2), 20, 58
                             Call write_value_and_transmit("FS", 20, 71)
@@ -4787,10 +4811,9 @@ If HIRE_messages = 1 Then
                         Call write_value_and_transmit("X", 5, 35)
                         EmReadScreen cash_reports_check, 15, 5, 35
                         If InStr(cash_reports_check, "CASH Reports") = 0 Then
-                          ' msgbox "It failed to open CASH Reports, try again"
                           Call write_value_and_transmit("X", 5, 35)
-                          ' msgbox "Did it open CASH Reports now?"
                         End If
+                        
                         'Assuming it opens cash reports, clear the variable
                         cash_reports_check = ""
                         
@@ -4928,6 +4951,14 @@ If HIRE_messages = 1 Then
                         
                         'Open the CASH/GRH window
                         Call write_value_and_transmit("X", 5, 35)
+                        EmReadScreen cash_reports_check, 15, 5, 35
+                        If InStr(cash_reports_check, "CASH Reports") = 0 Then
+                          Call write_value_and_transmit("X", 5, 35)
+                        End If
+                        
+                        'Assuming it opens cash reports, clear the variable
+                        cash_reports_check = ""
+
                         'Read eligibility review date
                         EMReadScreen GA_STAT_REVW_review_date, 8, 9, 64
                         'If the review date is blank, then the case should be flagged and skipped for processing
@@ -5131,7 +5162,33 @@ If HIRE_messages = 1 Then
                 dail_return_check = ""
 
                 'Reset the footer month/year to CM through CASE/CURR
-                Call write_value_and_transmit("H", dail_row, 3)
+
+                'Add handling for CASE/CURR not existing for specific month
+                elig_check_row = 6
+                Do
+                  'Error handling to make sure we did not lose the case number
+                  EMReadScreen new_case, 8, elig_check_row, 63
+                  new_case = Trim(new_case)
+                  If new_case = "CASE NBR" Then
+                    'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                    Call script_end_procedure("5174 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                  End If
+
+                  Call write_value_and_transmit("H", elig_check_row, 3)
+                  'Check if got kicked back to SELF
+                  EMReadScreen invalid_self_check, 50, 24, 2
+                  If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                    EMWriteScreen "DAIL", 16, 43
+                    EMWriteScreen MAXIS_footer_month, 20, 43
+                    Call write_value_and_transmit("DAIL", 21, 70)
+                    ' msgbox "5184 Did it make it back to the DAIL?"
+                    elig_check_row = elig_check_row + 1
+                    If elig_check_row = 19 Then Call script_end_procedure("5186 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                  Else
+                    Exit Do
+                  End If
+                Loop
+
                 EMWriteScreen MAXIS_footer_month, 20, 54
                 EMWriteScreen MAXIS_footer_year, 20, 57
                 PF3
@@ -5157,7 +5214,8 @@ If HIRE_messages = 1 Then
               
               'Delete after testing - trying to figure out when and why script sometimes does not clear the X
               EmReadScreen multiple_selections_error_check, 20, 24, 2
-              If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5006 It failed to clear the previous X"
+              If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5217 It failed to clear the previous X. Take a screen capture!!!!"
+              multiple_selections_error_check = ""
               
               'Handling for reading full dail message depends on message type
               
@@ -5213,10 +5271,9 @@ If HIRE_messages = 1 Then
                 transmit
                 
                 'Handling to ensure X is removed
-                x_not_removed = ""
-                EMReadScreen x_not_removed, 1, dail_row, 3
-                If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "5094 It failed to remove the X"
-                x_not_removed = ""
+                EmReadScreen multiple_selections_error_check, 20, 24, 2
+                If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5275 It failed to clear the previous X. Take a screen capture!!!!"
+                multiple_selections_error_check = ""
                 
               Else
                 MsgBox "Testing -- Dail type is not HIRE. Something went wrong. Dail type is " & dail_type
@@ -5840,7 +5897,8 @@ If HIRE_messages = 1 Then
                           
                           'Delete after testing - trying to figure out when and why script sometimes does not clear the X
                           EmReadScreen multiple_selections_error_check, 20, 24, 2
-                          If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5675 It failed to clear the previous X"
+                          If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5900 It failed to clear the previous X. Take a screen capture!!!!"
+                          multiple_selections_error_check = ""
                           
                           ' Script reads the full DAIL message so that it can process, or not process, as needed.
                           EMReadScreen check_full_dail_msg_case_number, 35, 6, 44
@@ -5968,10 +6026,9 @@ If HIRE_messages = 1 Then
                             transmit
                             
                             'Handling to ensure X is removed
-                            x_not_removed = ""
-                            EMReadScreen x_not_removed, 1, dail_row, 3
-                            If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "5822 It failed to remove the X"
-                            x_not_removed = ""
+                            EmReadScreen multiple_selections_error_check, 20, 24, 2
+                            If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6030 It failed to clear the previous X. Take a screen capture!!!!"
+                            multiple_selections_error_check = ""
                             
                             EMWriteScreen "S", dail_row, 3
                             EMSendKey "<enter>"
@@ -6031,7 +6088,8 @@ If HIRE_messages = 1 Then
                                   
                                   'Delete after testing - trying to figure out when and why script sometimes does not clear the X
                                   EmReadScreen multiple_selections_error_check, 20, 24, 2
-                                  If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "5844 It failed to clear the previous X"
+                                  If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6091 It failed to clear the previous X. Take a screen capture!!!!"
+                                  multiple_selections_error_check = ""
                                   
                                   ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                   EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
@@ -6055,10 +6113,9 @@ If HIRE_messages = 1 Then
                                     transmit
                                     
                                     'Handling to ensure X is removed
-                                    x_not_removed = ""
-                                    EMReadScreen x_not_removed, 1, dail_row, 3
-                                    If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "5908 It failed to remove the X"
-                                    x_not_removed = ""
+                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6117 It failed to clear the previous X. Take a screen capture!!!!"
+                                    multiple_selections_error_check = ""
                                     
                                     Exit Do
                                   Else
@@ -6066,10 +6123,9 @@ If HIRE_messages = 1 Then
                                     transmit
                                     
                                     'Handling to ensure X is removed
-                                    x_not_removed = ""
-                                    EMReadScreen x_not_removed, 1, dail_row, 3
-                                    If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "5920 It failed to remove the X"
-                                    x_not_removed = ""
+                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6127 It failed to clear the previous X. Take a screen capture!!!!"
+                                    multiple_selections_error_check = ""
                                     
                                     dail_row = dail_row + 1
                                     
@@ -6372,7 +6428,8 @@ If HIRE_messages = 1 Then
                           
                           'Delete after testing - trying to figure out when and why script sometimes does not clear the X
                           EmReadScreen multiple_selections_error_check, 20, 24, 2
-                          If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6158 It failed to clear the previous X"
+                          If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6431 It failed to clear the previous X. Take a screen capture!!!!"
+                          multiple_selections_error_check = ""
                           
                           ' Script reads the full DAIL message so that it can process, or not process, as needed.
                           EMReadScreen check_full_dail_msg_case_number, 35, 6, 44
@@ -6513,10 +6570,9 @@ If HIRE_messages = 1 Then
                             transmit
                             
                             'Handling to ensure X is removed
-                            x_not_removed = ""
-                            EMReadScreen x_not_removed, 1, dail_row, 3
-                            If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "6339 It failed to remove the X"
-                            x_not_removed = ""
+                            EmReadScreen multiple_selections_error_check, 20, 24, 2
+                            If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6574 It failed to clear the previous X. Take a screen capture!!!!"
+                            multiple_selections_error_check = ""
                             
                           ElseIf SNAP_required_action_applies = False OR SNAP_required_action_applies = "" Then
                             If activate_msg_boxes = True Then MsgBox "Testing -- Not a duplicate SDNH. Will transmit and process accordingly."
@@ -6583,7 +6639,8 @@ If HIRE_messages = 1 Then
                                   
                                   'Delete after testing - trying to figure out when and why script sometimes does not clear the X
                                   EmReadScreen multiple_selections_error_check, 20, 24, 2
-                                  If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6346 It failed to clear the previous X"
+                                  If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6642 It failed to clear the previous X. Take a screen capture!!!!"
+                                  multiple_selections_error_check = ""
                                   
                                   ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                   EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
@@ -6607,10 +6664,9 @@ If HIRE_messages = 1 Then
                                     transmit
                                     
                                     'Handling to ensure X is removed
-                                    x_not_removed = ""
-                                    EMReadScreen x_not_removed, 1, dail_row, 3
-                                    If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "4193 It failed to remove the X"
-                                    x_not_removed = ""
+                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6668 It failed to clear the previous X. Take a screen capture!!!!"
+                                    multiple_selections_error_check = ""
                                     
                                     Exit Do
                                   Else
@@ -6618,10 +6674,9 @@ If HIRE_messages = 1 Then
                                     transmit
 
                                     'Handling to ensure X is removed
-                                    x_not_removed = ""
-                                    EMReadScreen x_not_removed, 1, dail_row, 3
-                                    If x_not_removed = "X" Or x_not_removed = "x" Then MsgBox "4193 It failed to remove the X"
-                                    x_not_removed = ""
+                                    EmReadScreen multiple_selections_error_check, 20, 24, 2
+                                    If InStr(multiple_selections_error_check, "YOU MAY ONLY SELECT") Then MsgBox "6678 It failed to clear the previous X. Take a screen capture!!!!"
+                                    multiple_selections_error_check = ""
                                     
                                     dail_row = dail_row + 1
                                     
