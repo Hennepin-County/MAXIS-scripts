@@ -14303,7 +14303,7 @@ function tlr_screening_case_note_person_info(person_info, info_evaluated, eval_s
 '~~~~~ wreg_status: STRING - WREG exemption status.
 '~~~~~ tlr_status: STRING - TLR exemption status.
 '~~~~~ panel_code: STRING - codes for WREG and TLR fields of WREG panel
-'~~~~~ wreg_selection: STRING - if the WRED/TLR status was manually selected by a worker during the screening, this records that detail.
+'~~~~~ wreg_selection: STRING - if the WREG/TLR status was manually selected by a worker during the screening, this records that detail.
 '~~~~~ include_panel_code: BOOLEAN - indicates if the panel code should be included in the CASE NOTE.
 '~~~~~ tlr_output: STRING - details of the TLR months counted if the WREG/TLR information was pulled from WREG
 '~~~~~ second_set_output: STRING - details of the 2nd set months counted if the WREG/TLR information was pulled from WREG
