@@ -296,11 +296,9 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 
 	If correct_caseload_type = "" Then
-		If application_form = "MHCP App for Certain Populations - 3876" or application_form = "MNsure App for HC - 6696" or application_form = "No Application Required" Then
-			If TEFRA_check = checked Then
-				correct_caseload_type = "TEFRA"
-				If correct_caseload_type = current_caseload_type Then transfer_needed = False
-			End If
+		If TEFRA_check = checked Then
+			correct_caseload_type = "TEFRA"
+			If correct_caseload_type = current_caseload_type Then transfer_needed = False
 		End If
 	End If
 
