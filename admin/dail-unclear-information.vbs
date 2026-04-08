@@ -1554,7 +1554,35 @@ If CSES_messages = 1 Then
                     'Back to DAIL
                     PF3
                     'Navigate back to CASE/CURR
-                    Call write_value_and_transmit("H", dail_row, 3)
+                    'Add handling for CASE/CURR not existing for specific month
+                    elig_check_row = 6
+                    Do
+                      'Error handling to make sure we did not lose the case number
+                      EMReadScreen new_case, 8, elig_check_row, 63
+                      new_case = Trim(new_case)
+                      If new_case = "CASE NBR" Then
+                        'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                        Call script_end_procedure("1565 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                      End If
+    
+                      Call write_value_and_transmit("H", elig_check_row, 3)
+                      'Check if got kicked back to SELF
+                      EMReadScreen invalid_self_check, 50, 24, 2
+                      If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                        EMWriteScreen "DAIL", 16, 43
+                        EMWriteScreen MAXIS_footer_month, 20, 43
+                        EMWriteScreen MAXIS_footer_year, 20, 46
+                        Call write_value_and_transmit("DAIL", 21, 70)
+                        ' msgbox "1576 Did it make it back to the DAIL?"
+                        elig_check_row = elig_check_row + 1
+                        If elig_check_row = 19 Then Call script_end_procedure("5186 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                      Else
+                        Exit Do
+                      End If
+                    Loop
+
+                    EMReadScreen self_check_cses, 4, 2, 50
+                    If self_check_cses = "SELF" then msgbox "1559 errors here"
                     'Update the footer month/year and then navigate to ELIG/GA
                     
                     'Ensure that we are viewing ELIG/FS for the current month, not the dail message month
@@ -1768,7 +1796,32 @@ If CSES_messages = 1 Then
                 PF3
                 
                 'Reset the footer month/year to CM through CASE/CURR
-                Call write_value_and_transmit("H", dail_row, 3)
+                elig_check_row = 6
+                Do
+                  'Error handling to make sure we did not lose the case number
+                  EMReadScreen new_case, 8, elig_check_row, 63
+                  new_case = Trim(new_case)
+                  If new_case = "CASE NBR" Then
+                    'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                    Call script_end_procedure("1806 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                  End If
+
+                  Call write_value_and_transmit("H", elig_check_row, 3)
+                  'Check if got kicked back to SELF
+                  EMReadScreen invalid_self_check, 50, 24, 2
+                  If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                    EMWriteScreen "DAIL", 16, 43
+                    EMWriteScreen MAXIS_footer_month, 20, 43
+                    EMWriteScreen MAXIS_footer_year, 20, 46
+                    Call write_value_and_transmit("DAIL", 21, 70)
+                    ' msgbox "1817 Did it make it back to the DAIL?"
+                    elig_check_row = elig_check_row + 1
+                    If elig_check_row = 19 Then Call script_end_procedure("1819 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                  Else
+                    Exit Do
+                  End If
+                Loop
+                
                 EMWriteScreen MAXIS_footer_month, 20, 54
                 EMWriteScreen MAXIS_footer_year, 20, 57
                 PF3
@@ -2144,6 +2197,8 @@ If CSES_messages = 1 Then
                           
                           ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
                           Call write_value_and_transmit("H", dail_row, 3)
+                          EMReadScreen self_check_cses, 4, 2, 50
+                          If self_check_cses = "SELF" then msgbox "2152 errors here"
                           
                           EMWriteScreen "PERS", 20, 69
                           Transmit
@@ -2470,6 +2525,8 @@ If CSES_messages = 1 Then
                           
                           ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
                           Call write_value_and_transmit("H", dail_row, 3)
+                          EMReadScreen self_check_cses, 4, 2, 50
+                          If self_check_cses = "SELF" then msgbox "2480 errors here"
                           
                           EMWriteScreen "PERS", 20, 69
                           Transmit
@@ -2860,7 +2917,31 @@ If CSES_messages = 1 Then
                             If activate_msg_boxes = True Then MsgBox "Testing -- Need to navigate to CM"
                             'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
                             PF3
-                            Call write_value_and_transmit("H", dail_row, 3)
+                            elig_check_row = 6
+                            Do
+                              'Error handling to make sure we did not lose the case number
+                              EMReadScreen new_case, 8, elig_check_row, 63
+                              new_case = Trim(new_case)
+                              If new_case = "CASE NBR" Then
+                                'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                Call script_end_procedure("2927 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                              End If
+
+                              Call write_value_and_transmit("H", elig_check_row, 3)
+                              'Check if got kicked back to SELF
+                              EMReadScreen invalid_self_check, 50, 24, 2
+                              If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                                EMWriteScreen "DAIL", 16, 43
+                                EMWriteScreen MAXIS_footer_month, 20, 43
+                                EMWriteScreen MAXIS_footer_year, 20, 46
+                                Call write_value_and_transmit("DAIL", 21, 70)
+                                ' msgbox "2938 Did it make it back to the DAIL?"
+                                elig_check_row = elig_check_row + 1
+                                If elig_check_row = 19 Then Call script_end_procedure("1819 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                              Else
+                                Exit Do
+                              End If
+                            Loop
                             EMReadScreen curr_panel_check, 4, 2, 55
                             If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
                             EMWriteScreen "STAT", 20, 22
@@ -3250,7 +3331,31 @@ If CSES_messages = 1 Then
                                   If activate_msg_boxes = True Then MsgBox "Testing -- Need to navigate to CM + 1"
                                   'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
                                   PF3
-                                  Call write_value_and_transmit("H", dail_row, 3)
+                                  elig_check_row = 6
+                                  Do
+                                    'Error handling to make sure we did not lose the case number
+                                    EMReadScreen new_case, 8, elig_check_row, 63
+                                    new_case = Trim(new_case)
+                                    If new_case = "CASE NBR" Then
+                                      'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                      Call script_end_procedure("3341 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                                    End If
+                  
+                                    Call write_value_and_transmit("H", elig_check_row, 3)
+                                    'Check if got kicked back to SELF
+                                    EMReadScreen invalid_self_check, 50, 24, 2
+                                    If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                                      EMWriteScreen "DAIL", 16, 43
+                                      EMWriteScreen MAXIS_footer_month, 20, 43
+                                      EMWriteScreen MAXIS_footer_year, 20, 46
+                                      Call write_value_and_transmit("DAIL", 21, 70)
+                                      ' msgbox "3352 Did it make it back to the DAIL?"
+                                      elig_check_row = elig_check_row + 1
+                                      If elig_check_row = 19 Then Call script_end_procedure("1819 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                                    Else
+                                      Exit Do
+                                    End If
+                                  Loop
                                   EMReadScreen curr_panel_check, 4, 2, 55
                                   If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
                                   EMWriteScreen "STAT", 20, 22
@@ -3275,7 +3380,31 @@ If CSES_messages = 1 Then
                                     If activate_msg_boxes = True Then MsgBox "Testing -- Need to navigate to CM + 1"
                                     'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
                                     PF3
-                                    Call write_value_and_transmit("H", dail_row, 3)
+                                    elig_check_row = 6
+                                    Do
+                                      'Error handling to make sure we did not lose the case number
+                                      EMReadScreen new_case, 8, elig_check_row, 63
+                                      new_case = Trim(new_case)
+                                      If new_case = "CASE NBR" Then
+                                        'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                        Call script_end_procedure("3390 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                                      End If
+                    
+                                      Call write_value_and_transmit("H", elig_check_row, 3)
+                                      'Check if got kicked back to SELF
+                                      EMReadScreen invalid_self_check, 50, 24, 2
+                                      If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                                        EMWriteScreen "DAIL", 16, 43
+                                        EMWriteScreen MAXIS_footer_month, 20, 43
+                                        EMWriteScreen MAXIS_footer_year, 20, 46
+                                        Call write_value_and_transmit("DAIL", 21, 70)
+                                        msgbox "3407 Did it make it back to the DAIL?"
+                                        elig_check_row = elig_check_row + 1
+                                        If elig_check_row = 19 Then Call script_end_procedure("1819 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                                      Else
+                                        Exit Do
+                                      End If
+                                    Loop
                                     EMReadScreen curr_panel_check, 4, 2, 55
                                     If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
                                     EMWriteScreen "STAT", 20, 22
@@ -3603,7 +3732,31 @@ If CSES_messages = 1 Then
                                 ' msgbox "3580 Delete after testing - should be back at DAIL/DAIL. Show back_to_dail_check >" & back_to_dail_check
                                 
                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
-                                Call write_value_and_transmit("H", 6, 3)
+                                elig_check_row = 6
+                                Do
+                                  'Error handling to make sure we did not lose the case number
+                                  EMReadScreen new_case, 8, elig_check_row, 63
+                                  new_case = Trim(new_case)
+                                  If new_case = "CASE NBR" Then
+                                    'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                    Call script_end_procedure("1806 Something went wrong trying to find a month to check CASE/CURR without invalid month. It has gotten to a new case number.")
+                                  End If
+
+                                  Call write_value_and_transmit("H", elig_check_row, 3)
+                                  'Check if got kicked back to SELF
+                                  EMReadScreen invalid_self_check, 50, 24, 2
+                                  If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
+                                    EMWriteScreen "DAIL", 16, 43
+                                    EMWriteScreen MAXIS_footer_month, 20, 43
+                                    EMWriteScreen MAXIS_footer_year, 20, 46
+                                    Call write_value_and_transmit("DAIL", 21, 70)
+                                    ' msgbox "3753 Did it make it back to the DAIL?"
+                                    elig_check_row = elig_check_row + 1
+                                    If elig_check_row = 19 Then Call script_end_procedure("3755 Something went wrong trying to find a month to check CASE/CURR without invalid month")
+                                  Else
+                                    Exit Do
+                                  End If
+                                Loop
                                 PF3
                                 
                                 ' msgbox "3586 Delete after testing -- Did it PF3 back to just DAIL?"
@@ -4663,6 +4816,7 @@ If HIRE_messages = 1 Then
                               If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
                                 EMWriteScreen "DAIL", 16, 43
                                 EMWriteScreen MAXIS_footer_month, 20, 43
+                                EMWriteScreen MAXIS_footer_year, 20, 46
                                 Call write_value_and_transmit("DAIL", 21, 70)
                                 ' msgbox "4673 Did it make it back to the DAIL?"
                                 elig_check_row = elig_check_row + 1
@@ -5180,6 +5334,7 @@ If HIRE_messages = 1 Then
                   If instr(invalid_self_check, "IS INVALID FOR PERIOD") Then
                     EMWriteScreen "DAIL", 16, 43
                     EMWriteScreen MAXIS_footer_month, 20, 43
+                    EMWriteScreen MAXIS_footer_year, 20, 46
                     Call write_value_and_transmit("DAIL", 21, 70)
                     ' msgbox "5184 Did it make it back to the DAIL?"
                     elig_check_row = elig_check_row + 1
