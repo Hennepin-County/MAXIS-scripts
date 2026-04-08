@@ -14383,6 +14383,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
         panel_code_array = split(wreg_tlr_from_selection, "/")
         wreg_status = panel_code_array(0)
         tlr_status = panel_code_array(1)
+        panel_code = panel_code_array(0) & "/" & panel_code_array(1)
     End If
 
     'ensuring variables that could be strings or booleans are all converted to booleans for the evaluation process
@@ -14434,7 +14435,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
         ElseIf fn_age >= 16 AND fn_age < 18 Then
             If caregiver_in_home = True Then
                 tlr_status = "Exempt"
-                panel_code = "06/01"
+                panel_code = "07/01"
                 wreg_status = "Exempt"
                 eval_string = "Age 16 or 17 living with Caregiver; "
             End If
@@ -14446,7 +14447,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
         eval_string = eval_string & "Unfit for Employment - Receiving Disability Benefits - " & unea_income & "; "
         unfit_for_employment = True
     ElseIf disability_info <> "" Then
-        eval_string = eval_string & "Unfit for Ewmployment - " & disability_info & "; "
+        eval_string = eval_string & "Unfit for Employment - " & disability_info & "; "
         unfit_for_employment = True
     ElseIf homeless Then
         eval_string = eval_string & "Experiencing Housing Instability; "
@@ -14534,7 +14535,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
         If panel_code = "" Then panel_code = "12/01"
         wreg_status = "Exempt"
         tlr_status = "Exempt"
-        eval_string = eval_string & "Attends regular Chemical Dependancy Treatment; "
+        eval_string = eval_string & "Attends regular Chemical Dependency Treatment; "
     End If
 
     'All of the WREG exemptions have been evaluated at this point, so if wreg is not exempt, the member is subject to WREG
@@ -14662,7 +14663,7 @@ function tlr_screening_read_WREG_details(memb_numb, wreg_exists, curr_wreg_code,
                 bene_yr_row = bene_yr_row - 1
                 bene_mo_col = 63
             END IF
-            'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members.
+            'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members and is reset every 3 years.
             ' MsgBox "counted_date_month - " & counted_date_month & vbCr & "counted_date_year - " & counted_date_year & vbCr & "TLR_fixed_clock_mo - " & TLR_fixed_clock_mo & vbCr & "TLR_fixed_clock_yr - " & TLR_fixed_clock_yr & vbCr & "bene_yr_row - " & bene_yr_row & vbCr & "bene_mo_col - " & bene_mo_col
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
 
@@ -14846,7 +14847,7 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
     'UNFIT FOR EMPLOYMENT
     Text 55, 45, 70, 10, "Currently Homeless?"
     DropListBox 130, 40, 35, 45, yes_no_list, homeless
-    Text 175, 45, 185, 10, "Has Illness / Injury / Diability(temporary or permanent)?"
+    Text 175, 45, 185, 10, "Has Illness / Injury / Disability(temporary or permanent)?"
     DropListBox 360, 40, 100, 45, disability_info_list, disability_info
     Text 15, 60, 110, 10, "Experiencing Domestic Violence?"
     DropListBox 130, 55, 35, 45, yes_no_list, dv_victim
