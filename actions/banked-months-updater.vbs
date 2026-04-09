@@ -406,21 +406,21 @@ For items = 0 to ubound(footer_month_array)
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
 
-			'If footer_string = "01/24" then
-			'	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
-			'	BM_available = False
-			'Else
-		        'If banked_months_array(banked_mo_count_const, i) < 3 then
+			If footer_string = "01/24" then
+				EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+				BM_available = False
+			Else
+		        If banked_months_array(banked_mo_count_const, i) < 3 then
 	            	EMWriteScreen "13", 13, 50	'banked months ABAWD code
 		        	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
 		        	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
                     EmWriteScreen "_", 14, 50 'blanks out the BM count since it does nothing.
-	            	'EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code
-	            	'If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True
-		        'Else
-		        	'EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
-		        'End If
-			'End if
+	            	EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code
+	            	If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True
+		        Else
+		        	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+		        End If
+			End if
 
 			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
