@@ -7260,8 +7260,22 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable > 10 Then fpg_200_percent = 10858 + ((hh_size_variable - 10) * 917)
         End If
     ElseIf program_determination = "SNAP" Then
-        'If application date is 10/1/24 or after 10/01/24 or there is no application date then use October 2024 200% FPG
+        'If application date is 10/1/25 or after 10/01/25 or there is no application date then use October 2025 200% FPG
         If application_date_variable_diff >= 0 OR no_application_date_variable = True Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2609
+            If hh_size_variable = 2 Then fpg_200_percent = 3525
+            If hh_size_variable = 3 Then fpg_200_percent = 4442
+            If hh_size_variable = 4 Then fpg_200_percent = 5359
+            If hh_size_variable = 5 Then fpg_200_percent = 6275
+            If hh_size_variable = 6 Then fpg_200_percent = 7192
+            If hh_size_variable = 7 Then fpg_200_percent = 8109
+            If hh_size_variable = 8 Then fpg_200_percent = 9025
+            If hh_size_variable = 9 Then fpg_200_percent = 9942
+            If hh_size_variable = 10 Then fpg_200_percent = 10859
+            If hh_size_variable > 10 Then fpg_200_percent = 10859 + ((hh_size_variable - 10) * 917)
+
+        'If application date is before 10/1/25 then use the October 2024 200% FPG
+        ElseIf application_date_variable_diff < 0 Then
             If hh_size_variable = 1 Then fpg_200_percent = 2510
             If hh_size_variable = 2 Then fpg_200_percent = 3407
             If hh_size_variable = 3 Then fpg_200_percent = 4303
@@ -7273,20 +7287,6 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable = 9 Then fpg_200_percent = 9683
             If hh_size_variable = 10 Then fpg_200_percent = 10580
             If hh_size_variable > 10 Then fpg_200_percent = 10580 + ((hh_size_variable - 10) * 897)
-
-        'If application date is before 10/1/24 then use the October 2023 200% FPG
-        ElseIf application_date_variable_diff < 0 Then
-            If hh_size_variable = 1 Then fpg_200_percent = 2430
-            If hh_size_variable = 2 Then fpg_200_percent = 3287
-            If hh_size_variable = 3 Then fpg_200_percent = 4143
-            If hh_size_variable = 4 Then fpg_200_percent = 5000
-            If hh_size_variable = 5 Then fpg_200_percent = 5857
-            If hh_size_variable = 6 Then fpg_200_percent = 6713
-            If hh_size_variable = 7 Then fpg_200_percent = 7570
-            If hh_size_variable = 8 Then fpg_200_percent = 8427
-            If hh_size_variable = 9 Then fpg_200_percent = 9283
-            If hh_size_variable = 10 Then fpg_200_percent = 10140
-            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
         End If
     ElseIf program_determination = "EGA" Then
 
