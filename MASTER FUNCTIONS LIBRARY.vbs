@@ -7290,8 +7290,8 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
         End If
     ElseIf program_determination = "EGA" Then
 
-        'If application date is 4/1/25 or after 04/01/25 OR there is no application date AND today's date is 4/1/25 or after 4/1/25 then use April 2025 200% FPG
-        If application_date_variable_diff >= 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2025#, date)) >= 0) Then
+        'If application date is 4/1/26 or after 04/01/26 OR there is no application date AND today's date is 4/1/26 or after 4/1/26 then use April 2025 200% FPG
+        If application_date_variable_diff >= 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2026#, date)) >= 0) Then
             If hh_size_variable = 1 Then fpg_200_percent = 2510
             If hh_size_variable = 2 Then fpg_200_percent = 3407
             If hh_size_variable = 3 Then fpg_200_percent = 4303
@@ -7305,7 +7305,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable > 10 Then fpg_200_percent = 10580 + ((hh_size_variable - 10) * 897)
 
         'If application date is before 4/1/25 OR there is no application date AND today's date is before 4/1/25 then use April 2024 200% FPG
-        ElseIf application_date_variable_diff < 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2025#, date)) < 0) Then
+        ElseIf application_date_variable_diff < 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2026#, date)) < 0) Then
             If hh_size_variable = 1 Then fpg_200_percent = 2430
             If hh_size_variable = 2 Then fpg_200_percent = 3287
             If hh_size_variable = 3 Then fpg_200_percent = 4143
