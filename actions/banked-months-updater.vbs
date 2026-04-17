@@ -270,7 +270,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
 
 		'cleaning up these variables for dialog display
-		If trim(right(abawd_counted_months_string, 2)) = " |" THEN abawd_counted_months_string = left(abawd_counted_months_string, len(abawd_counted_months_strings) - 2)
+		If trim(right(abawd_counted_months_string, 2)) = " |" THEN abawd_counted_months_string = left(abawd_counted_months_string, len(abawd_counted_months_string) - 2)
 		If trim(right(banked_months_string, 2)) = " |" THEN banked_months_string = left(banked_months_string, len(banked_months_string) - 2)
 	    PF3	' to exit tracking record
 	End If
@@ -283,7 +283,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	banked_months_array(banked_mo_count_const	, i) = banked_months_count
 	banked_months_array(banked_mo_string_const	, i) = banked_months_string
 	'ABAWD Determinations
-	If abawd_counted_months => 3 then
+	If abawd_counted_months >= 3 then
 		banked_months_array(used_all_abawd_mo_const, i) = True
 		banked_months_array(abawd_month_eval_const, i) = "All ABAWD/TLR months used."
 	Elseif abawd_counted_months < 3 then
@@ -426,7 +426,7 @@ For items = 0 to ubound(footer_month_array)
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval.
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
-		    If DateDiff("M", processing_month, date) => 0 then
+		    If DateDiff("M", processing_month, date) >= 0 then
 
 				'If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
 		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
