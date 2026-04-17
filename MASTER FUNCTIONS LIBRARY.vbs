@@ -7223,7 +7223,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
         End If
     ElseIf program_determination = "SNAP" Then
         If IsDate(application_date_variable) = True Then
-            application_date_variable_diff = (DateDiff("d", #10/1/2026#, application_date_variable))
+            application_date_variable_diff = (DateDiff("d", #10/1/2025#, application_date_variable))
         Else
             no_application_date_variable = True
         End If
