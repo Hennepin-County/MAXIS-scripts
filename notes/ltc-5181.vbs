@@ -645,17 +645,16 @@ function incomplete_dialog_handling()
     End If
 
     If dialog_count = 4 then 
-      If trim(section_b_initial_MnA_assessment_date) = "" OR _
-        trim(section_b_assessment_determination_date) = "" OR _
-        section_b_assessment_determination = "Select one:" OR _
-        section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 OR _
-        trim(section_b_monthly_waiver_costs) = "" OR _ 
-        trim(section_b_waiver_effective_date) = "" OR _ 
-        section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager = 0 OR _ 
-        trim(section_b_case_manager_name) = "" OR _ 
-        trim(section_b_case_manager_phone_number) = "" Then
-          incomplete_fields = True
+      'Handling for initial assessment section - if any one field is filled out, then all fields need to be completed
+
+      If trim(section_b_initial_MnA_assessment_date) <> "" OR trim(section_b_assessment_determination_date) <> "" OR section_b_assessment_determination <> "Select one:" OR section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox <> 0 OR trim(section_b_monthly_waiver_costs) <> "" OR trim(section_b_waiver_effective_date) <> "" Then
+        If trim(section_b_initial_MnA_assessment_date) = "" OR trim(section_b_assessment_determination_date) = "" OR section_b_assessment_determination = "Select one:" OR section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 Then incomplete_fields = True
+        If section_b_open_to_waiver_yes_checkbox = 1 AND (trim(section_b_monthly_waiver_costs) = "" OR trim(section_b_waiver_effective_date) = "") Then incomplete_fields = True 
       End If
+
+      'Ensure that case manager option is selected and details provided, if applicable
+      If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager = 0 Then incomplete_fields = True
+      If section_b_yes_someone_else_case_manager = 1 AND (trim(section_b_case_manager_name) = "" OR trim(section_b_case_manager_phone_number) = "") Then incomplete_fields = True 
     End if 
 
     If dialog_count = 5 then
@@ -958,6 +957,10 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
       If (section_b_open_to_waiver_yes_checkbox = 1) Then
         If trim(section_b_monthly_waiver_costs) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the estimated monthly waiver/AC costs field."
         If trim(section_b_waiver_effective_date) = "" or IsDate(section_b_waiver_effective_date) = False Then err_msg = err_msg & vbNewLine & "* You must fill out the anticipated effective date field in the format MM/DD/YYYY."
+      End If
+      If (section_b_open_to_waiver_no_checkbox = 1) Then
+        If trim(section_b_monthly_waiver_costs) <> "" Then err_msg = err_msg & vbNewLine & "* The estimated monthly waiver/AC costs field should be empty if the person will not open to waiver/AC/ECS."
+        If trim(section_b_waiver_effective_date) <> "" Then err_msg = err_msg & vbNewLine & "* The anticipated effective date field should be empty if the person will not open to waiver/AC/ECS."
       End If
       If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager > 1 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox for whether the person has a case manager."
 
