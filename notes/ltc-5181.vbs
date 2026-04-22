@@ -647,8 +647,16 @@ function incomplete_dialog_handling()
     If dialog_count = 4 then 
       'Handling for initial assessment section - if any one field is filled out, then all fields need to be completed
 
-      If trim(section_b_initial_MnA_assessment_date) <> "" OR trim(section_b_assessment_determination_date) <> "" OR section_b_assessment_determination <> "Select one:" OR section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox <> 0 OR trim(section_b_monthly_waiver_costs) <> "" OR trim(section_b_waiver_effective_date) <> "" Then
-        If trim(section_b_initial_MnA_assessment_date) = "" OR trim(section_b_assessment_determination_date) = "" OR section_b_assessment_determination = "Select one:" OR section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 Then incomplete_fields = True
+      If trim(section_b_initial_MnA_assessment_date) <> "" OR _
+        trim(section_b_assessment_determination_date) <> "" OR _
+        section_b_assessment_determination <> "Select one:" OR _
+        section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox <> 0 OR _
+        trim(section_b_monthly_waiver_costs) <> "" OR _
+        trim(section_b_waiver_effective_date) <> "" Then
+          If trim(section_b_initial_MnA_assessment_date) = "" OR _
+          trim(section_b_assessment_determination_date) = "" OR _
+          section_b_assessment_determination = "Select one:" OR _ 
+          section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox = 0 Then incomplete_fields = True
         If section_b_open_to_waiver_yes_checkbox = 1 AND (trim(section_b_monthly_waiver_costs) = "" OR trim(section_b_waiver_effective_date) = "") Then incomplete_fields = True 
       End If
 
@@ -963,6 +971,8 @@ function dialog_specific_error_handling()	'Error handling for main dialog of for
         If trim(section_b_waiver_effective_date) <> "" Then err_msg = err_msg & vbNewLine & "* The anticipated effective date field should be empty if the person will not open to waiver/AC/ECS."
       End If
       If section_b_yes_case_manager + section_b_yes_someone_else_case_manager + section_b_no_case_manager > 1 Then err_msg = err_msg & vbNewLine & "* You can only select one checkbox for whether the person has a case manager."
+
+      If section_b_open_to_waiver_yes_checkbox + section_b_open_to_waiver_no_checkbox > 1 Then err_msg = err_msg & vbNewLine & "* You cannot check both 'Yes' and 'No' for whether the person will open to waiver/AC/ECS."
 
       If section_b_yes_someone_else_case_manager = 1 Then 
         If trim(section_b_case_manager_name) = "" Then err_msg = err_msg & vbNewLine & "* You must fill out the Case Manager Name field."
