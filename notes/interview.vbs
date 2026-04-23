@@ -4852,7 +4852,14 @@ function review_information()
 
 		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
         If IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then
-            If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) or HH_MEMB_ARRAY(age, the_memb) = 0 Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", CDate(HH_MEMB_ARRAY(date_of_birth, the_memb)), Date)
+            HH_MEMB_ARRAY(date_of_birth, the_memb) = DateAdd("d", 0, HH_MEMB_ARRAY(date_of_birth, the_memb))
+            find_age = False
+            If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) Then
+                find_age = True
+            ElseIf HH_MEMB_ARRAY(age, the_memb) = 0 Then
+                find_age = True
+            End If
+            If find_age Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", HH_MEMB_ARRAY(date_of_birth, the_memb), Date)
         End If
 
         race_string = ""
