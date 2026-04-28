@@ -6043,8 +6043,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
 
-		'Script end procedure
-		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
+		'Script end procedure. Adds denial reason for non passed cases for data analysis purposes.
+		If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
+			script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE. Case cannot be processed as ex parte due to: " & trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", "")))
+		Else
+			script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
+		End If
 	End If
 
 
