@@ -5807,8 +5807,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
 							EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 							'We read these and loop here to ensure that the dates are entered so we can check them as dates later without crashing the script.
-							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. Please update the Income Renewal Date to either match the Elig Renewal Date or to be six months from the Elig Renewal Date for cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals."
-							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. Please update the Elig Renewal Date to be one year from the current renewal month and year."
+							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. Please update the Income Renewal Date."
+							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. Please update the Elig Renewal Date."
 							IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 						Loop until err_msg = ""
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
@@ -5906,8 +5906,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
 							EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 							'We read these and loop here to ensure that the dates are entered so we can check them as dates later without crashing the script.
-							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. Please update the Income Renewal Date to either match the Elig Renewal Date or to be six months from the Elig Renewal Date for cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals."
-							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. Please update the Elig Renewal Date to be one year from the current renewal month and year."
+							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. The date should not be changed for cases that are not ex parte."
+							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. The date should not be changed for cases that are not ex parte."
 							IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 						Loop until err_msg = ""
 
