@@ -5689,61 +5689,53 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				DO
 					Do
-						err_msg = ""    'This is the error message handling
-						Dialog Dialog1
-						cancel_confirmation
+						Do
+							err_msg = ""    'This is the error message handling
+							Dialog Dialog1
+							cancel_confirmation
 
-						' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+							'TODO - read DISA and display waiver
 
-						'TO DO - update with functions?
-						'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+							EMReadScreen stat_check, 4, 20, 21
+							EMReadScreen revw_panel_check, 4, 2, 46
+							EMReadScreen hc_revw_pop_up_check, 20, 4, 32
 
-						'TODO - read DISA and display waiver
-
-						EMReadScreen stat_check, 4, 20, 21
-						EMReadScreen revw_panel_check, 4, 2, 46
-						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
-
-						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-							If hc_revw_pop_up_check = "REVW" Then
-								EMReadScreen pop_up_open, 1, 4, 22
-								If pop_up_open <> "*" Then PF3
-								' Call write_value_and_transmit({"X", 5, 71)
-							ElseIf stat_check = "STAT" Then
-								Call write_value_and_transmit("REVW", 20, 71)
-								' Call write_value_and_transmit({"X", 5, 71)
-							Else
-								Call MAXIS_background_check
-								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+								If hc_revw_pop_up_check = "REVW" Then
+									EMReadScreen pop_up_open, 1, 4, 22
+									If pop_up_open <> "*" Then PF3
+									' Call write_value_and_transmit({"X", 5, 71)
+								ElseIf stat_check = "STAT" Then
+									Call write_value_and_transmit("REVW", 20, 71)
+									' Call write_value_and_transmit({"X", 5, 71)
+								Else
+									Call MAXIS_background_check
+									CALL navigate_to_MAXIS_screen("STAT", "REVW")
+								End If
+								CALL write_value_and_transmit("X", 5, 71)
 							End If
-							CALL write_value_and_transmit("X", 5, 71)
-						End If
 
 
-						EMReadScreen check_elig_renewal_date, 8, 9, 27
-						EMReadScreen check_income_renewal_date, 8, 8, 71
-						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+							EMReadScreen check_elig_renewal_date, 8, 9, 27
+							EMReadScreen check_income_renewal_date, 8, 8, 71
+							If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
+							EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+							'We read these and loop here to ensure that the dates are entered so we can check them as dates later without crashing the script.
+							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. Please update the Income Renewal Date to either match the Elig Renewal Date or to be six months from the Elig Renewal Date for cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals."
+							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. Please update the Elig Renewal Date to be one year from the current renewal month and year."
+							IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+						Loop until err_msg = ""
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
 						elig_renewal_date = replace(elig_renewal_date, " ", "/")
-						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
 						check_income_renewal_date = DateAdd("d", 0, check_income_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
-						' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
 						'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
 						If check_elig_renewal_date <> DateAdd("yyyy", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
-
-						'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
-						'TO DO - determine how to determine if meets spenddown?
-						' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
-						'If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
-						'TODO - put back the funcitonality for spenddowns
 
 						'Validate that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
@@ -5783,44 +5775,50 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				EndDialog
 				DO
 					Do
-						err_msg = ""    'This is the error message handling
-						Dialog Dialog1
-						cancel_confirmation
+						Do
+							err_msg = ""    'This is the error message handling
+							Dialog Dialog1
+							cancel_confirmation
 
-						EMReadScreen stat_check, 4, 20, 21
-						EMReadScreen revw_panel_check, 4, 2, 46
-						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+							'TODO - read DISA and display waiver
 
-						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-							If hc_revw_pop_up_check = "REVW" Then
-								EMReadScreen pop_up_open, 1, 4, 22
-								If pop_up_open <> "*" Then PF3
-								' Call write_value_and_transmit({"X", 5, 71)
-							ElseIf stat_check = "STAT" Then
-								Call write_value_and_transmit("REVW", 20, 71)
-								' Call write_value_and_transmit({"X", 5, 71)
-							Else
-								Call MAXIS_background_check
-								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							EMReadScreen stat_check, 4, 20, 21
+							EMReadScreen revw_panel_check, 4, 2, 46
+							EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+							If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+								If hc_revw_pop_up_check = "REVW" Then
+									EMReadScreen pop_up_open, 1, 4, 22
+									If pop_up_open <> "*" Then PF3
+									' Call write_value_and_transmit({"X", 5, 71)
+								ElseIf stat_check = "STAT" Then
+									Call write_value_and_transmit("REVW", 20, 71)
+									' Call write_value_and_transmit({"X", 5, 71)
+								Else
+									Call MAXIS_background_check
+									CALL navigate_to_MAXIS_screen("STAT", "REVW")
+								End If
+								CALL write_value_and_transmit("X", 5, 71)
 							End If
-							CALL write_value_and_transmit("X", 5, 71)
-						End If
 
-						EMReadScreen check_income_renewal_date, 8, 8, 27
-						EMReadScreen check_elig_renewal_date, 8, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
-						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 71
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
+							EMReadScreen check_elig_renewal_date, 8, 9, 27
+							EMReadScreen check_income_renewal_date, 8, 8, 71
+							If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
+							EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+							'We read these and loop here to ensure that the dates are entered so we can check them as dates later without crashing the script.
+							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. Please update the Income Renewal Date."
+							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. Please update the Elig Renewal Date."
+							IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+						Loop until err_msg = ""
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
 						elig_renewal_date = replace(elig_renewal_date, " ", "/")
-						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
 
 						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
 						check_income_renewal_date = DateAdd("d", 0, check_income_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
 						'Now run through HCMI and check coding
 						Call check_HCMI_for_members()
@@ -5876,39 +5874,42 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				DO
 					Do
-						err_msg = ""    'This is the error message handling
-						Dialog Dialog1
-						cancel_confirmation
+						Do
+							err_msg = ""    'This is the error message handling
+							Dialog Dialog1
+							cancel_confirmation
 
-						' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+							'TODO - read DISA and display waiver
 
-						'TO DO - update with functions?
-						'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+							EMReadScreen stat_check, 4, 20, 21
+							EMReadScreen revw_panel_check, 4, 2, 46
+							EMReadScreen hc_revw_pop_up_check, 20, 4, 32
 
-						EMReadScreen stat_check, 4, 20, 21
-						EMReadScreen revw_panel_check, 4, 2, 46
-						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
-
-						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-							If hc_revw_pop_up_check = "REVW" Then
-								EMReadScreen pop_up_open, 1, 4, 22
-								If pop_up_open <> "*" Then PF3
-								' Call write_value_and_transmit({"X", 5, 71)
-							ElseIf stat_check = "STAT" Then
-								Call write_value_and_transmit("REVW", 20, 71)
-								' Call write_value_and_transmit({"X", 5, 71)
-							Else
-								Call MAXIS_background_check
-								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+								If hc_revw_pop_up_check = "REVW" Then
+									EMReadScreen pop_up_open, 1, 4, 22
+									If pop_up_open <> "*" Then PF3
+									' Call write_value_and_transmit({"X", 5, 71)
+								ElseIf stat_check = "STAT" Then
+									Call write_value_and_transmit("REVW", 20, 71)
+									' Call write_value_and_transmit({"X", 5, 71)
+								Else
+									Call MAXIS_background_check
+									CALL navigate_to_MAXIS_screen("STAT", "REVW")
+								End If
+								CALL write_value_and_transmit("X", 5, 71)
 							End If
-							CALL write_value_and_transmit("X", 5, 71)
-						End If
 
-						EMReadScreen check_income_renewal_date, 8, 8, 27
-						EMReadScreen check_elig_renewal_date, 8, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
-						If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 71
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+
+							EMReadScreen check_elig_renewal_date, 8, 9, 27
+							EMReadScreen check_income_renewal_date, 8, 8, 71
+							If check_income_renewal_date = "__ 01 __" Then EMReadScreen check_income_renewal_date, 8, 8, 27
+							EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+							'We read these and loop here to ensure that the dates are entered so we can check them as dates later without crashing the script.
+							If replace(check_income_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Income Renewal Date is blank. The date should not be changed for cases that are not ex parte."
+							If replace(check_elig_renewal_date, "_", " ") = "   01   " Then err_msg = err_msg & vbCr & "* It appears that the Elig Renewal Date is blank. The date should not be changed for cases that are not ex parte."
+							IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+						Loop until err_msg = ""
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
@@ -6043,8 +6044,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
 
-		'Script end procedure
-		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
+		'Script end procedure. Adds denial reason for non passed cases for data analysis purposes.
+		If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
+			script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE. Case cannot be processed as ex parte due to: " & trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", "")))
+		Else
+			script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
+		End If
 	End If
 
 
