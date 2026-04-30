@@ -1383,7 +1383,7 @@ If ex_parte_function = "ADMIN Review" Then
     If user_ID_for_validation = "WFC041"    Then allow_admin_use = true	    'KW
     If user_ID_for_validation = "YEYA001"   Then allow_admin_use = true	    'YY
     If user_ID_for_validation = "WFH136"    Then allow_admin_use = true	    'RZ
-
+	If user_ID_for_validation = "WFZ993"	Then allow_admin_use = True     'BT
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
 
 	'First we need to set the dates for each phase of Ex Parte.
