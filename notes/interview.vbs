@@ -524,6 +524,7 @@ function determine_age (date_of_birth, age)
         birth_month = DatePart("m", date_of_birth)
         current_year = DatePart("yyyy", Date)
         this_year_birthday = DateSerial(current_year, birth_month, birth_day)
+        ' NOTE THAT DateSerial will error 2/29 to 3/1 for non-leap years but this will create expected behavior and special handling is not needed.
         If DateDiff("d", Date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the current date to birthday this year to determine if the birthday has already passed this year or not
         age = DateDiff("yyyy", date_of_birth, Date)                                                 'calculate the age based on the difference in years between the date of birth and today
         If not birthdate_passed_this_year Then age = age - 1                                        'if the birthdate has not yet passed this year, subtract 1 from the age calculation to get the correct age
