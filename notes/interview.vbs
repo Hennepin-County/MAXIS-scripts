@@ -515,6 +515,17 @@ function check_for_errors(interview_questions_clear)
 	End If
 end function
 
+function determine_age (date_of_birth, age)
+    birthdate_passed_this_year = False                                                          'identify if we need to adjust the age calculation based on if the birthday has passed this year or not
+    birth_day = DatePart("d", date_of_birth)                                                    'create a date value for the birthday this year using the birth month and day and the current year
+    birth_month = DatePart("m", date_of_birth)
+    current_year = DatePart("yyyy", Date)
+    this_year_birthday = DateSerial(current_year, birth_month, birth_day)
+    If DateDiff("d", Date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the current date to birthday this year to determine if the birthday has already passed this year or not
+    age = DateDiff("yyyy", date_of_birth, Date)                                                 'calculate the age based on the difference in years between the date of birth and today
+    If not birthdate_passed_this_year Then age = age - 1                                        'if the birthdate has not yet passed this year, subtract 1 from the age calculation to get the correct age
+end function
+
 function define_main_dialog()
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions   ---   Questions from " & CAF_form
@@ -4853,13 +4864,10 @@ function review_information()
 		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
         If IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then
             HH_MEMB_ARRAY(date_of_birth, the_memb) = DateAdd("d", 0, HH_MEMB_ARRAY(date_of_birth, the_memb))
-            find_age = False
-            If NOT IsNumeric(HH_MEMB_ARRAY(age, the_memb)) Then
-                find_age = True
-            ElseIf HH_MEMB_ARRAY(age, the_memb) = 0 Then
-                find_age = True
-            End If
-            If find_age Then HH_MEMB_ARRAY(age, the_memb) = DateDiff("yyyy", HH_MEMB_ARRAY(date_of_birth, the_memb), Date)
+            find_age = ""
+            call determine_age (HH_MEMB_ARRAY(date_of_birth, the_memb), find_age)
+            HH_MEMB_ARRAY(age, the_memb) = find_age & ""
+            HH_MEMB_ARRAY(date_of_birth, the_memb) = HH_MEMB_ARRAY(date_of_birth, the_memb) & ""
         End If
 
         race_string = ""
