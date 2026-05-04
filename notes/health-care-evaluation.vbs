@@ -5701,7 +5701,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							EMReadScreen hc_revw_pop_up_check, 20, 4, 32
 
 							If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-								If hc_revw_pop_up_check = "REVW" Then
+								If revw_panel_check = "REVW" Then
 									EMReadScreen pop_up_open, 1, 4, 22
 									If pop_up_open <> "*" Then PF3
 									' Call write_value_and_transmit({"X", 5, 71)
@@ -5787,7 +5787,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							EMReadScreen hc_revw_pop_up_check, 20, 4, 32
 
 							If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-								If hc_revw_pop_up_check = "REVW" Then
+								If hc_revw_panel_check = "REVW" Then
 									EMReadScreen pop_up_open, 1, 4, 22
 									If pop_up_open <> "*" Then PF3
 									' Call write_value_and_transmit({"X", 5, 71)
