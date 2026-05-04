@@ -8883,6 +8883,9 @@ If membs_found = False Then
 			if HH_MEMB_ARRAY(ssn, clt_count) = "___-__-____" Then HH_MEMB_ARRAY(ssn, clt_count) = ""
 			HH_MEMB_ARRAY(ssn_no_space, clt_count) = replace(HH_MEMB_ARRAY(ssn, clt_count), "-", "")
 
+            ' This is handling for weird MAXIS coding where a blank SSN is listed as verified - updateing the verif allows for editing of the SSN
+            If HH_MEMB_ARRAY(ssn, clt_count) = "" and (HH_MEMB_ARRAY(ssn_verif, clt_count) = "V" or HH_MEMB_ARRAY(ssn_verif, clt_count) = "P") Then HH_MEMB_ARRAY(ssn_verif, clt_count) = "N"
+
 			If HH_MEMB_ARRAY(ssn_verif, clt_count) = "A" THen HH_MEMB_ARRAY(ssn_verif, clt_count) = "A - SSN Applied For"
 			If HH_MEMB_ARRAY(ssn_verif, clt_count) = "P" THen HH_MEMB_ARRAY(ssn_verif, clt_count) = "P - SSN Provided, verif Pending"
 			If HH_MEMB_ARRAY(ssn_verif, clt_count) = "N" THen HH_MEMB_ARRAY(ssn_verif, clt_count) = "N - SSN Not Provided"
