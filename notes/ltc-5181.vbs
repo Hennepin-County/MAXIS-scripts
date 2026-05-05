@@ -2543,7 +2543,7 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
       Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
 
       If OS_addr_address_street_line_2 <> "" Then 
-          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
       Else
           Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
       End If
