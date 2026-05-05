@@ -361,7 +361,7 @@ Function checkForErrors()
 		ObjErrorLogfile.Close
 		closing_msg = errWording & vbCrlf & vbCrlf & "ERROR: '" & trim(scrLine) & "'" &_
 			   vbCrlf & vbCrlf & "Error Report Created:" & vbCRlf & logFilename
-		PF6
+		'PF6
 		call script_end_procedure(closing_msg)
 	End IF
 	EMReadScreen scrLine, 80, 24, 1
