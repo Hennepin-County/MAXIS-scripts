@@ -47,7 +47,8 @@ END IF
 
 'Temp coding for supporting LTSS users and IT Tickets
 If windows_user_ID = "SYKE002" then msgbox "Script file connected & Functions Library loaded."
-If windows_user_ID = "COMA003" then msgbox "Script file connected & Functions Library loaded."	
+If windows_user_ID = "COMA003" then msgbox "Script file connected & Functions Library loaded."
+If windows_user_ID = "SAGR002" then msgbox "Script file connected & Functions Library loaded."
 	
 
 'CHANGELOG BLOCK ===========================================================================================================
