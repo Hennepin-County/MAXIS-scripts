@@ -45,6 +45,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'Temp coding for supporting LTSS users and IT Tickets
+If windows_user_ID = "SYKE002" then msgbox "Script file connected & Functions Library loaded."
+If windows_user_ID = "COMA003" then msgbox "Script file connected & Functions Library loaded."	
+	
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
