@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/14/2026", "Added functionality to update ADDR mailing address for OS staff; improved ADDR update functionality.", "Mark Riegel, Hennepin County")
 call changelog_update("10/29/2025", "Added button to fill SWKR details for OS staff update dialog.", "Mark Riegel, Hennepin County")
 call changelog_update("10/20/2025", "Updated script to align with current DHS-5181 form; added functionality for OS staff to complete SWKR/ADDR panel updates without completing whole script; improved STAT panel update functionality.", "Mark Riegel, Hennepin County")
 call changelog_update("11/14/2022", "Enhanced script to only update SWKR/Case Manager information that is added. Previously all information was cleared before updating the SWKR/case manager info.", "Ilse Ferris, Hennepin County")
@@ -2667,46 +2668,46 @@ End If
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------10/22/2025
-'--Tab orders reviewed & confirmed----------------------------------------------10/22/2025
-'--Mandatory fields all present & Reviewed--------------------------------------10/22/2025
-'--All variables in dialog match mandatory fields-------------------------------10/22/2025
-'Review dialog names for content and content fit in dialog----------------------10/22/2025
-'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------10/22/2025
-'--Include script category and name somewhere on first dialog-------------------10/22/2025
-'--Create a button to reference instructions------------------------------------10/22/2025
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/14/2026
+'--Tab orders reviewed & confirmed----------------------------------------------05/14/2026
+'--Mandatory fields all present & Reviewed--------------------------------------05/14/2026
+'--All variables in dialog match mandatory fields-------------------------------05/14/2026
+'Review dialog names for content and content fit in dialog----------------------05/14/2026
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------05/14/2026
+'--Include script category and name somewhere on first dialog-------------------05/14/2026
+'--Create a button to reference instructions------------------------------------05/14/2026
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------10/22/2025
-'--CASE:NOTE Header doesn't look funky------------------------------------------10/22/2025
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/22/2025
-'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----10/22/2025
+'--All variables are CASE:NOTEing (if required)---------------------------------05/14/2026
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/14/2026
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/14/2026
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----05/14/2026
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/22/2025
-'--MAXIS_background_check reviewed (if applicable)------------------------------10/22/2025
-'--PRIV Case handling reviewed -------------------------------------------------10/22/2025
-'--Out-of-County handling reviewed----------------------------------------------10/22/2025
-'--script_end_procedures (w/ or w/o error messaging)----------------------------10/22/2025
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/14/2026
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/14/2026
+'--PRIV Case handling reviewed -------------------------------------------------05/14/2026
+'--Out-of-County handling reviewed----------------------------------------------05/14/2026
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/14/2026
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/22/2025
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/14/2026
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------10/22/2025
-'--Incrementors reviewed (if necessary)-----------------------------------------10/22/2025
-'--Denomination reviewed -------------------------------------------------------10/22/2025
-'--Script name reviewed---------------------------------------------------------10/22/2025
+'--Manual time study reviewed --------------------------------------------------05/14/2026
+'--Incrementors reviewed (if necessary)-----------------------------------------05/14/2026
+'--Denomination reviewed -------------------------------------------------------05/14/2026
+'--Script name reviewed---------------------------------------------------------05/14/2026
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------10/22/2025
-'--comment Code-----------------------------------------------------------------10/22/2025
-'--Update Changelog for release/update------------------------------------------10/22/2025
-'--Remove testing message boxes-------------------------------------------------10/22/2025
-'--Remove testing code/unnecessary code-----------------------------------------10/22/2025
-'--Review/update SharePoint instructions----------------------------------------10/22/2025
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/22/2025
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/22/2025
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/22/2025
-'--Complete misc. documentation (if applicable)---------------------------------10/22/2025
-'--Update project team/issue contact (if applicable)----------------------------10/22/2025
+'--Confirm all GitHub tasks are complete----------------------------------------05/14/2026
+'--comment Code-----------------------------------------------------------------05/14/2026
+'--Update Changelog for release/update------------------------------------------05/14/2026
+'--Remove testing message boxes-------------------------------------------------05/14/2026
+'--Remove testing code/unnecessary code-----------------------------------------05/14/2026
+'--Review/update SharePoint instructions----------------------------------------05/14/2026
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/14/2026
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/14/2026
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/14/2026
+'--Complete misc. documentation (if applicable)---------------------------------05/14/2026
+'--Update project team/issue contact (if applicable)----------------------------05/14/2026
