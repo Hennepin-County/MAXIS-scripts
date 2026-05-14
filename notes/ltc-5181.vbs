@@ -1230,20 +1230,24 @@ end function
 EMConnect ""
 call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
+'Read the footer month and year in case needed for updates
 
 'Initial Dialog - Instructions
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 221, 115, "Enter LTC-5181 Form Details"
+BeginDialog Dialog1, 0, 0, 221, 135, "Enter LTC-5181 Form Details"
   Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
   Text 15, 35, 50, 10, "Case Number:"
   EditBox 70, 30, 55, 15, MAXIS_case_number
-  Text 15, 50, 45, 15, "Script User:"
+  Text 15, 50, 45, 10, "Script User:"
   DropListBox 70, 50, 145, 20, "Select one:"+chr(9)+"HSR - enter DHS-5181 form details"+chr(9)+"OS Staff - update SWKR/ADDR panels", script_user_dropdown
-  Text 10, 80, 60, 10, "Worker Signature:"
-  EditBox 75, 75, 140, 15, worker_signature
+  Text 15, 70, 70, 10, "Footer Month/Year:"
+  EditBox 85, 65, 20, 15, MAXIS_footer_month
+  EditBox 110, 65, 20, 15, MAXIS_footer_year
+  Text 15, 95, 60, 10, "Worker Signature:"
+  EditBox 85, 90, 130, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 125, 95, 45, 15
-    CancelButton 170, 95, 45, 15
+    OkButton 125, 115, 45, 15
+    CancelButton 170, 115, 45, 15
     PushButton 150, 30, 65, 15, "Script Instructions", instructions_btn
 EndDialog
 
@@ -1258,6 +1262,8 @@ DO
       err_msg = "LOOP"
     End IF 
     If script_user_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must make a selection from the dropdown for the Script User."
+    If Not IsNumeric(MAXIS_footer_month) OR len(MAXIS_footer_month) <> 2 or trim(MAXIS_footer_month) = "" Then err_msg = err_msg & vbCr & "* You must enter the footer month in a 2-digit format."
+    If Not IsNumeric(MAXIS_footer_year) OR len(MAXIS_footer_year) <> 2 or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbCr & "* You must enter the footer year in a 2-digit format."
 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -2312,27 +2318,26 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Text 15, 260, 90, 10, "Footer month for updates:"
     EditBox 115, 255, 20, 15, footer_month_SWKR
     EditBox 140, 255, 20, 15, footer_year_SWKR
-    GroupBox 220, 5, 210, 275, "Update ADDR Panel"
-    CheckBox 225, 20, 100, 10, "Click to update ADDR panel", OS_addr_update_panel_checkbox
+    GroupBox 220, 27, 210, 253, "Update ADDR Panel"
+    CheckBox 225, 42, 140, 10, "Click to update ADDR panel address", OS_addr_update_panel_checkbox
     ButtonGroup ButtonPressed
-      PushButton 235, 30, 65, 15, "Navigate to ADDR", addr_nav_btn
-      PushButton 300, 30, 55, 15, "Fill from ADDR", fill_from_addr_OS_dialog_btn
-    Text 230, 50, 60, 105, "Address Eff Date:                                Street Line 1:                                      Street Line 2:                                        City:                                                   State:                                                   Zip Code:                                              County Code:                    "
-    EditBox 300, 50, 55, 15, OS_addr_eff_date
-    EditBox 300, 65, 120, 15, OS_addr_address_street_line_1
-    EditBox 300, 80, 120, 15, OS_addr_address_street_line_2
-    EditBox 300, 95, 120, 15, OS_addr_city
-    EditBox 300, 110, 25, 15, OS_addr_state
-    EditBox 300, 125, 35, 15, OS_addr_zip
-    EditBox 300, 140, 25, 15, OS_addr_resi_code
-    CheckBox 225, 165, 120, 10, "Click here to update ADDR panel", Check3
-    Text 230, 180, 55, 90, "Street Line 1:                                   Street Line 2:                                   City:                                                State:                                            Zip Code:                                     County Code:"
-    EditBox 300, 180, 120, 15, OS_addr_mailing_address_line_1
-    EditBox 300, 195, 120, 15, OS_addr_mailing_address_line_2
-    EditBox 300, 210, 120, 15, OS_addr_mailing_city
-    EditBox 300, 225, 25, 15, OS_addr_mailing_state
-    EditBox 300, 240, 35, 15, OS_addr_mailing_zip
-    EditBox 300, 255, 25, 15, OS_addr_mailing_county_code
+      PushButton 235, 52, 65, 15, "Navigate to ADDR", addr_nav_btn
+      PushButton 300, 52, 55, 15, "Fill from ADDR", fill_from_addr_OS_dialog_btn
+    Text 230, 72, 60, 105, "Address Eff Date:                                Street Line 1:                                      Street Line 2:                                        City:                                                   State:                                                   Zip Code:                                              County Code:                    "
+    EditBox 300, 72, 55, 15, OS_addr_eff_date
+    EditBox 300, 87, 120, 15, OS_addr_address_street_line_1
+    EditBox 300, 102, 120, 15, OS_addr_address_street_line_2
+    EditBox 300, 117, 120, 15, OS_addr_city
+    EditBox 300, 132, 25, 15, OS_addr_state
+    EditBox 300, 147, 35, 15, OS_addr_zip
+    EditBox 300, 162, 25, 15, OS_addr_resi_code
+    CheckBox 225, 187, 190, 10, "Click to update ADDR panel mailing address", OS_addr_mailing_update_panel_checkbox
+    Text 230, 202, 55, 74, "Street Line 1:                                   Street Line 2:                                   City:                                                State:                                            Zip Code:"
+    EditBox 300, 202, 120, 15, OS_addr_mailing_address_line_1
+    EditBox 300, 217, 120, 15, OS_addr_mailing_address_line_2
+    EditBox 300, 232, 120, 15, OS_addr_mailing_city
+    EditBox 300, 247, 25, 15, OS_addr_mailing_state
+    EditBox 300, 262, 35, 15, OS_addr_mailing_zip
     ButtonGroup ButtonPressed
       PushButton 320, 285, 55, 15, "Next", next_btn
       CancelButton 375, 285, 50, 15
@@ -2361,7 +2366,7 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         If OS_swkr_notices_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must select 'Yes' or 'No' from the Notices to Social Worker dropdown list."  
         If trim(footer_month_SWKR) = "" OR Len(trim(footer_month_SWKR)) <> 2 OR IsNumeric(trim(footer_month_SWKR)) = False OR trim(footer_year_SWKR) = "" OR Len(trim(footer_year_SWKR)) <> 2 OR IsNumeric(trim(footer_year_SWKR)) = False Then err_msg = err_msg & vbCr & "* You must enter the footer month and year for the SWKR panel updates in  the MM YY format."
       End If
-      'Error handling for ADDR panel updates
+      'Error handling for ADDR panel updates - primary address
       If OS_addr_update_panel_checkbox = 1 Then
         If trim(OS_addr_eff_date) <> "" AND IsDate(OS_addr_eff_date) = FALSE Then err_msg = err_msg & vbCr & "* You must enter the Address Eff Date in the format MM/DD/YYYY."
         If trim(OS_addr_address_street_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Street Address Line 1 field."  
@@ -2370,39 +2375,53 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         If trim(OS_addr_zip) = "" OR len(OS_addr_zip) <> 5 Then err_msg = err_msg & vbCr & "* You must fill out the Zip Code field in the 5-character format, ex. 55487."
         If trim(OS_addr_resi_code) = "" OR len(OS_addr_resi_code) <> 2 OR IsNumeric(OS_addr_resi_code) = FALSE Then err_msg = err_msg & vbCr & "* You must fill out the Resi Co field in the 2-character format, ex. 27."
       End If
-      'To do - add handling for filling from ADDR, add handling to ensure fields filled out as needed
+      'Error handling for ADDR Panel updates - mailing address
+      If OS_addr_mailing_update_panel_checkbox = 1 Then
+        If trim(OS_addr_mailing_address_line_1) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Mailing Street Address Line 1 field." 
+        If trim(OS_addr_mailing_city) = "" Then err_msg = err_msg & vbCr & "* You must fill out the Mailing City field."
+        If trim(OS_addr_mailing_state) = "" Or len(OS_addr_mailing_state) <> 2 Then err_msg = err_msg & vbCr & "* You must fill out the Mailing State field in the two-character format, ex. MN."
+        If trim(OS_addr_mailing_zip) = "" or len(OS_addr_mailing_zip) > 7 or isNumeric(OS_addr_mailing_zip) = False Then err_msg = err_msg & vbCr & "* You must enter the mailing address zip code in a numeric format that is not longer than 7 digits."
+      End If
       If ButtonPressed = fill_from_addr_OS_dialog_btn Then
         err_msg = "LOOP"
         Call navigate_to_MAXIS_screen("STAT", "ADDR")
         'creates a new panel if one doesn't exist, and will needs new if there is not one
         EMReadScreen panel_exists_check, 1, 2, 73
         IF panel_exists_check = "0" THEN
-          'If no SWKR panel exists, then msgbox to alert the worker
-          msgbox "No SWKR panel exists. Script will return to dialog."
+          'If no ADDR panel exists, then msgbox to alert the worker
+          msgbox "No ADDR panel exists. Script will return to dialog."
         ELSE
-          'Read information from SWKR
-          EMReadScreen OS_assessor, 35, 6, 32
-          OS_assessor = replace(OS_assessor, "_", "")
-          EMReadScreen OS_swkr_street_address_1, 22, 8, 32
-          OS_swkr_street_address_1 = replace(OS_swkr_street_address_1, "_", "")
-          EMReadScreen OS_swkr_street_address_2, 22, 9, 32
-          OS_swkr_street_address_2 = replace(OS_swkr_street_address_2, "_", "")
-          EMReadScreen OS_swkr_city, 15, 10, 32
-          OS_swkr_city = replace(OS_swkr_city, "_", "")
-          EMReadScreen OS_phone_number, 14, 12, 34
-          OS_phone_number = replace(OS_phone_number, " ) ", "")
-          OS_phone_number = replace(OS_phone_number, " ", "")
-          'Convert phone number to ###-###-####
-          OS_phone_number = left(OS_phone_number, 3) & "-" & mid(OS_phone_number, 4, 3) & "-" & right(OS_phone_number, 4)
-          EMReadScreen OS_swkr_state, 2, 10, 54
-          EMReadScreen OS_swkr_zip_code, 5, 10, 63
-          OS_swkr_zip_code = trim(OS_swkr_zip_code)
+          'Read information from ADDR
+          EMReadScreen OS_addr_eff_date, 8, 4, 43
+          OS_addr_eff_date = replace(OS_addr_eff_date, " ", "/")
+          EMReadScreen OS_addr_address_street_line_1, 22, 6, 43
+          OS_addr_address_street_line_1 = replace(OS_addr_address_street_line_1, "_", "")
+          EMReadScreen OS_addr_address_street_line_2, 22, 7, 43
+          OS_addr_address_street_line_2 = replace(OS_addr_address_street_line_2, "_", "")
+          EMReadScreen OS_addr_city, 15, 8, 43
+          OS_addr_city = replace(OS_addr_city, "_", "")
+          EMReadScreen OS_addr_state, 2, 8, 66
+          EMReadScreen OS_addr_zip, 7, 9, 43
+          OS_addr_zip = replace(OS_addr_zip, "_", "")
+          EMReadScreen OS_addr_resi_code, 2, 9, 66
+          
+          'Read mailing address from ADDR
+          EMReadScreen OS_addr_mailing_address_line_1, 22, 12, 49
+          OS_addr_mailing_address_line_1 = replace(OS_addr_mailing_address_line_1, "_", "")
+          EMReadScreen OS_addr_mailing_address_line_2, 22, 13, 49
+          OS_addr_mailing_address_line_2 = replace(OS_addr_mailing_address_line_2, "_", "")
+          EMReadScreen OS_addr_mailing_city, 15, 14, 49
+          OS_addr_mailing_city = replace(OS_addr_mailing_city, "_", "")
+          EMReadScreen OS_addr_mailing_state, 2, 15, 49
+          If OS_addr_mailing_state = "__" then OS_addr_mailing_state = "" 
+          EMReadScreen OS_addr_mailing_zip, 7, 15, 58
+          OS_addr_mailing_zip = replace(OS_addr_mailing_zip, "_", "")
+
           Call back_to_SELF
         END IF
         'End at STAT/MEMB
         Call back_to_SELF
       End If
-      If OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox = 0 Then err_msg = err_msg & vbCr & "* You must either select the checkbox to update the SWKR panel or the checkbox to update the ADDR panel."
       If ButtonPressed = fill_from_swkr_OS_dialog_btn Then
         err_msg = "LOOP"
         Call navigate_to_MAXIS_screen("STAT", "SWKR")
@@ -2434,6 +2453,7 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         'End at STAT/MEMB
         Call back_to_SELF
       End If
+      If (OS_swkr_update_panel_checkbox + OS_addr_update_panel_checkbox + OS_addr_mailing_update_panel_checkbox = 0) and err_msg <> "LOOP" Then err_msg = err_msg & vbCr & "* You must select a checkbox to update the SWKR panel, or the checkboxes to update the address on the ADDR panel or the ADDR mailing address."
       If ButtonPressed = swkr_nav_btn Then 
         Call navigate_to_MAXIS_screen("STAT", "SWKR")
         err_msg = "LOOP"
@@ -2543,15 +2563,20 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
   End If
 
   'Update ADDR
-  If OS_addr_update_panel_checkbox = 1 Then
+  If OS_addr_update_panel_checkbox = 1 OR OS_addr_mailing_update_panel_checkbox = 1 Then
 
     Call back_to_SELF
-    Call ONLY_create_MAXIS_friendly_date(OS_addr_eff_date)
-    MAXIS_footer_month = left(OS_addr_eff_date, 2)
-    MAXIS_footer_year = right(OS_addr_eff_date, 2)
-    EmWriteScreen OS_footer_month, 20, 43
-    EmWriteScreen OS_footer_year, 20, 46
-    EmWriteScreen MAXIS_case_number, 18, 43
+    If trim(OS_addr_eff_date) = "" Then
+      EmWriteScreen MAXIS_footer_month, 20, 43
+      EmWriteScreen MAXIS_footer_year, 20, 46
+    Else
+      Call ONLY_create_MAXIS_friendly_date(OS_addr_eff_date)
+      MAXIS_footer_month = left(OS_addr_eff_date, 2)
+      MAXIS_footer_year = right(OS_addr_eff_date, 2)
+      EmWriteScreen MAXIS_footer_month, 20, 43
+      EmWriteScreen MAXIS_footer_year, 20, 46
+      EmWriteScreen MAXIS_case_number, 18, 43
+    End If
     transmit
 
     'Navigate to STAT/ADDR
@@ -2571,8 +2596,28 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         'Clear editing
         PF10
 
-        'Write information to panel depending on which address selected
-        Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        If OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
+
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        
+        ElseIf OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox <> 1 Then
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+        ElseIf OS_addr_update_panel_checkbox <> 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        End If
       End If
     Else
       'Test if possible to edit the panel
@@ -2587,20 +2632,40 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
         'Back out of edit mode
         PF10
 
-        'Write information to panel depending on which address selected
-        Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        If OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
+
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        
+        ElseIf OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox <> 1 Then
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+        ElseIf OS_addr_update_panel_checkbox <> 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
+          'Read information on ADDR panel so that function does not overwrite everything
+          Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          
+          'Write information to panel depending on which address selected
+          Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        End If
       End If
     End If
   End If
 
   'CASE/NOTE information
 
-  If OS_swkr_update_panel_checkbox = 1 OR OS_addr_update_panel_checkbox = 1 Then
-    If OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox = 1 Then
+  If OS_swkr_update_panel_checkbox = 1 OR OS_addr_update_panel_checkbox = 1 OR OS_addr_mailing_update_panel_checkbox = 1 Then
+    If OS_swkr_update_panel_checkbox = 1 AND (OS_addr_update_panel_checkbox = 1 OR OS_addr_mailing_update_panel_checkbox = 1) Then
       panels_updated = "SWKR and ADDR Updated"
-    ElseIf OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox <> 1 Then
+    ElseIf OS_swkr_update_panel_checkbox = 1 AND OS_addr_update_panel_checkbox <> 1 AND OS_addr_mailing_update_panel_checkbox <> 1 Then
       panels_updated = "SWKR Updated"
-    ElseIf OS_swkr_update_panel_checkbox <> 1 AND OS_addr_update_panel_checkbox = 1 Then
+    ElseIf OS_swkr_update_panel_checkbox <> 1 AND (OS_addr_update_panel_checkbox = 1 OR OS_addr_mailing_update_panel_checkbox = 1) Then
       panels_updated = "ADDR Updated"
     End If
 
@@ -2627,19 +2692,29 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
       Call write_variable_in_case_note("---")
     End If
 
-    If OS_addr_update_panel_checkbox = 1 Then
-      Call write_variable_in_case_note("ADDR Updates")  
-      Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
+    If OS_addr_update_panel_checkbox = 1 OR OS_addr_mailing_update_panel_checkbox = 1 Then
+      If OS_addr_update_panel_checkbox = 1 Then
+        Call write_variable_in_case_note("ADDR Updates")  
+        Call write_bullet_and_variable_in_case_note("Address Eff Date", OS_addr_eff_date)
 
-      If OS_addr_address_street_line_2 <> "" Then 
-          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_state & ", " & OS_swkr_state & ", " & OS_addr_zip)
-      Else
+        If trim(OS_addr_address_street_line_2) <> "" Then 
+          Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_address_street_line_2 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
+        Else
           Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
+        End If
+        Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
+        Call write_bullet_and_variable_in_case_note("Ver", "OT")
+        Call write_bullet_and_variable_in_case_note("Living Situation", addr_living_sit)
       End If
-      Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
-      Call write_bullet_and_variable_in_case_note("Ver", OS_addr_ver)
-      Call write_bullet_and_variable_in_case_note("Living Situation", OS_addr_living_situation)
-      Call write_variable_in_case_note ("---")
+      If OS_addr_mailing_update_panel_checkbox = 1 Then
+        Call write_variable_in_case_note("ADDR Updates - Mailing Address")
+         If trim(OS_addr_mailing_address_line_2) <> "" Then 
+          Call write_bullet_and_variable_in_case_note("Mailing Address", OS_addr_mailing_address_line_1 & ", " & OS_addr_mailing_address_line_2 & ", " & OS_addr_mailing_city & ", " & OS_addr_mailing_state & ", " & OS_addr_mailing_zip)
+        Else
+          Call write_bullet_and_variable_in_case_note("Mailing Address", OS_addr_mailing_address_line_1 & ", " & OS_addr_mailing_city & ", " & OS_addr_mailing_state & ", " & OS_addr_mailing_zip)
+        End If
+      End If
+      Call write_variable_in_case_note("---")
     End If
 
     'Add worker signature
