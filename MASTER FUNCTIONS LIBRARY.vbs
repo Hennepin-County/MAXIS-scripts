@@ -14423,10 +14423,10 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
             tlr_status = "Exempt"
             eval_string = "Age over 64; "
         ElseIf fn_age >= 60 Then
-            panel_code = "05/01"
             wreg_status = "Exempt"
-            tlr_status = "Exempt"
             eval_string = "Age between 60 and 64; "
+            ' panel_code = "05/01"                  'We are not setting the panel code for the 60-64 aged recipients here because it is a lower priority code than others that may apply. This is revisited at the end of the function
+            ' tlr_status = "Exempt"                 'SNAP participants aged 60-64 are exempt from Work Registration but are still Time-Limited Recipients unless otherwise exempt
         ElseIf fn_age < 16 Then
             panel_code = "Panel Not Needed"     '06/01 if created
             wreg_status = "Exempt"
@@ -14576,6 +14576,13 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
         If panel_code = "" Then panel_code = "17/12"
         tlr_status = "Exempt"
         eval_string = eval_string & "Receiving RCA; "
+    End If
+
+    'If another panel code has not been identified with all other options, we will assign the age 60-64 panel coding. This is the lowest priority panel code.
+    If IsDate(dob) Then
+        If fn_age >= 60 and fn_age < 65 Then
+            If panel_code = "" Then panel_code = "05/01"
+        End If
     End If
 
     'if no exemption is found at this point, the member is subject to TLR and WREG
