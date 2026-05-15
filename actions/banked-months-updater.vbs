@@ -221,8 +221,6 @@ For i = 0 to Ubound(banked_months_array, 2)
         End if
 
 	    Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
-	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients
-	    TLR_fixed_clock_yr = "26"
 
 	    DO
             'establishing variables for specific ABAWD counted month dates
