@@ -14876,11 +14876,11 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
     'CARE OF ANOTHER
     GroupBox 10, 95, 465, 45, "Caring for Another Person - CAN BE SOMEONE OUTSIDE OF THE HOUSEHOLD"
     Text 90, 110, 35, 10, "Caring for "
-    ComboBox 130, 105, 115, 45, person_droplist, person_requiring_care
+    ComboBox 130, 105, 115, 45, person_droplist+chr(9)+person_requiring_care, person_requiring_care
     Text 250, 110, 25, 10, "due to:"
     DropListBox 280, 105, 100, 45, care_for_another_reason, person_care_reason
     Text 50, 125, 75, 10, "Care of a child under 6:"
-    ComboBox 130, 120, 115, 45, child_droplist, child_under_6_requiring_care
+    ComboBox 130, 120, 115, 45, child_droplist+chr(9)+child_under_6_requiring_care, child_under_6_requiring_care
     Text 250, 125, 155, 10, "(Only one adult can claim each child under 6)"
 
     'EMPLOYED
