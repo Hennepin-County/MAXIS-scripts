@@ -84,6 +84,7 @@ END IF
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
 Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number		'Declares this for Option Explicit users
+Dim TLR_fixed_clock_mo, TLR_fixed_clock_yr
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
@@ -91,6 +92,8 @@ cancel = 0			'Value for cancel button in dialogs
 OK = -1			'Value for OK button in dialogs
 blank = ""
 t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
+TLR_fixed_clock_mo = "01"                                               'fixed clock dates for all recipients
+TLR_fixed_clock_yr = "26"
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
@@ -14624,9 +14627,6 @@ function tlr_screening_read_WREG_details(memb_numb, wreg_exists, curr_wreg_code,
         second_set_count = 0
         counted_months_string = ""
         second_set_string = ""
-
-        TLR_fixed_clock_mo = "01"                                               'fixed clock dates for all recipients
-        TLR_fixed_clock_yr = "26"
 
         DO
             'establishing variables for specific ABAWD counted month dates
