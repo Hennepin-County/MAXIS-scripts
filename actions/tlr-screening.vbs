@@ -81,8 +81,6 @@ tlr_screen_save_btn = 100
 CM_button       = 1000
 TLR_CM_button   = 1100
 include_panel_code = True
-TLR_fixed_clock_mo = "01"                                               'fixed clock dates for all recipients
-TLR_fixed_clock_yr = "26"
 TLR_fixed_clock_string = TLR_fixed_clock_mo & "/" & TLR_fixed_clock_yr
 info_evaluated = True
 
