@@ -78,6 +78,8 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 member_number = "01"                        'some default settings
 tlr_screen_save_btn = 100
+CM_button       = 1000
+TLR_CM_button   = 1100
 include_panel_code = True
 TLR_fixed_clock_mo = "01"                                               'fixed clock dates for all recipients
 TLR_fixed_clock_yr = "26"
@@ -174,6 +176,7 @@ If tlr_status = "Exempt" Then
     age_exempt_msg = age_exempt_msg & "WREG - " & wreg_status & ", TLR - " & tlr_status & vbCr
     If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)
     If InStr(eval_string, ";") Then
+        eval_array = split(eval_string, ";")
         for each eval_info in eval_array
             If trim(eval_info) <> "" Then
                 age_exempt_msg = age_exempt_msg & " - " & trim(eval_info) & vbCr
@@ -225,13 +228,16 @@ Do
                 End if
                 wage_per_week = trim(wage_per_week)
                 If wage_per_week <> "" then
-                    If IsNumeric(wage_per_week) = False then err_msg = err_msg & vbNewLine & "* Enter a valid number of hours per week."
+                    If IsNumeric(wage_per_week) = False then err_msg = err_msg & vbNewLine & "* Enter a valid number of wage in a week."
                 End if
                 wage_per_month = trim(wage_per_month)
                 If wage_per_month <> "" then
-                    If IsNumeric(wage_per_month) = False then err_msg = err_msg & vbNewLine & "* Enter a valid number of hours per week."
+                    If IsNumeric(wage_per_month) = False then err_msg = err_msg & vbNewLine & "* Enter a valid number of wage in a month."
                 End if
-                If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
+                If ButtonPressed = CM_button then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00280612"
+                If ButtonPressed = TLR_CM_button then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe	https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_001124"
+                If ButtonPressed = CM_button or ButtonPressed = TLR_CM_button Then err_msg = "LOOP"
+                If err_msg <> "" and err_msg <> "LOOP" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 
             Loop until err_msg = ""
         End If
@@ -438,7 +444,7 @@ If counted_months => 3 then
     If second_set_test Then Call write_variable_in_CASE_NOTE("* Member is eligible for TLR/ABAWD 2nd set months.")
     If NOT second_set_test Then Call write_variable_in_CASE_NOTE("* Member is NOT eligible for TLR/ABAWD 2nd set months.")
 End if
-If update_wreg_checkbox = 1 then Call write_variable_in_CASE_NOTE("* STAT/WREG panel has been updated with FSET/ABAWD codes: " & panel_code & ".")
+If update_wreg_checkbox = 1 then Call write_variable_in_CASE_NOTE("* STAT/WREG panel has been updated with FSET/TLR codes: " & panel_code & ".")
 
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
