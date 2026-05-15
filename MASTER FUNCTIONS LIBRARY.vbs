@@ -14391,19 +14391,19 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
 
     'ensuring variables that could be strings or booleans are all converted to booleans for the evaluation process
     If homeless = "Yes" Then homeless = True
-    If homeless = "No" Then homeless = False
+    If homeless = "No" or homeless = "" Then homeless = False
     If dv_victim = "Yes" Then dv_victim = True
-    If dv_victim = "No" Then dv_victim = False
+    If dv_victim = "No" or dv_victim = "" Then dv_victim = False
     If caregiver_in_home = "Yes" Then caregiver_in_home = True
-    If caregiver_in_home = "No" Then caregiver_in_home = False
+    If caregiver_in_home = "No" or caregiver_in_home = "" Then caregiver_in_home = False
     If treatment = "Yes" Then treatment = True
-    If treatment = "No" Then treatment = False
+    If treatment = "No" or treatment = "" Then treatment = False
     If children_under_14 = "Yes" Then children_under_14 = True
-    If children_under_14 = "No" Then children_under_14 = False
+    If children_under_14 = "No" or children_under_14 = "" Then children_under_14 = False
     If pregnant = "Yes" Then pregnant = True
-    If pregnant = "No" Then pregnant = False
+    If pregnant = "No" or pregnant = "" Then pregnant = False
     If american_indian = "Yes" Then american_indian = True
-    If american_indian = "No" Then american_indian = False
+    If american_indian = "No" or american_indian = "" Then american_indian = False
 
     'formatting and standardising numbers
     ' AGE is detertmened to be the last day of next month from the current date
