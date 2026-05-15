@@ -14720,40 +14720,54 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
     If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
 
-    If homeless Then
-        homeless = "Yes"
-    Else
-        homeless = "No"
+    If VarType(homeless) = vbBoolean Then
+        If homeless Then
+            homeless = "Yes"
+        Else
+            homeless = "No"
+        End If
     End If
-    If dv_victim Then
-        dv_victim = "Yes"
-    Else
-        dv_victim = "No"
+    If VarType(dv_victim) = vbBoolean Then
+        If dv_victim Then
+            dv_victim = "Yes"
+        Else
+            dv_victim = "No"
+        End If
     End If
-    If caregiver_in_home Then
-        caregiver_in_home = "Yes"
-    Else
-        caregiver_in_home = "No"
+    If VarType(caregiver_in_home) = vbBoolean Then
+        If caregiver_in_home Then
+            caregiver_in_home = "Yes"
+        Else
+            caregiver_in_home = "No"
+        End If
     End If
-    If treatment Then
-        treatment = "Yes"
-    Else
-        treatment = "No"
+    If VarType(treatment) = vbBoolean Then
+        If treatment Then
+            treatment = "Yes"
+        Else
+            treatment = "No"
+        End If
     End If
-    If children_under_14 Then
-        children_under_14 = "Yes"
-    Else
-        children_under_14 = "No"
+    If VarType(children_under_14) = vbBoolean Then
+        If children_under_14 Then
+            children_under_14 = "Yes"
+        Else
+            children_under_14 = "No"
+        End If
     End If
-    If pregnant Then
-        pregnant = "Yes"
-    Else
-        pregnant = "No"
+    If VarType(pregnant) = vbBoolean Then
+        If pregnant Then
+            pregnant = "Yes"
+        Else
+            pregnant = "No"
+        End If
     End If
-    If american_indian Then
-        american_indian = "Yes"
-    Else
-        american_indian = "No"
+    If VarType(american_indian) = vbBoolean Then
+        If american_indian Then
+            american_indian = "Yes"
+        Else
+            american_indian = "No"
+        End If
     End If
 
     If InStr(schl_training, "-") Then
