@@ -1976,7 +1976,7 @@ If run_list_management = True Then
 
 		email_from = ""
 		If windows_user_ID = "CALO001" Then email_from = "HSPH.EWS.BlueZoneScripts@hennepin.us"
-		email_recip = "jacob.arco@hennepin.us; ilse.ferris@hennepin.us; faughn.ramisch-church@hennepin.us; vickie.goulette@hennepin.us"
+		email_recip = "jacob.arco@hennepin.us; ilse.ferris@hennepin.us; faughn.ramisch-church@hennepin.us"
 		email_recip_CC = ""
 		email_subject = "HC Snapshot Information Recorded"
 		email_body = "A script has been run to review Health Care Pending cases.<br><br>"
