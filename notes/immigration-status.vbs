@@ -254,17 +254,17 @@ IF case_note_only_checkbox <> CHECKED THEN
       Text 30, 35, 75, 10, "Battered Spouse/Child:"
       Text 260, 35, 35, 10, "Verified?:"
       Text 55, 50, 50, 10, "Military Status:"
-      Text 10, 170, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
-      Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
       Text 260, 50, 35, 10, "Verified?:"
+      Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
+      Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
       Text 260, 80, 35, 10, "Verified?:"
-      GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
-      Text 10, 145, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
       Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
+      GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
+      Text 10, 130, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
+      Text 10, 145, 350, 20, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. Review CM 0031.18 for details of Battered Spouse/Child Policy and panel coding."
+      Text 10, 170, 345, 20, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
       Text 10, 195, 345, 20, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
       Text 10, 220, 345, 15, "* St Prog ESL/Ctzn Coop: This field needs to be completed for all LPRs age 18 through 69 in the GA or state-funded MFIP unit."
-      Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
-      Text 10, 130, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
     EndDialog
     IF immig_status_dropdown <> "US Citizen" Then
     	Do
