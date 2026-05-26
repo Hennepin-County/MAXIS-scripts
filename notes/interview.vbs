@@ -10915,7 +10915,7 @@ If update_revw = True OR update_prog = True Then
 			prog_warning = Trim(UCase(prog_warning))
             attempt_count = attempt_count + 1
             If attempt_count > 5 Then PF10
-            EMReadScreen mode_check, 1, 0, 8
+            EMReadScreen mode_check, 1, 20, 8
             If mode_check = "D" Then Exit Do
 		Loop
 
