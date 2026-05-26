@@ -14433,7 +14433,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
     ' AGE is detertmened to be the last day of next month from the current date
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
-    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    call determine_age(dob, first_of_second_month, fn_age)
     If IsNumeric(wage_per_week) and NOT IsNumeric(wage_per_month) Then
         wage_per_month = wage_per_week * 4.3
     End If
@@ -14749,7 +14749,7 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
     'formatting variables for use in a dialog
     first_of_second_month = DatePart("m", DateAdd("m", 2, date)) & "/1/" & DatePart("yyyy", DateAdd("m", 2, date))
     last_day_of_next_month = DateAdd("d", -1, first_of_second_month)
-    If IsDate(dob) Then fn_age = DateDiff("yyyy", dob, last_day_of_next_month)
+    call determine_age(dob, first_of_second_month, fn_age)
 
     If VarType(homeless) = vbBoolean Then
         If homeless Then
