@@ -4852,7 +4852,7 @@ function review_information()
 
 		HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
         find_age = ""
-        call determine_age (HH_MEMB_ARRAY(date_of_birth, the_memb), find_age)
+        call determine_age (HH_MEMB_ARRAY(date_of_birth, the_memb), "", find_age)
         If find_age <> "" Then HH_MEMB_ARRAY(age, the_memb) = find_age & ""
 
         race_string = ""
