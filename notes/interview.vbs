@@ -10875,31 +10875,37 @@ If update_revw = True OR update_prog = True Then
 		'Ensuring the interview date isn't entered on a line/for a program that doesn't have an APPL date. This helps to support the verbal request funcitonality
 		EMReadScreen prog_warning, 78, 24, 2
 		prog_warning = Trim(UCase(prog_warning))
+        attempt_count = 1       'This will count how long we try to update PROG
 		Do while prog_warning <> ""
-			If InStr(prog_warning, "CASH I ENTRY INVALID") Then
+			If InStr(prog_warning, "CASH I ENTRY INVALID") OR InStr(prog_warning, "CASH I PROGRAM NOT SELECTED ON TYPE") Then
 				EMWriteScreen "  ", 6, 55               'CASH I Row
 				EMWriteScreen "  ", 6, 58
 				EMWriteScreen "  ", 6, 61
+                attempt_count = 1
 			End If
-			If InStr(prog_warning, "CASH I ENTRY INVALID") Then
+			If InStr(prog_warning, "CASH II ENTRY INVALID") OR InStr(prog_warning, "CASH II PROGRAM NOT SELECTED ON TYPE") Then
 				EMWriteScreen "  ", 7, 55               'CASH II Row
 				EMWriteScreen "  ", 7, 58
 				EMWriteScreen "  ", 7, 61
+                attempt_count = 1
 			End If
-			If InStr(prog_warning, "EMER PROGRAM NOT SELECTED") Then
+			If InStr(prog_warning, "EMER PROGRAM NOT SELECTED") OR InStr(prog_warning, "EMER PROGRAM NOT SELECTED ON TYPE") Then
 				EMWriteScreen "  ", 8, 55               'EMER Row
 				EMWriteScreen "  ", 8, 58
 				EMWriteScreen "  ", 8, 61
+                attempt_count = 1
 			End If
-			If InStr(prog_warning, "GRH PROGRAM NOT SELECTED") Then
+			If InStr(prog_warning, "GRH PROGRAM NOT SELECTED") OR InStr(prog_warning, "GRH PROGRAM NOT SELECTED ON TYPE") Then
 				EMWriteScreen "  ", 9, 55               'GRH Row
 				EMWriteScreen "  ", 9, 58
 				EMWriteScreen "  ", 9, 61
+                attempt_count = 1
 			End If
-			If InStr(prog_warning, "FS PROGRAM NOT SELECTED") Then
+			If InStr(prog_warning, "FS PROGRAM NOT SELECTED") OR InStr(prog_warning, "FS PROGRAM NOT SELECTED ON TYPE") Then
 				EMWriteScreen "  ", 10, 55               'SNAP Row
 				EMWriteScreen "  ", 10, 58
 				EMWriteScreen "  ", 10, 61
+                attempt_count = 1
 			End If
 
 			If prog_warning = "ENTER A VALID COMMAND OR PF-KEY" Then Exit Do
@@ -10907,6 +10913,10 @@ If update_revw = True OR update_prog = True Then
 			transmit
 			EMReadScreen prog_warning, 78, 24, 2
 			prog_warning = Trim(UCase(prog_warning))
+            attempt_count = attempt_count + 1
+            If attempt_count > 5 Then PF10
+            EMReadScreen mode_check, 1, 0, 8
+            If mode_check = "D" Then Exit Do
 		Loop
 
 		Call HCRE_panel_bypass
