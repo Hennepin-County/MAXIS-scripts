@@ -7324,6 +7324,27 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
     End If
 end function
 
+function determine_age (date_of_birth, age)
+'--- Function to determine the age of a person based on their date of birth. This function accounts for whether the birthday has passed this year or not to give an accurate age.
+'~~~~~ date_of_birth: the person's date of birth - can be entered as a date value or as a string that can be converted to a date value
+'~~~~~ age: the output of the function - the person's age in number of years
+'===== Keywords: calculation, date, age
+    If IsDate(date_of_birth) Then
+        date_of_birth = DateAdd("d", 0, date_of_birth)
+
+        birthdate_passed_this_year = False                                                          'identify if we need to adjust the age calculation based on if the birthday has passed this year or not
+        birth_day = DatePart("d", date_of_birth)                                                    'create a date value for the birthday this year using the birth month and day and the current year
+        birth_month = DatePart("m", date_of_birth)
+        current_year = DatePart("yyyy", Date)
+        this_year_birthday = DateSerial(current_year, birth_month, birth_day)
+        ' NOTE THAT DateSerial will error 2/29 to 3/1 for non-leap years but this will create expected behavior and special handling is not needed.
+        If DateDiff("d", Date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the current date to birthday this year to determine if the birthday has already passed this year or not
+        age = DateDiff("yyyy", date_of_birth, Date)                                                 'calculate the age based on the difference in years between the date of birth and today
+        If not birthdate_passed_this_year Then age = age - 1                                        'if the birthdate has not yet passed this year, subtract 1 from the age calculation to get the correct age
+        date_of_birth = date_of_birth & ""
+    End If
+end function
+
 function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
