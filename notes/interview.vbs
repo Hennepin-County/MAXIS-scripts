@@ -9742,7 +9742,7 @@ If ButtonPressed = incomplete_interview_btn Then
 	End If
 	If run_by_interview_team = True Then
 		CALL write_variable_in_CASE_NOTE("Phone Call from " & who_are_we_completing_the_interview_with & " re: INCOMPLETE INTERVIEW")
-		If interpreter_information <> "No Interpreter Used" THEN
+		If interpreter_information <> "" AND interpreter_information <> "No Interpreter Used" THEN
 			CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter: " & interpreter_information)
 		Else
 			CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
