@@ -7324,22 +7324,25 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
     End If
 end function
 
-function determine_age (date_of_birth, age)
+function determine_age (date_of_birth, eval_date, age)
 '--- Function to determine the age of a person based on their date of birth. This function accounts for whether the birthday has passed this year or not to give an accurate age.
 '~~~~~ date_of_birth: the person's date of birth - can be entered as a date value or as a string that can be converted to a date value
+'~~~~~ eval_date: the date on which to evaluate the age - can be entered as a date value or as a string that can be converted to a date value - if blank, will default to current date
 '~~~~~ age: the output of the function - the person's age in number of years
 '===== Keywords: calculation, date, age
-    If IsDate(date_of_birth) Then
+    If eval_date = "" then eval_date = Date 'if no eval date is provided, it defaults to today's date
+    If IsDate(date_of_birth) and IsDate(eval_date) Then
         date_of_birth = DateAdd("d", 0, date_of_birth)
+        eval_date = DateAdd("d", 0, eval_date)
 
         birthdate_passed_this_year = False                                                          'identify if we need to adjust the age calculation based on if the birthday has passed this year or not
         birth_day = DatePart("d", date_of_birth)                                                    'create a date value for the birthday this year using the birth month and day and the current year
         birth_month = DatePart("m", date_of_birth)
-        current_year = DatePart("yyyy", Date)
+        current_year = DatePart("yyyy", eval_date)
         this_year_birthday = DateSerial(current_year, birth_month, birth_day)
         ' NOTE THAT DateSerial will error 2/29 to 3/1 for non-leap years but this will create expected behavior and special handling is not needed.
-        If DateDiff("d", Date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the current date to birthday this year to determine if the birthday has already passed this year or not
-        age = DateDiff("yyyy", date_of_birth, Date)                                                 'calculate the age based on the difference in years between the date of birth and today
+        If DateDiff("d", eval_date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the eval date to birthday this year to determine if the birthday has already passed this year or not
+        age = DateDiff("yyyy", date_of_birth, eval_date)                                                 'calculate the age based on the difference in years between the date of birth and eval date
         If not birthdate_passed_this_year Then age = age - 1                                        'if the birthdate has not yet passed this year, subtract 1 from the age calculation to get the correct age
         date_of_birth = date_of_birth & ""
     End If
