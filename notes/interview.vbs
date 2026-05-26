@@ -10889,19 +10889,19 @@ If update_revw = True OR update_prog = True Then
 				EMWriteScreen "  ", 7, 61
                 attempt_count = 1
 			End If
-			If InStr(prog_warning, "EMER PROGRAM NOT SELECTED") OR InStr(prog_warning, "EMER PROGRAM NOT SELECTED ON TYPE") Then
+			If InStr(prog_warning, "EMER PROGRAM NOT SELECTED") Then
 				EMWriteScreen "  ", 8, 55               'EMER Row
 				EMWriteScreen "  ", 8, 58
 				EMWriteScreen "  ", 8, 61
                 attempt_count = 1
 			End If
-			If InStr(prog_warning, "GRH PROGRAM NOT SELECTED") OR InStr(prog_warning, "GRH PROGRAM NOT SELECTED ON TYPE") Then
+			If InStr(prog_warning, "GRH PROGRAM NOT SELECTED") Then
 				EMWriteScreen "  ", 9, 55               'GRH Row
 				EMWriteScreen "  ", 9, 58
 				EMWriteScreen "  ", 9, 61
                 attempt_count = 1
 			End If
-			If InStr(prog_warning, "FS PROGRAM NOT SELECTED") OR InStr(prog_warning, "FS PROGRAM NOT SELECTED ON TYPE") Then
+			If InStr(prog_warning, "FS PROGRAM NOT SELECTED") Then
 				EMWriteScreen "  ", 10, 55               'SNAP Row
 				EMWriteScreen "  ", 10, 58
 				EMWriteScreen "  ", 10, 61
