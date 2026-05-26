@@ -54,23 +54,6 @@ Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function determine_age (date_of_birth, age)
-    If IsDate(date_of_birth) Then
-        date_of_birth = DateAdd("d", 0, date_of_birth)
-
-        birthdate_passed_this_year = False                                                          'identify if we need to adjust the age calculation based on if the birthday has passed this year or not
-        birth_day = DatePart("d", date_of_birth)                                                    'create a date value for the birthday this year using the birth month and day and the current year
-        birth_month = DatePart("m", date_of_birth)
-        current_year = DatePart("yyyy", Date)
-        this_year_birthday = DateSerial(current_year, birth_month, birth_day)
-        ' NOTE THAT DateSerial will error 2/29 to 3/1 for non-leap years but this will create expected behavior and special handling is not needed.
-        If DateDiff("d", Date, this_year_birthday) <= 0 Then birthdate_passed_this_year = True      'compare the current date to birthday this year to determine if the birthday has already passed this year or not
-        age = DateDiff("yyyy", date_of_birth, Date)                                                 'calculate the age based on the difference in years between the date of birth and today
-        If not birthdate_passed_this_year Then age = age - 1                                        'if the birthdate has not yet passed this year, subtract 1 from the age calculation to get the correct age
-        date_of_birth = date_of_birth & ""
-    End If
-end function
-
 'Dialogs===================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(False)
@@ -169,7 +152,7 @@ Loop until memb_row = 20
 'This call is mostly to identify age based exemptions and shorten the screening process for age related exemptions
 call tlr_screening_determine_wreg_status(info_evaluated, screening_needed, eval_string, wreg_status, tlr_status, panel_code, dob, disability_info, homeless, dv_victim, schl_training, person_requiring_care, person_care_reason, child_under_6_requiring_care, caregiver_in_home, hrs_per_week, wage_per_week, wage_per_month, other_benefit, unea_income, treatment, children_under_14, pregnant, american_indian, wreg_selection)
 If tlr_status = "Exempt" Then
-    call determine_age(dob, cl_age)
+    call determine_age(dob, "", cl_age)
     age_exempt_msg = member_info & " is currently " & cl_age & " years old and meets an exemption." & vbCr & vbCr
     age_exempt_msg = age_exempt_msg & "WREG - " & wreg_status & ", TLR - " & tlr_status & vbCr
     If right(trim(eval_string), 1) = ";" Then eval_string = left(trim(eval_string), len(trim(eval_string)) - 1)
