@@ -1234,20 +1234,17 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Initial Dialog - Instructions
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 221, 135, "Enter LTC-5181 Form Details"
+BeginDialog Dialog1, 0, 0, 221, 115, "Enter LTC-5181 Form Details"
   Text 10, 5, 200, 20, "Script Purpose: Enter details from submitted LTC-5181 form. Creates a CASE/NOTE with form details."
   Text 15, 35, 50, 10, "Case Number:"
   EditBox 70, 30, 55, 15, MAXIS_case_number
   Text 15, 50, 45, 10, "Script User:"
   DropListBox 70, 50, 145, 20, "Select one:"+chr(9)+"HSR - enter DHS-5181 form details"+chr(9)+"OS Staff - update SWKR/ADDR panels", script_user_dropdown
-  Text 15, 70, 70, 10, "Footer Month/Year:"
-  EditBox 85, 65, 20, 15, MAXIS_footer_month
-  EditBox 110, 65, 20, 15, MAXIS_footer_year
-  Text 15, 95, 60, 10, "Worker Signature:"
-  EditBox 85, 90, 130, 15, worker_signature
+  Text 15, 80, 60, 10, "Worker Signature:"
+  EditBox 85, 75, 130, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 125, 115, 45, 15
-    CancelButton 170, 115, 45, 15
+    OkButton 125, 95, 45, 15
+    CancelButton 170, 95, 45, 15
     PushButton 150, 30, 65, 15, "Script Instructions", instructions_btn
 EndDialog
 
@@ -1262,8 +1259,6 @@ DO
       err_msg = "LOOP"
     End IF 
     If script_user_dropdown = "Select one:" Then err_msg = err_msg & vbCr & "* You must make a selection from the dropdown for the Script User."
-    If Not IsNumeric(MAXIS_footer_month) OR len(MAXIS_footer_month) <> 2 or trim(MAXIS_footer_month) = "" Then err_msg = err_msg & vbCr & "* You must enter the footer month in a 2-digit format."
-    If Not IsNumeric(MAXIS_footer_year) OR len(MAXIS_footer_year) <> 2 or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbCr & "* You must enter the footer year in a 2-digit format."
 		If err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -1587,8 +1582,8 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Call back_to_SELF
       MAXIS_footer_month = footer_month_SWKR
       MAXIS_footer_year = footer_year_SWKR
-      EmWriteScreen footer_month_updates, 20, 43
-      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_footer_month, 20, 43
+      EmWriteScreen MAXIS_footer_year, 20, 46
       EmWriteScreen MAXIS_case_number, 18, 43
       transmit
 
@@ -1731,8 +1726,8 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
         Call back_to_SELF
         MAXIS_footer_month = footer_month_ADDR
         MAXIS_footer_year = footer_year_ADDR 
-        EmWriteScreen footer_month_updates, 20, 43
-        EmWriteScreen footer_year_updates, 20, 46
+        EmWriteScreen MAXIS_footer_month, 20, 43
+        EmWriteScreen MAXIS_footer_year, 20, 46
         EmWriteScreen MAXIS_case_number, 18, 43
         transmit
 
@@ -1870,8 +1865,8 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
       Call MAXIS_background_check
       MAXIS_footer_month = footer_month_DOD
       MAXIS_footer_year = footer_year_DOD 
-      EmWriteScreen footer_month_updates, 20, 43
-      EmWriteScreen footer_year_updates, 20, 46
+      EmWriteScreen MAXIS_footer_month, 20, 43
+      EmWriteScreen MAXIS_footer_year, 20, 46
       EmWriteScreen MAXIS_case_number, 18, 43
       transmit
 
@@ -2225,6 +2220,9 @@ If script_user_dropdown = "HSR - enter DHS-5181 form details" Then
 ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
   'Update the panels here
 
+  MAXIS_footer_month = CM_mo
+  MAXIS_footer_year  = CM_yr 
+
   Dialog1 = "" 'Blanking out previous dialog detail
   BeginDialog Dialog1, 0, 0, 431, 305, "Update SWKR/ADDR Panels"
     Text 10, 10, 65, 10, "Date on DHS-5181:"
@@ -2425,8 +2423,8 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
     Call MAXIS_background_check
     MAXIS_footer_month = footer_month_SWKR
     MAXIS_footer_year = footer_year_SWKR
-    EmWriteScreen footer_month_updates, 20, 43
-    EmWriteScreen footer_year_updates, 20, 46
+    EmWriteScreen MAXIS_footer_month, 20, 43
+    EmWriteScreen MAXIS_footer_year, 20, 46
     EmWriteScreen MAXIS_case_number, 18, 43
     transmit
 
@@ -2542,14 +2540,14 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
           Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
           
           'Write information to panel depending on which address selected
-          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
         
         ElseIf OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox <> 1 Then
           'Read information on ADDR panel so that function does not overwrite everything
           Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
           
           'Write information to panel depending on which address selected
-          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
         ElseIf OS_addr_update_panel_checkbox <> 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
           'Read information on ADDR panel so that function does not overwrite everything
@@ -2578,14 +2576,14 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
           Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
           
           'Write information to panel depending on which address selected
-          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, OS_addr_mailing_address_line_1, OS_addr_mailing_address_line_2, mail_street_full, OS_addr_mailing_city, OS_addr_mailing_state, OS_addr_mailing_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
         
         ElseIf OS_addr_update_panel_checkbox = 1 AND OS_addr_mailing_update_panel_checkbox <> 1 Then
           'Read information on ADDR panel so that function does not overwrite everything
           Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
           
           'Write information to panel depending on which address selected
-          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, "OT", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+          Call access_ADDR_panel("WRITE", notes_on_address, OS_addr_address_street_line_1, OS_addr_address_street_line_2, resi_street_full, OS_addr_city, OS_addr_state, OS_addr_zip, OS_addr_resi_code, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, OS_addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
         ElseIf OS_addr_update_panel_checkbox <> 1 AND OS_addr_mailing_update_panel_checkbox = 1 Then
           'Read information on ADDR panel so that function does not overwrite everything
@@ -2643,8 +2641,6 @@ ElseIf script_user_dropdown = "OS Staff - update SWKR/ADDR panels" Then
           Call write_bullet_and_variable_in_case_note("Address", OS_addr_address_street_line_1 & ", " & OS_addr_city & ", " & OS_addr_state & ", " & OS_addr_zip)
         End If
         Call write_bullet_and_variable_in_case_note("Resi Co", OS_addr_resi_code)
-        Call write_bullet_and_variable_in_case_note("Ver", "OT")
-        Call write_bullet_and_variable_in_case_note("Living Situation", addr_living_sit)
       End If
       If OS_addr_mailing_update_panel_checkbox = 1 Then
         Call write_variable_in_case_note("ADDR Updates - Mailing Address")
