@@ -239,7 +239,7 @@ For each basket in basket_array
     EMWriteScreen basket, 21, 13
     transmit
 	EMReadScreen case_exists, 8, 7, 12
-	count = 1
+	tally = 1
 	If trim(case_exists) = "" Then
 		actv_page = 0
 		actv_count = 0
