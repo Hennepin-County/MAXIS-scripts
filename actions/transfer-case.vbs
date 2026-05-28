@@ -415,7 +415,7 @@ Else
         If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
     End If
     'LTC cases
-    If correct_caseload = "" Then
+    If correct_caseload_type = "" Then
         If HC_droplist = "LTC pending or requested" Then
             correct_caseload_type = "LTC+ - General"
             If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
