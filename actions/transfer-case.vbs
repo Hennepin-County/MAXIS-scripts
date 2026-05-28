@@ -358,7 +358,7 @@ Else
             cancel_confirmation
             'TODO dialog errors
             'If the case has healthcare, ensure that a healthcare caseload type is selected. If case has GRH, ensure that the facility information is filled out. If case has a pending healthcare program, ensure that the status of the program is selected.
-            If HC_droplist = "" and ((ma_status <> "INACTIVE" and ma_status <> "") or (msp_status <> "INACTIVE" and msp_status <> "") or (hc_status <> "INACTIVE" and hc_status <> "")) AND (faci_caseload_list = "" AND contracted_facility = "") Then err_msg = err_msg & vbNewLine & "* Please select a healthcare caseload type from the dropdown."
+            If HC_droplist = "" and ((ma_status <> "INACTIVE" and ma_status <> "") or (msp_status <> "INACTIVE" and msp_status <> "")) AND (faci_caseload_list = "" AND contracted_facility = "") Then err_msg = err_msg & vbNewLine & "* Please select a healthcare caseload type from the dropdown."
             If (grh_status = "ACTIVE" OR grh_status = "PENDING" OR grh_status = "REIN" OR hs_check = 1) AND (faci_caseload_list = "" AND contracted_facility = "") Then err_msg = err_msg & vbNewLine & "* Please indicate if the resident is working with a facility and select the appropriate caseload type from the dropdown."
             If err_msg <> "" Then MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
