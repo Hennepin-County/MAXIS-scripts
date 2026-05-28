@@ -561,7 +561,7 @@ Else
     'Staff need to confirm that they've transferred the case in ECF Next 1st
     Do
         Do
-            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next? New worker: " & transfer_to_worker, vbQuestion + vbYesNo, "Tranfer Case Reminder")
+            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next? New worker: " & transfer_to_worker, vbQuestion + vbYesNo, "Transfer Case Reminder")
             If transfer_confirmation = vbNo then msgbox "This case needs to be transferred in ECF Next first." & vbcr & vbcr & "Transfer the case in ECF Next now."
             If transfer_confirmation = vbYes then exit do
         Loop
