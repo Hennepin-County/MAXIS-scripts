@@ -102,7 +102,7 @@ function get_caseload_array_by_type(caseload_type, available_caseload_array)
 	Dim temp_array()
 	ReDim temp_array(0)
 	counter = 0
-
+    random_team_needed = False
 	for i = 0 to UBound(all)
         If right(caseload_type, 1) = "?" Then random_team_needed = True 'failsafe to ensure that the random team is selected when something slips through the cracks
         If random_team_needed = TRUE Then  'This will be used to randomly select a PM team for the case to be transferred to for cash/snap pending caseload
@@ -194,10 +194,10 @@ DO
             'IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
             IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
             IF left(UCASE(trim(transfer_to_worker)), 4) = "X127" THEN err_msg = err_msg & vbNewLine & "For internal transfers, select internal transfer option and leave the worker ID as blank. This will ensure the case is transferred to the correct worker based on the programs on the case."
             If transfer_to_worker = "" and transfer_reason = "" then err_msg = err_msg & vbNewLine & "* Please select a reason for the transfer from the dropdown or enter a worker for out of county transfer."
             If transfer_to_worker <> "" and len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid new servicing worker or clear the out of county field."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
@@ -367,7 +367,6 @@ Else
 
     'Logic to determine correct caseload based on the information gathered in the dialog and the information pulled from MAXIS on the case. This logic is based on the caseload directory that is maintained on the GitHub repository and is updated as needed when new caseloads are added or removed.
     If child_under_19_question = "Yes" Then minor_child_on_case = True
-    If minor_parent_on_case = "Yes" Then minor_parent_on_case = True
     If pregnant_question = "Yes" Then preg_person_on_case = True
     correct_caseload_type = ""
     'Specialty pops
@@ -387,7 +386,7 @@ Else
 				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
 				If new_caseload <> "" and current_caseload <> new_caseload Then transfer_needed = True
             ElseIf contracted_facility <> "" Then
-                correct_caseload_type = contracted_facility
+                correct_caseload_type = "Contracted - " & contracted_facility
             Else
 				If grh_status = "PENDING" Then
                     If faci_caseload_list = "Long Term Homeless" Then
@@ -397,8 +396,8 @@ Else
                     End If
                 End If
                 If grh_status = "ACTIVE" or grh_status = "REIN" Then
-                    If faci_caseload_list = "General" Then correct_caseload_type = "GRH / HS - Adults Active"
-                    If faci_caseload_list = "Long Term Homeless" Then correct_caseload_type = "GRH / HS - LTH  Active"
+                    If faci_caseload_list = "General" Then correct_caseload_type = "GRH / HS - Maintenance"
+                    If faci_caseload_list = "Long Term Homeless" Then correct_caseload_type = "GRH / HS - LTH Active"
                     If faci_caseload_list = "HWS Facility" Then correct_caseload_type = "GRH / HS - HWS"
                     If faci_caseload_list = "Demo Facility" Then correct_caseload_type = "GRH / HS - Demo"
                 End If
@@ -475,7 +474,7 @@ Else
 
 
 
-
+    msgbox correct_caseload_type
     'Error handling for trying to transfer to the same caseload type
 
     If correct_caseload_type = current_caseload_type Then
@@ -520,7 +519,7 @@ Else
         OkButton 90, 110, 50, 15
         CancelButton 145, 110, 50, 15
       Text 5, 10, 180, 10, "This case will be transferred to the following caseload:"
-      Text 5, 25, 105, 10, Correct_caseload_type
+      Text 5, 25, 175, 10, Correct_caseload_type
       Text 120, 25, 60, 10, transfer_to_worker
       GroupBox 5, 40, 190, 65, "Selected Caseload is incorrect"
       Text 10, 55, 55, 10, "Transfer to x#:"
