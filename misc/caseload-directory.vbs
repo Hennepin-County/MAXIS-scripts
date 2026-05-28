@@ -122,17 +122,17 @@ caseload_info.add "X127FG2", "Foster Care / IV-E"
 caseload_info.add "X127EW4", "Foster Care / IV-E"
 
 caseload_info.add "X127EM8", "GRH / HS - Adults Pending"
-caseload_info.add "X127FE6", "GRH / HS - Adults Pending"
+caseload_info.add "X127FE6", "GRH / HS - LTH Pending"
 caseload_info.add "X127EZ2", "GRH / HS - Families Pending"
-caseload_info.add "X127EM2", "GRH / HS - Maintenance"
-caseload_info.add "X127EH9", "GRH / HS - Maintenance"
-'caseload_info.add "X127FE6", "GRH / HS - Maintenance" This bank is being changed to accept pending, but cases already here for maintenance will not transfer.
-caseload_info.add "X127EJ4", "GRH / HS - Maintenance"
+caseload_info.add "X127EM2", "GRH / HS - LTH Active"
+caseload_info.add "X127EH9", "GRH / HS - LTH Active"
+
+caseload_info.add "X127EJ4", "GRH / HS - HWS"
 caseload_info.add "X127EH2", "GRH / HS - Maintenance"
 caseload_info.add "X127EP4", "GRH / HS - Maintenance"
 caseload_info.add "X127EK5", "GRH / HS - Maintenance"
-caseload_info.add "X127EG5", "GRH / HS - Maintenance"
-'caseload_info.add "X127EG4", "MIPPA"
+caseload_info.add "X127EG5", "GRH / HS - Demo"
+' caseload_info.add "X127EG4", "MIPPA" 'Duplicate key (X127EG4 already mapped to Adults Active 3); update with correct unique code before enabling.
 'LTC+/Waiver caseloads - Noeker
 caseload_info.add "X127EH3",	"LTC"
 caseload_info.add "X127EJ8",	"LTC"
