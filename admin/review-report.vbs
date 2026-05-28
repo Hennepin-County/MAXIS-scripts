@@ -1152,8 +1152,9 @@ If renewal_option = "Create Renewal Report" then
 	    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
 	    		PF8
 	    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+	            'If the end of the REVS list is reached, the next worker is reviewed.
+                'If REVS has more than 50 cases at review, the script will end to avoid missing cases - the caseloads will need to be balanced
                 If last_page_check = "MAXIMUM NUMBER OF PAG" Then script_end_procedure("REVIEW REPORT CANNOT COMPLETE. Caseload " & worker & " appears to have more than 50 pages of cases at Review.")
-	            'if max reviews are reached, the goes to next worker is applicable
 	    	Loop until last_page_check = "THIS IS THE LAST PAGE"
 	    next
 
@@ -2682,7 +2683,8 @@ ElseIf renewal_option = "Create Worklist" Then
 			'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-			'if max reviews are reached, the goes to next worker is applicable
+            'If the end of the REVS list is reached, the next worker is reviewed.
+            'If REVS has more than 50 cases at review, the script will end to avoid missing cases - the caseloads will need to be balanced
             If last_page_check = "MAXIMUM NUMBER OF PAG" Then script_end_procedure("REVIEW REPORT CANNOT COMPLETE. Caseload " & worker & " appears to have more than 50 pages of cases at Review.")
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	next
