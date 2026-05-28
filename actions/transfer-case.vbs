@@ -103,7 +103,7 @@ function get_caseload_array_by_type(caseload_type, available_caseload_array)
 	ReDim temp_array(0)
 	counter = 0
 
-	for i = 0 to UBound(all) - 1
+	for i = 0 to UBound(all)
         If right(caseload_type, 1) = "?" Then random_team_needed = True 'failsafe to ensure that the random team is selected when something slips through the cracks
         If random_team_needed = TRUE Then  'This will be used to randomly select a PM team for the case to be transferred to for cash/snap pending caseload
             team_to_check = all(i) & ""
