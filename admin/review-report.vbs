@@ -1476,7 +1476,9 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
     		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
     		PF8
     		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-            'if max reviews are reached, the goes to next worker is applicable
+            'When the last page of reviews is read, the loop ends.
+            'For collect statistics, if there are too many reviews to display, the next worker will be reviewed because any missed cases will have details searched through STAT.
+            If last_page_check = "MAXIMUM NUMBER OF PAG" Then Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", "REVS for " & worker & " is over limit", 1, False, "", "", False, "", "REVIEW REPORT found that caseload " & worker & " appears to have more than 50 pages of cases at Review.", False, "", True)
     	Loop until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "MAXIMUM NUMBER OF PAG"
     next
 	Call back_to_SELF
