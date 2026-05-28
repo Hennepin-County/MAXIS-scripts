@@ -14631,7 +14631,7 @@ function tlr_screening_read_WREG_details(memb_numb, wreg_exists, curr_wreg_code,
 '~~~~~ tlr_output: STRING - information for case note about TLR months
 '~~~~~ second_set_output: STRING - information for case note about 2nd set months
 '===== Keywords: MAXIS, TLR, WREG, exemption, screening
-    ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    ABAWD_eval_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr                       'we always want to evaluate through CM + 1
     Call navigate_to_MAXIS_screen("STAT", "WREG")                               'navigate to WREG
     Call write_value_and_transmit(memb_numb, 20, 76)                            'navigate to the member's WREG panel using the member number
 
@@ -14645,7 +14645,7 @@ function tlr_screening_read_WREG_details(memb_numb, wreg_exists, curr_wreg_code,
         Call write_value_and_transmit("X", 13, 57)		                        'navigate to ABAWD/TLR Tracking panel and check for historical months
 
         'Resetting the variables
-        bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		                'col to search starts at 15, increased by 4 for each footer month
+        bene_mo_col = (15 + (4*cint(CM_plus_1_mo)))		                'col to search starts at 15, increased by 4 for each footer month
         bene_yr_row = 10
         counted_months = 0					                                    'declares the variables values at 0 or blanks
         second_set_count = 0
