@@ -1152,6 +1152,7 @@ If renewal_option = "Create Renewal Report" then
 	    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
 	    		PF8
 	    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+                If last_page_check = "MAXIMUM NUMBER OF PAG" Then script_end_procedure("REVIEW REPORT CANNOT COMPLETE. Caseload " & worker & " appears to have more than 50 pages of cases at Review.")
 	            'if max reviews are reached, the goes to next worker is applicable
 	    	Loop until last_page_check = "THIS IS THE LAST PAGE"
 	    next
@@ -1476,7 +1477,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
     		PF8
     		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
             'if max reviews are reached, the goes to next worker is applicable
-    	Loop until last_page_check = "THIS IS THE LAST PAGE"
+    	Loop until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "MAXIMUM NUMBER OF PAG"
     next
 	Call back_to_SELF
 
@@ -2680,6 +2681,7 @@ ElseIf renewal_option = "Create Worklist" Then
 			PF8
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 			'if max reviews are reached, the goes to next worker is applicable
+            If last_page_check = "MAXIMUM NUMBER OF PAG" Then script_end_procedure("REVIEW REPORT CANNOT COMPLETE. Caseload " & worker & " appears to have more than 50 pages of cases at Review.")
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	next
 	Call back_to_SELF
