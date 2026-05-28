@@ -192,7 +192,7 @@ DO
 
             Call validate_MAXIS_case_number(err_msg, "*")
             'IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
-            IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case is will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
+            IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
             IF left(UCASE(trim(transfer_to_worker)), 4) = "X127" THEN err_msg = err_msg & vbNewLine & "For internal transfers, select internal transfer option and leave the worker ID as blank. This will ensure the case is transferred to the correct worker based on the programs on the case."
