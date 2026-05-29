@@ -54,7 +54,8 @@ If windows_user_ID = "SAGR002" then msgbox "Script file connected & Functions Li
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
-
+			
+call changelog_update("05/29/2026", "Updated file selection functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/16/2025", "Added statistics collection.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2025", "Added most recent updates from MN.IT script release. Updates include ALT screen checks and updated field clearning functionality.", "Ilse Ferris, Hennepin County" )
 call changelog_update("03/14/2025", "Initial scripts set up in Hennepin County.", "Casey Love, Hennepin County" )
@@ -65,7 +66,47 @@ call changelog_update("03/14/2025", "Initial scripts set up in Hennepin County."
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-CALL file_selection_system_dialog(xmlPath, ".xml")
+function file_selection_system_dialog_local(file_selected, file_extension_restriction)
+    Set wShell = CreateObject("WScript.Shell")
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    Do
+        ' Create a temporary file to store the result
+        tempFile = fso.GetSpecialFolder(2) & "\fileselect_" & Int(Rnd * 1000000) & ".txt"
+        
+        Dim psCommand
+        psCommand = "powershell -WindowStyle Hidden -Command ""Add-Type -AssemblyName System.Windows.Forms; " & _
+                    "$f = New-Object System.Windows.Forms.OpenFileDialog; " & _
+                    "$f.Filter = 'All Files (*.*)|*.*'; " & _
+                    "$f.ShowDialog() | Out-Null; " & _
+                    "$f.FileName | Out-File -FilePath '" & tempFile & "' -Encoding ASCII"""
+        
+        ' Run hidden (0 = hidden window, True = wait for completion)
+        wShell.Run psCommand, 0, True
+        
+        ' Read the result
+        file_selected = ""
+        If fso.FileExists(tempFile) Then
+            Set objFile = fso.OpenTextFile(tempFile, 1)
+            If Not objFile.AtEndOfStream Then
+                file_selected = Trim(objFile.ReadLine)
+            End If
+            objFile.Close
+            fso.DeleteFile tempFile
+        End If
+        
+        If file_selected = "" Then stopscript
+        
+        If file_extension_restriction <> "" Then
+            If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction Then 
+                MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
+            End If
+        End If
+    Loop until file_extension_restriction = "" Or right(file_selected, len(file_extension_restriction)) = file_extension_restriction
+end function
+
+			
+CALL file_selection_system_dialog_local(xmlPath, ".xml")
 
 'xmlPath = "C:\Users\PWTMT03\Desktop\MNChoices\LTC Screening Document.xml"
 'xmlPath = "C:\Users\PWTMT03\Desktop\MNChoices\LTC Screening Document14-2.xml"
