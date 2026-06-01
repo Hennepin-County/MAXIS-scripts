@@ -65,6 +65,9 @@ const create_review_file_const	= 10
 const on_daily_list_const	= 11
 const last_pend_array_const = 15
 
+Dim RESTART_PENDING_CASES()
+ReDim RESTART_PENDING_CASES(last_pend_array_const, 0)
+
 Dim TODAYS_PENDING_CASES_ARRAY()
 ReDim TODAYS_PENDING_CASES_ARRAY(last_pend_array_const, 0)
 
@@ -352,6 +355,236 @@ get_county_code
 
 'Connects to BlueZone
 EMConnect ""
+
+'Creating the file path information for yesterday's PND2 list.
+yesterday = DateAdd("d", -1, date)
+call change_date_to_soonest_working_day(yesterday, "BACK")
+yestdy_yr = DatePart("yyyy", yesterday)
+yestdy_day = Right("00"&DatePart("d", yesterday), 2)
+yestdy_mo = Right("00"&DatePart("m", yesterday), 2)
+yesterday_list_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\REPT-PND2 Lists\" & yestdy_yr & "-" & yestdy_mo & "-" & yestdy_day & ".xlsx"
+
+today_yr = DatePart("yyyy", date)
+today_day = Right("00"&DatePart("d", date), 2)
+today_mo = Right("00"&DatePart("m", date), 2)
+today_list_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\REPT-PND2 Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
+
+If NOT ObjFSO.FileExists(yesterday_list_file) and ObjFSO.FileExists(today_list_file) Then
+    close_msg = "The script cannot find cases to review for today."
+    close_msg = close_msg & vbCr & "A list has already been created and saved for use by this script on the next business day."
+    close_msg = close_msg & vbCr & vbCr & "BE SURE TO SCHEDULE A DAILY RUN OF THIS SCRIPT."
+    close_msg = close_msg & vbCr & "Failure to run this script every business day will result in the script being unable to create a case sampling list."
+    call script_end_procedure_with_error_report(close_msg)
+
+End If
+
+If NOT ObjFSO.FileExists(yesterday_list_file) Then
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 180, 200, "No Case Sampling List can be Created"
+        ButtonGroup ButtonPressed
+            PushButton 10, 120, 155, 15, "Prepare lists to Resume Case Sampling", create_pnd2_list
+            CancelButton 115, 170, 50, 15
+        Text 10, 15, 160, 10, "The script cannot find cases to review for today."
+        Text 25, 30, 135, 20, "A list of yesterday's pending cases must exist to create a list of cases to review."
+        Text 10, 60, 125, 10, "THIS SCRIPT MUST BE RUN DAILY."
+        Text 10, 75, 160, 35, "A list of cases pending from yesterday created by the script must exist for this process to work. The script can be run now to create a list so sampling can begin the next business day."
+        Text 10, 145, 155, 20, "If you prepare lists, schedule to run this script daily to create Case Sampling lists."
+    EndDialog
+
+    dialog Dialog1
+    cancel_without_confirmation
+
+    call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+
+    case_count = 0
+    today_longest_pending_days = 0
+    'Reading information from REPT/PND2
+    For each worker in worker_array
+        back_to_self										'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+        Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
+        EMWriteScreen worker, 21, 13
+        transmit
+        'This code is for bypassing a warning box if the basket has too many cases
+        EMWaitReady 0, 0
+        row = 1
+        col = 1
+        EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+        If row <> 0 THEN
+            transmit
+            send_email_to = "tanya.payne@hennepin.us; ilse.ferris@hennepin.us"
+            cc_email_to = ""
+            email_subject = worker & " AT PND2 DISPLAY LIMIT"
+            email_body = "This is a notice that the basket: " & vbCr & worker & vbCr & "reached the display limit and not all cases have been read during CASE SAMPLING." & vbCr & vbCr & "-- SCRIPT AUTOMATED EMAIL"
+            Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+        End If
+
+
+        'Skips workers with no info
+        EMReadScreen has_content_check, 6, 3, 73
+        If has_content_check <> "0 Of 0" then
+            'Grabbing each case number on screen
+            Do
+                MAXIS_row = 7
+                Do
+                    EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5	'Reading case number
+                    EMReadScreen client_name, 22, MAXIS_row, 16		'Reading client name
+                    EMReadScreen APPL_date, 8, MAXIS_row, 38		'Reading application date
+                    EMReadScreen days_pending, 4, MAXIS_row, 49		'Reading days pending
+                    EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                    EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
+                    EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+
+                    'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+                    client_name = trim(client_name)
+                    MAXIS_case_number = trim(MAXIS_case_number)
+                    If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
+
+                    'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
+                    If client_name <> "ADDITIONAL APP" and NOT instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") Then
+                        all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+
+                        'Cleaning up each program's status
+                        SNAP_status = trim(replace(SNAP_status, "_", ""))
+                        cash_status = trim(replace(cash_status, "_", ""))
+
+                        EMReadScreen next_client, 22, MAXIS_row + 1, 16
+                        next_client = trim(next_client)
+                        If next_client = "ADDITIONAL APP" Then
+                            client_name = "* " & client_name
+                            MAXIS_row = MAXIS_row + 1
+                            If SNAP_status = "" Then EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+                            If cash_status = "" Then
+                                EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                                EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
+                            End If
+                            'Cleaning up each program's status
+                            SNAP_status = trim(replace(SNAP_status, "_", ""))
+                            cash_status = trim(replace(cash_status, "_", ""))
+
+                            EMReadScreen next_next_client, 22, MAXIS_row + 1, 16
+                            next_next_client = trim(next_next_client)
+                            If next_next_client = "ADDITIONAL APP" Then
+                                MAXIS_row = MAXIS_row + 1
+                                If SNAP_status = "" Then EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+                                If cash_status = "" Then
+                                    EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                                    EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
+                                End If
+                                'Cleaning up each program's status
+                                SNAP_status = trim(replace(SNAP_status, "_", ""))
+                                cash_status = trim(replace(cash_status, "_", ""))
+                            End If
+                        End If
+                    End If
+
+                    'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
+                    If SNAP_status <> "" then add_case_info_to_ARRAY = True
+                    If cash_status <> "" then add_case_info_to_ARRAY = True
+
+                    If Trim(APPL_date) = "" then add_case_info_to_ARRAY = False		'If appl date is blank then we don't want to add it. This is due to a MAXIS error.
+
+                    If add_case_info_to_ARRAY = True then
+                        ReDim Preserve RESTART_PENDING_CASES(last_pend_array_const, case_count)
+                        RESTART_PENDING_CASES(case_number_const, case_count)  		= MAXIS_case_number
+                        RESTART_PENDING_CASES(worker_number_const, case_count)  	= UCase(worker)
+                        RESTART_PENDING_CASES(case_name_const, case_count)  		= client_name
+                        RESTART_PENDING_CASES(appl_date_const, case_count)  		= DateAdd("d", 0, replace(APPL_date, " ", "/"))
+                        RESTART_PENDING_CASES(days_pending_const, case_count)  	= abs(days_pending)
+                        RESTART_PENDING_CASES(cash_status_const, case_count)  		= cash_status
+                        RESTART_PENDING_CASES(cash_prog_const, case_count)  		= cash_prog
+                        RESTART_PENDING_CASES(snap_status_const, case_count)  		= SNAP_status
+                        RESTART_PENDING_CASES(pending_today_const, case_count)  	= True
+
+                        If RESTART_PENDING_CASES(days_pending_const, case_count) > today_longest_pending_days Then today_longest_pending_days = RESTART_PENDING_CASES(days_pending_const, case_count)
+
+                        case_count = case_count + 1
+                    End if
+                    MAXIS_row = MAXIS_row + 1
+                    add_case_info_to_ARRAY = ""	'Blanking out variable
+                    MAXIS_case_number = ""			'Blanking out variable
+                    SNAP_status = ""
+                    cash_status = ""
+                Loop until MAXIS_row = 19
+                PF8
+                EMReadScreen last_page_check, 21, 24, 2
+            Loop until last_page_check = "THIS IS THE LAST PAGE"
+        End if
+    next
+
+
+    'Loop pending cases
+        'output to excel
+        'No additional worksheets should be created - LIST ONLY by oldest to newest
+
+    'Opening the Excel file
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = True
+    Set objWorkbook = objExcel.Workbooks.Add()
+    objExcel.DisplayAlerts = True
+
+    'Changes name of Excel sheet to "Case information"
+    ObjExcel.ActiveSheet.Name = "Case information"
+
+    'Setting the first 4 col as worker, case number, name, and APPL date
+    ObjExcel.Cells(1, 1).Value = "WORKER"
+    objExcel.Cells(1, 1).Font.Bold = TRUE
+    ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+    objExcel.Cells(1, 2).Font.Bold = TRUE
+    ObjExcel.Cells(1, 3).Value = "NAME"
+    objExcel.Cells(1, 3).Font.Bold = TRUE
+    ObjExcel.Cells(1, 4).Value = "APPL DATE"
+    objExcel.Cells(1, 4).Font.Bold = TRUE
+    ObjExcel.Cells(1, 5).Value = "DAYS PENDING"
+    objExcel.Cells(1, 5).Font.Bold = TRUE
+    snap_pends_col = 6
+    ObjExcel.Cells(1, snap_pends_col).Value = "SNAP?"
+    objExcel.Cells(1, snap_pends_col).Font.Bold = TRUE
+    cash_pends_col = 7
+    ObjExcel.Cells(1, cash_pends_col).Value = "CASH?"
+    objExcel.Cells(1, cash_pends_col).Font.Bold = TRUE
+    cash_prog_col = 8
+    ObjExcel.Cells(1, cash_prog_col).Value = "CASH PROG"
+    objExcel.Cells(1, cash_prog_col).Font.Bold = TRUE
+
+    excel_row = 2
+    For days_pend = today_longest_pending_days to 1 Step -1
+        For dog = 0 to UBound(RESTART_PENDING_CASES, 2)
+            If RESTART_PENDING_CASES(days_pending_const, dog) = days_pend Then
+                ObjExcel.Cells(excel_row, 1).Value = RESTART_PENDING_CASES(worker_number_const, dog)
+                ObjExcel.Cells(excel_row, 2).Value = RESTART_PENDING_CASES(case_number_const, dog)
+                ObjExcel.Cells(excel_row, 3).Value = RESTART_PENDING_CASES(case_name_const, dog)
+                ObjExcel.Cells(excel_row, 4).Value = RESTART_PENDING_CASES(appl_date_const, dog)
+                ObjExcel.Cells(excel_row, 5).Value = RESTART_PENDING_CASES(days_pending_const, dog)
+                ObjExcel.Cells(excel_row, snap_pends_col).Value = RESTART_PENDING_CASES(snap_status_const, dog)
+                ObjExcel.Cells(excel_row, cash_pends_col).Value = RESTART_PENDING_CASES(cash_status_const, dog)
+                ObjExcel.Cells(excel_row, cash_prog_col).Value = RESTART_PENDING_CASES(cash_prog_const, dog)
+                excel_row = excel_row + 1
+            End If
+        Next
+    Next
+
+    'Autofitting columns
+    For col_to_autofit = 1 to 8
+        ObjExcel.columns(col_to_autofit).AutoFit()
+    Next
+
+    'save PND2 Excel with date as file name and close - potential restart process uses this file to fill the array
+    objExcel.ActiveWorkbook.SaveAs today_list_file
+    objExcel.ActiveWorkbook.Close
+    objExcel.Application.Quit
+    objExcel.Quit
+
+    Set ObjExcel = Nothing
+    Set objWorkbook = Nothing
+
+    close_msg = "Excel File has been created of current Cash and SNAP cases on PND2."
+    close_msg = close_msg & vbCr & "The list has been saved and closed for use by this script on the next business day."
+    close_msg = close_msg & vbCr & vbCr & "BE SURE TO SCHEDULE A DAILY RUN OF THIS SCRIPT."
+    close_msg = close_msg & vbCr & "Failure to run this script every business day will result in the script being unable to create a case sampling list."
+    call script_end_procedure_with_error_report(close_msg)
+End If
+
 
 'Case Sampling Criteria
 'Population Selection
@@ -940,10 +1173,6 @@ If run_review_selection = True Then
 		'track the largest days pending
 		'select all workers - we can change this potentially to be population specific BUT basket management is an issue
 		'check cash and snap
-	today_yr = DatePart("yyyy", date)
-	today_day = Right("00"&DatePart("d", date), 2)
-	today_mo = Right("00"&DatePart("m", date), 2)
-	today_list_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\REPT-PND2 Lists\" & today_yr & "-" & today_mo & "-" & today_day & ".xlsx"
 	If ObjFSO.FileExists(today_list_file) Then
 
 		Call excel_open(today_list_file, True, False, ObjExcel, objWorkbook)
@@ -1015,37 +1244,49 @@ If run_review_selection = True Then
 						EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
 						EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
 
-						'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-						client_name = trim(client_name)
-						MAXIS_case_number = trim(MAXIS_case_number)
-						If client_name <> "ADDITIONAL APP" Then			'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
-							If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
-							all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
-						End If
+                        'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+                        client_name = trim(client_name)
+                        MAXIS_case_number = trim(MAXIS_case_number)
+                        If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
 
-						If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
+                        'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
+                        If client_name <> "ADDITIONAL APP" and NOT instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") Then
+                            all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
 
-						'Cleaning up each program's status
-						SNAP_status = trim(replace(SNAP_status, "_", ""))
-						cash_status = trim(replace(cash_status, "_", ""))
+                            'Cleaning up each program's status
+                            SNAP_status = trim(replace(SNAP_status, "_", ""))
+                            cash_status = trim(replace(cash_status, "_", ""))
 
-						'If additional application is rec'd then the excel output is the client's name, not ADDITIONAL APP
-						If client_name <> "ADDITIONAL APP" then
-							EMReadScreen next_client, 22, MAXIS_row + 1, 16
-							next_client = trim(next_client)
-							If next_client = "ADDITIONAL APP" Then
-								client_name = "* " & client_name
-								MAXIS_row = MAXIS_row + 1
-								If SNAP_status = "" Then EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
-								If cash_status = "" Then
-									EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
-									EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
-								End If
-								'Cleaning up each program's status
-								SNAP_status = trim(replace(SNAP_status, "_", ""))
-								cash_status = trim(replace(cash_status, "_", ""))
-							End If
-						End If
+                            EMReadScreen next_client, 22, MAXIS_row + 1, 16
+                            next_client = trim(next_client)
+                            If next_client = "ADDITIONAL APP" Then
+                                client_name = "* " & client_name
+                                MAXIS_row = MAXIS_row + 1
+                                If SNAP_status = "" Then EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+                                If cash_status = "" Then
+                                    EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                                    EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
+                                End If
+                                'Cleaning up each program's status
+                                SNAP_status = trim(replace(SNAP_status, "_", ""))
+                                cash_status = trim(replace(cash_status, "_", ""))
+
+                                EMReadScreen next_next_client, 22, MAXIS_row + 1, 16
+                                next_next_client = trim(next_next_client)
+                                If next_next_client = "ADDITIONAL APP" Then
+                                    MAXIS_row = MAXIS_row + 1
+                                    If SNAP_status = "" Then EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+                                    If cash_status = "" Then
+                                        EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                                        EMReadScreen cash_prog, 2, MAXIS_row, 56		'Reading cash status
+                                    End If
+                                    'Cleaning up each program's status
+                                    SNAP_status = trim(replace(SNAP_status, "_", ""))
+                                    cash_status = trim(replace(cash_status, "_", ""))
+                                End If
+                            End If
+                        End If
+
 
 						'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
 						If SNAP_status <> "" then add_case_info_to_ARRAY = True
@@ -1152,12 +1393,6 @@ If run_review_selection = True Then
 		'pull all cases into an array
 		'Default pending today to FALSE
 		'close excel
-	yesterday = DateAdd("d", -1, date)
-	call change_date_to_soonest_working_day(yesterday, "BACK")
-	yestdy_yr = DatePart("yyyy", yesterday)
-	yestdy_day = Right("00"&DatePart("d", yesterday), 2)
-	yestdy_mo = Right("00"&DatePart("m", yesterday), 2)
-	yesterday_list_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Case Reviews\REPT-PND2 Lists\" & yestdy_yr & "-" & yestdy_mo & "-" & yestdy_day & ".xlsx"
 	Call excel_open(yesterday_list_file, True, False, ObjExcel, objWorkbook)
 
 
