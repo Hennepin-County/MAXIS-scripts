@@ -441,7 +441,7 @@ If NOT ObjFSO.FileExists(yesterday_list_file) Then
                     If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
 
                     'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
-                    If client_name <> "ADDITIONAL APP" and NOT instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") Then
+If client_name <> "ADDITIONAL APP" And InStr(all_case_numbers_array, "*" & MAXIS_case_number & "*") = 0 Then
                         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
 
                         'Cleaning up each program's status
