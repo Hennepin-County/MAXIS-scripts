@@ -544,150 +544,6 @@ function HRF_autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, varia
 		EATS_info = trim(EATS_info)
 		if right(EATS_info, 1) = "," then EATS_info = left(EATS_info, len(EATS_info) - 1)
 		If EATS_info <> "" then variable_written_to = variable_written_to & ", p/p sep from memb(s) " & EATS_info & "."
-	Elseif panel_read_from = "EMPS" then '----------------------------------------------------------------------------------------------------EMPS
-			For each HH_member in HH_member_array
-			'blanking out variables for the next HH member
-			EMPS_info = ""
-			ES_exemptions = ""
-			ES_info = ""
-			EMWriteScreen HH_member, 20, 76
-			EMWriteScreen "01", 20, 79
-			transmit
-			EMReadScreen EMPS_total, 1, 2, 78
-			If EMPS_total <> 0 then
-				'orientation info (EMPS_info variable)-------------------------------------------------------------------------
-				EMReadScreen EMPS_orientation_date, 8, 5, 39
-				IF EMPS_orientation_date = "__ __ __" then
-					EMPS_orientation_date = "none"
-				ElseIf EMPS_orientation_date <> "__ __ __" then
-					EMPS_orientation_date = replace(EMPS_orientation_date, " ", "/")
-					EMPS_info = EMPS_info & " Fin orient: " & EMPS_orientation_date & ","
-				END IF
-				EMReadScreen EMPS_orientation_attended, 1, 5, 65
-				IF EMPS_orientation_attended <> "_" then EMPS_info = EMPS_info & " Attended orient: " & EMPS_orientation_attended & ","
-				'Good cause (EMPS_info variable)
-				EMReadScreen EMPS_good_cause, 2, 5, 79
-				IF EMPS_good_cause <> "__" then
-					If EMPS_good_cause = "01" then EMPS_good_cause = "01-No Good Cause"
-					If EMPS_good_cause = "02" then EMPS_good_cause = "02-No Child Care"
-					If EMPS_good_cause = "03" then EMPS_good_cause = "03-Ill or Injured"
-					If EMPS_good_cause = "04" then EMPS_good_cause = "04-Care Ill/Incap. Family Member"
-					If EMPS_good_cause = "05" then EMPS_good_cause = "05-Lack of Transportation"
-					If EMPS_good_cause = "06" then EMPS_good_cause = "06-Emergency"
-					If EMPS_good_cause = "07" then EMPS_good_cause = "07-Judicial Proceedings"
-					If EMPS_good_cause = "08" then EMPS_good_cause = "08-Conflicts with Work/School"
-					If EMPS_good_cause = "09" then EMPS_good_cause = "09-Other Impediments"
-					If EMPS_good_cause = "10" then EMPS_good_cause = "10-Special Medical Criteria "
-					If EMPS_good_cause = "20" then EMPS_good_cause = "20-Exempt--Only/1st Caregiver Employed 35+ Hours"
-					If EMPS_good_cause = "21" then EMPS_good_cause = "21-Exempt--2nd Caregiver Employed 20+ Hours"
-					If EMPS_good_cause = "22" then EMPS_good_cause = "22-Exempt--Preg/Parenting Caregiver < Age 20"
-					If EMPS_good_cause = "23" then EMPS_good_cause = "23-Exempt--Special Medical Criteria"
-					IF EMPS_good_cause <> "__" then EMPS_info = EMPS_info & " Good cause: " & EMPS_good_cause & ","
-				END IF
-
-				'sanction dates (EMPS_info variable)
-				EMReadScreen EMPS_sanc_begin, 8, 6, 39
-				If EMPS_sanc_begin <> "__ 01 __" then
-					EMPS_sanc_begin = replace(EMPS_sanc_begin, "_", "/")
-					sanction_date = sanction_date & EMPS_sanc_begin
-				END IF
-				EMReadScreen EMPS_sanc_end, 8, 6, 65
-				If EMPS_sanc_end <> "__ 01 __" then
-					EMPS_sanc_end = replace(EMPS_sanc_end, "_", "/")
-					sanction_date = sanction_date & "-" & EMPS_sanc_end
-				END IF
-				IF sanction_date <> "" then EMPS_info = EMPS_info & " Sanction dates: " & sanction_date & ","
-				'cleaning up ES_info variable
-				If right(EMPS_info, 1) = "," then EMPS_info = left(EMPS_info, len(EMPS_info) - 1)
-				IF trim(EMPS_info) <> "" then EMPS_info = EMPS_info & "."
-
-				'other sanction dates (ES_exemptions variable)--------------------------------------------------------------------------------
-				'special medical criteria
-				EMReadScreen EMPS_memb_at_home, 1, 8, 76
-				IF EMPS_memb_at_home <> "N" then
-					If EMPS_memb_at_home = "1" then EMPS_memb_at_home = "Home-Health/Waiver service"
-					IF EMPS_memb_at_home = "2" then EMPS_memb_at_home = "Child w/ severe emotional dist"
-					IF EMPS_memb_at_home = "3" then EMPS_memb_at_home = "Adult/Serious Persistent MI"
-					ES_exemptions = ES_exemptions & " Special med criteria: " & EMPS_memb_at_home & ","
-				END IF
-
-				EMReadScreen EMPS_care_family, 1, 9, 76
-				IF EMPS_care_family = "Y" then ES_exemptions = ES_exemptions & " Care of ill/incap memb: " & EMPS_care_family & ","
-				EMReadScreen EMPS_crisis, 1, 10, 76
-				IF EMPS_crisis = "Y" then ES_exemptions = ES_exemptions & " Family crisis: " & EMPS_crisis & ","
-
-				'hard to employ
-				EMReadScreen EMPS_hard_employ, 2, 11, 76
-				IF EMPS_hard_employ <> "NO" then
-					IF EMPS_hard_employ = "IQ" then EMPS_hard_employ = "IQ tested at < 80"
-					IF EMPS_hard_employ = "LD" then EMPS_hard_employ = "Learning Disabled"
-					IF EMPS_hard_employ = "MI" then EMPS_hard_employ = "Mentally ill"
-					IF EMPS_hard_employ = "DD" then EMPS_hard_employ = "Dev Disabled"
-					IF EMPS_hard_employ = "UN" then EMPS_hard_employ = "Unemployable"
-					ES_exemptions = ES_exemptions & " Hard to employ: " & EMPS_hard_employ & ","
-				END IF
-
-				'EMPS under 1 coding and dates used(ES_exemptions variable)
-				EMReadScreen EMPS_under1, 1, 12, 76
-				IF EMPS_under1 = "Y" then
-					ES_exemptions = ES_exemptions & " FT child under 1: " & EMPS_under1 & ","
-					EMWriteScreen "X", 12, 39
-					transmit
-					MAXIS_row = 7
-					MAXIS_col = 22
-					DO
-						EMReadScreen exemption_date, 9, MAXIS_row, MAXIS_col
-						If trim(exemption_date) = "" then exit do
-						If exemption_date <> "__ / ____" then
-							child_under1_dates = child_under1_dates & exemption_date & ", "
-							MAXIS_col = MAXIS_col + 11
-							If MAXIS_col = 66 then
-								MAXIS_row = MAXIS_row + 1
-								MAXIS_col = 22
-							END IF
-						END IF
-					LOOP until exemption_date = "__ / ____" or (MAXIS_row = 9 and MAXIS_col = 66)
-					PF3
-					'cleaning up excess comma at the end of child_under1_dates variable
-					If right(child_under1_dates,  2) = ", " then child_under1_dates = left(child_under1_dates, len(child_under1_dates) - 2)
-					If trim(child_under1_dates) = "" then child_under1_dates = " N/A"
-					ES_exemptions = ES_exemptions & " Child under 1 exeption dates: " & child_under1_dates & ","
-				END IF
-
-				'cleaning up ES_exemptions variable
-				If right(ES_exemptions, 1) = "," then ES_exemptions = left(ES_exemptions, len(ES_exemptions) - 1)
-				IF trim(ES_exemptions) <> "" then ES_exemptions = ES_exemptions & "."
-
-				'Reading ES Information (for ES_info variable)
-				EMReadScreen ES_status, 40, 15, 40
-				ES_status = trim(ES_status)
-				IF ES_status <> "" then ES_info = ES_info & " ES status: " & ES_status & ","
-				EMReadScreen ES_referral_date, 8, 16, 40
-				If ES_referral_date <> "__ __ __" then
-					ES_referral_date = replace(ES_referral_date, " ", "/")
-					ES_info = ES_info & " ES referral date: " & ES_referral_date & ","
-				END IF
-
-				EMReadScreen DWP_plan_date, 8, 17, 40
-				IF DWP_plan_date <> "__ __ __" then
-					DWP_plan_date = replace(DWP_plan_date, "_", "/")
-					ES_info = ES_info & " DWP plan date: " & DWP_plan_date & ","
-				END IF
-
-				EMReadScreen minor_ES_option, 2, 16, 76
-				If minor_ES_option <> "__" then
-					IF minor_ES_option = "SC" then minor_ES_option = "Secondary Education"
-					IF minor_ES_option = "EM" then minor_ES_option = "Employment"
-					ES_info = ES_info & " 18/19 yr old ES option: " & minor_ES_option & ","
-				END if
-
-				'cleaning up ES_info variable
-				If right(ES_info, 1) = "," then ES_info = left(ES_info, len(ES_info) - 1)
-
-				variable_written_to = variable_written_to & "Member " & HH_member & "- "
-				variable_written_to = variable_written_to & EMPS_info & ES_exemptions & ES_info & "; "
-			END IF
-		next
 	Elseif panel_read_from = "FACI" then '----------------------------------------------------------------------------------------------------FACI
 		For each HH_member in HH_member_array
 		EMWriteScreen HH_member, 20, 76
@@ -1535,7 +1391,7 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	'--- This function adds STAT/JOBS data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 	'~~~~~ JOBS_variable: the variable used by the editbox you wish to autofill.
 	'===== Keywords: MAXIS, autofill, JOBS
-	'Set error message handling 
+	'Set error message handling
 	JOBS_panel_error_message = ""
 
 	EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
@@ -1554,7 +1410,7 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 		new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
 		End if
 	Next
-	
+
 	'Read the prospective and retrospective amounts. Ensure they are the same and that there are no lines filled out besides the first
 	EmReadScreen JOBS_panel_retro_pay_amount, 8, 12, 38
 	JOBS_panel_retro_pay_amount = trim(JOBS_panel_retro_pay_amount)
@@ -1564,8 +1420,8 @@ function HRF_add_JOBS_to_variable(variable_name_for_JOBS)
 	EmReadScreen JOBS_panel_prosp_pay_amount_line_2_check, 8, 13, 67
 
 	'If panels are blank, then convert them to 0.00 to handle for comparing blank lines with 0.00
-	If JOBS_panel_retro_pay_amount = "________" Then JOBS_panel_retro_pay_amount = "0.00" 
-	If JOBS_panel_prosp_pay_amount = "________" Then JOBS_panel_prosp_pay_amount = "0.00" 
+	If JOBS_panel_retro_pay_amount = "________" Then JOBS_panel_retro_pay_amount = "0.00"
+	If JOBS_panel_prosp_pay_amount = "________" Then JOBS_panel_prosp_pay_amount = "0.00"
 
 	' EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
 	' jobs_hourly_wage = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
@@ -1699,7 +1555,7 @@ function HRF_add_UNEA_to_variable(variable_name_for_UNEA)
 		' EMReadScreen snap_pay_frequency, 1, 5, 64
 		' EMReadScreen date_of_pic_calc, 8, 5, 34
 		' date_of_pic_calc = replace(date_of_pic_calc, " ", "/")
-		
+
 		EMReadScreen UNEA_PIC_prosp_amt, 8, 18, 56
 		UNEA_PIC_prosp_amt = trim(UNEA_PIC_prosp_amt)
 		'Ensure consistent handling for blanks vs 0.00
@@ -1726,8 +1582,8 @@ function HRF_add_UNEA_to_variable(variable_name_for_UNEA)
 		EmReadScreen UNEA_panel_prosp_pay_amount_line_2_check, 8, 14, 68
 
 		'If panels are blank, then convert them to 0.00 to handle for comparing blank lines with 0.00
-		If UNEA_panel_retro_pay_amount = "________" Then UNEA_panel_retro_pay_amount = "0.00" 
-		If UNEA_panel_prosp_pay_amount = "________" Then UNEA_panel_prosp_pay_amount = "0.00" 
+		If UNEA_panel_retro_pay_amount = "________" Then UNEA_panel_retro_pay_amount = "0.00"
+		If UNEA_panel_prosp_pay_amount = "________" Then UNEA_panel_prosp_pay_amount = "0.00"
 
 		If UNEA_panel_retro_pay_amount <> UNEA_panel_prosp_pay_amount or UNEA_panel_retro_pay_amount <> UNEA_PIC_prosp_amt or UNEA_panel_prosp_pay_amount <> UNEA_PIC_prosp_amt Then UNEA_panel_error_message = UNEA_panel_error_message & "The amount entered in the PIC for the monthly prospective income and the prospective and retrospective pay amounts entered on the panel are not all the same amount. They should all be the same. Please update and then rerun this script." & VbCR & vbCr
 
@@ -1766,6 +1622,7 @@ end function
 
 Call MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing case number & footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+MSA_check = checked
 
 Do
     Do
@@ -1822,7 +1679,6 @@ call HH_member_custom_dialog(HH_member_array)
 
 'Autofilling info for case note
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "MONT", HRF_datestamp)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
@@ -1845,76 +1701,70 @@ DO
 			err_msg = ""
 			'-------------------------------------------------------------------------------------------------DIALOG
 			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 451, 285, MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF dialog"
-			EditBox 65, 30, 50, 15, HRF_datestamp
-			DropListBox 170, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
-			EditBox 65, 50, 380, 15, earned_income
-			EditBox 70, 70, 375, 15, unearned_income
-			EditBox 110, 90, 335, 15, notes_on_income
-			EditBox 30, 110, 90, 15, YTD
-			EditBox 170, 110, 275, 15, changes
-			EditBox 30, 130, 415, 15, EMPS
-			EditBox 100, 150, 345, 15, FIAT_reasons
-			EditBox 50, 170, 395, 15, other_notes
-			CheckBox 190, 190, 60, 10, "10% sanction?", ten_percent_sanction_check
-			CheckBox 265, 190, 60, 10, "30% sanction?", thirty_percent_sanction_check
-			CheckBox 330, 190, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-			EditBox 235, 205, 210, 15, verifs_needed
-			EditBox 235, 225, 210, 15, actions_taken
-			EditBox 340, 245, 105, 15, worker_signature
-			ButtonGroup ButtonPressed
-				OkButton 340, 265, 50, 15
-				CancelButton 395, 265, 50, 15
-				PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
-				PushButton 260, 20, 20, 10, "FS", ELIG_FS_button
-				PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
-				PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
-				PushButton 260, 30, 20, 10, "GA", ELIG_GA_button
-				PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
-				PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
-				PushButton 335, 30, 45, 10, "next panel", next_panel_button
-				PushButton 395, 30, 45, 10, "next memb", next_memb_button
-				PushButton 5, 135, 25, 10, "EMPS", EMPS_button
-				PushButton 10, 205, 25, 10, "BUSI", BUSI_button
-				PushButton 35, 205, 25, 10, "JOBS", JOBS_button
-				PushButton 10, 215, 25, 10, "RBIC", RBIC_button
-				PushButton 35, 215, 25, 10, "UNEA", UNEA_button
-				PushButton 75, 205, 25, 10, "ACCT", ACCT_button
-				PushButton 100, 205, 25, 10, "CARS", CARS_button
-				PushButton 125, 205, 25, 10, "CASH", CASH_button
-				PushButton 150, 205, 25, 10, "OTHR", OTHR_button
-				PushButton 75, 215, 25, 10, "REST", REST_button
-				PushButton 100, 215, 25, 10, "SECU", SECU_button
-				PushButton 125, 215, 25, 10, "TRAN", TRAN_button
-				PushButton 10, 250, 25, 10, "MEMB", MEMB_button
-				PushButton 35, 250, 25, 10, "MEMI", MEMI_button
-				PushButton 60, 250, 25, 10, "MONT", MONT_button
-				PushButton 10, 260, 25, 10, "PARE", PARE_button
-				PushButton 35, 260, 25, 10, "SANC", SANC_button
-				PushButton 60, 260, 25, 10, "TIME", TIME_button
-			Text 5, 115, 20, 10, "YTD:"
-			Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-			Text 5, 175, 45, 10, "Other notes:"
-			GroupBox 5, 190, 60, 40, "Income panels"
-			GroupBox 70, 190, 110, 40, "Asset panels"
-			Text 280, 250, 60, 10, "Worker signature:"
-			Text 185, 230, 50, 10, "Actions taken:"
-			GroupBox 5, 235, 85, 40, "other STAT panels:"
-			Text 185, 210, 50, 10, "Verifs needed:"
-			Text 125, 35, 40, 10, "HRF status:"
-			Text 130, 115, 35, 10, "Changes?:"
-			GroupBox 330, 5, 115, 40, "STAT-based navigation"
-			Text 5, 35, 55, 10, "HRF datestamp:"
-			Text 5, 55, 55, 10, "Earned income:"
-			Text 5, 75, 60, 10, "Unearned income:"
-			GroupBox 255, 5, 70, 40, "ELIG panels:"
-			If CM_mo = MAXIS_footer_month and CM_yr = MAXIS_footer_year Then
-				GroupBox 90, 245, 190, 35, "HRF BEING PROCESSED IN THE BENEFIT MONTH."
-				Text 95, 255, 180, 10, "This means there may be a HRF due for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " as well."
-				CheckBox 95, 265, 180, 10, "Check here if HRF for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " is due and not received.", next_month_hrf_not_received_checkbox
-			End If
-
+			BeginDialog Dialog1, 0, 0, 451, 245, MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF dialog"
+                EditBox 65, 10, 50, 15, HRF_datestamp
+                DropListBox 65, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
+                CheckBox 160, 35, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+                EditBox 65, 50, 380, 15, earned_income
+                EditBox 70, 70, 375, 15, unearned_income
+                EditBox 110, 90, 335, 15, notes_on_income
+                EditBox 30, 110, 90, 15, YTD
+                EditBox 170, 110, 275, 15, changes
+                EditBox 100, 130, 345, 15, FIAT_reasons
+                EditBox 50, 150, 395, 15, other_notes
+                EditBox 235, 165, 210, 15, verifs_needed
+                EditBox 235, 185, 210, 15, actions_taken
+                EditBox 300, 205, 145, 15, worker_signature
+                ButtonGroup ButtonPressed
+                    OkButton 340, 225, 50, 15
+                    CancelButton 395, 225, 50, 15
+                    PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
+                    PushButton 260, 20, 20, 10, "MSA", ELIG_MSA_button
+                    PushButton 280, 20, 20, 10, "FS", ELIG_FS_button
+                    PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
+                    PushButton 260, 30, 20, 10, "GA", ELIG_GA_button
+                    PushButton 280, 30, 20, 10, "HC", ELIG_HC_button
+                    PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
+                    PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
+                    PushButton 335, 30, 45, 10, "next panel", next_panel_button
+                    PushButton 395, 30, 45, 10, "next memb", next_memb_button
+                    PushButton 10, 185, 25, 10, "BUSI", BUSI_button
+                    PushButton 35, 185, 25, 10, "JOBS", JOBS_button
+                    PushButton 10, 195, 25, 10, "RBIC", RBIC_button
+                    PushButton 35, 195, 25, 10, "UNEA", UNEA_button
+                    PushButton 75, 185, 25, 10, "ACCT", ACCT_button
+                    PushButton 100, 185, 25, 10, "CARS", CARS_button
+                    PushButton 125, 185, 25, 10, "CASH", CASH_button
+                    PushButton 150, 185, 25, 10, "OTHR", OTHR_button
+                    PushButton 75, 195, 25, 10, "REST", REST_button
+                    PushButton 100, 195, 25, 10, "SECU", SECU_button
+                    PushButton 125, 195, 25, 10, "TRAN", TRAN_button
+                    PushButton 10, 225, 25, 10, "MEMB", MEMB_button
+                    PushButton 35, 225, 25, 10, "MEMI", MEMI_button
+                    PushButton 60, 225, 25, 10, "MONT", MONT_button
+                Text 5, 15, 55, 10, "HRF datestamp:"
+                Text 5, 35, 40, 10, "HRF status:"
+                GroupBox 255, 5, 70, 40, "ELIG panels:"
+                GroupBox 330, 5, 115, 40, "STAT-based navigation"
+                Text 5, 55, 55, 10, "Earned income:"
+                Text 5, 75, 60, 10, "Unearned income:"
+                Text 5, 115, 20, 10, "YTD:"
+                Text 130, 115, 35, 10, "Changes?:"
+                Text 5, 135, 95, 10, "FIAT reasons (if applicable):"
+                Text 5, 155, 45, 10, "Other notes:"
+                GroupBox 5, 170, 60, 40, "Income panels"
+                GroupBox 70, 170, 110, 40, "Asset panels"
+                GroupBox 5, 210, 85, 30, "other STAT panels:"
+                Text 185, 170, 50, 10, "Verifs needed:"
+                Text 185, 190, 50, 10, "Actions taken:"
+                Text 240, 210, 60, 10, "Worker signature:"
+                If CM_mo = MAXIS_footer_month and CM_yr = MAXIS_footer_year Then
+                    GroupBox 90, 225, 190, 35, "HRF BEING PROCESSED IN THE BENEFIT MONTH."
+                    Text 95, 235, 180, 10, "This means there may be a HRF due for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " as well."
+                    CheckBox 95, 245, 180, 10, "Check here if HRF for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " is due and not received.", next_month_hrf_not_received_checkbox
+                End If
 			EndDialog
+
 			Dialog Dialog1
 			cancel_confirmation
 			Call check_for_password(are_we_passworded_out)   'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -1923,25 +1773,26 @@ DO
 				'-------------------------------------------------------------------------------------------------DIALOG
 				Dialog1 = "" 'Blanking out previous dialog detail
 				BeginDialog Dialog1, 0, 0, 351, 225, "Explanation of Income"
-				CheckBox 10, 25, 300, 10, "NO INCOME - All income previously ended, but case has not yet fallen off of the HRF run. ", no_income_checkbox
-				CheckBox 10, 35, 225, 10, "SEE PREVIOUS NOTE - Income detail is listed on previous note(s)", see_other_note_checkbox
-				CheckBox 10, 45, 280, 10, "NOT VERIFIED - Income has not been fully verified, detail will be entered in future.", not_verified_checkbox
-				CheckBox 10, 70, 285, 10, "VERIFS RECEIVED - All pay verification provided for the report month and budgeted.", jobs_all_verified_checkbox
-				CheckBox 10, 80, 260, 10, "PARTIAL MONTH - Job ended in the report month, all pay has been budgeted.", jobs_partial_month_checkbox
-				CheckBox 10, 90, 305, 10, "YEAR TO DATE USED - Not all pay dates verified, check amount was calculated using YTD.", jobs_ytd_used_checkbox
-				CheckBox 10, 120, 320, 10, "SELF EMP REPORT FORM - DHS 3336 submitted as proof of monthly self employment income.", busi_rept_form_checkbox
-				CheckBox 10, 130, 310, 10, "EXPENSES - 50% - Budgeted self emp. income - allowing 50% of gross income as expenses.", busi_fifty_percent_checkbox
-				CheckBox 10, 140, 235, 10, "TAX METHOD - Self employment income budgeted using tax method.", busi_tax_method_checkbox
-				CheckBox 10, 175, 270, 10, "VERIFS RECEIVED - All verification of unearned income in report month received.", unea_all_verified_checkbox
-				CheckBox 10, 185, 320, 10, "UNCHANGING - Unearned income does not vary and no change reported for this report month.", unea_unvarying_checkbox
-				ButtonGroup ButtonPressed
-					PushButton 240, 205, 50, 15, "Insert", add_to_notes_button
-					CancelButton 295, 205, 50, 15
-				Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-				GroupBox 5, 60, 340, 45, "JOBS Income"
-				GroupBox 5, 110, 340, 45, "BUSI Income"
-				GroupBox 5, 160, 340, 40, "UNEA Income"
+                    CheckBox 10, 25, 300, 10, "NO INCOME - All income previously ended, but case has not yet fallen off of the HRF run. ", no_income_checkbox
+                    CheckBox 10, 35, 225, 10, "SEE PREVIOUS NOTE - Income detail is listed on previous note(s)", see_other_note_checkbox
+                    CheckBox 10, 45, 280, 10, "NOT VERIFIED - Income has not been fully verified, detail will be entered in future.", not_verified_checkbox
+                    CheckBox 10, 70, 285, 10, "VERIFS RECEIVED - All pay verification provided for the report month and budgeted.", jobs_all_verified_checkbox
+                    CheckBox 10, 80, 260, 10, "PARTIAL MONTH - Job ended in the report month, all pay has been budgeted.", jobs_partial_month_checkbox
+                    CheckBox 10, 90, 305, 10, "YEAR TO DATE USED - Not all pay dates verified, check amount was calculated using YTD.", jobs_ytd_used_checkbox
+                    CheckBox 10, 120, 320, 10, "SELF EMP REPORT FORM - DHS 3336 submitted as proof of monthly self employment income.", busi_rept_form_checkbox
+                    CheckBox 10, 130, 310, 10, "EXPENSES - 50% - Budgeted self emp. income - allowing 50% of gross income as expenses.", busi_fifty_percent_checkbox
+                    CheckBox 10, 140, 235, 10, "TAX METHOD - Self employment income budgeted using tax method.", busi_tax_method_checkbox
+                    CheckBox 10, 175, 270, 10, "VERIFS RECEIVED - All verification of unearned income in report month received.", unea_all_verified_checkbox
+                    CheckBox 10, 185, 320, 10, "UNCHANGING - Unearned income does not vary and no change reported for this report month.", unea_unvarying_checkbox
+                    ButtonGroup ButtonPressed
+                        PushButton 240, 205, 50, 15, "Insert", add_to_notes_button
+                        CancelButton 295, 205, 50, 15
+                    Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+                    GroupBox 5, 60, 340, 45, "JOBS Income"
+                    GroupBox 5, 110, 340, 45, "BUSI Income"
+                    GroupBox 5, 160, 340, 40, "UNEA Income"
 				EndDialog
+
 				Dialog dialog1
 				If ButtonPressed = add_to_notes_button Then
 					If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; All income ended prior to " & retro_month_name & " - no income budgeted."
@@ -1983,11 +1834,8 @@ call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 CALL write_bullet_and_variable_in_case_note("Notes on income and budget", notes_on_income)
 call write_bullet_and_variable_in_case_note("YTD", YTD)
 call write_bullet_and_variable_in_case_note("Changes", changes)
-call write_bullet_and_variable_in_case_note("EMPS", EMPS)
 call write_bullet_and_variable_in_case_note("FIAT reasons", FIAT_reasons)
 call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-If ten_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 10% sanction.")
-If thirty_percent_sanction_check = 1 then call write_variable_in_CASE_NOTE("* 30% sanction.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
