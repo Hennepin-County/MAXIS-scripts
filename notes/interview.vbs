@@ -3251,8 +3251,6 @@ function save_your_work()
 			objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
 
             objTextStream.WriteLine "MFIP - ORNT - " & MFIP_orientation_assessed_and_completed
-            objTextStream.WriteLine "MFIP - DWP - " & family_cash_program
-            objTextStream.WriteLine "FMCA - 01 - " & famliy_cash_notes
 
 			objTextStream.WriteLine "VERB - CASH - " & cash_verbal_request
 			objTextStream.WriteLine "VERB - GRHS - " & grh_verbal_request
@@ -3675,8 +3673,6 @@ function save_your_work()
 			script_run_lowdown = ""
 			script_run_lowdown = script_run_lowdown & vbCr & "TIME SPENT - "	& timer - start_time & vbCr & vbCr
             script_run_lowdown = script_run_lowdown & vbCr & "MFIP - ORNT - " & MFIP_orientation_assessed_and_completed & vbCr & vbCr
-            script_run_lowdown = script_run_lowdown & vbCr & "MFIP - DWP - " & family_cash_program
-            script_run_lowdown = script_run_lowdown & vbCr & "FMCA - 01 - " & famliy_cash_notes & vbCr & vbCr
 			script_run_lowdown = script_run_lowdown & vbCr & "RUN BY INTERVIEW TEAM" & run_by_interview_team & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
@@ -4115,8 +4111,6 @@ function restore_your_work(vars_filled, membs_found)
                     If left(text_line, 11) = "MFIP - ORNT" Then MFIP_orientation_assessed_and_completed = Mid(text_line, 15)
                     If UCase(MFIP_orientation_assessed_and_completed) = "TRUE" Then MFIP_orientation_assessed_and_completed = True
                     If UCase(MFIP_orientation_assessed_and_completed) = "FALSE" Then MFIP_orientation_assessed_and_completed = False
-                    If left(text_line, 10) = "MFIP - DWP" Then family_cash_program = Mid(text_line, 14)
-                    If left(text_line, 9) = "FMCA - 01" Then famliy_cash_notes = Mid(text_line, 13)
 
 					If left(text_line, 11) = "VERB - CASH" Then cash_verbal_request = Mid(text_line, 15)
 					If left(text_line, 11) = "VERB - GRHS" Then grh_verbal_request = Mid(text_line, 15)
@@ -5605,11 +5599,6 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("--Processing to be completed by a follow up worker.")
 	End If
     Call write_bullet_and_variable_in_CASE_NOTE("Case Information", case_summary)
-    If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
-        Call write_variable_in_CASE_NOTE("Family Cash Program Selection Details")
-        CALL write_bullet_and_variable_in_CASE_NOTE("Program selected", family_cash_program)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Selection Notes", famliy_cash_notes)
-    End If
 
 	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
 	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
@@ -7734,7 +7723,7 @@ Dim all_members_listed_yn, all_members_listed_notes, all_members_in_MN_yn, all_m
 
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
-Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
+Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail
 
 Dim CASH_ever_active, MSA_ever_active, FS_ever_active, MA_ever_active, EMER_ever_active, GRH_ever_active, GA_ever_active, MFIP_ever_active, DWP_ever_active
 Dim QMB_ever_active, SLMB_ever_active, CCAP_ever_active, QI1_ever_active, RCA_ever_active, IV_E_ever_active, IMD_ever_active
@@ -9842,7 +9831,7 @@ call back_to_SELF
 If edit_access_allowed = True Then
 	If MFIP_orientation_assessed_and_completed = False Then
 		If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
-			Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
+			Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes)
 			For caregiver = 0 to UBound(HH_MEMB_ARRAY, 2)
 				If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True and HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
 					Call start_a_blank_CASE_NOTE
