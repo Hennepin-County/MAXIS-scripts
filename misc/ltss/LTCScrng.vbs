@@ -54,7 +54,7 @@ If windows_user_ID = "SAGR002" then msgbox "Script file connected & Functions Li
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
-			
+call changelog_update("06/03/2026", "Redacted coding for MHM IND fields to align with state scripts", "Ilse Ferris, Hennepin County")			
 call changelog_update("05/29/2026", "Updated file selection functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/16/2025", "Added statistics collection.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2025", "Added most recent updates from MN.IT script release. Updates include ALT screen checks and updated field clearning functionality.", "Ilse Ferris, Hennepin County" )
@@ -772,9 +772,9 @@ CALL writeValueOnScreen(currFieldName, currFieldValue)
 CALL findValueInArray("PROGRAM TYPE", scrngArray)
 CALL writeValueOnScreen(currFieldName, "  ")
 CALL writeValueOnScreen(currFieldName, currFieldValue)
-CALL findValueInArray("MHM IND", scrngArray)
-CALL writeValueOnScreen(currFieldName, "")
-CALL writeValueOnScreen(currFieldName, currFieldValue)
+'CALL findValueInArray("MHM IND", scrngArray)
+'CALL writeValueOnScreen(currFieldName, "")
+'CALL writeValueOnScreen(currFieldName, currFieldValue)
 CALL findValueInArray("CDCS", scrngArray)
 CALL writeValueOnScreen(currFieldName, "")
 CALL writeValueOnScreen(currFieldName, currFieldValue)
