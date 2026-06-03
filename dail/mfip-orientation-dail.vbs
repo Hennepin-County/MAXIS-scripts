@@ -217,37 +217,27 @@ HH_MEMB_ARRAY(age, clt_count) = trim(HH_MEMB_ARRAY(age, clt_count))			    'forma
 If HH_MEMB_ARRAY(age, clt_count) = "" Then HH_MEMB_ARRAY(age, clt_count) = 0
 HH_MEMB_ARRAY(age, clt_count) = HH_MEMB_ARRAY(age, clt_count) * 1
 
-
-family_cash_program = "MFIP"			'defaulting to MFIP as the program selection.
-
 'this is where the main functionality of this script is called.
 'We are using a function because this needs to match the experiance in other scripts.
 'This function will call dialogs and enter CASE/NOTEs - eventually it may update EMPS panels
-Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
+Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes)
 
 'Now that the CASE/NOTES are completed the script will gather information for the end_msg report out MsgBox
 'This next block is ONLY to fill the end_msg
-If family_cash_program = "DWP" Then
-	STATS_manualtime = 60		'if DWP - the manual time is changed becuase we didn't complete an orientation
-	end_msg = "The NOTES - MFIP Orienation script has completed without taking any action." & vbCr
-	end_msg = end_msg & "You have indicated that the family cash program is DWP." & vbCr & vbCr
-	end_msg = end_msg & "This script does not have support for the financial orientation and information on DWP cases. This functionality is built to specifically support MFIP cases and MFIP caregivers."
-Else
-	end_msg = "NOTES - MFIP Orientation script run completed." & vbCr
+end_msg = "NOTES - MFIP Orientation script run completed." & vbCr
 
-	If HH_MEMB_ARRAY(memb_is_caregiver, 0) = True Then
-		caregiver_detail = HH_MEMB_ARRAY(full_name_const, 0) & " is a caregiver on this case." & vbCr
-		If HH_MEMB_ARRAY(orientation_needed_const, 0) = True Then caregiver_detail = caregiver_detail & " - An MFIP Orientation is needed for this caregiver. " & vbCr
-		If HH_MEMB_ARRAY(orientation_needed_const, 0) = False Then caregiver_detail = caregiver_detail & " - An MFIP Orientation is NOT needed for this caregiver." & vbCr
-		If HH_MEMB_ARRAY(orientation_exempt_const, 0) = True Then
-			caregiver_detail = caregiver_detail & " - This caregiver is exemmpt from needing an MFIP Orientation." & vbCr
-			caregiver_detail = caregiver_detail & "   Exemption Reason: " & HH_MEMB_ARRAY(exemption_reason_const, 0) & vbCr
-		End If
-		If HH_MEMB_ARRAY(orientation_done_const, 0) = True Then  caregiver_detail = caregiver_detail & " * The orientation was completed during this script run and a CASE/NOTE has been entered." & vbCr
-		If HH_MEMB_ARRAY(orientation_done_const, 0) = False Then  caregiver_detail = caregiver_detail & " * MFIP ORIENTATION NOT COMPLETED AND STILL NEEDED FOR " & HH_MEMB_ARRAY(full_name_const, 0) & "." & vbCr
+If HH_MEMB_ARRAY(memb_is_caregiver, 0) = True Then
+    caregiver_detail = HH_MEMB_ARRAY(full_name_const, 0) & " is a caregiver on this case." & vbCr
+    If HH_MEMB_ARRAY(orientation_needed_const, 0) = True Then caregiver_detail = caregiver_detail & " - An MFIP Orientation is needed for this caregiver. " & vbCr
+    If HH_MEMB_ARRAY(orientation_needed_const, 0) = False Then caregiver_detail = caregiver_detail & " - An MFIP Orientation is NOT needed for this caregiver." & vbCr
+    If HH_MEMB_ARRAY(orientation_exempt_const, 0) = True Then
+        caregiver_detail = caregiver_detail & " - This caregiver is exemmpt from needing an MFIP Orientation." & vbCr
+        caregiver_detail = caregiver_detail & "   Exemption Reason: " & HH_MEMB_ARRAY(exemption_reason_const, 0) & vbCr
+    End If
+    If HH_MEMB_ARRAY(orientation_done_const, 0) = True Then  caregiver_detail = caregiver_detail & " * The orientation was completed during this script run and a CASE/NOTE has been entered." & vbCr
+    If HH_MEMB_ARRAY(orientation_done_const, 0) = False Then  caregiver_detail = caregiver_detail & " * MFIP ORIENTATION NOT COMPLETED AND STILL NEEDED FOR " & HH_MEMB_ARRAY(full_name_const, 0) & "." & vbCr
 
-		end_msg = end_msg & vbCr & caregiver_detail
-	End If
+    end_msg = end_msg & vbCr & caregiver_detail
 End If
 end_msg = end_msg & vbCr & "CASE/NOTEs have been made by the script. Updates to EMPS should have been completed manually during the script run. If that is still needed, go back and update STAT/EMPS now."
 
