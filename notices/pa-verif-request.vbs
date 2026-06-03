@@ -506,7 +506,6 @@ snap_change_wcom_btn = 1010
 ga_change_wcom_btn   = 1020
 msa_change_wcom_btn  = 1030
 mfip_change_wcom_btn = 1040
-dwp_change_wcom_btn  = 1050
 grh_change_wcom_btn  = 1060
 hc_change_wcom_btn   = 1070
 
@@ -514,7 +513,6 @@ snap_wcom_btn = 110
 ga_wcom_btn   = 120
 msa_wcom_btn  = 130
 mfip_wcom_btn = 140
-dwp_wcom_btn  = 150
 grh_wcom_btn  = 160
 hc_wcom_btn   = 170
 
@@ -708,7 +706,6 @@ script_run_lowdown = script_run_lowdown & vbCr & "unknown_cash_pending - " & unk
 If ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then ga_status = "ACTIVE"
 If msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then msa_status = "ACTIVE"
 If mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then mfip_status = "ACTIVE"
-If dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then dwp_status = "ACTIVE"
 If grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then grh_status = "ACTIVE"
 If snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then snap_status = "ACTIVE"
 If ma_status = "APP OPEN" or ma_status = "APP CLOSE" Then ma_status = "ACTIVE"
@@ -1015,69 +1012,6 @@ Else
 		If mfip_wcom_text = "" Then mfip_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
 	End If
 
-	If dwp_status = "ACTIVE" Then
-		Call navigate_to_MAXIS_screen("MONY", "INQB")		'reading the recent benefit amount
-		inqb_row = 6										'start at the top of the list
-		Do
-			EMReadScreen inqb_program, 2, inqb_row, 23		'find the right program
-			If inqb_program = "DW" Then
-				EMReadScreen dwp_amount, 10, inqb_row, 38	'read the benefit amount listed
-				dwp_amount = trim(dwp_amount)
-				Exit Do										'once the first one is found - we're done
-			End If
-			inqb_row = inqb_row + 1							'go to the next row
-		Loop until inqb_program = "  "						'read until the list is done
-
-		Call back_to_SELF		'reset
-
-		Call navigate_to_MAXIS_screen("ELIG", "DWP")			'since we are set to CM + 1, this reads the most recent month
-		EMWriteScreen "99", 20, 79							'opening the version histor of ELIG
-		transmit
-
-		'This brings up the cash versions of eligibilty results to search for approved versions
-		status_row = 7
-		Do
-			EMReadScreen app_status, 8, status_row, 50
-			' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
-			If app_status = "UNAPPROV" Then status_row = status_row + 1
-		Loop until  app_status = "APPROVED" or trim(app_status) = ""		'finding the first approved version
-		EMReadScreen dwp_approved_date, 8, status_row, 26					'reading the date of approval
-		dwp_approved_date = DateAdd("m", 1, dwp_approved_date)			'going to the next month from that date (the plus one from the time of approval
-		dwp_month = right("00" & DatePart("m", dwp_approved_date), 2)		'making the date a footer month and year for this program
-		dwp_year = right(DatePart("yyyy", dwp_approved_date), 2)
-
-		Call back_to_SELF		'reset
-
-		Call navigate_to_MAXIS_screen("SPEC", "WCOM")		'now going to look for a notice
-		EMWriteScreen dwp_month, 3, 46						'entering the month found from ELIG
-		EMWriteScreen dwp_year, 3, 51
-		transmit
-
-		wcom_row = 7										'looking for a WCOM
-		Do
-			EMReadScreen prg_typ, 2, wcom_row, 26			'reading the program and title of the notice
-			EMReadScreen notc_title, 30, wcom_row, 30
-
-			If prg_typ = "DW" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be DWP and the title should have ELIG in it.
-				dwp_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to DWP
-				dwp_wcom_position = wcom_row - 6
-				EMReadScreen notice_date, 8,  wcom_row, 16
-				EMReadScreen notice_prog, 2,  wcom_row, 26
-				EMReadScreen notice_info, 31, wcom_row, 30
-				EMReadScreen notice_stat, 8,  wcom_row, 71
-
-				notice_date = trim(notice_date)
-				notice_prog = trim(notice_prog)
-				notice_info = trim(notice_info)
-				notice_stat = trim(notice_stat)
-
-				If notice_stat <> "Canceled" Then dwp_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
-			End If
-			wcom_row = wcom_row + 1
-		Loop until prg_typ = "  " OR dwp_wcom_text <> ""
-		If dwp_wcom_text = "" Then dwp_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
-	End If
-
 	If snap_status = "ACTIVE" Then				'searching for SNAP Information'
 		Call navigate_to_MAXIS_screen("MONY", "INQB")		'reading the recent benefit amount
 		inqb_row = 6										'start at the top of the list
@@ -1290,24 +1224,25 @@ Else
 			End If
 		Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"		'leave the list once it is at the end OR if we have found an ACTIVE SPAN
 	End If
-	If dwp_status <> "ACTIVE" Then
-		EMWriteScreen "DW", 3, 19
-		transmit
 
-		hist_row = 8
-		Do
-			EMReadScreen prog_hist_status, 6, hist_row, 38
-			If prog_hist_status = "ACTIVE" Then dwp_prog_history_exists = True
-			hist_row = hist_row + 1
-			If hist_row = 18 Then
-				PF8
-				hist_row = 8
-				EMReadScreen end_of_list, 9, 24, 14
-				If end_of_list = "LAST PAGE" then Exit Do
-			End If
-		Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
-	End If
-	If grh_status <> "ACTIVE" Then
+    'DWP is always inactive, so we need to check for program history for DWP every time
+    EMWriteScreen "DW", 3, 19
+    transmit
+
+    hist_row = 8
+    Do
+        EMReadScreen prog_hist_status, 6, hist_row, 38
+        If prog_hist_status = "ACTIVE" Then dwp_prog_history_exists = True
+        hist_row = hist_row + 1
+        If hist_row = 18 Then
+            PF8
+            hist_row = 8
+            EMReadScreen end_of_list, 9, 24, 14
+            If end_of_list = "LAST PAGE" then Exit Do
+        End If
+    Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+
+    If grh_status <> "ACTIVE" Then
 		EMWriteScreen "GR", 3, 19
 		transmit
 
@@ -1430,28 +1365,6 @@ Else
 						PushButton 330, y_pos, 100, 10, "View this INQX", mfip_view_inqx_btn
 						y_pos = y_pos + 15
 					End If
-					If dwp_status = "ACTIVE" Then
-						GroupBox 15, y_pos, 450, 75, "DWP"
-						y_pos = y_pos + 15
-						Text 20, y_pos, 120, 10, "DWP Assistance Verification to be sent via "
-						DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of DWP Needed", dwp_verification_method
-						y_pos = y_pos + 10
-						Text 25, y_pos, 200, 10, "DWP current benefit amount appears to be $" & dwp_amount & "."
-						y_pos = y_pos + 10
-						Text 25, y_pos, 400, 10, "Most recent DWP Eligibility Notice appears to have been sent for benefit month: " & dwp_month & "/" & dwp_year & ". WCOM Information:"
-						y_pos = y_pos + 10
-						Text 30, y_pos, 200, 10, dwp_wcom_text
-						PushButton 225, y_pos, 100, 10, "Go To this WCOM", dwp_wcom_btn
-						PushButton 330, y_pos, 100, 10, "Select Different WCOM", dwp_change_wcom_btn
-						y_pos = y_pos + 15
-						Text 25, y_pos, 105, 10, "Date range of issuance needed:"
-						EditBox 130, y_pos - 5, 30, 15, dwp_start_month
-						Text 160, y_pos, 5, 10, "---"
-						EditBox 165, y_pos - 5, 30, 15, dwp_end_month
-						Text 200, y_pos, 100, 10, "(use mm/yy format)"
-						PushButton 330, y_pos, 100, 10, "View this INQX", dwp_view_inqx_btn
-						y_pos = y_pos + 15
-					End If
 					If grh_status = "ACTIVE" Then
 						GroupBox 15, y_pos, 450, 75, "GRH"
 						y_pos = y_pos + 15
@@ -1548,23 +1461,24 @@ Else
 							y_pos = y_pos + 15
 						End If
 					End If
-					If dwp_status <> "ACTIVE" Then
-						If dwp_prog_history_exists = True Then
-							Text 20, y_pos, 100, 10, "DWP is NOT currently Active"
-							PushButton 120, y_pos-2, 100, 13, "View DWP Program History", dwp_program_history_button
-							y_pos = y_pos + 15
-							CheckBox 25, y_pos, 210, 10, "Check here to include amounts of DWP benefits issued from ", dwp_not_actv_memo_for_old_beneftis_checkbox
-							EditBox 235, y_pos - 5, 30, 15, dwp_start_month
-							Text 265, y_pos, 5, 10, "---"
-							EditBox 270, y_pos - 5, 30, 15, dwp_end_month
-							Text 305, y_pos, 100, 10, "(use mm/yy format)"
-							y_pos = y_pos + 15
-						Else
-							Text 20, y_pos, 300, 10, "DWP is NOT currently Active and there is no ACTIVE Program history for this case."
-							y_pos = y_pos + 15
-						End If
-					End If
-					If grh_status <> "ACTIVE" Then
+
+                    'DWP is always inactive, so we don't need to check program status
+                    If dwp_prog_history_exists = True Then
+                        Text 20, y_pos, 100, 10, "DWP is NOT currently Active"
+                        PushButton 120, y_pos-2, 100, 13, "View DWP Program History", dwp_program_history_button
+                        y_pos = y_pos + 15
+                        CheckBox 25, y_pos, 210, 10, "Check here to include amounts of DWP benefits issued from ", dwp_not_actv_memo_for_old_beneftis_checkbox
+                        EditBox 235, y_pos - 5, 30, 15, dwp_start_month
+                        Text 265, y_pos, 5, 10, "---"
+                        EditBox 270, y_pos - 5, 30, 15, dwp_end_month
+                        Text 305, y_pos, 100, 10, "(use mm/yy format)"
+                        y_pos = y_pos + 15
+                    Else
+                        Text 20, y_pos, 300, 10, "DWP is NOT currently Active and there is no ACTIVE Program history for this case."
+                        y_pos = y_pos + 15
+                    End If
+
+                    If grh_status <> "ACTIVE" Then
 						If grh_prog_history_exists = True Then
 							Text 20, y_pos, 100, 10, "GRH is NOT currently Active"
 							PushButton 120, y_pos-2, 100, 13, "View GRH Program History", grh_program_history_button
@@ -1645,11 +1559,6 @@ Else
 						notc_month = mfip_month
 						notc_year = mfip_year
 					End If
-					If ButtonPressed = dwp_change_wcom_btn Then
-						selected_prog = "DW"
-						notc_month = dwp_month
-						notc_year = dwp_year
-					End If
 					If ButtonPressed = grh_change_wcom_btn Then
 						selected_prog = "GR"
 						notc_month = grh_month
@@ -1693,13 +1602,6 @@ Else
 								mfip_wcom_text = notices_array(information, each_notc)
 								mfip_wcom_row = notices_array(WCOM_search_row, each_notc)
 								mfip_wcom_position = mfip_wcom_row - 6
-							End If
-							If selected_prog = "DW" Then
-								dwp_month = notc_month
-								dwp_year = notc_year
-								dwp_wcom_text = notices_array(information, each_notc)
-								dwp_wcom_row = notices_array(WCOM_search_row, each_notc)
-								dwp_wcom_position = dwp_wcom_row - 6
 							End If
 							If selected_prog = "GR" Then
 								grh_month = notc_month
@@ -1830,11 +1732,6 @@ Else
 						wcom_row_to_open = mfip_wcom_row
 						wcom_month = mfip_month
 						wcom_year = mfip_year
-					End If
-					If ButtonPressed = dwp_wcom_btn Then
-						wcom_row_to_open = dwp_wcom_row
-						wcom_month = dwp_month
-						wcom_year = dwp_year
 					End If
 					If ButtonPressed = grh_wcom_btn Then
 						wcom_row_to_open = grh_wcom_row
@@ -1969,24 +1866,6 @@ Else
 							End If
 						End If
 					End If
-					If dwp_status = "ACTIVE" Then
-						If dwp_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since DWP is active, indicate if Verification of DWP benefits is needed, and if so, which method works best."
-						If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
-						If dwp_verification_method = "Create New MEMO with range of Months" Then
-							If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
-							If len(dwp_end_month) = 5 AND Mid(dwp_end_month, 3, 1) = "/" Then
-								first_day_of_end_month = left(dwp_end_month, 2) & "/1/" & right(dwp_end_month, 2)
-								first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
-								If DateDiff("d", date, first_day_of_end_month) > 0 Then
-									err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The DWP end month of " & dwp_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
-									dwp_end_month = CM_mo & "/" & CM_yr
-								End If
-								first_day_of_start_month = left(dwp_start_month, 2) & "/1/" & right(dwp_start_month, 2)
-								first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
-								If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for DWP cannot be after the End Month."
-							End If
-						End If
-					End If
 					If grh_status = "ACTIVE" Then
 					 	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
 						If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
@@ -2061,7 +1940,6 @@ Else
 		If ga_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 		If msa_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 		If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
-		If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 		If grh_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 
 		previous_active_prog_memo = False
@@ -3323,7 +3201,6 @@ snap_resent_wcom = False		'defaults to see if the wcom is susccessful.
 ga_resent_wcom = False
 msa_resent_wcom = False
 mfip_resent_wcom = False
-dwp_resent_wcom = False
 grh_resent_wcom = False
 
 'If any program has a WCOM to resend as the option - we are going to send it
@@ -3345,11 +3222,6 @@ If resend_wcom = True Then
 	End If
 	If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(mfip_month, mfip_year, mfip_wcom_row, mfip_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
-		Call back_to_SELF
-		STATS_manualtime = STATS_manualtime + 15
-	End If
-	If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
-		Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
 		STATS_manualtime = STATS_manualtime + 15
 	End If
