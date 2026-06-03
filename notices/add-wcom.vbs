@@ -804,7 +804,7 @@ Do
         End If
 
         If voluntary_quit_wcom_checkbox = checked Then
-            
+
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 246, 80, "WCOM Details"
               DropListBox 85, 20, 150, 45, client_dropdown, vol_quit_name
@@ -832,7 +832,7 @@ Do
             CALL add_words_to_message(vol_quit_name & " is sanctioned from SNAP because they have " & vol_quit_sanction_reason & ". They are sanctioned until they return to the same job, they accept similar employment or they become exempt from work registration for a reason other than receiving Unemployment Compensation.")
         End If
 
-        'TLR Approved 
+        'TLR Approved
         last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_of_month a string
 
         If TLR_closed_checkbox = checked Then
@@ -857,7 +857,7 @@ Do
             abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
             CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
         End If
-    
+
         If voluntary_e_t_wcom_checkbox = checked Then
 
             Dialog1 = ""
@@ -909,9 +909,9 @@ Do
 
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 321, 105, "WCOM Details"
-              DropListBox 5, 25, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_one_program
+              DropListBox 5, 25, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_one_program
               EditBox 115, 25, 200, 15, cash_one_reason
-              DropListBox 5, 65, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_two_program
+              DropListBox 5, 65, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_two_program
               EditBox 115, 65, 200, 15, cash_two_reason
               ButtonGroup ButtonPressed
                 OkButton 265, 85, 50, 15
