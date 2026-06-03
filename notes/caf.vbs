@@ -1069,7 +1069,6 @@ function save_your_work()
             If verif_snap_checkbox = checked then objTextStream.WriteLine "verif_snap_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verif_cash_checkbox = checked then objTextStream.WriteLine "verif_cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verif_mfip_checkbox = checked then objTextStream.WriteLine "verif_mfip_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If verif_dwp_checkbox = checked then objTextStream.WriteLine "verif_dwp_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verif_msa_checkbox = checked then objTextStream.WriteLine "verif_msa_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verif_ga_checkbox = checked then objTextStream.WriteLine "verif_ga_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verif_grh_checkbox = checked then objTextStream.WriteLine "verif_grh_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
@@ -1455,7 +1454,6 @@ function save_your_work()
             If verif_snap_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox" & ":" & "CHECKED"
             If verif_cash_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_cash_checkbox" & ":" & "CHECKED"
             If verif_mfip_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_mfip_checkbox" & ":" & "CHECKED"
-            If verif_dwp_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_dwp_checkbox" & ":" & "CHECKED"
             If verif_msa_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_msa_checkbox" & ":" & "CHECKED"
             If verif_ga_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_ga_checkbox" & ":" & "CHECKED"
             If verif_grh_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox" & ":" & "CHECKED"
@@ -1464,7 +1462,6 @@ function save_your_work()
             If verif_snap_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox" & ":" & "UNCHECKED"
             If verif_cash_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_cash_checkbox" & ":" & "UNCHECKED"
             If verif_mfip_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_mfip_checkbox" & ":" & "UNCHECKED"
-            If verif_dwp_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_dwp_checkbox" & ":" & "UNCHECKED"
             If verif_msa_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_msa_checkbox" & ":" & "UNCHECKED"
             If verif_ga_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_ga_checkbox" & ":" & "UNCHECKED"
             If verif_grh_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox" & ":" & "UNCHECKED"
@@ -1962,7 +1959,6 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "verif_snap_checkbox" and line_info(1) = "CHECKED" then verif_snap_checkbox = checked
                         If line_info(0) = "verif_cash_checkbox" and line_info(1) = "CHECKED" then verif_cash_checkbox = checked
                         If line_info(0) = "verif_mfip_checkbox" and line_info(1) = "CHECKED" then verif_mfip_checkbox = checked
-                        If line_info(0) = "verif_dwp_checkbox" and line_info(1) = "CHECKED" then verif_dwp_checkbox = checked
                         If line_info(0) = "verif_msa_checkbox" and line_info(1) = "CHECKED" then verif_msa_checkbox = checked
                         If line_info(0) = "verif_ga_checkbox" and line_info(1) = "CHECKED" then verif_ga_checkbox = checked
                         If line_info(0) = "verif_grh_checkbox" and line_info(1) = "CHECKED" then verif_grh_checkbox = checked
@@ -4660,12 +4656,11 @@ function verification_dialog()
               CheckBox 540, 85, 45, 10, "SNAP", verif_snap_checkbox
               CheckBox 540, 95, 45, 10, "CASH", verif_cash_checkbox
               CheckBox 540, 105, 45, 10, "MFIP", verif_mfip_checkbox
-              CheckBox 540, 115, 45, 10, "DWP", verif_dwp_checkbox
-              CheckBox 540, 125, 45, 10, "MSA", verif_msa_checkbox
-              CheckBox 540, 135, 45, 10, "GA", verif_ga_checkbox
-              CheckBox 540, 145, 45, 10, "GRH", verif_grh_checkbox
-              CheckBox 540, 155, 45, 10, "EMER", verif_emer_checkbox
-              CheckBox 540, 165, 45, 10, "HC", verif_hc_checkbox
+              CheckBox 540, 115, 45, 10, "MSA", verif_msa_checkbox
+              CheckBox 540, 125, 45, 10, "GA", verif_ga_checkbox
+              CheckBox 540, 135, 45, 10, "GRH", verif_grh_checkbox
+              CheckBox 540, 145, 45, 10, "EMER", verif_emer_checkbox
+              CheckBox 540, 155, 45, 10, "HC", verif_hc_checkbox
               ' CheckBox 540, 50, 45, 10, "SNAP", verif_snap_checkbox
 
               Groupbox 5, 35, 520, 130, "Personal and Household Information"
@@ -5529,7 +5524,7 @@ Dim the_process_for_grh, grh_recert_mo, grh_recert_yr, the_process_for_emer, typ
 Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, application_processing, recert_processing, CAF_datestamp, interview_date, case_details_and_notes_about_process, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
 Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
 Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, note_interview_date, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
-Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
+Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five, appt_notc_sent_on
 Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_county, homeless_yn, reservation_yn, addr_verif, living_situation, addr_eff_date, addr_future_date, mail_line_one
 Dim mail_line_two, mail_city_line, mail_state_line, mail_zip_line, notes_on_address, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three
@@ -5828,7 +5823,6 @@ If vars_filled = False Then
 	If ga_status = "PENDING" Then the_process_for_cash = "Application"
 	If msa_status = "PENDING" Then the_process_for_cash = "Application"
 	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
-	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
 	If grh_status = "PENDING" Then the_process_for_grh = "Application"
 	If snap_status = "PENDING" Then the_process_for_snap = "Application"
 
@@ -6024,7 +6018,7 @@ If vars_filled = False Then
 
 	'Now we need to do some filtering for really old dates and cases still pending for the script to behave as expected
 	prog_pending = False									'this lets us know if SOMETHING is pending.
-	If unknown_cash_pending = True or ga_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" or emer_status = "PENDING" Then prog_pending = True
+	If unknown_cash_pending = True or ga_status = "PENDING" or mfip_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" or emer_status = "PENDING" Then prog_pending = True
 	older_than_30_days = False								'defaulting to a current application (within 30 days)
 	If isdate(PROG_CAF_datestamp) = True then				'If a date was found on PROG - which it should have been
 		If DateDiff("d", PROG_CAF_datestamp, date) > 30 then older_than_30_days = True								'app older than 30 days may not be relevant - this is used to determine if we allow workers to 'UNTRACK' programs
@@ -6102,7 +6096,7 @@ If vars_filled = False Then
 		If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
 			PROG_interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
 			emer_interview_missing = False
-		ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" Then
+		ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" Then
 			'If other programs are pending besides EMER, then the script will proceed even if EMER interview has NOT been completed
 			emer_interview_missing = False
 		End If
@@ -8499,7 +8493,7 @@ Do
                                       GroupBox 5, y_pos, 540, 95, "Member " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & ALL_MEMBERS_ARRAY(clt_name, each_member)
                                       y_pos = y_pos + 20
                                       Text 15, y_pos, 70, 10, "FSET WREG Status:"
-                                      DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"23  Pregnant"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
+                                      DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"23  Pregnant"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
                                       Text 230, y_pos, 55, 10, "ABAWD Status:"
                                       DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"13  ABAWD Banked Months"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
                                       CheckBox 405, y_pos - 5, 130, 10, "Check here if this person is the PWE", ALL_MEMBERS_ARRAY(pwe_checkbox, each_member)
@@ -8784,7 +8778,7 @@ Do
                       Else
                         Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
                       End If
-                      GroupBox 10, 190, 545, 95, "MFIP/DWP"
+                      GroupBox 10, 190, 545, 95, "MFIP"
                       If family_cash = TRUE Then
                           Text 15, 210, 25, 10, "* Time:"
                           Text 15, 230, 35, 10, "* Sanction:"
@@ -8802,7 +8796,7 @@ Do
 
                     If ButtonPressed = tips_and_tricks_emps_button Then tips_msg = MsgBox("*** TIME, Sanction, and EMPS ***" & vbNewLine & "Why are these now required?" & vbNewLine & vbNewLine &_
                                                                                           "Information about TIME (TANF months used), SANC (Details about MFIP Sanctions), and EMPS (MFIP Employment Services) are now required for any case that is Family Cash when running the CAF. These elements are paramount to the MFIP program and should be addressed at least once per year. Review of these peices of a case can go here." & vbNewLine & vbNewLine &_
-                                                                                          "What if it is a new case?" & vbNewLine & "* This is a great place to indicate that there is no history of time or sanctions used, that the client reports no benefits in another state, or that you are waiting on detail from another state. This is also a good place to identify EMPS requirement was explained or DWP overview scheduled/completed." & vbNewLine & vbNewLine &_
+                                                                                          "What if it is a new case?" & vbNewLine & "* This is a great place to indicate that there is no history of time or sanctions used, that the client reports no benefits in another state, or that you are waiting on detail from another state. This is also a good place to identify EMPS requirement was explained." & vbNewLine & vbNewLine &_
                                                                                           "This is a relative caregiver case, why is it needed here?" & vbNewLine & "* Since these function differently for these cases, you may not be detailing time used. Detailing that it is specifically NOT being used is extremely helpful to the new HSR or reviewer that works on this case. Add detail about how these typically mandatory elements do NOT apply in this case." & vbNewLine & vbNewLine &_
                                                                                           "The script will try to autofill this information but additional detail is helpful as always.", vbInformation, "Tips and Tricks")
 
@@ -10223,7 +10217,6 @@ If (trim(verifs_needed) <> "" AND verifications_requested_case_note_found = Fals
     If verif_snap_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", SNAP"
     If verif_cash_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", CASH"
     If verif_mfip_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MFIP"
-    If verif_dwp_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", DWP"
     If verif_msa_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MSA"
     If verif_ga_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GA"
     If verif_grh_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GRH"
@@ -10602,10 +10595,10 @@ Call write_bullet_and_variable_in_CASE_NOTE("ABAWD", all_abawd_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Medicare", MEDI)
 Call write_bullet_and_variable_in_CASE_NOTE("Diet", DIET)
 
-'MFIP-DWP information
+'MFIP information
 Call write_bullet_and_variable_in_CASE_NOTE("Time Tracking (MFIP)", notes_on_time)
 Call write_bullet_and_variable_in_CASE_NOTE("MFIP Sanction", notes_on_sanction)
-Call write_bullet_and_variable_in_CASE_NOTE("MF/DWP Employment Services", EMPS)
+Call write_bullet_and_variable_in_CASE_NOTE("MFIP Employment Services", EMPS)
 
 If case_has_expenses = TRUE Then
     Call write_variable_in_CASE_NOTE("===== EXPENSES =====")
