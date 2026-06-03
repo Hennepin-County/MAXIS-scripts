@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/08/2026", "All DWP references and support removed as the program ended effective 12/2025", "Casey Love, Hennepin County")
 call changelog_update("12/15/2025", "BUG FIX to GHR Supportive Housing review. Update to GRH/HS Personal Needs amount comparison.", "Casey Love, Hennepin County")
 call changelog_update("11/10/2025", "* * * SHUTDOWN WCOM REMOVED * * *##~## ##~##The function that added WCOM to Eligible SNAP or MFIP to inform November Food Benefits will not be issued has been removed.##~##", "Dave Courtright, Hennepin County")
 call changelog_update("10/29/2025", "Updates to Eligibility Summary: ##~## - Added RSDI Disregard detail for MFIP approvals that include this information. ##~## - Resolved issues with GA and MFIP SR Review CASE/NOTEs. ##~## - Some minor bug fixes to the GRH Supportive Housing Disregard functionality.##~## ##~##As with any changes to script operation please report any additional feedback or information.##~##", "Casey Love, Hennepin County")
@@ -96,7 +97,6 @@ changelog_display
 ' REVIEW BLOCK --- These are the possibilities for completing QC Reviews -------
 QCR_random_SNAP_approvals = False
 QCR_random_MFIP_approvals = False
-QCR_random_DWP_approvals = False
 QCR_random_MSA_approvals = False
 QCR_random_GA_approvals = False
 QCR_random_GRH_approvals = False
@@ -424,7 +424,6 @@ function supportive_housing_disregard_error(supportive_housing_applies)
 	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_active_programs
 	full_text = full_text & vbCr & "ACTIVE PROGRAMS: " & list_pending_programs & vbCr
 
-	full_text = full_text & vbCr & "numb_DWP_versions - " & numb_DWP_versions
 	full_text = full_text & vbCr & "numb_MFIP_versions - " & numb_MFIP_versions
 	full_text = full_text & vbCr & "numb_MSA_versions - " & numb_MSA_versions
 	full_text = full_text & vbCr & "numb_GA_versions - " & numb_GA_versions
@@ -662,345 +661,6 @@ function display_snap_shelter_expenses()
 		If ButtonPressed = cm_18_15_09_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00181509"
 	Loop until ButtonPressed = -1
 	ButtonPressed = shel_exp_detail_btn
-end function
-
-function define_dwp_elig_dialog()
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
-	  ButtonGroup ButtonPressed
-		GroupBox 460, 10, 85, 140, "DWP Approvals"
-		If DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
-			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
-		End If
-
-		detail_grp_len = 10
-		grp_y_pos = 350
-		y_pos = 360
-		dwp_prorate_date = ""
-		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				display_benefit = False
-				If DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
-					display_benefit = True
-				ElseIf InStr(DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					display_benefit = True
-				End If
-				If display_benefit = True Then
-					'PRORATED REASON FUNCTIONALITY
-					If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then
-						dwp_prorate_date = DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date
-						y_pos = y_pos-20
-						grp_y_pos = grp_y_pos-20
-					End If
-				End If
-			End If
-		Next
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
-			y_pos = y_pos-20
-			grp_y_pos = grp_y_pos-20
-
-			Text 15, y_pos+5, 85, 10, "DWP FIATed - Reason:"
-			EditBox 100, y_pos, 440, 15, DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
-			y_pos = y_pos + 20
-			detail_grp_len = detail_grp_len + 20
-		End If
-		If dwp_prorate_date <> "" Then
-			Text 15, y_pos+5, 115, 10, "DWP Prorated (" & dwp_prorate_date & "). Reason:"
-			EditBox 130, y_pos, 410, 15, DWP_UNIQUE_APPROVALS(proration_reason, approval_selected)
-			y_pos = y_pos + 20
-			detail_grp_len = detail_grp_len + 20
-		End If
-
-		If detail_grp_len <> 10 Then
-			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
-		End If
-
-		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
-			GroupBox 5, 10, 450, 45, "DWP Closed "
-			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
-			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " there are no more months of DWP available."
-		Else
-			If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-
-				GroupBox 5, 10, 425, 140, "Budget Detail"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
-					Text 250, 10, 200, 10, "Income Exceeds the Income Limit of $ " &  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level
-				End If
-				Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
-				Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
-				Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
-				Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
-				Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
-				Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
-				Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
-				Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
-				GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
-				Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-				GroupBox 150, 20, 135, 100, "DWP Countable Income"
-				Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
-				Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-				Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
-				Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
-				Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
-				Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
-				Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-				GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
-				Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-				Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
-				Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
-				Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-				Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
-				Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
-				Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
-				Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
-				Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
-			End If
-
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
-				y_pos = 10
-				If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then y_pos = 150
-				GroupBox 5, y_pos, 450, 80, "Approval Detail"
-				y_pos = y_pos + 10
-				Text 15, y_pos, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
-				' y_pos = y_pos + 10
-				Text 100, y_pos, 300, 10, "Months in Approval: " & replace(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
-				y_pos = y_pos + 15
-
-				Text 15, y_pos, 110, 10, "APPL Withdrawn:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn
-				Text 125, y_pos, 110, 10, "Eligible Child:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child
-				Text 235, y_pos, 110, 10, "MFIP Conversion:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion
-				Text 345, y_pos, 100, 10, "Asset Transfer:     " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets
-				y_pos = y_pos + 10
-				Text 15, y_pos, 110, 10, "Asset:                      " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets
-				Text 125, y_pos, 110, 10, "ES Disqual:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification
-				Text 235, y_pos, 110, 10, "Residence:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence
-				Text 345, y_pos, 100, 10, "Verification:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif
-				y_pos = y_pos + 10
-				Text 15, y_pos, 110, 10, "CS Disqual:              " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification
-				Text 125, y_pos, 110, 10, "Fail Cooperation:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop
-				Text 235, y_pos, 110, 10, "Strike:                    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike
-				Text 345, y_pos, 100, 10, "New Spouse Income: " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income
-				y_pos = y_pos + 10
-				Text 15, y_pos, 110, 10, "Death of Applicant:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant
-				Text 125, y_pos, 110, 10, "Four Month Limit:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit
-				Text 235, y_pos, 110, 10, "TANF Time Limit:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit
-				y_pos = y_pos + 10
-				Text 15, y_pos, 110, 10, "Duplicate Assist:       " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance
-				Text 125, y_pos, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
-				y_pos = y_pos + 15
-
-				GroupBox 5, y_pos, 450, 40, "Ineligible Details"
-				y_pos = y_pos + 15
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
-					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
-					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
-					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-					PushButton 370, y_pos-5, 15, 15, "!", verif_tips_and_tricks_btn
-					y_pos = y_pos + 20
-
-					If show_pact = True Then
-						Text 15, y_pos, 120, 10, "List PACT reason(s) for ineligibility: "
-						Editbox 130, y_pos-5, 310, 15, DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
-						y_pos = y_pos + 10
-						Text 130, y_pos, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
-					End If
-				ElseIf  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then
-					Text 15, y_pos, 300, 20, "This case is ineligible because the applicant died on " & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "."
-				Else
-					Text 15, y_pos, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
-				End if
-				end_of_y_pos = y_pos + 5
-			End If
-		End If
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
-			GroupBox 5, 155, 540, 65, "DWP Benefits Issued for the Approval Package"
-			app_y_pos = 170
-			' app_y_pos = 150
-			app_x_pos = 10
-			For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-				If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					Text app_x_pos, app_y_pos, 250, 10, DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount & " (Shelter: $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion & " - Personal Needs: $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion & ")"
-					app_y_pos = app_y_pos + 10
-					If DWP_ELIG_APPROVALS(approval).dwp_mony_check_found = True Then
-						for each_trans = 0 to UBound(DWP_ELIG_APPROVALS(approval).dwp_check_program)
-							Text app_x_pos+5, app_y_pos, 275, 10, DWP_ELIG_APPROVALS(approval).dwp_check_issue_date(each_trans) & " CHCK - $ " & DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans) & " paid to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans)
-							app_y_pos = app_y_pos + 10
-						next
-					End If
-					If DWP_ELIG_APPROVALS(approval).dwp_vnda_found = True Then
-						for each_auth = 0 To UBound(DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_number)
-							Text app_x_pos+5, app_y_pos, 275, 10, "Vendor Auth - $ " & DWP_ELIG_APPROVALS(approval).dwp_vnda_payment_amount(each_auth) & " to be paid to " & DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_name(each_auth) & " for " & DWP_ELIG_APPROVALS(approval).dwp_vnda_expense_type_info(each_auth)
-							app_y_pos = app_y_pos + 10
-						next
-					End If
-					' Text app_x_pos, app_y_pos, 200, 10,
-					' Text app_x_pos, app_y_pos+10, 200, 10,
-					' app_y_pos = app_y_pos + 10
-					If app_y_pos >= 210 Then
-						app_y_pos = 170
-						app_x_pos = app_x_pos + 275
-					End If
-				End If
-			Next
-		End If
-
-		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
-		PushButton 490, 155, 50, 10, "View ELIG", nav_stat_elig_btn
-
-		y_pos = 25
-		for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
-			If DWP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
-				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app)
-			ElseIF DWP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
-			Else
-				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & DWP_UNIQUE_APPROVALS(last_mo_const, each_app)
-			End if
-			' If each_app = approval_selected Then display_detail = month_display
-			If each_app = approval_selected Then
-				Text 470, y_pos+2, 75, 13, month_display
-			Else
-				PushButton 465, y_pos, 75, 13, month_display, DWP_UNIQUE_APPROVALS(btn_one, each_app)
-			End If
-			y_pos = y_pos + 15
-		next
-		PushButton 465, 110, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-		PushButton 465, 130, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
-			y_pos = 220
-			If end_of_y_pos <> "" Then y_pos = end_of_y_pos
-			GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
-			y_pos = y_pos + 10
-
-			Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
-			Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-			y_pos = y_pos + 15
-			y_pos_2 = y_pos
-			' y_pos = 230
-			' y_pos_2 = 230
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
-					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
-					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
-					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
-					End If
-					y_pos = y_pos + 20
-				End If
-
-				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
-					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
-					End If
-					y_pos = y_pos + 20
-				End If
-				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
-					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
-					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-					Else
-						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
-					End If
-					y_pos = y_pos + 20
-				End If
-
-				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
-					y_pos_2 = y_pos_2 + 10
-					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-						y_pos_2 = y_pos_2 + 10
-					End If
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
-					y_pos_2 = y_pos_2 + 10
-					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-						y_pos_2 = y_pos_2 + 10
-					End If
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
-					y_pos_2 = y_pos_2 + 10
-					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-						y_pos_2 = y_pos_2 + 10
-					End If
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
-					y_pos_2 = y_pos_2 + 10
-					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-						y_pos_2 = y_pos_2 + 10
-					End If
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
-					y_pos_2 = y_pos_2 + 10
-					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-						y_pos_2 = y_pos_2 + 10
-					End If
-				End If
-			Next
-		End If
-	EndDialog
 end function
 
 function define_mf_special_diet_dialog()
@@ -2071,175 +1731,6 @@ function define_deny_elig_dialog()
 
 	    y_pos = 25
 
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then dwp_grp_len = 25
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = True Then
-			dwp_grp_len = 25
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then dwp_grp_len = dwp_grp_len + 70
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then dwp_grp_len = dwp_grp_len + 50
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then dwp_grp_len = dwp_grp_len + 20
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_new_spouse_income = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-		End If
-		If TEMP_VAR_cash_family_or_adult = "Family" Then dwp_grp_len = dwp_grp_len + 25
-
-		GroupBox 10, y_pos, 440, dwp_grp_len, "DWP"
-		y_pos = y_pos + 10
-		Text 20, y_pos, 425, 10, "Denial Reason: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then
-			y_pos = y_pos + 10
-			If TEMP_VAR_cash_family_or_adult = "Adult" Then y_pos = y_pos + 10
-		Else
-			y_pos = y_pos + 10
-
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The Cash request has been Withdrawn"
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The household is over the asset limit for DWP (and all Cash Programs)."
-				y_pos = y_pos + 10
-
-				Text 30, y_pos, 425, 10, "CASH Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CASH
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "ACCT Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_ACCT
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "SECU Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SECU
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "CARS Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CARS
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "SPON Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SPON
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Total Assets:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total & "                          Asset Maximum: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The household has not complied with Child Support Requirements."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ")."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The members of this household are receiving Cash Assistance on another case."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Text 20, y_pos, 425, 10, "This household was assessed for MFIP as the Family Cash Program."
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The household has not complied with the Employment Services Requirements."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household has not complied with all requirements for Family Cash Assistance."
-				y_pos = y_pos + 10
-
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then
-					Text 30, y_pos, 425, 10, "Failed to apply for other benefits."
-					y_pos = y_pos + 10
-				End If
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then
-					Text 30, y_pos, 425, 10, "Failed to provide requested information."
-					y_pos = y_pos + 10
-				End If
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then
-					Text 30, y_pos, 425, 10, "Failed to cooperate with the IEVS process."
-					y_pos = y_pos + 10
-				End If
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then
-					Text 30, y_pos, 425, 10, "Failed to provide vendor information."
-					y_pos = y_pos + 10
-				End If
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household has used all 4 DWP months."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level (Family Wage Level)."
-				y_pos = y_pos + 10
-
-				Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income & "                          Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
-				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This case is better served by the MFIP program and is unlikely to benefit from DWP."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household has not met state residency requirements."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household has a member on strike and is not eligiblity for public assistance."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household has used all TANF months and is not eligible for an extension."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The members of this household have transferred assets in a way that does not comply with cash assistance rules."
-				y_pos = y_pos + 10
-			End If
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The household has not provided required verifications."
-				y_pos = y_pos + 10
-				verifs_missing = ""
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
-				If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
-				Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
-				y_pos = y_pos + 10
-			End If
-			If TEMP_VAR_cash_family_or_adult = "Adult" Then y_pos = y_pos + 10
-		End If
-		If TEMP_VAR_cash_family_or_adult = "Family" Then
-			Text 25, y_pos, 250, 10, "Explain the details of the reason for DWP denial:"
-			y_pos = y_pos + 10
-			EditBox 25, y_pos, 420, 15, TEMP_VAR_deny_dwp_elig_explanation
-			y_pos = y_pos + 20
-		End If
-
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_details_exists = False Then mfip_grp_len = 25
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_details_exists = True Then
 			mfip_grp_len = 25
@@ -2278,7 +1769,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The household is over the asset limit for DWP (and all Cash Programs)."
+				Text 20, y_pos, 425, 10, "The household is over the asset limit for MFIP (and all Cash Programs)."
 				y_pos = y_pos + 10
 
 				Text 30, y_pos, 400, 10, "CASH Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CASH
@@ -2303,8 +1794,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "DWP" Then Text 20, y_pos, 425, 10, "This household was assessed for DWP as the Family Cash Program."
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "DWP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
+				Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then
@@ -4702,564 +4192,6 @@ function rept_pnd2_dialog()
 		OkButton 230, y_pos, 50, 15
 		CancelButton 280, y_pos, 50, 15
 	EndDialog
-end function
-
-function dwp_elig_case_note()
-	Call back_to_SELF
-	CASE_NOTE_entered = True
-	call start_a_blank_case_note
-
-	end_msg_info = end_msg_info & "NOTE entered for DWP - " & elig_info & " eff " & first_month & header_end & vbCr
-	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
-	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", DWP_ELIG_APPROVALS(elig_ind).dwp_approved_date)
-	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", DWP_UNIQUE_APPROVALS(fiat_reason, unique_app))
-
-	If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
-		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
-		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				' beginning_text = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_grant, ".00", ""), 8) & " "
-				beginning_text = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " DWP Grant: $ " & right("       " & replace(DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_grant, ".00", ""), 4)
-				If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then
-					Call write_variable_in_CASE_NOTE(beginning_text & "| $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_amount, ".00", "") & "     ", 4) & " - Prorated Amount from " & DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date)
-					beginning_text = "                       "
-				End If
-				If DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4) & " - Recoupment")
-					beginning_text = "                       "
-				End If
-				If DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued, ".00", "") & "     ", 4) & " - Amount Already Issued")
-					beginning_text = "                       "
-				End If
-				Call write_variable_in_CASE_NOTE(beginning_text & "| $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount, ".00", "") & "     ", 4) & " - Net Grant Amount")
-				beginning_text = "                       "
-				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion <> "0.00" Then Call write_variable_in_CASE_NOTE(beginning_text & "| Net Grant Amount: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4))
-				If DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion <> "0.00" Then Call write_variable_in_CASE_NOTE(beginning_text & "|        $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4) & " - Shelter Benefit")
-
-				If DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion <> "0.00" Then Call write_variable_in_CASE_NOTE(beginning_text & "|        $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion, ".00", "") & "     ", 4) & " - Personal Needs")
-				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion <> "0.00" Then Call  write_variable_in_CASE_NOTE(beginning_text & "|     Personal Needs: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion, ".00", "") & "     ", 4))
-				' Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 4) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
-				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
-				If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", DWP_UNIQUE_APPROVALS(proration_reason, unique_app))
-
-			End If
-		Next
-		vendor_header = ""
-		vendor_header = "----------------------------- Vendor Payments -------------------------------"
-		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				If DWP_ELIG_APPROVALS(approval).dwp_mony_check_found = True Then
-					for each_trans = 0 to UBound(DWP_ELIG_APPROVALS(approval).dwp_check_program)
-						If vendor_header <> "" Then
-							Call write_variable_in_CASE_NOTE(vendor_header)
-							vendor_header = ""
-						End If
-						Call write_variable_in_CASE_NOTE(DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Check of $ " & replace(DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans), ".00", "") & " issued to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans))
-					next
-				End If
-				If DWP_ELIG_APPROVALS(approval).dwp_vnda_found = True Then
-					for each_auth = 0 To UBound(DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_number)
-						If vendor_header <> "" Then
-							Call write_variable_in_CASE_NOTE(vendor_header)
-							vendor_header = ""
-						End If
-						Call write_variable_in_CASE_NOTE(DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Auth of $ " & replace(DWP_ELIG_APPROVALS(approval).dwp_vnda_payment_amount(each_auth), ".00", "") & " approved to " & DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_name(each_auth) & " for " & DWP_ELIG_APPROVALS(approval).dwp_vnda_expense_type_info(each_auth))
-					next
-				End If
-			End If
-		Next
-	End If
-
-	If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
-		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE("DWP INELIGIBLE because initial income exceeds Family Wage Level of " & trim(DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level))
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income <> "FAILED" Then Call write_variable_in_CASE_NOTE("DWP Assistance Unit: Caregivers: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_caregivers & ", Children: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_children)
-
-		Call write_variable_in_CASE_NOTE("------- Income and Expenses --------|------- DWP BENEFIT CALCULATION --------")
-		Call write_variable_in_CASE_NOTE("Housing and Utility Expenses:       |        Total Shelter Costs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs, 8))
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 7) & 				" - Rent/Mortgage          |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 7)  & 				" - Property Tax           |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 7)  & 			" - House Insurance        |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 7)  & 					" - Electricity            |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 7)  & 						" - Heat/AC                |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 7) & 	" - Water/Garbage          |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 7)  & 								" - Phone                  |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 7)  & 								" - Other                  |")
-		Call write_variable_in_CASE_NOTE("Personal Needs:                     | (+)         Personal Needs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs, 8))
-		Call write_variable_in_CASE_NOTE(" $ 70.00 per eligible DWP member    |")
-		Call write_variable_in_CASE_NOTE("                                    | (=)         Total DWP Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need, 8))
-		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
-
-		ei_found = False
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-
-
-			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 27)
-				If ei_found = False then
-					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-					ei_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
-			End If
-		Next
-		If ei_found = False then Call write_variable_in_CASE_NOTE("NO Earned Income                    |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-
-		unea_found = False
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-				STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
-				If unea_found = False then
-					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-					unea_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-				STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
-				If unea_found = False then
-					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-					unea_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-				STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
-				If unea_found = False then
-					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-					unea_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-				STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
-				If unea_found = False then
-					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-					unea_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-				STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
-				If unea_found = False then
-					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-					unea_found = True
-				End If
-				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
-			End If
-		Next
-		If unea_found = False then Call write_variable_in_CASE_NOTE("NO Unearned Income                  |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income = "0.00" Then
-			Call write_variable_in_CASE_NOTE("NO Deemed Income                    |              Deemed Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income, 8))
-
-		Else
-			Call write_variable_in_CASE_NOTE("Deemed Income:                      |              Deemed Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income, 8))
-
-			right_side_lines = "|--DEEMED Income Calculation---|"
-
-			For each_deem = 0 to UBound(DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp)
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) & " - Wages" & spaces_30, 30) & "|"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) & " - Self Emp" & spaces_30, 30) & "|"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) <> "0.00" OR DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) <> "0.00" Then
-					disregard = DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_earned_disregard(each_deem)
-					disregard = disregard * 1
-					disregard = disregard + 65
-					right_side_lines = right_side_lines & "~|" & left("  (-) $ " & disregard & " - Disregards" & spaces_30, 30) & "|"
-				End If
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_unearned_income(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_unearned_income(each_deem) & " - Unearned" & spaces_30, 30) & "|"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_deemer_unmet_need(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_deemer_unmet_need(each_deem) & " - Unmet Need" & spaces_30, 30) & "|"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_allocation(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_allocation(each_deem) & " - Allocation" & spaces_30, 30) & "|"
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_child_support(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_child_support(each_deem) & " - Chld Sprt" & spaces_30, 30) & "|"
-				right_side_lines = right_side_lines & "~|" & left("= $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_counted_income(each_deem) & " Cntd Deemed Inc" & spaces_30, 30) & "|"
-			Next
-			right_side_lines = right_side_lines & "~|------------------------------|"
-			right_side_lines_array = split(right_side_lines, "~")
-			calc_lines_count = 0
-
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_deemed_for_mfip(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_deemed_for_mfip(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_deemed_for_mfip(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_deemed_for_mfip(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_deemed_for_mfip(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-
-
-				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_deemed_for_mfip(each_memb) = True Then
-					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_deemed_for_mfip(each_memb) = True Then
-					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_deemed_for_mfip(each_memb) = True Then
-					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
-					calc_lines_count = calc_lines_count + 2
-					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
-					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
-					right_side_info = "|"
-					right_side_info_2 = "|"
-				End If
-			Next
-
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_deemed_for_mfip(each_memb) = True Then
-					STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					calc_lines_count = calc_lines_count + 1
-					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
-					right_side_info = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_deemed_for_mfip(each_memb) = True Then
-					STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					calc_lines_count = calc_lines_count + 1
-					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
-					right_side_info = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_deemed_for_mfip(each_memb) = True Then
-					STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					calc_lines_count = calc_lines_count + 1
-					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
-					right_side_info = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_deemed_for_mfip(each_memb) = True Then
-					STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					calc_lines_count = calc_lines_count + 1
-					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
-					right_side_info = "|"
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_deemed_for_mfip(each_memb) = True Then
-					STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
-					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
-					calc_lines_count = calc_lines_count + 1
-					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
-					right_side_info = "|"
-				End If
-			Next
-			If calc_lines_count <= UBound(right_side_lines_array) Then
-				Do
-					Call write_variable_in_CASE_NOTE(spaces_36& right_side_lines_array(calc_lines_count))
-					calc_lines_count = calc_lines_count + 1
-				Loop until calc_lines_count > UBound(right_side_lines_array)
-			End If
-		End If
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion <> "0.00" Then
-			Call write_variable_in_CASE_NOTE("Child Support Exclusion:            | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
-			Call write_variable_in_CASE_NOTE(left("  Child Support Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income & spaces_30, 36) & "|")
-			Call write_variable_in_CASE_NOTE(left("           Child Count:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count & spaces_30, 36) & "|")
-		End if
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion = "0.00" Then Call write_variable_in_CASE_NOTE("NO Child Support Exclusion          | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
-		Call write_variable_in_CASE_NOTE("                                    | (=)     Budget Month Total: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total, 8))
-		Call write_variable_in_CASE_NOTE("                                    |                  Prior Low: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low, 8))
-		Call write_variable_in_CASE_NOTE("                                    | (=)   DWP Countable Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income, 8))
-		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
-			Call write_variable_in_CASE_NOTE("DWP Countable Income Exceeds FWL    | *  *  *  Family Wage Level: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level, 8))
-		Else
-			Call write_variable_in_CASE_NOTE("                                    | (=)             Unmet Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need, 8))
-			Call write_variable_in_CASE_NOTE("                                    |              DWP Max Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant, 8))
-			Call write_variable_in_CASE_NOTE("                                    | (=)              DWP Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant, 8))
-		End If
-		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
-	End If
-
-
-	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("* DWP has reached the 4 Month Time Limit.")
-		Call write_variable_in_CASE_NOTE("* DWP Eligibliity has ended as of " & first_month & ".")
-	ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
-		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
-		Call write_variable_in_CASE_NOTE("* DWP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for DWP benefits was withdrawn. (APPLICATION WITHDRAWN)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limits. (ASSET)")
-		'TODO add details about assets'
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with CS Requirements. (CS DISQUALIFICATION)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "). (DEATH OF APPLICANT)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Benefits already received for this unit on another case/state. (DUPICATE ASSISTANCE)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case. (ELIGIBLE CHILD)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with ES Requirements. (E DISQUALIFICATION)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
-			Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
-			show_pact = False
-			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
-			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
-			If show_pact = True Then
-				Call write_variable_in_CASE_NOTE("   - Case ineligible due to: " & DWP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ". ")
-				Call write_variable_in_CASE_NOTE("     INELIG created using PACT.")
-				If DWP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("     WCOM added to Notice with PACT reason.")
-
-			End If
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Did not verify application for other benefits.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Did provide reuested information.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Has not cooperated with IEVS requirements.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Has not provided mandatory Vendor Information.")
-
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb))
-					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb))
-					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb))
-					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb))
-					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb))
-					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-				End If
-			Next
-		End If
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has used all 4 DWP months. (FOUR MONTH LIMIT)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Initial Income Test. (INITIAL INCOME)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is converting to MFIP. (MFIP CONVERSION)")
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the TANF Time Limit. (TANF TIME LIMIT)")
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is not qualified due to improper trransfer of assets. (TRANSFER OF ASSETS)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" Then
-			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DWP_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Bank account not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_BUSI = "FAILED" Then
-				Call write_variable_in_CASE_NOTE("   - Self Employment not verified.")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-					End if
-				Next
-			End If
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_CARS = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Vehicle not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_JOBS = "FAILED" Then
-				Call write_variable_in_CASE_NOTE("   - Job not verified.")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
-					End if
-				Next
-			End if
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_MEMB_dob = "FAILED" Then Call write_variable_in_CASE_NOTE("   - HH Memb date of birth not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_MEMB_id = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Adult Memb ID not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_PARE = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Parental relationship not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_PREG = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Pregnancy not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_RBIC = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Self Employment - Roomer/Boarder Income not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_ADDR = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Address not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SCHL = "FAILED" Then Call write_variable_in_CASE_NOTE("   - School information not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SECU = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Securities asset not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SPON = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Sponsor Income/Assets not verified.")
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_UNEA = "FAILED" Then
-				Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
-					End if
-					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
-					End if
-				Next
-			End if
-
-		End If
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
-	End If
-
-	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
-		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-		Call write_variable_in_CASE_NOTE("DWP Status:           " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_current_prog_status)
-		Call write_variable_in_CASE_NOTE("Budget Cycle:         PROSP")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
-			Call write_variable_in_CASE_NOTE("4th Month of ELIG:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_4th_month_of_elig)
-			Call write_variable_in_CASE_NOTE("Crgvers have ES Plan: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_caregivers_have_es_plan)
-		End If
-	End If
-	If DWP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(process_for_note, unique_app))
-	If DWP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(changes_for_note, unique_app))
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
-
 end function
 
 function mfip_elig_case_note()
@@ -8027,75 +6959,6 @@ function deny_elig_case_note()
 	Call write_variable_in_CASE_NOTE("============================= CASH PROGRAMS DETAIL ==========================")
 	Call write_variable_in_CASE_NOTE("RCA Denial Info  : Processed by Contracted Agency for Residents of Hennepin.")
 
-	'DWP
-	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
-		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
-	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for DWP (and all Cash Programs).")
-		Call write_variable_in_CASE_NOTE("       | CASH Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CASH, 10) & "                              |")
-		Call write_variable_in_CASE_NOTE("       | ACCT Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_ACCT, 10) & "                              |")
-		Call write_variable_in_CASE_NOTE("       | SECU Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SECU, 10) & "                              |")
-		Call write_variable_in_CASE_NOTE("       | CARS Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CARS, 10) & "                              |")
-		Call write_variable_in_CASE_NOTE("       | SPON Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SPON, 10) & "                              |")
-		Call write_variable_in_CASE_NOTE("       | Total Assets:$ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total, 10) & " - Asset Maximum: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum, 10) & "|")
-
-	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with Child Support Requirements.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household was assessed for MFIP as the Family Cash Program..")
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
-	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with the Employment Services Requirements.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to apply for other benefits.")
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to provide requested information.")
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to cooperate with the IEVS process.")
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to provide vendor information.")
-	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all 4 DWP months.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Limit (Family Wage Level of $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level & ").")
-		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income, 10) & "                                  |")
-		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense, 10) & " (-)                              |")
-		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income, 10) & "                                  |")
-		Call write_variable_in_CASE_NOTE("       | Counted Deemed Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income, 10) & "                                  |")
-		Call write_variable_in_CASE_NOTE("       | Child Support Excl: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion, 10) & " (-)                              |")
-		Call write_variable_in_CASE_NOTE("       | Total Counted Inc:  $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income, 10) & " - Family Wage Level: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level, 10) & "|")
-	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case is better served by the MFIP program and is unlikely to benefit from DWP.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not met state residency requirements.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has a member on strike and is not eligiblity for public assistance.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all TANF months and is not eligible for an extension.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household have transferred assets in a way that does not comply with cash assistance rules.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
-		verifs_missing = ""
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
-		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
-		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
-
-		Call write_long_variable_with_indent("       Verifications: ", verifs_missing)
-	End If
-
-
 	'MFIP
 	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
@@ -8283,11 +7146,10 @@ function deny_elig_case_note()
 		Else
 			Call write_variable_in_CASE_NOTE("Information added:")
 			CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
-				CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+				CALL write_variable_in_CASE_NOTE("MFIP: Family cash program.")
 				CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
 			Else
-				CALL write_variable_in_CASE_NOTE("DWP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
 				CALL write_variable_in_CASE_NOTE("MFIP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
@@ -8987,1236 +7849,6 @@ function snap_elig_case_note()
 end function
 
 'DECLARATIONS===============================================================================================================
-class dwp_eligibility_detail
-	public elig_footer_month
-	public elig_footer_year
-	public elig_version_number
-	public elig_version_date
-	public dwp_autoclosed_for_time_limit
-	public elig_version_result
-	public approved_today
-	public approved_version_found
-	public approval_date
-
-	public dwp_elig_ref_numbs()
-	public dwp_elig_membs_full_name()
-	public dwp_elig_membs_request_yn()
-	public dwp_elig_membs_member_code()
-	public dwp_memb_is_counted()
-	public dwp_memb_is_deemer()
-	public dwp_elig_membs_member_info()
-	public dwp_elig_membs_funding_source_code()
-	public dwp_elig_membs_funding_source_info()
-	public dwp_elig_membs_elig_status()
-	public dwp_elig_membs_begin_date()
-	public dwp_elig_membs_adult_or_child()
-	public dwp_elig_membs_test_absence()
-	public dwp_elig_membs_test_child_age()
-	public dwp_elig_membs_test_citizenship()
-	public dwp_elig_membs_test_citizenship_verif()
-	public dwp_elig_membs_test_dupl_assistance()
-	public dwp_elig_membs_test_foster_care()
-	public dwp_elig_membs_test_fraud()
-	public dwp_elig_membs_test_minor_living_arrangement()
-	public dwp_elig_membs_test_post_60_removal()
-	public dwp_elig_membs_test_ssi()
-	public dwp_elig_membs_test_ssn_coop()
-	public dwp_elig_membs_test_unit_member()
-	public dwp_elig_membs_test_unlawful_conduct()
-	public dwp_elig_membs_es_status_code()
-	public dwp_elig_membs_es_status_info()
-
-	public dwp_elig_case_test_application_withdrawn
-	public dwp_elig_case_test_assets
-	public dwp_elig_case_test_CS_disqualification
-	public dwp_elig_case_test_death_of_applicant
-	public dwp_elig_case_test_dupl_assistance
-	public dwp_elig_case_test_eligible_child
-	public dwp_elig_case_test_ES_disqualification
-	public dwp_elig_case_test_fail_coop
-	public dwp_elig_case_test_four_month_limit
-	public dwp_elig_case_test_initial_income
-	public dwp_elig_case_test_MFIP_conversion
-	public dwp_elig_case_test_residence
-	public dwp_elig_case_test_strike
-	public dwp_elig_case_test_TANF_time_limit
-	public dwp_elig_case_test_transfer_of_assets
-	public dwp_elig_case_test_verif
-	public dwp_elig_case_test_new_spouse_income
-	public dwp_elig_asset_CASH
-	public dwp_elig_asset_ACCT
-	public dwp_elig_asset_SECU
-	public dwp_elig_asset_CARS
-	public dwp_elig_asset_SPON
-	public dwp_elig_asset_total
-	public dwp_elig_asset_maximum
-	public dwp_elig_test_fail_coop_applied_other_benefits
-	public dwp_elig_test_fail_coop_provide_requested_info
-	public dwp_elig_test_fail_coop_IEVS
-	public dwp_elig_test_fail_coop_vendor_info
-	public dwp_elig_initial_counted_earned_income
-	public dwp_elig_initial_dependent_care_expense
-	public dwp_elig_initial_counted_unearned_incom
-	public dwp_elig_initial_counted_deemed_income
-	public dwp_elig_initial_child_support_exclusion
-	public dwp_elig_initial_total_counted_income
-	public dwp_elig_initial_family_wage_level
-	public dwp_elig_test_verif_ACCT
-	public dwp_elig_test_verif_BUSI
-	public dwp_elig_test_verif_CARS
-	public dwp_elig_test_verif_JOBS
-	public dwp_elig_test_verif_MEMB_dob
-	public dwp_elig_test_verif_MEMB_id
-	public dwp_elig_test_verif_PARE
-	public dwp_elig_test_verif_PREG
-	public dwp_elig_test_verif_RBIC
-	public dwp_elig_test_verif_ADDR
-	public dwp_elig_test_verif_SCHL
-	public dwp_elig_test_verif_SECU
-	public dwp_elig_test_verif_SPON
-	public dwp_elig_test_verif_UNEA
-
-	public dwp_elig_budg_shel_rent_mortgage
-	public dwp_elig_budg_shel_property_tax
-	public dwp_elig_budg_shel_house_insurance
-	public dwp_elig_budg_hest_electricity
-	public dwp_elig_budg_hest_heat_air
-	public dwp_elig_budg_hest_water_sewer_garbage
-	public dwp_elig_budg_hest_phone
-	public dwp_elig_budg_shel_other
-	public dwp_elig_budg_total_shelter_costs
-	public dwp_elig_budg_personal_needs
-	public dwp_elig_budg_total_DWP_need
-	public dwp_elig_budg_earned_income
-	public dwp_elig_budg_unearned_income
-	public dwp_elig_budg_deemed_income
-	public dwp_elig_budg_child_support_exclusion
-	public dwp_elig_budg_budget_month_total
-	public dwp_elig_budg_prior_low
-	public dwp_elig_budg_DWP_countable_income
-	public dwp_elig_budg_unmet_need
-	public dwp_elig_budg_DWP_max_grant
-	public dwp_elig_budg_DWP_grant
-	public dwp_elig_cses_income
-	public dwp_elig_child_count
-
-	public dwp_elig_prorated_date
-	public dwp_elig_prorated_amount
-	public dwp_elig_amount_already_issued
-	public dwp_elig_supplement_due
-	public dwp_elig_overpayment
-	public dwp_elig_adjusted_grant_amount
-	public dwp_elig_recoupment_amount
-	public dwp_elig_shelter_benefit_grant
-	public dwp_elig_personal_needs_grant
-	public dwp_elig_overpayment_fed_hh_count
-	public dwp_elig_overpayment_fed_amount
-	public dwp_elig_overpayment_state_hh_count
-	public dwp_elig_overpayment_state_amount
-	public dwp_elig_adjusted_grant_fed_hh_count
-	public dwp_elig_adjusted_grant_fed_amount
-	public dwp_elig_adjusted_grant_state_hh_count
-	public dwp_elig_adjusted_grant_state_amount
-
-	public dwp_approved_date
-	public dwp_process_date
-	public dwp_prev_approval
-	public dwp_case_last_approval_date
-	public dwp_case_current_prog_status
-	public dwp_case_eligibility_result
-	public dwp_case_source_of_info
-	public dwp_case_benefit_impact
-	public dwp_case_4th_month_of_elig
-	public dwp_case_caregivers_have_es_plan
-	public dwp_case_responsible_county
-	public dwp_case_service_county
-	public dwp_case_asst_unit_caregivers
-	public dwp_case_asst_unit_children
-	public dwp_case_total_assets
-	public dwp_case_maximum_assets
-	public dwp_case_summary_grant_amount
-	public dwp_case_summary_net_grant_amount
-	public dwp_case_summary_shelter_benefit_portion
-	public dwp_case_summary_personal_needs_portion
-	public dwp_mony_check_found
-	public dwp_vnda_found
-
-
-	public dwp_vnda_vendor_number()
-	public dwp_vnda_vendor_name()
-	public dwp_vnda_reference_number()
-	public dwp_vnda_send_to_code()
-	public dwp_vnda_send_to_info()
-	public dwp_vnda_expense_type_code()
-	public dwp_vnda_expense_type_info()
-	public dwp_vnda_payment_amount()
-
-	public dwp_check_issue_date()
-	public dwp_check_program()
-	public dwp_check_status_code()
-	public dwp_check_status_info()
-	public dwp_check_warrant_number()
-	public dwp_check_transaction_amount()
-	public dwp_check_type_code()
-	public dwp_check_type_info()
-	public dwp_check_transaction_number()
-	public dwp_check_from_date()
-	public dwp_check_to_date()
-	public dwp_check_payment_reason()
-	public dwp_check_payment_to_name()
-	public dwp_check_payment_to_address()
-	public dwp_check_mail_method()
-	public dwp_check_payment_method()
-	public dwp_check_vendor_number()
-	public dwp_check_fiche_number()
-	public dwp_check_payment_amount()
-	public dwp_check_entitement_amount()
-	public dwp_check_recoupment_amount()
-	public dwp_check_replacement_amount()
-	public dwp_check_cacnel_amount()
-	public dwp_check_food_portion_amount()
-	public dwp_check_reconciliation_date()
-	public dwp_check_cancel_reason()
-	public dwp_check_replacement_reason()
-	public dwp_check_picup_status()
-	public dwp_check_pickup_date()
-	public dwp_check_servicing_county()
-	public dwp_check_responsibility_county()
-	public dwp_check_adjusting_transaction()
-	public dwp_check_original_transaction()
-	public dwp_check_vendor_name()
-	public dwp_check_vendor_c_o()
-	public dwp_check_vendor_street_one()
-	public dwp_check_vendor_street_two()
-	public dwp_check_vendor_city()
-	public dwp_check_vendor_state()
-	public dwp_check_vendor_zip()
-	public dwp_check_vendor_grh_yn()
-	public dwp_check_vendor_non_profit_yn()
-	public dwp_check_vendor_phone()
-	public dwp_check_vendor_county()
-	public dwp_check_vendor_status_code()
-	public dwp_check_vendor_status_info()
-	public dwp_check_vendor_incorporated_yn()
-	public dwp_check_vendor_federal_tax_id()
-	public dwp_check_vendor_ssn()
-	public dwp_check_vendor_2nd_address_type_code()
-	public dwp_check_vendor_2nd_address_type_info()
-	public dwp_check_vendor_2nd_address_eff_date()
-	public dwp_check_vendor_2nd_name()
-	public dwp_check_vendor_2nd_c_o()
-	public dwp_check_vendor_2nd_street_one()
-	public dwp_check_vendor_2nd_street_two()
-	public dwp_check_vendor_2nd_city()
-	public dwp_check_vendor_2nd_state()
-	public dwp_check_vendor_2nd_zip()
-	public dwp_check_vendor_direct_deposit_yn()
-	public dwp_check_vendor_merge_vendor_number()
-	public dwp_check_vendor_acct_number_required_yn()
-	public dwp_check_vendor_blocked_county_numbers_list()
-
-
-	public dwp_elig_membs_budg_deemed_self_emp()
-	public dwp_elig_membs_budg_deemed_wages()
-	public dwp_elig_membs_budg_deemed_counted_earned()
-	public dwp_elig_membs_budg_deemed_standard_EI_disregard()
-	public dwp_elig_membs_budg_deemed_earned_subtotal()
-	public dwp_elig_membs_budg_deemed_earned_disregard()
-	public dwp_elig_membs_budg_deemed_unearned_income()
-	public dwp_elig_membs_budg_deemed_subtotal_counted_income()
-
-	public dwp_elig_membs_budg_deemed_deemer_unmet_need()
-	public dwp_elig_membs_budg_deemed_allocation()
-	public dwp_elig_membs_budg_deemed_child_support()
-	public dwp_elig_membs_budg_deemed_counted_income()
-
-	public sub read_elig()
-		call navigate_to_MAXIS_screen("ELIG", "DWP ")
-		EMWriteScreen elig_footer_month, 20, 56
-		EMWriteScreen elig_footer_year, 20, 59
-		approved_today = False
-		approved_version_found = False
-		dwp_autoclosed_for_time_limit = False
-		dwp_mony_check_found = False
-		dwp_vnda_found = False
-		deem_count = 0
-
-		dwp_row = 1
-		dwp_col = 1
-		EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
-		If dwp_row <> 0 Then
-			EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
-			dwp_autoclosed_for_time_limit = True
-		Else
-			elig_version_number = ""
-			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-			If approved_version_found = True Then
-				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-				If allow_late_note = True Then
-					one_week_ago = DateAdd("d", -7, date)
-					If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
-				End If
-			ElseIf elig_version_number <> "" Then
-				call navigate_to_MAXIS_screen("ELIG", "DWP ")
-				EMWriteScreen elig_footer_month, 20, 56
-				EMWriteScreen elig_footer_year, 20, 59
-				Call write_value_and_transmit(elig_version_number, 20, 79)
-				dwp_row = 1
-				dwp_col = 1
-				EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
-				If dwp_row <> 0 Then
-					EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
-					dwp_autoclosed_for_time_limit = True
-					PF3
-				End If
-			End If
-			If developer_mode = True Then approved_today = True		'TESTING OPTION'
-		End If
-		If approved_today = True Then
-			ReDim dwp_elig_ref_numbs(0)
-			ReDim dwp_elig_membs_full_name(0)
-			ReDim dwp_elig_membs_request_yn(0)
-			ReDim dwp_elig_membs_member_code(0)
-			ReDim dwp_memb_is_counted(0)
-			ReDim dwp_memb_is_deemer(0)
-			ReDim dwp_elig_membs_member_info(0)
-			ReDim dwp_elig_membs_funding_source_code(0)
-			ReDim dwp_elig_membs_funding_source_info(0)
-			ReDim dwp_elig_membs_elig_status(0)
-			ReDim dwp_elig_membs_begin_date(0)
-			ReDim dwp_elig_membs_adult_or_child(0)
-			ReDim dwp_elig_membs_test_absence(0)
-			ReDim dwp_elig_membs_test_child_age(0)
-			ReDim dwp_elig_membs_test_citizenship(0)
-			ReDim dwp_elig_membs_test_citizenship_verif(0)
-			ReDim dwp_elig_membs_test_dupl_assistance(0)
-			ReDim dwp_elig_membs_test_foster_care(0)
-			ReDim dwp_elig_membs_test_fraud(0)
-			ReDim dwp_elig_membs_test_minor_living_arrangement(0)
-			ReDim dwp_elig_membs_test_post_60_removal(0)
-			ReDim dwp_elig_membs_test_ssi(0)
-			ReDim dwp_elig_membs_test_ssn_coop(0)
-			ReDim dwp_elig_membs_test_unit_member(0)
-			ReDim dwp_elig_membs_test_unlawful_conduct(0)
-			ReDim dwp_elig_membs_es_status_code(0)
-			ReDim dwp_elig_membs_es_status_info(0)
-
-			ReDim dwp_check_issue_date(0)
-			ReDim dwp_check_program(0)
-			ReDim dwp_check_status_code(0)
-			ReDim dwp_check_status_info(0)
-			ReDim dwp_check_warrant_number(0)
-			ReDim dwp_check_transaction_amount(0)
-			ReDim dwp_check_type_code(0)
-			ReDim dwp_check_type_info(0)
-			ReDim dwp_check_transaction_number(0)
-			ReDim dwp_check_from_date(0)
-			ReDim dwp_check_to_date(0)
-			ReDim dwp_check_payment_reason(0)
-			ReDim dwp_check_payment_to_name(0)
-			ReDim dwp_check_payment_to_address(0)
-			ReDim dwp_check_mail_method(0)
-			ReDim dwp_check_payment_method(0)
-			ReDim dwp_check_vendor_number(0)
-			ReDim dwp_check_fiche_number(0)
-			ReDim dwp_check_payment_amount(0)
-			ReDim dwp_check_entitement_amount(0)
-			ReDim dwp_check_recoupment_amount(0)
-			ReDim dwp_check_replacement_amount(0)
-			ReDim dwp_check_cacnel_amount(0)
-			ReDim dwp_check_food_portion_amount(0)
-			ReDim dwp_check_reconciliation_date(0)
-			ReDim dwp_check_cancel_reason(0)
-			ReDim dwp_check_replacement_reason(0)
-			ReDim dwp_check_picup_status(0)
-			ReDim dwp_check_pickup_date(0)
-			ReDim dwp_check_servicing_county(0)
-			ReDim dwp_check_responsibility_county(0)
-			ReDim dwp_check_adjusting_transaction(0)
-			ReDim dwp_check_original_transaction(0)
-			ReDim dwp_check_vendor_name(0)
-			ReDim dwp_check_vendor_c_o(0)
-			ReDim dwp_check_vendor_street_one(0)
-			ReDim dwp_check_vendor_street_two(0)
-			ReDim dwp_check_vendor_city(0)
-			ReDim dwp_check_vendor_state(0)
-			ReDim dwp_check_vendor_zip(0)
-			ReDim dwp_check_vendor_grh_yn(0)
-			ReDim dwp_check_vendor_non_profit_yn(0)
-			ReDim dwp_check_vendor_phone(0)
-			ReDim dwp_check_vendor_county(0)
-			ReDim dwp_check_vendor_status_code(0)
-			ReDim dwp_check_vendor_status_info(0)
-			ReDim dwp_check_vendor_incorporated_yn(0)
-			ReDim dwp_check_vendor_federal_tax_id(0)
-			ReDim dwp_check_vendor_ssn(0)
-			ReDim dwp_check_vendor_2nd_address_type_code(0)
-			ReDim dwp_check_vendor_2nd_address_type_info(0)
-			ReDim dwp_check_vendor_2nd_address_eff_date(0)
-			ReDim dwp_check_vendor_2nd_name(0)
-			ReDim dwp_check_vendor_2nd_c_o(0)
-			ReDim dwp_check_vendor_2nd_street_one(0)
-			ReDim dwp_check_vendor_2nd_street_two(0)
-			ReDim dwp_check_vendor_2nd_city(0)
-			ReDim dwp_check_vendor_2nd_state(0)
-			ReDim dwp_check_vendor_2nd_zip(0)
-			ReDim dwp_check_vendor_direct_deposit_yn(0)
-			ReDim dwp_check_vendor_merge_vendor_number(0)
-			ReDim dwp_check_vendor_acct_number_required_yn(0)
-			ReDim dwp_check_vendor_blocked_county_numbers_list(0)
-
-			ReDim dwp_vnda_vendor_number(0)
-			ReDim dwp_vnda_vendor_name(0)
-			ReDim dwp_vnda_reference_number(0)
-			ReDim dwp_vnda_send_to_code(0)
-			ReDim dwp_vnda_send_to_info(0)
-			ReDim dwp_vnda_expense_type_code(0)
-			ReDim dwp_vnda_expense_type_info(0)
-			ReDim dwp_vnda_payment_amount(0)
-
-			ReDim dwp_elig_membs_budg_deemed_self_emp(0)
-			ReDim dwp_elig_membs_budg_deemed_wages(0)
-			ReDim dwp_elig_membs_budg_deemed_counted_earned(0)
-			ReDim dwp_elig_membs_budg_deemed_standard_EI_disregard(0)
-			ReDim dwp_elig_membs_budg_deemed_earned_subtotal(0)
-			ReDim dwp_elig_membs_budg_deemed_earned_disregard(0)
-			ReDim dwp_elig_membs_budg_deemed_unearned_income(0)
-			ReDim dwp_elig_membs_budg_deemed_subtotal_counted_income(0)
-			ReDim dwp_elig_membs_budg_deemed_deemer_unmet_need(0)
-			ReDim dwp_elig_membs_budg_deemed_allocation(0)
-			ReDim dwp_elig_membs_budg_deemed_child_support(0)
-			ReDim dwp_elig_membs_budg_deemed_counted_income(0)
-
-			row = 7
-			elig_memb_count = 0
-			Do
-				EMReadScreen ref_numb, 2, row, 5
-
-				ReDim preserve dwp_elig_ref_numbs(elig_memb_count)
-				ReDim preserve dwp_elig_membs_full_name(elig_memb_count)
-				ReDim preserve dwp_elig_membs_request_yn(elig_memb_count)
-				ReDim preserve dwp_elig_membs_member_code(elig_memb_count)
-				ReDim preserve dwp_memb_is_counted(elig_memb_count)
-				ReDim preserve dwp_memb_is_deemer(elig_memb_count)
-				ReDim preserve dwp_elig_membs_member_info(elig_memb_count)
-				ReDim preserve dwp_elig_membs_funding_source_code(elig_memb_count)
-				ReDim preserve dwp_elig_membs_funding_source_info(elig_memb_count)
-				ReDim preserve dwp_elig_membs_elig_status(elig_memb_count)
-				ReDim preserve dwp_elig_membs_begin_date(elig_memb_count)
-				ReDim preserve dwp_elig_membs_adult_or_child(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_absence(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_child_age(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_citizenship(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_citizenship_verif(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_dupl_assistance(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_foster_care(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_fraud(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_minor_living_arrangement(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_post_60_removal(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_ssi(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_ssn_coop(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_unit_member(elig_memb_count)
-				ReDim preserve dwp_elig_membs_test_unlawful_conduct(elig_memb_count)
-				ReDim preserve dwp_elig_membs_es_status_code(elig_memb_count)
-				ReDim preserve dwp_elig_membs_es_status_info(elig_memb_count)
-
-				dwp_elig_ref_numbs(elig_memb_count) = ref_numb
-				EMReadScreen full_name_information, 20, row, 9
-				full_name_information = trim(full_name_information)
-				name_array = split(full_name_information, " ")
-				For each name_parts in name_array
-					If name_parts <> "" Then
-						If len(name_parts) <> 1 Then dwp_elig_membs_full_name(elig_memb_count) = dwp_elig_membs_full_name(elig_memb_count) & " " & name_parts
-					End If
-				Next
-				dwp_elig_membs_full_name(elig_memb_count) = trim((dwp_elig_membs_full_name(elig_memb_count)))
-
-				EMReadScreen dwp_elig_membs_request_yn(elig_memb_count), 1, row, 31
-				EMReadScreen dwp_elig_membs_member_code(elig_memb_count), 1, row, 35
-				EMReadScreen dwp_elig_membs_funding_source_code(elig_memb_count), 1, row, 53
-				EMReadScreen dwp_elig_membs_elig_status(elig_memb_count), 12, row, 57
-				EMReadScreen dwp_elig_membs_begin_date(elig_memb_count), 8, row, 73
-
-				dwp_elig_membs_elig_status(elig_memb_count) = trim(dwp_elig_membs_elig_status(elig_memb_count))
-
-				dwp_memb_is_counted(elig_memb_count) = False
-				dwp_memb_is_deemer(elig_memb_count) = False
-				If dwp_elig_membs_member_code(elig_memb_count) = "A" Then dwp_elig_membs_member_info(elig_memb_count) = "Eligible"
-				If dwp_elig_membs_member_code(elig_memb_count) = "D" Then dwp_elig_membs_member_info(elig_memb_count) = "SSI/IVE/Adoption Assistance Recipient"
-				If dwp_elig_membs_member_code(elig_memb_count) = "F" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
-				If dwp_elig_membs_member_code(elig_memb_count) = "G" Then dwp_elig_membs_member_info(elig_memb_count) = "Parent of Minor Caregiver, Deemer"
-				If dwp_elig_membs_member_code(elig_memb_count) = "H" Then dwp_elig_membs_member_info(elig_memb_count) = "Other Deemer"
-				If dwp_elig_membs_member_code(elig_memb_count) = "I" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Pare of Unit"
-				If dwp_elig_membs_member_code(elig_memb_count) = "J" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
-				If dwp_elig_membs_member_code(elig_memb_count) = "N" Then dwp_elig_membs_member_info(elig_memb_count) = "Not Counted"
-
-				If dwp_elig_membs_member_code(elig_memb_count) = "A" Then dwp_memb_is_counted(elig_memb_count) = True
-				If dwp_elig_membs_member_code(elig_memb_count) = "F" Then dwp_memb_is_deemer(elig_memb_count) = True
-				If dwp_elig_membs_member_code(elig_memb_count) = "G" Then dwp_memb_is_deemer(elig_memb_count) = True
-				If dwp_elig_membs_member_code(elig_memb_count) = "H" Then dwp_memb_is_deemer(elig_memb_count) = True
-				If dwp_elig_membs_member_code(elig_memb_count) = "I" Then dwp_memb_is_deemer(elig_memb_count) = True
-				If dwp_elig_membs_member_code(elig_memb_count) = "J" Then dwp_memb_is_deemer(elig_memb_count) = True
-
-				If dwp_elig_membs_funding_source_code(elig_memb_count) = "F" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Federal Funds (TANF Cash)"
-				If dwp_elig_membs_funding_source_code(elig_memb_count) = "S" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "State Funds (Cash)"
-				If dwp_elig_membs_funding_source_code(elig_memb_count) = "I" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Ineligible for DWP"
-				If dwp_elig_membs_funding_source_code(elig_memb_count) = "N" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Not Applicable"
-
-				Call write_value_and_transmit("X", row, 3)		'open member test information
-				EMReadScreen dwp_elig_membs_adult_or_child(elig_memb_count), 1, 7, 51
-
-				If dwp_elig_membs_adult_or_child(elig_memb_count) = "A" Then dwp_elig_membs_adult_or_child(elig_memb_count) = "Adult"
-				If dwp_elig_membs_adult_or_child(elig_memb_count) = "C" Then dwp_elig_membs_adult_or_child(elig_memb_count) = "Child"
-
-				EMReadScreen dwp_elig_membs_test_absence(elig_memb_count), 			6, 10, 7
-				EMReadScreen dwp_elig_membs_test_child_age(elig_memb_count), 		6, 11, 7
-				EMReadScreen dwp_elig_membs_test_citizenship(elig_memb_count), 		6, 12, 7
-				EMReadScreen dwp_elig_membs_test_citizenship_verif(elig_memb_count), 6, 13, 7
-				EMReadScreen dwp_elig_membs_test_dupl_assistance(elig_memb_count), 	6, 14, 7
-				EMReadScreen dwp_elig_membs_test_foster_care(elig_memb_count), 		6, 15, 7
-				EMReadScreen dwp_elig_membs_test_fraud(elig_memb_count), 			6, 16, 7
-
-				EMReadScreen dwp_elig_membs_test_minor_living_arrangement(elig_memb_count), 6, 10, 43
-				EMReadScreen dwp_elig_membs_test_post_60_removal(elig_memb_count), 			6, 11, 43
-				EMReadScreen dwp_elig_membs_test_ssi(elig_memb_count), 						6, 12, 43
-				EMReadScreen dwp_elig_membs_test_ssn_coop(elig_memb_count), 				6, 13, 43
-				EMReadScreen dwp_elig_membs_test_unit_member(elig_memb_count), 				6, 14, 43
-				EMReadScreen dwp_elig_membs_test_unlawful_conduct(elig_memb_count), 		6, 15, 43
-
-				dwp_elig_membs_test_absence(elig_memb_count) = trim(dwp_elig_membs_test_absence(elig_memb_count))
-				dwp_elig_membs_test_child_age(elig_memb_count) = trim(dwp_elig_membs_test_child_age(elig_memb_count))
-				dwp_elig_membs_test_citizenship(elig_memb_count) = trim(dwp_elig_membs_test_citizenship(elig_memb_count))
-				dwp_elig_membs_test_citizenship_verif(elig_memb_count) = trim(dwp_elig_membs_test_citizenship_verif(elig_memb_count))
-				dwp_elig_membs_test_dupl_assistance(elig_memb_count) = trim(dwp_elig_membs_test_dupl_assistance(elig_memb_count))
-				dwp_elig_membs_test_foster_care(elig_memb_count) = trim(dwp_elig_membs_test_foster_care(elig_memb_count))
-				dwp_elig_membs_test_fraud(elig_memb_count) = trim(dwp_elig_membs_test_fraud(elig_memb_count))
-
-				dwp_elig_membs_test_minor_living_arrangement(elig_memb_count) = trim(dwp_elig_membs_test_minor_living_arrangement(elig_memb_count))
-				dwp_elig_membs_test_post_60_removal(elig_memb_count) = trim(dwp_elig_membs_test_post_60_removal(elig_memb_count))
-				dwp_elig_membs_test_ssi(elig_memb_count) = trim(dwp_elig_membs_test_ssi(elig_memb_count))
-				dwp_elig_membs_test_ssn_coop(elig_memb_count) = trim(dwp_elig_membs_test_ssn_coop(elig_memb_count))
-				dwp_elig_membs_test_unit_member(elig_memb_count) = trim(dwp_elig_membs_test_unit_member(elig_memb_count))
-				dwp_elig_membs_test_unlawful_conduct(elig_memb_count) = trim(dwp_elig_membs_test_unlawful_conduct(elig_memb_count))
-
-				transmit
-
-				Call write_value_and_transmit("X", row, 69)		'open member EMPS information
-				EMReadScreen emps_exists_for_memb, 19, 24, 2
-				If emps_exists_for_memb = "EMPS DOES NOT EXIST" Then
-					EMWriteScreen " ", row, 69
-				Else
-					EMReadScreen dwp_elig_membs_es_status_code(elig_memb_count), 2, 9, 22
-					EMReadScreen dwp_elig_membs_es_status_info(elig_memb_count), 30, 9, 25
-
-					dwp_elig_membs_es_status_code(elig_memb_count) = trim(dwp_elig_membs_es_status_code(elig_memb_count))
-					dwp_elig_membs_es_status_info(elig_memb_count) = trim(dwp_elig_membs_es_status_info(elig_memb_count))
-					transmit
-				End If
-
-				row = row + 1
-				elig_memb_count = elig_memb_count + 1
-				EMReadScreen next_ref_numb, 2, row, 6
-			Loop until next_ref_numb = "  "
-
-			transmit 		'going to the next panel - DWCR
-
-			EMReadScreen dwp_elig_case_test_application_withdrawn, 	6, 6, 7
-			EMReadScreen dwp_elig_case_test_assets, 				6, 7, 7
-			EMReadScreen dwp_elig_case_test_CS_disqualification, 	6, 8, 7
-			EMReadScreen dwp_elig_case_test_death_of_applicant, 	6, 9, 7
-			EMReadScreen dwp_elig_case_test_dupl_assistance, 		6, 10, 7
-			EMReadScreen dwp_elig_case_test_eligible_child, 		6, 11, 7
-			EMReadScreen dwp_elig_case_test_ES_disqualification, 	6, 12, 7
-			EMReadScreen dwp_elig_case_test_fail_coop, 				6, 13, 7
-			EMReadScreen dwp_elig_case_test_four_month_limit, 		6, 14, 7
-
-			EMReadScreen dwp_elig_case_test_initial_income, 		6, 6, 45
-			EMReadScreen dwp_elig_case_test_MFIP_conversion, 		6, 7, 45
-			EMReadScreen dwp_elig_case_test_residence, 				6, 8, 45
-			EMReadScreen dwp_elig_case_test_strike, 				6, 9, 45
-			EMReadScreen dwp_elig_case_test_TANF_time_limit, 		6, 10, 45
-			EMReadScreen dwp_elig_case_test_transfer_of_assets, 	6, 11, 45
-			EMReadScreen dwp_elig_case_test_verif, 					6, 12, 45
-
-			EMReadScreen dwp_elig_case_test_new_spouse_income, 		6, 17, 7
-
-			dwp_elig_case_test_application_withdrawn = trim(dwp_elig_case_test_application_withdrawn)
-			dwp_elig_case_test_assets = trim(dwp_elig_case_test_assets)
-			dwp_elig_case_test_CS_disqualification = trim(dwp_elig_case_test_CS_disqualification)
-			dwp_elig_case_test_death_of_applicant = trim(dwp_elig_case_test_death_of_applicant)
-			dwp_elig_case_test_dupl_assistance = trim(dwp_elig_case_test_dupl_assistance)
-			dwp_elig_case_test_eligible_child = trim(dwp_elig_case_test_eligible_child)
-			dwp_elig_case_test_ES_disqualification = trim(dwp_elig_case_test_ES_disqualification)
-			dwp_elig_case_test_fail_coop = trim(dwp_elig_case_test_fail_coop)
-			dwp_elig_case_test_four_month_limit = trim(dwp_elig_case_test_four_month_limit)
-
-			dwp_elig_case_test_initial_income = trim(dwp_elig_case_test_initial_income)
-			dwp_elig_case_test_MFIP_conversion = trim(dwp_elig_case_test_MFIP_conversion)
-			dwp_elig_case_test_residence = trim(dwp_elig_case_test_residence)
-			dwp_elig_case_test_strike = trim(dwp_elig_case_test_strike)
-			dwp_elig_case_test_TANF_time_limit = trim(dwp_elig_case_test_TANF_time_limit)
-			dwp_elig_case_test_transfer_of_assets = trim(dwp_elig_case_test_transfer_of_assets)
-			dwp_elig_case_test_verif = trim(dwp_elig_case_test_verif)
-
-			dwp_elig_case_test_new_spouse_income = trim(dwp_elig_case_test_new_spouse_income)
-
-			If dwp_elig_case_test_assets <> "NA" Then
-				Call write_value_and_transmit("X", 7, 5)
-
-				EMReadScreen dwp_elig_asset_CASH, 9, 8, 54
-				EMReadScreen dwp_elig_asset_ACCT, 9, 9, 54
-				EMReadScreen dwp_elig_asset_SECU, 9, 10, 54
-				EMReadScreen dwp_elig_asset_CARS, 9, 11, 54
-				EMReadScreen dwp_elig_asset_SPON, 9, 12, 54
-
-				EMReadScreen dwp_elig_asset_total, 9, 17, 54
-				EMReadScreen dwp_elig_asset_maximum, 9, 18, 54
-
-				dwp_elig_asset_CASH = trim(dwp_elig_asset_CASH)
-				dwp_elig_asset_ACCT = trim(dwp_elig_asset_ACCT)
-				dwp_elig_asset_SECU = trim(dwp_elig_asset_SECU)
-				dwp_elig_asset_CARS = trim(dwp_elig_asset_CARS)
-				dwp_elig_asset_SPON = trim(dwp_elig_asset_SPON)
-				dwp_elig_asset_total = trim(dwp_elig_asset_total)
-				dwp_elig_asset_maximum = trim(dwp_elig_asset_maximum)
-
-				transmit
-			End If
-
-			If dwp_elig_case_test_fail_coop <> "NA" Then
-				Call write_value_and_transmit("X", 13, 5)
-
-				EMReadScreen dwp_elig_test_fail_coop_applied_other_benefits, 6, 10, 30
-				EMReadScreen dwp_elig_test_fail_coop_provide_requested_info, 6, 11, 30
-				EMReadScreen dwp_elig_test_fail_coop_IEVS, 6, 12, 30
-				EMReadScreen dwp_elig_test_fail_coop_vendor_info, 6, 13, 30
-
-				dwp_elig_test_fail_coop_applied_other_benefits = trim(dwp_elig_test_fail_coop_applied_other_benefits)
-				dwp_elig_test_fail_coop_provide_requested_info = trim(dwp_elig_test_fail_coop_provide_requested_info)
-				dwp_elig_test_fail_coop_IEVS = trim(dwp_elig_test_fail_coop_IEVS)
-				dwp_elig_test_fail_coop_vendor_info = trim(dwp_elig_test_fail_coop_vendor_info)
-
-				transmit
-
-			End If
-
-			If dwp_elig_case_test_initial_income <> "NA" Then
-				Call write_value_and_transmit("X", 6, 43)
-
-				EMReadScreen dwp_elig_initial_counted_earned_income, 	9, 8, 42
-				EMReadScreen dwp_elig_initial_dependent_care_expense, 	9, 9, 42
-				EMReadScreen dwp_elig_initial_counted_unearned_incom, 	9, 10, 42
-				EMReadScreen dwp_elig_initial_counted_deemed_income, 	9, 11, 42
-				EMReadScreen dwp_elig_initial_child_support_exclusion, 	9, 12, 42
-				EMReadScreen dwp_elig_initial_total_counted_income, 	9, 13, 42
-				EMReadScreen dwp_elig_initial_family_wage_level, 		9, 15, 42
-
-				dwp_elig_initial_counted_earned_income = trim(dwp_elig_initial_counted_earned_income)
-				dwp_elig_initial_dependent_care_expense = trim(dwp_elig_initial_dependent_care_expense)
-				dwp_elig_initial_counted_unearned_incom = trim(dwp_elig_initial_counted_unearned_incom)
-				dwp_elig_initial_counted_deemed_income = trim(dwp_elig_initial_counted_deemed_income)
-				dwp_elig_initial_child_support_exclusion = trim(dwp_elig_initial_child_support_exclusion)
-				dwp_elig_initial_total_counted_income = trim(dwp_elig_initial_total_counted_income)
-				dwp_elig_initial_family_wage_level = trim(dwp_elig_initial_family_wage_level)
-
-				'TODO - read member specific detail'
-
-				transmit
-			End If
-
-			If dwp_elig_case_test_verif <> "NA" Then
-				Call write_value_and_transmit("X", 12, 43)
-
-				EMReadScreen dwp_elig_test_verif_ACCT, 		6, 5, 32
-				EMReadScreen dwp_elig_test_verif_BUSI, 		6, 6, 32
-				EMReadScreen dwp_elig_test_verif_CARS, 		6, 7, 32
-				EMReadScreen dwp_elig_test_verif_JOBS, 		6, 8, 32
-				EMReadScreen dwp_elig_test_verif_MEMB_dob, 	6, 9, 32
-				EMReadScreen dwp_elig_test_verif_MEMB_id, 	6, 10, 32
-				EMReadScreen dwp_elig_test_verif_PARE, 		6, 11, 32
-				EMReadScreen dwp_elig_test_verif_PREG, 		6, 12, 32
-				EMReadScreen dwp_elig_test_verif_RBIC, 		6, 13, 32
-				EMReadScreen dwp_elig_test_verif_ADDR, 		6, 14, 32
-				EMReadScreen dwp_elig_test_verif_SCHL, 		6, 15, 32
-				EMReadScreen dwp_elig_test_verif_SECU, 		6, 16, 32
-				EMReadScreen dwp_elig_test_verif_SPON, 		6, 17, 32
-				EMReadScreen dwp_elig_test_verif_UNEA, 		6, 18, 32
-
-				dwp_elig_test_verif_ACCT = trim(dwp_elig_test_verif_ACCT)
-				dwp_elig_test_verif_BUSI = trim(dwp_elig_test_verif_BUSI)
-				dwp_elig_test_verif_CARS = trim(dwp_elig_test_verif_CARS)
-				dwp_elig_test_verif_JOBS = trim(dwp_elig_test_verif_JOBS)
-				dwp_elig_test_verif_MEMB_dob = trim(dwp_elig_test_verif_MEMB_dob)
-				dwp_elig_test_verif_MEMB_id = trim(dwp_elig_test_verif_MEMB_id)
-				dwp_elig_test_verif_PARE = trim(dwp_elig_test_verif_PARE)
-				dwp_elig_test_verif_PREG = trim(dwp_elig_test_verif_PREG)
-				dwp_elig_test_verif_RBIC = trim(dwp_elig_test_verif_RBIC)
-				dwp_elig_test_verif_ADDR = trim(dwp_elig_test_verif_ADDR)
-				dwp_elig_test_verif_SCHL = trim(dwp_elig_test_verif_SCHL)
-				dwp_elig_test_verif_SECU = trim(dwp_elig_test_verif_SECU)
-				dwp_elig_test_verif_SPON = trim(dwp_elig_test_verif_SPON)
-				dwp_elig_test_verif_UNEA = trim(dwp_elig_test_verif_UNEA)
-
-				transmit
-			End If
-
-			If dwp_elig_case_test_new_spouse_income <> "NA" Then
-				Call write_value_and_transmit("X", 17, 5)
-
-				'TODO - Read New Spouse Income Information
-
-				transmit
-			End If
-
-			transmit 		'going to the next panel - DWCB1
-
-
-			EMReadScreen dwp_elig_budg_shel_rent_mortgage, 		9, 5, 29
-			EMReadScreen dwp_elig_budg_shel_property_tax, 		9, 6, 29
-			EMReadScreen dwp_elig_budg_shel_house_insurance, 	9, 7, 29
-			EMReadScreen dwp_elig_budg_hest_electricity, 		9, 8, 29
-			EMReadScreen dwp_elig_budg_hest_heat_air, 			9, 9, 29
-			EMReadScreen dwp_elig_budg_hest_water_sewer_garbage, 9, 10, 29
-			EMReadScreen dwp_elig_budg_hest_phone, 				9, 11, 29
-			EMReadScreen dwp_elig_budg_shel_other, 				9, 12, 29
-
-			EMReadScreen dwp_elig_budg_total_shelter_costs, 	9, 14, 29
-			EMReadScreen dwp_elig_budg_personal_needs, 			9, 15, 29
-
-			EMReadScreen dwp_elig_budg_total_DWP_need, 			9, 17, 29
-
-			EMReadScreen dwp_elig_budg_earned_income, 			9, 7, 71
-			EMReadScreen dwp_elig_budg_unearned_income, 		9, 8, 71
-			EMReadScreen dwp_elig_budg_deemed_income, 			9, 9, 71
-			EMReadScreen dwp_elig_budg_child_support_exclusion, 9, 10, 71
-			EMReadScreen dwp_elig_budg_budget_month_total, 		9, 11, 71
-			EMReadScreen dwp_elig_budg_prior_low, 				9, 12, 71
-			EMReadScreen dwp_elig_budg_DWP_countable_income, 	9, 13, 71
-
-			EMReadScreen dwp_elig_budg_unmet_need, 				9, 15, 71
-			EMReadScreen dwp_elig_budg_DWP_max_grant, 			9, 16, 71
-			EMReadScreen dwp_elig_budg_DWP_grant, 				9, 17, 71
-
-			dwp_elig_budg_shel_rent_mortgage = trim(dwp_elig_budg_shel_rent_mortgage)
-			dwp_elig_budg_shel_property_tax = trim(dwp_elig_budg_shel_property_tax)
-			dwp_elig_budg_shel_house_insurance = trim(dwp_elig_budg_shel_house_insurance)
-			dwp_elig_budg_hest_electricity = trim(dwp_elig_budg_hest_electricity)
-			dwp_elig_budg_hest_heat_air = trim(dwp_elig_budg_hest_heat_air)
-			dwp_elig_budg_hest_water_sewer_garbage = trim(dwp_elig_budg_hest_water_sewer_garbage)
-			dwp_elig_budg_hest_phone = trim(dwp_elig_budg_hest_phone)
-			dwp_elig_budg_shel_other = trim(dwp_elig_budg_shel_other)
-			dwp_elig_budg_total_shelter_costs = trim(dwp_elig_budg_total_shelter_costs)
-			dwp_elig_budg_personal_needs = trim(dwp_elig_budg_personal_needs)
-			dwp_elig_budg_total_DWP_need = trim(dwp_elig_budg_total_DWP_need)
-			dwp_elig_budg_earned_income = trim(dwp_elig_budg_earned_income)
-			dwp_elig_budg_unearned_income = trim(dwp_elig_budg_unearned_income)
-			dwp_elig_budg_deemed_income = trim(dwp_elig_budg_deemed_income)
-			dwp_elig_budg_child_support_exclusion = trim(dwp_elig_budg_child_support_exclusion)
-			dwp_elig_budg_budget_month_total = trim(dwp_elig_budg_budget_month_total)
-			dwp_elig_budg_prior_low = trim(dwp_elig_budg_prior_low)
-			dwp_elig_budg_DWP_countable_income = trim(dwp_elig_budg_DWP_countable_income)
-			dwp_elig_budg_unmet_need = trim(dwp_elig_budg_unmet_need)
-			dwp_elig_budg_DWP_max_grant = trim(dwp_elig_budg_DWP_max_grant)
-			dwp_elig_budg_DWP_grant = trim(dwp_elig_budg_DWP_grant)
-
-			Call write_value_and_transmit("X", 7, 41)
-			EmReadScreen pop_up_menu_title, 13, 3, 46
-			If pop_up_menu_title = "Earned Income" Then
-				'TODO - read member specific unearned income
-				transmit
-			End If
-
-			Call write_value_and_transmit("X", 8, 41)
-			Do
-				EmReadScreen pop_up_menu_title, 15, 5, 32
-				If pop_up_menu_title = "Unearned Income" Then
-					'TODO - read member specific unearned income
-					transmit
-				End If
-			Loop until pop_up_menu_title <> "Unearned Income"
-
-			Call write_value_and_transmit("X", 9, 41)
-			Do
-				EmReadScreen pop_up_menu_title, 13, 3, 36
-				If pop_up_menu_title = "Deemed Income" Then
-					ReDim Preserve dwp_elig_membs_budg_deemed_self_emp(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_wages(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_counted_earned(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_earned_subtotal(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_earned_disregard(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_unearned_income(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_allocation(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_child_support(deem_count)
-					ReDim Preserve dwp_elig_membs_budg_deemed_counted_income(deem_count)
-
-					'TODO - read member specific unearned income
-					EMReadScreen dwp_elig_membs_budg_deemed_self_emp(deem_count), 				9, 8, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_wages(deem_count), 					9, 9, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_counted_earned(deem_count), 		9, 10, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count), 	9, 11, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_earned_subtotal(deem_count), 		9, 12, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_earned_disregard(deem_count), 		9, 13, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_unearned_income(deem_count), 		9, 14, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count), 9, 15, 56
-
-					EMReadScreen dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count), 		9, 18, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_allocation(deem_count), 			9, 19, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_child_support(deem_count), 			9, 20, 56
-					EMReadScreen dwp_elig_membs_budg_deemed_counted_income(deem_count), 		9, 21, 56
-
-					dwp_elig_membs_budg_deemed_self_emp(deem_count) = trim(dwp_elig_membs_budg_deemed_self_emp(deem_count))
-					dwp_elig_membs_budg_deemed_wages(deem_count) = trim(dwp_elig_membs_budg_deemed_wages(deem_count))
-					dwp_elig_membs_budg_deemed_counted_earned(deem_count) = trim(dwp_elig_membs_budg_deemed_counted_earned(deem_count))
-					dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count) = trim(dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count))
-					dwp_elig_membs_budg_deemed_earned_subtotal(deem_count) = trim(dwp_elig_membs_budg_deemed_earned_subtotal(deem_count))
-					dwp_elig_membs_budg_deemed_earned_disregard(deem_count) = trim(dwp_elig_membs_budg_deemed_earned_disregard(deem_count))
-					dwp_elig_membs_budg_deemed_unearned_income(deem_count) = trim(dwp_elig_membs_budg_deemed_unearned_income(deem_count))
-					dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count) = trim(dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count))
-					dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count) = trim(dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count))
-					dwp_elig_membs_budg_deemed_allocation(deem_count) = trim(dwp_elig_membs_budg_deemed_allocation(deem_count))
-					dwp_elig_membs_budg_deemed_child_support(deem_count) = trim(dwp_elig_membs_budg_deemed_child_support(deem_count))
-					dwp_elig_membs_budg_deemed_counted_income(deem_count) = trim(dwp_elig_membs_budg_deemed_counted_income(deem_count))
-
-					deem_count = deem_count + 1
-					transmit
-				End If
-			Loop until pop_up_menu_title <> "Deemed Income"
-
-			Call write_value_and_transmit("X", 10, 41)
-			EMReadScreen dwp_elig_cses_income, 9, 10, 54
-			EMReadScreen dwp_elig_child_count, 2, 12, 36
-			'TODO - read member specific unearned income
-
-			dwp_elig_cses_income = trim(dwp_elig_cses_income)
-			dwp_elig_child_count = trim(dwp_elig_child_count)
-
-			transmit
-
-			transmit 		'going to the next panel - DWB2
-
-			EMReadScreen dwp_elig_prorated_date, 8, 6, 18
-			dwp_elig_prorated_date = trim(dwp_elig_prorated_date)
-			If dwp_elig_prorated_date = "__ __ __" then dwp_elig_prorated_date = ""
-			dwp_elig_prorated_date = replace(dwp_elig_prorated_date, " ", "/")
-
-			EMReadScreen dwp_elig_prorated_amount, 9, 6, 35
-
-			EMReadScreen dwp_elig_amount_already_issued, 	9, 9, 35
-			EMReadScreen dwp_elig_supplement_due, 			9, 10, 35
-			EMReadScreen dwp_elig_overpayment, 				9, 11, 35
-			EMReadScreen dwp_elig_adjusted_grant_amount, 	9, 12, 35
-			EMReadScreen dwp_elig_recoupment_amount, 		9, 13, 35
-
-			EMReadScreen dwp_elig_shelter_benefit_grant, 	9, 15, 35
-			EMReadScreen dwp_elig_personal_needs_grant, 	9, 16, 35
-
-			Call write_value_and_transmit("X", 11, 3)
-			EMReadScreen dwp_elig_overpayment_fed_hh_count, 	2, 10, 31
-			EMReadScreen dwp_elig_overpayment_fed_amount, 		9, 10, 50
-			EMReadScreen dwp_elig_overpayment_state_hh_count, 	2, 12, 31
-			EMReadScreen dwp_elig_overpayment_state_amount, 	9, 12, 50
-			transmit
-
-			Call write_value_and_transmit("X", 12, 3)
-			EMReadScreen dwp_elig_adjusted_grant_fed_hh_count, 		2, 10, 25
-			EMReadScreen dwp_elig_adjusted_grant_fed_amount, 		9, 10, 45
-			EMReadScreen dwp_elig_adjusted_grant_state_hh_count, 	2, 12, 25
-			EMReadScreen dwp_elig_adjusted_grant_state_amount, 		9, 12, 45
-			transmit
-
-			dwp_elig_prorated_amount = trim(dwp_elig_prorated_amount)
-			dwp_elig_amount_already_issued = trim(dwp_elig_amount_already_issued)
-			dwp_elig_supplement_due = trim(dwp_elig_supplement_due)
-			dwp_elig_overpayment = trim(dwp_elig_overpayment)
-			dwp_elig_adjusted_grant_amount = trim(dwp_elig_adjusted_grant_amount)
-			dwp_elig_recoupment_amount = trim(dwp_elig_recoupment_amount)
-			dwp_elig_shelter_benefit_grant = trim(dwp_elig_shelter_benefit_grant)
-			dwp_elig_personal_needs_grant = trim(dwp_elig_personal_needs_grant)
-			dwp_elig_overpayment_fed_amount = trim(dwp_elig_overpayment_fed_amount)
-			dwp_elig_overpayment_state_amount = trim(dwp_elig_overpayment_state_amount)
-			dwp_elig_adjusted_grant_fed_amount = trim(dwp_elig_adjusted_grant_fed_amount)
-			dwp_elig_adjusted_grant_state_amount = trim(dwp_elig_adjusted_grant_state_amount)
-
-			transmit 		'going to the next panel - DWSM
-
-			EMReadScreen dwp_approved_date, 8, 3, 14
-			EMReadScreen dwp_process_date, 8, 2, 73
-			EMReadScreen dwp_prev_approval, 4, 3, 73
-
-			EMReadScreen dwp_case_last_approval_date, 8, 5, 31
-			EMReadScreen dwp_case_current_prog_status, 12, 6, 31
-			EMReadScreen dwp_case_eligibility_result, 12,  7, 31
-			EMReadScreen dwp_case_source_of_info, 4, 9, 31
-			EMReadScreen dwp_case_benefit_impact, 12, 10, 31
-			EMReadScreen dwp_case_4th_month_of_elig, 5, 11, 31
-			EMReadScreen dwp_case_caregivers_have_es_plan, 1, 12, 31
-			EMReadScreen dwp_case_responsible_county, 2, 13, 31
-			EMReadScreen dwp_case_service_county, 2, 14, 31
-
-			EMReadScreen dwp_case_asst_unit_caregivers, 3, 5, 72
-			EMReadScreen dwp_case_asst_unit_children, 3, 6, 72
-			EMReadScreen dwp_case_total_assets, 10, 7, 71
-			EMReadScreen dwp_case_maximum_assets, 10, 8, 71
-			EMReadScreen dwp_case_summary_grant_amount, 10, 10, 71
-			EMReadScreen dwp_case_summary_net_grant_amount, 10, 12, 71
-			EMReadScreen dwp_case_summary_shelter_benefit_portion, 10, 13, 71
-			EMReadScreen dwp_case_summary_personal_needs_portion, 10, 14, 71
-
-			dwp_prev_approval = trim(dwp_prev_approval)
-			dwp_case_last_approval_date = trim(dwp_case_last_approval_date)
-
-			dwp_case_current_prog_status = trim(dwp_case_current_prog_status)
-			dwp_case_eligibility_result = trim(dwp_case_eligibility_result)
-			dwp_case_source_of_info = trim(dwp_case_source_of_info)
-			dwp_case_benefit_impact = trim(dwp_case_benefit_impact)
-
-			dwp_case_asst_unit_caregivers = trim(dwp_case_asst_unit_caregivers)
-			dwp_case_asst_unit_children = trim(dwp_case_asst_unit_children)
-			dwp_case_total_assets = trim(dwp_case_total_assets)
-			dwp_case_maximum_assets = trim(dwp_case_maximum_assets)
-			dwp_case_summary_grant_amount = trim(dwp_case_summary_grant_amount)
-			dwp_case_summary_net_grant_amount = trim(dwp_case_summary_net_grant_amount)
-			dwp_case_summary_shelter_benefit_portion = trim(dwp_case_summary_shelter_benefit_portion)
-			dwp_case_summary_personal_needs_portion = trim(dwp_case_summary_personal_needs_portion)
-
-			Call navigate_to_MAXIS_screen("MONY", "INQX")
-			start_of_info = first_footer_month & "/1/" & first_footer_year
-			start_of_info = DateAdd("m", -1, start_of_info)
-			Call convert_date_into_MAXIS_footer_month(start_of_info, start_search_month, start_search_year)
-			EMWriteScreen start_search_month, 6, 38
-			EMWriteScreen start_search_year, 6, 41
-			EMWriteScreen CM_plus_1_mo, 6, 53
-			EMWriteScreen CM_plus_1_yr, 6, 56
-
-			EMWriteScreen "X", 17, 50
-			transmit
-
-			inqd_row = 6
-			tx_count = 0
-			EMReadScreen chck_prog, 7, inqd_row, 16
-			chck_prog = trim(chck_prog)
-
-			Do while chck_prog <> ""
-				EMReadScreen check_from_date, 8, inqd_row, 62
-				EMReadScreen check_to_date, 8, inqd_row, 73
-
-				check_from_date = DateAdd("d", 0, check_from_date)
-				check_to_date = DateAdd("d", 0, check_to_date)
-
-				check_benefit_month = DatePart("m", check_from_date)
-				check_benefit_month = right("00"&check_benefit_month, 2)
-				check_benefit_year = DatePart("yyyy", check_from_date)
-				check_benefit_year = right(check_benefit_year, 2)
-
-				Call write_value_and_transmit("I", inqd_row, 4)
-				EMReadScreen payment_reason, 14, 7, 17
-				PF3
-
-				If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
-					ReDim preserve dwp_check_issue_date(tx_count)
-					ReDim preserve dwp_check_program(tx_count)
-					ReDim preserve dwp_check_status_code(tx_count)
-					ReDim preserve dwp_check_status_info(tx_count)
-					ReDim preserve dwp_check_warrant_number(tx_count)
-					ReDim preserve dwp_check_transaction_amount(tx_count)
-					ReDim preserve dwp_check_type_code(tx_count)
-					ReDim preserve dwp_check_type_info(tx_count)
-					ReDim preserve dwp_check_transaction_number(tx_count)
-					ReDim preserve dwp_check_from_date(tx_count)
-					ReDim preserve dwp_check_to_date(tx_count)
-					ReDim preserve dwp_check_payment_reason(tx_count)
-					ReDim preserve dwp_check_payment_to_name(tx_count)
-					ReDim preserve dwp_check_payment_to_address(tx_count)
-					ReDim preserve dwp_check_mail_method(tx_count)
-					ReDim preserve dwp_check_payment_method(tx_count)
-					ReDim preserve dwp_check_vendor_number(tx_count)
-					ReDim preserve dwp_check_fiche_number(tx_count)
-					ReDim preserve dwp_check_payment_amount(tx_count)
-					ReDim preserve dwp_check_entitement_amount(tx_count)
-					ReDim preserve dwp_check_recoupment_amount(tx_count)
-					ReDim preserve dwp_check_replacement_amount(tx_count)
-					ReDim preserve dwp_check_cacnel_amount(tx_count)
-					ReDim preserve dwp_check_food_portion_amount(tx_count)
-					ReDim preserve dwp_check_reconciliation_date(tx_count)
-					ReDim preserve dwp_check_cancel_reason(tx_count)
-					ReDim preserve dwp_check_replacement_reason(tx_count)
-					ReDim preserve dwp_check_picup_status(tx_count)
-					ReDim preserve dwp_check_pickup_date(tx_count)
-					ReDim preserve dwp_check_servicing_county(tx_count)
-					ReDim preserve dwp_check_responsibility_county(tx_count)
-					ReDim preserve dwp_check_adjusting_transaction(tx_count)
-					ReDim preserve dwp_check_original_transaction(tx_count)
-					ReDim preserve dwp_check_vendor_name(tx_count)
-					ReDim preserve dwp_check_vendor_c_o(tx_count)
-					ReDim preserve dwp_check_vendor_street_one(tx_count)
-					ReDim preserve dwp_check_vendor_street_two(tx_count)
-					ReDim preserve dwp_check_vendor_city(tx_count)
-					ReDim preserve dwp_check_vendor_state(tx_count)
-					ReDim preserve dwp_check_vendor_zip(tx_count)
-					ReDim preserve dwp_check_vendor_grh_yn(tx_count)
-					ReDim preserve dwp_check_vendor_non_profit_yn(tx_count)
-					ReDim preserve dwp_check_vendor_phone(tx_count)
-					ReDim preserve dwp_check_vendor_county(tx_count)
-					ReDim preserve dwp_check_vendor_status_code(tx_count)
-					ReDim preserve dwp_check_vendor_status_info(tx_count)
-					ReDim preserve dwp_check_vendor_incorporated_yn(tx_count)
-					ReDim preserve dwp_check_vendor_federal_tax_id(tx_count)
-					ReDim preserve dwp_check_vendor_ssn(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_address_type_code(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_address_type_info(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_address_eff_date(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_name(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_c_o(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_street_one(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_street_two(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_city(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_state(tx_count)
-					ReDim preserve dwp_check_vendor_2nd_zip(tx_count)
-					ReDim preserve dwp_check_vendor_direct_deposit_yn(tx_count)
-					ReDim preserve dwp_check_vendor_merge_vendor_number(tx_count)
-					ReDim preserve dwp_check_vendor_acct_number_required_yn(tx_count)
-					ReDim preserve dwp_check_vendor_blocked_county_numbers_list(tx_count)
-
-					dwp_mony_check_found = True
-
-					dwp_check_program(tx_count) = chck_prog
-					EMReadScreen dwp_check_issue_date(tx_count), 8, inqd_row, 7
-					dwp_check_issue_date(tx_count) = trim(dwp_check_issue_date(tx_count))
-					If IsDate(dwp_check_issue_date(tx_count)) = True Then
-						If DateDiff("d", date, dwp_check_issue_date(tx_count)) = 0 Then approved_today = True
-					End if
-					EMReadScreen dwp_check_status_code(tx_count), 1, inqd_row, 26
-					If dwp_check_status_code(tx_count) = "C" Then dwp_check_status_info(tx_count) = "Cancel/Return"
-					If dwp_check_status_code(tx_count) = "D" Then dwp_check_status_info(tx_count) = "Denied"
-					If dwp_check_status_code(tx_count) = "I" Then dwp_check_status_info(tx_count) = "Issued"
-					If dwp_check_status_code(tx_count) = "P" Then dwp_check_status_info(tx_count) = "Pending"
-					If dwp_check_status_code(tx_count) = "R" Then dwp_check_status_info(tx_count) = "Cashed"
-					If dwp_check_status_code(tx_count) = "S" Then dwp_check_status_info(tx_count) = "Partial Cancel"
-					If dwp_check_status_code(tx_count) = "T" Then dwp_check_status_info(tx_count) = "Stopped/Cashed"
-					If dwp_check_status_code(tx_count) = "X" Then dwp_check_status_info(tx_count) = "Stopped"
-					If dwp_check_status_code(tx_count) = "B" Then dwp_check_status_info(tx_count) = "Cashed and Replaced"
-					EMReadScreen dwp_check_warrant_number(tx_count), 8, inqd_row, 28
-					EMReadScreen dwp_check_transaction_amount(tx_count), 9, inqd_row, 37
-					dwp_check_transaction_amount(tx_count) = trim(dwp_check_transaction_amount(tx_count))
-					EMReadScreen dwp_check_type_code(tx_count), 1, inqd_row, 48
-					If dwp_check_type_code(tx_count) = "1" Then dwp_check_type_info(tx_count) = "Ongoing Issuance"
-					If dwp_check_type_code(tx_count) = "2" Then dwp_check_type_info(tx_count) = "Same Day Local Issuance"
-					If dwp_check_type_code(tx_count) = "3" Then dwp_check_type_info(tx_count) = "Replacement Issuance"
-					If dwp_check_type_code(tx_count) = "4" Then dwp_check_type_info(tx_count) = "Same Day Issuance"
-					If dwp_check_type_code(tx_count) = "5" Then dwp_check_type_info(tx_count) = "Nightly Issuance"
-					If dwp_check_type_code(tx_count) = "6" Then dwp_check_type_info(tx_count) = "Manual Issuance"
-					If dwp_check_type_code(tx_count) = "7" Then dwp_check_type_info(tx_count) = "EBT Rapid Electronic Issuance"
-					If dwp_check_type_code(tx_count) = "8" Then dwp_check_type_info(tx_count) = "EBT Rapid Electronic Replacement"
-					EMReadScreen dwp_check_transaction_number(tx_count), 9, inqd_row, 51
-					EMReadScreen dwp_check_from_date(tx_count), 8, inqd_row, 62
-					EMReadScreen dwp_check_to_date(tx_count), 8, inqd_row, 73
-
-					Call write_value_and_transmit("I", inqd_row, 4)
-
-					EMReadScreen dwp_check_payment_reason(tx_count), 	30, 7, 17
-					EMReadScreen dwp_check_payment_to_name(tx_count), 	30, 8, 17
-					EMReadScreen addr_one, 								30, 9, 17
-					EMReadScreen addr_two, 								30, 10, 17
-					dwp_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
-					EMReadScreen dwp_check_mail_method(tx_count), 			15, 4, 63
-					EMReadScreen dwp_check_payment_method(tx_count), 		15, 5, 63
-					EMReadScreen dwp_check_vendor_number(tx_count), 		15, 6, 63
-					EMReadScreen dwp_check_fiche_number(tx_count), 		15, 7, 63
-					EMReadScreen dwp_check_payment_amount(tx_count), 		10, 13, 16
-					EMReadScreen dwp_check_entitement_amount(tx_count), 	10, 14, 16
-					EMReadScreen dwp_check_recoupment_amount(tx_count), 	10, 15, 16
-					EMReadScreen dwp_check_replacement_amount(tx_count), 	10, 16, 16
-					EMReadScreen dwp_check_cacnel_amount(tx_count), 		10, 17, 16
-					EMReadScreen dwp_check_food_portion_amount(tx_count), 	10, 18, 16
-					EMReadScreen dwp_check_reconciliation_date(tx_count), 	8, 6, 43
-					EMReadScreen dwp_check_cancel_reason(tx_count), 		30, 17, 41
-					EMReadScreen dwp_check_replacement_reason(tx_count), 	30, 18, 46
-					EMReadScreen dwp_check_picup_status(tx_count), 		10, 10, 70
-					EMReadScreen dwp_check_pickup_date(tx_count), 			8, 11, 70
-					EMReadScreen dwp_check_servicing_county(tx_count), 	2, 13, 70
-					EMReadScreen dwp_check_responsibility_county(tx_count), 2, 14, 70
-					EMReadScreen dwp_check_adjusting_transaction(tx_count), 10, 15, 70
-					EMReadScreen dwp_check_original_transaction(tx_count), 10, 16, 70
-
-					dwp_check_payment_reason(tx_count) = trim(dwp_check_payment_reason(tx_count))
-					dwp_check_payment_to_name(tx_count) = trim(dwp_check_payment_to_name(tx_count))
-					dwp_check_payment_to_address(tx_count) = trim(dwp_check_payment_to_address(tx_count))
-					dwp_check_mail_method(tx_count) = trim(dwp_check_mail_method(tx_count))
-					dwp_check_payment_method(tx_count) = trim(dwp_check_payment_method(tx_count))
-					dwp_check_vendor_number(tx_count) = trim(dwp_check_vendor_number(tx_count))
-					dwp_check_fiche_number(tx_count) = trim(dwp_check_fiche_number(tx_count))
-					dwp_check_payment_amount(tx_count) = trim(dwp_check_payment_amount(tx_count))
-					dwp_check_entitement_amount(tx_count) = trim(dwp_check_entitement_amount(tx_count))
-					dwp_check_recoupment_amount(tx_count) = trim(dwp_check_recoupment_amount(tx_count))
-					dwp_check_replacement_amount(tx_count) = trim(dwp_check_replacement_amount(tx_count))
-					dwp_check_cacnel_amount(tx_count) = trim(dwp_check_cacnel_amount(tx_count))
-					dwp_check_food_portion_amount(tx_count) = trim(dwp_check_food_portion_amount(tx_count))
-					dwp_check_reconciliation_date(tx_count) = trim(dwp_check_reconciliation_date(tx_count))
-					dwp_check_cancel_reason(tx_count) = trim(dwp_check_cancel_reason(tx_count))
-					dwp_check_replacement_reason(tx_count) = trim(dwp_check_replacement_reason(tx_count))
-					dwp_check_picup_status(tx_count) = trim(dwp_check_picup_status(tx_count))
-					dwp_check_pickup_date(tx_count) = trim(dwp_check_pickup_date(tx_count))
-					dwp_check_servicing_county(tx_count) = trim(dwp_check_servicing_county(tx_count))
-					dwp_check_responsibility_county(tx_count) = trim(dwp_check_responsibility_county(tx_count))
-					dwp_check_adjusting_transaction(tx_count) = trim(dwp_check_adjusting_transaction(tx_count))
-					dwp_check_original_transaction(tx_count) = trim(dwp_check_original_transaction(tx_count))
-
-					PF3
-					tx_count = tx_count + 1
-				End If
-
-				inqd_row = inqd_row + 1
-				EMReadScreen chck_prog, 7, inqd_row, 16
-				chck_prog = trim(chck_prog)
-			Loop
-			PF3
-		End If
-		Call back_to_SELF
-
-		If dwp_mony_check_found = True Then
-			for each_trans = 0 to UBound(dwp_check_program)
-				Call navigate_to_MAXIS_screen("MONY", "VNDS")
-
-				Call write_value_and_transmit(dwp_check_vendor_number(each_trans), 4, 59)
-				EMReadScreen dwp_check_vendor_name(each_trans), 					30, 3, 15
-				EMReadScreen dwp_check_vendor_c_o(each_trans), 					30, 4, 15
-				EMReadScreen dwp_check_vendor_street_one(each_trans), 				22, 5, 15
-				EMReadScreen dwp_check_vendor_street_two(each_trans), 				22, 6, 15
-				EMReadScreen dwp_check_vendor_city(each_trans), 					15, 7, 15
-				EMReadScreen dwp_check_vendor_state(each_trans), 					2, 7, 36
-				EMReadScreen dwp_check_vendor_zip(each_trans), 					10, 7, 46
-				EMReadScreen dwp_check_vendor_grh_yn(each_trans), 					1, 4, 57
-				EMReadScreen dwp_check_vendor_non_profit_yn(each_trans), 			1, 4, 78
-				EMReadScreen dwp_check_vendor_phone(each_trans), 					16, 6, 54
-				dwp_check_vendor_phone(each_trans) = "(" & replace(replace(dwp_check_vendor_phone(each_trans), " )  ", ")"), "  ", "-")
-				EMReadScreen dwp_check_vendor_county(each_trans), 					2, 7, 61
-				EMReadScreen dwp_check_vendor_status_code(each_trans), 			1, 16, 15
-				If dwp_check_vendor_status_code(each_trans) = "A" Then dwp_check_vendor_status_info(each_trans) = "Active"
-				If dwp_check_vendor_status_code(each_trans) = "D" Then dwp_check_vendor_status_info(each_trans) = "Delete"
-				If dwp_check_vendor_status_code(each_trans) = "M" Then dwp_check_vendor_status_info(each_trans) = "Merged"
-				If dwp_check_vendor_status_code(each_trans) = "P" Then dwp_check_vendor_status_info(each_trans) = "Pending"
-				If dwp_check_vendor_status_code(each_trans) = "T" Then dwp_check_vendor_status_info(each_trans) = "Terminated"
-				EMReadScreen dwp_check_vendor_incorporated_yn(each_trans), 		1, 9, 22
-				EMReadScreen dwp_check_vendor_federal_tax_id(each_trans), 			9, 9, 41
-				EMReadScreen dwp_check_vendor_ssn(each_trans), 					11, 9, 61
-				If dwp_check_vendor_ssn(each_trans) = "___ __ ____" Then dwp_check_vendor_ssn(each_trans) = ""
-				dwp_check_vendor_ssn(each_trans) = replace(dwp_check_vendor_ssn(each_trans), " ", "-")
-				EMReadScreen dwp_check_vendor_2nd_address_type_code(each_trans), 	1, 10, 22
-				If dwp_check_vendor_2nd_address_type_code(each_trans) = "1" Then dwp_check_vendor_2nd_address_type_info(each_trans) = "Mailing Address"
-				If dwp_check_vendor_2nd_address_type_code(each_trans) = "2" Then dwp_check_vendor_2nd_address_type_info(each_trans) = "Court Order"
-				EMReadScreen dwp_check_vendor_2nd_address_eff_date(each_trans), 	8, 11, 15
-				If dwp_check_vendor_2nd_address_eff_date(each_trans) = "__ __ __" Then dwp_check_vendor_2nd_address_eff_date(each_trans) = ""
-				dwp_check_vendor_2nd_address_eff_date(each_trans) = replace(dwp_check_vendor_2nd_address_eff_date(each_trans), " ", "/")
-				EMReadScreen dwp_check_vendor_2nd_name(each_trans), 				30, 11, 15
-				EMReadScreen dwp_check_vendor_2nd_c_o(each_trans), 				30, 12, 15
-				EMReadScreen dwp_check_vendor_2nd_street_one(each_trans), 			22, 13, 15
-				EMReadScreen dwp_check_vendor_2nd_street_two(each_trans), 			22, 14, 15
-				EMReadScreen dwp_check_vendor_2nd_city(each_trans), 				15, 15, 15
-				EMReadScreen dwp_check_vendor_2nd_state(each_trans), 				2, 15, 35
-				EMReadScreen dwp_check_vendor_2nd_zip(each_trans), 				10, 15, 44
-				EMReadScreen dwp_check_vendor_direct_deposit_yn(each_trans), 		1, 12, 76
-				EMReadScreen dwp_check_vendor_merge_vendor_number(each_trans), 	8, 16, 38
-				EMReadScreen dwp_check_vendor_acct_number_required_yn(each_trans), 1, 17, 74
-				EMReadScreen dwp_check_vendor_blocked_county_numbers_list(each_trans), 29, 18, 23
-
-				dwp_check_vendor_name(each_trans) = replace(dwp_check_vendor_name(each_trans), "_", "")
-				dwp_check_vendor_c_o(each_trans) = replace(dwp_check_vendor_c_o(each_trans), "_", "")
-				dwp_check_vendor_street_one(each_trans) = replace(dwp_check_vendor_street_one(each_trans), "_", "")
-				dwp_check_vendor_street_two(each_trans) = replace(dwp_check_vendor_street_two(each_trans), "_", "")
-				dwp_check_vendor_city(each_trans) = replace(dwp_check_vendor_city(each_trans), "_", "")
-				dwp_check_vendor_zip(each_trans) = trim(dwp_check_vendor_zip(each_trans))
-				dwp_check_vendor_zip(each_trans) = replace(dwp_check_vendor_zip(each_trans), " ", "-")
-
-				dwp_check_vendor_federal_tax_id(each_trans) = replace(dwp_check_vendor_federal_tax_id(each_trans), "_", "")
-
-				dwp_check_vendor_2nd_name(each_trans) = replace(dwp_check_vendor_2nd_name(each_trans), "_", "")
-				dwp_check_vendor_2nd_c_o(each_trans) = replace(dwp_check_vendor_2nd_c_o(each_trans), "_", "")
-				dwp_check_vendor_2nd_street_one(each_trans) = replace(dwp_check_vendor_2nd_street_one(each_trans), "_", "")
-				dwp_check_vendor_2nd_street_two(each_trans) = replace(dwp_check_vendor_2nd_street_two(each_trans), "_", "")
-				dwp_check_vendor_2nd_city(each_trans) = replace(dwp_check_vendor_2nd_city(each_trans), "_", "")
-				dwp_check_vendor_2nd_zip(each_trans) = replace(dwp_check_vendor_2nd_zip(each_trans), "_", "")
-				dwp_check_vendor_2nd_zip(each_trans) = trim(dwp_check_vendor_2nd_zip(each_trans))
-				dwp_check_vendor_2nd_zip(each_trans) = replace(dwp_check_vendor_2nd_zip(each_trans), " ", "-")
-
-				dwp_check_vendor_merge_vendor_number(each_trans) = replace(dwp_check_vendor_merge_vendor_number(each_trans), "_", "")
-				dwp_check_vendor_acct_number_required_yn(each_trans) = replace(dwp_check_vendor_acct_number_required_yn(each_trans), "_", "")
-
-				dwp_check_vendor_blocked_county_numbers_list(each_trans) = replace(dwp_check_vendor_blocked_county_numbers_list(each_trans), "_", "")
-				dwp_check_vendor_blocked_county_numbers_list(each_trans) = trim((dwp_check_vendor_blocked_county_numbers_list(each_trans)))
-
-				PF3
-			Next
-		End If
-		Call Back_to_SELF
-		Call navigate_to_MAXIS_screen("MONY", "VNDA")
-
-		EMWriteScreen elig_footer_month, 4, 55
-		EMWriteScreen elig_footer_year, 4, 58
-		Call write_value_and_transmit("X", 13, 16)
-		EMReadScreen panel_location, 4, 4, 14
-		If panel_location <> "Case" Then 			'this is on the initial search panel, if it says 'Case' it means we are still at the first screen
-			auth_count = 0
-			vnda_row = 6
-			Do
-				EMReadScreen vndr_nbr, 8, vnda_row, 3
-				EMReadScreen vndr_send, 1, vnda_row, 62
-				If vndr_nbr <> "________" and vndr_send = "V" Then
-					dwp_vnda_found = True
-
-					ReDim preserve dwp_vnda_vendor_number(auth_count)
-					ReDim preserve dwp_vnda_vendor_name(auth_count)
-					ReDim preserve dwp_vnda_reference_number(auth_count)
-					ReDim preserve dwp_vnda_send_to_code(auth_count)
-					ReDim preserve dwp_vnda_send_to_info(auth_count)
-					ReDim preserve dwp_vnda_expense_type_code(auth_count)
-					ReDim preserve dwp_vnda_expense_type_info(auth_count)
-					ReDim preserve dwp_vnda_payment_amount(auth_count)
-
-					EMReadScreen dwp_vnda_vendor_number(auth_count), 8, vnda_row, 3
-					EMReadScreen dwp_vnda_vendor_name(auth_count), 30, vnda_row, 12
-					EMReadScreen dwp_vnda_reference_number(auth_count), 16, vnda_row, 43
-					EMReadScreen dwp_vnda_send_to_code(auth_count), 1, vnda_row, 62
-					EMReadScreen dwp_vnda_expense_type_code(auth_count), 2, vnda_row, 68
-					EMReadScreen dwp_vnda_payment_amount(auth_count), 8, vnda_row, 73
-
-					dwp_vnda_vendor_number(auth_count) = replace(dwp_vnda_vendor_number(auth_count), "_", "")
-					dwp_vnda_vendor_name(auth_count) = replace(dwp_vnda_vendor_name(auth_count), "_", "")
-					dwp_vnda_reference_number(auth_count) = replace(dwp_vnda_reference_number(auth_count), "_", "")
-
-					If dwp_vnda_send_to_code(auth_count) = "V" Then dwp_vnda_send_to_info(auth_count) = "Vendor"
-					If dwp_vnda_send_to_code(auth_count) = "C" Then dwp_vnda_send_to_info(auth_count) = "Client"
-
-					If dwp_vnda_expense_type_code(auth_count) = "01" Then dwp_vnda_expense_type_info(auth_count) = "Rent"
-					If dwp_vnda_expense_type_code(auth_count) = "02" Then dwp_vnda_expense_type_info(auth_count) = "Mortgage"
-					If dwp_vnda_expense_type_code(auth_count) = "03" Then dwp_vnda_expense_type_info(auth_count) = "Electric"
-					If dwp_vnda_expense_type_code(auth_count) = "04" Then dwp_vnda_expense_type_info(auth_count) = "Heat"
-					If dwp_vnda_expense_type_code(auth_count) = "05" Then dwp_vnda_expense_type_info(auth_count) = "Phone"
-					If dwp_vnda_expense_type_code(auth_count) = "06" Then dwp_vnda_expense_type_info(auth_count) = "Water"
-					If dwp_vnda_expense_type_code(auth_count) = "07" Then dwp_vnda_expense_type_info(auth_count) = "Food"
-					If dwp_vnda_expense_type_code(auth_count) = "08" Then dwp_vnda_expense_type_info(auth_count) = "Personal Needs"
-					If dwp_vnda_expense_type_code(auth_count) = "09" Then dwp_vnda_expense_type_info(auth_count) = "Household Needs"
-					If dwp_vnda_expense_type_code(auth_count) = "10" Then dwp_vnda_expense_type_info(auth_count) = "Furniture"
-					If dwp_vnda_expense_type_code(auth_count) = "11" Then dwp_vnda_expense_type_info(auth_count) = "Appliances"
-					If dwp_vnda_expense_type_code(auth_count) = "12" Then dwp_vnda_expense_type_info(auth_count) = "Clothes"
-					If dwp_vnda_expense_type_code(auth_count) = "13" Then dwp_vnda_expense_type_info(auth_count) = "Other"
-					If dwp_vnda_expense_type_code(auth_count) = "15" Then dwp_vnda_expense_type_info(auth_count) = "MSA Eligible Spouse"
-					If dwp_vnda_expense_type_code(auth_count) = "54" Then dwp_vnda_expense_type_info(auth_count) = "Rent with Landlord Notice"
-
-					dwp_vnda_payment_amount(auth_count) = trim(dwp_vnda_payment_amount(auth_count))
-					auth_count = auth_count + 1
-				End If
-				vnda_row = vnda_row + 1
-			Loop until vndr_nbr = "________"
-			PF3
-		End If
-
-		If dwp_autoclosed_for_time_limit = True Then approved_today = True
-	end sub
-end class
-
 class mfip_eligibility_detail
 	public six_month_budget_elig
 	public elig_footer_month
@@ -13841,19 +11473,6 @@ class deny_eligibility_detail
 	public deny_cash_membs_ref_numbs()
 	public deny_cash_membs_full_name()
 	public deny_cash_membs_request_yn()
-	public deny_cash_membs_dwp_test_absence()
-	public deny_cash_membs_dwp_test_child_age()
-	public deny_cash_membs_dwp_test_citizenship()
-	public deny_cash_membs_dwp_test_citizenship_verif()
-	public deny_cash_membs_dwp_test_dupl_assist()
-	public deny_cash_membs_dwp_test_foster_care()
-	public deny_cash_membs_dwp_test_fraud()
-	public deny_cash_membs_dwp_test_minor_living_arrangement()
-	public deny_cash_membs_dwp_test_post_60_removal()
-	public deny_cash_membs_dwp_test_SSI()
-	public deny_cash_membs_dwp_test_SSN_coop()
-	public deny_cash_membs_dwp_test_Unit_member()
-	public deny_cash_membs_dwp_test_unlawful_conduct()
 	public deny_cash_membs_mfip_test_absence()
 	public deny_cash_membs_mfip_test_child_age()
 	public deny_cash_membs_mfip_test_citizenship()
@@ -13892,76 +11511,20 @@ class deny_eligibility_detail
 	public deny_cash_membs_ga_test_SSN_coop()
 	public deny_cash_membs_ga_test_unit_member()
 
-	public deny_cash_dwp_reason_code
 	public deny_cash_mfip_reason_code
 	public deny_cash_msa_reason_code
 	public deny_cash_ga_reason_code
-	public deny_cash_dwp_reason_info
 	public deny_cash_mfip_reason_info
 	public deny_cash_msa_reason_info
 	public deny_cash_ga_reason_info
-	public deny_cash_dwp_memo_info
 	public deny_cash_mfip_memo_info
 	public deny_cash_msa_memo_info
 	public deny_cash_ga_memo_info
-	public deny_cash_dwp_selection_line
 	public deny_cash_mfip_selection_line
 	public deny_cash_msa_selection_line
-	public deny_cash_dwp_details_exists
 	public deny_cash_mfip_details_exists
 	public deny_cash_msa_details_exists
 	public deny_cash_ga_details_exists
-	public deny_cash_mfip_or_dwp
-
-	public deny_dwp_elig_case_test_application_withdrawn
-	public deny_dwp_elig_case_test_assets
-	public deny_dwp_elig_case_test_CS_disqualification
-	public deny_dwp_elig_case_test_death_of_applicant
-	public deny_dwp_elig_case_test_dupl_assistance
-	public deny_dwp_elig_case_test_eligible_child
-	public deny_dwp_elig_case_test_ES_disqualification
-	public deny_dwp_elig_case_test_fail_coop
-	public deny_dwp_elig_case_test_four_month_limit
-	public deny_dwp_elig_case_test_initial_income
-	public deny_dwp_elig_case_test_MFIP_conversion
-	public deny_dwp_elig_case_test_residence
-	public deny_dwp_elig_case_test_strike
-	public deny_dwp_elig_case_test_TANF_time_limit
-	public deny_dwp_elig_case_test_transfer_of_assets
-	public deny_dwp_elig_case_test_verif
-	public deny_dwp_elig_case_test_new_spouse_income
-	public deny_dwp_elig_initial_counted_earned_income
-	public deny_dwp_elig_initial_dependent_care_expense
-	public deny_dwp_elig_initial_counted_unearned_income
-	public deny_dwp_elig_initial_counted_deemed_income
-	public deny_dwp_elig_initial_child_support_exclusion
-	public deny_dwp_elig_initial_total_counted_income
-	public deny_dwp_elig_initial_family_wage_level
-	public deny_dwp_elig_asset_CASH
-	public deny_dwp_elig_asset_ACCT
-	public deny_dwp_elig_asset_SECU
-	public deny_dwp_elig_asset_CARS
-	public deny_dwp_elig_asset_SPON
-	public deny_dwp_elig_asset_total
-	public deny_dwp_elig_asset_maximum
-	public deny_dwp_elig_test_fail_coop_applied_other_benefits
-	public deny_dwp_elig_test_fail_coop_provide_requested_info
-	public deny_dwp_elig_test_fail_coop_IEVS
-	public deny_dwp_elig_test_fail_coop_vendor_info
-	public deny_dwp_elig_test_verif_ACCT
-	public deny_dwp_elig_test_verif_BUSI
-	public deny_dwp_elig_test_verif_CARS
-	public deny_dwp_elig_test_verif_JOBS
-	public deny_dwp_elig_test_verif_MEMB_dob
-	public deny_dwp_elig_test_verif_MEMB_id
-	public deny_dwp_elig_test_verif_PARE
-	public deny_dwp_elig_test_verif_PREG
-	public deny_dwp_elig_test_verif_RBIC
-	public deny_dwp_elig_test_verif_ADDR
-	public deny_dwp_elig_test_verif_SCHL
-	public deny_dwp_elig_test_verif_SECU
-	public deny_dwp_elig_test_verif_SPON
-	public deny_dwp_elig_test_verif_UNEA
 
 	public deny_mfip_case_test_appl_withdraw
 	public deny_mfip_case_test_asset
@@ -14041,7 +11604,6 @@ class deny_eligibility_detail
 	public deny_msa_elig_budg_need_standard
 	public deny_msa_elig_budg_net_income
 
-	public deny_dwp_elig_explanation
 	public deny_mfip_elig_explanation
 	public deny_ga_elig_explanation
 	public deny_msa_elig_explanation
@@ -14071,23 +11633,14 @@ class deny_eligibility_detail
 				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End If
 		End If
+		first_of_footer_month = elig_footer_month & "/1/" & elig_footer_year
+    	dwp_ended = False
+        If DateDiff("d", #3/1/2026#, first_of_footer_month) >= 0 Then dwp_ended = True
+
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
 			ReDim deny_cash_membs_full_name(0)
 			ReDim deny_cash_membs_request_yn(0)
-			ReDim deny_cash_membs_dwp_test_absence(0)
-			ReDim deny_cash_membs_dwp_test_child_age(0)
-			ReDim deny_cash_membs_dwp_test_citizenship(0)
-			ReDim deny_cash_membs_dwp_test_citizenship_verif(0)
-			ReDim deny_cash_membs_dwp_test_dupl_assist(0)
-			ReDim deny_cash_membs_dwp_test_foster_care(0)
-			ReDim deny_cash_membs_dwp_test_fraud(0)
-			ReDim deny_cash_membs_dwp_test_minor_living_arrangement(0)
-			ReDim deny_cash_membs_dwp_test_post_60_removal(0)
-			ReDim deny_cash_membs_dwp_test_SSI(0)
-			ReDim deny_cash_membs_dwp_test_SSN_coop(0)
-			ReDim deny_cash_membs_dwp_test_Unit_member(0)
-			ReDim deny_cash_membs_dwp_test_unlawful_conduct(0)
 			ReDim deny_cash_membs_mfip_test_absence(0)
 			ReDim deny_cash_membs_mfip_test_child_age(0)
 			ReDim deny_cash_membs_mfip_test_citizenship(0)
@@ -14132,19 +11685,6 @@ class deny_eligibility_detail
 				ReDim preserve deny_cash_membs_ref_numbs(memb_count)
 				ReDim preserve deny_cash_membs_full_name(memb_count)
 				ReDim preserve deny_cash_membs_request_yn(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_absence(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_child_age(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_citizenship(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_citizenship_verif(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_dupl_assist(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_foster_care(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_fraud(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_minor_living_arrangement(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_post_60_removal(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_SSI(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_SSN_coop(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_Unit_member(memb_count)
-				ReDim preserve deny_cash_membs_dwp_test_unlawful_conduct(memb_count)
 				ReDim preserve deny_cash_membs_mfip_test_absence(memb_count)
 				ReDim preserve deny_cash_membs_mfip_test_child_age(memb_count)
 				ReDim preserve deny_cash_membs_mfip_test_citizenship(memb_count)
@@ -14187,24 +11727,7 @@ class deny_eligibility_detail
 				EMReadScreen deny_cash_membs_full_name(memb_count), 25, row, 11
 				EMReadScreen deny_cash_membs_request_yn(memb_count), 1, row, 42
 
-				Call write_value_and_transmit("X", row, 47)		'DWP Tests'
-				EMReadScreen deny_cash_membs_dwp_test_absence(memb_count), 				6, 7, 10
-				EMReadScreen deny_cash_membs_dwp_test_child_age(memb_count), 			6, 8, 10
-				EMReadScreen deny_cash_membs_dwp_test_citizenship(memb_count), 			6, 9, 10
-				EMReadScreen deny_cash_membs_dwp_test_citizenship_verif(memb_count), 	6, 10, 10
-				EMReadScreen deny_cash_membs_dwp_test_dupl_assist(memb_count), 			6, 11, 10
-				EMReadScreen deny_cash_membs_dwp_test_foster_care(memb_count), 			6, 12, 10
-				EMReadScreen deny_cash_membs_dwp_test_fraud(memb_count), 				6, 13, 10
-
-				EMReadScreen deny_cash_membs_dwp_test_minor_living_arrangement(memb_count), 6, 7, 42
-				EMReadScreen deny_cash_membs_dwp_test_post_60_removal(memb_count), 			6, 8, 42
-				EMReadScreen deny_cash_membs_dwp_test_SSI(memb_count), 						6, 9, 42
-				EMReadScreen deny_cash_membs_dwp_test_SSN_coop(memb_count), 				6, 10, 42
-				EMReadScreen deny_cash_membs_dwp_test_Unit_member(memb_count), 				6, 11, 42
-				EMReadScreen deny_cash_membs_dwp_test_unlawful_conduct(memb_count), 		6, 12, 42
-				transmit
-
-				Call write_value_and_transmit("X", row, 52)		'MFIP Tests'
+				Call write_value_and_transmit("X", row, 52)		                                    'MFIP Tests'
 				EMReadScreen deny_cash_membs_mfip_test_absence(memb_count), 			6, 7, 10
 				EMReadScreen deny_cash_membs_mfip_test_child_age(memb_count), 			6, 8, 10
 				EMReadScreen deny_cash_membs_mfip_test_citizenship(memb_count), 		6, 9, 10
@@ -14221,7 +11744,8 @@ class deny_eligibility_detail
 				EMReadScreen deny_cash_membs_mfip_test_unlawful_conduct(memb_count), 		6, 12, 42
 				transmit
 
-				Call write_value_and_transmit("X", row, 67)		'MSA Tests'
+				If NOT dwp_ended Then Call write_value_and_transmit("X", row, 67)		            'MSA Tests'
+				If dwp_ended Then Call write_value_and_transmit("X", row, 62)		                'MSA Tests'
 				EMReadScreen deny_cash_membs_msa_test_absence(memb_count), 			6, 7, 10
 				EMReadScreen deny_cash_membs_msa_test_age(memb_count), 				6, 8, 10
 				EMReadScreen deny_cash_membs_msa_test_basis_of_elig(memb_count), 	6, 9, 10
@@ -14238,7 +11762,8 @@ class deny_eligibility_detail
 				EMReadScreen deny_cash_membs_msa_test_verif(memb_count), 			6, 12, 42
 				transmit
 
-				Call write_value_and_transmit("X", row, 72)		'GA Tests'
+				If NOT dwp_ended Then Call write_value_and_transmit("X", row, 72)		            'GA Tests'
+				If dwp_ended Then Call write_value_and_transmit("X", row, 67)		                'GA Tests'
 				EMReadScreen deny_cash_membs_ga_test_absence(memb_count), 		6, 7, 10
 				EMReadScreen deny_cash_membs_ga_test_basis_of_elig(memb_count), 6, 8, 10
 				EMReadScreen deny_cash_membs_ga_test_dupl_assist(memb_count), 	6, 9, 10
@@ -14258,62 +11783,12 @@ class deny_eligibility_detail
 			Loop until next_ref_number = "  "
 
 			transmit 		'Move to the next panel - CASM
-
-			EMReadScreen deny_cash_dwp_reason_code, 2, 8, 46
-			EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
-			EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
-			EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
-			deny_cash_mfip_or_dwp = ""
-			If deny_cash_dwp_reason_code = "01" and deny_cash_mfip_reason_code <> "01" Then deny_cash_mfip_or_dwp = "MFIP"
-			If deny_cash_dwp_reason_code <> "01" and deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_or_dwp = "DWP"
-
-			If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
-			If deny_cash_dwp_reason_code = "01" Then
-				deny_cash_dwp_reason_info = "No Eligible Child"
-				If deny_cash_mfip_or_dwp = "MFIP" Then deny_cash_dwp_reason_info = "Assessed for MFIP"
-			End If
-			If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
-			If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
-			If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
-			If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_reason_info = "Fail To Cooperate"
-			If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_reason_info = "Child Support Disqualification"
-			If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_reason_info = "Employment Services Disqualification"
-			If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_reason_info = "Death"
-			If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_reason_info = "Residence"
-			If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_reason_info = "Transfer of Resources"
-			If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_reason_info = "Verification"
-			If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_reason_info = "Strike"
-			If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_reason_info = "Program Active"
-			If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_reason_info = "4 Month Limit"
-			If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_reason_info = "MFIP Conversion"
-			If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_reason_info = "Duplicate Assistance"
-			If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_reason_info = "PND2 Denial"
-			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_reason_info = "TANF Time Limit"
-			If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_memo_info = ""
-			If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_memo_info = "this case does not have an eligible child."
-			If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_memo_info = "you withdrew your request for Cash Assistance."
-			If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_memo_info = "your income exceeds the income limit."
-			If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_memo_info = "your assets exceed the asset limit."
-			If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_memo_info = "you did not comply with all the program requirements."
-			If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_memo_info = "you need to cooperate with Child Support requirements."
-			If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_memo_info = "you need to cooperate with Employment Services requirements."
-			If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_memo_info = "the applicant has died."
-			If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_memo_info = "you must be a resident of Minnesota for 30 days."
-			If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_memo_info = "you transferred assets."
-			If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_memo_info = "you did not provide required verifications."
-			If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_memo_info = "you have a household member on strike."
-			If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_memo_info = "you have another program active."
-			If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_memo_info = "you have used all 4 months of DWP."
-			If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_memo_info = "this case does not appear likely to benefit from DWP."
-			If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_memo_info = "you already have cash assistance."
-			If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_memo_info = "you did not complete the application process."
-			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_memo_info = "you have used all 60 TANF months available."
+            EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
+            EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
+            EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
 
 			If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
-			If deny_cash_mfip_reason_code = "01" Then
-				deny_cash_mfip_reason_info = "No Eligible Child"
-				If deny_cash_mfip_or_dwp = "DWP" Then deny_cash_mfip_reason_info = "Assessed for DWP"
-			End If
+			If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
 			If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
 			If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
 			If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
@@ -14330,7 +11805,6 @@ class deny_eligibility_detail
 			If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_reason_info = "Duplicate Assistance"
 			If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_reason_info = "Minor Living Arrangement"
 			If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_reason_info = "TANF Time Limit"
-			If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_reason_info = "Diversionary Work Program"
 			If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_reason_info = "Sanction Period"
 			If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_reason_info = "Sanction Date Compliance"
 			If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_reason_info = "PND2 Denial System Entered"
@@ -14352,7 +11826,6 @@ class deny_eligibility_detail
 			If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_memo_info = "you already have cash assistance."
 			If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_memo_info = "the living arrangment of minors in the home has not been approved."
 			If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_memo_info = "you have used all 60 TANF months available."
-			If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_memo_info = "this case appears to be likely to benefit from DWP."
 			If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_memo_info = "you are currently in MFIP Sanction."
 			If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_memo_info = "you have not complied to avoid sanction in time."
 			If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_memo_info = "you did not complete the application process."
@@ -14427,11 +11900,9 @@ class deny_eligibility_detail
 			If deny_cash_ga_reason_code = "29" Then deny_cash_ga_memo_info = "you have received a lump sum income making you ineligible."
 			If deny_cash_ga_reason_code = "99" Then deny_cash_ga_memo_info = "you did not complete the application process."
 
-			EMReadScreen deny_cash_dwp_selection_line, 1, 8, 20
 			EMReadScreen deny_cash_mfip_selection_line, 1, 9, 20
 			EMReadScreen deny_cash_msa_selection_line, 1, 12, 20
 
-			deny_cash_dwp_details_exists = False
 			deny_cash_mfip_details_exists = False
 			deny_cash_msa_details_exists = False
 			deny_cash_ga_details_exists = True
@@ -14448,155 +11919,6 @@ class deny_eligibility_detail
 			If deny_cash_ga_reason_info = "Death" Then deny_cash_ga_details_exists = False
 			If deny_cash_ga_reason_info = "Program Active" Then deny_cash_ga_details_exists = False
 			If deny_cash_ga_reason_info = "PND2 Denial System Entered" Then deny_cash_ga_details_exists = False
-
-
-			If deny_cash_dwp_selection_line = "_" Then
-				Call write_value_and_transmit("X", 8, 20)
-				deny_cash_dwp_details_exists = True
-
-				transmit
-
-				EMReadScreen deny_dwp_elig_case_test_application_withdrawn, 	6, 6, 7
-				EMReadScreen deny_dwp_elig_case_test_assets, 				6, 7, 7
-				EMReadScreen deny_dwp_elig_case_test_CS_disqualification, 	6, 8, 7
-				EMReadScreen deny_dwp_elig_case_test_death_of_applicant, 	6, 9, 7
-				EMReadScreen deny_dwp_elig_case_test_dupl_assistance, 		6, 10, 7
-				EMReadScreen deny_dwp_elig_case_test_eligible_child, 		6, 11, 7
-				EMReadScreen deny_dwp_elig_case_test_ES_disqualification, 	6, 12, 7
-				EMReadScreen deny_dwp_elig_case_test_fail_coop, 				6, 13, 7
-				EMReadScreen deny_dwp_elig_case_test_four_month_limit, 		6, 14, 7
-
-				EMReadScreen deny_dwp_elig_case_test_initial_income, 		6, 6, 45
-				EMReadScreen deny_dwp_elig_case_test_MFIP_conversion, 		6, 7, 45
-				EMReadScreen deny_dwp_elig_case_test_residence, 				6, 8, 45
-				EMReadScreen deny_dwp_elig_case_test_strike, 				6, 9, 45
-				EMReadScreen deny_dwp_elig_case_test_TANF_time_limit, 		6, 10, 45
-				EMReadScreen deny_dwp_elig_case_test_transfer_of_assets, 	6, 11, 45
-				EMReadScreen deny_dwp_elig_case_test_verif, 					6, 12, 45
-
-				EMReadScreen deny_dwp_elig_case_test_new_spouse_income, 		6, 17, 7
-
-				deny_dwp_elig_case_test_application_withdrawn = trim(deny_dwp_elig_case_test_application_withdrawn)
-				deny_dwp_elig_case_test_assets = trim(deny_dwp_elig_case_test_assets)
-				deny_dwp_elig_case_test_CS_disqualification = trim(deny_dwp_elig_case_test_CS_disqualification)
-				deny_dwp_elig_case_test_death_of_applicant = trim(deny_dwp_elig_case_test_death_of_applicant)
-				deny_dwp_elig_case_test_dupl_assistance = trim(deny_dwp_elig_case_test_dupl_assistance)
-				deny_dwp_elig_case_test_eligible_child = trim(deny_dwp_elig_case_test_eligible_child)
-				deny_dwp_elig_case_test_ES_disqualification = trim(deny_dwp_elig_case_test_ES_disqualification)
-				deny_dwp_elig_case_test_fail_coop = trim(deny_dwp_elig_case_test_fail_coop)
-				deny_dwp_elig_case_test_four_month_limit = trim(deny_dwp_elig_case_test_four_month_limit)
-
-				deny_dwp_elig_case_test_initial_income = trim(deny_dwp_elig_case_test_initial_income)
-				deny_dwp_elig_case_test_MFIP_conversion = trim(deny_dwp_elig_case_test_MFIP_conversion)
-				deny_dwp_elig_case_test_residence = trim(deny_dwp_elig_case_test_residence)
-				deny_dwp_elig_case_test_strike = trim(deny_dwp_elig_case_test_strike)
-				deny_dwp_elig_case_test_TANF_time_limit = trim(deny_dwp_elig_case_test_TANF_time_limit)
-				deny_dwp_elig_case_test_transfer_of_assets = trim(deny_dwp_elig_case_test_transfer_of_assets)
-				deny_dwp_elig_case_test_verif = trim(deny_dwp_elig_case_test_verif)
-
-				deny_dwp_elig_case_test_new_spouse_income = trim(deny_dwp_elig_case_test_new_spouse_income)
-
-				If deny_dwp_elig_case_test_assets <> "NA" Then
-					Call write_value_and_transmit("X", 7, 5)
-
-					EMReadScreen deny_dwp_elig_asset_CASH, 9, 8, 54
-					EMReadScreen deny_dwp_elig_asset_ACCT, 9, 9, 54
-					EMReadScreen deny_dwp_elig_asset_SECU, 9, 10, 54
-					EMReadScreen deny_dwp_elig_asset_CARS, 9, 11, 54
-					EMReadScreen deny_dwp_elig_asset_SPON, 9, 12, 54
-
-					EMReadScreen deny_dwp_elig_asset_total, 9, 17, 54
-					EMReadScreen deny_dwp_elig_asset_maximum, 9, 18, 54
-
-					deny_dwp_elig_asset_CASH = trim(deny_dwp_elig_asset_CASH)
-					deny_dwp_elig_asset_ACCT = trim(deny_dwp_elig_asset_ACCT)
-					deny_dwp_elig_asset_SECU = trim(deny_dwp_elig_asset_SECU)
-					deny_dwp_elig_asset_CARS = trim(deny_dwp_elig_asset_CARS)
-					deny_dwp_elig_asset_SPON = trim(deny_dwp_elig_asset_SPON)
-					deny_dwp_elig_asset_total = trim(deny_dwp_elig_asset_total)
-					deny_dwp_elig_asset_maximum = trim(deny_dwp_elig_asset_maximum)
-
-					transmit
-				End If
-
-				If deny_dwp_elig_case_test_fail_coop <> "NA" Then
-					Call write_value_and_transmit("X", 13, 5)
-
-					EMReadScreen deny_dwp_elig_test_fail_coop_applied_other_benefits, 6, 10, 30
-					EMReadScreen deny_dwp_elig_test_fail_coop_provide_requested_info, 6, 11, 30
-					EMReadScreen deny_dwp_elig_test_fail_coop_IEVS, 6, 12, 30
-					EMReadScreen deny_dwp_elig_test_fail_coop_vendor_info, 6, 13, 30
-
-					deny_dwp_elig_test_fail_coop_applied_other_benefits = trim(deny_dwp_elig_test_fail_coop_applied_other_benefits)
-					deny_dwp_elig_test_fail_coop_provide_requested_info = trim(deny_dwp_elig_test_fail_coop_provide_requested_info)
-					deny_dwp_elig_test_fail_coop_IEVS = trim(deny_dwp_elig_test_fail_coop_IEVS)
-					deny_dwp_elig_test_fail_coop_vendor_info = trim(deny_dwp_elig_test_fail_coop_vendor_info)
-
-					transmit
-				End If
-
-				If deny_dwp_elig_case_test_initial_income = "FAILED" Then
-					Call write_value_and_transmit("X", 6, 43)
-
-					EMReadScreen deny_dwp_elig_initial_counted_earned_income, 	9, 8, 42
-					EMReadScreen deny_dwp_elig_initial_dependent_care_expense, 	9, 9, 42
-					EMReadScreen deny_dwp_elig_initial_counted_unearned_income, 	9, 10, 42
-					EMReadScreen deny_dwp_elig_initial_counted_deemed_income, 	9, 11, 42
-					EMReadScreen deny_dwp_elig_initial_child_support_exclusion, 	9, 12, 42
-					EMReadScreen deny_dwp_elig_initial_total_counted_income, 	9, 13, 42
-					EMReadScreen deny_dwp_elig_initial_family_wage_level, 		9, 15, 42
-
-					deny_dwp_elig_initial_counted_earned_income = trim(deny_dwp_elig_initial_counted_earned_income)
-					deny_dwp_elig_initial_dependent_care_expense = trim(deny_dwp_elig_initial_dependent_care_expense)
-					deny_dwp_elig_initial_counted_unearned_income = trim(deny_dwp_elig_initial_counted_unearned_income)
-					deny_dwp_elig_initial_counted_deemed_income = trim(deny_dwp_elig_initial_counted_deemed_income)
-					deny_dwp_elig_initial_child_support_exclusion = trim(deny_dwp_elig_initial_child_support_exclusion)
-					deny_dwp_elig_initial_total_counted_income = trim(deny_dwp_elig_initial_total_counted_income)
-					deny_dwp_elig_initial_family_wage_level = trim(deny_dwp_elig_initial_family_wage_level)
-
-					'TODO - read member specific detail'
-
-					transmit
-				End If
-
-				If deny_dwp_elig_case_test_verif <> "NA" Then
-					Call write_value_and_transmit("X", 12, 43)
-
-					EMReadScreen deny_dwp_elig_test_verif_ACCT, 		6, 5, 32
-					EMReadScreen deny_dwp_elig_test_verif_BUSI, 		6, 6, 32
-					EMReadScreen deny_dwp_elig_test_verif_CARS, 		6, 7, 32
-					EMReadScreen deny_dwp_elig_test_verif_JOBS, 		6, 8, 32
-					EMReadScreen deny_dwp_elig_test_verif_MEMB_dob, 	6, 9, 32
-					EMReadScreen deny_dwp_elig_test_verif_MEMB_id, 	6, 10, 32
-					EMReadScreen deny_dwp_elig_test_verif_PARE, 		6, 11, 32
-					EMReadScreen deny_dwp_elig_test_verif_PREG, 		6, 12, 32
-					EMReadScreen deny_dwp_elig_test_verif_RBIC, 		6, 13, 32
-					EMReadScreen deny_dwp_elig_test_verif_ADDR, 		6, 14, 32
-					EMReadScreen deny_dwp_elig_test_verif_SCHL, 		6, 15, 32
-					EMReadScreen deny_dwp_elig_test_verif_SECU, 		6, 16, 32
-					EMReadScreen deny_dwp_elig_test_verif_SPON, 		6, 17, 32
-					EMReadScreen deny_dwp_elig_test_verif_UNEA, 		6, 18, 32
-
-					deny_dwp_elig_test_verif_ACCT = trim(deny_dwp_elig_test_verif_ACCT)
-					deny_dwp_elig_test_verif_BUSI = trim(deny_dwp_elig_test_verif_BUSI)
-					deny_dwp_elig_test_verif_CARS = trim(deny_dwp_elig_test_verif_CARS)
-					deny_dwp_elig_test_verif_JOBS = trim(deny_dwp_elig_test_verif_JOBS)
-					deny_dwp_elig_test_verif_MEMB_dob = trim(deny_dwp_elig_test_verif_MEMB_dob)
-					deny_dwp_elig_test_verif_MEMB_id = trim(deny_dwp_elig_test_verif_MEMB_id)
-					deny_dwp_elig_test_verif_PARE = trim(deny_dwp_elig_test_verif_PARE)
-					deny_dwp_elig_test_verif_PREG = trim(deny_dwp_elig_test_verif_PREG)
-					deny_dwp_elig_test_verif_RBIC = trim(deny_dwp_elig_test_verif_RBIC)
-					deny_dwp_elig_test_verif_ADDR = trim(deny_dwp_elig_test_verif_ADDR)
-					deny_dwp_elig_test_verif_SCHL = trim(deny_dwp_elig_test_verif_SCHL)
-					deny_dwp_elig_test_verif_SECU = trim(deny_dwp_elig_test_verif_SECU)
-					deny_dwp_elig_test_verif_SPON = trim(deny_dwp_elig_test_verif_SPON)
-					deny_dwp_elig_test_verif_UNEA = trim(deny_dwp_elig_test_verif_UNEA)
-
-					transmit
-
-				End If
-				PF3
-			End if
 
 			If deny_cash_mfip_selection_line = "_" Then
 				Call write_value_and_transmit("X", 9, 20)
@@ -20390,9 +17712,6 @@ const last_const = 50
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
 
-Dim DWP_ELIG_APPROVALS()
-ReDim DWP_ELIG_APPROVALS(0)
-
 Dim MFIP_ELIG_APPROVALS()
 ReDim MFIP_ELIG_APPROVALS(0)
 
@@ -20435,7 +17754,7 @@ spaces_78 = space(78)
 Dim process_being_completed, income_change_checkbox, assets_change_checkbox, expense_change_checkbox, housing_change_checkbox
 Dim address_change_checkbox, hh_comp_change_checkbox, relationship_change_checkbox, participation_change_checkbox
 Dim time_limit_change_checkbox, policy_change_checkbox, correction_change_checkbox, appeal_change_checkbox
-Dim snap_prorate_reason, dwp_prorate_reason, mfip_prorate_reason, ga_prorate_reason, msa_prorate_reason, grh_prorate_reason
+Dim snap_prorate_reason, mfip_prorate_reason, ga_prorate_reason, msa_prorate_reason, grh_prorate_reason
 Dim objTextStream
 
 '===========================================================================================================================
@@ -20694,7 +18013,6 @@ sql_review_date = DateAdd("d", 0, sql_review_date)
 MSP_approvals_only = True
 MSP_memo_success = False
 
-first_DWP_approval = ""
 first_MFIP_approval = ""
 first_MSA_approval = ""
 first_GA_approval = ""
@@ -20703,7 +18021,6 @@ first_GRH_approval = ""
 first_SNAP_approval = ""
 first_HC_approval = ""
 
-enter_CNOTE_for_DWP = False
 enter_CNOTE_for_MFIP = False
 enter_CNOTE_for_MSA = False
 enter_CNOTE_for_GA = False
@@ -20713,7 +18030,6 @@ enter_CNOTE_for_EMER = False
 enter_CNOTE_for_SNAP = False
 enter_CNOTE_for_HC = False
 
-dwp_elig_months_count = 0
 mfip_elig_months_count = 0
 msa_elig_months_count = 0
 ga_elig_months_count = 0
@@ -20834,12 +18150,11 @@ const MFIP_app_const 				= 3
 const MFIP_special_diet_const		= 4
 const MF_elig_index					= 5
 const MFIP_special_diet_confirm		= 6
-const DWP_app_const 				= 7
-const GA_app_const 					= 8
-const MSA_app_const 				= 9
-const DENY_app_const 				= 10
-const GRH_app_const					= 11
-const SNAP_app_const 				= 12
+const GA_app_const 					= 7
+const MSA_app_const 				= 8
+const DENY_app_const 				= 9
+const GRH_app_const					= 10
+const SNAP_app_const 				= 11
 const ELIG_app_const 				= 13
 const HC_app_const 					= 14
 const MFIP_to_SNAP_const 			= 15
@@ -20876,7 +18191,6 @@ For each footer_month in MONTHS_ARRAY
 	SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = false
 	SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) 		= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count)= False
-	SPECIAL_PROCESSES_BY_MONTH(DWP_app_const, month_count) 			= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(GA_app_const, month_count) 			= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(MSA_app_const, month_count) 			= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) 		= "NONE"
@@ -20887,7 +18201,6 @@ For each footer_month in MONTHS_ARRAY
 
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
-	EMReadScreen numb_DWP_versions, 		1, 7, 40
 	EMReadScreen numb_MFIP_versions, 		1, 8, 40
 	EMReadScreen numb_MSA_versions, 		1, 11, 40
 	EMReadScreen numb_GA_versions, 			1, 12, 40
@@ -20899,7 +18212,6 @@ For each footer_month in MONTHS_ARRAY
 
 	' Skipping Non-HC program versions for HC only workers
 	If hc_access_only = True Then
-		numb_DWP_versions = " "
 		numb_MFIP_versions = " "
 		numb_MSA_versions = " "
 		numb_GA_versions = " "
@@ -20909,31 +18221,6 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	Call back_to_SELF
-
-	If numb_DWP_versions <> " " Then
-		ReDim Preserve DWP_ELIG_APPROVALS(dwp_elig_months_count)
-		Set DWP_ELIG_APPROVALS(dwp_elig_months_count) = new dwp_eligibility_detail
-
-		DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month = MAXIS_footer_month
-		DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year = MAXIS_footer_year
-
-		Call DWP_ELIG_APPROVALS(dwp_elig_months_count).read_elig
-
-		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
-			If first_DWP_approval = "" Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
-			approval_found_for_this_month = True
-			IF DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
-			SPECIAL_PROCESSES_BY_MONTH(DWP_app_const, month_count) = DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
-		ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_version_found = True Then
-			If DateDiff("d", date, DWP_ELIG_APPROVALS(dwp_elig_months_count).approval_date) = 0 Then
-				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " DWP approved today." & vbCr
-				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_version_date & vbCr & vbCr
-				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
-				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
-				If first_prog_not_created_today = "" Then first_prog_not_created_today = "DWP "
-			End If
-		End If
-	End If
 
 	If numb_MFIP_versions <> " " Then
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
@@ -21070,15 +18357,6 @@ For each footer_month in MONTHS_ARRAY
 					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then
 						If first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MFIP_approval = ""
 					ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "ELIGIBLE" Then
-						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
-					End If
-				End If
-			End If
-			If numb_DWP_versions <> " " Then
-				If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
-					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then
-						If first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_DWP_approval = ""
-					ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "ELIGIBLE" Then
 						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
 					End If
 				End If
@@ -21284,145 +18562,6 @@ For each footer_month in MONTHS_ARRAY
 	End IF
 
 	'NOW WE ADD THE STAT INFORMATION to each Program
-	If numb_DWP_versions <> " " Then
-		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True and DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_autoclosed_for_time_limit = False Then	'TODO  for DWP '
-			For each_elig_memb = 0 to UBound(DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs)
-				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
-					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
-						If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_memb_is_deemer(each_elig_memb) = True Then
-							STAT_INFORMATION(month_count).stat_jobs_one_job_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_jobs_two_job_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_jobs_three_job_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_jobs_four_job_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_jobs_five_job_deemed_for_mfip(each_stat_memb) = True
-
-							STAT_INFORMATION(month_count).stat_busi_one_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_busi_two_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_busi_three_deemed_for_mfip(each_stat_memb) = True
-
-							STAT_INFORMATION(month_count).stat_unea_one_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_unea_two_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_unea_three_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_unea_four_deemed_for_mfip(each_stat_memb) = True
-							STAT_INFORMATION(month_count).stat_unea_five_deemed_for_mfip(each_stat_memb) = True
-
-
-
-							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
-
-							STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
-
-							STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-						' End If
-						ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_memb_is_counted(each_elig_memb) = False Then
-							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
-
-							STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
-
-							STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
-							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-						End If
-					End If
-
-					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_jobs_two_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_jobs_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_jobs_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_jobs_three_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_jobs_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_jobs_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_jobs_four_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_jobs_four_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_jobs_four_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_jobs_five_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_jobs_five_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_jobs_five_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-
-
-					If STAT_INFORMATION(month_count).stat_busi_one_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_one_cash_prosp_net_inc(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_busi_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_busi_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_busi_two_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_two_cash_prosp_net_inc(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_busi_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_busi_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-					If STAT_INFORMATION(month_count).stat_busi_three_exists(each_stat_memb) = True Then
-						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_three_cash_prosp_net_inc(each_stat_memb)
-						the_counted_amount = ""
-						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-						STAT_INFORMATION(month_count).stat_busi_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
-						STAT_INFORMATION(month_count).stat_busi_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					End If
-
-					If STAT_INFORMATION(month_count).stat_unea_one_exists(each_stat_memb) = True Then
-						STAT_INFORMATION(month_count).stat_unea_one_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_one_prosp_monthly_gross_income(each_stat_memb)
-					End If
-					If STAT_INFORMATION(month_count).stat_unea_two_exists(each_stat_memb) = True Then
-						STAT_INFORMATION(month_count).stat_unea_two_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_two_prosp_monthly_gross_income(each_stat_memb)
-					End If
-					If STAT_INFORMATION(month_count).stat_unea_three_exists(each_stat_memb) = True Then
-						STAT_INFORMATION(month_count).stat_unea_three_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_three_prosp_monthly_gross_income(each_stat_memb)
-					End If
-					If STAT_INFORMATION(month_count).stat_unea_four_exists(each_stat_memb) = True Then
-						STAT_INFORMATION(month_count).stat_unea_four_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_four_prosp_monthly_gross_income(each_stat_memb)
-					End If
-					If STAT_INFORMATION(month_count).stat_unea_five_exists(each_stat_memb) = True Then
-						STAT_INFORMATION(month_count).stat_unea_five_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_five_prosp_monthly_gross_income(each_stat_memb)
-					End If
-				Next
-			Next
-		End If
-		dwp_elig_months_count = dwp_elig_months_count + 1
-	End If
-
 	If numb_MFIP_versions <> " " Then
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
 			MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_month = False
@@ -22279,13 +19418,11 @@ If row <> 24 and row <> 0 Then
 	If pnd2_cash_prog_one = "  " Then pnd2_cash_prog_one = ""
 	If pnd2_cash_prog_one = "CA" Then pnd2_cash_prog_one = "Cash"
 	If pnd2_cash_prog_one = "MF" Then pnd2_cash_prog_one = "MFIP"
-	If pnd2_cash_prog_one = "DW" Then pnd2_cash_prog_one = "DWP"
 	If pnd2_cash_prog_one = "MS" Then pnd2_cash_prog_one = "MSA"
 	If pnd2_cash_prog_one = "RC" Then pnd2_cash_prog_one = "RCA"
 	If pnd2_cash_prog_two = "  " Then pnd2_cash_prog_two = ""
 	If pnd2_cash_prog_two = "CA" Then pnd2_cash_prog_two = "Cash"
 	If pnd2_cash_prog_two = "MF" Then pnd2_cash_prog_two = "MFIP"
-	If pnd2_cash_prog_two = "DW" Then pnd2_cash_prog_two = "DWP"
 	If pnd2_cash_prog_two = "MS" Then pnd2_cash_prog_two = "MSA"
 	If pnd2_cash_prog_two = "RC" Then pnd2_cash_prog_two = "RCA"
 
@@ -22337,13 +19474,11 @@ If row <> 24 and row <> 0 Then
 		If pnd2_2nd_cash_prog_one = "  " Then pnd2_2nd_cash_prog_one = ""
 		If pnd2_2nd_cash_prog_one = "CA" Then pnd2_2nd_cash_prog_one = "Cash"
 		If pnd2_2nd_cash_prog_one = "MF" Then pnd2_2nd_cash_prog_one = "MFIP"
-		If pnd2_2nd_cash_prog_one = "DW" Then pnd2_2nd_cash_prog_one = "DWP"
 		If pnd2_2nd_cash_prog_one = "MS" Then pnd2_2nd_cash_prog_one = "MSA"
 		If pnd2_2nd_cash_prog_one = "RC" Then pnd2_2nd_cash_prog_one = "RCA"
 		If pnd2_2nd_cash_prog_two = "  " Then pnd2_2nd_cash_prog_two = ""
 		If pnd2_2nd_cash_prog_two = "CA" Then pnd2_2nd_cash_prog_two = "Cash"
 		If pnd2_2nd_cash_prog_two = "MF" Then pnd2_2nd_cash_prog_two = "MFIP"
-		If pnd2_2nd_cash_prog_two = "DW" Then pnd2_2nd_cash_prog_two = "DWP"
 		If pnd2_2nd_cash_prog_two = "MS" Then pnd2_2nd_cash_prog_two = "MSA"
 		If pnd2_2nd_cash_prog_two = "RC" Then pnd2_2nd_cash_prog_two = "RCA"
 
@@ -22361,7 +19496,6 @@ CASE_NOTE_entered = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
-If first_DWP_approval <> "" Then enter_CNOTE_for_DWP = True
 If first_MFIP_approval <> "" Then enter_CNOTE_for_MFIP = True
 If first_MSA_approval <> "" Then enter_CNOTE_for_MSA = True
 If first_GA_approval <> "" Then enter_CNOTE_for_GA = True
@@ -22372,7 +19506,6 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 
 ' Ensuring HC only workers do not CASE/NOTE for any program other than HC
 If hc_access_only = True Then
-	enter_CNOTE_for_DWP = False
 	enter_CNOTE_for_MFIP = False
 	enter_CNOTE_for_MSA = False
 	enter_CNOTE_for_GA = False
@@ -22444,9 +19577,6 @@ const METS_case_const               = 48
 const approval_confirmed			= 49
 date_of_3050 = ""
 
-Dim DWP_UNIQUE_APPROVALS()
-ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
-
 Dim MFIP_UNIQUE_APPROVALS()
 ReDim MFIP_UNIQUE_APPROVALS(approval_confirmed, 0)
 
@@ -22468,7 +19598,6 @@ ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
 Dim HC_UNIQUE_APPROVALS()
 ReDim HC_UNIQUE_APPROVALS(approval_confirmed, 0)
 
-approval_note_found_for_DWP = False
 approval_note_found_for_MFIP = False
 approval_note_found_for_MFSD = False
 approval_note_found_for_MSA = False
@@ -22492,7 +19621,6 @@ Do
 	note_date = DateAdd("d", 0, note_date)
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
-		If InStr(note_title, " - DWP") <> 0 Then approval_note_found_for_DWP = True
 		If InStr(note_title, " - MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MFIP Special") <> 0 Then approval_note_found_for_MFSD = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
@@ -22518,7 +19646,6 @@ Do
 
 	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
 
-	If approval_note_found_for_DWP = True Then approval_note_found = True
 	If approval_note_found_for_MFIP = True Then approval_note_found = True
 	If approval_note_found_for_MFSD = True Then approval_note_found = True
 	If approval_note_found_for_MSA = True Then approval_note_found = True
@@ -22542,7 +19669,6 @@ Loop until DateDiff("d", date, next_note_date) < 0
 
 If approval_note_found = True Then
 	dlg_len = 45
-	If approval_note_found_for_DWP = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_MFIP = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_MFSD = True Then dlg_len = dlg_len +20
 	If approval_note_found_for_MSA = True Then dlg_len = dlg_len + 20
@@ -22557,11 +19683,6 @@ If approval_note_found = True Then
 	BeginDialog Dialog1, 0, 0, 555, dlg_len, "APPROVAL CASE/NOTE found for Today"
 	  Text 10, 10, 385, 10, "APPROVAL CASE/NOTEs from today have been found. Determine if a new CASE/NOTE is needed for the program(s)."
 	  y_pos = 25
-	  If approval_note_found_for_DWP = True Then
-		  Text 15, y_pos+5, 330, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_DWP
-		  y_pos = y_pos + 20
-	  End If
 	  If approval_note_found_for_MFIP = True Then
 		  Text 15, y_pos+5, 330, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MFIP
@@ -22620,7 +19741,6 @@ If approval_note_found = True Then
 
 			err_msg = ""
 
-			If approval_note_found_for_DWP = True and add_new_note_for_DWP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for DWP Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_MFIP = True and add_new_note_for_MFIP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MFIP Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_MFSD = True and add_new_note_for_MFSD = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MFIP Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_MSA = True and add_new_note_for_MSA = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MSA Eligibility should be Reviewed and Entered into MAXIS."
@@ -22635,12 +19755,6 @@ If approval_note_found = True Then
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
-
-	If add_new_note_for_DWP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_DWP = "No - Approval completed by another worker." Then
-		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
-	End If
-	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
 
 	If add_new_note_for_MFIP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MFIP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_MFIP = False
@@ -22698,347 +19812,6 @@ If approval_note_found = True Then
 End If
 
 Call back_to_SELF
-
-If enter_CNOTE_for_DWP = True Then
-	last_elig_result = ""
-	last_caregiver_count = ""
-	last_child_count = ""
-	last_total_dwp_need = ""
-	last_earned_income = ""
-	last_unearned_income = ""
-	last_deemed_income = ""
-	last_cses_exclusion = ""
-	last_dwp_countable_income = ""
-	last_unmet_need = ""
-	last_shelter_costs = ""
-	last_personal_needs = ""
-	last_amount_already_issued = ""
-	last_grant_shelter_benefit = ""
-	last_grant_personal_needs = ""
-	last_net_grant_amount = ""
-	last_duplicate_assistance_test = ""
-	last_eligible_child_test = ""
-	last_coop_test = ""
-	last_verif_test = ""
-	last_info_source = ""
-
-
-	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
-	unique_app_count = 0
-	For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-		If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year = first_DWP_approval Then start_capturing_approvals = True
-		If start_capturing_approvals = True Then
-			If unique_app_count = 0 Then
-				ReDim preserve DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
-
-				DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-				DWP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-				DWP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
-				DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
-				DWP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
-				DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
-
-				last_elig_result = DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result
-				last_caregiver_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers
-				last_child_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children
-				last_total_dwp_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need
-				last_earned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income
-				last_unearned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income
-				last_deemed_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income
-				last_cses_exclusion = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion
-				last_dwp_countable_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income
-				last_unmet_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need
-				last_shelter_costs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs
-				last_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs
-				last_amount_already_issued = DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued
-				last_grant_shelter_benefit = DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant
-				last_grant_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant
-				last_net_grant_amount = DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount
-				last_duplicate_assistance_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance
-				last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
-				last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
-				last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
-				last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
-
-				unique_app_count = unique_app_count + 1
-			Else
-				match_last_benefit_amounts = True
-
-				If last_elig_result <> DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result Then match_last_benefit_amounts = False
-				If last_caregiver_count <> DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers Then match_last_benefit_amounts = False
-				If last_child_count <> DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children Then match_last_benefit_amounts = False
-				If last_total_dwp_need <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need Then match_last_benefit_amounts = False
-				If last_earned_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income Then match_last_benefit_amounts = False
-				If last_unearned_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income Then match_last_benefit_amounts = False
-				If last_deemed_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income Then match_last_benefit_amounts = False
-				If last_cses_exclusion <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion Then match_last_benefit_amounts = False
-				If last_dwp_countable_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income Then match_last_benefit_amounts = False
-				If last_unmet_need <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need Then match_last_benefit_amounts = False
-				If last_shelter_costs <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs Then match_last_benefit_amounts = False
-				If last_personal_needs <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs Then match_last_benefit_amounts = False
-				If last_amount_already_issued <> DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued Then match_last_benefit_amounts = False
-				If last_grant_shelter_benefit <> DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant Then match_last_benefit_amounts = False
-				If last_grant_personal_needs <> DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant Then match_last_benefit_amounts = False
-				If last_net_grant_amount <> DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount Then match_last_benefit_amounts = False
-				If last_duplicate_assistance_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance Then match_last_benefit_amounts = False
-				If last_eligible_child_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child Then match_last_benefit_amounts = False
-				If last_coop_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop Then match_last_benefit_amounts = False
-				If last_verif_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif Then match_last_benefit_amounts = False
-				If last_info_source <> DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info Then match_last_benefit_amounts = False
-
-				If match_last_benefit_amounts = True Then
-					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-					DWP_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-				End If
-				If match_last_benefit_amounts = False Then
-					ReDim preserve DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
-
-					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-					DWP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
-					DWP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
-					DWP_UNIQUE_APPROVALS(btn_ei, unique_app_count) = 1560 + unique_app_count
-					DWP_UNIQUE_APPROVALS(btn_uei, unique_app_count) = 1570 + unique_app_count
-					DWP_UNIQUE_APPROVALS(btn_deem, unique_app_count) = 1580 + unique_app_count
-					DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
-					DWP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
-					DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
-
-					last_elig_result = DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result
-					last_caregiver_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers
-					last_child_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children
-					last_total_dwp_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need
-					last_earned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income
-					last_unearned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income
-					last_deemed_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income
-					last_cses_exclusion = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion
-					last_dwp_countable_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income
-					last_unmet_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need
-					last_shelter_costs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs
-					last_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs
-					last_amount_already_issued = DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued
-					last_grant_shelter_benefit = DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant
-					last_grant_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant
-					last_net_grant_amount = DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount
-					last_duplicate_assistance_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance
-					last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
-					last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
-					last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
-					last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
-
-					unique_app_count = unique_app_count + 1
-				End If
-			End If
-		End If
-	Next
-
-	If UBound(DWP_UNIQUE_APPROVALS, 2) <> 0 Then
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 241, 215, UBound(DWP_UNIQUE_APPROVALS, 2)+1 & " DWP Approval Packages to be Reviewed"
-		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
-		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
-		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
-		  Text 10, 70, 150, 10, "The script found approvals for " & DWP_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
-		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for MFIP."
-		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
-
-		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
-		  Text 160, 10, 80, 10, UBound(DWP_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
-		  y_pos = 25
-		  For approval = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
-			If DWP_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, DWP_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & DWP_UNIQUE_APPROVALS(last_mo_const, approval)
-			If DWP_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, DWP_UNIQUE_APPROVALS(first_mo_const, approval)
-			y_pos = y_pos +10
-		  Next
-		  ButtonGroup ButtonPressed
-			OkButton 135, 195, 100, 15
-		EndDialog
-
-		dialog Dialog1
-	End If
-
-	all_dwp_approvals_confirmed = False
-	approval_selected = 0
-	STATS_manualtime = STATS_manualtime + (UBound(DWP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
-
-	Do
-		Do
-
-			first_month = left(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
-			elig_ind = ""
-			month_ind = ""
-			For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
-			Next
-			For each_month = 0 to UBound(STAT_INFORMATION)
-				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
-			Next
-
-			DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-
-
-			show_pact = False
-			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
-			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
-			DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = False
-			If show_pact = True Then DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
-			DWP_UNIQUE_APPROVALS(pact_wcom_sent, approval_selected) = False
-
-			DWP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
-			If DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True Then DWP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
-
-			ei_count = 0
-			unea_count = 0
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-			  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
-
-			  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			Next
-			ei_len = ei_count * 20
-			unea_len = unea_count * 10
-			income_box_len = 30 + unea_len
-			If ei_len > unea_len Then income_box_len = 30 + ei_len
-
-			call define_dwp_elig_dialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			err_msg = ""
-			move_from_dialog = False
-
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
-				If Isdate(DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
-					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible DWP approval."
-				Else
-					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-						DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
-					End If
-				End If
-			End If
-			If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
-				If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
-					If DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
-						err_msg = err_msg & vbNewLine & "* Since the approval for DWP in " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & DWP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
-					End If
-				End If
-			End If
-
-			If show_pact = True and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" and DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
-				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" Then
-					err_msg = err_msg & vbNewLine & "* Since PACT was used to approve this DWP benefit as ineligible, list the reasons for ineligibility."
-				ElseIf len(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then
-					err_msg = err_msg & vbNewLine & "* DWP ineligibility due to PACT requires sufficient explaination, expand upon the information entered in the Reason for Ineligibility field."
-				End If
-				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
-			End If
-
-			If err_msg <> "" and ButtonPressed < 1000 Then
-				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-				If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
-			End If
-
-			If ButtonPressed = nav_stat_elig_btn Then
-				ft_mo = left(first_month, 2)
-				ft_yr = right(first_month, 2)
-				Call back_to_SELF
-				call navigate_to_MAXIS_screen("ELIG", "DWP ")
-				EMWriteScreen ft_mo, 20, 56
-				EMWriteScreen ft_yr, 20, 59
-				Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
-				' transmit
-			End If
-
-			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
-			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("DWP", DWP_UNIQUE_APPROVALS(process_for_note, approval_selected), DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
-			If ButtonPressed = verif_tips_and_tricks_btn Then
-				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/DWP has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if DWP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
-			End If
-
-			If err_msg = "" Then
-
-				all_dwp_approvals_confirmed = True
-				dwp_approval_is_incorrect = False
-
-				If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
-					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
-					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
-					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
-				End If
-
-				not_confirmed_pckg_list = ""
-				first_unconfirmed_month = ""
-				for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
-					If ButtonPressed = DWP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
-					If DWP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
-						all_dwp_approvals_confirmed = False
-						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(DWP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
-					End If
-					If DWP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then dwp_approval_is_incorrect = True
-				Next
-
-				If ButtonPressed = -1 Then ButtonPressed = next_approval_btn
-
-				If ButtonPressed = next_approval_btn Then
-					approval_selected = approval_selected + 1
-					If approval_selected > UBound(DWP_UNIQUE_APPROVALS, 2) Then
-						If all_dwp_approvals_confirmed = True Then
-							ButtonPressed = app_confirmed_btn
-						Else
-							approval_selected = UBound(DWP_UNIQUE_APPROVALS, 2)
-						End If
-					End If
-				End If
-			End If
-			If ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = True Then move_from_dialog = True
-			If dwp_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
-			If ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = False and move_from_dialog = False Then
-				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmed_month
-			End If
-
-		Loop until move_from_dialog = True
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = False
-	Call check_for_MAXIS(True)
-	Call back_to_SELF
-
-	If dwp_approval_is_incorrect = True Then
-		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for DWP Approvals from " & first_DWP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
-	End if
-End If
 
 'Determining MFIP unique approvals
 If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval from today was found
@@ -24229,7 +21002,6 @@ End If
 
 If enter_CNOTE_for_DENY = True Then
 
-	last_dwp_reason_code_result = ""
 	last_mfip_reason_code_result = ""
 	last_msa_reason_code_result = ""
 	last_ga_reason_code_result = ""
@@ -24250,17 +21022,14 @@ If enter_CNOTE_for_DENY = True Then
 				DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
 				DENY_UNIQUE_APPROVALS(wcom_needed, unique_app_count) = True
 				DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = False
-				If CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True Then DENY_UNIQUE_APPROVALS(verif_request_details, unique_app_count) = verifs_in_case_note
 				'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
-				' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				' If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				' If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
-				last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 				last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
 				last_msa_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code
 				last_ga_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code
@@ -24269,7 +21038,6 @@ If enter_CNOTE_for_DENY = True Then
 			Else
 				match_last_benefit_amounts = True
 
-				If last_dwp_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code Then match_last_benefit_amounts = False
 				If last_mfip_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code Then match_last_benefit_amounts = False
 				If last_msa_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code Then match_last_benefit_amounts = False
 				If last_ga_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code Then match_last_benefit_amounts = False
@@ -24289,18 +21057,15 @@ If enter_CNOTE_for_DENY = True Then
 					DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
 					DENY_UNIQUE_APPROVALS(wcom_needed, unique_app_count) = True
 					DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = False
-					If CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True Then DENY_UNIQUE_APPROVALS(verif_request_details, unique_app_count) = verifs_in_case_note
 
 					'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
-					' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					' If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					' If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
-					last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 					last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
 					last_msa_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code
 					last_ga_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code
@@ -24409,14 +21174,10 @@ If enter_CNOTE_for_DENY = True Then
 			income_box_len = 30 + unea_len
 			If ei_len > unea_len Then income_box_len = 30 + ei_len
 			TEMP_VAR_cash_family_or_adult = CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult
-			TEMP_VAR_deny_dwp_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation
 			TEMP_VAR_deny_mfip_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation
 			TEMP_VAR_deny_ga_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation
 			TEMP_VAR_deny_msa_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation
 
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
-				If TEMP_VAR_deny_dwp_elig_explanation = "" Then TEMP_VAR_deny_dwp_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
-			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
 				If TEMP_VAR_deny_mfip_elig_explanation = "" Then TEMP_VAR_deny_mfip_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
 			End If
@@ -24433,7 +21194,6 @@ If enter_CNOTE_for_DENY = True Then
 			cancel_confirmation
 
 			CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = TEMP_VAR_cash_family_or_adult
-			CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation = trim(TEMP_VAR_deny_dwp_elig_explanation)
 			CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation = trim(TEMP_VAR_deny_mfip_elig_explanation)
 			CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation = trim(TEMP_VAR_deny_ga_elig_explanation)
 			CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation = trim(TEMP_VAR_deny_msa_elig_explanation)
@@ -24571,10 +21331,10 @@ If enter_CNOTE_for_DENY = True Then
 						Text 20, 40, 230, 10, "All cash programs have been denied because you have withdrawn the request."
 						Text 20, 50, 230, 10, "You can reapply at any time if your situation changes or want to be reassessed."
 					  Else
-						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 							Text 15, 25, 130, 10, "Case is Adult. Script will add detail:"
-							Text 20, 40, 230, 10, "MFIP/DWP are Family Cash Programs."
-							Text 20, 50, 230, 10, "They require an eligible child/pregnant person to be eligible."
+							Text 20, 40, 230, 10, "MFIP is a Family Cash Programs."
+							Text 20, 50, 230, 10, "It requires an eligible child/pregnant person to be eligible."
 						End If
 						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 							Text 15, 25, 130, 10, "Case is Family. Script will add detail:"
@@ -26147,67 +22907,6 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 End If
 
 'NOW WE START ENTERING CASE/NOTE
-If enter_CNOTE_for_DWP = True Then
-	For unique_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
-		first_month = left(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
-		If len(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
-			last_month = right(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
-		Else
-			last_month = first_month
-		End If
-
-		elig_ind = ""
-		one_month_is_elig = False
-		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
-			If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
-		Next
-		month_ind = ""
-		For each_month = 0 to UBound(STAT_INFORMATION)
-			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
-		Next
-
-		program_detail = "- DWP"
-		header_end = ""
-		If len(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app)) = 5 Then one_month_is_elig = True
-
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
-			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
-				header_end = " - Ongoing"
-			ElseIf len(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
-				header_end = " - " & last_month
-			Else
-				header_end = " only"
-			End If
-			elig_info = "ELIGIBLE"
-		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
-			DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE"
-			elig_info = "TIME LIMIT REACHED - Closed"
-		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "SUSPENDED" Then
-			elig_info = "SUSPENDED"
-		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
-			elig_info = "INELIGIBLE"
-			If dwp_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
-			If dwp_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
-			If dwp_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
-			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
-		End If
-		due_date = ""
-		If IsDate(DWP_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, DWP_UNIQUE_APPROVALS(verif_request_date, unique_app))
-		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
-
-		'TODO - add DWP WCOMS?
-
-		Call dwp_elig_case_note
-
-		If developer_mode = True Then
-			MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result		'TESTING OPTION'
-			PF10
-			Msgbox "You forgot - but the NOTE is gone"
-		End If
-		PF3
-	Next
-End If
-
 If enter_CNOTE_for_MFIP = True Then
     'Functionality to add WCOM about shutdown to MFIP NOTICES
    'For MF_mo = 0 to UBound(MFIP_ELIG_APPROVALS)
@@ -26703,8 +23402,8 @@ If enter_CNOTE_for_DENY = True Then
 								CALL write_variable_in_SPEC_MEMO("    You can reapply at any time if your situation changes or want to be reassessed.")
 							Else
 								CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
-								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
-									CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+									CALL write_variable_in_SPEC_MEMO("MFIP: This is a Family Cash programs.")
 									CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
 								End If
 								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
