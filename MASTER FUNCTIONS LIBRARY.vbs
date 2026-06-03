@@ -5495,7 +5495,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		err_msg = ""
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 551, 150, "Assess for Caregiver MFIP Orientation Requirement"
-		  EditBox 110, 30, 430, 15, famliy_cash_notes
 		  DropListBox 65, 65, 140, 45, person_list, caregiver_one
 		  DropListBox 330, 65, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_one_req_cash
 		  EditBox 430, 65, 30, 15, caregiver_one_hours_per_week
@@ -5514,7 +5513,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 			PushButton 420, 10, 120, 15, "MFIP Orientation Script Instructions", msg_mfip_orientation_btn
             PushButton 260, 123, 55, 10, "CM05.12.12.06", cm_05_12_12_06_btn
 		  Text 10, 15, 170, 10, "MFIP Family Cash Program Orientation"
-		  Text 10, 35, 100, 10, "Notes on Program Selection:"
 		  GroupBox 10, 50, 530, 55, "Who are the Caregivers"
 		  Text 20, 70, 40, 10, "Caregiver:"
 		  Text 215, 70, 115, 10, "Is this caregiver requesting cash?"
@@ -5652,7 +5650,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 551, dlg_len, "Assess for Caregiver MFIP Orientation Requirement"
                 Text 10, 15, 250, 10, "MFIP Family Cash Program Orientation"
-                Text 10, 25, 500, 20, "Notes on Program Selection: " & famliy_cash_notes
                 GroupBox 10, 50, 530, 40, "Who are the Caregivers"
                 Text 20, 60, 190, 10, "Caregiver: " & caregiver_one
                 Text 215, 60, 165, 10, "Is this caregiver requesting cash? " & caregiver_one_req_cash
@@ -6146,8 +6143,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation.")
                 Call write_variable_in_CASE_NOTE("---")
-                Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
-                Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(worker_signature)
 
             ElseIf CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then
@@ -6155,8 +6150,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
                 Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " is Exempt from MFIP Orientation")
                 Call write_bullet_and_variable_in_CASE_NOTE("Assessment Completed", date)
                 Call write_bullet_and_variable_in_CASE_NOTE("Exemption Reason", CAREGIVER_ARRAY(exemption_reason_const, caregiver))
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(worker_signature)
             End If
