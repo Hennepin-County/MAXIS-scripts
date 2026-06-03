@@ -14538,7 +14538,7 @@ function tlr_screening_determine_wreg_status(info_evaluated, screening_needed, e
     End If
 
     'other benefit or unearned income based exemptions
-    If unea_income = "UI" or unea_income = "Applied for UI" or other_benefit = "Matching Grant" or other_benefit = "MFIP" or other_benefit = "DWP" Then
+    If unea_income = "UI" or unea_income = "Applied for UI" or other_benefit = "Matching Grant" or other_benefit = "MFIP" Then
         If panel_code = "" Then panel_code = "11/01"
         wreg_status = "Exempt"
         tlr_status = "Exempt"
@@ -14833,7 +14833,6 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
 
     other_benefit_list = ""
     other_benefit_list = other_benefit_list+chr(9)+"MFIP"
-    other_benefit_list = other_benefit_list+chr(9)+"DWP"
     other_benefit_list = other_benefit_list+chr(9)+"Matching Grant"
     other_benefit_list = other_benefit_list+chr(9)+"RCA"
 
@@ -14863,7 +14862,6 @@ function tlr_screening_wreg_person_info_display(info_evaluated, person_info, per
     wreg_selection_list = wreg_selection_list+chr(9)+"Age 16 or 17 Living with Parent/Caretaker (WREG 07/01)"
     wreg_selection_list = wreg_selection_list+chr(9)+"Employed (WREG 09/01)"
     wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - MFIP (WREG 14/01)"
-    wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - DWP (WREG 20/01)"
     wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - Matching Grant (WREG 10/01)"
     wreg_selection_list = wreg_selection_list+chr(9)+"Receiving Additional Benefits - UI (WREG 11/01)"
     wreg_selection_list = wreg_selection_list+chr(9)+"Pending Additional Benefits - UI (WREG 11/01)"
