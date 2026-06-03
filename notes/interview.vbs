@@ -487,7 +487,7 @@ function check_for_errors(interview_questions_clear)
 		End If
 		IF family_cash_case = True OR adult_cash_case = True OR unknown_cash_pending = True Then
 			If family_cash_case_yn = "?" Then
-				err_msg = err_msg & "~!~" & last_num & "^* IS THIS A FAMILY CASH CASE ##~##   - Since this case has cash active or pending, indicate if this cash is MFIP/DWP."
+				err_msg = err_msg & "~!~" & last_num & "^* IS THIS A FAMILY CASH CASE ##~##   - Since this case has cash active or pending, indicate if this cash is MFIP."
 			ElseIf family_cash_case_yn = "Yes" Then
 				If absent_parent_yn = "?" Then err_msg = err_msg & "~!~" & last_num & "^* IS THERE AN ABPS ON THIS CASE ##~##   - Since this is a family cash case, indicate if there is an absent parent for any child on the case."
 				If relative_caregiver_yn = "?" Then err_msg = err_msg & "~!~" & last_num & "^* IS THIS A RELATIVE CAREGIVER CASE ##~##   - Since this is a family cash case, indicate if this is a relative caregiver case."
@@ -2762,7 +2762,7 @@ Function display_exemptions() 'A message box showing exemptions from SNAP work r
 				  "* Are homeless," & vbCr &_
 				  "* A victim of domestic violence," & vbCr &_
 				  "* Going to school, college, or a training program at least half time," & vbCr &_
-				  "* Meeting the work rules for Minnesota Family Investment Program (MFIP) or DWP (Divisionary Work Program (DWP)," & vbCr &_
+				  "* Meeting the work rules for Minnesota Family Investment Program (MFIP)," & vbCr &_
 				  "* Not working due to a substance use disorder or addiction dependency, or" & vbCr &_
 				  "* Participating in a drug or alcohol addiction treatment program." & vbCr & vbCr &_
 				  "Press yes if you reviewed exemptions with the resident, press no to return to the previous dialog without review." & vbCr &_
@@ -3576,7 +3576,6 @@ function save_your_work()
             If verif_snap_checkbox = checked then objTextStream.WriteLine "verif_snap_checkbox"
             If verif_cash_checkbox = checked then objTextStream.WriteLine "verif_cash_checkbox"
             If verif_mfip_checkbox = checked then objTextStream.WriteLine "verif_mfip_checkbox"
-            If verif_dwp_checkbox = checked then objTextStream.WriteLine "verif_dwp_checkbox"
             If verif_msa_checkbox = checked then objTextStream.WriteLine "verif_msa_checkbox"
             If verif_ga_checkbox = checked then objTextStream.WriteLine "verif_ga_checkbox"
             If verif_grh_checkbox = checked then objTextStream.WriteLine "verif_grh_checkbox"
@@ -3971,7 +3970,6 @@ function save_your_work()
             If verif_snap_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox - CHECKED"
             If verif_cash_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_cash_checkbox - CHECKED"
             If verif_mfip_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_mfip_checkbox - CHECKED"
-            If verif_dwp_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_dwp_checkbox - CHECKED"
             If verif_msa_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_msa_checkbox - CHECKED"
             If verif_ga_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_ga_checkbox - CHECKED"
             If verif_grh_checkbox = checked then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox - CHECKED"
@@ -4475,7 +4473,6 @@ function restore_your_work(vars_filled, membs_found)
                     If text_line = "verif_snap_checkbox" Then verif_snap_checkbox = checked
                     If text_line = "verif_cash_checkbox" Then verif_cash_checkbox = checked
                     If text_line = "verif_mfip_checkbox" Then verif_mfip_checkbox = checked
-                    If text_line = "verif_dwp_checkbox" Then verif_dwp_checkbox = checked
                     If text_line = "verif_msa_checkbox" Then verif_msa_checkbox = checked
                     If text_line = "verif_ga_checkbox" Then verif_ga_checkbox = checked
                     If text_line = "verif_grh_checkbox" Then verif_grh_checkbox = checked
@@ -5206,12 +5203,11 @@ function verification_dialog()
               CheckBox 540, 85, 45, 10, "SNAP", verif_snap_checkbox
               CheckBox 540, 95, 45, 10, "CASH", verif_cash_checkbox
               CheckBox 540, 105, 45, 10, "MFIP", verif_mfip_checkbox
-              CheckBox 540, 115, 45, 10, "DWP", verif_dwp_checkbox
-              CheckBox 540, 125, 45, 10, "MSA", verif_msa_checkbox
-              CheckBox 540, 135, 45, 10, "GA", verif_ga_checkbox
-              CheckBox 540, 145, 45, 10, "GRH", verif_grh_checkbox
-              CheckBox 540, 155, 45, 10, "EMER", verif_emer_checkbox
-              CheckBox 540, 165, 45, 10, "HC", verif_hc_checkbox
+              CheckBox 540, 115, 45, 10, "MSA", verif_msa_checkbox
+              CheckBox 540, 125, 45, 10, "GA", verif_ga_checkbox
+              CheckBox 540, 135, 45, 10, "GRH", verif_grh_checkbox
+              CheckBox 540, 145, 45, 10, "EMER", verif_emer_checkbox
+              CheckBox 540, 155, 45, 10, "HC", verif_hc_checkbox
 
 			  If verif_view = "See All Verifs" Then
 			  	Checkbox 60, 45, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
@@ -6094,7 +6090,6 @@ function write_verification_CASE_NOTE(create_verif_note)
     If verif_snap_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", SNAP"
     If verif_cash_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", CASH"
     If verif_mfip_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MFIP"
-    If verif_dwp_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", DWP"
     If verif_msa_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MSA"
     If verif_ga_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GA"
     If verif_grh_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GRH"
@@ -7763,7 +7758,7 @@ Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_us
 Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
 Dim signature_detail, signature_person, second_signature_detail, second_signature_person
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
-Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
+Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
 Dim resident_emergency_yn, emergency_type, emergency_discussion, emergency_amount, emergency_deadline
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
@@ -8301,7 +8296,6 @@ case_name_for_data_table = trim(case_name_for_data_table)
 If snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then snap_status = "ACTIVE"
 If grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then grh_status = "ACTIVE"
 If mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then mfip_status = "ACTIVE"
-If dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then dwp_status = "ACTIVE"
 If ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then ga_status = "ACTIVE"
 If msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then msa_status = "ACTIVE"
 If vars_filled = False Then
@@ -8323,7 +8317,6 @@ If vars_filled = False Then
 		If ga_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If msa_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If mfip_status = "PENDING" Then CASH_on_CAF_checkbox = checked
-		If dwp_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If grh_status = "PENDING" Then GRH_on_CAF_checkbox = checked
 		If snap_status = "PENDING" Then SNAP_on_CAF_checkbox = checked
 		If emer_status = "PENDING" Then EMER_on_CAF_checkbox = checked
@@ -8385,7 +8378,6 @@ If vars_filled = False Then
 		If ga_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
 		If msa_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
 		If mfip_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
-		If dwp_status = "ACTIVE" Then CASH_on_CAF_checkbox = checked
 		If grh_status = "ACTIVE" Then GRH_on_CAF_checkbox = checked
 	End If
 	If snap_revw = True Then SNAP_on_CAF_checkbox = checked
@@ -8394,7 +8386,6 @@ If vars_filled = False Then
 	If ga_status = "PENDING" Then the_process_for_cash = "Application"
 	If msa_status = "PENDING" Then the_process_for_cash = "Application"
 	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
-	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
 	If snap_status = "PENDING" Then the_process_for_snap = "Application"
 	the_process_for_emer = "Application"
 End If
@@ -8426,7 +8417,7 @@ cash2_closed_in_past_4_months = False
 cash2_recently_closed_program = ""
 cash2_date_closed = ""
 cash2_closed_reason = ""
-If DWP_ever_active = True and DWP_currently_active = False Then
+If DWP_ever_active = True Then
 	If DateDiff("m", DWP_date_closed, date) = 0 Then cash1_closed_in_past_30_days = True
 	If DateDiff("d", DWP_date_closed, date) < 31 Then cash1_closed_in_past_30_days = True
 	If DateDiff("m", DWP_date_closed, date) =< 4 Then cash1_closed_in_past_4_months = True
@@ -10102,7 +10093,7 @@ Else
 				Text 30, 300, 430, 10, "-Food and cash programs require an interview"
 				Text 30, 310, 430, 10, "-Required proof: who you are, where you live, what family lives with you, your income and assets"
 				Text 30, 320, 505, 10, "-How long you've lived in MN, how many people live with you, how much income you/these people receive each month may impact how much you receive"
-				Text 30, 330, 505, 10, "-Cash programs include: DWP, MFIP, GA, MSA, GRH, RCA, MN Child Care Assistance Program "
+				Text 30, 330, 505, 10, "-Cash programs include: MFIP, GA, MSA, GRH, RCA, MN Child Care Assistance Program "
 				GroupBox 5, 0, 535, 90, ""
 				Text 30, 25, 505, 10, "-Private information helps determine eligibility, you can refuse but it may impact benefits. We use information collected to ensure accurate benefit issuance."
 				Text 30, 35, 365, 10, "-SSN required for medical assistance, some financial help, and child support "
@@ -11334,12 +11325,6 @@ cash_col = 3
 If mfip_status <> "INACTIVE" Then
 	objProgStatusTable.Cell(cash_col, 1).Range.Text = "MFIP"
 	objProgStatusTable.Cell(cash_col, 2).Range.Text = mfip_status
-	' objProgStatusTable.Cell(cash_col, 3).Range.Text = "MFIP"
-	cash_col = cash_col + 1
-End If
-If dwp_status <> "INACTIVE" Then
-	objProgStatusTable.Cell(cash_col, 1).Range.Text = "DWP"
-	objProgStatusTable.Cell(cash_col, 2).Range.Text = dwp_status
 	' objProgStatusTable.Cell(cash_col, 3).Range.Text = "MFIP"
 	cash_col = cash_col + 1
 End If
@@ -13039,11 +13024,6 @@ If run_by_interview_team = True and developer_mode = False Then
 	Set element = xmlTracDoc.createElement("MFIPStatus")
 	root.appendChild element
 	Set info = xmlTracDoc.createTextNode(mfip_status)
-	element.appendChild info
-
-	Set element = xmlTracDoc.createElement("DWPStatus")
-	root.appendChild element
-	Set info = xmlTracDoc.createTextNode(dwp_status)
 	element.appendChild info
 
 	Set element = xmlTracDoc.createElement("GAStatus")
