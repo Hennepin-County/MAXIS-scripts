@@ -1701,7 +1701,7 @@ DO
 			err_msg = ""
 			'-------------------------------------------------------------------------------------------------DIALOG
 			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 451, 245, MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF dialog"
+			BeginDialog Dialog1, 0, 0, 451, 265, MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF dialog"
                 EditBox 65, 10, 50, 15, HRF_datestamp
                 DropListBox 65, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
                 CheckBox 160, 35, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
@@ -1716,8 +1716,8 @@ DO
                 EditBox 235, 185, 210, 15, actions_taken
                 EditBox 300, 205, 145, 15, worker_signature
                 ButtonGroup ButtonPressed
-                    OkButton 340, 225, 50, 15
-                    CancelButton 395, 225, 50, 15
+                    OkButton 340, 245, 50, 15
+                    CancelButton 395, 245, 50, 15
                     PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
                     PushButton 260, 20, 20, 10, "MSA", ELIG_MSA_button
                     PushButton 280, 20, 20, 10, "FS", ELIG_FS_button
