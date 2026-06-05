@@ -78,6 +78,10 @@ Call Check_for_MAXIS(false)                         'Ensuring we are in MAXIS
 
 
 Dim transfer_to_worker
+alpha_split_one_a_h = "ABCDEFGH"
+alpha_split_two_i_z = "IJKLMNOPQRSTUVWXYZ"
+alpha_split_one_a_l = "ABCDEFGHIJKL"
+alpha_split_two_m_z = "MNOPQRSTUVWXYZ"
 
 'Load the caseload-directory file from misc
 Call run_from_GitHub(script_repository & "\misc\caseload-directory.vbs")
@@ -366,8 +370,17 @@ Else
     loop until are_we_passworded_out = false
 
     'Logic to determine correct caseload based on the information gathered in the dialog and the information pulled from MAXIS on the case. This logic is based on the caseload directory that is maintained on the GitHub repository and is updated as needed when new caseloads are added or removed.
-    If child_under_19_question = "Yes" Then minor_child_on_case = True
-    If pregnant_question = "Yes" Then preg_person_on_case = True
+    If child_under_19_question = "Yes" Then
+        minor_child_on_case = True
+    Else
+        minor_child_on_case = False
+    End If
+
+    If pregnant_question = "Yes" Then
+        preg_person_on_case = True
+    Else
+        preg_person_on_case = False
+    End If
     correct_caseload_type = ""
     'Specialty pops
     If hc_droplist = "TEFRA" Then correct_caseload_type = "TEFRA"
@@ -472,23 +485,18 @@ Else
         End If
     End If
 
-
-
-    msgbox correct_caseload_type
-    'Error handling for trying to transfer to the same caseload type
-
-    If correct_caseload_type = current_caseload_type Then
-        no_transfer = MSgBox("The case is already in the correct caseload type based on the information provided. If you feel this is incorrect, press OK to proceed and enter the correct caseload and reason for transfer on the next dialog.", vbOkcancel)
-        If no_transfer = vbCancel Then script_end_procedure("~PT: user pressed cancel")
-    End If
-
-        'Adding on the team to the caseload type for cases that are already on a program and therefore have a team in the current caseload type. This is to ensure that cases that are already on a program are transferred to the correct team for their caseload type.
+    'Adding on the team to the caseload type for cases that are already on a program and therefore have a team in the current caseload type. This is to ensure that cases that are already on a program are transferred to the correct team for their caseload type.
     If left(correct_caseload_type, 6) = "Adults" OR left(correct_caseload_type, 8) = "Families"Then 'Grabs the current team for the caseload type for cases already active on a program
         If isnumeric(right(current_caseload_type, 1)) = True Then
             correct_caseload_type = correct_caseload_type & " " & right(current_caseload_type, 1)
         Else
             correct_caseload_type = correct_caseload_type & " ?" 'making correct length if current_caseload_type = ""
         End If
+    End If
+   'Error handling for trying to transfer to the same caseload type
+    If correct_caseload_type = current_caseload_type Then
+        no_transfer = MSgBox("The case is already in the correct caseload type based on the information provided. If you feel this is incorrect, press OK to proceed and enter the correct caseload and reason for transfer on the next dialog.", vbOkcancel)
+        If no_transfer = vbCancel Then script_end_procedure("~PT: user pressed cancel")
     End If
 
     'Now select the right x# for transfer
@@ -550,6 +558,15 @@ Else
 
         Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, "", True)
         transfer_to_worker = new_transfer_to_worker
+        're-align the caseload type with the new_transfer_to_worker to keep the stats correct
+
+        caseload_list = caseload_info.keys
+        caseload_types = caseload_info.items
+        For i = 0 to UBound(caseload_list)
+            If caseload_list(i) = transfer_to_worker Then
+                correct_caseload_type = caseload_types(i)
+            End If
+        Next
     End If
 
     If unknown_caseload_check = checked Then
