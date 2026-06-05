@@ -428,7 +428,7 @@ Else
         If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
     End If
     'LTC cases
-    If correct_caseload = "" Then
+    If correct_caseload_type = "" Then
         If HC_droplist = "LTC pending or requested" Then
             correct_caseload_type = "LTC+ - General"
             If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
@@ -447,15 +447,17 @@ Else
             End If
         End If
     End If
+    Const GENERAL_HEALTHCARE_PENDING = "General Healthcare Pending"
+    Const GENERAL_HEALTHCARE_ACTIVE = "General Healthcare Active"
     'General Health care
     If correct_caseload_type = "" Then
-        If HC_droplist = "General Health Care Pending" OR ma_status = "PENDING" or msp_status = "PENDING" Then
+        If HC_droplist = GENERAL_HEALTHCARE_PENDING OR ma_status = "PENDING" or msp_status = "PENDING" Then
             correct_caseload_type = "Healthcare - Pending"
         End If
     End If
 
     If correct_caseload_type = "" Then
-        If HC_droplist = "General Health Care Active" OR ma_status <> "INACTIVE" or msp_status  <> "INACTIVE" Then
+        If HC_droplist = GENERAL_HEALTHCARE_ACTIVE OR ma_status <> "INACTIVE" or msp_status  <> "INACTIVE" Then
             'TODO - split this into mixed cases with other programs vs. HC only
             If unknown_cash_pending = True or ga_status <> "INACTIVE" or msa_status <> "INACTIVE" or mfip_status <> "INACTIVE" or SNAP_status <> "INACTIVE" Then
                  correct_caseload_type = "Healthcare Mixed Active"
