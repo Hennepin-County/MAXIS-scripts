@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/05/2026", "Major change: New internal transfer process will select correct transfer caseload based on information entered in dialog. See script instructions for full details.", "Dave Courtright, Hennepin County.")
 Call changelog_update("03/12/2024", "Updated resource links.", "Megan Geissler, Hennepin County.")
 Call changelog_update("01/23/2024", "Added reminder to inner-county option to transfer cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 call changelog_update("12/15/2023", "Updated resource links.", "Megan Geissler, Hennepin County.")
