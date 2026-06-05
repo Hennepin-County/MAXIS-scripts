@@ -51,6 +51,10 @@ call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'Putting in some variables so that we can keep BM coding in long term, and just update the boolean.
+banked_months_available = True
+max_banked_months = 2
+
 Function add_pages(page_name)
 	ObjExcel.Worksheets.Add().Name = page_name
 
@@ -100,6 +104,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
 
 	    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         abawd_counted_months = 0					'declares the variables values at 0
+		banked_months_count = 0
         month_count = 0
         If MAXIS_footer_year = CM_yr then
             bene_yr_row = 10
@@ -135,6 +140,12 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         	IF is_counted_month = "X" or is_counted_month = "M" THEN
         		EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
         		abawd_counted_months = abawd_counted_months + 1				'adding counted months
+        	END IF
+
+			'counting and checking for counted banked months
+        	IF is_counted_month = "B" or is_counted_month = "C" THEN
+        		EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+        		banked_months_count = banked_months_count + 1				'adding counted months
         	END IF
 
 			If (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr) then
@@ -880,6 +891,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
 
+		banked_month_case = False 'initializing banked month case variable to determine if we need to add notes about banked months to the report.
+		If banked_months_available = True then
+			If counted_month = True
+				Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+				If abawd_counted_months => 3 then
+					If best_wreg_code = "30" then best_abawd_code = "13"
+					manual_code = "C"	'Manual banked months code
+					banked_month_case = True
+				End if
+			End if
+
 		If counted_month = True then
         	PF9
 			EMWriteScreen best_wreg_code, 8, 50
@@ -916,12 +938,26 @@ Function BULK_ABAWD_FSET_exemption_finder()
         	            Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
 						PF3 'to go back to WREG/Panel
         	        End if
-        	    End if
+				ELSEIF manual_code = "C" then
+                    If ATR_code = "C" or ATR_code = "B" then
+                        exit for ' C and B are banked months
+                    Else
+                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                    End if
+				End if
 			Next
 			'PF3 'to go back to WREG/Panel
         End if
 
 		Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+		'banked months used messaging
+		If banked_months_available = True then
+			If banked_month_case = True then
+				If banked_months_count = 1 then report_notes = report_notes & "Using 1st banked month. "
+				If banked_months_count => 2 then report_notes = report_notes & "Used " & banked_months_count & " banked months. Assess for closure. "
+			End if
+		End if
+
         If (counted_month = True and manual_code = "M") then
 			'Only 30/06's meet this the above criteria. All other counted months will have the assess for closure note added.
             If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
