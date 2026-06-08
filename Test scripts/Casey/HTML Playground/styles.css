@@ -1,0 +1,37 @@
+
+body {
+  background-color: rgb(221, 225, 227);
+}
+
+label {
+  /* display: block;          /* Forces the label onto its own line */
+  /* margin-bottom: 8px;      /* Adds space between the label and input */
+  font-weight: bold;       /* Makes text stand out */
+  color: #000000;          /* Dark gray text color */
+  font-family: sans-serif; /* Clean font face */
+}
+
+input {
+    width: 75%;             /* Makes the input take up the full width of its container */
+    padding: 5px;            /* Adds space inside the input for better readability */
+    margin-bottom: 16px;     /* Adds space below the input */
+    border: 2px solid #ccc; /* Light gray border */
+    border-radius: 4px;      /* Slightly rounded corners */
+}
+
+form {
+    width: 100%;             /* Fills the container on small screens */
+    max-width: 1000px;        /* Prevents the form from becoming too wide on desktops */
+    /* margin: 0 auto;          /* Centers the form horizontally */
+    padding: 20px;           /* Adds internal breathing room */
+}
+
+button {
+    background-color: #002a57; /* Blue background */
+    color: white;              /* White text */
+    font-weight: bold;         /* Makes text stand out */
+    padding: 10px 20px;        /* Adds space inside the button */
+    border: none;             /* Removes default border */
+    border-radius: 4px;       /* Slightly rounded corners */
+    cursor: pointer;          /* Changes cursor on hover */
+}
