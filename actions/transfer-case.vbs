@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/05/2026", "Major change: New internal transfer process will select correct transfer caseload based on information entered in dialog. See script instructions for full details.", "Dave Courtright, Hennepin County.")
 Call changelog_update("03/12/2024", "Updated resource links.", "Megan Geissler, Hennepin County.")
 Call changelog_update("01/23/2024", "Added reminder to inner-county option to transfer cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 call changelog_update("12/15/2023", "Updated resource links.", "Megan Geissler, Hennepin County.")
@@ -343,7 +344,7 @@ Else
       Text 170, 135, 140, 10, "Resident Working with Contracted Facility:"
       DropListBox 170, 150, 140, 15, ""+chr(9)+app_facilities, contracted_facility
       CheckBox 170, 90, 150, 15, "Resides in / entering a HS facility.", hs_check
-      DropListBox 215, 115, 95, 20, ""+chr(9)+"General"+chr(9)+"Long Term Homeless"+chr(9)+"HWS Facility"+chr(9)+"Demo Facility", faci_caseload_list
+      DropListBox 215, 115, 95, 20, ""+chr(9)+"General"+chr(9)+"Long Term Homeless"+chr(9)+"HWS Facility"+chr(9)+"Demo Facility"+chr(9)+"1800 Facility", faci_caseload_list
       Text 175, 120, 40, 10, "Faci Type:"
       GroupBox 5, 105, 145, 80, ""
       Text 10, 110, 55, 10, "Program Status:"
@@ -390,10 +391,10 @@ Else
 
     'GRH/HS and 1800
     If correct_caseload_type = "" Then
-		If grh_status = "ACTIVE" or grh_status = "PENDING" or grh_status = "REIN" or hs_check = checked Then
+		If grh_status = "ACTIVE" or grh_status = "PENDING" or grh_status = "REIN" or hs_check = checked or faci_caseload_list <> "" Then
 			correct_caseload_type = "GRH / HS"
 			population = "Adults"
-			If faci_caseload_list = "1800 - Team 160" Then
+			If faci_caseload_list = "1800 Facility" Then
 				correct_caseload_type = "1800 - Team 160"
 				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EF8"
 				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
