@@ -76,17 +76,112 @@ EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
 Call Check_for_MAXIS(false)                         'Ensuring we are in MAXIS
 
+
+Dim transfer_to_worker
+alpha_split_one_a_h = "ABCDEFGH"
+alpha_split_two_i_z = "IJKLMNOPQRSTUVWXYZ"
+alpha_split_one_a_l = "ABCDEFGHIJKL"
+alpha_split_two_m_z = "MNOPQRSTUVWXYZ"
+
+'Load the caseload-directory file from misc
+Call run_from_GitHub(script_repository & "\misc\caseload-directory.vbs")
+
+'Functions from Application received
+function select_random_index(ubound_of_array, index_selection)
+	If ubound_of_array = 0 Then
+		index_selection = 0
+	Else
+		options = ubound_of_array + 1
+		Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
+		rnd_nbr = rnd
+		size_up = rnd_nbr * options
+		index_selection = int(size_up)
+	End If
+end function
+
+function get_caseload_array_by_type(caseload_type, available_caseload_array)
+	all = caseload_info.items
+	things = caseload_info.keys
+
+	Dim temp_array()
+	ReDim temp_array(0)
+	counter = 0
+    random_team_needed = False
+	for i = 0 to UBound(all)
+        If right(caseload_type, 1) = "?" Then random_team_needed = True 'failsafe to ensure that the random team is selected when something slips through the cracks
+        If random_team_needed = TRUE Then  'This will be used to randomly select a PM team for the case to be transferred to for cash/snap pending caseload
+            team_to_check = all(i) & ""
+            If left(team_to_check, len(team_to_check)-2) = left(caseload_type, len(caseload_type) - 2) Then
+			    ReDim preserve temp_array(counter)
+			    temp_array(counter) = things(i)
+			    counter = counter + 1
+		    End If
+        Else
+		    If all(i) = caseload_type Then
+		    	ReDim preserve temp_array(counter)
+		    	temp_array(counter) = things(i)
+		    	counter = counter + 1
+		    End If
+        End If
+	Next
+	available_caseload_array = temp_array
+end function
+
+function gather_current_caseload(current_caseload, secondary_caseload, find_previous_pw, previous_pw)
+	call navigate_to_MAXIS_screen("CASE", "CURR")
+	EMReadScreen current_caseload, 7, 21, 14
+	EMReadScreen secondary_caseload, 7, 21, 26
+	current_caseload = trim(current_caseload)
+	secondary_caseload = trim(secondary_caseload)
+	If find_previous_pw = True Then
+		call navigate_to_MAXIS_screen("SPEC", "XFER")
+		call write_value_and_transmit("X", 5, 16)
+		EMReadScreen previous_pw, 7, 18, 28
+		PF3
+		call navigate_to_MAXIS_screen("CASE", "CURR")
+	End If
+
+end function
+
+app_facilities = "Monarch Facilities Contract"		'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Bloomington "			'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Chateau"					'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Excelsior"				'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at St. Louis Park"			'MONARCH
+app_facilities = app_facilities+chr(9)+"Villas at Brookview"				'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at The Park"				    'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Richfield"		        'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Robbinsdale"	            'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at The Cedars"				'VILLAS 1
+app_facilities = app_facilities+chr(9)+"Villas at Bryn Mawr"			    'VILLAS 2
+app_facilities = app_facilities+chr(9)+"Villas at Osseo"					'VILLAS 2
+app_facilities = app_facilities+chr(9)+"Villas at St. Louis Park"			'VILLAS 2
+app_facilities = app_facilities+chr(9)+"Ebenezer Care Center/ Martin Luther Care Center"	'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Ebenezer Care Center"				'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Ebenezer Loren on Park"				'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Martin Luther Care Center"			'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Meadow Woods"						'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"North Memorial"
+app_facilities = app_facilities+chr(9)+"HCMC"
+
+
+'Initial dialog
+
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 226, 70, "Transfer Case"
-   Text 55, 10, 50, 10, "Case Number:"
-  EditBox 105, 5, 45, 15, MAXIS_case_number
-  EditBox 105, 25, 45, 15, transfer_to_worker
-  Text 10, 55, 60, 10, "Worker Signature:"
-  EditBox 70, 50, 150, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 241, 115, "Transfer Case"
+  Text 5, 10, 50, 10, "Case Number:"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 90, 35, 45, 15, transfer_to_worker
+  Text 5, 95, 60, 10, "Worker Signature:"
+  EditBox 65, 90, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 5, 45, 15
-    CancelButton 175, 25, 45, 15
-  Text 5, 30, 100, 10, "Transfer to Servicing Worker:"
+    OkButton 140, 90, 45, 15
+    CancelButton 185, 90, 45, 15
+  Text 10, 40, 75, 10, "New servicing worker:"
+  GroupBox 5, 25, 220, 30, "Out of county only"
+  GroupBox 5, 55, 220, 30, "Internal transfer only"
+  Text 10, 70, 75, 10, "Reason for transfer:"
+  DropListBox 80, 65, 140, 15, ""+chr(9)+"Change in circumstance"+chr(9)+"New application received"+chr(9)+"Case in wrong caseload/other", transfer_reason
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -100,54 +195,391 @@ DO
 			transfer_to_worker = trim(transfer_to_worker)
 
             Call validate_MAXIS_case_number(err_msg, "*")
-            IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
-            IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case is will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
+            'IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
+            IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+            IF left(UCASE(trim(transfer_to_worker)), 4) = "X127" THEN err_msg = err_msg & vbNewLine & "For internal transfers, select internal transfer option and leave the worker ID as blank. This will ensure the case is transferred to the correct worker based on the programs on the case."
+            If transfer_to_worker = "" and transfer_reason = "" then err_msg = err_msg & vbNewLine & "* Please select a reason for the transfer from the dropdown or enter a worker for out of county transfer."
+            If transfer_to_worker <> "" and len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid new servicing worker or clear the out of county field."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    	Loop until err_msg = ""
+        Loop until err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    'TODO add a message / option to run app received if the reason for transfer is new application received
 
     transfer_to_worker = UCASE(trim(transfer_to_worker))         'reformatting to compare to other variables
 
     'Adding in a PRIV check and a background check/Script end if not passing background.
     Call back_to_SELF
-    CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv) ' need discovery on priv cases for xfer handling'
+    CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
     IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
     EMReadScreen SELF_check, 4, 2, 50
-    If SELF_check = "SELF" then script_end_procedure_with_error_report("This case is still in background processing. Transferring the case should be the last step. Please review the new results, approve and run the script again if needed.")
+    If SELF_check = "SELF" then script_end_procedure_with_error_report("This case is still in background processing. Please complete any needed actions and rerun the script when the case has completed background processing.")
 
-    EMReadScreen worker_number, 7, 21, 17
-    worker_number = UCASE(trim(worker_number))
-    If transfer_to_worker = worker_number then script_end_procedure_with_error_report("This case is already in the worker number " & transfer_to_worker & ". The script will now end.")
+    If trim(transfer_to_worker) <> "" Then
+        EMReadScreen worker_number, 7, 21, 17
+        worker_number = UCASE(trim(worker_number))
+        If transfer_to_worker = worker_number then script_end_procedure_with_error_report("This case is already in the worker number " & transfer_to_worker & ". The script will now end.")
 
-    '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
-    CALL navigate_to_MAXIS_screen("REPT", "USER")
-    Call write_value_and_transmit(transfer_to_worker, 21, 12)
-    'handling for inactive caseloads and for incorrect entry of a caseload. Will loop through the dialog again.
-    EMReadScreen error_message, 75, 24, 2
-    error_message = trim(error_message)
-    EMReadScreen inactive_worker, 8, 7, 38
-    IF inactive_worker = "INACTIVE" THEN
-        active_worker_found = false
-        err_msg = "* This worker does not appear to be active: " & transfer_to_worker & vbcr & "Enter a valid case load or x number."
-    END IF
-    IF error_message = "NO WORKER FOUND WITH THIS ID" THEN
-        active_worker_found = false
-        err_msg = "* No worker was found with this worker ID: " & transfer_to_worker & vbcr & "Enter a valid case load or x number."
-    End if
-    IF active_worker_found = FALSE THEN msgbox err_msg
+        '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
+        CALL navigate_to_MAXIS_screen("REPT", "USER")
+        Call write_value_and_transmit(transfer_to_worker, 21, 12)
+        'handling for inactive caseloads and for incorrect entry of a caseload. Will loop through the dialog again.
+        EMReadScreen error_message, 75, 24, 2
+        error_message = trim(error_message)
+        EMReadScreen inactive_worker, 8, 7, 38
+        IF inactive_worker = "INACTIVE" THEN
+            active_worker_found = false
+            err_msg = "* This worker does not appear to be active: " & transfer_to_worker & vbcr & "Enter a valid case load or x number."
+        END IF
+        IF error_message = "NO WORKER FOUND WITH THIS ID" THEN
+            active_worker_found = false
+            err_msg = "* No worker was found with this worker ID: " & transfer_to_worker & vbcr & "Enter a valid case load or x number."
+        End if
+        IF active_worker_found = FALSE THEN msgbox err_msg
+    End If
 LOOP UNTIL active_worker_found = TRUE
 
 transfer_out_of_county = FALSE                                          'setting variable to false
-IF left(transfer_to_worker, 4) <> "X127" THEN
+IF transfer_to_worker <> "" Then
     transfer_out_of_county = TRUE 'setting the out of county BOOLEAN
 Else
     '----------------------------------------------------------------------------------------------------In-county transfer
+    Call gather_current_caseload(current_caseload, secondary_caseload, False, previous_pw)
+
+    'Get the caseload type from current_caseload
+    caseload_list = caseload_info.keys
+    caseload_types = caseload_info.items
+    For i = 0 to UBound(caseload_list)
+        If caseload_list(i) = current_caseload Then
+            current_caseload_type = caseload_types(i)
+        End If
+    Next
+
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
+    EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
+      'collect member ages
+      'collect expected caseload of the worker based on the programs on the case (function from application received?)
+    Call back_to_SELF
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMReadscreen last_name, 25, 6, 30
+    EMReadscreen first_name, 12, 6, 63
+    EMReadScreen age_of_memb_01, 3, 8, 76
+    last_name = replace(last_name, "_", "")
+    first_name = replace(first_name, "_", "")
+    case_name = last_name & ", " & first_name
+    age_of_memb_01 = trim(age_of_memb_01)
+    If age_of_memb_01 = "" Then age_of_memb_01 = 0
+    age_of_memb_01 = age_of_memb_01*1
+
+    case_has_child_under_19 = False
+    case_has_child_under_22 = False
+    case_has_guardian = False
+    Do
+    	EMReadScreen memb_age, 3, 8, 76
+    	memb_age = trim(memb_age)
+    	If memb_age = "" Then memb_age = 0
+    	memb_age = memb_age*1
+
+    	If memb_age < 22 Then
+    		case_has_child_under_22 = True
+    		If memb_age < 19 Then case_has_child_under_19 = True
+    	End If
+
+    	EMReadScreen rel_to_applicant, 2, 10, 42
+    	If rel_to_applicant = "03" Then case_has_guardian = True
+    	If rel_to_applicant = "04" Then case_has_guardian = True
+    	If rel_to_applicant = "18" Then case_has_guardian = True
+    	If rel_to_applicant = "08" Then case_has_guardian = True
+    	If rel_to_applicant = "09" Then case_has_guardian = True
+    	If rel_to_applicant = "10" Then case_has_guardian = True
+    	If rel_to_applicant = "11" Then case_has_guardian = True
+    	If rel_to_applicant = "12" Then case_has_guardian = True
+    	If rel_to_applicant = "13" Then case_has_guardian = True
+    	If rel_to_applicant = "15" Then case_has_guardian = True
+    	If rel_to_applicant = "16" Then case_has_guardian = True
+
+    	transmit
+    	EMReadScreen end_of_MEMB, 7, 24, 2
+    Loop until end_of_MEMB = "ENTER A"
+
+    preg_person_on_case = False
+    Call navigate_to_MAXIS_screen("STAT", "PREG")
+    Do
+    	EMReadScreen preg_exists, 1, 2, 73
+    	If preg_exists = "1" Then preg_person_on_case = True
+    	transmit
+    	EMReadScreen end_of_MEMB, 7, 24, 2
+    Loop until end_of_MEMB = "ENTER A"
+
+    Call navigate_to_MAXIS_screen("STAT", "PARE")
+    EMReadScreen pare_exists, 1, 2, 73
+    If pare_exists = "1" Then case_has_guardian = True
+
+
+    child_under_19_question = "No"
+    If case_has_child_under_19 = True Then child_under_19_question = "Yes"
+    pregnant_question = "No"
+    If preg_person_on_case = True Then pregnant_question = "Yes"
+
+    'Main Dialog for in-county transfer cases - gathers information on the case to determine the correct caseload to transfer the case to. Information is gathered on the population of the case, healthcare programs on the case, and if the case is associated with a facility.
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 341, 210, "Case Info"
+      ButtonGroup ButtonPressed
+        OkButton 215, 185, 50, 15
+        CancelButton 270, 185, 50, 15
+      GroupBox 5, 5, 145, 100, "Population Info"
+      GroupBox 165, 5, 160, 65, "HC Info"
+      Text 10, 20, 75, 10, "Age of MEMB 01: " & age_of_memb_01
+      Text 10, 30, 135, 20, "Case Name: " & case_name
+      Text 10, 60, 100, 10, "Case has a member under 19:"
+      Text 10, 75, 100, 10, "Case has a pregnant person:"
+      DropListBox 115, 55, 30, 15, "No"+chr(9)+"Yes", child_under_19_question
+      DropListBox 115, 70, 30, 15, "No"+chr(9)+"Yes", pregnant_question
+      DropListBox 115, 85, 30, 15, "No"+chr(9)+"Yes", minor_parent_on_case
+      Text 10, 155, 135, 10, "Current Caseload: " & current_caseload
+      Text 10, 170, 135, 10, current_caseload_type
+      GroupBox 165, 75, 160, 95, "Facility Info"
+      Text 170, 135, 140, 10, "Resident Working with Contracted Facility:"
+      DropListBox 170, 150, 140, 15, ""+chr(9)+app_facilities, contracted_facility
+      CheckBox 170, 90, 150, 15, "Resides in / entering a HS facility.", hs_check
+      DropListBox 215, 115, 95, 20, ""+chr(9)+"General"+chr(9)+"Long Term Homeless"+chr(9)+"HWS Facility"+chr(9)+"Demo Facility", faci_caseload_list
+      Text 175, 120, 40, 10, "Faci Type:"
+      GroupBox 5, 105, 145, 80, ""
+      Text 10, 110, 55, 10, "Program Status:"
+      Text 10, 125, 135, 10, "Active: " & active_programs
+      Text 10, 140, 135, 10, "Pending: " & programs_applied_for
+      DropListBox 170, 45, 145, 15, ""+chr(9)+"General Healthcare Pending"+chr(9)+"General Healthcare Active"+chr(9)+"LTC pending or requested"+chr(9)+"LTC Active"+chr(9)+"Waiver pending or requested"+chr(9)+"Waiver Active"+chr(9)+"TEFRA"+chr(9)+"MABC/SAGE"+chr(9)+"IV-E/Foster Care", HC_droplist
+      Text 170, 20, 145, 20, "For cases with MAXIS healthcare, select general or specialty caseload types below:"
+      Text 10, 90, 100, 10, "Case has parent(s) under 19:"
+
+    EndDialog
+
+    Do
+        Do
+            err_msg = ""
+            dialog dialog1
+            cancel_confirmation
+            'TODO dialog errors
+            'If the case has healthcare, ensure that a healthcare caseload type is selected. If case has GRH, ensure that the facility information is filled out. If case has a pending healthcare program, ensure that the status of the program is selected.
+            If HC_droplist = "" and ((ma_status <> "INACTIVE" and ma_status <> "") or (msp_status <> "INACTIVE" and msp_status <> "")) AND (faci_caseload_list = "" AND contracted_facility = "") Then err_msg = err_msg & vbNewLine & "* Please select a healthcare caseload type from the dropdown."
+            If (grh_status = "ACTIVE" OR grh_status = "PENDING" OR grh_status = "REIN" OR hs_check = 1) AND (faci_caseload_list = "" AND contracted_facility = "") Then err_msg = err_msg & vbNewLine & "* Please indicate if the resident is working with a facility and select the appropriate caseload type from the dropdown."
+            If err_msg <> "" Then MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+        call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    loop until are_we_passworded_out = false
+
+    'Logic to determine correct caseload based on the information gathered in the dialog and the information pulled from MAXIS on the case. This logic is based on the caseload directory that is maintained on the GitHub repository and is updated as needed when new caseloads are added or removed.
+    If child_under_19_question = "Yes" Then
+        minor_child_on_case = True
+    Else
+        minor_child_on_case = False
+    End If
+
+    If pregnant_question = "Yes" Then
+        preg_person_on_case = True
+    Else
+        preg_person_on_case = False
+    End If
+    correct_caseload_type = ""
+    'Specialty pops
+    If hc_droplist = "TEFRA" Then correct_caseload_type = "TEFRA"
+    If hc_droplist = "MABC/SAGE" Then correct_caseload_type = "MA - BC"
+    If hc_droplist = "IV-E/Foster Care" Then correct_caseload_type = "Foster Care / IV-E"
+    If hc_droplist = "MIPPA" Then correct_caseload_type = "MIPPA"
+
+    'GRH/HS and 1800
+    If correct_caseload_type = "" Then
+		If grh_status = "ACTIVE" or grh_status = "PENDING" or grh_status = "REIN" or hs_check = checked Then
+			correct_caseload_type = "GRH / HS"
+			population = "Adults"
+			If faci_caseload_list = "1800 - Team 160" Then
+				correct_caseload_type = "1800 - Team 160"
+				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EF8"
+				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
+				If new_caseload <> "" and current_caseload <> new_caseload Then transfer_needed = True
+            ElseIf contracted_facility <> "" Then
+                correct_caseload_type = "Contracted - " & contracted_facility
+            Else
+				If grh_status = "PENDING" Then
+                    If faci_caseload_list = "Long Term Homeless" Then
+                        correct_caseload_type = "GRH / HS - LTH Pending"
+                    Else
+                        correct_caseload_type = "GRH / HS - Adults Pending"
+                    End If
+                End If
+                If grh_status = "ACTIVE" or grh_status = "REIN" Then
+                    If faci_caseload_list = "General" Then correct_caseload_type = "GRH / HS - Maintenance"
+                    If faci_caseload_list = "Long Term Homeless" Then correct_caseload_type = "GRH / HS - LTH Active"
+                    If faci_caseload_list = "HWS Facility" Then correct_caseload_type = "GRH / HS - HWS"
+                    If faci_caseload_list = "Demo Facility" Then correct_caseload_type = "GRH / HS - Demo"
+                End If
+				If minor_child_on_case = True or preg_person_on_case = True Then
+					correct_caseload_type = "GRH / HS - Families Pending"
+					population = "Families"
+				End If
+			End If
+		End If
+    End If
+    'YET
+    If correct_caseload_type = "" Then
+        If age_of_memb_01 < 18 Then correct_caseload_type = "YET"
+        If age_of_memb_01 >= 18 and age_of_memb_01 < 20 AND pregnant_question = "Yes" Then correct_caseload_type = "YET"
+        If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
+    End If
+    'LTC cases
+    If correct_caseload_type = "" Then
+        If HC_droplist = "LTC pending or requested" Then
+            correct_caseload_type = "LTC+ - General"
+            If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
+            If InStr(alpha_split_two_i_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
+        ElseIf HC_droplist = "LTC Active" Then
+            correct_caseload_type = "LTC"
+        End If
+    End If
+    'Waivers
+    If correct_caseload_type = "" Then
+        If HC_droplist = "Waiver pending or requested" Or HC_droplist = "Waiver Active" Then
+           If child_under_19_question = "Yes" Then
+                correct_caseload_type = "Waivers - Families"
+            Else
+                correct_caseload_type = "Waivers"
+            End If
+        End If
+    End If
+    Const GENERAL_HEALTHCARE_PENDING = "General Healthcare Pending"
+    Const GENERAL_HEALTHCARE_ACTIVE = "General Healthcare Active"
+    'General Health care
+    If correct_caseload_type = "" Then
+        If HC_droplist = GENERAL_HEALTHCARE_PENDING OR ma_status = "PENDING" or msp_status = "PENDING" Then
+            correct_caseload_type = "Healthcare - Pending"
+        End If
+    End If
+
+    If correct_caseload_type = "" Then
+        If HC_droplist = GENERAL_HEALTHCARE_ACTIVE OR ma_status <> "INACTIVE" or msp_status  <> "INACTIVE" Then
+            'TODO - split this into mixed cases with other programs vs. HC only
+            If unknown_cash_pending = True or ga_status <> "INACTIVE" or msa_status <> "INACTIVE" or mfip_status <> "INACTIVE" or SNAP_status <> "INACTIVE" Then
+                 correct_caseload_type = "Healthcare Mixed Active"
+            Else
+                correct_caseload_type = "Healthcare Only Active"
+            End If
+        End If
+    End If
+    'general maintenance
+    If correct_caseload_type = "" Then
+        If unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or SNAP_status = "PENDING" Then
+            If child_under_19_question = "Yes" Then
+                If mfip_status = "PENDING" OR unknown_cash_pending = True Then
+                    correct_caseload_type = "Families - Cash"
+                Else
+                     correct_caseload_type = "Families - Pending"
+                End If
+            Else
+                correct_caseload_type = "Adults - Pending"
+            End IF
+        Else
+            If child_under_19_question = "Yes" Then
+                correct_caseload_type = "Families Active"
+            Else
+                correct_caseload_type = "Adults Active"
+            End If
+        End If
+    End If
+
+    'Adding on the team to the caseload type for cases that are already on a program and therefore have a team in the current caseload type. This is to ensure that cases that are already on a program are transferred to the correct team for their caseload type.
+    If left(correct_caseload_type, 6) = "Adults" OR left(correct_caseload_type, 8) = "Families"Then 'Grabs the current team for the caseload type for cases already active on a program
+        If isnumeric(right(current_caseload_type, 1)) = True Then
+            correct_caseload_type = correct_caseload_type & " " & right(current_caseload_type, 1)
+        Else
+            correct_caseload_type = correct_caseload_type & " ?" 'making correct length if current_caseload_type = ""
+        End If
+    End If
+   'Error handling for trying to transfer to the same caseload type
+    If correct_caseload_type = current_caseload_type Then
+        no_transfer = MSgBox("The case is already in the correct caseload type based on the information provided. If you feel this is incorrect, press OK to proceed and enter the correct caseload and reason for transfer on the next dialog.", vbOkcancel)
+        If no_transfer = vbCancel Then script_end_procedure("~PT: user pressed cancel")
+    End If
+
+    'Now select the right x# for transfer
+    Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
+	number_of_options = UBound(available_caseload_array)
+	Do
+		pnd2_limit_issue = False
+		call select_random_index(number_of_options, caseload_index)
+		transfer_to_worker = available_caseload_array(caseload_index)
+		If number_of_options = 0 Then Exit Do
+		call navigate_to_MAXIS_screen("REPT", "PND2")
+		Call write_value_and_transmit(transfer_to_worker, 21, 13)
+        EMReadScreen pnd2_disp_limit, 13, 6, 35
+        If pnd2_disp_limit = "Display Limit" Then
+			pnd2_limit_issue = True
+		Else
+			EMReadScreen total_pages, 3, 3, 78
+			total_pages = trim(total_pages)
+			total_pages = total_pages * 1
+			if total_pages > 195 Then pnd2_limit_issue = True
+		End If
+	Loop until pnd2_limit_issue = False
+
+    'Transfer confirmation dialog - confirms the worker that the case is being transferred to and the caseload type the case is being transferred to. Also includes an option to report if the case is being transferred to a different worker than the one identified in the script with a reason why.
+    dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 206, 135, "Dialog"
+      ButtonGroup ButtonPressed
+        OkButton 90, 110, 50, 15
+        CancelButton 145, 110, 50, 15
+      Text 5, 10, 180, 10, "This case will be transferred to the following caseload:"
+      Text 5, 25, 175, 10, Correct_caseload_type
+      Text 120, 25, 60, 10, transfer_to_worker
+      GroupBox 5, 40, 190, 65, "Selected Caseload is incorrect"
+      Text 10, 55, 55, 10, "Transfer to x#:"
+      EditBox 65, 50, 60, 15, new_transfer_to_worker
+      Text 10, 90, 30, 10, "Reason:"
+      CheckBox 10, 70, 180, 10, "Check here if correct caseload cannot be determined", unknown_caseload_check
+      EditBox 40, 85, 150, 15, error_reason
+    EndDialog
+
+
+    Do
+        err_msg = ""
+        dialog dialog1
+        cancel_confirmation
+        if (new_transfer_to_worker <> "" OR unknown_caseload_check = checked) and error_reason = "" Then err_msg = err_msg & vbcr & "* Please provide a reason for transferring to a different worker than the one identified in the dialog."
+        If err_msg <> "" Then MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+
+
+    If new_transfer_to_worker <> ""  OR unknown_caseload_check = checked Then
+         bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+        subject_of_email = "Script Error -- " & name_of_script & " (Automated Report)"
+
+        full_text = "Error occurred on " & date & " at " & time
+        full_text = full_text & vbCr & "The case transfer for case " & MAXIS_case_number & " was transferred to a different worker than the one identified in the script."
+        full_text = full_text & vbCr & "Reason for different worker transfer: " & error_reason
+        full_text = full_text & vbCr & "Original worker identified: " & transfer_to_worker & vbCrLf & "New worker entered: " & new_transfer_to_worker
+
+        Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, "", True)
+        transfer_to_worker = new_transfer_to_worker
+        're-align the caseload type with the new_transfer_to_worker to keep the stats correct
+
+        caseload_list = caseload_info.keys
+        caseload_types = caseload_info.items
+        For i = 0 to UBound(caseload_list)
+            If caseload_list(i) = transfer_to_worker Then
+                correct_caseload_type = caseload_types(i)
+            End If
+        Next
+    End If
+
+    If unknown_caseload_check = checked Then
+        script_end_procedure_with_error_report("The correct caseload for this case could not be determined. Please review the case and transfer to the correct caseload as needed. Reason provided: " & error_reason)
+    Else
+        transfer_to_worker = UCASE(trim(transfer_to_worker))
+    End If
     'Staff need to confirm that they've transferred the case in ECF Next 1st
     Do
         Do
-            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next?", vbQuestion + vbYesNo, "Tranfer Case Reminder")
+            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next? New worker: " & transfer_to_worker, vbQuestion + vbYesNo, "Transfer Case Reminder")
             If transfer_confirmation = vbNo then msgbox "This case needs to be transferred in ECF Next first." & vbcr & vbcr & "Transfer the case in ECF Next now."
             If transfer_confirmation = vbYes then exit do
         Loop
@@ -172,8 +604,8 @@ Else
 		end_msg = end_msg & vbCr & vbCr & "Message from MAXIS on XFER screen:" & vbCr & transfer_message
 		script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
 	End If
-	end_msg = "Success!"
-	end_msg = end_msg & vbCr & vbCr & "Message from MAXIS on XFER screen:" & vbCr & transfer_message
+	end_msg = "Success! Case transferred from: " & current_caseload & "|" & current_caseload_type & " to: " & transfer_to_worker & "|" & correct_caseload_type & " Due to: " & transfer_reason
+
     script_end_procedure_with_error_report(end_msg)
 End if
 
@@ -456,6 +888,8 @@ script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_
 "outstanding_work: " & outstanding_work & vbCr & "requested_verifs: " & requested_verifs & vbCr & "expected_changes: " & expected_changes & vbCr & "other_notes: " & other_notes & vbCr & _
 "cash cfr county code: " & cash_cfr & vbCr & "cash cfr date: " & cash_cfr_month & "/" & cash_cfr_year & vbcr & "hc_cfr county code: " & hc_cfr & vbcr & "HC cfr date: " & hc_cfr_month & "/" & hc_cfr_year & vbCr & _
 "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Error Message at transfer: " & vbCr & error_message
+
+'TODO - set up end_msg and script run lowdown for data for internal transfer
 
 If servicing_worker <> transfer_to_worker THEN
     script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
