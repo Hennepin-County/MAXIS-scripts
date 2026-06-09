@@ -77,6 +77,7 @@ BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
   Text 0, 85, 65, 10, "Worker Signature:"
 EndDialog
 
+'This is the dialog loop`
 DO
 	DO
 	    err_msg = ""
