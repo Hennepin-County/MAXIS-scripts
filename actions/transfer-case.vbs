@@ -415,7 +415,7 @@ Else
                     If faci_caseload_list = "HWS Facility" Then correct_caseload_type = "GRH / HS - HWS"
                     If faci_caseload_list = "Demo Facility" Then correct_caseload_type = "GRH / HS - Demo"
                 End If
-				If minor_child_on_case = True or preg_person_on_case = True Then
+				If faci_caseload_list = "General" and (minor_child_on_case = True or preg_person_on_case = True) Then
 					correct_caseload_type = "GRH / HS - Families Pending"
 					population = "Families"
 				End If
