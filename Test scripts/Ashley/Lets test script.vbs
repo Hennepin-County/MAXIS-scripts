@@ -62,7 +62,32 @@ get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-Msgbox "Let's test this thing!"
+Dialog1 = ""
+
+BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 135, 10, 50, 15
+    CancelButton 135, 30, 50, 15
+  CheckBox 10, 10, 50, 10, "Blue", fav_color
+  EditBox 65, 55, 50, 15, MAXIS_case_number
+  EditBox 65, 80, 50, 15, worker_signature
+  CheckBox 10, 25, 50, 10, "Green", fav_color
+  CheckBox 10, 40, 50, 10, "Orange", fav_color
+  Text 0, 60, 55, 10, "Case Number:"
+  Text 0, 85, 65, 10, "Worker Signature:"
+EndDialog
+
+DO
+	DO
+	    err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    IF MAXIS_case_number = "" THEN err_msg = "You must have a case number to continue!"
+	    IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+ 	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 script_end_procedure_with_error_report("Lets a go!")
 
