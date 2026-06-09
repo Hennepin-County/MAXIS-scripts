@@ -62,9 +62,41 @@ get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-Msgbox "Hello World!"
 
+Dialog1 = ""
 
+BeginDialog Dialog1, 0, 0, 226, 180, "Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 100, 155, 50, 15
+    CancelButton 155, 155, 50, 15
+  OptionGroup RadioGroup1
+    RadioButton 20, 40, 40, 10, "Radio1", Radio1
+    RadioButton 20, 55, 40, 15, "Radio2", Radio2
+  EditBox 65, 5, 80, 15, MAXIS_case_number
+  EditBox 85, 130, 95, 15, worker_signature
+  Text 10, 10, 50, 10, "Case number:"
+  Text 10, 135, 70, 10, "Worker Signature:"
+  GroupBox 10, 30, 80, 45, "Group1"
+  EditBox 45, 85, 165, 15, Edit3
+  Text 20, 90, 20, 10, "Stuff:"
+EndDialog
+
+DO
+	DO
+	    err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    IF MAXIS_case_number = "" THEN err_msg = "You must have a case number to continue!"
+	    IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+        IF Radio1 = False AND Radio2 = False THEN err_msg = err_msg & vbNewLine & "You must select a radio button."
+	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+        If len(Edit3) > 160 Then err_msg = err_msg & vbNewLine & "You have exceeded the character limit for the 'Stuff' field. Please shorten your response."
+ 	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+
+If radio1 = True then navigate_to_maxis_screen("STAT", "SUMM")
+EMReadscreen stat_edits, 4, 20, 70
 script_end_procedure_with_error_report("I did my first script!!!!")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
