@@ -62,10 +62,47 @@ get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
+Dialog1 = ""
 
-msgbox "Welcome to Sam's practice script!"
+BeginDialog Dialog1, 0, 0, 191, 155, "Click_it"
+  ButtonGroup ButtonPressed
+    OkButton 75, 130, 50, 15
+    CancelButton 135, 130, 50, 15
+  OptionGroup RadioGroup1
+    RadioButton 10, 30, 50, 10, "Red", Red_opt
+    RadioButton 10, 45, 50, 10, "Blue", blue_opt
+    RadioButton 10, 60, 50, 10, "Green", green_opt
+    RadioButton 80, 30, 50, 10, "Yellow", yellow_opt
+    RadioButton 80, 45, 50, 10, "Purple", Purple_opt
+    RadioButton 80, 60, 50, 10, "Orange", Orange_opt
+  Text 10, 10, 135, 10, "What's your favorite color?"
+  EditBox 15, 100, 50, 15, MAXIS_case_number
+  EditBox 110, 100, 50, 15, worker_signature
+  Text 15, 85, 50, 10, "Case Number:"
+  Text 110, 85, 60, 10, "Worker Signature:"
+EndDialog
+
+Dialog Dialog1
+
+
+'calling the dialog---------------------------------------------------------------------------------------------------------------
+DO
+	DO
+	    err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    IF MAXIS_case_number = "" THEN err_msg = "You must have a case number to continue!"
+	    IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."
+	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+ 	LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+
+
 
 script_end_procedure_with_error_report("Ta da!! Yay script!")
+
+
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
