@@ -7072,34 +7072,34 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
             TIKL_mo = right("0" & DatePart("m",    TIKL_date), 2) 'Creating new month and year variables to determine which ten day cut off date to use
             TIKL_yr = right(      DatePart("yyyy", TIKL_date), 2)
 
-            IF TIKL_mo = "01" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #01/19/2024#
-            ELSEIF TIKL_mo = "02" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #02/16/2024#
-            ELSEIF TIKL_mo = "03" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #03/21/2024#
-            ELSEIF TIKL_mo = "04" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #04/18/2024#
-            ELSEIF TIKL_mo = "05" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #05/21/2024#
-            ELSEIF TIKL_mo = "06" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #06/20/2024#
-            ELSEIF TIKL_mo = "07" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #07/19/2024#
-            ELSEIF TIKL_mo = "08" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #08/21/2024#
-            ELSEIF TIKL_mo = "09" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #09/19/2024#
-            ELSEIF TIKL_mo = "10" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #10/21/2024#
-            ELSEIF TIKL_mo = "11" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #11/19/2024#
-            ELSEIF TIKL_mo = "12" AND TIKL_yr = "24" THEN
-                ten_day_cutoff = #12/19/2024#
-            ELSEIF TIKL_mo = "11" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #11/20/2023#
-            ELSEIF TIKL_mo = "12" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #12/20/2023#                                'last month of current year
+            IF TIKL_mo = "01" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #01/21/2026#
+            ELSEIF TIKL_mo = "02" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #02/18/2026#
+            ELSEIF TIKL_mo = "03" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #03/19/2026#
+            ELSEIF TIKL_mo = "04" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #04/20/2026#
+            ELSEIF TIKL_mo = "05" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #05/20/2026#
+            ELSEIF TIKL_mo = "06" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #06/17/2026#
+            ELSEIF TIKL_mo = "07" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #07/21/2026#
+            ELSEIF TIKL_mo = "08" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #08/20/2026#
+            ELSEIF TIKL_mo = "09" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #09/18/2026#
+            ELSEIF TIKL_mo = "10" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #10/21/2026#
+            ELSEIF TIKL_mo = "11" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #11/19/2026#
+            ELSEIF TIKL_mo = "12" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #12/19/2026#
+            ELSEIF TIKL_mo = "11" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #11/18/2026#
+            ELSEIF TIKL_mo = "12" AND TIKL_yr = "26" THEN
+                ten_day_cutoff = #12/21/2026#                                'last month of current year
             ELSE
             	missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar.
             END IF
