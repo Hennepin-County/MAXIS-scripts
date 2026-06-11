@@ -396,9 +396,8 @@ Else
 			population = "Adults"
 			If faci_caseload_list = "1800 Facility" Then
 				correct_caseload_type = "1800 - Team 160"
-				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EF8"
-				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
-				If new_caseload <> "" and current_caseload <> new_caseload Then transfer_needed = True
+				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then transfer_to_worker = "X127EF8"
+				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then transfer_to_worker = "X127EF9"
             ElseIf contracted_facility <> "" Then
                 correct_caseload_type = "Contracted - " & contracted_facility
             Else
@@ -432,8 +431,8 @@ Else
     If correct_caseload_type = "" Then
         If HC_droplist = "LTC pending or requested" Then
             correct_caseload_type = "LTC+ - General"
-            If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
-            If InStr(alpha_split_two_i_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
+            If InStr(alpha_split_one_a_h, left(case_name, 1)) <> 0 Then transfer_to_worker = "X127EK4"
+            If InStr(alpha_split_two_i_z, left(case_name, 1)) <> 0 Then transfer_to_worker = "X127EK9"
         ElseIf HC_droplist = "LTC Active" Then
             correct_caseload_type = "LTC"
         End If
@@ -502,27 +501,28 @@ Else
         If no_transfer = vbCancel Then script_end_procedure("~PT: user pressed cancel")
     End If
 
-    'Now select the right x# for transfer
-    Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
-	number_of_options = UBound(available_caseload_array)
-	Do
-		pnd2_limit_issue = False
-		call select_random_index(number_of_options, caseload_index)
-		transfer_to_worker = available_caseload_array(caseload_index)
-		If number_of_options = 0 Then Exit Do
-		call navigate_to_MAXIS_screen("REPT", "PND2")
-		Call write_value_and_transmit(transfer_to_worker, 21, 13)
-        EMReadScreen pnd2_disp_limit, 13, 6, 35
-        If pnd2_disp_limit = "Display Limit" Then
-			pnd2_limit_issue = True
-		Else
-			EMReadScreen total_pages, 3, 3, 78
-			total_pages = trim(total_pages)
-			total_pages = total_pages * 1
-			if total_pages > 195 Then pnd2_limit_issue = True
-		End If
-	Loop until pnd2_limit_issue = False
-
+    'Select from available x#s if one has not been set yet
+    If transfer_to_worker <> "" Then
+        Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
+	    number_of_options = UBound(available_caseload_array)
+	    Do
+	    	pnd2_limit_issue = False
+	    	call select_random_index(number_of_options, caseload_index)
+	    	transfer_to_worker = available_caseload_array(caseload_index)
+	    	If number_of_options = 0 Then Exit Do
+	    	call navigate_to_MAXIS_screen("REPT", "PND2")
+	    	Call write_value_and_transmit(transfer_to_worker, 21, 13)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then
+	    		pnd2_limit_issue = True
+	    	Else
+	    		EMReadScreen total_pages, 3, 3, 78
+	    		total_pages = trim(total_pages)
+	    		total_pages = total_pages * 1
+	    		if total_pages > 195 Then pnd2_limit_issue = True
+	    	End If
+	    Loop until pnd2_limit_issue = False
+    End If
     'Transfer confirmation dialog - confirms the worker that the case is being transferred to and the caseload type the case is being transferred to. Also includes an option to report if the case is being transferred to a different worker than the one identified in the script with a reason why.
     dialog1 = ""
     BeginDialog Dialog1, 0, 0, 206, 135, "Dialog"
