@@ -451,7 +451,7 @@ Else
     Const GENERAL_HEALTHCARE_ACTIVE = "General Healthcare Active"
     'General Health care
     If correct_caseload_type = "" Then
-        If HC_droplist = GENERAL_HEALTHCARE_PENDING OR ma_status = "PENDING" or msp_status = "PENDING" Then
+        If HC_droplist = "General Healthcare Pending" OR ma_status = "PENDING" or msp_status = "PENDING" Then
             correct_caseload_type = "Healthcare - Pending"
         End If
     End If
@@ -502,10 +502,10 @@ Else
     End If
 
     'Select from available x#s if one has not been set yet
-    If transfer_to_worker <> "" Then
+    If transfer_to_worker = "" Then
         Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
 	    number_of_options = UBound(available_caseload_array)
-	    Do
+        Do
 	    	pnd2_limit_issue = False
 	    	call select_random_index(number_of_options, caseload_index)
 	    	transfer_to_worker = available_caseload_array(caseload_index)
