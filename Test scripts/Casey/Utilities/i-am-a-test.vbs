@@ -38,6 +38,550 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+function ABAWD_FSET_exemption_finder(bulk_run, memb_number_for_bulk, snap_status)
+    snap_status = ""
+
+    Dim eats_group_array()
+    ReDim eats_group_array(verified_abawd_const,0)
+
+    'constants for array
+    const memb_name_const           = 0
+    const memb_number_const         = 1
+    const memb_age_const            = 2
+    const verified_exemption_const  = 3
+    const potential_exempt_const    = 4
+    const verified_wreg_const       = 5
+    const verified_abawd_const      = 6
+
+    entry_record = 0
+
+    call TLR_determine_SNAP_unit(eats_group_members, memb_found, eats_HH_count)
+
+    'sets up array for the exemption and potential exemption checks.
+    eats_group_members = trim(eats_group_members)
+    eats_group_members = split(eats_group_members, ",")
+
+    If bulk_run Then
+        eats_group_array(memb_number_const, entry_record) = memb_number_for_bulk
+    Else
+        For each memb in eats_group_members
+            If trim(memb) <> "" then
+                ReDim Preserve eats_group_array(verified_abawd_const, entry_record)	'This resizes the array based on the number of members
+                eats_group_array(memb_number_const, entry_record) = memb
+                entry_record = entry_record + 1			'This increments to the next entry in the array'
+                stats_counter = stats_counter + 1
+            End if
+        Next
+    End If
+
+    Call TLR_active_progs_exemptions(eats_group_array, memb_number_const, verified_exemption_const, verified_wreg_const, snap_status)
+
+    Call TLR_demographic_exemptions(eats_group_members, eats_group_array, memb_number_const, memb_name_const, verified_exemption_const, verified_wreg_const, potential_exempt_const)
+
+    Call TLR_disability_exemptions(eats_group_members, eats_group_array, memb_number_const, verified_exemption_const, verified_wreg_const, snap_status)
+
+
+end function
+
+function TLR_determine_SNAP_unit(eats_group_members, memb_found, eats_HH_count)
+    eats_group_members = ""
+    memb_found = True
+    eats_HH_count = 0
+
+    CALL navigate_to_MAXIS_screen("STAT", "EATS")
+    EMReadScreen all_eat_together, 1, 4, 72
+
+    IF all_eat_together = "_" Then                          'single member HH's
+        eats_group_members = "01" & ","
+		eats_HH_count = 1
+    ELSEIF all_eat_together = "Y" THEN                      'HH's where all members eat together
+        eats_row = 5
+        DO
+            EMReadScreen eats_pers, 2, eats_row, 3
+            eats_pers = replace(eats_pers, " ", "")
+            IF trim(eats_pers) = "" THEN
+                Exit do
+            Else
+                eats_group_members = eats_group_members & eats_pers & ","
+				eats_HH_count = eats_HH_count  + 1
+                eats_row = eats_row + 1
+            END IF
+        LOOP
+    ELSEIF all_eat_together = "N" Then                      'multiple eats HH cases - only eval the 1st eats group that contains MEMB 01.
+        eats_row = 13
+        DO
+            EMReadScreen eats_group, 38, eats_row, 39
+            find_memb01 = InStr(eats_group, eats_pers)
+            IF find_memb01 = 0 THEN
+                eats_row = eats_row + 1
+                IF eats_row = 18 THEN
+                    memb_found = False
+                    EXIT DO
+                END IF
+            END IF
+        LOOP UNTIL find_memb01 <> 0
+
+        'Gathering the eats group members
+        eats_col = 39
+        DO
+            EMReadScreen eats_group, 2, eats_row, eats_col
+            IF eats_group <> "__" THEN
+                eats_group_members = eats_group_members & eats_group & ","
+                eats_col = eats_col + 4
+				eats_HH_count = eats_HH_count  + 1
+            END IF
+        LOOP UNTIL eats_group = "__"
+    END IF
+end function
+
+function TLR_active_progs_exemptions(eats_group_array, memb_number_const, verified_exemption_const, verified_wreg_const, snap_status)
+    'Case-based determination
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+    For items = 0 to UBound(eats_group_array, 2)
+        '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
+        If mfip_case = True then
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "MFIP Active. "
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "14" & "|"
+        End if
+    Next
+
+    '----------------------------------------------------------------------------------------------------17 – Receiving RCA
+	'Person-based determination -- Looking for RCA information while still on CASE/CURR
+	row = 1
+    col = 1
+    EMSearch "RCA:", row, col
+    If row <> 0 Then
+		EMReadScreen rca_status, 9, row, col + 5
+        rca_status = trim(rca_status)
+		rca_status = rca_status
+        If rca_status = "ACTIVE" or rca_status = "APP CLOSE" or rca_status = "APP OPEN" Then
+			'Navigate to ELIG/RCA to verify if member is eligible for RCA
+			EMWriteScreen "ELIG", 20, 22
+			CALL write_value_and_transmit("RCA ", 20, 69)
+
+			EMReadScreen no_RCA, 10, 24, 2
+			If no_RCA <> "NO VERSION" then
+				'RCA version exists so should eb at ELIG/RCA now
+				EMWriteScreen "99", 19, 78
+				transmit
+				'This brings up the FS versions of eligibility results to search for approved versions
+				status_row = 7
+				Do
+					EMReadScreen app_status, 8, status_row, 50
+					app_status = trim(app_status)
+					If app_status = "" then
+						PF3
+						exit do 	'if end of the list is reached then exits the do loop
+					End if
+					If app_status = "UNAPPROV" Then status_row = status_row + 1
+				Loop until app_status = "APPROVED" or app_status = ""
+
+				If app_status = "APPROVED" then
+					EMReadScreen vers_number, 1, status_row, 23
+					Call write_value_and_transmit(vers_number, 18, 54)
+
+					'Read the status for all HH membs
+					For items = 0 to UBound(eats_group_array, 2)
+						'Read the Elig Status for each HH Member
+						status_row = 7
+						Do
+							EMReadScreen ref_number, 2, status_row, 6
+							ref_number = trim(ref_number)
+							If ref_number = "" then
+								'Check if we are on last page of members - try to PF8 to next page
+								PF8
+								EMReadScreen members_display_check, 10, 24, 2
+								If members_display_check = "** NO MORE" Then
+									'Last page reached without finding matching HH memb, reset back to first page for next member
+									Do
+										PF7
+										EmReadScreen first_page_check, 20, 24, 2
+									Loop until first_page_check = "** THIS IS THE FIRST"
+									exit do		'Exit do to move to next HH memb
+								Else
+									'If script successfully navigated to next page then status_row needs to be reset
+									status_row = 7
+								End If
+							ElseIf ref_number = eats_group_array(memb_number_const, items) then
+								'Found the matching Ref Number, check on Elig Status
+								EmReadScreen elig_status, 10, status_row, 53
+								elig_status = trim(elig_status)
+								If elig_status = "ELIGIBLE" Then
+									eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "RCA Active and Eligible. "
+									eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "17" & "|"
+								End If
+
+								'Regardless of whether HH member is eligible for RCA, need to reset back to start to search next HH memb
+								Do
+									PF7
+									EmReadScreen first_page_check, 20, 24, 2
+								Loop until first_page_check = "** THIS IS THE FIRST"
+								exit do 	'Exit do to move to next HH memb
+							Else
+								'If no match found, then move to the next row
+								status_row = status_row + 1
+							End If
+						Loop until ref_number = eats_group_array(memb_number_const, items)
+					Next
+				End If
+			End If
+        End If
+	End if
+end function
+
+
+function TLR_demographic_exemptions(eats_group_members, eats_group_array, memb_number_const, memb_name_const, verified_exemption_const, verified_wreg_const, potential_exempt_const)
+
+    child_under_six = False 	'defaulting to False
+	child_under_14 = False		'defaulting to False
+	adult_HH_count = 0
+
+    'person-based determination (age-based exemptions): STAT/MEMB
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+
+    For cow = 0 to UBound(eats_group_members)
+    ' For items = 0 to UBound(eats_group_array, 2)
+        cl_age = ""
+        CALL write_value_and_transmit(eats_group_members(cow), 20, 76)
+        ' CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+        EMReadScreen first_name, 12, 6, 63
+        first_name = replace(first_name, "_", "")
+        Call fix_case_for_name(first_name)
+        If cow =< UBound(eats_group_array, 2) Then
+
+        EMReadScreen cl_age, 2, 8, 76
+        cl_age = trim(cl_age)
+        IF cl_age = "" THEN cl_age = 0
+        cl_age = cl_age * 1
+
+        If cow =< UBound(eats_group_array, 2) Then
+            If eats_group_members(cow) = eats_group_array(memb_number_const, cow) Then
+                eats_group_array(memb_name_const, cow) = first_name
+                eats_group_array(memb_age_const, cow) = cl_age
+            End If
+        ElseIf UBound(eats_group_array, 2) = 0 Then
+            If eats_group_members(cow) = eats_group_array(memb_number_const, 0) Then
+                eats_group_array(memb_name_const, 0) = first_name
+                eats_group_array(memb_age_const, 0) = cl_age
+            End If
+        End If
+
+        'case-based exemption
+		If cl_age < 6 then child_under_six = True
+        IF cl_age =< 13 THEN
+			child_under_14 = True
+		Else
+			adult_HH_count = adult_HH_count + 1
+		End if
+
+    NEXT
+
+    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
+    For items = 0 to UBound(eats_group_array, 2)
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, items), 20, 76)
+
+        native = False
+        EMReadScreen tribal_indicator, 2, 18, 42
+        EmReadScreen race_detail, 37, 17, 42
+        If trim(race_detail) = "Amer Indn Or Alaskan Native" then native = True
+        If trim(race_detail) = "Unable To Determine" then
+            eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "No race indicated. "
+        End If
+        If trim(race_detail) = "Multiple Races" then
+            PF9
+            Call write_value_and_transmit("X", 17, 34)
+            EMReadScreen native_indicator, 1, 10, 12
+            If native_indicator = "X" then native = True
+            transmit 'to exit pop up
+            PF10
+			Call MAXIS_background_check
+        End if
+		If native = true then
+            eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "American Indian or Alaskan Native. "
+            eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "30" & "|"
+        End If
+
+        If child_under_14 = True then
+            If eats_group_array(memb_age_const, items) > 17 then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Child under 14 in SNAP Household. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "21" & "|"
+            End if
+        End if
+        '----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
+        If child_under_six = True then
+            If adult_HH_count = 1 then
+                If eats_group_array(memb_age_const, items) > 17 then
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Care of child under 6. "
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "08" & "|"
+                End if
+            Else
+                eats_group_array(potential_exempt_const, items) = eats_group_array(potential_exempt_const, items) & "Child under 6 in SNAP Household. "
+            End if
+        End if
+        '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
+        If eats_group_array(memb_age_const, items) = 16 or eats_group_array(memb_age_const, items) = 17 then
+			EMReadScreen age_verif_code, 2, 8, 68
+			If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 16-17. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "07" & "|"
+			End if
+		End if
+		'----------------------------------------------------------------------------------------------------06 – Under age 16
+        If eats_group_array(memb_age_const, items) < 16 then
+		    If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Under age 16. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "06" & "|"
+		    End if
+		End if
+        '----------------------------------------------------------------------------------------------------'16 – 55-59 Years Old
+        If eats_group_array(memb_age_const, items) => 50 then
+		    If eats_group_array(memb_age_const, items) =< 59 then
+		    	If age_verif_code <> "NO" then
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 50-59. "
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "16" & "|"
+		    	End if
+		    End if
+			If (cl_age => 50 and cl_age =< 55) then age_50_thru_55 = True
+		End if
+        '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
+		If eats_group_array(memb_age_const, items) => 65 then
+		    If age_verif_code <> "NO" then
+                eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 65 or older. "
+                eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
+			End if
+		End if
+		If eats_group_array(memb_age_const, items) => 60 then
+    		If eats_group_array(memb_age_const, items) =< 64 then
+                If age_verif_code <> "NO" then
+                    eats_group_array(verified_exemption_const, items) = eats_group_array(verified_exemption_const, items) & "Age 60-64. "
+                    eats_group_array(verified_wreg_const, items) = eats_group_array(verified_wreg_const, items) & "05" & "|"
+                    age_60_thru_64  = True
+    			End if
+    		End if
+    	End if
+    Next
+
+
+
+end function
+
+
+function TLR_disability_exemptions(eats_group_members, eats_group_array, memb_number_const, verified_exemption_const, verified_wreg_const, snap_status)
+    disabled_eats_member = False
+    Call navigate_to_MAXIS_screen("STAT", "DISA")
+    single_memb_ref = ""
+    If UBound(eats_group_array, 2)  = 0 Then single_memb_ref = eats_group_array(memb_number_const, 0)
+
+    For cow = 0 to UBound(eats_group_members)
+        CALL write_value_and_transmit(eats_group_members(cow), 20, 76)
+		verified_disa = False
+		disa_status = False
+
+        EMReadScreen num_of_DISA, 1, 2, 78
+        If num_of_DISA <> "0" THEN
+            EMReadScreen disa_end_dt, 10, 6, 69
+            disa_end_dt = replace(disa_end_dt, " ", "/")
+            EMReadScreen cert_end_dt, 10, 7, 69
+            cert_end_dt = replace(cert_end_dt, " ", "/")
+            If IsDate(disa_end_dt) = True THEN
+                If DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN
+                    disa_status = True
+                    If eats_group_members(cow) <> single_memb_ref then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & ". "
+                End If
+            Else
+                If disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
+                    disa_status = True
+                    If eats_group_members(cow) <> single_memb_ref then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date. "
+                End If
+            End If
+            If IsDate(cert_end_dt) = True AND disa_status = False THEN
+                If DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN
+                    If eats_group_members(cow) <> single_memb_ref then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & ". "
+                End if
+            Else
+                If cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
+                    EMReadScreen cert_begin_dt, 8, 7, 47
+                    If cert_begin_dt <> "__ __ __" THEN
+                        disa_status = True
+                        If eats_group_members(cow) <> single_memb_ref then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date. "
+                    End if
+                End If
+            End If
+
+            If disa_status = True then
+                row = 11
+                Do
+                    EmReadscreen prog_disa_code, 2, row, 59
+                    If prog_disa_code <> "__" then
+                        EmReadscreen prog_disa_verif, 1, row, 69
+                        If prog_disa_verif <> "N" then
+                            If row = 11 or row = 13 then
+                                verified_disa = True
+                                exit do
+                            Else
+                                If prog_disa_verif = "7" then
+                                    verified_disa = False
+                                Else
+                                    verified_disa = True
+                                    exit do
+                                End If
+                            End If
+                        End If
+                    End If
+                    row = row + 1
+                Loop until row = 14
+                If verified_disa = True then
+                    If single_memb_ref = "" or single_memb_ref = eats_group_array(memb_number_const, cow) Then
+                        eats_group_array(verified_wreg_const, cow) = eats_group_array(verified_wreg_const, cow) & "03" & "|"
+                        eats_group_array(verified_exemption_const, cow) = eats_group_array(verified_exemption_const, cow) & "Disabled. "
+                    End If
+                End If
+            End If
+        End If
+    Next
+
+end function
+
+
+function TLR_employed_exemptions(eats_group_array, memb_number_const, verified_exemption_const, verified_wreg_const, snap_status)
+
+    For oxen = 0 to UBound(eats_group_array, 2)
+        prosp_inc = 0
+        prosp_hrs = 0
+        prospective_hours = 0
+        CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+        EMWriteScreen eats_group_array(memb_number_const, oxen), 20, 76
+		Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
+        EMReadScreen num_of_JOBS, 1, 2, 78
+        IF num_of_JOBS <> "0" THEN
+        	DO
+        	 	EMReadScreen jobs_end_dt, 8, 9, 49
+        		EMReadScreen cont_end_dt, 8, 9, 73
+        		IF jobs_end_dt = "__ __ __" THEN
+					EMReadScreen jobs_verif_code, 1, 6, 34
+        			CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC
+        			EMReadScreen prosp_monthly, 8, 18, 56
+        			prosp_monthly = trim(prosp_monthly)
+        			IF prosp_monthly = "" THEN prosp_monthly = 0
+        			prosp_inc = prosp_inc + prosp_monthly
+        			EMReadScreen prosp_hrs, 8, 16, 50
+        			IF prosp_hrs = "        " THEN prosp_hrs = 0
+        			prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        			EMReadScreen pay_freq, 1, 5, 64
+        			IF pay_freq = "1" THEN
+        				prosp_hrs = prosp_hrs
+        			ELSEIF pay_freq = "2" THEN
+        				prosp_hrs = (2 * prosp_hrs)
+        			ELSEIF pay_freq = "3" THEN
+        				prosp_hrs = (2.15 * prosp_hrs)
+        			ELSEIF pay_freq = "4" THEN
+        				prosp_hrs = (4.3 * prosp_hrs)
+        			END IF
+                    transmit		'to exit PIC
+        			prospective_hours = prospective_hours + prosp_hrs
+        		ELSE
+        			jobs_end_dt = replace(jobs_end_dt, " ", "/")
+        			IF DateDiff("D", ABAWD_eval_date, jobs_end_dt) > 0 THEN
+        				'Going into the PIC for a job with an end ABAWD_eval_date in the future
+        				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
+        				EMReadScreen prosp_monthly, 8, 18, 56
+        				prosp_monthly = trim(prosp_monthly)
+        				IF prosp_monthly = "" THEN prosp_monthly = 0
+        				prosp_inc = prosp_inc + prosp_monthly
+        				EMReadScreen prosp_hrs, 8, 16, 50
+        				IF prosp_hrs = "        " THEN prosp_hrs = 0
+        				prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+        				EMReadScreen pay_freq, 1, 5, 64
+        				IF pay_freq = "1" THEN
+        					prosp_hrs = prosp_hrs
+        				ELSEIF pay_freq = "2" THEN
+        					prosp_hrs = (2 * prosp_hrs)
+        				ELSEIF pay_freq = "3" THEN
+        					prosp_hrs = (2.15 * prosp_hrs)
+        				ELSEIF pay_freq = "4" THEN
+        					prosp_hrs = (4.3 * prosp_hrs)
+        				END IF
+                        transmit		'to exit PIC
+        				'added separate incremental variable to account for multiple jobs
+        				prospective_hours = prospective_hours + prosp_hrs
+        			END IF
+        		END IF
+        		EMReadScreen JOBS_panel_current, 1, 2, 73
+        		'looping until all the jobs panels are calculated
+        		If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+        	Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
+        END IF
+		'Person-based determination
+        EMWriteScreen "BUSI", 20, 71
+        CALL write_value_and_transmit(eats_group_array(memb_number_const, oxen), 20, 76)
+        EMReadScreen num_of_BUSI, 1, 2, 78
+        IF num_of_BUSI <> "0" THEN
+        	DO
+        		EMReadScreen busi_end_dt, 8, 5, 72
+        		busi_end_dt = replace(busi_end_dt, " ", "/")
+        		IF IsDate(busi_end_dt) = True THEN
+					Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
+					EMReadScreen busi_verif_code, 1, 11, 73
+					PF3 'to exit pop up
+        			IF DateDiff("D", ABAWD_eval_date, busi_end_dt) > 0 THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		ELSE
+        			IF busi_end_dt = "__/__/__" THEN
+        				EMReadScreen busi_inc, 8, 10, 69
+        				busi_inc = trim(busi_inc)
+        				EMReadScreen busi_hrs, 3, 13, 74
+        				busi_hrs = trim(busi_hrs)
+        				IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+        				prosp_inc = prosp_inc + busi_inc
+        				prosp_hrs = prosp_hrs + busi_hrs
+        				prospective_hours = prospective_hours + busi_hrs
+        			END IF
+        		END IF
+        		transmit
+        		EMReadScreen enter_a_valid, 13, 24, 2
+        	LOOP UNTIL enter_a_valid = "ENTER A VALID"
+        END IF
+
+
+		'Person based since very unlikely to be case based at this point.
+        EMWriteScreen "RBIC", 20, 71
+        CALL write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen num_of_RBIC, 1, 2, 78
+        If num_of_RBIC <> "0" then eats_group_array(potential_exempt_const, oxen) = eats_group_array(potential_exempt_const, oxen) & "Has RBIC panel. Review manually for exemptions. "
+
+        If prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
+			If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+				If busi_verif_code <> "_" or busi_verif_code <> "N" then
+                    eats_group_array(verified_exemption_const, oxen) = eats_group_array(verified_exemption_const, oxen) & "Employed 30 hours/week or earnings at least = to federal minimum wage x 30/hours per week (935.25/month). "
+                    eats_group_array(verified_wreg_const, oxen) = eats_group_array(verified_wreg_const, oxen) & "09" & "|"
+				End if
+			End if
+        ' ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
+		' 	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+		' 		If busi_verif_code <> "_" or busi_verif_code <> "N" then
+		' 			eats_group_array(verified_wreg_const, oxen) = eats_group_array(verified_wreg_const, oxen) & "06" & "|"
+		' 		End if
+		' 	End if
+        End If
+    Next
+
+end function
+
+
+
+
+
+
+
 'WSH cannot directly access the clipboard. Here is one work-around though.
 
 Dim x
