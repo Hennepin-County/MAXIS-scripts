@@ -7093,13 +7093,9 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
             ELSEIF TIKL_mo = "10" AND TIKL_yr = "26" THEN
                 ten_day_cutoff = #10/21/2026#
             ELSEIF TIKL_mo = "11" AND TIKL_yr = "26" THEN
-                ten_day_cutoff = #11/19/2026#
-            ELSEIF TIKL_mo = "12" AND TIKL_yr = "26" THEN
-                ten_day_cutoff = #12/19/2026#
-            ELSEIF TIKL_mo = "11" AND TIKL_yr = "26" THEN
                 ten_day_cutoff = #11/18/2026#
             ELSEIF TIKL_mo = "12" AND TIKL_yr = "26" THEN
-                ten_day_cutoff = #12/21/2026#                                'last month of current year
+                ten_day_cutoff = #12/21/2026#
             ELSE
             	missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar.
             END IF
