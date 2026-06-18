@@ -1844,7 +1844,7 @@ function mof_dialog()
 	EditBox 60, 155, 220, 15, mof_actions_taken
 	CheckBox 20, 180, 215, 10, "Check here if the MOF indicates an SSA application is needed.", mof_SSA_application_indicated_checkbox
 	CheckBox 20, 195, 185, 10, "Check here if DISA will be updated as needed by TTL", mof_TTL_to_update_checkbox
-	CheckBox 20, 210, 190, 10, "Check here if you sent an email to TTL/FSS DataTeam.", MOF_TTL_email_checkbox
+	CheckBox 20, 210, 190, 10, "Check here if you sent an email to TTL.", MOF_TTL_email_checkbox
 	EditBox 100, 220, 65, 15, mof_TTL_email_date
 	Text 5, 5, 220, 10, mof_form_name
 	Text 340, 5, 55, 10, "Document Date:"
@@ -5049,7 +5049,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		Call write_bullet_and_variable_in_case_note("Actions taken", mof_actions_taken)
 		If mof_SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The MOF indicates the client needs to apply for SSA.")
 		If mof_TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Specialized TTL team will review MOF and update the DISA panel as needed.")
-		If MOF_TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("* An email regarding this MOF was sent to the TTL/FSS DataTeam for review.")
+		If MOF_TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("* An email regarding this MOF was sent to TTL for review.")
 		Call write_variable_in_case_note("---")
 	End If
 
