@@ -470,11 +470,7 @@ Else
     If correct_caseload_type = "" Then
         If unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or SNAP_status = "PENDING" Then
             If child_under_19_question = "Yes" Then
-                If mfip_status = "PENDING" OR unknown_cash_pending = True Then
-                    correct_caseload_type = "Families - Cash"
-                Else
-                     correct_caseload_type = "Families - Pending"
-                End If
+                correct_caseload_type = "Families - Pending"
             Else
                 correct_caseload_type = "Adults - Pending"
             End IF

@@ -242,7 +242,9 @@ excel_row = 2
 all_case_numbers_array = "*"
 
 For each worker in worker_array
+
 	worker = trim(ucase(worker))					'Formatting the worker so there are no errors
+	If worker <> "X127CCL" Then
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "actv")
 	EMWriteScreen worker, 21, 13
@@ -328,6 +330,7 @@ For each worker in worker_array
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	END IF
+			end if
 next
 
 If collect_COLA_stats = True then
