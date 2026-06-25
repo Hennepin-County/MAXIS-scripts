@@ -56,6 +56,18 @@ CALL changelog_update("01/01/01", "Initial version.", "Ilse Ferris, Hennepin Cou
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'Write Screen Function
+function write_value(input_value, row, col)
+'--- This function writes a specific value and transmits.
+'~~~~~ input_value: information to be entered
+'~~~~~ row: row to write the input_value
+'~~~~~ col: column to write the input_value
+'===== Keywords: MAXIS, PRISM, case note, three columns, format
+	EMWriteScreen input_value, row, col
+end function
+
+
+
 
 
 'THE SCRIPT==================================================================================================================
@@ -106,10 +118,13 @@ LOOP UNTIL are_we_passworded_out = false
 Dialog1 = ""
 
 BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
-  EditBox 15, 20, 90, 15, Edit1
+  EditBox 15, 60, 90, 15, first_name
   Text 15, 10, 50, 10, "Last Name"
+
+  EditBox 15, 20, 90, 15, last_name
+  Text 15, 45, 50, 10, "First Name"  
   ButtonGroup ButtonPressed
-    PushButton 120, 20, 50, 15, "Search", search_button
+	PushButton 120, 20, 50, 15, "Search", search_button
 EndDialog
 
 
@@ -120,11 +135,12 @@ DO
 	    Dialog Dialog1
 	    cancel_confirmation
 			If ButtonPressed = search_button Then
-				If Edit1 = "" Then
-					err_msg = err_msg & vbNewLine & "You must enter a last name to search."
+				If last_name = "" Or first_name = "" Then
+					err_msg = err_msg & vbNewLine & "You must enter both a last name and first name to search."
 				Else
-					Call Edit1
-					
+					Call write_value(last_name, 4, 36)
+					Call write_value(first_name, 10, 36)
+					Call transmit()
 				End If
 			end if
 
