@@ -118,4 +118,4 @@ Loop
     objRecordSet.Close			'Closing all the data connections
     objConnection.Close
 
-Script_end_procedure("Succes! Your list has been generated.")
+Script_end_procedure("Success! Your list has been generated.")
