@@ -2726,22 +2726,18 @@ function verification_dialog()
               ComboBox 80, 245, 150, 45, verification_memb_list, shelter_verif_memb
               checkBox 240, 250, 175, 10, "Check here if this verif is NOT MANDATORY", shelter_not_mandatory_checkbox
 
-              GroupBox 5, 265, 600, 50, "Asset Information"
+              GroupBox 5, 265, 600, 30, "Asset Information"
 
-              CheckBox 10, 275, 70, 10, "Bank Account for", bank_account_checkbox
+              CheckBox 10, 280, 70, 10, "Bank Account for", bank_account_checkbox
               ComboBox 80, 275, 150, 45, verification_memb_list, bank_verif_memb
-              Text 240, 275, 55, 20, "select account"
-              ComboBox 295, 275, 280, 45, account_source_list, bank_verif_type
-              Text 20, 300, 10, 10, "for"
-              EditBox 35, 295, 125, 15, bank_verif_time
-				If bank_verif_type = "Other" Then
-					Text 165, 300, 10, 10, "specify"
-					EditBox 180, 295, 150, 15, bank_verif_other
-				End If
+              Text 235, 280, 45, 10, "account type"
+              ComboBox 285, 275, 145, 45, account_source_list, bank_verif_type
+              Text 435, 280, 10, 10, "for"
+              EditBox 450, 275, 150, 15, bank_verif_time
 
-              Text 10, 330, 70, 15, "Other Verifications:"
-			  EditBox 70, 325, 500, 15, other_verifs
-              Checkbox 15, 350, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
+              Text 5, 305, 20, 10, "Other:"
+              EditBox 30, 300, 570, 15, other_verifs
+              Checkbox 10, 320, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
 
               ButtonGroup ButtonPressed
                 PushButton 485, 10, 50, 15, "FILL", fill_button
@@ -2795,7 +2791,7 @@ function verification_dialog()
             If educational_funds_cost_checkbox = checked AND (stin_verif_memb = "Select or Type Member" OR trim(stin_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member with educational funds and costs we need verified."
             If shelter_checkbox = checked AND (shelter_verif_memb = "Select or Type Member" OR trim(shelter_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose shelter expense we need verified."
             If bank_account_checkbox = checked Then
-                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type of bank account to verify."
+                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the bank account to verify."
                 If bank_verif_memb = "Select or Type Member" OR trim(bank_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose bank account we need verified."
                 If trim(bank_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the bank account verification needed."
             End If
@@ -6897,6 +6893,7 @@ Call navigate_to_MAXIS_screen("STAT", "SUMM")
 ' 3. create a list of information for verifs to be selected
 imig_exists = False
 income_source_list = "Select or Type Source"
+account_source_list = "Select or Type Source"
 verifs_needed = ""
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
@@ -6955,23 +6952,23 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 Next
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb)
+		account_source_list = account_source_list+chr(9)+STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_one_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_two_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_three_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_four_type_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_four_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_five_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
@@ -7262,7 +7259,7 @@ income_verif_time = "[Enter Time Frame]"
 bank_verif_time = "[Enter Time Frame]"
 processing_an_application = False
 processing_a_recert = False
-account_source_list = account_source_list+chr(9)+"Other"
+account_source_list = account_source_list
 
 'These are booleans to decide if we can move on in the scirpt
 eval_questions_clear = False
