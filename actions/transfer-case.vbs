@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/05/2026", "Updated logic for YET active and MA-EPD caseloads.", "Dave Courtright, Hennepin County.")
 Call changelog_update("06/05/2026", "Major change: New internal transfer process will select correct transfer caseload based on information entered in dialog. See script instructions for full details.", "Dave Courtright, Hennepin County.")
 Call changelog_update("03/12/2024", "Updated resource links.", "Megan Geissler, Hennepin County.")
 Call changelog_update("01/23/2024", "Added reminder to inner-county option to transfer cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
@@ -424,12 +425,16 @@ Else
 		End If
     End If
     'YET
-    'Need to handle for YET - Active when no programs are pending
+
     If correct_caseload_type = "" Then
         If age_of_memb_01 < 18 Then correct_caseload_type = "YET"
         If age_of_memb_01 >= 18 and age_of_memb_01 < 20 AND pregnant_question = "Yes" Then correct_caseload_type = "YET"
         If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
+        If correct_caseload_type = "YET" Then
+            If case_pending = False Then correct_caseload_type = "YET Active"
+        End If
     End If
+
     'LTC cases
     If correct_caseload_type = "" Then
         If HC_droplist = "LTC pending or requested" Then
