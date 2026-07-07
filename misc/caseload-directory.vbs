@@ -109,6 +109,7 @@ caseload_info.add "X127ER3", "Healthcare Only Active"
 caseload_info.add "X127ER4", "Healthcare Mixed Active"
 caseload_info.add "X127ER5", "Healthcare Mixed Active"
 caseload_info.add "X127ER6", "Healthcare Mixed Active"
+caseload_info.add "X127F3P", "MA - EPD General"
 'This is the casebank for DWP team
 caseload_info.add "X127EY9", "Families - Cash"
 caseload_info.add "X127EY8", "Families - Cash" 'pending DWP
@@ -202,6 +203,7 @@ caseload_manager.add "Families Active 4",                        "Lisa Groves"
 caseload_manager.add "Healthcare - Pending",                     "Faughn Ramisch-Church"
 caseload_manager.add "Healthcare Only Active",                   "Faughn Ramisch-Church"
 caseload_manager.add "Healthcare Mixed Active",                  "Faughn Ramisch-Church"
+caseload_manager.add "MA - EPD General",                         "Faughn Ramisch-Church"
 caseload_manager.add "LTC",                                      "Ann Noeker"
 caseload_manager.add "LTC+ - General",                           "Ann Noeker" '(LTC+ Pending A-H and I-Z)
 caseload_manager.add "Waivers",                                  "Ann Noeker"
