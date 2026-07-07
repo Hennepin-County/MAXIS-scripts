@@ -432,6 +432,7 @@ Else
         If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
         If correct_caseload_type = "YET" Then
             If case_pending = False Then correct_caseload_type = "YET Active"
+            If case_active = False and case_pending = False and case_rein = False Then correct_caseload_type = "YET Inactive"
         End If
     End If
 
