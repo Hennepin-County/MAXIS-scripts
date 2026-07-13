@@ -6952,7 +6952,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 Next
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_one_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
@@ -6964,7 +6964,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		If STAT_INFORMATION(month_ind).stat_acct_three_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
-		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_four_type_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb)
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_four_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
