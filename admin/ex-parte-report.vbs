@@ -2461,10 +2461,16 @@ If ex_parte_function = "Prep 1" Then
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+                objUpdateConnection.CommandTimeout = 60
 
 				'opening the connections and data table
 				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+                EMWaitReady 0, 0
+
+                objUpdateConnection.Close
+                Set objUpdateRecordSet=nothing
+                Set objUpdateConnection=nothing
 			End If
 			objRecordSet.MoveNext			'move to the next item in the table
 		Loop
@@ -2633,10 +2639,16 @@ If ex_parte_function = "Prep 1" Then
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+                objUpdateConnection.CommandTimeout = 60
 
 				'opening the connections and data table
 				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+                EMWaitReady 0, 0
+
+                objUpdateConnection.Close
+                Set objUpdateRecordSet=nothing
+                Set objUpdateConnection=nothing
 			End If
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
 			memb_count = 0										'resetting the counting variable to size the member array
@@ -3158,10 +3170,16 @@ If ex_parte_function = "Prep 1" Then
 
 					Set objIncomeConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 					Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+                    objIncomeConnection.CommandTimeout = 60
 
 					'opening the connections and data table
 					objIncomeConnection.Open db_full_string
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+                    EMWaitReady 0, 0
+
+                    objIncomeConnection.Close
+                    Set objIncomeRecordSet=nothing
+                    Set objIncomeConnection=nothing
 
 					'If there is RR income listed from the SQL table and NOT from UNEA - it is going to save any member with RR income listed on SQL to the RR array for the verif list
 					If MEMBER_INFO_ARRAY(sql_rr_income_exists, each_memb) = True and MEMBER_INFO_ARRAY(unea_RR_exists, each_memb) = False Then
@@ -3305,10 +3323,16 @@ If ex_parte_function = "Prep 1" Then
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+                objUpdateConnection.CommandTimeout = 60
 
 				'opening the connections and data table
 				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+                EMWaitReady 0, 0
+
+                objUpdateConnection.Close
+                Set objUpdateRecordSet=nothing
+                Set objUpdateConnection=nothing
 			End If
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
@@ -3496,6 +3520,7 @@ If ex_parte_function = "Prep 2" Then
 	End If
 
 	yesterday = DateAdd("d", -1, date)		'defining yesterday
+	ereyesterday = DateAdd("d", -2, date)		'defining yesterday
 
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -3517,6 +3542,7 @@ If ex_parte_function = "Prep 2" Then
 			prep_complete_date = DateAdd("d", 0, prep_complete_date)	'force it to be a date
 			If prep_complete_date = date Then work_this_case = False	'if this was already completed today or yesterday, we do not need to run the functionality again
 			If prep_complete_date = yesterday Then work_this_case = False
+			If prep_complete_date = ereyesterday Then work_this_case = False
 		Else
 			'if this is not a date, then we only work it if it null or blank
 			If objRecordSet("PREP_Complete") = "In Progress" Then work_this_case = False
@@ -3617,7 +3643,8 @@ If ex_parte_function = "Prep 2" Then
 					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
-					If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
+					' If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND
+                    If MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 					EMReadScreen present_pay_month, 2, 8, 5
 					EMReadScreen present_pay_year, 2, 8, 8
 					cola_row = 9
@@ -3839,10 +3866,16 @@ If ex_parte_function = "Prep 2" Then
 
 					Set objIncomeConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 					Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+                    objIncomeConnection.CommandTimeout = 60
 
 					'opening the connections and data table
 					objIncomeConnection.Open db_full_string
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+                    EMWaitReady 0, 0
+
+                    objIncomeConnection.Close
+                    Set objIncomeRecordSet=nothing
+                    Set objIncomeConnection=nothing
 
 					Call back_to_SELF
 				Next
@@ -4258,6 +4291,11 @@ If ex_parte_function = "Prep 2" Then
 						'opening the connections and data table
 						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
+                        EMWaitReady 0, 0
+
+						objIncUpdtConnection.Close
+						Set objIncUpdtRecordSet=nothing
+						Set objIncUpdtConnection=nothing
 
 					End If
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) <> "" Then
@@ -4273,7 +4311,11 @@ If ex_parte_function = "Prep 2" Then
 						'opening the connections and data table
 						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
+                        EMWaitReady 0, 0
 
+						objIncUpdtConnection.Close
+						Set objIncUpdtRecordSet=nothing
+						Set objIncUpdtConnection=nothing
 					End If
 
 					'If TPQY indicates that there may be a secondary clam number, we are going to send a QURY and save that to the INCOME list
@@ -4288,7 +4330,11 @@ If ex_parte_function = "Prep 2" Then
 						'opening the connections and data table
 						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
+                        EMWaitReady 0, 0
 
+						objIncUpdtConnection.Close
+						Set objIncUpdtRecordSet=nothing
+						Set objIncUpdtConnection=nothing
 						objTextStream.WriteLine MAXIS_case_number & "| NAME: " & MEMBER_INFO_ARRAY(memb_name_const, each_memb) & "|" & "SSN: " &  MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) & "| QURY FINISH: " & qury_finish
 					End If
 
@@ -4303,8 +4349,8 @@ If ex_parte_function = "Prep 2" Then
 					EMReadScreen last_note, 55, 5, 25
 					EMReadScreen last_note_date, 8, 5, 6
 					today_day = right("0"&DatePart("d", date), 2)
-					today_mo = right("0"&DatePart("d", date), 2)
-					today_yr = right(DatePart("d", date), 2)
+					today_mo = right("0"&DatePart("m", date), 2)
+					today_yr = right(DatePart("yyyy", date), 4)
 					today_as_text = today_mo & "/" & today_day & "/" &today_yr
 
 					last_note = trim(last_note)
@@ -4378,6 +4424,11 @@ If ex_parte_function = "Prep 2" Then
 			'opening the connections and data table
 			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+            EMWaitReady 0, 0
+
+			objUpdateConnection.Close
+			Set objUpdateRecordSet=nothing
+			Set objUpdateConnection=nothing
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
 	Loop
@@ -4633,10 +4684,16 @@ If ex_parte_function = "Phase 1" Then
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+            objUpdateConnection.CommandTimeout = 60
 
 			'opening the connections and data table
 			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+            EMWaitReady 0, 0
+
+            objUpdateConnection.Close
+            Set objUpdateRecordSet=nothing
+            Set objUpdateConnection=nothing
 
 			'first we check for access
 			case_is_in_henn = False					'default this to false, we will read the PW to see if it is in hennepin county
@@ -4663,10 +4720,16 @@ If ex_parte_function = "Phase 1" Then
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+                objUpdateConnection.CommandTimeout = 60
 
 				'opening the connections and data table
 				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+                EMWaitReady 0, 0
+
+                objUpdateConnection.Close
+                Set objUpdateRecordSet=nothing
+                Set objUpdateConnection=nothing
 			Else
 				'if the case has not been determined to be 'kicked off' we can look closer into the case information
 
@@ -4754,7 +4817,8 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
 							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb)
-							If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
+							' If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND
+                            If MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 							EMReadScreen present_pay_month, 2, 8, 5
 							EMReadScreen present_pay_year, 2, 8, 8
 							cola_row = 9
@@ -5215,10 +5279,16 @@ If ex_parte_function = "Phase 1" Then
 
 						Set objIncUpdtConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
+                        objIncUpdtConnection.CommandTimeout = 60
 
 						'opening the connections and data table
 						objIncUpdtConnection.Open db_full_string
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
+                        EMWaitReady 0, 0
+
+                        objIncUpdtConnection.Close
+                        Set objIncUpdtRecordSet=nothing
+                        Set objIncUpdtConnection=nothing
 					End If
 				Next
 
@@ -5231,8 +5301,8 @@ If ex_parte_function = "Phase 1" Then
 					EMReadScreen last_note, 55, 5, 25
 					EMReadScreen last_note_date, 8, 5, 6
 					today_day = right("0"&DatePart("d", date), 2)
-					today_mo = right("0"&DatePart("d", date), 2)
-					today_yr = right(DatePart("d", date), 2)
+					today_mo = right("0"&DatePart("m", date), 2)
+					today_yr = right(DatePart("yyyy", date), 2)
 					today_as_text = today_mo & "/" & today_day & "/" & today_yr
 
 					last_note = trim(last_note)
@@ -5313,11 +5383,16 @@ If ex_parte_function = "Phase 1" Then
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+				objUpdateConnection.CommandTimeout = 60
 
 				'opening the connections and data table
 				objUpdateConnection.Open db_full_string
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+                EMWaitReady 0, 0
 
+                objUpdateConnection.Close
+                Set objUpdateRecordSet=nothing
+                Set objUpdateConnection=nothing
 			End If
 		End If
 		objRecordSet.MoveNext
@@ -5460,10 +5535,16 @@ If ex_parte_function = "Phase 2" Then
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+            objUpdateConnection.CommandTimeout = 60
 
 			'opening the connections and data table
 			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+            EMWaitReady 0, 0
+
+            objUpdateConnection.Close
+            Set objUpdateRecordSet=nothing
+            Set objUpdateConnection=nothing
 
 			'Need to make sure we get to SUMM
 			Do
@@ -5491,10 +5572,16 @@ If ex_parte_function = "Phase 2" Then
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+            objUpdateConnection.CommandTimeout = 60
 
 			'opening the connections and data table
 			objUpdateConnection.Open db_full_string
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+            EMWaitReady 0, 0
+
+            objUpdateConnection.Close
+            Set objUpdateRecordSet=nothing
+            Set objUpdateConnection=nothing
 
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
