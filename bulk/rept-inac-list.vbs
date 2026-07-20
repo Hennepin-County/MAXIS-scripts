@@ -56,25 +56,30 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_footer_finder(Start_footer_month, Start_footer_year)
+End_Footer_Month = CM_plus_1_mo
+End_Footer_Year = CM_plus_1_yr
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
-  EditBox 155, 20, 140, 15, worker_number
-  EditBox 55, 35, 20, 15, MAXIS_footer_month
-  EditBox 55, 55, 20, 15, MAXIS_footer_year
-  CheckBox 85, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
+BeginDialog Dialog1, 0, 0, 381, 125, "Pull REPT data into Excel dialog"
+  EditBox 225, 20, 140, 15, worker_number
+  EditBox 90, 35, 20, 15, Start_footer_month
+  EditBox 115, 35, 20, 15, Start_footer_year
+  EditBox 90, 55, 20, 15, End_Footer_Month
+  EditBox 115, 55, 20, 15, End_Footer_Year
+  CheckBox 155, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 190, 100, 50, 15
-    CancelButton 245, 100, 50, 15
-  Text 85, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+    OkButton 260, 100, 50, 15
+    CancelButton 315, 100, 50, 15
+  Text 155, 80, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 95, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 85, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  GroupBox 5, 20, 75, 60, "Month to scan"
-  Text 85, 25, 65, 10, "Worker(s) to check:"
-  Text 10, 40, 40, 10, "Month (MM):"
-  Text 10, 60, 35, 10, "Year (YY):"
+  Text 155, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  GroupBox 5, 20, 140, 60, "Search Months Between:"
+  Text 155, 25, 65, 10, "Worker(s) to check:"
+  Text 10, 40, 75, 10, "Start Month (MM YY):"
+  Text 10, 60, 75, 10, "End Month (MM YY):"
 EndDialog
+
 
 'Shows dialog
 Do
@@ -82,7 +87,7 @@ Do
   		err_msg = ""
   		dialog Dialog1
   		cancel_without_confirmation
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+        Call validate_footer_month_entry(Start_footer_month, Start_footer_year, err_msg, "*")
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
   	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -92,7 +97,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False) 'Checking for MAXIS
 
-If len(inac_month) = 1 then inac_month = "0" & inac_month
+call date_array_generator(Start_footer_month, Start_footer_year, date_array)
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -161,54 +166,62 @@ excel_row = 2
 all_case_numbers_array = "*"
 
 For each worker in worker_array
-	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("REPT", "INAC")
-	EMWriteScreen worker, 21, 16
-	EMWriteScreen inac_month, 20, 54
-	EMWriteScreen inac_year, 20, 57
-	transmit
+    back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+    Call navigate_to_MAXIS_screen("REPT", "INAC")
+    EMWriteScreen worker, 21, 16
+    For each duck in date_array
+        inac_month = DatePart("m", duck)
+        inac_month = Right("0" & inac_month, 2)	'This is to ensure that the month is always 2 digits
+        inac_year = DatePart("yyyy", duck)
+        inac_year = Right(inac_year, 2)	'This is to ensure that the year is always 2 digits
 
-	'Skips workers with no info
-	EMReadScreen has_content_check, 1, 7, 10
-	If has_content_check <> " " then
-		'Grabbing each case number on screen
-		Do
-			'Set variable for next do...loop
-			MAXIS_row = 7
-			Do
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3			'Reading case number
-				EMReadScreen client_name, 25, MAXIS_row, 14		'Reading client name
-				EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
-				EMReadScreen inac_date, 8, MAXIS_row, 49		'Reading inactive date
-				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				MAXIS_case_number = trim(MAXIS_case_number)
-				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+        EMWriteScreen inac_month, 20, 54
+        EMWriteScreen inac_year, 20, 57
+        transmit
 
-				If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
+        'Skips workers with no info
+        EMReadScreen has_content_check, 1, 7, 10
+        If has_content_check <> " " then
+            'Grabbing each case number on screen
+            MAXIS_row = 7
+            Do
+                EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3			'Reading case number
+                EMReadScreen client_name, 25, MAXIS_row, 14		'Reading client name
+                EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
+                EMReadScreen inac_date, 8, MAXIS_row, 49		'Reading inactive date
+                'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+                MAXIS_case_number = trim(MAXIS_case_number)
 
-				'Adding the case to Excel
-				If case_numer <> "        " then
-					ObjExcel.Cells(excel_row, 1).Value = worker
-					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-					ObjExcel.Cells(excel_row, 3).Value = client_name
-					ObjExcel.Cells(excel_row, 4).Value = appl_date
-					ObjExcel.Cells(excel_row, 5).Value = inac_date
-					excel_row = excel_row + 1
-				End if
-				MAXIS_row = MAXIS_row + 1
-				add_case_info_to_Excel = ""	'Blanking out variable
-				MAXIS_case_number = ""			'Blanking out variable
-			Loop until MAXIS_row = 19
-		 	PF8
-			'EMReadScreen more_check, 4, 19, 3	'checking to see if we're at the end
-		'Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
-		'Loop until more_check <> "MORE"
-		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-		''Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
-		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	End if
-	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+                If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
+
+                'Adding the case to Excel
+                If instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") = 0 then
+                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+                    ObjExcel.Cells(excel_row, 1).Value = worker
+                    ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+                    ObjExcel.Cells(excel_row, 3).Value = client_name
+                    ObjExcel.Cells(excel_row, 4).Value = appl_date
+                    ObjExcel.Cells(excel_row, 5).Value = inac_date
+                    excel_row = excel_row + 1
+                End if
+                MAXIS_row = MAXIS_row + 1
+                add_case_info_to_Excel = ""	'Blanking out variable
+                MAXIS_case_number = ""			'Blanking out variable
+
+                If MAXIS_row = 19 Then
+                    EMReadScreen curr_top_case, 8, 7, 3
+                    PF8
+                    EMReadScreen new_top_case, 8, 7, 3
+                    If new_top_case = curr_top_case Then Exit Do
+                    EMReadScreen list_end_check, 21, 24, 2	'checking to see if we're at the end
+                    If list_end_check = "THIS IS THE LAST PAGE" Then Exit Do
+                    MAXIS_row = 7
+                End If
+            Loop until MAXIS_row = 19
+        End if
+        STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+        If inac_month = End_Footer_Month and inac_year = End_Footer_Year THen Exit For
+    next
 next
 
 'Query date/time/runtime info
