@@ -7259,7 +7259,6 @@ income_verif_time = "[Enter Time Frame]"
 bank_verif_time = "[Enter Time Frame]"
 processing_an_application = False
 processing_a_recert = False
-account_source_list = account_source_list
 
 'These are booleans to decide if we can move on in the scirpt
 eval_questions_clear = False
