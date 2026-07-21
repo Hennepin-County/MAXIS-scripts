@@ -2731,7 +2731,7 @@ function verification_dialog()
               CheckBox 10, 280, 70, 10, "Bank Account for", bank_account_checkbox
               ComboBox 80, 275, 150, 45, verification_memb_list, bank_verif_memb
               Text 235, 280, 45, 10, "account type"
-              ComboBox 285, 275, 145, 45, "Select or Type"+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Certificate of Deposit (CD)"+chr(9)+"Stock"+chr(9)+"Money Market", bank_verif_type
+              ComboBox 285, 275, 145, 45, account_source_list, bank_verif_type
               Text 435, 280, 10, 10, "for"
               EditBox 450, 275, 150, 15, bank_verif_time
 
@@ -2791,7 +2791,7 @@ function verification_dialog()
             If educational_funds_cost_checkbox = checked AND (stin_verif_memb = "Select or Type Member" OR trim(stin_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member with educational funds and costs we need verified."
             If shelter_checkbox = checked AND (shelter_verif_memb = "Select or Type Member" OR trim(shelter_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose shelter expense we need verified."
             If bank_account_checkbox = checked Then
-                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type of bank account to verify."
+                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the bank account to verify."
                 If bank_verif_memb = "Select or Type Member" OR trim(bank_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose bank account we need verified."
                 If trim(bank_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the bank account verification needed."
             End If
@@ -6893,6 +6893,7 @@ Call navigate_to_MAXIS_screen("STAT", "SUMM")
 ' 3. create a list of information for verifs to be selected
 imig_exists = False
 income_source_list = "Select or Type Source"
+account_source_list = "Select or Type Source"
 verifs_needed = ""
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
@@ -6951,18 +6952,23 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 Next
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_one_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_two_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_three_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_four_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
+		account_source_list = account_source_list+chr(9)+"ACCT - " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) & " at " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb)
 		If STAT_INFORMATION(month_ind).stat_acct_five_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb) & " Account at " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) & " of MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
