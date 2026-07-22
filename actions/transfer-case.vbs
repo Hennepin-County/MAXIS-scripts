@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("07/05/2026", "Updated logic for YET active and MA-EPD caseloads.", "Dave Courtright, Hennepin County.")
 Call changelog_update("06/05/2026", "Major change: New internal transfer process will select correct transfer caseload based on information entered in dialog. See script instructions for full details.", "Dave Courtright, Hennepin County.")
 Call changelog_update("03/12/2024", "Updated resource links.", "Megan Geissler, Hennepin County.")
 Call changelog_update("01/23/2024", "Added reminder to inner-county option to transfer cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
@@ -350,7 +351,7 @@ Else
       Text 10, 110, 55, 10, "Program Status:"
       Text 10, 125, 135, 10, "Active: " & active_programs
       Text 10, 140, 135, 10, "Pending: " & programs_applied_for
-      DropListBox 170, 45, 145, 15, ""+chr(9)+"General Healthcare Pending"+chr(9)+"General Healthcare Active"+chr(9)+"LTC pending or requested"+chr(9)+"LTC Active"+chr(9)+"Waiver pending or requested"+chr(9)+"Waiver Active"+chr(9)+"TEFRA"+chr(9)+"MABC/SAGE"+chr(9)+"IV-E/Foster Care", HC_droplist
+      DropListBox 170, 45, 145, 15, ""+chr(9)+"General Healthcare Pending"+chr(9)+"General Healthcare Active"+chr(9)+"MA - EPD General"+chr(9)+"LTC pending or requested"+chr(9)+"LTC Active"+chr(9)+"Waiver pending or requested"+chr(9)+"Waiver Active"+chr(9)+"ADS - MA-EPD"+chr(9)+"TEFRA"+chr(9)+"MABC/SAGE"+chr(9)+"IV-E/Foster Care", HC_droplist
       Text 170, 20, 145, 20, "For cases with MAXIS healthcare, select general or specialty caseload types below:"
       Text 10, 90, 100, 10, "Case has parent(s) under 19:"
 
@@ -388,6 +389,8 @@ Else
     If hc_droplist = "MABC/SAGE" Then correct_caseload_type = "MA - BC"
     If hc_droplist = "IV-E/Foster Care" Then correct_caseload_type = "Foster Care / IV-E"
     If hc_droplist = "MIPPA" Then correct_caseload_type = "MIPPA"
+    If hc_droplist = "MA - EPD General" Then correct_caseload_type = "MA - EPD General"
+    If hc_droplist = "ADS - MA-EPD" Then correct_caseload_type = "ADS - MA-EPD"
 
     'GRH/HS and 1800
     If correct_caseload_type = "" Then
@@ -422,11 +425,17 @@ Else
 		End If
     End If
     'YET
+
     If correct_caseload_type = "" Then
         If age_of_memb_01 < 18 Then correct_caseload_type = "YET"
         If age_of_memb_01 >= 18 and age_of_memb_01 < 20 AND pregnant_question = "Yes" Then correct_caseload_type = "YET"
         If minor_parent_on_case = "Yes" Then correct_caseload_type = "YET"
+        If correct_caseload_type = "YET" Then
+            If case_pending = False Then correct_caseload_type = "YET Active"
+            If case_active = False and case_pending = False and case_rein = False Then correct_caseload_type = "YET Inactive"
+        End If
     End If
+
     'LTC cases
     If correct_caseload_type = "" Then
         If HC_droplist = "LTC pending or requested" Then
