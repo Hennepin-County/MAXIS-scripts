@@ -3520,7 +3520,7 @@ If ex_parte_function = "Prep 2" Then
 	End If
 
 	yesterday = DateAdd("d", -1, date)		'defining yesterday
-	ereyesterday = DateAdd("d", -2, date)		'defining yesterday
+	ereyesterday = DateAdd("d", -2, date)		'defining day before yesterday
 
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -4350,7 +4350,7 @@ If ex_parte_function = "Prep 2" Then
 					EMReadScreen last_note_date, 8, 5, 6
 					today_day = right("0"&DatePart("d", date), 2)
 					today_mo = right("0"&DatePart("m", date), 2)
-					today_yr = right(DatePart("yyyy", date), 4)
+					today_yr = right(DatePart("yyyy", date), 2)
 					today_as_text = today_mo & "/" & today_day & "/" &today_yr
 
 					last_note = trim(last_note)
