@@ -57,8 +57,8 @@ changelog_display
 'Connects to BlueZone
 EMConnect ""
 Call MAXIS_footer_finder(Start_footer_month, Start_footer_year)
-End_Footer_Month = CM_plus_1_mo
-End_Footer_Year = CM_plus_1_yr
+End_Footer_Month = CM_mo
+End_Footer_Year = CM_yr
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 381, 125, "Pull REPT data into Excel dialog"
@@ -88,6 +88,15 @@ Do
   		dialog Dialog1
   		cancel_without_confirmation
         Call validate_footer_month_entry(Start_footer_month, Start_footer_year, err_msg, "*")
+        Call validate_footer_month_entry(End_Footer_Month, End_Footer_Year, err_msg, "*")
+        If err_msg = "" Then                                                                            'only review the date comparisons if we have confirmed the footer month entries are valid
+            cm_date = DateAdd("d", 0 , CM_mo&"/1/"&CM_yr)	                                            'This is the first day of the month after the current month
+            end_footer_date = DateAdd("d", 0 , End_Footer_Month&"/1/"&End_Footer_Year)	                'This is the first day of the month of the end footer month
+            start_footer_date = DateAdd("d", 0 , Start_footer_month&"/1/"&Start_footer_year)	        'This is the first day of the month of the start footer month
+            If DateDiff("d", start_footer_date, end_footer_date) < 0 Then err_msg = err_msg & vbNewLine & "* The start month must be equal to or before the end month."
+            If DateDiff("d", start_footer_date, cm_date) < 0 Then err_msg = err_msg & vbNewLine & "* The start month must be on or before current month."
+            If DateDiff("d", end_footer_date, cm_date) < 0 Then err_msg = err_msg & vbNewLine & "* The end month must be on or before current month."
+        End If
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
   	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
