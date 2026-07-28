@@ -83,8 +83,8 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'ARRAY business----------------------------------------------------------------------------------------------------
 'Sets up the array to store all the information for each client'
-Dim CBO_array ()
-ReDim CBO_array (9, 0)
+Dim CBO_array()
+ReDim CBO_array(9, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
 Const clt_SSN         	= 1			'Each of the case numbers will be stored at this position'
@@ -113,15 +113,15 @@ Do                                                            'Loops until there
 	If name_of_CBO = "" then exit do
 	'Adding client information to the array
 	ReDim Preserve CBO_array(9, entry_record)	'This resizes the array based on if the client is in the selected county
-	CBO_array (clt_SSN,     	entry_record) = client_SSN		'The client information is added to the array
-	CBO_array (case_number, 	entry_record) = MAXIS_case_number
-	CBO_array (ref_status,  	entry_record) = true 			'defaults to true
-	CBO_array (CBO_name,    	entry_record) = name_of_CBO
-	CBO_array (error_reason, 	entry_record) = ""
-	CBO_array (make_referral, 	entry_record) = true				'defaulting to true for now
-	CBO_array (memb_number, 	entry_record) = "01"				'defaults to 01 until it gets to PROG
-	CBO_array (excel_num, 		entry_record) = excel_row
-	CBO_array (ABAWD_status, 	entry_record) = ""
+	CBO_array(clt_SSN,     	entry_record) = client_SSN		'The client information is added to the array
+	CBO_array(case_number, 	entry_record) = MAXIS_case_number
+	CBO_array(ref_status,  	entry_record) = true 			'defaults to true
+	CBO_array(CBO_name,    	entry_record) = name_of_CBO
+	CBO_array(error_reason, 	entry_record) = ""
+	CBO_array(make_referral, 	entry_record) = true				'defaulting to true for now
+	CBO_array(memb_number, 	entry_record) = "01"				'defaults to 01 until it gets to PROG
+	CBO_array(excel_num, 		entry_record) = excel_row
+	CBO_array(ABAWD_status, 	entry_record) = ""
 	entry_record = entry_record + 1			'This increments to the next entry in the array
 	excel_row = excel_row + 1
 
