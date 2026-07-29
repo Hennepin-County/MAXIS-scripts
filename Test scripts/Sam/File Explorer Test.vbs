@@ -36,13 +36,13 @@ Function ChooseFiles(ByVal initialDir)
   ' filter index 1 would show zip files by default
   psScript = psScript & "$dlg.FilterIndex = 4" & vbCRLF
   ' allow selecting multiple files
-  psScript = psScript & "$dlg.Multiselect = $True" & vbCRLF
+  psScript = psScript & "$dlg.Multiselect = $False" & vbCRLF
   psScript = psScript & "$dlg.Title = ""Select files""" & vbCRLF
   psScript = psScript & "$dlg.ShowHelp = $True" & vbCRLF
   psScript = psScript & "$dlg.ShowDialog() | Out-Null" & vbCRLF
   psScript = psScript & "Set-Content """ &powershellOutputFile & """ $dlg.FileNames" & vbCRLF
   
-  ' write the powersell code to a file
+  ' write the powershell code to a file
   Set textFile = fso.CreateTextFile(powershellFile, True)
   textFile.WriteLine(psScript)
   textFile.Close
@@ -64,8 +64,8 @@ Function ChooseFiles(ByVal initialDir)
   ' the names of the selected files, one file per line
   ' How you want to process them is op to you, 
   ' in this example I will just return the file contents as a string
-  ChooseFiles = "" ' return a default to prevent error if user canceled the dialog
-  If Not textFile.AtEndOfStream Then ChooseFiles = textFile.ReadAll
+  file_selection_path = "" ' return a default to prevent error if user canceled the dialog
+  If Not textFile.AtEndOfStream Then File_selection_path = textFile.ReadAll
   textFile.Close
   Set textFile = Nothing
   fso.DeleteFile(powershellFile)
@@ -132,7 +132,7 @@ BeginDialog Dialog1, 0, 0, 266, 110, "CBO referral"
     PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     OkButton 145, 90, 50, 15
     CancelButton 200, 90, 50, 15
-    EditBox 15, 45, 180, 15, ChooseFiles
+    EditBox 15, 45, 180, 15, file_selection_path
     GroupBox 10, 5, 250, 80, "Using the SEND MANUAL REFERRAL script"
     Text 20, 20, 235, 20, "This script should be used when E & T provides you with a list of recipeints that are working with CBO's and a manual referral is needed. "
     Text 15, 65, 230, 15, "Select the Excel file that contains the CBO information by selecting the 'Browse' button, and finding the file."
