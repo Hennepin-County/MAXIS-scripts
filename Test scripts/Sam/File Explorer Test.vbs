@@ -3,6 +3,7 @@
 
 
 
+
 '============= Functions
 
 ' Source - https://stackoverflow.com/a/79105914
@@ -17,61 +18,52 @@
 ' This is also not very fast and decidedly clunky, but I prefer it over HTA
 
 
-Function ChooseFiles(ByVal initialDir)
+Function file_selection_dialog()
 
-  Set Fshell = CreateObject("WScript.Shell")
-  Set fso = CreateObject("Scripting.FileSystemObject")
-  tempFile = Fshell.ExpandEnvironmentStrings("%TEMP%") & fso.GetTempName
-  ' temporary powershell script file to be invoked
-  powershellFile = tempFile & ".ps1"
-  ' temporary file to store standard output from command
-  powershellOutputFile = tempFile & ".txt"
+'creates a Windows Script Host object
+Set Fshell = CreateObject("WScript.Shell")
 
-  ' Powershell code
-  psScript = psScript & "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null" & vbCRLF
-  psScript = psScript & "$dlg = New-Object System.Windows.Forms.OpenFileDialog" & vbCRLF
-  psScript = psScript & "$dlg.initialDirectory = """ &initialDir & """" & vbCRLF
-  psScript = psScript & "$dlg.filter = 'ZIP files|*.zip|Text Documents|*.txt|Shell Scripts|*.*sh|All Files|*.*'" & vbCRLF
-  ' filter index 4 would show all files by default
-  ' filter index 1 would show zip files by default
-  psScript = psScript & "$dlg.FilterIndex = 4" & vbCRLF
-  ' allow selecting multiple files
-  psScript = psScript & "$dlg.Multiselect = $False" & vbCRLF
-  psScript = psScript & "$dlg.Title = ""Select files""" & vbCRLF
-  psScript = psScript & "$dlg.ShowHelp = $True" & vbCRLF
-  psScript = psScript & "$dlg.ShowDialog() | Out-Null" & vbCRLF
-  psScript = psScript & "Set-Content """ &powershellOutputFile & """ $dlg.FileNames" & vbCRLF
-  
-  ' write the powershell code to a file
-  Set textFile = fso.CreateTextFile(powershellFile, True)
-  textFile.WriteLine(psScript)
-  textFile.Close
-  Set textFile = Nothing
-  
-  ' construct shell command
-  Dim shellCmd
-  ' potential privilege issue here, obviously
-  shellCmd = "powershell -ExecutionPolicy unrestricted &'" & powershellFile & "'"
-  ' objShell.Run (strCommand, [intWindowStyle], [bWaitOnReturn]) 
-  ' 0 Hide the window and activate another window.
-  ' bWaitOnReturn set to TRUE - indicating script should wait for the program 
-  ' to finish executing before continuing to the next statement
-  Fshell.Run shellCmd, 0, TRUE
+'creates a FileSystemObject that is used as part of the powershell script temporary file process
+Set fso = CreateObject("Scripting.FileSystemObject")
 
-  ' open file for reading, do not create if missing, using system default format
-  Set textFile = fso.OpenTextFile(powershellOutputFile, 1, 0, -2)
-  ' the important thing to know is that the outputfile now contains 
-  ' the names of the selected files, one file per line
-  ' How you want to process them is op to you, 
-  ' in this example I will just return the file contents as a string
-  file_selection_path = "" ' return a default to prevent error if user canceled the dialog
-  If Not textFile.AtEndOfStream Then File_selection_path = textFile.ReadAll
-  textFile.Close
-  Set textFile = Nothing
-  fso.DeleteFile(powershellFile)
-  fso.DeleteFile(powershellOutputFile)
-  Set fso = Nothing
-  Set Fshell = Nothing
+
+
+
+'PowerShell code that will be written into the script file and executed. psScript is a string using vbCRLF to create new lines and execute the command on each line
+'First line loads the System.Windows.Forms assembly, which is required to use the OpenFileDialog class
+psScript = psScript & "Add-Type -AssemblyName System.Windows.Forms" & vbCRLF
+'Next line instantiates an OpenFileDialog object and assigns it to the variable $dlg 
+psScript = psScript & "$dlg = New-Object System.Windows.Forms.OpenFileDialog" & vbCRLF
+'Next line sets the initial directory for the dialog box to the user's desktop folder
+psScript = psScript & "$dlg.InitialDirectory = [%userprofile%]::GetFolderPath('Desktop')" & vbCRLF
+'Next line sets the filter to only display Excel files with .xslx extension
+psScript = psScript & "$dlg.Filter = 'Excel files (*.xlsx)|*.xlsx'" & vbCRLF
+'Next line actually displays the dialog box - we only created the object in the last line, now we need to show it to the user
+psScript = psScript & "$dlg.ShowDialog() | Out-Null" & vbCRLF
+
+
+
+'Command to bring up the powershell program
+'establish string variable that opens PowerShell with unrestricted Execution and inserts the path to the temporary powershell script file that we just created
+Dim shellCmd
+shellCmd = "powershell -ExecutionPolicy unrestricted &'" & psScript & "'"
+'Run the script host object with the command to open PowerShell, keep the window hidden (0), and wait for the command to finish executing before continuing (TRUE)
+Fshell.Exec shellCmd
+
+'open the textfile for reading
+Set textFile = fso.OpenTextFile(powershellOutputFile, 1, 0, -2)
+'The output file should now contain the path to the selected file
+file_selection_path = "" ' return a default to prevent error if user canceled the dialog
+
+If Not textFile.AtEndOfStream Then file_selection_path = textFile.ReadAll
+textFile.Close
+
+'Clear the textFile object from memory
+Set textFile = Nothing
+fso.DeleteFile(powershellFile)
+fso.DeleteFile(powershellOutputFile)
+set fso = Nothing
+set Fshell = Nothing
 
 End Function
 
@@ -122,8 +114,6 @@ end function
 
 '============= DIALOG BOX
 
-on error resume next
-
 EMConnect ""
 
 Dialog1 = ""
@@ -147,7 +137,7 @@ Do
     Do
     	Dialog Dialog1
     	cancel_without_confirmation
-    	If ButtonPressed = select_a_file_button then call ChooseFiles("C:\temp") 'C:\temp is an example directory
+    	If ButtonPressed = select_a_file_button then call file_selection_dialog()
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
