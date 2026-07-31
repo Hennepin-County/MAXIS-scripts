@@ -38,12 +38,35 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
+'Sam's PowerShell file function that replaces old file selection function==========
+Function file_selection_dialog()
+
+'creates a Windows Script Host object
+Set Fshell = CreateObject("WScript.Shell")
+
+' creates a long string of powershell commands that will be executed
+shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & "Add-Type -AssemblyName System.Windows.Forms; " & _
+            "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _           
+           "$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
+           "$dlg.Filter = 'Excel files (*.xlsx)|*.xlsx'; " & _ 
+           "$dlg.ShowDialog() | Out-Null; " & _
+           "$dlg.FileName; "
+
+' Sets a variable of the file path selected from the PowerShell script run.
+file_selection_path = Fshell.Exec(shellCmd).StdOut.ReadLine
+
+end Function
+
+
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/31/3036", "Fixed spaces causing array errors; fixed typos; updated code to use current FuncLib functions.", "Sam Begley-May, Hennepin County")
 call changelog_update("07/28/2018", "Fixed bug that was preventing output of ABAWD status. Also cleaned up code in the dialog handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/28/2017", "Added enhancement to support cases with case number instead of SSN.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/08/2017", "Added new BULK script that will send manual E & T referrals for cases that have been identified by E & T as partcipants working with CBO's (Community Based Organizations).", "Ilse Ferris, Hennepin County")
@@ -75,7 +98,7 @@ Do
     Do
     	Dialog Dialog1
     	cancel_without_confirmation
-    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    	If ButtonPressed = select_a_file_button then call file_selection_dialog()
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -133,11 +156,13 @@ Loop
 
 If entry_record = 0 then script_end_procedure("No cases have been found on this list. The script wil now end.")
 
-'Ensures that user is in current month
-back_to_self
-EMWriteScreen "________", 18, 43
-EMWriteScreen CM_mo, 20, 43
-EMWriteScreen CM_yr, 20, 46
+'assigning current month and year for MAXIS navigation footer months; establishing current day for referral date
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+CM_day = right("0" &             DatePart("d",           date                             ), 2)
+date_of_today = CM_mo & "/" & CM_day & "/" & CM_yr
+
+Call back_to_SELF()
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
 For CBO_arrays = 0 to UBound(CBO_array, 2)
@@ -146,9 +171,9 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 
 	If client_SSN <> "" then
 		CBO_array(make_referral, CBO_arrays) = False
-		call navigate_to_MAXIS_screen("pers", "____")
+		call navigate_to_MAXIS_screen("pers", clear_line_of_text(18, 43))
 
-		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
+		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB 
 		If len(client_SSN) < 9 then
 			CBO_array(make_referral, CBO_arrays) = False
 			CBO_array(ref_status, CBO_arrays) = "Error"
@@ -173,7 +198,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		    Else
 		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
 		    	Transmit
-		    	'chekcing for an active case
+		    	'checking for an active case
 		    	MAXIS_row = 10
 		    	Do
 		    		EMReadscreen current_case, 7, MAXIS_row, 35
@@ -272,19 +297,30 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 					CBO_array(make_referral, CBO_arrays) = True
 					CBO_array(ABAWD_status, CBO_arrays) = "Exempt"
 				End if
+				If CBO_array(make_referral, CBO_arrays) = True then 	'if a referral is made, write the date for the "SNAP E&T Referral Date" field. Hennepin County now requires this field to be filled in if a referral is made, even for voluntary participants
+					PF9
+					EMWriteScreen CM_mo, 9, 50
+					EMWriteScreen CM_day, 9, 53
+					EMWriteScreen CM_yr, 9, 56
+					transmit
+				else 
+					PF3
+					CBO_array(ref_status, CBO_arrays) = "Error"
+					CBO_array(error_reason, CBO_arrays) = "No referral is listed for this case"
+				End If
 	        END IF
 		End if
 
 		If CBO_array(make_referral, CBO_arrays) = True then
-		    'Manual referral creation if banked months are used
+		    'Manual referral creation 
 		    Call navigate_to_MAXIS_screen("INFC", "WF1M")				'navigates to WF1M to create the manual referral'
-		    EMWriteScreen "01", 4, 47									'this is the manual referral code that DHS has approved
+		    EMWriteScreen "05", 4, 47									'this is the manual referral code re:Ilse/Sam meeting 7/2026
 		    EMWriteScreen "FS", 8, 46									'this is a program for ABAWD's for SNAP is the only option for banked months
 		    EMWriteScreen CBO_array(memb_number, CBO_arrays), 8, 9							'enters member number
 		    EMWriteScreen "Working with CBO: " & CBO_array(CBO_name, CBO_arrays), 17, 6		'enters notes for E & T regarding the name of the CBO
-		    EMWriteScreen "x", 8, 53																				'selects the ES provider
+		    EMWriteScreen "X", 8, 53																				'selects the ES provider
 		    transmit																												'navigates to the ES provider selection screen
-		    EMWriteScreen "x", 5, 9									'selects the 1st option'
+		    EMWriteScreen "X", 5, 9									'selects the 1st option'
 		    transmit												'transmits back to the main WF1M
 		    PF3														'saves referral
 		    EMWriteScreen "Y", 11, 64								'Y to confirm save
@@ -293,7 +329,36 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		    STATS_counter = STATS_counter + 1						'adds 1 count to the stats_counter
 		End if
 	END IF
+
+		Dim wreg_tlr_status
+		If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" then
+			wreg_tlr_status = "[Voluntary Participation]"
+		else
+			wreg_tlr_status = "[Mandatory Participation]"
+		End If
+	
+
+
+	If CBO_array(make_referral, CBO_arrays) = True then
+		Call start_a_blank_CASE_NOTE()
+		Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
+
+		Call write_variable_in_CASE_NOTE("===================")
+		Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
+		Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
+		Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
+	
+		Call write_variable_in_CASE_NOTE("===================")
+		Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
+	else
+		CBO_array(make_referral, CBO_arrays) = False
+		CBO_array(ref_status, CBO_arrays) = "Error"
+		CBO_array(error_reason, CBO_arrays) = "No CASE/NOTE was created for this case"
+	End If 
+
 Next
+
+
 
 'Updating the Excel spreadsheet based on what's happening in MAXIS----------------------------------------------------------------------------------------------------
 For CBO_arrays = 0 to UBound(CBO_array, 2)
@@ -304,5 +369,59 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	CBO_arrays)
 Next
 
+
+
+
+
+
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure("Success! Review the spreadsheet for accuracy. Some cases may not have had a referral made.")
+
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------7/31/26
+'--Tab orders reviewed & confirmed----------------------------------------------n/a
+'--Mandatory fields all present & Reviewed--------------------------------------
+'--All variables in dialog match mandatory fields-------------------------------7/31/26
+'Review dialog names for content and content fit in dialog----------------------
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------
+'--Create a button to reference instructions------------------------------------
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------7/31/26
+'--CASE:NOTE Header doesn't look funky------------------------------------------7/31/26
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------n/a (BULK script will close after case note)
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------7/31/26
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
+'--MAXIS_background_check reviewed (if applicable)------------------------------
+'--PRIV Case handling reviewed -------------------------------------------------
+'--Out-of-County handling reviewed----------------------------------------------7/31/26
+'--script_end_procedures (w/ or w/o error messaging)----------------------------
+'--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------7/31/26
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------7/31/26
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
