@@ -58,6 +58,19 @@ file_selection_path = Fshell.Exec(shellCmd).StdOut.ReadLine
 
 end Function
 
+'CASE/NOTE full routine ==========================================================================================
+	
+function create_referral_case_note()
+	Call start_a_blank_CASE_NOTE()
+	Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
+	Call write_variable_in_CASE_NOTE("===================")
+	Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
+	Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
+	Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
+
+	Call write_variable_in_CASE_NOTE("===================")
+	Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
+end function
 
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -162,6 +175,7 @@ MAXIS_footer_year = CM_yr
 CM_day = right("0" &             DatePart("d",           date                             ), 2)
 date_of_today = CM_mo & "/" & CM_day & "/" & CM_yr
 
+'creating tlr status variable for case note title later in script
 Dim wreg_tlr_status
 If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" then
 	wreg_tlr_status = "[Voluntary Participation]"
@@ -170,6 +184,7 @@ else
 End If
 
 
+'Starting on SELF to avoid an error that can mess up the notes generated into the Excel sheet -------------------------------------------
 Call back_to_SELF()
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
@@ -185,7 +200,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		If len(client_SSN) < 9 then
 			CBO_array(make_referral, CBO_arrays) = False
 			CBO_array(ref_status, CBO_arrays) = "Error"
-			CBO_array(error_reason, CBO_arrays) = "SSN not valid."		'Explanation for the rejected report'
+			CBO_array(error_reason, CBO_arrays) = "SSN in spreadsheet is not a 9-digit number."		'Explanation for the rejected report'
 		Elseif len(client_SSN) = 9 then
 			left_SSN = Left(client_SSN, 3)
 			mid_SSN = mid(client_SSN, 4, 2)
@@ -202,7 +217,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		    If DSPL_confirmation <> "DSPL" then
 		    	CBO_array(make_referral, CBO_arrays) = False
 		    	CBO_array(ref_status, CBO_arrays) = "Error"
-		    	CBO_array(error_reason, CBO_arrays) = "Unable to find person in SSN search."		'Explanation for the rejected report'
+		    	CBO_array(error_reason, CBO_arrays) = "Unable to find person and case - this can be due to multiple PMI records existing for one SSN; or no results were found with the SSN."		'Explanation for the rejected report'
 		    Else
 		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
 		    	Transmit
@@ -239,10 +254,10 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 	If CBO_array(make_referral, CBO_arrays) = True then
 	    'Checking the SNAP status
 	    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-		If is_this_priv = true then
+		If is_this_priv = True then
 			CBO_array(make_referral, CBO_arrays) = False
 			CBO_array(ref_status, CBO_arrays) = "Error"
-			CBO_array(error_reason, CBO_arrays) = "Case is PRIV"
+			CBO_array(error_reason, CBO_arrays) = "This case has PRIV status and was not updated."	'Explanation for the rejected report'
 		Else
 			EMReadscreen county_code, 2, 21, 23
 			If county_code <> "27" then
@@ -268,12 +283,12 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 						If HH_count = 1 then
 							CBO_array(memb_number, CBO_arrays) = member_number
 							CBO_array(make_referral, CBO_arrays) = True
-						Else
-							CBO_array(make_referral, CBO_arrays) = False
+						Else 
+							CBO_array(make_referral, CBO_arrays) = False 
 							CBO_array(ref_status, CBO_arrays) = "Error"
 							CBO_array(error_reason, CBO_arrays) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
 						End if
-					Else
+						Else
 						Do
 							EMReadscreen member_SSN, 11, 7, 42
 							member_SSN = replace(member_SSN, " ", "")
@@ -328,7 +343,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 
 		If CBO_array(make_referral, CBO_arrays) = True then
 		    'Manual referral creation 
-		    Call navigate_to_MAXIS_screen("INFC", "WF1M")				'navigates to WF1M to create the manual referral'
+			Call navigate_to_MAXIS_screen("INFC", "WF1M")				'navigates to WF1M to create the manual referral'
 		    EMWriteScreen "05", 4, 47									'this is the manual referral code re:Ilse/Sam meeting 7/2026
 		    EMWriteScreen "FS", 8, 46									'this is a program for ABAWD's for SNAP is the only option for banked months
 		    EMWriteScreen CBO_array(memb_number, CBO_arrays), 8, 9							'enters member number
@@ -342,19 +357,12 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		    transmit												'confirms saving the referral
 		    CBO_array(ref_status, CBO_arrays) = "Referral Made"
 		    STATS_counter = STATS_counter + 1						'adds 1 count to the stats_counter
-			Call start_a_blank_CASE_NOTE()
-			Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
-
-			Call write_variable_in_CASE_NOTE("===================")
-			Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
-			Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
-			Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
-	
-			Call write_variable_in_CASE_NOTE("===================")
-			Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
-		End if
+			Call create_referral_case_note()
+		Elseif CBO_array(make_referral, CBO_arrays) = False And is_this_PRIV = false then
+			CBO_array(ref_status, CBO_arrays) = "Error"
+			CBO_array(error_reason, CBO_arrays) = "An error occurred while trying to make the referral and CASE/NOTE. Review the case manually."
+		End If
 	END IF
-
 Next
 
 
@@ -366,11 +374,10 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		CBO_arrays)
 	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	CBO_arrays)
 	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	CBO_arrays)
+
+	'wrapping text on the Notes column so it's actually readable
+	objExcel.range("H:H").WrapText = True
 Next
-
-'from Sam - Potentially also add a y/n column for if the case is set to close by the end of the month
-'from Sam - need error handling for CASE NOTE and PRIV
-
 
 
 
