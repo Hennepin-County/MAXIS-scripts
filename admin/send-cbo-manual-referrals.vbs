@@ -66,7 +66,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/31/3036", "Fixed spaces causing array errors; fixed typos; updated code to use current FuncLib functions.", "Sam Begley-May, Hennepin County")
+call changelog_update("08/31/2026", "Fixed spaces causing array errors; fixed typos; updated code to use current FuncLib functions. Also added case note functionality.", "Sam Begley-May, Hennepin County")
 call changelog_update("07/28/2018", "Fixed bug that was preventing output of ABAWD status. Also cleaned up code in the dialog handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/28/2017", "Added enhancement to support cases with case number instead of SSN.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/08/2017", "Added new BULK script that will send manual E & T referrals for cases that have been identified by E & T as partcipants working with CBO's (Community Based Organizations).", "Ilse Ferris, Hennepin County")
@@ -162,6 +162,14 @@ MAXIS_footer_year = CM_yr
 CM_day = right("0" &             DatePart("d",           date                             ), 2)
 date_of_today = CM_mo & "/" & CM_day & "/" & CM_yr
 
+Dim wreg_tlr_status
+If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" then
+	wreg_tlr_status = "[Voluntary Participation]"
+else
+	wreg_tlr_status = "[Mandatory Participation]"
+End If
+
+
 Call back_to_SELF()
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
@@ -230,85 +238,92 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 
 	If CBO_array(make_referral, CBO_arrays) = True then
 	    'Checking the SNAP status
-	    Call navigate_to_MAXIS_screen("STAT", "PROG")
-		EMReadscreen county_code, 2, 21, 23
-		If county_code <> "27" then
+	    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+		If is_this_priv = true then
 			CBO_array(make_referral, CBO_arrays) = False
 			CBO_array(ref_status, CBO_arrays) = "Error"
-			CBO_array(error_reason, CBO_arrays) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
+			CBO_array(error_reason, CBO_arrays) = "Case is PRIV"
 		Else
-	        EMReadscreen SNAP_active, 4, 10, 74
-	        If SNAP_active <> "ACTV" then
-	        	CBO_array(make_referral, CBO_arrays) = False
-	        	CBO_array(ref_status, CBO_arrays) = "SNAP Inactive"
-	        Else
-	        	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-				if needs_PMI = true then
-					row = 5
-					HH_count = 0
-					Do
-						EMReadScreen member_number, 2, row, 3
-						HH_count = HH_count + 1
-						transmit
-						EMReadScreen MEMB_error, 5, 24, 2
-					Loop until MEMB_error = "ENTER"
-					If HH_count = 1 then
-						CBO_array(memb_number, CBO_arrays) = member_number
-						CBO_array(make_referral, CBO_arrays) = True
-					Else
-						CBO_array(make_referral, CBO_arrays) = False
-						CBO_array(ref_status, CBO_arrays) = "Error"
-						CBO_array(error_reason, CBO_arrays) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
-					End if
+			EMReadscreen county_code, 2, 21, 23
+			If county_code <> "27" then
+				CBO_array(make_referral, CBO_arrays) = False
+				CBO_array(ref_status, CBO_arrays) = "Error"
+				CBO_array(error_reason, CBO_arrays) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
+			Else
+				EMReadscreen SNAP_active, 4, 10, 74
+				If SNAP_active <> "ACTV" then
+					CBO_array(make_referral, CBO_arrays) = False
+					CBO_array(ref_status, CBO_arrays) = "SNAP Inactive"
 				Else
-	        	    Do
-	        	    	EMReadscreen member_SSN, 11, 7, 42
-		    	    	member_SSN = replace(member_SSN, " ", "")
-	        	    	If member_SSN = CBO_array(clt_SSN, CBO_arrays) then
-	        	    		EMReadscreen member_number, 2, 4, 33
-	        	    		CBO_array(memb_number, CBO_arrays) = member_number
-	        	    		CBO_array(make_referral, CBO_arrays) = True
-	        	    		exit do
-	        	    	Else
-	        	    		transmit
+					Call navigate_to_MAXIS_screen("STAT", "MEMB")
+					if needs_PMI = true then
+						row = 5
+						HH_count = 0
+						Do
+							EMReadScreen member_number, 2, row, 3
+							HH_count = HH_count + 1
+							transmit
+							EMReadScreen MEMB_error, 5, 24, 2
+						Loop until MEMB_error = "ENTER"
+						If HH_count = 1 then
+							CBO_array(memb_number, CBO_arrays) = member_number
+							CBO_array(make_referral, CBO_arrays) = True
+						Else
 							CBO_array(make_referral, CBO_arrays) = False
-		    	    	END IF
-                        EMReadScreen MEMB_error, 5, 24, 2
-	        	    Loop until member_SSN = CBO_array(clt_SSN, CBO_arrays) or MEMB_error = "ENTER"
-				End if
+							CBO_array(ref_status, CBO_arrays) = "Error"
+							CBO_array(error_reason, CBO_arrays) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
+						End if
+					Else
+						Do
+							EMReadscreen member_SSN, 11, 7, 42
+							member_SSN = replace(member_SSN, " ", "")
+							If member_SSN = CBO_array(clt_SSN, CBO_arrays) then
+								EMReadscreen member_number, 2, 4, 33
+								CBO_array(memb_number, CBO_arrays) = member_number
+								CBO_array(make_referral, CBO_arrays) = True
+								exit do
+							Else
+								transmit
+								CBO_array(make_referral, CBO_arrays) = False
+							END IF
+							EMReadScreen MEMB_error, 5, 24, 2
+						Loop until member_SSN = CBO_array(clt_SSN, CBO_arrays) or MEMB_error = "ENTER"
+					End if
 
-				'STAT WREG PORTION
-				Call navigate_to_MAXIS_screen("STAT", "WREG")
-				EMWriteScreen member_number, 20, 76				'enters member number
-				transmit
-				EMReadScreen fset_code, 2, 8, 50
-				EMReadScreen abawd_code, 2, 13, 50
-				WREG_codes = fset_code & "-" & abawd_code
-				If WREG_codes = "30-11" then
-					CBO_array(make_referral, CBO_arrays) = True
-					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - 2nd Set"
-				Elseif WREG_codes = "30-10" then
-					CBO_array(make_referral, CBO_arrays) = True
-					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - ABAWD"
-				Elseif WREG_codes = "30-13" then
-					CBO_array(make_referral, CBO_arrays) = True
-					CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - Banked Months"
-				Else
-					CBO_array(make_referral, CBO_arrays) = True
-					CBO_array(ABAWD_status, CBO_arrays) = "Exempt"
-				End if
-				If CBO_array(make_referral, CBO_arrays) = True then 	'if a referral is made, write the date for the "SNAP E&T Referral Date" field. Hennepin County now requires this field to be filled in if a referral is made, even for voluntary participants
-					PF9
-					EMWriteScreen CM_mo, 9, 50
-					EMWriteScreen CM_day, 9, 53
-					EMWriteScreen CM_yr, 9, 56
+					'STAT WREG PORTION
+					Call navigate_to_MAXIS_screen("STAT", "WREG")
+					EMWriteScreen member_number, 20, 76				'enters member number
 					transmit
-				else 
-					PF3
-					CBO_array(ref_status, CBO_arrays) = "Error"
-					CBO_array(error_reason, CBO_arrays) = "No referral is listed for this case"
-				End If
-	        END IF
+					EMReadScreen fset_code, 2, 8, 50
+					EMReadScreen abawd_code, 2, 13, 50
+					WREG_codes = fset_code & "-" & abawd_code
+					If WREG_codes = "30-11" then
+						CBO_array(make_referral, CBO_arrays) = True
+						CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - 2nd Set"
+					Elseif WREG_codes = "30-10" then
+						CBO_array(make_referral, CBO_arrays) = True
+						CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - ABAWD"
+					Elseif WREG_codes = "30-13" then
+						CBO_array(make_referral, CBO_arrays) = True
+						CBO_array(ABAWD_status, CBO_arrays) = "Mandatory - Banked Months"
+					Else
+						CBO_array(make_referral, CBO_arrays) = True
+						CBO_array(ABAWD_status, CBO_arrays) = "Exempt"
+					End if
+					If CBO_array(make_referral, CBO_arrays) = True then 	'if a referral is made, write the date for the "SNAP E&T Referral Date" field. Hennepin County now requires this field to be filled in if a referral is made, even for voluntary participants
+						PF9
+						EMWriteScreen CM_mo, 9, 50
+						EMWriteScreen CM_day, 9, 53
+						EMWriteScreen CM_yr, 9, 56
+						transmit
+					else 
+						PF3
+						CBO_array(ref_status, CBO_arrays) = "Error"
+						CBO_array(error_reason, CBO_arrays) = "No referral is listed for this case"
+						CBO_array(make_referral, CBO_arrays) = false
+					End If
+				END IF
+			End if
 		End if
 
 		If CBO_array(make_referral, CBO_arrays) = True then
@@ -327,34 +342,18 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 		    transmit												'confirms saving the referral
 		    CBO_array(ref_status, CBO_arrays) = "Referral Made"
 		    STATS_counter = STATS_counter + 1						'adds 1 count to the stats_counter
+			Call start_a_blank_CASE_NOTE()
+			Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
+
+			Call write_variable_in_CASE_NOTE("===================")
+			Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
+			Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
+			Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
+	
+			Call write_variable_in_CASE_NOTE("===================")
+			Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
 		End if
 	END IF
-
-		Dim wreg_tlr_status
-		If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" then
-			wreg_tlr_status = "[Voluntary Participation]"
-		else
-			wreg_tlr_status = "[Mandatory Participation]"
-		End If
-	
-
-
-	If CBO_array(make_referral, CBO_arrays) = True then
-		Call start_a_blank_CASE_NOTE()
-		Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
-
-		Call write_variable_in_CASE_NOTE("===================")
-		Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
-		Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
-		Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
-	
-		Call write_variable_in_CASE_NOTE("===================")
-		Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
-	else
-		CBO_array(make_referral, CBO_arrays) = False
-		CBO_array(ref_status, CBO_arrays) = "Error"
-		CBO_array(error_reason, CBO_arrays) = "No CASE/NOTE was created for this case"
-	End If 
 
 Next
 
@@ -369,6 +368,8 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	CBO_arrays)
 Next
 
+'from Sam - Potentially also add a y/n column for if the case is set to close by the end of the month
+'from Sam - need error handling for CASE NOTE and PRIV
 
 
 
@@ -389,17 +390,17 @@ script_end_procedure("Success! Review the spreadsheet for accuracy. Some cases m
 'Review dialog names for content and content fit in dialog----------------------
 '--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
 '--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------
+'--Create a button to reference instructions------------------------------------??(talk to Dave and see if we need instructions for this one)
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------7/31/26
+'--All variables are CASE:NOTEing (if required)---------------------------------
 '--CASE:NOTE Header doesn't look funky------------------------------------------7/31/26
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------n/a (BULK script will close after case note)
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------7/31/26
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------n/a
+'--MAXIS_background_check reviewed (if applicable)------------------------------n/a
 '--PRIV Case handling reviewed -------------------------------------------------
 '--Out-of-County handling reviewed----------------------------------------------7/31/26
 '--script_end_procedures (w/ or w/o error messaging)----------------------------
