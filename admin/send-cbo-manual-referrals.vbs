@@ -38,7 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
+'this will need to be updated to reflect the new function name from branch #2670 once it is merged into the master branch's FuncLib after testing. Once ready, this function can be deleted from the header and called directly from FuncLib in the script body.
 'Two script-specific functions - new file selection dialog function and new CASE/NOTE function that puts everything together====================
 Function file_selection_dialog()
 
@@ -66,7 +66,6 @@ function create_referral_case_note()
 	Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
 	Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
-
 	Call write_variable_in_CASE_NOTE("===================")
 	Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
 end function
@@ -396,7 +395,7 @@ script_end_procedure("Success! Review the spreadsheet for accuracy. Some cases m
 'Review dialog names for content and content fit in dialog----------------------8/11/26
 '--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
 '--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------??(talk to Dave and see if we need instructions for this one)
+'--Create a button to reference instructions------------------------------------
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------8/11/26
