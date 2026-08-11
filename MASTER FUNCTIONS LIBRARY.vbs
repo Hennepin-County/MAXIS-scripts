@@ -8988,6 +8988,25 @@ function file_selection_system_dialog(file_selected, file_extension_restriction)
 	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
 end function
 
+Function file_selection_dialog_new_powershell()
+
+'creates a Windows Script Host object
+Set Fshell = CreateObject("WScript.Shell")
+
+' creates a long string of powershell commands that will be executed
+shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & "Add-Type -AssemblyName System.Windows.Forms; " & _
+            "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _           
+           "$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
+           "$dlg.Filter = 'Excel files (*.xlsx)|*.xlsx'; " & _ 
+           "$dlg.ShowDialog() | Out-Null; " & _
+           "$dlg.FileName; "
+
+' Sets a variable of the file path selected from the PowerShell script run.
+file_selection_path = Fshell.Exec(shellCmd).StdOut.ReadLine
+
+end Function
+
+
 function find_variable(opening_string, variable_name, length_of_variable)
 '--- This function finds a string on a page in BlueZone
 '~~~~~ opening_string: string to search for
