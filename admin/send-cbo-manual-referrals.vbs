@@ -60,13 +60,20 @@ end Function
 
 	
 function create_referral_case_note()
+	Dim case_note_tlr_status
+	If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" Then
+		case_note_tlr_status = "[Voluntary Participation]"
+	Else
+		case_note_tlr_status = "[Mandatory Participation]"
+	End If
+
 	Call start_a_blank_CASE_NOTE()
-	Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & member_number & " " & wreg_tlr_status)
-	Call write_variable_in_CASE_NOTE("===================")
+	Call write_variable_in_CASE_NOTE("***SNAP E & T Referral Processed for MEMB " & CBO_array(memb_number, CBO_arrays) & " " & case_note_tlr_status)
+	Call write_variable_in_CASE_NOTE("===================" )
 	Call write_variable_in_CASE_NOTE("Client referral sent through WF1M on " & date_of_today)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client is working with the following CBO", CBO_array(CBO_name, CBO_arrays))
 	Call write_bullet_and_variable_in_CASE_NOTE("Client's listed STAT/WREG codes are", WREG_codes)
-	Call write_variable_in_CASE_NOTE("===================")
+	Call write_variable_in_CASE_NOTE("===================" )
 	Call write_variable_in_CASE_NOTE("This CASE/NOTE was automatically generated through the bulk CBO referral script")
 end function
 
