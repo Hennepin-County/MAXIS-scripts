@@ -189,6 +189,7 @@ Call back_to_SELF()
 For CBO_arrays = 0 to UBound(CBO_array, 2)
 	MAXIS_case_number = CBO_array(case_number, CBO_arrays)
 	client_SSN = CBO_array(clt_SSN, CBO_arrays)
+	needs_PMI = false
 
 	If client_SSN <> "" then
 		CBO_array(make_referral, CBO_arrays) = False
@@ -333,7 +334,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 					End If
 					If CBO_array(ref_status, CBO_arrays) = "Referral Made" then
 						Call navigate_to_MAXIS_screen("STAT", "WREG")
-						EMWriteScreen member_number, 20, 76				'enters member number
+						EMWriteScreen CBO_array(memb_number, CBO_arrays), 20, 76				'enters member number
 						transmit
 						EMReadScreen fset_code, 2, 8, 50
 						EMReadScreen abawd_code, 2, 13, 50
@@ -375,6 +376,9 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	CBO_arrays)
 	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	CBO_arrays)
 
+Next
+
+For
 	'wrapping text on the Notes column so it's actually readable
 	objExcel.range("H:H").WrapText = True
 Next
