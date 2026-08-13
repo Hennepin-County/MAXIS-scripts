@@ -392,6 +392,8 @@ Else
     If hc_droplist = "MA - EPD General" Then correct_caseload_type = "MA - EPD General"
     If hc_droplist = "ADS - MA-EPD" Then correct_caseload_type = "ADS - MA-EPD"
 
+    'EA only cases
+
     'GRH/HS and 1800
     If correct_caseload_type = "" Then
 		If grh_status = "ACTIVE" or grh_status = "PENDING" or grh_status = "REIN" or hs_check = checked or faci_caseload_list <> "" Then
@@ -404,7 +406,7 @@ Else
             ElseIf contracted_facility <> "" Then
                 correct_caseload_type = "Contracted - " & contracted_facility
             Else
-				If grh_status = "PENDING" Then
+				If case_pending = True Then 'update to any pending program, not just GRH
                     If faci_caseload_list = "Long Term Homeless" Then
                         correct_caseload_type = "GRH / HS - LTH Pending"
                     Else
