@@ -180,14 +180,6 @@ MAXIS_footer_year = CM_yr
 CM_day = right("0" &             DatePart("d",           date                             ), 2)
 date_of_today = CM_mo & "/" & CM_day & "/" & CM_yr
 
-'creating tlr status variable for case note title later in script
-Dim wreg_tlr_status
-If CBO_array(ABAWD_status, CBO_arrays) = "Exempt" then
-	wreg_tlr_status = "[Voluntary Participation]"
-else
-	wreg_tlr_status = "[Mandatory Participation]"
-End If
-
 
 'Starting on SELF to avoid an error that can mess up the notes generated into the Excel sheet -------------------------------------------
 Call back_to_SELF()
