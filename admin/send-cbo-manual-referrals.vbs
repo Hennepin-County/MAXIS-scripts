@@ -377,7 +377,7 @@ For CBO_arrays = 0 to UBound(CBO_array, 2)
 
 Next
 
-For
+For CBO_arrays = 0 to UBound(CBO_array, 2)
 	'wrapping text on the Notes column so it's actually readable
 	objExcel.range("H:H").WrapText = True
 Next
