@@ -69,7 +69,7 @@ caseload_info.add "X127EQ3", "Adults Active 3"
 caseload_info.add "X127EQ4", "Adults Active 3"
 caseload_info.add "X127EX8", "Adults Active 3"
 caseload_info.add "X127EX9", "Adults Active 3"
-caseload_info.add "X127EG4", "Adults Active 3"
+
 caseload_info.add "X127ET2", "Families Active 3"
 caseload_info.add "X127ET3", "Families Active 3"
 caseload_info.add "X127ET4", "Families Active 3"
@@ -133,7 +133,7 @@ caseload_info.add "X127EH2", "GRH / HS - Maintenance"
 'caseload_info.add "X127EP4", "GRH / HS - Maintenance"
 caseload_info.add "X127EK5", "GRH / HS - Maintenance"
 caseload_info.add "X127EG5", "GRH / HS - Demo"
-' caseload_info.add "X127EG4", "MIPPA" 'Duplicate key (X127EG4 already mapped to Adults Active 3); update with correct unique code before enabling.
+caseload_info.add "X127EG4", "MIPPA" '
 'LTC+/Waiver caseloads - Noeker
 caseload_info.add "X127EH3",	"LTC"
 caseload_info.add "X127EJ8",	"LTC"
@@ -159,8 +159,8 @@ caseload_info.add "X127EG0",	"MNsure M-Z"
 caseload_info.add "X127F3D", "MA - BC"
 caseload_info.add "X127EK4", "LTC+ - General"
 caseload_info.add "X127EK9", "LTC+ - General"
-caseload_info.add "X127EF8", "1800 - Team 160"
-caseload_info.add "X127EF9", "1800 - Team 160"
+caseload_info.add "X127EF8", "1800 - Team 160" 'A-L
+caseload_info.add "X127EF9", "1800 - Team 160" 'M-Z
 caseload_info.add "X1275H5", "Privileged Cases"
 caseload_info.add "X127FAT", "Privileged Cases"
 caseload_info.add "X127F3H", "Privileged Cases"
@@ -206,6 +206,7 @@ caseload_manager.add "Healthcare - Pending",                     "Faughn Ramisch
 caseload_manager.add "Healthcare Only Active",                   "Faughn Ramisch-Church"
 caseload_manager.add "Healthcare Mixed Active",                  "Faughn Ramisch-Church"
 caseload_manager.add "MA - EPD General",                         "Faughn Ramisch-Church"
+caseload_manager.add "MIPPA",                                    "Faughn Ramisch-Church"
 caseload_manager.add "LTC",                                      "Ann Noeker"
 caseload_manager.add "LTC+ - General",                           "Ann Noeker" '(LTC+ Pending A-H and I-Z)
 caseload_manager.add "Waivers",                                  "Ann Noeker"
