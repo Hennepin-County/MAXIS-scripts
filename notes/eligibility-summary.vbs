@@ -3315,8 +3315,8 @@ function define_hc_elig_dialog()
 			GroupBox 5, y_pos, 540, income_box_len, "Income"
 			y_pos = y_pos + 15
 
-			Text 10, y_pos, 155, 10, "GROSS EARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
-			Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
+			Text 10, y_pos, 155, 10, "GROSS EARNED Income: "
+			Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "
 
 			y_pos = y_pos + 10
 			y_pos_2 = y_pos
