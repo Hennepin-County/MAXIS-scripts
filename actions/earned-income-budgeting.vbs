@@ -3713,7 +3713,7 @@ class jobs_income
 
             EMWriteScreen "      ", 6, 70
             EMWriteScreen "        ", 7, 70
-            EMWriteScreen "        ", 11, 70
+            EMWriteScreen "        ", 10, 70
 
             list_row = 7                    'here we clear the PIC of all previous data
             beg_of_list_check = ""
@@ -3795,7 +3795,7 @@ class jobs_income
                 If read_calculation = True Then
                     read_calculation = False
 
-                    EMReadScreen pic_grh_ave_hrs_READ,      10, 15, 68
+                    EMReadScreen pic_grh_ave_hrs_READ,      10, 14, 68
                     EMReadScreen pic_grh_ave_paycheck_READ, 10, 16, 68
                     EMReadScreen pic_grh_prosp_mo_READ,     10, 17, 68
 
