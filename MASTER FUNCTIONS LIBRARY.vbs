@@ -8988,21 +8988,27 @@ function file_selection_system_dialog(file_selected, file_extension_restriction)
 	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
 end function
 
-Function file_selection_dialog_new_powershell()
+
+Function file_selection_dialog_new_powershell(file_selected, file_extension_restriction)
+'---This function allows a user to select a file to be opened in a script. It replaces the file_selection_system_dialog() function and no longer uses ActiveX
+'~~~~ file_selected: variable for the name of file. Will initially be empty.
+'~~~~ file_extension_restriction: restricts to a specific file type. Needs to be formatted as "*.xyz" where xyz is the file extension. 
+'==== Keyworks: MAXIS, MMIS, PRISM, file
 
 'creates a Windows Script Host object
 Set Fshell = CreateObject("WScript.Shell")
 
-' creates a long string of powershell commands that will be executed
-shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & "Add-Type -AssemblyName System.Windows.Forms; " & _
-            "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _           
+'creates a string of powershell commands that will be executed
+shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & _     
+			"Add-Type -AssemblyName System.Windows.Forms; " & _
+            "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _  
+			"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         ' you MUST define the filter variable in this exact way three times, or it stops working
            "$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
-           "$dlg.Filter = 'Excel files (*.xlsx)|*.xlsx'; " & _ 
            "$dlg.ShowDialog() | Out-Null; " & _
            "$dlg.FileName; "
 
-' Sets a variable of the file path selected from the PowerShell script run.
-file_selection_path = Fshell.Exec(shellCmd).StdOut.ReadLine
+		   ' Sets a variable of the file path selected from the PowerShell script run.
+file_selected = Fshell.Exec(shellCmd).StdOut.ReadLine
 
 end Function
 
