@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+call changelog_update("08/17/2026", "Updates for all issue #2549 topics save for WREG panel DUMP function.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2024", "Final removal of Banked Months support and permanent supports for TLR's 53-54 years old.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -80,6 +82,7 @@ Function add_pages(page_name)
 	ObjExcel.Cells(1, 19).Value = "App Date"
 	ObjExcel.Cells(1, 20).Value = "Next SNAP ER"
 	ObjExcel.Cells(1, 21).Value = "Last SNAP ER"
+	ObjExcel.Cells(1, 22).Value = "HR1 Rules Applied"
 
 	FOR i = 1 to 21		'formatting the cells
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
@@ -87,7 +90,7 @@ Function add_pages(page_name)
 	NEXT
 End Function
 
-Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
+Function ABAWD_Tracking_Record(abawd_counted_months, banked_months_count, total_counted_months, member_number, MAXIS_footer_month)
     EMReadScreen wreg_panel, 4, 2, 48
     If wreg_panel <> "WREG" then Call navigate_to_MAXIS_screen("STAT","WREG")		'navigates to stat/wreg
     EMReadScreen wreg_memb, 2, 4, 33
@@ -106,6 +109,7 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         abawd_counted_months = 0					'declares the variables values at 0
 		banked_months_count = 0
         month_count = 0
+		total_counted_months = 0
         If MAXIS_footer_year = CM_yr then
             bene_yr_row = 10
         Else
@@ -159,7 +163,9 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
 			End if
 	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/26 for all members.
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
+		total_counted_months = abawd_counted_months + banked_months_count
         PF3	' to exit tracking record
+		EMWaitReady 0, 0	'needs a minute to make sure the PF3 is processed before the next command
     End if
 End Function
 
@@ -225,10 +231,33 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 	'Case-based determination
     '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
-	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-	If mfip_case = True then verified_wreg = verified_wreg & "14" & "|"
-	If DWP_case = True then verified_wreg = verified_wreg & "20" & "|"
+	If mfip_case = True then
+		If mfip_status = "ACTIVE" then
+		    Call navigate_to_MAXIS_screen("CASE", "PERS")
+		    row = 10
+		    Do
+		    	EMReadScreen pers_PMI, 8, row, 34
+		    	EMReadScreen cash_stat, 1, row, 48
+		    	If cash_stat = " " then exit do 'no exemption found
+		    	If pers_PMI = PMI_number then
+		    		exit do
+		    		If cash_stat = "A" then verified_wreg = verified_wreg & "14" & "|"
+		    	Else
+		    		row = row + 3
+		    	End if
+		    	If row = 19 then
+		    		PF8
+		    		EMReadScreen last_page_check, 21, 24, 2
+		    		If last_page_check = "THIS IS THE LAST PAGE" then
+		    			exit do 'exits loop if no more pages to search
+		    		Else
+		    			row = 10
+		    		End if
+		    	End if
+		    Loop
+		End if
+	End if
 
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
@@ -863,6 +892,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		counted_month = False 'initializing
 
         age_50_thru_59_workaround = False ' initializing
+
 		If age_50_thru_59 = True then
 			If best_wreg_code = "16" then
 				age_50_thru_59_workaround = True
@@ -880,7 +910,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		If best_wreg_code = "30" then
 			If best_abawd_code = "10" then counted_month = True
-			if best_abawd_code = "09" then counted_month = False
+			If best_abawd_code = "09" then
+				counted_month = False
+				manual_code = "F"
+			End If
 			If best_abawd_code = "06" then
 				manual_code = "F"	'Does NOT count on the tracking record, and will remove any counted months.
 				counted_month = True	'Identified as counted so that the TLR record is updated, but again, not counted.
@@ -893,14 +926,21 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		banked_month_case = False 'initializing banked month case variable to determine if we need to add notes about banked months to the report.
 		If banked_months_available = True then
-			If counted_month = True
-				Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
-				If abawd_counted_months => 3 then
-					If best_wreg_code = "30" then best_abawd_code = "13"
+			'msgbox "counted month: " & counted_month
+			If counted_month = True then
+				Call ABAWD_Tracking_Record(abawd_counted_months, banked_months_count, total_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+				If abawd_counted_months > 3 then
 					manual_code = "C"	'Manual banked months code
 					banked_month_case = True
+					If best_wreg_code = "30" then best_abawd_code = "13"
+					'msgbox "banked month case: " & banked_month_case & vbcr & "manual code: " & manual_code & vbcr & "abawd_counted_months: " & abawd_counted_months & vbcr & " banked_months_count: " & banked_months_count
+				Elseif (abawd_counted_months => 3 and banked_months_count > 2) then
+					manual_code = "M"	'Manual banked months code
+					banked_month_case = False
+					If (age_50_thru_59_workaround = False or age_60_thru_64_workaround = False) and best_wreg_code = "30" then best_abawd_code = "10"
 				End if
 			End if
+		End if
 
 		If counted_month = True then
         	PF9
@@ -943,24 +983,27 @@ Function BULK_ABAWD_FSET_exemption_finder()
                         exit for ' C and B are banked months
                     Else
                         Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+						PF3 'to go back to WREG/Panel
                     End if
 				End if
+				EMWaitReady 0, 0	'needs a minute to make sure the PF3 is processed before the next command
 			Next
 			'PF3 'to go back to WREG/Panel
         End if
 
-		Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month) 'Count all the ABAWD months
+		Call ABAWD_Tracking_Record(abawd_counted_months, banked_months_count, total_counted_months, member_number, MAXIS_footer_month)'Count all the ABAWD months
 		'banked months used messaging
 		If banked_months_available = True then
 			If banked_month_case = True then
-				If banked_months_count = 1 then report_notes = report_notes & "Using 1st banked month. "
-				If banked_months_count => 2 then report_notes = report_notes & "Used " & banked_months_count & " banked months. Assess for closure. "
+				report_notes = report_notes & "Using Banked Months. "
+				If banked_months_count => 2 or total_counted_months => 5 then report_notes = report_notes & "Used all counted & banked months. Assess for closure. "
 			End if
 		End if
 
         If (counted_month = True and manual_code = "M") then
 			'Only 30/06's meet this the above criteria. All other counted months will have the assess for closure note added.
-            If abawd_counted_months => 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
+            If abawd_counted_months > 3 then report_notes = report_notes & "Assess TLR for closure for next month. "
+			if abawd_counted_months = 3 and banked_months_available = True then report_notes = report_notes & "Assess TLR for Banked month next month. "
         End if
 
 		transmit ' to save
@@ -1023,17 +1066,25 @@ Function BULK_ABAWD_FSET_exemption_finder()
     If snap_status = "ACTIVE" then
         If data_wreg = best_wreg_code then
             If data_abawd = best_abawd_code then
-                If instr(report_notes, "Assess TLR for closure for next month.") then
+                If instr(report_notes, "Assess") then
                     updates_needed = true
                 Else
 				    updates_needed = False
                     report_notes = report_notes & "No Updates Needed. "
                 End if
             End if
-            If (data_abawd = "06" and best_abawd_code = "01") then
-                updates_needed = False
-                report_notes = report_notes & "No Updates Needed. "
+            If data_abawd = "06" then
+				if best_abawd_code = "01" then
+                	updates_needed = False
+                	report_notes = report_notes & "No Updates Needed. "
+				End if
             End if
+			If data_abawd = "04" then
+				if instr(verified_wreg, "21") then
+					updates_needed = False
+                	report_notes = report_notes & "No Updates Needed. "
+				End if
+			End if
         End if
 	Else
         report_notes = report_notes & "SNAP is " & snap_status & ". "
@@ -1043,7 +1094,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
     ObjExcel.Cells(excel_row, notes_col).Value = report_notes
 	ObjExcel.Cells(excel_row, verified_wreg_col).Value = verified_wreg
-	ObjExcel.Cells(excel_row, counted_months_col).Value = abawd_counted_months
+	ObjExcel.Cells(excel_row, counted_months_col).Value = total_counted_months
     ObjExcel.Cells(excel_row, all_exemptions_col).Value = trim(possible_exemptions)
 End Function
 
@@ -1076,25 +1127,24 @@ all_exemptions_col	= 18	'Col R
 app_date_col 		= 19	'Col S
 next_snap_col		= 20	'Col T
 last_snap_col		= 21	'Col U
+HR1_rules_col		= 22	'Col V
 
-'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
+
 file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP Report " & CM_mo & "-20" & CM_yr & ".xlsx"
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - TLR REPORT"
+  DropListBox 60, 95, 50, 15, "Initial"+chr(9)+"Restart", run_option
   ButtonGroup ButtonPressed
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
-  GroupBox 10, 5, 250, 85, "Using this script:"
-  Text 20, 20, 235, 25, "This script should be used when a list of SNAP recipients with member numbers to assess Time-Limited recipients (TLR's)."
-  EditBox 15, 50, 180, 15, file_selection_path
-  ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+  EditBox 15, 50, 180, 15, file_selection_path
+  Text 20, 20, 235, 25, "This script should be used when a list of SNAP recipients with member numbers to assess Time-Limited recipients (TLR's)."
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  Text 20, 100, 65, 10, "Footer month/year:"
-  EditBox 85, 95, 20, 15, MAXIS_footer_month
-  EditBox 110, 95, 20, 15, MAXIS_footer_year
+  GroupBox 10, 5, 250, 85, "Using this script:"
+  Text 15, 95, 40, 10, "Run Option:"
 EndDialog
 
 Do
@@ -1111,163 +1161,194 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
-DIM tlr_array()
-ReDIM tlr_array(last_snap_const,0)
+If run_option = "Initial" then
+	'----------------------------------------------------------------------------------------------------Assessment of cases to evaluate
+	DIM tlr_array()
+	ReDIM tlr_array(HR1_rules_applied_const,0)
 
-'Creating constants to value the array elements
-const case_number_const	= 0
-const pmi_const			= 1
-const app_date_const	= 2
-const abawd_const		= 3
-const wreg_const		= 4
-const age_const			= 5
-const next_snap_const	= 6
-const last_snap_const	= 7
+	'Creating constants to value the array elements
+	const case_number_const	= 0
+	const pmi_const			= 1
+	const app_date_const	= 2
+	const abawd_const		= 3
+	const wreg_const		= 4
+	const age_const			= 5
+	const next_snap_const	= 6
+	const last_snap_const	= 7
+	const HR1_rules_applied_const = 8
 
-excel_row = 3		'starts at Excel row 3 when downloaded from Power BI
-entry_record = 0                'incrementer for the array and count
-all_pmi_array = "*"    'setting up string to find duplicate pmi's
-Do
+	excel_row = 3		'starts at Excel row 3 when downloaded from Power BI
+	entry_record = 0                'incrementer for the array and count
+	all_pmi_array = "*"    'setting up string to find duplicate pmi's
+	Do
 
-	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value) 	'Col A
-	If trim(MAXIS_case_number) = "" then exit do
-	PMI_number = trim(ObjExcel.Cells(excel_row, 5).Value) 			'Col E
+		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value) 	'Col A
+		If trim(MAXIS_case_number) = "" then exit do
+		PMI_number = trim(ObjExcel.Cells(excel_row, 5).Value) 			'Col E
 
-	assess_case = False
-	If PMI_number = "xxxx" then
 		assess_case = False
-	else
-		If instr(all_pmi_array, PMI_number) then
+		If PMI_number = "xxxx" then
 			assess_case = False
 		else
-			all_pmi_array = trim(all_pmi_array & "*") 'Adding PMI to list
+			If instr(all_pmi_array, PMI_number) then
+				assess_case = False
+			else
+				all_pmi_array = trim(all_pmi_array & "*") 'Adding PMI to list
 
-			app_date = trim(ObjExcel.Cells(excel_row, 4).Value) 		'Col D
-			if isdate(app_date) = True then app_date = dateadd("d", 0, app_date)    'janky way to convert to a date, but hey it works.
+				app_date = trim(ObjExcel.Cells(excel_row, 4).Value) 		'Col D
+				if isdate(app_date) = True then app_date = dateadd("d", 0, app_date)    'janky way to convert to a date, but hey it works.
 
-			data_abawd = trim(ObjExcel.Cells(excel_row, 9).Value) 		'Col I
-			data_wreg =  trim(ObjExcel.Cells(excel_row, 14).Value) 		'Col N
-			age = trim(ObjExcel.Cells(excel_row, 23).Value)				'Col W
+				data_abawd = trim(ObjExcel.Cells(excel_row, 9).Value) 		'Col I
+				data_wreg =  trim(ObjExcel.Cells(excel_row, 14).Value) 		'Col N
+				age = trim(ObjExcel.Cells(excel_row, 23).Value)				'Col W
 
-			under_55 = False
-			age_55_59 = False
-			age_60_64 = False
+				under_55 = False
+				age_55_59 = False
+				age_60_64 = False
 
-			'Age based booleans
-			If age = "" then age = "0"
-			If age = "50" or _
-				age = "51" or _
-				age = "52" or _
-				age = "53" or _
-				age = "54" then
-				under_55 = True
-			End if
-
-			If age = "55" or _
-				age = "56" or _
-				age = "57" or _
-				age = "58" or _
-				age = "59" then
-				age_55_59 = True
-			End if
-
-			If age = "60" or _
-				age = "61" or _
-				age = "62" or _
-				age = "63" or _
-				age = "64" then
-				age_60_64 = True
-			End if
-
-			next_snap = trim(ObjExcel.Cells(excel_row, 24).Value)		'Col X
-			last_snap = trim(ObjExcel.Cells(excel_row, 25).Value)		'Col Y
-			if isdate(last_snap) = True then last_snap = dateadd("d", 0, last_snap)    'janky way to convert to a date, but hey it works.
-
-			'Determines if you apply HR1 rules or not based on new app or recert since 11/01/2025.
-			apply_HR1_rules = False
-			HR1_date = "11/01/25"
-
-			'msgbox app_date & vbcr & isdate(app_date) & vbcr & excel_row
-			If datediff("D", HR1_date, app_date) => 0 then apply_HR1_rules = True
-			if isDate(last_snap) = True then
-				if datediff("D", HR1_date, last_snap) => 0 then
-					apply_HR1_rules = True
+				'Age based booleans
+				If age = "" then age = "0"
+				If age = "50" or _
+					age = "51" or _
+					age = "52" or _
+					age = "53" or _
+					age = "54" then
+					under_55 = True
 				End if
-			End if
 
-			'Classic TLR rules
-			If data_wreg = "30" then assess_case = True
-			If data_abawd = "06" or _
-			   data_abawd = "08" or _
-			   data_abawd = "09" or _
-			   data_abawd = "10" or _
-			   data_abawd = "11" or _
-			   data_abawd = "13" then
-				assess_case = True
-			Elseif (data_abawd = "16" and under_55 = True ) then
-				assess_case = True
-			End if
+				If age = "55" or _
+					age = "56" or _
+					age = "57" or _
+					age = "58" or _
+					age = "59" then
+					age_55_59 = True
+				End if
 
-			'HR1 rules
-			If apply_HR1_rules = True then
-				If (data_wreg = "16" and age_55_59 = True) then assess_case = True
-				If (data_wreg = "05" and age_60_64 = True) then assess_case = True
-				If data_wreg = "21" then assess_case = True
+				If age = "60" or _
+					age = "61" or _
+					age = "62" or _
+					age = "63" or _
+					age = "64" then
+					age_60_64 = True
+				End if
+
+				next_snap = trim(ObjExcel.Cells(excel_row, 24).Value)		'Col X
+				last_snap = trim(ObjExcel.Cells(excel_row, 25).Value)		'Col Y
+				if isdate(last_snap) = True then last_snap = dateadd("d", 0, last_snap)    'janky way to convert to a date, but hey it works.
+				if isdate(next_snap) = True then next_snap = dateadd("d", 0, next_snap)    'janky way to convert to a date, but hey it works.
+
+				'Determines if you apply HR1 rules or not based on new app or recert since 11/01/2025.
+				apply_HR1_rules = False
+				HR1_date = "11/01/25"
+
+				'msgbox app_date & vbcr & isdate(app_date) & vbcr & excel_row
+				If datediff("D", HR1_date, app_date) => 0 then
+					apply_HR1_rules = True
+				elseif isDate(last_snap) = True then
+					if datediff("D", HR1_date, last_snap) => 0 then apply_HR1_rules = True
+				else
+					if isdate(next_snap = "" and last_snap = "") then apply_HR1_rules = ""
+				End if
+
+				'Classic TLR rules
+				If data_wreg = "30" then assess_case = True
+				If data_abawd = "06" or _
+				   data_abawd = "08" or _
+				   data_abawd = "09" or _
+				   data_abawd = "10" or _
+				   data_abawd = "11" or _
+				   data_abawd = "13" then
+					assess_case = True
+				Elseif (data_abawd = "16" and under_55 = True ) then
+					assess_case = True
+				End if
+
+				'HR1 rules
+				If apply_HR1_rules = True then
+					If (data_wreg = "16" and age_55_59 = True) then assess_case = True
+					If (data_wreg = "05" and age_60_64 = True) then assess_case = True
+					If data_wreg = "21" then assess_case = True
+				End if
+
+				If apply_HR1_rules = "" then assess_case = True
 			End if
 		End if
-	End if
 
-	If assess_case = True then
-		'Adding client information to the array
-        ReDim Preserve tlr_array(last_snap_const, entry_record)	'This resizes the array based on the number of members
-        tlr_array(case_number_const, entry_record) = MAXIS_case_number
-        tlr_array(pmi_const, entry_record) = PMI_number
-        tlr_array(app_date_const, entry_record) = app_date
-        tlr_array(abawd_const, entry_record) = data_abawd
-        tlr_array(wreg_const, entry_record) = data_wreg
-        tlr_array(age_const, entry_record) = age
-		tlr_array(next_snap_const, entry_record) = next_snap
-		tlr_array(last_snap_const, entry_record) = last_snap
-        entry_record = entry_record + 1			'This increments to the next entry in the array
-        stats_counter = stats_counter + 1       'Increment for stats counter
-    End if
-	excel_row = excel_row + 1
-Loop
-msgbox entry_record
+		If assess_case = True then
+			'Adding client information to the array
+	        ReDim Preserve tlr_array(HR1_rules_applied_const, entry_record)	'This resizes the array based on the number of members
+	        tlr_array(case_number_const, entry_record) = MAXIS_case_number
+	        tlr_array(pmi_const, entry_record) = PMI_number
+	        tlr_array(app_date_const, entry_record) = app_date
+	        tlr_array(abawd_const, entry_record) = data_abawd
+	        tlr_array(wreg_const, entry_record) = data_wreg
+	        tlr_array(age_const, entry_record) = age
+			tlr_array(next_snap_const, entry_record) = next_snap
+			tlr_array(last_snap_const, entry_record) = last_snap
+	        tlr_array(HR1_rules_applied_const, entry_record) = apply_HR1_rules
+	        entry_record = entry_record + 1			'This increments to the next entry in the array
+	        stats_counter = stats_counter + 1       'Increment for stats counter
+	    End if
+		excel_row = excel_row + 1
+	Loop
+	msgbox entry_record
 
+	'Opening a new Excel file
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Visible = True
+	Set objWorkbook = objExcel.Workbooks.Add()
+	objExcel.DisplayAlerts = True
 
-'Opening a new Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
+	call add_pages("Assess TLR Recipients")
+	excel_row = 2
 
-call add_pages("Assess TLR Recipients")
-excel_row = 2
+	For tlr_pers = 0 to Ubound(tlr_array,2)
+		objExcel.Cells(excel_row, case_number_col).Value 	= tlr_array(case_number_const, tlr_pers)
+	    objExcel.Cells(excel_row, pmi_col).Value 			= tlr_array(pmi_const, tlr_pers)
+	    objExcel.Cells(excel_row, age_col).Value 			= tlr_array(age_const, tlr_pers)
+	    objExcel.Cells(excel_row, data_wreg_col).Value 		= tlr_array(wreg_const, tlr_pers)
+	    objExcel.Cells(excel_row, data_abawd_col).Value 	= tlr_array(abawd_const, tlr_pers)
+	    objExcel.Cells(excel_row, app_date_col).Value 		= tlr_array(app_date_const, tlr_pers)
+	    objExcel.Cells(excel_row, next_snap_col).Value 		= tlr_array(next_snap_const, tlr_pers)
+		objExcel.Cells(excel_row, last_snap_col).Value 		= tlr_array(last_snap_const, tlr_pers)
+	    objExcel.Cells(excel_row, HR1_rules_col).Value 		= tlr_array(HR1_rules_applied_const, tlr_pers)
+		excel_row = excel_row + 1
+	Next
 
-For tlr_pers = 0 to Ubound(tlr_array,2)
-	objExcel.Cells(excel_row, case_number_col).Value 	= tlr_array(case_number_const, tlr_pers)
-    objExcel.Cells(excel_row, pmi_col).Value 			= tlr_array(pmi_const, tlr_pers)
-    objExcel.Cells(excel_row, age_col).Value 			= tlr_array(age_const, tlr_pers)
-    objExcel.Cells(excel_row, data_wreg_col).Value 		= tlr_array(wreg_const, tlr_pers)
-    objExcel.Cells(excel_row, data_abawd_col).Value 	= tlr_array(abawd_const, tlr_pers)
-    objExcel.Cells(excel_row, app_date_col).Value 		= tlr_array(app_date_const, tlr_pers)
-    objExcel.Cells(excel_row, next_snap_col).Value 		= tlr_array(next_snap_const, tlr_pers)
-	objExcel.Cells(excel_row, last_snap_col).Value 		= tlr_array(last_snap_const, tlr_pers)
-	excel_row = excel_row + 1
-Next
+	objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\" & CM_mo & "-20" & CM_yr & ".xlsx"
+	'Const xlSrcRange = 1			'creating a table
+	'Const xlYes = 1
+	'table1Range = "A1:" & U & excel_row
+	'ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Assess TLR Recipients"
 
-'Const xlSrcRange = 1			'creating a table
-'Const xlYes = 1
-'table1Range = "A1:" & U & excel_row
-'ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Assess TLR Recipients"
+	excel_row = 2
 
+Elseif run_option = "Restart" then
+	Dialog1 = ""
+	'Select Excel row dialog
+	BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to restart"
+	  EditBox 75, 5, 40, 15, excel_row_to_restart
+	  ButtonGroup ButtonPressed
+	    OkButton 10, 25, 50, 15
+	    CancelButton 65, 25, 50, 15
+	  Text 10, 10, 60, 10, "Excel row to start:"
+	EndDialog
+
+	Do
+		dialog Dialog1
+		cancel_without_confirmation
+	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+	excel_row = excel_row_to_restart
+End if
+
+'----------------------------------------------------------------------------------------------------Evaluation
 ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
 back_to_SELF
 Call MAXIS_footer_month_confirmation
 
-excel_row = 2
 Do
     MAXIS_case_number = ""
 	MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value
@@ -1281,6 +1362,9 @@ Do
 	data_wreg =  trim(ObjExcel.Cells(excel_row, data_wreg_col).Value)
 	data_abawd = trim(ObjExcel.Cells(excel_row, data_abawd_col).Value)
 
+	data_next_snap = trim(ObjExcel.Cells(excel_row, next_snap_col).Value)
+	data_last_snap = trim(ObjExcel.Cells(excel_row, last_snap_col).Value)
+
     report_notes = ""
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
@@ -1288,37 +1372,57 @@ Do
         report_notes = report_notes & "Don't assign - Privliged case. "
     Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
-        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-        EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
-        If county_code <> UCASE(worker_county_code) then
-            report_notes = report_notes & "Don't assign - Out-of-county Case. "
-        Else
-            Call navigate_to_MAXIS_screen("STAT", "MEMB")
-            Do
-                EmReadscreen memb_panel_PMI, 8, 4, 46
-                memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
-                If trim(memb_panel_PMI) = PMI_number then
-                    EmReadscreen member_number, 2, 4, 33
-					ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number
-					Exit do
-                Else
-                    transmit
-                    EmReadscreen end_of_membs_message, 5, 24, 2
-                End if
-            Loop until end_of_membs_message = "ENTER"
-            If trim(member_number) = "" then
-                report_notes = report_notes = "Unable to find member on case"
-            Else
-	            Call navigate_to_MAXIS_screen("STAT", "WREG")
-                Call write_value_and_transmit(member_number, 20, 76)
-	            EMReadScreen FSET_code, 2, 8, 50
-	            EMReadScreen ABAWD_code, 2, 13, 50
-				ObjExcel.Cells(excel_row, CM_wreg_col).Value = replace(FSET_code, "_", "")
-				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
+		If apply_HR1_rules = "" then
+			Call navigate_to_MAXIS_screen("STAT", "PROG")
+			EMReadScreen SNAP_active, 4, 10, 74
+			If SNAP_active = "ACTV" then
+				EmReadScreen SNAP_app_date, 8, 10, 33
+				SNAP_app_date = replace(SNAP_app_date, "_", "/")
+				SNAP_app_date = dateadd("d", 0, SNAP_app_date)    'janky way to convert to a date, but hey it works.
+				If datediff("D", "11/01/2025", SNAP_app_date) => 0 then
+					apply_HR1_rules = True
+				else
+					apply_HR1_rules = False
+				End if
+			elseif SNAP_active <> "ACTV" then
+				report_notes = report_notes & "Don't assign - SNAP status is " & SNAP_active & ". "
+			End if
+		End if
+		If apply_HR1_rules = "" then
+			report_notes = report_notes & "ASSESS MANUALLY! "
+		else
+        	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+        	EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
+        	If county_code <> UCASE(worker_county_code) then
+        	    report_notes = report_notes & "Don't assign - Out-of-county Case. "
+        	Else
+        	    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+        	    Do
+        	        EmReadscreen memb_panel_PMI, 8, 4, 46
+        	        memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
+        	        If trim(memb_panel_PMI) = PMI_number then
+        	            EmReadscreen member_number, 2, 4, 33
+						ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number
+						Exit do
+        	        Else
+        	            transmit
+        	            EmReadscreen end_of_membs_message, 5, 24, 2
+        	        End if
+        	    Loop until end_of_membs_message = "ENTER"
+        	    If trim(member_number) = "" then
+        	        report_notes = report_notes = "Unable to find member on case"
+        	    Else
+	    	        Call navigate_to_MAXIS_screen("STAT", "WREG")
+        	        Call write_value_and_transmit(member_number, 20, 76)
+	    	        EMReadScreen FSET_code, 2, 8, 50
+	    	        EMReadScreen ABAWD_code, 2, 13, 50
+					ObjExcel.Cells(excel_row, CM_wreg_col).Value = replace(FSET_code, "_", "")
+					ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
-                Call BULK_ABAWD_FSET_exemption_finder
-                If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign. "
-            End if
+        	        Call BULK_ABAWD_FSET_exemption_finder
+        	        If snap_status = "INACTIVE" then report_notes = report_notes & "Don't assign. "
+        	    End if
+			End if
         End if
     End if
     ObjExcel.Cells(excel_row, notes_col).Value = report_notes
