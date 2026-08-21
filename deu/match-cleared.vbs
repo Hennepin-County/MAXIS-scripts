@@ -196,11 +196,11 @@ CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
     EMReadScreen no_worker, 25, 7, 5
-    If trim(no_worker) = "" then 
+    If trim(no_worker) = "" then
         script_end_procedure_with_error_report("The worker name is blank, and the MAXIS system will not allow you to enter the match. Please call the MAXIS Help Desk to resolve.")
-    Else 
+    Else
 	    script_end_procedure_with_error_report("Out-of-county case. The script will now end.")
-    End if 
+    End if
 ELSE
     EMReadScreen number_IEVS_type, 3, 7, 12 'read the match type'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
@@ -444,7 +444,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
 
-	If resolution_status = "CC-Overpayment Only" Then 
+	If resolution_status = "CC-Overpayment Only" Then
 		BeginDialog Dialog1, 0, 0, 196, 90, "Claim Number Dialog"
 			EditBox 50, 25, 60, 15, Claim_number
 			EditBox 50, 45, 60, 15, Claim_number_II
@@ -487,12 +487,12 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
     '----------------------------------------------------------------------------------------------------Adding resolution status for single or multiple programs on match.
     col = 57 'start col
 
-    Do 	
-        EMReadScreen cleared_header, 4, 11, col 
-        If trim(cleared_header) = "" then exit do 
+    Do
+        EMReadScreen cleared_header, 4, 11, col
+        If trim(cleared_header) = "" then exit do
         EMWriteScreen left(resolution_status, 2), 12, col + 1
         col = col + 6
-    Loop 
+    Loop
 
     IF change_response = "Yes" THEN
     	EMwritescreen "Y", 15, 37
@@ -545,7 +545,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
 			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Resident name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
-			IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
+			IF resolution_status = "BO-Other" THEN IULB_notes = "Other: " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in case file, " & other_notes
 
 			iulb_row = 8
@@ -722,7 +722,7 @@ IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note
 IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Income known to the agency. No change to current budget period.")
 IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different. Resident's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify.")
-IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
+'IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
 IF resolution_status = "NC-Non Cooperation" THEN
 	CALL write_variable_in_case_note("* Resident failed to cooperate with wage match.")
 	CALL write_variable_in_case_note("* Case approved to close.")
@@ -732,7 +732,7 @@ CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
 
-'----------------------------------------------------------------------------------------------------------------Script Run Lowdown variables 
+'----------------------------------------------------------------------------------------------------------------Script Run Lowdown variables
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
 script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
 script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
