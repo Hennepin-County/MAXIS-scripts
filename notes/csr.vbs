@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/24/2026", "Added verbal signature data tracking and household comp information in accordance with DCYF requirements.", "Dave Courtright, Hennepin County")
 call changelog_update("01/28/2026", "Added AREP, SNAP Alt Rep, and SWKR as signature option if already in MAXIS. These persons can be selected as the person who signed the CSR form.", "Casey Love, Hennepin County")
 call changelog_update("12/02/2025", "Changed order of 'OK', 'Cancel', and 'Next' buttons to align with script standards.", "Mark Riegel, Hennepin County")
 call changelog_update("11/10/2025", "Improved background script functionality, streamlined dialog options, added signature details to final dialog, and removed unneeded dialog fields.", "Mark Riegel, Hennepin County")
@@ -73,7 +74,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DEFINING CONSTANTS, ARRAY and BUTTONS===========================================================================
-
+  end_msg = ""
 'Buttons Defined
 '--Navigation buttons
 SHEL_button         = 201
@@ -473,9 +474,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If signature = "Accepted Verbally" Then
   Dialog1 = ""
-  BeginDialog Dialog1, 0, 0, 246, 200, "Verbal Signature Record"
+  BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
     Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
-    Text 20, 20, 185, 10, "MEMB " & signature_memb
+    Text 20, 20, 185, 10, "MEMB  & signature_memb"
     Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
     Text 20, 75, 105, 10, "Signature was accepted at:"
     Text 25, 95, 20, 10, "Date: "
@@ -483,10 +484,15 @@ If signature = "Accepted Verbally" Then
     Text 25, 115, 20, 10, "Time: "
     EditBox 50, 110, 50, 15, verbal_sig_time
     Text 20, 140, 85, 10, "Resident Phone Number:"
-    ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
-    ButtonGroup ButtonPressed
-      OkButton 190, 180, 50, 15
-    Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
+    DropListBox 110, 135, 95, 45, "phone_droplist", verbal_sig_phone_number
+
+    Text 5, 195, 255, 20, "Remember to send the resident a copy of the form they verbally signed and provide instructions for making corrections. "
+    DropListBox 150, 155, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", minor_indicator
+    Text 20, 160, 95, 10, "Minor children in SNAP unit?"
+    Text 20, 175, 125, 10, "Elderly / Disabled members in unit?"
+    DropListBox 150, 170, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", elderly_indicator
+      ButtonGroup ButtonPressed
+      OkButton 210, 220, 50, 15
   EndDialog
 
   Do
@@ -503,9 +509,13 @@ If signature = "Accepted Verbally" Then
       err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
     End If
     If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
-
+    If minor_indicator = "" Then err_msg = err_msg & vbCr & "* Please indicate if there are minor children in the SNAP unit."
+    If elderly_indicator = "" Then err_msg = err_msg & vbCr & "* Please indicate if there are elderly or disabled members in the SNAP unit."
     If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
   Loop until err_msg = ""
+
+  'Adding verbal signature info to the end_message for data tracking requirement.
+  End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_memb & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
 End If
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
@@ -546,10 +556,12 @@ If tikl_for_ui = 1 then call write_variable_in_CASE_NOTE(TIKL_note_text)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
+
+
 If paperless_checkbox = unchecked then
-    script_end_procedure("Please make sure to accept the Work items in ECF associated with this CSR. Thank you!")
+    script_end_procedure("Please make sure to accept the Work items in ECF associated with this CSR. Thank you!" & end_msg)
 else
-    script_end_procedure("")
+    script_end_procedure(end_msg)
 End if
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
