@@ -999,7 +999,22 @@ If renewal_option = "Send NOMIs" then
 		col_to_use = col_to_use + 1
 	Loop until col_header = ""
 
-	If cash_stat_excel_col = "" Then
+    'Here we need to be sure the STATs is full of information.
+    'We check the last row of the CASH, SNAP, and HC columns to see if there is a value in any of them. If there is, we can assume that the stats are complete.
+    stats_complete = False
+	If cash_stat_excel_col <> "" Then
+        row_to_check = 1
+        Do
+            row_to_check = row_to_check + 1
+            cell_value = trim(ObjExcel.Cells(row_to_check, 2).Value)        'This is reading the CASE NUMBER Column
+        Loop until cell_value = ""
+        row_to_check = row_to_check - 1
+        If trim(ObjExcel.Cells(row_to_check, cash_stat_excel_col).Value) <> "" Then stats_complete = True
+        If trim(ObjExcel.Cells(row_to_check, snap_stat_excel_col).Value) <> "" Then stats_complete = True
+        If trim(ObjExcel.Cells(row_to_check, hc_stat_excel_col).Value) <> "" Then stats_complete = True
+    End If
+
+	If cash_stat_excel_col = "" or NOT stats_complete Then
 		renewal_option = "Collect Statistics"
 		original_renewal_option = "Send NOMIs"
 	End If
