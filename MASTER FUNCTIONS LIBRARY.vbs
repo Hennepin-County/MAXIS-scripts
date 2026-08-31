@@ -8995,14 +8995,23 @@ Function file_selection_dialog_new_powershell(file_selected, file_extension_rest
 '~~~~ file_extension_restriction: restricts to a specific file type. Needs to be formatted as "*.xyz" where xyz is the file extension. 
 '==== Keyworks: MAXIS, MMIS, PRISM, file
 
+If InStr(file_extension_restriction, "*.") = 0 And InStr(file_extension_restriction, ".") <> 0 Then file_extension_restriction = "*" & file_extension_restriction
+Else If InStr(file_extension_restriction, "*") = 0 and InStr(file_extension_restriction, ".") = 0 Then file_extension_restriction = "*." & file_extension_restriction
+Else If InStr(file_extension_restriction, "*.") = 1 Then file_extension_restriction = file_extension_restriction
+Else 
+	MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
+End If
+
 'creates a Windows Script Host object
 Set Fshell = CreateObject("WScript.Shell")
 
 'creates a string of powershell commands that will be executed
+' you MUST define the filter variable in this exact way three times, or it stops working
+
 shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & _     
 			"Add-Type -AssemblyName System.Windows.Forms; " & _
             "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _  
-			"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         ' you MUST define the filter variable in this exact way three times, or it stops working
+			"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         
            "$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
            "$dlg.ShowDialog() | Out-Null; " & _
            "$dlg.FileName; "
