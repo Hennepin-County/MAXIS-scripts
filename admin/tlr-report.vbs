@@ -1142,7 +1142,7 @@ BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - TLR REPORT"
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
   EditBox 15, 50, 180, 15, file_selection_path
   Text 20, 20, 235, 25, "This script should be used when a list of SNAP recipients with member numbers to assess Time-Limited recipients (TLR's)."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  Text 15, 70, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
   Text 15, 95, 40, 10, "Run Option:"
 EndDialog
