@@ -1,3 +1,5 @@
+run_locally = TRUE
+
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - ELIGIBILITY SUMMARY.vbs"
 start_time = timer
@@ -5,8 +7,6 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 60          	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-
-run_locally = TRUE
 
 If db_full_string = "" Then
 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
@@ -17962,7 +17962,7 @@ End If
 
 developer_mode = False
 allow_late_note = False
-If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003" or user_ID_for_validation = "SBegleyMay") AND MX_region <> "TRAINING" Then developer_mode = True
+If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003" or user_ID_for_validation = "SBEGLEYMAY") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 ' developer_mode = False
 If developer_mode = True Then MsgBox "DEVELOPER - Welcome!"

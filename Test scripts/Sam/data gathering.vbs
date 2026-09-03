@@ -47,10 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("01/27/2020", "Updated the handling for CCL.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("05/07/2018", "Updated the characters to pull for the client's name.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
-Call changelog_update("12/10/2016", "Added IV-E, Child Care and FIATed case statuses to script. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("09/03/2026", "Updating to pull cases from selection", "Sam Begley-May, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -95,10 +92,24 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Asks to grab COLA related stats (will occur below main info collection)
-Panel_stats = MsgBox("Filter by panel?", vbYesNo)
-If Panel_stats = vbCancel then StopScript				'Cancel button from MsgBox
-If Panel_stats = vbYes then STWK_filter = True	'Will use this variable below
+
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 426, 195, "Selection Criteria"
+  ButtonGroup ButtonPressed
+    OkButton 300, 170, 50, 15
+    CancelButton 360, 170, 50, 15
+  CheckBox 15, 10, 125, 15, "UNEA Panel with End Date", UNEA_check
+  CheckBox 15, 30, 125, 15, "BUSI Panel with End Date", BUSI_check
+EndDialog
+
+Do
+	Dialog dialog1
+	cancel_without_confirmation
+
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP until are_we_passworded_out = false					'loops until user passwords back in
+
+
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -190,12 +201,21 @@ If FIAT_check = checked then
 	col_to_use = col_to_use + 1
 	FIAT_letter_col = convert_digit_to_excel_column(FIAT_actv_col)
 End if
-If STWK_filter = true then
-	ObjExcel.Cells(1, col_to_use).Value = "STWK panel"
+If BUSI_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "BUSI PANEL WITH END DATE"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
-	STWK_exists_col = col_to_use
+	BUSI_case_exists_col = col_to_use
 	col_to_use = col_to_use + 1
+	BUSI_case_exists_letter_col = convert_digit_to_excel_column(BUSI_case_exists_col)
 End if
+If UNEA_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "UNEA PANEL WITH END DATE"
+	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
+	UNEA_case_exists_col = col_to_use
+	col_to_use = col_to_use + 1
+	UNEA_case_exists_letter_col = convert_digit_to_excel_column(UNEA_case_exists_col)
+End if
+
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -331,16 +351,11 @@ For each worker in worker_array
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	END IF
-			end if
+end if
 next
 
 
-
-
-
-
-
-If STWK_filter = True then
+If BUSI_check = 1 then
 	'Reset Excel Row
 	excel_row = 2
 
@@ -351,7 +366,7 @@ If STWK_filter = True then
 		'Exiting if the case number is blank
 		If MAXIS_case_number = "" then exit do
 		'Navigate to STAT/UNEA for said case number
-		call navigate_to_MAXIS_screen("ELIG", "FSPR")
+		call navigate_to_MAXIS_screen("STAT", "BUSI")
 		'Reading list of household members, dumping into array
 		MAXIS_row = 6		'Second row with a HH member number, first row is always "01"
 		HH_member_array = "01"	'Setting this now as the loop won't check the first row
@@ -370,21 +385,70 @@ If STWK_filter = True then
 					EMWriteScreen HH_member, 20, 76	'Writing member number
 					transmit					'Transmitting to panel
 				End if
-				EMReadScreen STWK_Panel_Check, 1, 2, 73	
-                If STWK_Panel_Check > "0" then STWK_exists = true else STWK_exists = false
+				EMReadScreen BUSI_end_date, 2, 5, 72	
+                If BUSI_end_date <> "__" then BUSI_case_exists = true else BUSI_case_exists = false
 
                 PF3
 			Loop until current_panel = total_panels		'End this loop when we've reached the end of all panels
 		Next
 
 		'Writes the variable to Excel
-        If STWK_exists = true then 
-            ObjExcel.Cells(excel_row, STWK_exists_col).Value = "Y"
+        If BUSI_case_exists = true then 
+            ObjExcel.Cells(excel_row, BUSI_case_exists_col).Value = "Y"
         End If
 		'Clears old variables
 		HH_member_array = ""
-		STWK_Panel_Check = ""
-        STWK_exists = ""
+		BUSI_end_date = ""
+
+		excel_row = excel_row + 1	'Advances to look at the next row
+	Loop until MAXIS_case_number = ""
+End if
+
+
+If UNEA_check = 1 then
+	'Reset Excel Row
+	excel_row = 2
+
+	'This loop will navigate to UNEA and check each case for the specified types of income
+	Do
+		'Assign case number from Excel
+		MAXIS_case_number = ObjExcel.Cells(excel_row, 2)
+		'Exiting if the case number is blank
+		If MAXIS_case_number = "" then exit do
+		'Navigate to STAT/UNEA for said case number
+		call navigate_to_MAXIS_screen("STAT", "UNEA")
+		'Reading list of household members, dumping into array
+		MAXIS_row = 6		'Second row with a HH member number, first row is always "01"
+		HH_member_array = "01"	'Setting this now as the loop won't check the first row
+		Do	'reading each one and adding to the variable
+			EMReadScreen HH_member_from_list, 2, MAXIS_row, 3
+			If HH_member_from_list = "  " then exit do
+			HH_member_array = HH_member_array & "|" & HH_member_from_list
+			MAXIS_row = MAXIS_row + 1
+		Loop until HH_member_from_list = "  "
+		HH_member_array = split(HH_member_array, "|")	'Splitting array
+
+		'Will navigate to each one and read the income type. If the income type is one of the COLA-specific incomes, it will add to a variable to be dumped in spreadsheet
+		For each HH_member in HH_member_array
+			Do
+				If HH_member <> "01" Then 'This prevents skipping the first unea panel for memb01.
+					EMWriteScreen HH_member, 20, 76	'Writing member number
+					transmit					'Transmitting to panel
+				End if
+				EMReadScreen UNEA_end_date, 2, 7, 68	
+                If UNEA_end_date <> "__" then UNEA_case_exists = true else UNEA_case_exists = false
+
+                PF3
+			Loop until current_panel = total_panels		'End this loop when we've reached the end of all panels
+		Next
+
+		'Writes the variable to Excel
+        If UNEA_case_exists = true then 
+            ObjExcel.Cells(excel_row, UNEA_case_exists_col).Value = "Y"
+        End If
+		'Clears old variables
+		HH_member_array = ""
+		UNEA_end_date = ""
 
 		excel_row = excel_row + 1	'Advances to look at the next row
 	Loop until MAXIS_case_number = ""
