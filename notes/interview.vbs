@@ -9624,6 +9624,168 @@ for each_member = 0 to UBound(HH_MEMB_ARRAY, 2)
 	If HH_MEMB_ARRAY(id_verif, each_member) = "Found in SOLQ/SMI" Then HH_MEMB_ARRAY(id_verif, each_member) = "Identity verified per Verify MN interface"
 next
 
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+EMReadScreen memb_check, 4, 2, 48
+Do While memb_check <> "MEMB"
+    Call back_to_SELF
+    Call MAXIS_background_check
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMReadScreen memb_check, 4, 2, 48
+Loop
+
+Dim CHANGES_ARRAY()
+ReDim CHANGES_ARRAY(last_const, 0)	'Defining the changes array to
+
+For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+    ReDim Preserve CHANGES_ARRAY(last_const, the_memb)
+    If HH_MEMB_ARRAY(pers_in_maxis, the_memb) = True and HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")
+        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
+        transmit
+
+        EMReadscreen curr_last_name, 25, 6, 30
+        EMReadscreen curr_first_name, 12, 6, 63
+        EMReadscreen curr_mid_initial, 1, 6, 79
+        EMReadScreen curr_age, 3, 8, 76
+        EMReadScreen curr_date_of_birth, 10, 8, 42
+
+        curr_last_name = trim(replace(curr_last_name, "_", ""))
+        curr_first_name = trim(replace(curr_first_name, "_", ""))
+        curr_mid_initial = trim(replace(curr_mid_initial, "_", ""))
+        If curr_date_of_birth = "__ __ ____" Then curr_date_of_birth  = ""
+        curr_age = trim(curr_age)
+        If curr_age = "" and curr_date_of_birth  <> "" Then curr_age = 0
+        If curr_age <> "" Then curr_age = curr_age * 1
+
+        If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
+        If curr_first_name <> HH_MEMB_ARRAY(first_name_const, the_memb) Then CHANGES_ARRAY(first_name_const, the_memb) = curr_first_name
+        If curr_mid_initial <> HH_MEMB_ARRAY(mid_initial, the_memb)     Then CHANGES_ARRAY(mid_initial, the_memb) = curr_mid_initial
+        If curr_age <> HH_MEMB_ARRAY(age, the_memb)                     Then CHANGES_ARRAY(age, the_memb) = curr_age
+
+        EMReadScreen curr_ssn, 11, 7, 42
+        EMReadScreen curr_ssn_verif, 1, 7, 68
+        EMReadScreen curr_birthdate_verif, 2, 8, 68
+        EMReadScreen curr_gender, 1, 9, 42
+        EMReadScreen curr_race, 30, 17, 42
+        EMReadScreen curr_spoken_lang, 2, 12, 42
+        EMReadScreen curr_written_lang, 2, 13, 42
+        EMReadScreen curr_interpreter, 1, 14, 68
+        EMReadScreen curr_alias_yn, 1, 15, 42
+        EMReadScreen curr_ethnicity_yn, 1, 16, 68
+
+        curr_date_of_birth = replace(curr_date_of_birth, " ", "/")
+        curr_ssn = replace(curr_ssn, " ", "-")
+        if curr_ssn = "___-__-____" Then curr_ssn = ""
+        curr_race = trim(curr_race)
+
+        If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb)         Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
+        If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb)                             Then
+            ssn_update_attempt = True
+
+            CHANGES_ARRAY(ssn, the_memb) = curr_ssn
+            PF9
+            numb_only_ssn = replace(replace(curr_ssn, "-", ""), " ", "")
+            EMWriteScreen left(numb_only_ssn, 3), 7, 42
+            EMWriteScreen mid(numb_only_ssn, 4, 2), 7, 46
+            EMWriteScreen right(numb_only_ssn, 4), 7, 49
+            EMWriteScreen "P", 7, 68
+            curr_ssn_verif = "P"
+            transmit
+
+            EMReadScreen memb_check, 4, 2, 48
+            If memb_check = "MEMB" Then
+                PF10
+                EMWaitReady 0, 0
+            End If
+
+            attempt_count = 0
+            EMReadScreen match_check, 4, 2, 51
+            Do While match_check = "MTCH"
+                PF3
+                EMWaitReady 0, 0
+                EMReadScreen match_check, 4, 2, 51
+                attempt_count = attempt_count + 1
+                If attempt_count > 9 Then Exit Do
+            Loop
+
+            EMReadScreen new_ssn, 11, 7, 42
+            new_ssn = replace(new_ssn, " ", "")
+            If new_ssn = numb_only_ssn Then ssn_update_success = True
+        End If
+
+        If curr_ssn_verif <> left(HH_MEMB_ARRAY(ssn_verif, the_memb), 1)        Then
+            ' CHANGES_ARRAY(ssn_verif, the_memb) = curr_ssn_verif
+			If curr_ssn_verif = "A" THen CHANGES_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For"
+			If curr_ssn_verif = "P" THen CHANGES_ARRAY(ssn_verif, the_memb) = "P - SSN Provided, verif Pending"
+			If curr_ssn_verif = "N" THen CHANGES_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided"
+			If curr_ssn_verif = "V" THen CHANGES_ARRAY(ssn_verif, the_memb) = "V - SSN Verified via Interface"
+        End If
+        If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then CHANGES_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN"
+        If curr_birthdate_verif <> left(HH_MEMB_ARRAY(birthdate_verif, the_memb), 2) Then
+            ' CHANGES_ARRAY(birthdate_verif, the_memb) = curr_birthdate_verif
+			If curr_birthdate_verif = "BC" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "BC - Birth Certificate"
+			If curr_birthdate_verif = "RE" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "RE - Religious Record"
+			If curr_birthdate_verif = "DL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DL - Drivers License/State ID"
+			If curr_birthdate_verif = "DV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DV - Divorce Decree"
+			If curr_birthdate_verif = "AL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "AL - Alien Card"
+			If curr_birthdate_verif = "DR" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DR - Doctor Statement"
+			If curr_birthdate_verif = "OT" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "OT - Other Document"
+			If curr_birthdate_verif = "PV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "PV - Passport/Visa"
+			If curr_birthdate_verif = "NO" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "NO - No Verif Provided"
+        End If
+        If curr_gender <> left(HH_MEMB_ARRAY(gender, the_memb), 1)              Then
+            CHANGES_ARRAY(gender, the_memb) = curr_gender
+            If curr_gender = "M" Then CHANGES_ARRAY(gender, the_memb) = "Male"
+            If curr_gender = "F" Then CHANGES_ARRAY(gender, the_memb) = "Female"
+        End If
+        If curr_race <> HH_MEMB_ARRAY(race, the_memb)                           Then CHANGES_ARRAY(race, the_memb) = curr_race
+        If curr_spoken_lang <> left(HH_MEMB_ARRAY(spoken_lang, the_memb), 2)    Then CHANGES_ARRAY(spoken_lang, the_memb) = curr_spoken_lang
+        If curr_written_lang <> left(HH_MEMB_ARRAY(written_lang, the_memb), 2)  Then CHANGES_ARRAY(written_lang, the_memb) = curr_written_lang
+        If curr_interpreter <> left(HH_MEMB_ARRAY(interpreter, the_memb), 1)    Then
+            CHANGES_ARRAY(interpreter, the_memb) = curr_interpreter
+            If curr_interpreter = "Y" Then CHANGES_ARRAY(interpreter, the_memb) = "Yes"
+            If curr_interpreter = "N" Then CHANGES_ARRAY(interpreter, the_memb) = "No"
+        End If
+        If curr_alias_yn <> left(HH_MEMB_ARRAY(alias_yn, the_memb), 1)          Then CHANGES_ARRAY(alias_yn, the_memb) = curr_alias_yn
+        If curr_ethnicity_yn <> left(HH_MEMB_ARRAY(ethnicity_yn, the_memb), 1)  Then CHANGES_ARRAY(ethnicity_yn, the_memb) = curr_ethnicity_yn
+
+        EMReadScreen curr_rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
+		EMReadScreen curr_id_verif, 2, 9, 68
+
+        If curr_rel_to_applcnt <> left(HH_MEMB_ARRAY(rel_to_applcnt, the_memb), 2)  Then CHANGES_ARRAY(rel_to_applcnt, the_memb) = curr_rel_to_applcnt
+        If curr_id_verif <> left(HH_MEMB_ARRAY(id_verif, the_memb), 2)              Then CHANGES_ARRAY(id_verif, the_memb) = curr_id_verif
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMI")		'===============================================================================================
+        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
+        transmit
+
+        EMReadScreen curr_marital_status, 1, 7, 40
+        EMReadScreen curr_last_grade_completed, 2, 10, 49
+        EMReadScreen curr_citizen, 1, 11, 49
+        EMReadScreen curr_mn_entry_date, 8, 15, 49
+        EMReadScreen curr_former_state, 2, 15, 78
+
+        curr_mn_entry_date = replace(curr_mn_entry_date, " ", "/")
+        If curr_mn_entry_date = "__/__/__" Then curr_mn_entry_date = ""
+        If curr_former_state = "__" Then curr_former_state = ""
+
+        If curr_marital_status <> left(HH_MEMB_ARRAY(marital_status, the_memb), 1)              Then CHANGES_ARRAY(marital_status, the_memb) = curr_marital_status
+        If curr_last_grade_completed <> right(HH_MEMB_ARRAY(last_grade_completed, the_memb), 2) Then CHANGES_ARRAY(last_grade_completed, the_memb) = curr_last_grade_completed
+        If curr_citizen <> left(HH_MEMB_ARRAY(citizen, the_memb), 1)                            Then CHANGES_ARRAY(citizen, the_memb) = curr_citizen
+        If curr_mn_entry_date <> HH_MEMB_ARRAY(mn_entry_date, the_memb)                         Then CHANGES_ARRAY(mn_entry_date, the_memb) = curr_mn_entry_date
+        If curr_former_state <> HH_MEMB_ARRAY(former_state, the_memb)                           Then CHANGES_ARRAY(former_state, the_memb) = curr_former_state
+
+        'THESE ARE NOT EDITABLE
+        ' EMReadScreen HH_MEMB_ARRAY(spouse_ref, clt_count), 2, 9, 49
+        ' EMReadScreen HH_MEMB_ARRAY(spouse_name, clt_count), 40, 9, 52
+        ' EMReadScreen HH_MEMB_ARRAY(other_st_FS_end_date, clt_count), 8, 13, 49
+        ' EMReadScreen HH_MEMB_ARRAY(in_mn_12_mo, clt_count), 1, 14, 49
+        ' EMReadScreen HH_MEMB_ARRAY(residence_verif, clt_count), 1, 14, 78
+
+    End If
+Next
+
 interview_complete = True
 If ButtonPressed = incomplete_interview_btn Then
 	' MsgBox "ARE YOU SURE?"
@@ -11060,168 +11222,6 @@ With (CreateObject("Scripting.FileSystemObject"))
 	End If
 End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
-
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
-EMReadScreen memb_check, 4, 2, 48
-Do While memb_check <> "MEMB"
-    Call back_to_SELF
-    Call MAXIS_background_check
-    Call navigate_to_MAXIS_screen("STAT", "MEMB")
-    EMReadScreen memb_check, 4, 2, 48
-Loop
-
-Dim CHANGES_ARRAY()
-ReDim CHANGES_ARRAY(last_const, 0)	'Defining the changes array to
-
-For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-    ReDim Preserve CHANGES_ARRAY(last_const, the_memb)
-    If HH_MEMB_ARRAY(pers_in_maxis, the_memb) = True and HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-
-        Call navigate_to_MAXIS_screen("STAT", "MEMB")
-        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
-        transmit
-
-        EMReadscreen curr_last_name, 25, 6, 30
-        EMReadscreen curr_first_name, 12, 6, 63
-        EMReadscreen curr_mid_initial, 1, 6, 79
-        EMReadScreen curr_age, 3, 8, 76
-        EMReadScreen curr_date_of_birth, 10, 8, 42
-
-        curr_last_name = trim(replace(curr_last_name, "_", ""))
-        curr_first_name = trim(replace(curr_first_name, "_", ""))
-        curr_mid_initial = trim(replace(curr_mid_initial, "_", ""))
-        If curr_date_of_birth = "__ __ ____" Then curr_date_of_birth  = ""
-        curr_age = trim(curr_age)
-        If curr_age = "" and curr_date_of_birth  <> "" Then curr_age = 0
-        If curr_age <> "" Then curr_age = curr_age * 1
-
-        If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
-        If curr_first_name <> HH_MEMB_ARRAY(first_name_const, the_memb) Then CHANGES_ARRAY(first_name_const, the_memb) = curr_first_name
-        If curr_mid_initial <> HH_MEMB_ARRAY(mid_initial, the_memb)     Then CHANGES_ARRAY(mid_initial, the_memb) = curr_mid_initial
-        If curr_age <> HH_MEMB_ARRAY(age, the_memb)                     Then CHANGES_ARRAY(age, the_memb) = curr_age
-
-        EMReadScreen curr_ssn, 11, 7, 42
-        EMReadScreen curr_ssn_verif, 1, 7, 68
-        EMReadScreen curr_birthdate_verif, 2, 8, 68
-        EMReadScreen curr_gender, 1, 9, 42
-        EMReadScreen curr_race, 30, 17, 42
-        EMReadScreen curr_spoken_lang, 2, 12, 42
-        EMReadScreen curr_written_lang, 2, 13, 42
-        EMReadScreen curr_interpreter, 1, 14, 68
-        EMReadScreen curr_alias_yn, 1, 15, 42
-        EMReadScreen curr_ethnicity_yn, 1, 16, 68
-
-        curr_date_of_birth = replace(curr_date_of_birth, " ", "/")
-        curr_ssn = replace(curr_ssn, " ", "-")
-        if curr_ssn = "___-__-____" Then curr_ssn = ""
-        curr_race = trim(curr_race)
-
-        If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb)         Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
-        If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb)                             Then
-            ssn_update_attempt = True
-
-            CHANGES_ARRAY(ssn, the_memb) = curr_ssn
-            PF9
-            numb_only_ssn = replace(replace(curr_ssn, "-", ""), " ", "")
-            EMWriteScreen left(numb_only_ssn, 3), 7, 42
-            EMWriteScreen mid(numb_only_ssn, 4, 2), 7, 46
-            EMWriteScreen right(numb_only_ssn, 4), 7, 49
-            EMWriteScreen "P", 7, 68
-            curr_ssn_verif = "P"
-            transmit
-
-            EMReadScreen memb_check, 4, 2, 48
-            If memb_check = "MEMB" Then
-                PF10
-                EMWaitReady 0, 0
-            End If
-
-            attempt_count = 0
-            EMReadScreen match_check, 4, 2, 51
-            Do While match_check = "MTCH"
-                PF3
-                EMWaitReady 0, 0
-                EMReadScreen match_check, 4, 2, 51
-                attempt_count = attempt_count + 1
-                If attempt_count > 9 Then Exit Do
-            Loop
-
-            EMReadScreen new_ssn, 11, 7, 42
-            new_ssn = replace(new_ssn, " ", "")
-            If new_ssn = numb_only_ssn Then ssn_update_success = True
-        End If
-
-        If curr_ssn_verif <> left(HH_MEMB_ARRAY(ssn_verif, the_memb), 1)        Then
-            ' CHANGES_ARRAY(ssn_verif, the_memb) = curr_ssn_verif
-			If curr_ssn_verif = "A" THen CHANGES_ARRAY(ssn_verif, the_memb) = "A - SSN Applied For"
-			If curr_ssn_verif = "P" THen CHANGES_ARRAY(ssn_verif, the_memb) = "P - SSN Provided, verif Pending"
-			If curr_ssn_verif = "N" THen CHANGES_ARRAY(ssn_verif, the_memb) = "N - SSN Not Provided"
-			If curr_ssn_verif = "V" THen CHANGES_ARRAY(ssn_verif, the_memb) = "V - SSN Verified via Interface"
-        End If
-        If HH_MEMB_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN" Then CHANGES_ARRAY(ssn_verif, the_memb) = "N - Member Does Not Have SSN"
-        If curr_birthdate_verif <> left(HH_MEMB_ARRAY(birthdate_verif, the_memb), 2) Then
-            ' CHANGES_ARRAY(birthdate_verif, the_memb) = curr_birthdate_verif
-			If curr_birthdate_verif = "BC" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "BC - Birth Certificate"
-			If curr_birthdate_verif = "RE" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "RE - Religious Record"
-			If curr_birthdate_verif = "DL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DL - Drivers License/State ID"
-			If curr_birthdate_verif = "DV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DV - Divorce Decree"
-			If curr_birthdate_verif = "AL" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "AL - Alien Card"
-			If curr_birthdate_verif = "DR" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "DR - Doctor Statement"
-			If curr_birthdate_verif = "OT" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "OT - Other Document"
-			If curr_birthdate_verif = "PV" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "PV - Passport/Visa"
-			If curr_birthdate_verif = "NO" Then CHANGES_ARRAY(birthdate_verif, the_memb) = "NO - No Verif Provided"
-        End If
-        If curr_gender <> left(HH_MEMB_ARRAY(gender, the_memb), 1)              Then
-            CHANGES_ARRAY(gender, the_memb) = curr_gender
-            If curr_gender = "M" Then CHANGES_ARRAY(gender, the_memb) = "Male"
-            If curr_gender = "F" Then CHANGES_ARRAY(gender, the_memb) = "Female"
-        End If
-        If curr_race <> HH_MEMB_ARRAY(race, the_memb)                           Then CHANGES_ARRAY(race, the_memb) = curr_race
-        If curr_spoken_lang <> left(HH_MEMB_ARRAY(spoken_lang, the_memb), 2)    Then CHANGES_ARRAY(spoken_lang, the_memb) = curr_spoken_lang
-        If curr_written_lang <> left(HH_MEMB_ARRAY(written_lang, the_memb), 2)  Then CHANGES_ARRAY(written_lang, the_memb) = curr_written_lang
-        If curr_interpreter <> left(HH_MEMB_ARRAY(interpreter, the_memb), 1)    Then
-            CHANGES_ARRAY(interpreter, the_memb) = curr_interpreter
-            If curr_interpreter = "Y" Then CHANGES_ARRAY(interpreter, the_memb) = "Yes"
-            If curr_interpreter = "N" Then CHANGES_ARRAY(interpreter, the_memb) = "No"
-        End If
-        If curr_alias_yn <> left(HH_MEMB_ARRAY(alias_yn, the_memb), 1)          Then CHANGES_ARRAY(alias_yn, the_memb) = curr_alias_yn
-        If curr_ethnicity_yn <> left(HH_MEMB_ARRAY(ethnicity_yn, the_memb), 1)  Then CHANGES_ARRAY(ethnicity_yn, the_memb) = curr_ethnicity_yn
-
-        EMReadScreen curr_rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
-		EMReadScreen curr_id_verif, 2, 9, 68
-
-        If curr_rel_to_applcnt <> left(HH_MEMB_ARRAY(rel_to_applcnt, the_memb), 2)  Then CHANGES_ARRAY(rel_to_applcnt, the_memb) = curr_rel_to_applcnt
-        If curr_id_verif <> left(HH_MEMB_ARRAY(id_verif, the_memb), 2)              Then CHANGES_ARRAY(id_verif, the_memb) = curr_id_verif
-
-        Call navigate_to_MAXIS_screen("STAT", "MEMI")		'===============================================================================================
-        EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
-        transmit
-
-        EMReadScreen curr_marital_status, 1, 7, 40
-        EMReadScreen curr_last_grade_completed, 2, 10, 49
-        EMReadScreen curr_citizen, 1, 11, 49
-        EMReadScreen curr_mn_entry_date, 8, 15, 49
-        EMReadScreen curr_former_state, 2, 15, 78
-
-        curr_mn_entry_date = replace(curr_mn_entry_date, " ", "/")
-        If curr_mn_entry_date = "__/__/__" Then curr_mn_entry_date = ""
-        If curr_former_state = "__" Then curr_former_state = ""
-
-        If curr_marital_status <> left(HH_MEMB_ARRAY(marital_status, the_memb), 1)              Then CHANGES_ARRAY(marital_status, the_memb) = curr_marital_status
-        If curr_last_grade_completed <> right(HH_MEMB_ARRAY(last_grade_completed, the_memb), 2) Then CHANGES_ARRAY(last_grade_completed, the_memb) = curr_last_grade_completed
-        If curr_citizen <> left(HH_MEMB_ARRAY(citizen, the_memb), 1)                            Then CHANGES_ARRAY(citizen, the_memb) = curr_citizen
-        If curr_mn_entry_date <> HH_MEMB_ARRAY(mn_entry_date, the_memb)                         Then CHANGES_ARRAY(mn_entry_date, the_memb) = curr_mn_entry_date
-        If curr_former_state <> HH_MEMB_ARRAY(former_state, the_memb)                           Then CHANGES_ARRAY(former_state, the_memb) = curr_former_state
-
-        'THESE ARE NOT EDITABLE
-        ' EMReadScreen HH_MEMB_ARRAY(spouse_ref, clt_count), 2, 9, 49
-        ' EMReadScreen HH_MEMB_ARRAY(spouse_name, clt_count), 40, 9, 52
-        ' EMReadScreen HH_MEMB_ARRAY(other_st_FS_end_date, clt_count), 8, 13, 49
-        ' EMReadScreen HH_MEMB_ARRAY(in_mn_12_mo, clt_count), 1, 14, 49
-        ' EMReadScreen HH_MEMB_ARRAY(residence_verif, clt_count), 1, 14, 78
-
-    End If
-Next
 
 ' complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
