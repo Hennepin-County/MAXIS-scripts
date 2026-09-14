@@ -9680,12 +9680,12 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         curr_race = trim(curr_race)
 
         If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb)         Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
-        If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb)                             Then
+        If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb) and ButtonPressed <> incomplete_interview_btn Then
             ssn_update_attempt = True
 
             CHANGES_ARRAY(ssn, the_memb) = curr_ssn
             PF9
-            numb_only_ssn = replace(replace(curr_ssn, "-", ""), " ", "")
+            numb_only_ssn = replace(replace(HH_MEMB_ARRAY(ssn, the_memb), "-", ""), " ", "")
             EMWriteScreen left(numb_only_ssn, 3), 7, 42
             EMWriteScreen mid(numb_only_ssn, 4, 2), 7, 46
             EMWriteScreen right(numb_only_ssn, 4), 7, 49
