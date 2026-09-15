@@ -3017,11 +3017,11 @@ If ex_parte_function = "Prep 1" Then
 						objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest, AVSFormValid) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "', '" & AVSFormValid & "')"
 										' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 								'Creating objects for Access
-						'Set objUpdateConnection = CreateObject("ADODB.Connection")
+						Set objUpdateConnection = CreateObject("ADODB.Connection")
 						Set objinsertRecordSet = CreateObject("ADODB.Recordset")
 
 						'Opening and inserting the values
-						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						ObjUpdateConnection.Open db_full_string
 						objinsertRecordSet.Open objAVSinsert, objUpdateConnection
 						'MsGbox "Updated " & MAXIS_case_number & " " & Member_SMI
 						'objinsertRecordSet.Close
