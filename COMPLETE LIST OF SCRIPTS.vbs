@@ -1109,6 +1109,7 @@ script_array(script_num).tags                   = array("QI", "Utility", "MFIP",
 script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/10/2025#
+script_array(script_num).retirement_date		= #09/01/2026#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
