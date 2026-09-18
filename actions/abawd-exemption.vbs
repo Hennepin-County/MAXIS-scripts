@@ -187,7 +187,7 @@ Else
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 276, 140, "ABAWD exemption: Select first code available"
 	  'This droplist is too damn big to enter into the dialog editor. You WILL break the dialog editor if you paste this code into it.
-	  DropListBox 75, 10, 190, 15, "Select one..."+chr(9)+"03 Unfit for Employment"+chr(9)+"05 Age 65 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"09 Empl 30 hr/wk or earnings = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"15 Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"21 Resp For Care Of Child < 18"+chr(9)+"17 Receiving RCA Or GA", Exemption_droplist
+	  DropListBox 75, 10, 190, 15, "Select one..."+chr(9)+"03 Unfit for Employment"+chr(9)+"05 Age 65 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"09 Empl 30 hr/wk or earnings = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"15 Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"21 Resp For Care Of Child < 18"+chr(9)+"23 Pregnant"+chr(9)+"24 American Indian, Alaskan Native"+chr(9)+"25 Age 60-64"+chr(9)+"17 Receiving RCA Or GA", Exemption_droplist
   	  DropListBox 80, 50, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", verifs_required
   	  DropListBox 215, 50, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", verifs_rec
   	  EditBox 65, 70, 200, 15, verif_info
