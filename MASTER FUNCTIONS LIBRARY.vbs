@@ -8975,9 +8975,11 @@ If InStr(file_extension_restriction, "*.") = 0 And InStr(file_extension_restrict
 	file_extension_restriction = "*" & file_extension_restriction
 ElseIf InStr(file_extension_restriction, "*") = 0 and InStr(file_extension_restriction, ".") = 0 Then 
 	file_extension_restriction = "*." & file_extension_restriction
-ElseIf InStr(file_extension_restriction, "*.") = 1 Then 
-	file_extension_restriction = file_extension_restriction
-Else MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
+End If
+
+If left(file_extension_restriction, 2) <> "*." Then  
+	MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
+	MsgBox "Current file extension variable is: " & file_extension_restriction
 End If
 
 
