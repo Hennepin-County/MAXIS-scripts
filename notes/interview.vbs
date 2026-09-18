@@ -5722,7 +5722,8 @@ function write_interview_CASE_NOTE()
                 If CHANGES_ARRAY(date_of_birth, the_members) <> ""        Then Call write_variable_in_CASE_NOTE("    - Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, the_members) & " to " & HH_MEMB_ARRAY(date_of_birth, the_members) )
                 If CHANGES_ARRAY(birthdate_verif, the_members) <> ""      Then Call write_variable_in_CASE_NOTE("    - DoB Verif Changed from " & CHANGES_ARRAY(birthdate_verif, the_members) & " to " & HH_MEMB_ARRAY(birthdate_verif, the_members) )
                 If CHANGES_ARRAY(age, the_members) <> ""                  Then Call write_variable_in_CASE_NOTE("    - Age Changed from " & CHANGES_ARRAY(age, the_members) & " to " & HH_MEMB_ARRAY(age, the_members) )
-                If CHANGES_ARRAY(ssn, the_members) <> ""                  Then Call write_variable_in_CASE_NOTE("    - SSN Updated.")'" from " & CHANGES_ARRAY(ssn, the_members) & " to " & HH_MEMB_ARRAY(ssn, the_members) )
+                If CHANGES_ARRAY(ssn, the_members) <> ""                  Then Call write_variable_in_CASE_NOTE("    - " & CHANGES_ARRAY(ssn, the_members))
+                If InStr(CHANGES_ARRAY(ssn, the_members), "Not Completed")Then Call write_variable_in_CASE_NOTE("      - Correct SSN can be found in case file on Interview Notes Doc.")        'SSN should not be listed in CASE NOTEs
                 If CHANGES_ARRAY(ssn_verif, the_members) <> ""            Then Call write_variable_in_CASE_NOTE("    - SSN Verif Changed from " & CHANGES_ARRAY(ssn_verif, the_members) & " to " & HH_MEMB_ARRAY(ssn_verif, the_members) )
                 If CHANGES_ARRAY(spoken_lang, the_members) <> ""          Then Call write_variable_in_CASE_NOTE("    - Spoken Lang Changed from " & CHANGES_ARRAY(spoken_lang, the_members) & " to " & HH_MEMB_ARRAY(spoken_lang, the_members) )
                 If CHANGES_ARRAY(written_lang, the_members) <> ""         Then Call write_variable_in_CASE_NOTE("    - Written Lang Changed from " & CHANGES_ARRAY(written_lang, the_members) & " to " & HH_MEMB_ARRAY(written_lang, the_members) )
@@ -9661,7 +9662,13 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         If curr_last_name <> HH_MEMB_ARRAY(last_name_const, the_memb)   Then CHANGES_ARRAY(last_name_const, the_memb) = curr_last_name
         If curr_first_name <> HH_MEMB_ARRAY(first_name_const, the_memb) Then CHANGES_ARRAY(first_name_const, the_memb) = curr_first_name
         If curr_mid_initial <> HH_MEMB_ARRAY(mid_initial, the_memb)     Then CHANGES_ARRAY(mid_initial, the_memb) = curr_mid_initial
-        If curr_age <> HH_MEMB_ARRAY(age, the_memb)                     Then CHANGES_ARRAY(age, the_memb) = curr_age
+
+        'This comparison has two options because there was a type mismatch that was incorrectly causing changes to be indicated
+        If IsNumeric(curr_age) and IsNumeric(HH_MEMB_ARRAY(age, the_memb)) Then
+            If curr_age - HH_MEMB_ARRAY(age, the_memb) <> 0             Then CHANGES_ARRAY(age, the_memb) = curr_age
+        Else
+            If curr_age <> HH_MEMB_ARRAY(age, the_memb)                 Then CHANGES_ARRAY(age, the_memb) = curr_age
+        End If
 
         EMReadScreen curr_ssn, 11, 7, 42
         EMReadScreen curr_ssn_verif, 1, 7, 68
@@ -9679,39 +9686,84 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
         if curr_ssn = "___-__-____" Then curr_ssn = ""
         curr_race = trim(curr_race)
 
-        If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb)         Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
+        'This comparison has two options because there was a type mismatch that was incorrectly causing changes to be indicated
+        If IsDate(curr_date_of_birth) and IsDate(HH_MEMB_ARRAY(date_of_birth, the_memb)) Then
+            If DateDiff("d", curr_date_of_birth, HH_MEMB_ARRAY(date_of_birth, the_memb)) <> 0 Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
+        Else
+            If curr_date_of_birth <> HH_MEMB_ARRAY(date_of_birth, the_memb) Then CHANGES_ARRAY(date_of_birth, the_memb) = curr_date_of_birth
+        End If
+
+        'SSN updates need to be completed manually during the script run.
+        'This funcitonality allows users to update the SSN and complete the person searching manually without disrupting the script run.
         If curr_ssn <> HH_MEMB_ARRAY(ssn, the_memb) and ButtonPressed <> incomplete_interview_btn Then
             ssn_update_attempt = True
+            ssn_not_updated_checkbox = unchecked
 
-            CHANGES_ARRAY(ssn, the_memb) = curr_ssn
-            PF9
-            numb_only_ssn = replace(replace(HH_MEMB_ARRAY(ssn, the_memb), "-", ""), " ", "")
-            EMWriteScreen left(numb_only_ssn, 3), 7, 42
-            EMWriteScreen mid(numb_only_ssn, 4, 2), 7, 46
-            EMWriteScreen right(numb_only_ssn, 4), 7, 49
-            EMWriteScreen "P", 7, 68
-            curr_ssn_verif = "P"
-            transmit
+            Do
+                err_msg = ""
+                Do
+                    Dialog1 = ""                                        'dialog to display the new SSN and pause the script run while manual updates happen.
+                    BeginDialog Dialog1, 0, 0, 281, 190, "Update SSN"
+                        CheckBox 15, 110, 200, 10, "Check here if the SSN Update could not be completed", ssn_not_updated_checkbox          'no update option in the case that SSN update isn't possible
+                        EditBox 15, 135, 255, 15, no_update_explanation
+                        ButtonGroup ButtonPressed
+                            OkButton 220, 160, 50, 15
+                        Text 10, 10, 250, 10, "UPDATE SSN FOR MEMB " & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(last_name_const, the_memb) & ", " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(mid_initial, the_memb)
+                        Text 25, 25, 90, 10, "New SSN: " & HH_MEMB_ARRAY(ssn, the_memb)
+                        Text 25, 40, 240, 10, "New SSN Verif: " & HH_MEMB_ARRAY(ssn_verif, the_memb)
+                        Text 15, 65, 235, 10, "Update the MEMB panel with this new SSN now."
+                        Text 15, 80, 225, 10, "Complete any person serches and code the verification correctly."
+                        Text 15, 125, 160, 10, "Explain why the update could not be completed:"
+                    EndDialog
 
-            EMReadScreen memb_check, 4, 2, 48
-            If memb_check = "MEMB" Then
-                PF10
-                EMWaitReady 0, 0
-            End If
+                    dialog Dialog1
 
-            attempt_count = 0
-            EMReadScreen match_check, 4, 2, 51
-            Do While match_check = "MTCH"
-                PF3
-                EMWaitReady 0, 0
-                EMReadScreen match_check, 4, 2, 51
-                attempt_count = attempt_count + 1
-                If attempt_count > 9 Then Exit Do
-            Loop
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-            EMReadScreen new_ssn, 11, 7, 42
-            new_ssn = replace(new_ssn, " ", "")
-            If new_ssn = numb_only_ssn Then ssn_update_success = True
+                'making sure we are at the right place in MX
+                EMReadScreen memb_check, 4, 2, 48
+                If memb_check <> "MEMB" Then Call navigate_to_MAXIS_screen("STAT", "MEMB")
+                EMReadScreen ref_check, 2, 4, 33
+                If ref_check <> HH_MEMB_ARRAY(ref_number, the_memb) Then
+                    EMWriteScreen HH_MEMB_ARRAY(ref_number, the_memb), 20, 76
+                    transmit
+                End If
+                EMReadScreen memb_check, 4, 2, 48
+                EMReadScreen ref_check, 2, 4, 33
+                EMReadScreen mode_check, 1, 20, 8
+                'If not at the right place or if the updates have not been saved, the script will display the dialog for the user to fix.
+                If memb_check <> "MEMB" or ref_check <> HH_MEMB_ARRAY(ref_number, the_memb) Then err_msg = err_msg & vbCr & "Navigate back to the MEMB panel for MEMB " & HH_MEMB_ARRAY(ref_number, the_memb) & "."
+                If mode_check <> "D" Then err_msg = err_msg & vbCr &"Save the panel updates so the MEMB panel is in Display mode."
+
+                If err_msg = "" Then
+                    EMReadScreen now_ssn, 11, 7, 42                     'checking to see if the ssn was updated
+                    now_ssn = replace(now_ssn, " ", "-")
+                    if now_ssn = "___-__-____" Then now_ssn = ""
+
+                    no_update_explanation = trim(no_update_explanation)     'error message display for missing update or explanation.
+                    If ssn_not_updated_checkbox = checked Then
+                        If len(no_update_explanation) < 10  Then
+                            err_msg = err_msg & vbCr & "You indicated that the SSN update could not be completed but did not provide sufficient explanation."
+                            If no_update_explanation = "" Then
+                                err_msg = err_msg & vbCr & "- Enter explanation."
+                            ElseIf len(no_update_explanation) < 10 Then
+                                err_msg = err_msg & vbCr & "- Expand explanation details."
+                            End If
+                        Else
+                            CHANGES_ARRAY(ssn, the_memb) = "SSN Update Not Completed - " & no_update_explanation
+                            ssn_update_success = False
+                        End If
+                    ElseIf now_ssn <> HH_MEMB_ARRAY(ssn, the_memb) Then
+                        err_msg = err_msg & vbCr & "The SSN update was not completed. The SSN in MAXIS does not match the SSN provided in the interview."
+                    End If
+                    If err_msg = "" and now_ssn = HH_MEMB_ARRAY(ssn, the_memb) Then
+                        ssn_update_success = True
+                        CHANGES_ARRAY(ssn, the_memb) = "SSN Update Completed"
+                    End If
+                End If
+                If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+            Loop until err_msg = ""
         End If
 
         If curr_ssn_verif <> left(HH_MEMB_ARRAY(ssn_verif, the_memb), 1)        Then
@@ -11658,7 +11710,8 @@ If CHANGES_ARRAY(mid_initial, 0) <> ""          Then objSelection.TypeText "Midd
 If CHANGES_ARRAY(date_of_birth, 0) <> ""        Then objSelection.TypeText "Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, 0) & " to " & HH_MEMB_ARRAY(date_of_birth, 0) & vbCr
 If CHANGES_ARRAY(birthdate_verif, 0) <> ""      Then objSelection.TypeText "DoB Verification Changed from " & CHANGES_ARRAY(birthdate_verif, 0) & " to " & HH_MEMB_ARRAY(birthdate_verif, 0) & vbCr
 If CHANGES_ARRAY(age, 0) <> ""                  Then objSelection.TypeText "Age Changed from " & CHANGES_ARRAY(age, 0) & " to " & HH_MEMB_ARRAY(age, 0) & vbCr
-If CHANGES_ARRAY(ssn, 0) <> ""                  Then objSelection.TypeText "SSN Updated." & vbCr '" from " & CHANGES_ARRAY(ssn, 0) & " to " & HH_MEMB_ARRAY(ssn, 0) & vbCr
+If CHANGES_ARRAY(ssn, 0) <> ""                  Then objSelection.TypeText CHANGES_ARRAY(ssn, 0) & vbCr
+If InStr(CHANGES_ARRAY(ssn, 0), "Not Completed")Then objSelection.TypeText "Correct SSN: " & HH_MEMB_ARRAY(ssn, 0) & vbCr       'new SSN is listed here but not in the CASE NOTE
 If CHANGES_ARRAY(ssn_verif, 0) <> ""            Then objSelection.TypeText "SSN Verification Changed from " & CHANGES_ARRAY(ssn_verif, 0) & " to " & HH_MEMB_ARRAY(ssn_verif, 0) & vbCr
 If CHANGES_ARRAY(spoken_lang, 0) <> ""          Then objSelection.TypeText "Spoken Language Changed from " & CHANGES_ARRAY(spoken_lang, 0) & " to " & HH_MEMB_ARRAY(spoken_lang, 0) & vbCr
 If CHANGES_ARRAY(written_lang, 0) <> ""         Then objSelection.TypeText "Written Language Changed from " & CHANGES_ARRAY(written_lang, 0) & " to " & HH_MEMB_ARRAY(written_lang, 0) & vbCr
@@ -11995,7 +12048,8 @@ If additional_person = True Then
                 If CHANGES_ARRAY(date_of_birth, each_member) <> ""        Then objSelection.TypeText "Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, each_member) & " to " & HH_MEMB_ARRAY(date_of_birth, each_member) & vbCr
                 If CHANGES_ARRAY(birthdate_verif, each_member) <> ""      Then objSelection.TypeText "DoB Verification Changed from " & CHANGES_ARRAY(birthdate_verif, each_member) & " to " & HH_MEMB_ARRAY(birthdate_verif, each_member) & vbCr
                 If CHANGES_ARRAY(age, each_member) <> ""                  Then objSelection.TypeText "Age Changed from " & CHANGES_ARRAY(age, each_member) & " to " & HH_MEMB_ARRAY(age, each_member) & vbCr
-                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then objSelection.TypeText "SSN Updated." & vbCr '" from " & CHANGES_ARRAY(ssn, each_member) & " to " & HH_MEMB_ARRAY(ssn, each_member) & vbCr
+                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then objSelection.TypeText CHANGES_ARRAY(ssn, each_member)
+                If InStr(CHANGES_ARRAY(ssn, each_member), "Not Completed")Then objSelection.TypeText " - Correct SSN: " & HH_MEMB_ARRAY(ssn, each_member)       'new SSN is listed here but not in the CASE NOTE
                 If CHANGES_ARRAY(ssn_verif, each_member) <> ""            Then objSelection.TypeText "SSN Verification Changed from " & CHANGES_ARRAY(ssn_verif, each_member) & " to " & HH_MEMB_ARRAY(ssn_verif, each_member) & vbCr
                 If CHANGES_ARRAY(spoken_lang, each_member) <> ""          Then objSelection.TypeText "Spoken Language Changed from " & CHANGES_ARRAY(spoken_lang, each_member) & " to " & HH_MEMB_ARRAY(spoken_lang, each_member) & vbCr
                 If CHANGES_ARRAY(written_lang, each_member) <> ""         Then objSelection.TypeText "Written Language Changed from " & CHANGES_ARRAY(written_lang, each_member) & " to " & HH_MEMB_ARRAY(written_lang, each_member) & vbCr
