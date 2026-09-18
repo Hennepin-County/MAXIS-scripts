@@ -8971,34 +8971,33 @@ Function file_selection_system_dialog(file_selected, file_extension_restriction)
 '~~~~ file_extension_restriction: restricts to a specific file type. Needs to be formatted as "*.xyz" where xyz is the file extension. 
 '==== Keyworks: MAXIS, MMIS, PRISM, file
 
-If InStr(file_extension_restriction, "*.") = 0 And InStr(file_extension_restriction, ".") <> 0 Then 
-	file_extension_restriction = "*" & file_extension_restriction
-ElseIf InStr(file_extension_restriction, "*") = 0 and InStr(file_extension_restriction, ".") = 0 Then 
-	file_extension_restriction = "*." & file_extension_restriction
-End If
+	If InStr(file_extension_restriction, "*.") = 0 And InStr(file_extension_restriction, ".") <> 0 Then 
+		file_extension_restriction = "*" & file_extension_restriction
+	ElseIf InStr(file_extension_restriction, "*") = 0 and InStr(file_extension_restriction, ".") = 0 Then 
+		file_extension_restriction = "*." & file_extension_restriction
+	End If
 
-If left(file_extension_restriction, 2) <> "*." Then  
-	MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
-	MsgBox "Current file extension variable is: " & file_extension_restriction
-End If
+	If left(file_extension_restriction, 2) <> "*." Then  
+		MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
+		MsgBox "Current file extension variable is: " & file_extension_restriction
+	End If
 
+	'creates a Windows Script Host object
+	Set Fshell = CreateObject("WScript.Shell")
 
-'creates a Windows Script Host object
-Set Fshell = CreateObject("WScript.Shell")
+	'creates a string of powershell commands that will be executed
+	' you MUST define the filter variable in this exact way three times, or it stops working
 
-'creates a string of powershell commands that will be executed
-' you MUST define the filter variable in this exact way three times, or it stops working
+	shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & _     
+				"Add-Type -AssemblyName System.Windows.Forms; " & _
+				"$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _  
+				"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         
+				"$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
+				"$dlg.ShowDialog() | Out-Null; " & _
+				"$dlg.FileName; "
 
-shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & _     
-			"Add-Type -AssemblyName System.Windows.Forms; " & _
-            "$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _  
-			"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         
-           "$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
-           "$dlg.ShowDialog() | Out-Null; " & _
-           "$dlg.FileName; "
-
-		   ' Sets a variable of the file path selected from the PowerShell script run.
-file_selected = Fshell.Exec(shellCmd).StdOut.ReadLine
+			' Sets a variable of the file path selected from the PowerShell script run.
+	file_selected = Fshell.Exec(shellCmd).StdOut.ReadLine
 
 end Function
 
