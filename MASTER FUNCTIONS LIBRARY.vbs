@@ -8964,32 +8964,8 @@ Function File_Exists(file_name, does_file_exist)
     End If
 End Function
 
-function file_selection_system_dialog(file_selected, file_extension_restriction)
-'--- This function allows a user to select a file to be opened in a script
-'~~~~~ file_selected: variable for the name of the file
-'~~~~~ file_extension_restriction: restricts all other file type besides allowed file type. Example: ".csv" only allows a CSV file to be accessed.
-'===== Keywords: MAXIS, MMIS, PRISM, file
-	'Creates a Windows Script Host object
-	Set wShell=CreateObject("WScript.Shell")
 
-	'This loops until the right file extension is selected. If it isn't specified (= ""), it'll always exit here.
-	Do
-		'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-		Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE ><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
-
-		'Creates the file_selected variable from the exit
-		file_selected = oExec.StdOut.ReadLine
-
-		'If no file is selected the script will stop
-		If file_selected = "" then stopscript
-
-		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
-		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
-	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
-end function
-
-
-Function file_selection_dialog_new_powershell(file_selected, file_extension_restriction)
+Function file_selection_system_dialog(file_selected, file_extension_restriction)
 '---This function allows a user to select a file to be opened in a script. It replaces the file_selection_system_dialog() function and no longer uses ActiveX
 '~~~~ file_selected: variable for the name of file. Will initially be empty.
 '~~~~ file_extension_restriction: restricts to a specific file type. Needs to be formatted as "*.xyz" where xyz is the file extension. 
