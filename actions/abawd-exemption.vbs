@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/18/2026", "Added new WREG status codes for American Indian, modified code for age 65 or older, Removed old codes for DWP and age 50-59", "Travis Farleigh, Hennepin County")
 call changelog_update("05/23/2018", "Bug fix for living situation coding inhibiting users from using code 08.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/17/2018", "Added inhibiting coding for homeless (Unfit for Employement) if the ADDR panel is not coded correctly.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/29/2018", "Added Homeless (Unfit for Employment) option.", "Ilse Ferris, Hennepin County")
