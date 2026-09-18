@@ -8964,29 +8964,43 @@ Function File_Exists(file_name, does_file_exist)
     End If
 End Function
 
-function file_selection_system_dialog(file_selected, file_extension_restriction)
-'--- This function allows a user to select a file to be opened in a script
-'~~~~~ file_selected: variable for the name of the file
-'~~~~~ file_extension_restriction: restricts all other file type besides allowed file type. Example: ".csv" only allows a CSV file to be accessed.
-'===== Keywords: MAXIS, MMIS, PRISM, file
-	'Creates a Windows Script Host object
-	Set wShell=CreateObject("WScript.Shell")
 
-	'This loops until the right file extension is selected. If it isn't specified (= ""), it'll always exit here.
-	Do
-		'Creates an object which executes the "select a file" dialog, using a Microsoft HTML application (MSHTA.exe), and some handy-dandy HTML.
-		Set oExec=wShell.Exec("mshta.exe ""about:<input type=file id=FILE ><script>FILE.click();new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).WriteLine(FILE.value);close();resizeTo(0,0);</script>""")
+Function file_selection_system_dialog(file_selected, file_extension_restriction)
+'---This function allows a user to select a file to be opened in a script. It replaces the file_selection_system_dialog() function and no longer uses ActiveX
+'~~~~ file_selected: variable for the name of file. Will initially be empty.
+'~~~~ file_extension_restriction: restricts to a specific file type. Needs to be formatted as "*.xyz" where xyz is the file extension. 
+'==== Keyworks: MAXIS, MMIS, PRISM, file
 
-		'Creates the file_selected variable from the exit
-		file_selected = oExec.StdOut.ReadLine
+	If InStr(file_extension_restriction, "*.") = 0 And InStr(file_extension_restriction, ".") <> 0 Then 
+		file_extension_restriction = "*" & file_extension_restriction
+	ElseIf InStr(file_extension_restriction, "*") = 0 and InStr(file_extension_restriction, ".") = 0 Then 
+		file_extension_restriction = "*." & file_extension_restriction
+	End If
 
-		'If no file is selected the script will stop
-		If file_selected = "" then stopscript
+	If left(file_extension_restriction, 2) <> "*." Then  
+		MsgBox "The file_extension_restriction variable must be formatted as *.xyz or .xyz where xyz is the file extension. This error should only appear for script writers."
+		MsgBox "Current file extension variable is: " & file_extension_restriction
+	End If
 
-		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
-		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
-	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
-end function
+	'creates a Windows Script Host object
+	Set Fshell = CreateObject("WScript.Shell")
+
+	'creates a string of powershell commands that will be executed
+	' you MUST define the filter variable in this exact way three times, or it stops working
+
+	shellCmd = "powershell -NoProfile -NonInteractive -WindowStyle Hidden -command " & _     
+				"Add-Type -AssemblyName System.Windows.Forms; " & _
+				"$dlg = New-Object System.Windows.Forms.OpenFileDialog; " & _  
+				"$dlg.Filter = '" & file_extension_restriction & " files (" & file_extension_restriction & ")|" & file_extension_restriction & "';" & _         
+				"$dlg.InitialDirectory = [Environment]::GetFolderPath('Desktop'); " & _
+				"$dlg.ShowDialog() | Out-Null; " & _
+				"$dlg.FileName; "
+
+			' Sets a variable of the file path selected from the PowerShell script run.
+	file_selected = Fshell.Exec(shellCmd).StdOut.ReadLine
+
+end Function
+
 
 function find_variable(opening_string, variable_name, length_of_variable)
 '--- This function finds a string on a page in BlueZone
