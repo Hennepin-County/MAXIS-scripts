@@ -77,7 +77,7 @@ If user_ID_for_validation = "CALO001" Then allow_use = True
 If user_ID_for_validation = "DACO003" Then allow_use = True
 If user_ID_for_validation = "ASRE002" Then allow_use = True
 If user_ID_for_validation = "TRFA001" Then allow_use = True
-If user_ID_for_validation = "SBegleyMay" Then allow_use = True
+If user_ID_for_validation = "SBEGLEYMAY" Then allow_use = True
 
 If user_ID_for_validation = "WFV833" Then allow_use = True 'Ryan
 If user_ID_for_validation = "WFU161" Then allow_use = True 'Brooke
