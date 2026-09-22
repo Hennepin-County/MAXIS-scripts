@@ -1,6 +1,3 @@
-Run_Locally = true
-
-
 'Required for statistical purposes==========================================================================================
 name_of_script = "UTILITIES - TRAINING CASE CREATOR"
 start_time = timer
