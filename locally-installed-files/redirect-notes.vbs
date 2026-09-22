@@ -13,6 +13,7 @@ If user_ID_for_validation = "MARI001" Then BZ_writer_run = True
 If user_ID_for_validation = "DACO003" Then BZ_writer_run = True
 If user_ID_for_validation = "TRFA001" Then BZ_writer_run = True
 If user_ID_for_validation = "SBEGLEYMAY" Then BZ_writer_run = True
+If user_ID_for_validation = "ASRE002" Then BZ_writer_run = True
 If BZ_writer_run Then
 	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
 Else
