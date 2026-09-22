@@ -2648,7 +2648,7 @@ Do
     Do
     	Dialog Dialog1
     	cancel_without_confirmation
-    	If ButtonPressed = select_a_file_button then call file_selection_dialog_new_powershell(training_case_creator_excel_file_path, ".xlsx")
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
