@@ -12055,8 +12055,8 @@ If additional_person = True Then
                 If CHANGES_ARRAY(date_of_birth, each_member) <> ""        Then objSelection.TypeText "Date of Birth Changed from " & CHANGES_ARRAY(date_of_birth, each_member) & " to " & HH_MEMB_ARRAY(date_of_birth, each_member) & vbCr
                 If CHANGES_ARRAY(birthdate_verif, each_member) <> ""      Then objSelection.TypeText "DoB Verification Changed from " & CHANGES_ARRAY(birthdate_verif, each_member) & " to " & HH_MEMB_ARRAY(birthdate_verif, each_member) & vbCr
                 If CHANGES_ARRAY(age, each_member) <> ""                  Then objSelection.TypeText "Age Changed from " & CHANGES_ARRAY(age, each_member) & " to " & HH_MEMB_ARRAY(age, each_member) & vbCr
-                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then objSelection.TypeText CHANGES_ARRAY(ssn, each_member)
-                If InStr(CHANGES_ARRAY(ssn, each_member), "Not Completed")Then objSelection.TypeText " - Correct SSN: " & HH_MEMB_ARRAY(ssn, each_member)       'new SSN is listed here but not in the CASE NOTE
+                If CHANGES_ARRAY(ssn, each_member) <> ""                  Then objSelection.TypeText CHANGES_ARRAY(ssn, each_member) & vbCr
+                If InStr(CHANGES_ARRAY(ssn, each_member), "Not Completed")Then objSelection.TypeText "Correct SSN: " & HH_MEMB_ARRAY(ssn, each_member) & vbCr       'new SSN is listed here but not in the CASE NOTE
                 If CHANGES_ARRAY(ssn_verif, each_member) <> ""            Then objSelection.TypeText "SSN Verification Changed from " & CHANGES_ARRAY(ssn_verif, each_member) & " to " & HH_MEMB_ARRAY(ssn_verif, each_member) & vbCr
                 If CHANGES_ARRAY(spoken_lang, each_member) <> ""          Then objSelection.TypeText "Spoken Language Changed from " & CHANGES_ARRAY(spoken_lang, each_member) & " to " & HH_MEMB_ARRAY(spoken_lang, each_member) & vbCr
                 If CHANGES_ARRAY(written_lang, each_member) <> ""         Then objSelection.TypeText "Written Language Changed from " & CHANGES_ARRAY(written_lang, each_member) & " to " & HH_MEMB_ARRAY(written_lang, each_member) & vbCr
