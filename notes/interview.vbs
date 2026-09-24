@@ -320,8 +320,8 @@ function check_for_errors(interview_questions_clear)
 
     page_3_errors = False
     all_members_in_MN_notes = trim(all_members_in_MN_notes)
-    If all_members_in_MN_yn = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN?##~##   - Indicate if all household members intend to reside in Minnesota."
-    If all_members_in_MN_yn = "No" and all_members_in_MN_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN? - Notes##~##   - Since it is indicated that not all household members intend to reside in Minnesota, add notes to explain the details of member residence."
+    'If all_members_in_MN_yn = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN?##~##   - Indicate if all household members intend to reside in Minnesota."
+    'If all_members_in_MN_yn = "No" and all_members_in_MN_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Do ALL Members intend to reside in MN? - Notes##~##   - Since it is indicated that not all household members intend to reside in Minnesota, add notes to explain the details of member residence."
     anyone_pregnant_notes = trim(anyone_pregnant_notes)
     If anyone_pregnant_yn = "Yes" and anyone_pregnant_notes = "" Then err_msg = err_msg & "~!~" & "3 ^* Is anyone pregnant? - Notes##~##   - Since it is indicated that someone is pregnant, add notes with additional details."
     If anyone_pregnant_yn = "" and anyone_pregnant_notes <> "" Then err_msg = err_msg & "~!~" & "3 ^* Is anyone pregnant?##~##   - Since there are notes about pregnancy, indicate if anyone is pregnant."
@@ -1033,7 +1033,7 @@ function define_main_dialog()
                 Text 285, 145, 50, 10, "Race"
                 Text 25, 185, 145, 10, "Which programs is this person requesting?"
                 Text 25, 215, 80, 10, "Date Member Left HH"
-                Text 25, 240, 80, 10, "Intends to reside in MN"
+                Text 25, 240, 80, 10, "Intends to reside in MN?"
                 Text 110, 240, 65, 10, "Immigration Status"
                 Text 320, 240, 50, 10, "Sponsor?"
                 Text 25, 270, 50, 10, "Verification"
