@@ -5783,8 +5783,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
                         Text 20, 60, 430, 10, "Please keep a copy of the Client Responsibilities and Rights (DHS-4163) for your reference. Let us know if you have any questions."
                         Text 20, 80, 335, 10, "Please remember it's important to report ANY changes that could affect your eligibility within 10 days."
                         GroupBox 10, 75, 450, 15, ""
-                        Text 20, 100, 420, 20, "If your income decreases by at least 50% contact your financial worker right away!  You may be eligible for a significant change meaning a recalculation of your income which may result in an increase of your cash and/or food benefits."
-                        Text 20, 125, 335, 20, "If you do not meet program eligibility such as cash assistance, your financial worker will assess other program eligibility such as SNAP."
+                        Text 20, 100, 420, 20, "If you do not meet program eligibility such as cash assistance, your financial worker will assess other program eligibility such as SNAP."
                         PushButton 385, 160, 75, 15, "DHS - 4163", open_dhs_4163_btn
 
                         mf_step_rights_resp_viewed = True
