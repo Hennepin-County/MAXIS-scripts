@@ -78,12 +78,19 @@ Loop until are_we_passworded_out = False
 
 
 Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+verbal_sig_date = date & ""
+time_hr = DatePart("h", time)
+time_min = DatePart("n", time)
+verbal_sig_time = time_hr & ":" & time_min
+verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+
 
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
   Text 10, 35, 100, 10, "Verbal Signature Accepted for:"
-  ComboBox 120, 30, 130, 15, "", member_list, signature_memb
+  ComboBox 120, 30, 130, 15, HH_memb_dropdown, signature_memb
   Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
   Text 20, 75, 105, 10, "Signature was accepted at:"
   Text 25, 95, 20, 10, "Date: "
@@ -91,7 +98,7 @@ BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
   Text 25, 115, 20, 10, "Time: "
   EditBox 50, 110, 50, 15, verbal_sig_time
   Text 20, 140, 85, 10, "Resident Phone Number:"
-  DropListBox 110, 135, 95, 45, "phone_droplist", verbal_sig_phone_number
+  EditBox 110, 135, 95, 15, verbal_sig_phone_number
   Text 5, 195, 255, 20, "Remember to send the resident a copy of the form they verbally signed and provide instructions for making corrections. "
   DropListBox 150, 155, 30, 15, "Yes"+chr(9)+"No", minor_indicator
   Text 20, 160, 95, 10, "Minor children in SNAP unit?"
@@ -130,3 +137,4 @@ CALL write_variable_in_CASE_NOTE("    Minor children in SNAP unit: " & minor_ind
 CALL write_variable_in_CASE_NOTE("    Elderly / Disabled members in unit: " & elderly_indicator)
 
 end_msg = "Verbal signature entered in case/note. Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_memb & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
+script_end_procedure(end_msg)
