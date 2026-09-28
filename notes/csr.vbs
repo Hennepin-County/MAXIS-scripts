@@ -473,6 +473,15 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If signature = "Accepted Verbally" Then
+  	If verbal_sig_date = "" Then verbal_sig_date = date & ""
+		If verbal_sig_time = "" Then
+			time_hr = DatePart("h", time)
+			time_min = DatePart("n", time)
+			verbal_sig_time = time_hr & ":" & time_min
+			verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+			verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+		End If
+
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
     Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
@@ -484,7 +493,7 @@ If signature = "Accepted Verbally" Then
     Text 25, 115, 20, 10, "Time: "
     EditBox 50, 110, 50, 15, verbal_sig_time
     Text 20, 140, 85, 10, "Resident Phone Number:"
-    DropListBox 110, 135, 95, 45, "phone_droplist", verbal_sig_phone_number
+    ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
 
     Text 5, 195, 255, 20, "Remember to send the resident a copy of the form they verbally signed and provide instructions for making corrections. "
     DropListBox 150, 155, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", minor_indicator

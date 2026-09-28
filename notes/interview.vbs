@@ -65,6 +65,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/29/2026", "Verbal Signature information updated for data tracking and waiver compliance.", "Dave Courtright, Hennepin County")
 call changelog_update("09/21/2026", "UPDATE OF SSN IS NOW MANUAL##~## - To support correct MAXIS updates, the SSN update must be completed manually.##~## - The script will now pause and instruct users to update MEMB with new SSN information.##~## - Follow prompts if SSN updates are required.##~## ##~##BUG Fix on Interview Incomplete that caused the script to error and terminate should be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/27/2026", "Script handling update:##~## ##~##Update to ensure large households are all correctly displayed in the script dialog for household members.##~## ##~##Confirm SSNs are entered in the correct format.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/17/2026", "The Interview process now includes the ability to complete a TLR/WREG screening for any member on the case. The screening is not required and the script will only determine exemptions based solely on age without screening details being manually entered.##~## ##~##The TLR/WREG screening will be recorded in CASE/NOTE only.##~##The CASE/NOTE will occur only for household members that have been manually screened during the script run.##~## ##~##Additionally - New options for verification of blank SSNs.##~## - Requested SSN - will add SSN for the member to the list of verifications.##~## - A - SSN listed on a duplicate PMI (to support this workaround).##~## ##~##Bug fixed for Removal of AREP CASE/NOTE not being created when it should.##~##", "Casey Love, Hennepin County")
@@ -7756,7 +7757,7 @@ Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregive
 Dim pwe_selection, schl_amt
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
 Dim Q14_rent_indicated, rent_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, utility_summary, disc_utility_amounts_confirmation
-Dim qual_numb, exp_num, tlr_numb, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number
+Dim qual_numb, exp_num, tlr_numb, last_num, emer_numb, discrep_num, verbal_sig_date, verbal_sig_time, verbal_sig_phone_number, elderly_indicator, minor_indicator
 'R&R
 
 Dim DHS_4163_checkbox, DHS_3315A_checkbox, DHS_3979_checkbox, DHS_2759_checkbox, DHS_3353_checkbox, DHS_2920_checkbox, DHS_3477_checkbox, DHS_4133_checkbox, DHS_2647_checkbox
@@ -9517,44 +9518,44 @@ If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_th
 phone_droplist = phone_droplist+chr(9)+phone_number_selection
 
 If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
-	If verbal_sig_date = "" or verbal_sig_time = "" or verbal_sig_phone_number = "" Then
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 246, 200, "Verbal Signature Record"
-		If signature_detail = "Accepted Verbally" Then Text 20, 20, 185, 10, "MEMB " & signature_person
-		If second_signature_detail = "Accepted Verbally" Then Text 20, 30, 185, 10, "MEMB " & second_signature_person
-		Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
-		Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
-		Text 20, 75, 105, 10, "Signature was accepted at:"
-		Text 25, 95, 20, 10, "Date: "
-		Text 25, 115, 20, 10, "Time: "
-		EditBox 50, 90, 50, 15, verbal_sig_date
-		EditBox 50, 110, 50, 15, verbal_sig_time
-		Text 20, 140, 85, 10, "Resident Phone Number:"
-		ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
-		Text 10, 160, 220, 30, "Based on POLI/TEMP 02.05.25 all information here is needed to document the verbal signature. Details will be entered in CASE/NOTE and the WIF in ECF. "
-		ButtonGroup ButtonPressed
-			OkButton 190, 180, 50, 15
-		EndDialog
-
-		Do
-			err_msg = ""
-			dialog Dialog1
-			cancel_confirmation
-
-			If IsDate(verbal_sig_date) = False Then err_msg = err_msg & vbCr & "* Enter the date you accepted the verbal signature."
-			If IsDate(verbal_sig_time) = True Then
-				verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
-				If InStr(verbal_sig_time, ":") = 0 Then err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
-				verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
-			Else
-				err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
-			End If
-			If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
-
-			If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
-		Loop until err_msg = ""
-		save_your_work
-	End If
+	Dialog1 = ""
+  	BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
+  	  Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
+  	  Text 20, 20, 185, 10, "MEMB  & signature_memb"
+  	  Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
+  	  Text 20, 75, 105, 10, "Signature was accepted at:"
+  	  Text 25, 95, 20, 10, "Date: "
+  	  EditBox 50, 90, 50, 15, verbal_sig_date
+  	  Text 25, 115, 20, 10, "Time: "
+  	  EditBox 50, 110, 50, 15, verbal_sig_time
+  	  Text 20, 140, 85, 10, "Resident Phone Number:"
+  	  ComboBox 110, 135, 95, 45, phone_droplist, verbal_sig_phone_number
+  	  Text 5, 195, 255, 20, "Remember to send the resident a copy of the form they verbally signed and provide instructions for making corrections. "
+  	  DropListBox 150, 155, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", minor_indicator
+  	  Text 20, 160, 95, 10, "Minor children in SNAP unit?"
+  	  Text 20, 175, 125, 10, "Elderly / Disabled members in unit?"
+  	  DropListBox 150, 170, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", elderly_indicator
+  	    ButtonGroup ButtonPressed
+  	    OkButton 210, 220, 50, 15
+  	EndDialog
+  	Do
+  	  	err_msg = ""
+  	  	dialog Dialog1
+  	  	cancel_without_confirmation
+  	  	If IsDate(verbal_sig_date) = False Then err_msg = err_msg & vbCr & "* Enter the date you accepted the verbal signature."
+  	  	If IsDate(verbal_sig_time) = True Then
+  	  	  verbal_sig_time = FormatDateTime(verbal_sig_time, 3)
+  	  	  If InStr(verbal_sig_time, ":") = 0 Then err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+  	  	  verbal_sig_time = replace(verbal_sig_time, ":00 ", " ")
+  	  	Else
+  	  	  err_msg = err_msg & vbCr & "* The time information does not appear to be a valid time, review and update."
+  	  	End If
+  	  	If verbal_sig_phone_number = "" or verbal_sig_phone_number = "Select or Type" Then err_msg = err_msg & vbCr & "* Phone number detail is required."
+  	  	If minor_indicator = "" Then err_msg = err_msg & vbCr & "* Please indicate if there are minor children in the SNAP unit."
+  	  	If elderly_indicator = "" Then err_msg = err_msg & vbCr & "* Please indicate if there are elderly or disabled members in the SNAP unit."
+  	  	If err_msg <> "" Then MsgBox "*****     NOTICE     *****" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+  	Loop until err_msg = ""
+	save_your_work
 End If
 
 If run_by_interview_team = True Then
@@ -12198,6 +12199,7 @@ End If
 If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
 	objSelection.TypeText "Verbal Signature Accepted during interview on " & verbal_sig_date & " at " & verbal_sig_time & "." & vbCr
 	objSelection.TypeText "Resident Phone Number: " & verbal_sig_phone_number & vbCr
+	onjSelection.TypeText "Minor Children Present: " & minor_indicator & " Elderly/Disabled Unit Member: " & elderly_indicator & vbCr
 End If
 objSelection.TypeText vbCr
 
@@ -12957,9 +12959,13 @@ End If
 end_msg = end_msg & vbCr & vbCr & "Form received: " & CAF_form_name
 end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
+If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
+	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_memb & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
+End If
 With (CreateObject("Scripting.FileSystemObject"))
 	.DeleteFile(intvw_done_msg_file)
 End With
+
 
 If run_by_interview_team = True and developer_mode = False Then
 	'creates an XML File with details of the the interview
