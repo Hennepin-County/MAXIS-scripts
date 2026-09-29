@@ -9521,7 +9521,7 @@ If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted
 	Dialog1 = ""
   	BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
   	  Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
-  	  Text 20, 20, 185, 10, "MEMB  & signature_memb"
+  	  Text 20, 20, 185, 10, "MEMB: "  & signature_memb
   	  Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
   	  Text 20, 75, 105, 10, "Signature was accepted at:"
   	  Text 25, 95, 20, 10, "Date: "
@@ -12199,7 +12199,7 @@ End If
 If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
 	objSelection.TypeText "Verbal Signature Accepted during interview on " & verbal_sig_date & " at " & verbal_sig_time & "." & vbCr
 	objSelection.TypeText "Resident Phone Number: " & verbal_sig_phone_number & vbCr
-	onjSelection.TypeText "Minor Children Present: " & minor_indicator & " Elderly/Disabled Unit Member: " & elderly_indicator & vbCr
+	objSelection.TypeText "Minor Children Present: " & minor_indicator & " Elderly/Disabled Unit Member: " & elderly_indicator & vbCr
 End If
 objSelection.TypeText vbCr
 
@@ -12959,8 +12959,10 @@ End If
 end_msg = end_msg & vbCr & vbCr & "Form received: " & CAF_form_name
 end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
-If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
-	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_memb & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
+If signature_detail = "Accepted Verbally" Then
+	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_person & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
+ElseIf second_signature_detail = "Accepted Verbally" Then
+	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & second_signature_person & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
 End If
 With (CreateObject("Scripting.FileSystemObject"))
 	.DeleteFile(intvw_done_msg_file)

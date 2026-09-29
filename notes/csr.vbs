@@ -485,7 +485,7 @@ If signature = "Accepted Verbally" Then
   Dialog1 = ""
   BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
     Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
-    Text 20, 20, 185, 10, "MEMB  & signature_memb"
+    Text 20, 20, 185, 10, "MEMB: "  & signature_memb
     Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
     Text 20, 75, 105, 10, "Signature was accepted at:"
     Text 25, 95, 20, 10, "Date: "

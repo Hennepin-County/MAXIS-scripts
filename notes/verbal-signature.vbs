@@ -100,10 +100,10 @@ BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
   Text 20, 140, 85, 10, "Resident Phone Number:"
   EditBox 110, 135, 95, 15, verbal_sig_phone_number
   Text 5, 195, 255, 20, "Remember to send the resident a copy of the form they verbally signed and provide instructions for making corrections. "
-  DropListBox 150, 155, 30, 15, "Yes"+chr(9)+"No", minor_indicator
+  DropListBox 150, 155, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", minor_indicator
   Text 20, 160, 95, 10, "Minor children in SNAP unit?"
   Text 20, 175, 125, 10, "Elderly / Disabled members in unit?"
-  DropListBox 150, 170, 30, 15, "Yes"+chr(9)+"No", elderly_indicator
+  DropListBox 150, 170, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", elderly_indicator
   ButtonGroup ButtonPressed
     OkButton 210, 220, 50, 15
   Text 5, 5, 255, 20, "* ** Do not use this script if the verbal signature information was previously recorded using CSR or Interview Script ***"
