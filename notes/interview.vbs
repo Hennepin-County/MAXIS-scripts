@@ -1511,11 +1511,11 @@ function define_main_dialog()
 		    Text 220, 85, 25, 10, "person"
 		    ComboBox 250, 80, 200, 45, all_the_clients+chr(9)+signature_person, signature_person
 		    Text 10, 105, 90, 10, "Signature of Other Adult"
-		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+second_signature_detail, second_signature_detail
+		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+second_signature_detail, second_signature_detail
 		    Text 220, 105, 25, 10, "person"
 		    ComboBox 250, 100, 200, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 
-			Text 10, 125, 320, 20, "Only select 'Accepted Verbally' if you are the one accepting the signature verbally. For signatures accepted by another worker, indicate the signature as completed."
+			Text 10, 125, 320, 20, "Verbal signatures are for SNAP only. Only select 'Accepted Verbally' if you are the one accepting verbally. For signatures accepted by another worker, indicate the signature as completed."
 			Text 335, 125, 50, 10, "Interview Date:"
 			EditBox 390, 120, 60, 15, interview_date
 
@@ -3431,6 +3431,8 @@ function save_your_work()
 			objTextStream.WriteLine "SIG - 09 - " & verbal_sig_date
 			objTextStream.WriteLine "SIG - 10 - " & verbal_sig_time
 			objTextStream.WriteLine "SIG - 11 - " & verbal_sig_phone_number
+			objTextStream.WriteLine "SIG - 12 - " & elderly_indicator
+			objTextStream.WriteLine "SIG - 13 - " & minor_indicator
 
 			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
 			objTextStream.WriteLine "ASSESS - 02 - " & exp_snap_delays
@@ -3826,7 +3828,9 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 08 - " & interview_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 09 - " & verbal_sig_date
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 10 - " & verbal_sig_time
-			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 11 - " & verbal_sig_phone_number & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 11 - " & verbal_sig_phone_number
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 12 - " & elderly_indicator
+			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 13 - " & minor_indicator & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 01 - " & exp_snap_approval_date
 			script_run_lowdown = script_run_lowdown & vbCr & "ASSESS - 02 - " & exp_snap_delays
@@ -4293,6 +4297,8 @@ function restore_your_work(vars_filled, membs_found)
 					If left(text_line, 8) = "SIG - 09" Then verbal_sig_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 10" Then verbal_sig_time = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 11" Then verbal_sig_phone_number	 = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 12" Then elderly_indicator = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 13" Then minor_indicator = Mid(text_line, 12)
 
 					If left(text_line, 11) = "ASSESS - 01" Then exp_snap_approval_date = Mid(text_line, 15)
 					If left(text_line, 11) = "ASSESS - 02" Then exp_snap_delays = Mid(text_line, 15)
@@ -9517,11 +9523,10 @@ If phone_two_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two_
 If phone_three_number <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three_number
 phone_droplist = phone_droplist+chr(9)+phone_number_selection
 
-If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
-	Dialog1 = ""
+If signature_detail = "Accepted Verbally" Then
   	BeginDialog Dialog1, 0, 0, 271, 245, "Verbal Signature Record"
   	  Text 10, 10, 115, 10, "Verbal Signature Accepted for:"
-  	  Text 20, 20, 185, 10, "MEMB: "  & signature_memb
+  	  Text 20, 20, 185, 10, "MEMB: " & signature_person
   	  Text 20, 50, 190, 20, "To record a verbal signature the date, time and resident phone number needs to be recorded. "
   	  Text 20, 75, 105, 10, "Signature was accepted at:"
   	  Text 25, 95, 20, 10, "Date: "
@@ -12199,7 +12204,8 @@ End If
 If signature_detail = "Accepted Verbally" or second_signature_detail = "Accepted Verbally" Then
 	objSelection.TypeText "Verbal Signature Accepted during interview on " & verbal_sig_date & " at " & verbal_sig_time & "." & vbCr
 	objSelection.TypeText "Resident Phone Number: " & verbal_sig_phone_number & vbCr
-	objSelection.TypeText "Minor Children Present: " & minor_indicator & " Elderly/Disabled Unit Member: " & elderly_indicator & vbCr
+	objSelection.TypeText "Minor Children Present: " & minor_indicator & vbCr
+	objSelection.TypeText "Elderly/Disabled Unit Member: " & elderly_indicator & vbCr
 End If
 objSelection.TypeText vbCr
 
@@ -12961,8 +12967,6 @@ end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File c
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
 If signature_detail = "Accepted Verbally" Then
 	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_person & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
-ElseIf second_signature_detail = "Accepted Verbally" Then
-	End_msg = End_msg & vbCr & "Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & second_signature_person & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
 End If
 With (CreateObject("Scripting.FileSystemObject"))
 	.DeleteFile(intvw_done_msg_file)
