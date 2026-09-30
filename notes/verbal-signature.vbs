@@ -56,20 +56,30 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(False)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 146, 75, "Case number dialog"
-  EditBox 85, 10, 50, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 30, 50, 50, 15
-    CancelButton 85, 50, 50, 15
-  Text 30, 15, 45, 10, "Case number:"
-EndDialog
+BeginDialog Dialog1, 0, 0, 176, 125, "Case number dialog"
+  EditBox 85, 15, 50, 15, MAXIS_case_number
 
+  Text 30, 20, 45, 10, "Case number:"
+
+  DropListBox 85, 35, 75, 15, "Select One..."+chr(9)+"CAF (DHS-5223)"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CSR (DHS-5576)"+chr(9)+"MNbenefits"+chr(9)+"SNAP App for Srs (DHS-5223F)", form_signed
+  Text 30, 40, 45, 10, "Form signed:"
+  Text 15, 75, 60, 10, "Worker Signature:"
+  EditBox 85, 50, 75, 15, form_date
+  EditBox 85, 70, 75, 15, worker_signature
+  Text 5, 55, 70, 10, "Date Form Received:"
+    ButtonGroup ButtonPressed
+    OkButton 60, 95, 50, 15
+    CancelButton 115, 95, 50, 15
+EndDialog
 Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
 		If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbCr & "* Enter a valid case number."
+    If form_signed = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form that was signed. Only the forms shown in the list can be signed verbally."
+    If worker_signature = "" Then err_msg = err_msg & vbCr & "* Enter the worker's signature."
+    If form_date = "" Then err_msg = err_msg & vbCr & "* Enter the date the form was received."
 		If err_msg <> "" Then MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
@@ -130,11 +140,13 @@ Loop until err_msg = ""
 
 Call start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("* * Verbal Signature Accepted:")
-CALL write_variable_in_CASE_NOTE("    - MEMB " & signature_memb)
+CALL write_variable_in_CASE_NOTE("MEMB: " & signature_memb & " verbally signed " & form_signed & " received on " & form_date & ".")
 CALL write_variable_in_CASE_NOTE("    Signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & ".")
 CALL write_variable_in_CASE_NOTE("    Resident Phone Number: " & verbal_sig_phone_number)
 CALL write_variable_in_CASE_NOTE("    Minor children in SNAP unit: " & minor_indicator)
 CALL write_variable_in_CASE_NOTE("    Elderly / Disabled members in unit: " & elderly_indicator)
+call write_variable_in_case_note("---")
+call write_variable_in_case_note(worker_signature)
 
 end_msg = "Verbal signature entered in case/note. Verbal signature accepted on " & verbal_sig_date & " at " & verbal_sig_time & " From: " & signature_memb & " (Minors: " & minor_indicator & ", Elderly/Disabled: " & elderly_indicator & ")"
 script_end_procedure(end_msg)
