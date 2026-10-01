@@ -4025,7 +4025,7 @@ class stat_detail
 				Call write_value_and_transmit("X", 19, 71)
 				If cash_six_month_budget_elig = True Then
 					EMReadScreen stat_jobs_one_cash_pic_pay_freq(each_memb), 1, 3, 63
-					EMReadScreen stat_jobs_one_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_one_cash_pic_ave_hrs_per_pay(each_memb), 10, 14, 68
 					EMReadScreen stat_jobs_one_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
 					EMReadScreen stat_jobs_one_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
 				Else
@@ -4135,7 +4135,7 @@ class stat_detail
 				Call write_value_and_transmit("X", 19, 71)
 				If cash_six_month_budget_elig = True Then
 					EMReadScreen stat_jobs_two_cash_pic_pay_freq(each_memb), 1, 3, 63
-					EMReadScreen stat_jobs_two_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_two_cash_pic_ave_hrs_per_pay(each_memb), 10, 14, 68
 					EMReadScreen stat_jobs_two_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
 					EMReadScreen stat_jobs_two_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
 				Else
@@ -4246,7 +4246,7 @@ class stat_detail
 				Call write_value_and_transmit("X", 19, 71)
 				If cash_six_month_budget_elig = True Then
 					EMReadScreen stat_jobs_three_cash_pic_pay_freq(each_memb), 1, 3, 63
-					EMReadScreen stat_jobs_three_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_three_cash_pic_ave_hrs_per_pay(each_memb), 10, 14, 68
 					EMReadScreen stat_jobs_three_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
 					EMReadScreen stat_jobs_three_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
 				Else
@@ -4355,7 +4355,7 @@ class stat_detail
 				Call write_value_and_transmit("X", 19, 71)
 				If cash_six_month_budget_elig = True Then
 					EMReadScreen stat_jobs_four_cash_pic_pay_freq(each_memb), 1, 3, 63
-					EMReadScreen stat_jobs_four_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_four_cash_pic_ave_hrs_per_pay(each_memb), 10, 14, 68
 					EMReadScreen stat_jobs_four_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
 					EMReadScreen stat_jobs_four_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
 				Else
@@ -4464,7 +4464,7 @@ class stat_detail
 				Call write_value_and_transmit("X", 19, 71)
 				If cash_six_month_budget_elig = True Then
 					EMReadScreen stat_jobs_five_cash_pic_pay_freq(each_memb), 1, 3, 63
-					EMReadScreen stat_jobs_five_cash_pic_ave_hrs_per_pay(each_memb), 10, 15, 68
+					EMReadScreen stat_jobs_five_cash_pic_ave_hrs_per_pay(each_memb), 10, 14, 68
 					EMReadScreen stat_jobs_five_cash_pic_ave_inc_per_pay(each_memb), 10, 16, 68
 					EMReadScreen stat_jobs_five_cash_pic_prosp_monthly_inc(each_memb), 10, 17, 68
 				Else
