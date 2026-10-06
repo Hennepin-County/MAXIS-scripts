@@ -677,6 +677,8 @@ admin_run = False
 If windows_user_ID = "CALO001" Then admin_run = true
 If windows_user_ID = "DACO003" Then admin_run = true
 If windows_user_ID = "MARI001" Then admin_run = true
+If windows_user_ID = "SBEGLEYMAY" Then admin_run = true
+If windows_user_ID = "ASRE002" Then admin_run = true
 If windows_user_ID = "WFX901"  Then admin_run = true    'Faughn Ramisch-Church
 If windows_user_ID = "BETE001" Then admin_run = true	'Ben Teskey
 If windows_user_ID = "WFC041"  Then admin_run = true	'Kerry Walsh
