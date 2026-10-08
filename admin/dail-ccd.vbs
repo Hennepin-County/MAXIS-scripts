@@ -6,8 +6,6 @@ STATS_manualtime = 30
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
-run_locally = TRUE ' for testing purposes - delete later!
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -99,7 +97,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
-' Call check_MAXIS_environment("PRODUCTION", false) ADD THIS BACK IN WHEN TESTING IS COMPLETE
+Call check_MAXIS_environment("PRODUCTION", false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -155,7 +153,6 @@ If pick_confirmation = "View/Pick Selection (PICK)" then
     EMWriteScreen "X",  8, 39   'COLA Messages
     EMWriteScreen "X", 13, 39   'INFO Messages
 	EMWriteScreen "X", 18, 39   'PEPR Messages
-	EMWriteScreen "X", 11, 39   'TESTING in TRAINING REGION - delete later!!!
 	transmit
 Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
@@ -213,7 +210,6 @@ For each worker in worker_array
                instr(dail_msg, "RCA MASS CHANGE AUTO-APPROVED") or _
                instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") or _
-			   instr(dail_msg, "CORRECT STAT EDITS") or _
                instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then
                add_to_excel = TRUE
             elseif instr(dail_msg, "CANCELLED DUE TO AGING") or instr(dail_msg, "NOT ACCESSED FOR 229 DAYS,SPEC NOT") then
