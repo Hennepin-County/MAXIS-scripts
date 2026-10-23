@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/20/26", "Updated functionality - displays original DAIL PEPR/DISA message as well as the info from STAT/DISA. Allows HSR to then select whether to TIKL, create CASE/NOTE, or other.", "Sam Begley-May, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note. Updated background navigation coding.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -51,57 +52,785 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
-'------------------As such, it does NOT include protections to be ran independently.
 
+
+
+
+
+
+'-------new functions
+
+'Remove this one and keep in a testing file - just here to view arrays in Msgboxes as needed
+Sub DisplayArray(arr)
+    Dim dims, output, i, j
+
+    ' Determine number of dimensions
+    On Error Resume Next
+    dims = 1
+    Do While True
+        i = LBound(arr, dims)
+        If Err.Number <> 0 Then
+            Err.Clear
+            Exit Do
+        End If
+        dims = dims + 1
+    Loop
+    dims = dims - 1
+    On Error GoTo 0
+
+    output = "Array Contents:" & vbCrLf & vbCrLf
+
+    If dims = 1 Then
+        ' Handle 1D array
+        For i = LBound(arr) To UBound(arr)
+            output = output & "Index " & i & ": " & arr(i) & vbCrLf
+        Next
+
+    ElseIf dims = 2 Then
+        ' Handle 2D array
+        For i = LBound(arr, 1) To UBound(arr, 1)
+            For j = LBound(arr, 2) To UBound(arr, 2)
+                output = output & "Row " & i & ", Col " & j & ": " & arr(i, j) & vbCrLf
+            Next
+        Next
+    Else
+        output = "Unsupported array dimensions: " & dims
+    End If
+
+    MsgBox output, vbOKOnly, "Array Debug Output"
+End Sub
+
+Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS"
+
+Dim DISA_bgn_date, DISA_end_date
+Dim Cert_period_bgn, Cert_period_end
+Dim Eld_wavr_bgn, Eld_wavr_end, GRH_bgn, GRH_end
+Dim cash_disa_status, cash_disa_ver
+Dim fs_disa_status, fs_disa_ver, hc_disa_status, hc_disa_ver
+Dim MEMB_No, first_last_name, person_info
+Dim form_to_send
+Dim GLOBAL_CASH_DISA_STATUS, GLOBAL_CASH_DISA_VER, GLOBAL_FS_DISA_STATUS, GLOBAL_FS_DISA_VER, GLOBAL_HC_DISA_STATUS, GLOBAL_HC_DISA_VER
+Dim origArray, newArray
+Dim orig_cash_status, orig_cash_ver, orig_fs_status, orig_fs_ver, orig_hc_status, orig_hc_ver
+
+
+GLOBAL_CASH_DISA_STATUS = Array (_
+    "01 - RSDI Only Disability", _
+    "02 - RSDI Only Blindness", _
+    "03 - SSI, SSI/RSDI Disability", _
+    "04 - SSI, SSI/RSDI Blindness", _
+    "06 - SMRT/SSA Pend", _
+    "08 - SMRT Certified Blindness", _
+    "09 - Ill/Incapacity", _
+    "10 - SMRT Certified Disability", _
+    "BLANK" _
+)
+
+
+GLOBAL_CASH_DISA_VER = Array( _
+    "1 - DHS161/Dr Statement", _
+    "2 - SMRT Certified", _
+    "3 - Certified for RSDI or SSI", _
+    "6 - Other Document", _
+    "7 - Professional Stmt of Need", _
+    "N - No Verif Provided", _
+    "BLANK" _
+)
+
+
+GLOBAL_FS_DISA_STATUS = Array( _
+    "01 - RSDI Only Disability", _
+    "02 - RSDI Only Blindness", _
+    "03 - SSI, SSI/RSDI Disability", _
+    "04 - SSI, SSI/RSDI Blindness", _
+    "06 - SMRT/SSA Pend", _
+    "08 - SMRT Certified Blindness", _
+    "09 - Ill/Incapacity", _
+    "10 - SMRT Certified Disability", _
+    "11 - VA Determined Pd 100% Disa", _
+    "12 - VA (Other Accept Disa)", _
+    "13 - Cert RR Ret Disa & On Medi", _
+    "14 - Othr Govt Perm Disa Ret Bnft", _
+    "15 - Disability from MINE List", _
+    "16 - Unable Prepare Purch Own Meal", _
+    "BLANK" _
+)
+
+
+GLOBAL_FS_DISA_VER = Array( _
+    "1 - DHS161/Dr Statement", _
+    "2 - SMRT Certified", _
+    "3 - Certified for RSDI or SSI", _
+    "4 - Receipt of HC For Disa/Blind", _
+    "5 - Wrk Judgement", _
+    "6 - Other Document", _
+    "7 - Out of State Ver Pending", _
+    "N - No Verif Provided", _
+    "BLANK" _
+)
+
+
+GLOBAL_HC_DISA_STATUS = Array( _
+    "01 - RSDI Only Disability", _
+    "02 - RSDI Only Blindness", _
+    "03 - SSI, SSI/RSDI Disability", _
+    "04 - SSI, SSI/RSDI Blindness", _
+    "06 - SMRT/SSA Pend", _
+    "08 - Certified Blindness", _
+    "10 - Certified Disabled", _
+    "11 - Spec Cat - Disa Child", _
+    "20 - TEFRA - Disabled", _
+    "21 - TEFRA - Blind", _
+    "22 - MA-EPD", _
+    "23 - MA/Waiver", _
+    "24 - SSA/SMRT Appeal Pending", _
+    "26 - SSA/SMRT Disa Deny", _
+    "BLANK" _
+)
+
+
+GLOBAL_HC_DISA_VER = Array( _
+    "1 - DHS161/Dr Statement", _
+    "2 - SMRT Certified", _
+    "3 - Certified for RSDI or SSI", _
+    "6 - Other Document", _
+    "7 - Case Manager Determination", _
+    "8 - LTC Consult Services", _
+    "N - No Verif Provided", _
+    "BLANK" _
+)
+
+
+
+Function BuildDropDownList(currentValue, allOptions)
+    Dim tempArray()
+    Dim i
+
+    ' Start array with the current value
+    ReDim tempArray(0)
+    tempArray(0) = currentValue
+
+    ' Add the remaining options, avoiding duplicates
+    For i = 0 To UBound(allOptions)
+        If allOptions(i) <> currentValue Then
+            ReDim Preserve tempArray(UBound(tempArray) + 1)
+            tempArray(UBound(tempArray)) = allOptions(i)
+        End If
+    Next
+
+    ' Join into a DropListBox‑compatible string
+    BuildDropDownList = Join(tempArray, chr(9))
+End Function
+
+
+Function BuildChangedList(origValues, newValues)
+    Dim changed(), i
+    ReDim changed(-1) 
+
+    For i = 0 To UBound(origValues)
+        If origValues(i) <> newValues(i) Then
+            ReDim Preserve changed(UBound(changed) + 1)
+            changed(UBound(changed)) = i   ' store the index of the changed item
+        End If
+    Next
+
+    BuildChangedList = changed
+
+End Function 
+
+
+Function Read_DISA()
+    'double-check that user hasn't accidentally navigated away from the DISA panel
+    EMReadScreen DISA_chk, 4, 2, 45
+    If DISA_chk <> "DISA" then script_end_procedure("Not on a DISA message, the script will now end.") ' Note to Sam - can we make a more specific DAIL end procedure, where it does everything a script end procedure does but also goes back to the DAIL scrubber?
+
+    EMReadScreen MEMB_No, 2, 4, 33
+    trim(MEMB_No)
+    EMReadScreen first_last_name, 33, 4, 37
+    trim(first_last_name)
+    person_info = MEMB_No & " " & first_last_name
+
+    'Read and format the disability begin date
+    EMReadScreen DISA_bgn_date_month, 2, 6, 47
+    EMReadScreen DISA_bgn_date_day, 2, 6, 50
+    EMReadScreen DISA_bgn_date_year, 4, 6, 53
+    If DISA_bgn_date_month = "__" OR DISA_bgn_date_day = "__" OR DISA_bgn_date_year = "____" Then
+        DISA_bgn_date = "BLANK"
+    Else
+        DISA_bgn_date = DISA_bgn_date_month & "/" & DISA_bgn_date_day & "/" & DISA_bgn_date_year
+    End If
+
+    'Read and format the disability end date
+    EMReadScreen DISA_end_date_month, 2, 6, 69
+    EMReadScreen DISA_end_date_day, 2, 6, 72
+    EMReadScreen DISA_end_date_year, 4, 6, 75
+    If DISA_end_date_month = "__" OR DISA_end_date_day = "__" OR DISA_end_date_year = "____" Then
+        DISA_end_date = "BLANK"
+    Else
+        DISA_end_date = DISA_end_date_month & "/" & DISA_end_date_day & "/" & DISA_end_date_year
+    End If
+
+    ' Read and format the certification period beginning date
+    EMReadScreen Cert_period_bgn_month, 2, 7, 47
+    EMReadScreen Cert_period_bgn_day, 2, 7, 50
+    EMReadScreen Cert_period_bgn_year, 4, 7, 53
+    If Cert_period_bgn_month = "__" OR Cert_period_bgn_day = "__" OR Cert_period_bgn_year = "____" Then
+        Cert_period_bgn = "BLANK"
+    Else
+        Cert_period_bgn = Cert_period_bgn_month & "/" & Cert_period_bgn_day & "/" & Cert_period_bgn_year
+    End If
+
+    ' Read and format the certification period end date
+    EMReadScreen Cert_period_end_month, 2, 7, 69
+    EMReadScreen Cert_period_end_day, 2, 7, 72
+    EMReadScreen Cert_period_end_year, 4, 7, 75
+    If Cert_period_end_month = "__" Or Cert_period_end_day = "__" Or Cert_period_end_year = "____" Then
+        Cert_period_end = "BLANK"
+    Else
+        Cert_period_end = Cert_period_end_month & "/" & Cert_period_end_day & "/" & Cert_period_end_year
+    End If
+
+    ' Read and format the elder waiver begin date
+    EMReadScreen Eld_wavr_bgn_month, 2, 8, 47
+    EMReadScreen Eld_wavr_bgn_day, 2, 8, 50
+    EMReadScreen Eld_wavr_bgn_year, 4, 8, 53
+    If Eld_wavr_bgn_month = "__" OR Eld_wavr_bgn_day = "__" OR Eld_wavr_bgn_year = "____" Then
+        Eld_wavr_bgn = "BLANK"
+    Else
+        Eld_wavr_bgn = Eld_wavr_bgn_month & "/" & Eld_wavr_bgn_day & "/" & Eld_wavr_bgn_year
+    End If
+
+    ' Read and format the elder waiver end month
+    EMReadScreen Eld_wavr_end_month, 2, 8, 69
+    EMReadScreen Eld_wavr_end_day, 2, 8, 72
+    EMReadScreen Eld_wavr_end_year, 4, 8, 75
+    If Eld_wavr_end_month = "__" Or Eld_wavr_end_day = "__" Or Eld_wavr_end_year = "____" Then
+        Eld_wavr_end = "BLANK"
+    Else
+        Eld_wavr_end = Eld_wavr_end_month & "/" & Eld_wavr_end_day & "/" & Eld_wavr_end_year
+    End If
+
+
+    ' Read and format the GRH related end date (MSA/County)
+    EMReadScreen GRH_bgn_month, 2, 9, 47
+    EMReadScreen GRH_bgn_day, 2, 9, 50
+    EMReadScreen GRH_bgn_year, 4, 9, 53
+    If GRH_bgn_month = "__" OR GRH_bgn_day = "__" Or GRH_bgn_year = "____" Then
+        GRH_bgn = "BLANK"
+    Else
+        GRH_bgn = GRH_bgn_month & "/" & GRH_bgn_day & "/" & GRH_bgn_year
+    End IF
+
+    ' Read and format the GRH related end date (MSA/County)
+    EMReadScreen GRH_end_month, 2, 9, 69
+    EMReadScreen GRH_end_day, 2, 9, 72
+    EMReadScreen GRH_end_year, 4, 9, 75
+    If GRH_end_month = "__" OR GRH_end_day = "__" OR GRH_end_year = "____" Then
+        GRH_end = "BLANK"
+    Else
+        GRH_end = GRH_end_month & "/" & GRH_end_day & "/" & GRH_end_year
+    End if
+    
+
+    EMReadScreen cash_disa_status, 2, 11, 59
+        If cash_disa_status = "01" then cash_disa_status = "01 - RSDI Only Disability"
+        If cash_disa_status = "02" then cash_disa_status = "02 - RSDI Only Blindness"
+        If cash_disa_status = "03" then cash_disa_status = "03 - SSI, SSI/RSDI Disability"
+        If cash_disa_status = "04" then cash_disa_status = "04 - SSI, SSI/RSDI Blindness"
+        If cash_disa_status = "06" then cash_disa_status = "06 - SMRT/SSA Pend"
+        If cash_disa_status = "08" then cash_disa_status = "08 - SMRT Certified Blindness"
+        If cash_disa_status = "09" then cash_disa_status = "09 - Ill/Incapacity"
+        If cash_disa_status = "10" then cash_disa_status = "10 - SMRT Certified Disability"
+        If cash_disa_status = "__" then cash_disa_status = "BLANK"
+
+    EMReadScreen cash_disa_ver, 1, 11, 69
+        If cash_disa_ver = "1" then cash_disa_ver = "1 - DHS161/Dr Statement" 
+        If cash_disa_ver = "2" then 
+            cash_disa_ver = "2 - SMRT Certified"  
+            form_to_send = "SMRT"
+        End If
+        If cash_disa_ver = "3" then cash_disa_ver = "3 - Certified for RSDI or SSI"
+        If cash_disa_ver = "6" then cash_disa_ver = "6 - Other Document"
+        If cash_disa_ver = "7" then cash_disa_ver = "7 - Professional Stmt of Need"
+        If cash_disa_ver = "N" then cash_disa_ver = "N - No Verif Provided"
+        If cash_disa_ver = "_" then cash_disa_ver = "BLANK"
+
+
+
+    EMReadScreen fs_disa_status, 2, 12, 59
+        If fs_disa_status = "01" then fs_disa_status = "01 - RSDI Only Disability"
+        If fs_disa_status = "02" then fs_disa_status = "02 - RSDI Only Blindness"
+        If fs_disa_status = "03" then fs_disa_status = "03 - SSI, SSI/RSDI Disability"
+        If fs_disa_status = "04" then fs_disa_status = "04 - SSI, SSI/RSDI Blindness"
+        If fs_disa_status = "06" then fs_disa_status = "06 - SMRT/SSA Pend"
+        If fs_disa_status = "08" then fs_disa_status = "08 - SMRT Certified Blindness"
+        If fs_disa_status = "09" then fs_disa_status = "09 - Ill/Incapacity"
+        If fs_disa_status = "10" then fs_disa_status = "10 - SMRT Certified Disability"
+        If fs_disa_status = "11" then fs_disa_status = "11 - VA Determined Pd 100% Disa"
+        If fs_disa_status = "12" then fs_disa_status = "12 - VA (Other Accept Disa)"
+        If fs_disa_status = "13" then fs_disa_status = "13 - Cert RR Ret Disa & On Medi"
+        If fs_disa_status = "14" then fs_disa_status = "14 - Othr Govt Perm Disa Ret Bnft"
+        If fs_disa_status = "15" then fs_disa_status = "15 - Disability from MINE List"
+        If fs_disa_status = "16" then fs_disa_status = "16 - Unable Prepare Purch Own Meal"
+        if fs_disa_status = "__" then fs_disa_status = "BLANK"
+
+    EMReadScreen fs_disa_ver, 1, 12, 69
+        If fs_disa_ver = "1" then fs_disa_ver = "1 - DHS161/Dr Statement"
+        If fs_disa_ver = "2" then fs_disa_ver = "2 - SMRT Certified"
+        If fs_disa_ver = "3" then fs_disa_ver = "3 - Certified for RSDI or SSI"
+        If fs_disa_ver = "4" then fs_disa_ver = "4 - Receipt of HC For Disa/Blind"
+        If fs_disa_ver = "5" then fs_disa_ver = "5 - Wrk Judgement"
+        If fs_disa_ver = "6" then fs_disa_ver = "6 - Other Document"
+        If fs_disa_ver = "7" then fs_disa_ver = "7 - Out of State Ver Pending"
+        If fs_disa_ver = "N" then fs_disa_ver = "N - No Verif Provided"
+        if fs_disa_ver = "_" then fs_disa_ver = "BLANK"
+
+
+    EMReadScreen hc_disa_status, 2, 13, 59
+        If hc_disa_status = "01" then hc_disa_status = "01 - RSDI Only Disability"
+        If hc_disa_status = "02" then hc_disa_status = "02 - RSDI Only Blindness"
+        If hc_disa_status = "03" then hc_disa_status = "03 - SSI, SSI/RSDI Disability"
+        If hc_disa_status = "04" then hc_disa_status = "04 - SSI, SSI/RSDI Blindness"
+        If hc_disa_status = "06" then hc_disa_status = "06 - SMRT/SSA Pend"
+        If hc_disa_status = "08" then hc_disa_status = "08 - Certified Blindness"
+        If hc_disa_status = "10" then hc_disa_status = "10 - Certified Disabiled"
+        If hc_disa_status = "11" then hc_disa_status = "11 - Spec Cat - Disa Child"
+        If hc_disa_status = "20" then hc_disa_status = "20 - TEFRA - Disabled"
+        If hc_disa_status = "21" then hc_disa_status = "21 - TEFRA - Blind"
+        If hc_disa_status = "22" then hc_disa_status = "22 - MA-EPD"
+        If hc_disa_status = "23" then hc_disa_status = "23 - MA/Waiver"
+        If hc_disa_status = "24" then hc_disa_status = "24 - SSA/SMRT Appeal Pending"
+        If hc_disa_status = "26" then hc_disa_status = "26 - SSA/SMRT Disa Deny"
+        If hc_disa_status = "__" then hc_disa_status = "BLANK"
+
+    EMReadScreen hc_disa_ver, 1, 13, 69
+        If hc_disa_ver = "1" then hc_disa_ver = "1 - DHS161/Dr Statement"
+        If hc_disa_ver = "2" then hc_disa_ver = "2 - SMRT Certified"
+        If hc_disa_ver = "3" then hc_disa_ver = "3 - Certified for RSDI or SSI"
+        If hc_disa_ver = "6" then hc_disa_ver = "6 - Other Document"
+        If hc_disa_ver = "7" then hc_disa_ver = "7 - Case Manager Determination"
+        If hc_disa_ver = "8" then hc_disa_ver = "8 - LTC Consult Services"
+        If hc_disa_ver = "N" then hc_disa_ver = "N - No Verif Provided"
+        If hc_disa_ver = "_" then hc_disa_ver = "BLANK"
+
+    
+orig_cash_status = cash_disa_status
+orig_cash_ver    = cash_disa_ver
+orig_fs_status   = fs_disa_status
+orig_fs_ver      = fs_disa_ver
+orig_hc_status   = hc_disa_status
+orig_hc_ver      = hc_disa_ver  
+
+    Dim results
+    results = Array( _
+        cash_disa_status, _
+        cash_disa_ver, _
+        fs_disa_status, _
+        fs_disa_ver, _
+        hc_disa_status, _
+        hc_disa_ver, _
+        GLOBAL_CASH_DISA_STATUS, _
+        GLOBAL_CASH_DISA_VER, _
+        GLOBAL_FS_DISA_STATUS, _
+        GLOBAL_FS_DISA_VER, _
+        GLOBAL_HC_DISA_STATUS, _
+        GLOBAL_HC_DISA_VER _
+    )
+
+    Read_DISA = results
+
+
+End Function
+
+Function Update_DISA_Panel_Loop()
+    'Create an array of existing values vs changed values
+    origArray = Array(orig_cash_status, orig_fs_status, orig_hc_status, orig_cash_ver, orig_fs_ver, orig_hc_ver)
+    newArray  = Array(CASH_disa_option_status, FS_disa_option_status, HC_disa_option_status, CASH_disa_ver_type, FS_disa_ver_type, HC_disa_ver_type)
+ 
+    'double-check that user hasn't accidentally navigated away from the DISA panel
+    EMReadScreen DISA_chk, 4, 2, 45
+    If DISA_chk <> "DISA" then script_end_procedure("Not on a DISA message, the script will now end.")
+
+    If DISA_chk = "DISA" then
+        changedIndexes = BuildChangedList(origArray, newArray)
+        If UBound(changedIndexes) = -1 then
+            MsgBox "No changes were made, please update your selections or move on to the TIKL process"
+            Dialog Final_Update_DISA_Dialog
+        Else
+        PF9
+        For i = 0 To UBound(changedIndexes)
+            idx = changedIndexes(i)
+
+            Select Case idx
+                Case 0
+                    EMWriteScreen newArray(Left(idx, 2)), 11, 59 ' CASH Status Update
+                Case 1
+                    EMWriteScreen newArray(Left(idx, 2)), 12, 59 ' FS Status Update
+                Case 2
+                    EMWriteScreen newArray(Left(idx, 2)), 13, 59 ' HC Status Update
+                Case 3
+                    EMWriteScreen newArray(Left(idx, 1)), 11, 69 ' CASH verification update
+                Case 4
+                    EMWriteScreen newArray(Left(idx, 1)), 12, 69 ' FS verification update
+                Case 5
+                    EMWriteScreen newArray(Left(idx, 1)), 13, 69 ' HC Status Update
+                End Select
+        Next
+        transmit
+        
+        'Redefine original statuses based on the new Array values so that the function can loop regarding panel updates
+        orig_cash_status = newArray(0)
+        orig_fs_status = newArray(1)
+        orig_hc_status = newArray(2)
+        orig_cash_ver = newArray(3)
+        orig_fs_ver = newArray(4)
+        orig_hc_ver = newArray(5)
+        
+
+
+        Dialog1 = ""
+
+        BeginDialog Dialog1, 0, 0, 421, 115, "Update DISA Panel Options"
+        ButtonGroup ButtonPressed
+            CancelButton 320, 80, 50, 15
+            PushButton 300, 30, 95, 15, "Correct - Proceed to TIKL", TIKL_Correct
+            PushButton 290, 55, 115, 15, "More Changes Made - Update", Update_Again
+        DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+        DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+        DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+        DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+        DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+        DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+        Text 5, 20, 50, 15, "CASH"
+        Text 5, 50, 50, 15, "FS"
+        Text 5, 80, 50, 15, "HC"
+        Text 65, 5, 105, 15, "Disability Status"
+        Text 195, 5, 105, 15, "Verification Type"
+        EndDialog
+
+                'dialog and dialog DO...Loop
+                Do
+                    Do
+                        Dialog Dialog1
+
+                        If ButtonPressed = select_a_file_button then call file_selection_dialog()
+                    Loop until ButtonPressed = OK and file_selection_path <> ""
+                    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+        End If
+    End If
+End Function
+
+'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER------------------As such, it does NOT include protections to be ran independently--------------------
+
+'Connects to MAXIS
 EMConnect ""
-EMSendKey "s"
-transmit
-EMSendKey "disa"
-transmit
+Dialog1 = ""
+DialogSTATDISA = ""
+Dialog_TIKL_checking = ""
+Update_DISA_Dialog = ""
+Final_Update_DISA_Dialog = ""
 
+'Opens the Edit Summary (SUMM) screen - note to Sam, this may eventually need adjusted based on how the scrubber gets updated. 
+'EMWriteScreen "S", 6, 3
+'transmit
+
+' Navigates to the STAT/DISA screen. The script will automatically go to the MEMB Ref # that is associated with this DAIL
+'EMWriteScreen "DISA", 20, 71
+'transmit
+EMReadScreen MEMB_ref_num, 2, 4, 33
+
+' =======Reading all of the data
+'Pulls the case number
 Call MAXIS_case_number_finder(MAXIS_case_number)
+disaDATA = Read_DISA()
 
-'HH member dialog to select who's job this is.
-BeginDialog Dialog1, 0, 0, 191, 70, "HH member"
-  EditBox 50, 25, 25, 15, HH_memb
+'Build CASH Status dropdown list from disaDATA
+currentCASHstatus = cash_disa_status
+CASH_allStatusOptions = GLOBAL_CASH_DISA_STATUS
+CASH_status_optionsString = BuildDropDownList(currentCASHstatus, CASH_allStatusOptions)
+
+'Build CASH Verifications dropdown list from disa DATA
+currentCASHver = cash_disa_ver
+CASH_allVerOptions = GLOBAL_CASH_DISA_VER
+CASH_ver_optionsString = BuildDropDownList(currentCASHver, CASH_allVerOptions)
+
+'Build FS Status dropdown List from disaDATA
+currentFSstatus = fs_disa_status
+FS_allStatusOptions = GLOBAL_FS_DISA_STATUS
+FS_status_optionsString = BuildDropDownList(currentFSstatus, FS_allStatusOptions)
+
+'Build FS Verifications dropdown List from disaDATA
+currentFSver = fs_disa_ver
+FS_allVerOptions = GLOBAL_FS_DISA_VER
+FS_ver_optionsString = BuildDropDownList(currentFSver, FS_allVerOptions)
+
+'Build HC Status dropdown List from disaDATA
+currentHCstatus = hc_disa_status
+HC_allStatusOptions = GLOBAL_HC_DISA_STATUS
+HC_status_optionsString = BuildDropDownList(currentHCstatus, HC_allStatusOptions)
+
+'Build HC Verifications dropdown list from disaDATA
+currentHCver = hc_disa_ver
+HC_allVerOptions = GLOBAL_HC_DISA_VER
+HC_ver_optionsString = BuildDropDownList(currentHCver, HC_allVerOptions)
+
+
+' ======== Various dialog boxes for pathway
+' Initial Dialog Box that displays the STAT/DISA information
+BeginDialog DialogSTATDISA, 0, 0, 690, 275, "STAT/DISA Information"
   ButtonGroup ButtonPressed
-    OkButton 145, 10, 40, 15
-    CancelButton 145, 30, 40, 15
-  EditBox 65, 50, 120, 15, worker_signature
-  Text 5, 10, 125, 15, "Which HH member is this for? (ex: 01)"
-  Text 0, 55, 60, 10, "Worker Signature:"
+    OkButton 570, 250, 50, 15
+    CancelButton 630, 250, 50, 15
+  GroupBox 10, 35, 320, 185, "DISA Dates"
+  Text 20, 55, 295, 15, "Disability Begin: " & DISA_bgn_date
+  Text 20, 75, 295, 15, "Disability End: " & DISA_end_date
+  Text 20, 95, 295, 15, "Certification Begin: " & Cert_period_bgn
+  Text 20, 115, 295, 15, "Certification End: " & Cert_period_end
+  Text 20, 135, 295, 15, "Elder Waiver Begin: " & Eld_wavr_bgn
+  Text 20, 155, 295, 15, "Elder Waiver End: " & Eld_wavr_end
+  Text 20, 175, 295, 15, "GRH Begin: " & GRH_bgn
+  Text 20, 195, 295, 15, "GRH End: " & GRH_end
+  GroupBox 345, 65, 330, 165, "DISA Status and Verification"
+  Text 355, 85, 310, 15, "Cash Status: " & cash_disa_status
+  Text 355, 105, 310, 15, "Cash Verification: " & cash_disa_ver
+  Text 355, 125, 310, 15, "FS Status: " & fs_disa_status
+  Text 355, 145, 310, 15, "FS Verification: " & fs_disa_ver
+  Text 355, 165, 310, 15, "HC Status: " & hc_disa_status
+  Text 355, 185, 310, 15, "HC Verification: " & hc_disa_ver
+  Text 355, 10, 135, 15, "CASE NUMBER: " & MAXIS_case_number
+  Text 15, 225, 300, 15, "Select Action You Would Like to Take"
+  Text 355, 30, 320, 15, "MEMBER: " & person_info
+  Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
+  DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE updated verif request"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
 EndDialog
 
-HH_memb = "01"
+'Dialog for right after "TIKL and CASE/NOTE updated verif request"
+BeginDialog Dialog_TIKL_checking, 0, 0, 290, 105, "Verification Source Check"
+  ButtonGroup ButtonPressed
+    PushButton 170, 40, 100, 25, "YES - Proceed to TIKL", TIKL_button
+    PushButton 170, 70, 100, 25, "NO - Update DISA Panel", Update_Before_TIKL
+  Text 5, 5, 150, 20, "The current verification source(s) is listed as"
+  Text 5, 30, 155, 15, "CASH Verif" & cash_disa_ver
+  Text 5, 50, 155, 15, "FS Verif" & fs_disa_ver
+  Text 5, 70, 155, 15, "HC Verif" & hc_disa_ver
+  Text 175, 10, 95, 20, "Is this correct?"
+EndDialog
 
-Do 
-    Do 
-        err_msg = ""
+'First dialog for updating the DISA panel if requested from Dialog_TIKL_checking
+BeginDialog Update_DISA_Dialog, 0, 0, 351, 115, "Update DISA Panel Options"
+  ButtonGroup ButtonPressed
+    OkButton 290, 65, 50, 15
+    CancelButton 290, 85, 50, 15
+  DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+  DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+  DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+  DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+  DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+  DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+  Text 5, 20, 50, 15, "CASH"
+  Text 5, 50, 50, 15, "FS"
+  Text 5, 80, 50, 15, "HC"
+  Text 65, 5, 105, 15, "Disability Status"
+  Text 195, 5, 105, 15, "Verification Type"
+EndDialog
+
+
+'Second/Final dialog for updating the DISA panel - it shows the new selection and allows for the user to either press "correct" and proceed to the TIKL and CASE/NOTE; or loop through making more changes
+BeginDialog Final_Update_DISA_Dialog, 0, 0, 421, 115, "Update DISA Panel Options"
+  ButtonGroup ButtonPressed
+    CancelButton 320, 80, 50, 15
+    PushButton 300, 30, 95, 15, "Correct - Proceed to TIKL", TIKL_Correct
+    PushButton 290, 55, 115, 15, "More Changes Made - Update", Update_Again
+  DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+  DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+  DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+  DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+  DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+  DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+  Text 5, 20, 50, 15, "CASH"
+  Text 5, 50, 50, 15, "FS"
+  Text 5, 80, 50, 15, "HC"
+  Text 65, 5, 105, 15, "Disability Status"
+  Text 195, 5, 105, 15, "Verification Type"
+EndDialog
+
+
+
+
+
+
+
+
+
+
+' Sam - this will need error handling eventually 
+Dialog1 = ""
+' Initial Dialog Box that displays the STAT/DISA information
+BeginDialog Dialog1, 0, 0, 690, 275, "STAT/DISA Information"
+  ButtonGroup ButtonPressed
+    OkButton 570, 250, 50, 15
+    CancelButton 630, 250, 50, 15
+  GroupBox 10, 35, 320, 185, "DISA Dates"
+  Text 20, 55, 295, 15, "Disability Begin: " & DISA_bgn_date
+  Text 20, 75, 295, 15, "Disability End: " & DISA_end_date
+  Text 20, 95, 295, 15, "Certification Begin: " & Cert_period_bgn
+  Text 20, 115, 295, 15, "Certification End: " & Cert_period_end
+  Text 20, 135, 295, 15, "Elder Waiver Begin: " & Eld_wavr_bgn
+  Text 20, 155, 295, 15, "Elder Waiver End: " & Eld_wavr_end
+  Text 20, 175, 295, 15, "GRH Begin: " & GRH_bgn
+  Text 20, 195, 295, 15, "GRH End: " & GRH_end
+  GroupBox 345, 65, 330, 165, "DISA Status and Verification"
+  Text 355, 85, 310, 15, "Cash Status: " & cash_disa_status
+  Text 355, 105, 310, 15, "Cash Verification: " & cash_disa_ver
+  Text 355, 125, 310, 15, "FS Status: " & fs_disa_status
+  Text 355, 145, 310, 15, "FS Verification: " & fs_disa_ver
+  Text 355, 165, 310, 15, "HC Status: " & hc_disa_status
+  Text 355, 185, 310, 15, "HC Verification: " & hc_disa_ver
+  Text 355, 10, 135, 15, "CASE NUMBER: " & MAXIS_case_number
+  Text 15, 225, 300, 15, "Select Action You Would Like to Take"
+  Text 355, 30, 320, 15, "MEMBER: " & person_info
+  Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
+  DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE updated verif request"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
+EndDialog
+
+Do
+    Do
         Dialog Dialog1
-        Cancel_without_confirmation
-        If (isnumeric(HH_memb) = False and len(HH_memb) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
-    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+            If DISA_option_list = "TIKL and CASE/NOTE updated verif request" And ButtonPressed = OK then
+                'clear the dialog for rebuilding
+                Dialog1 = ""
+                'Dialog for right after "TIKL and CASE/NOTE updated verif request"
+                BeginDialog Dialog1, 0, 0, 290, 105, "Verification Source Check"
+                    ButtonGroup ButtonPressed
+                        PushButton 170, 40, 100, 25, "YES - Proceed to TIKL", TIKL_button
+                        PushButton 170, 70, 100, 25, "NO - Update DISA Panel", Update_Before_TIKL
+                    Text 5, 5, 150, 20, "The current verification source(s) is listed as"
+                    Text 5, 30, 155, 15, "CASH Verif: " & cash_disa_ver
+                    Text 5, 50, 155, 15, "FS Verif: " & fs_disa_ver
+                    Text 5, 70, 155, 15, "HC Verif: " & hc_disa_ver
+                    Text 175, 10, 95, 20, "Is this correct?"
+                EndDialog
+                Do
+                Dialog Dialog1
+                    If ButtonPressed = Update_Before_TIKL then 
+                        Dialog1 = ""
+                        'First dialog for updating the DISA panel if requested from Dialog_TIKL_checking
+                        BeginDialog Dialog1, 0, 0, 351, 115, "Update DISA Panel Options"
+                        ButtonGroup ButtonPressed
+                            OkButton 290, 65, 50, 15
+                            CancelButton 290, 85, 50, 15
+                        DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+                        DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+                        DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+                        DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+                        DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+                        DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+                        Text 5, 20, 50, 15, "CASH"
+                        Text 5, 50, 50, 15, "FS"
+                        Text 5, 80, 50, 15, "HC"
+                        Text 65, 5, 105, 15, "Disability Status"
+                        Text 195, 5, 105, 15, "Verification Type"
+                        EndDialog
+                        Do
+                        Dialog dialog1
+                        if ButtonPressed = cancel
+                        call check_for_password(are_we_passworded_out)
+                        Loop until are_we_passworded_out = false and ButtonPressed = OK
+                        call Update_DISA_Panel_Loop()
+                        
+                Loop until are_we_passworded_out = false and ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" and hc_disa_ver <> "N - No Verif Provided"
+            End If    
 
-EMWriteScreen HH_memb, 20, 76
-transmit
 
-EMReadScreen cash_disa_status, 1, 11, 69
-If cash_disa_status <> "1" then script_end_procedure("This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time.")
+
+
+
+
+
+    Dialog Dialog_TIKL_checking
+
+        If ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" then
+                'Call create_TIKL(form_to_send & " was sent 30 days ago. Please review case", 30, date, False, TIKL_note_text)
+                'Call navigate_to_MAXIS_screen("CASE", "NOTE")
+                'PF9
+                msgbox "yay!!"
+        ElseIf ButtonPressed = Update_Before_TIKL then
+            Dialog Update_DISA_Dialog
+                If ButtonPressed = OK then
+                    Call Update_DISA_Panel_Loop()
+                    Do While ButtonPressed = Update_Again
+                        Call Update_DISA_Panel_Loop()
+                    Loop
+                    If ButtonPressed = TIKL_Correct then
+                        'Call create_TIKL()
+                        msgbox "we'll put the full call TIKL process here"
+                    End If
+                End If 
+        Else
+            msgbox "The verification source is listed as 'No Verification Provided'. Please update the DISA panel with the correct verification source before proceeding to create a TIKL."
+            Dialog Dialog_TIKL_checking
+        End If
+End If
+
+    CALL check_for_password(are_we_passworded_out)	
+Loop until are_we_passworded_out = False	
+
+
+If DISA_option_list = "TIKL and CASE/NOTE updated verif request" then
+    Dialog Dialog_TIKL_checking
+
+        If ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" then
+                'Call create_TIKL(form_to_send & " was sent 30 days ago. Please review case", 30, date, False, TIKL_note_text)
+                'Call navigate_to_MAXIS_screen("CASE", "NOTE")
+                'PF9
+                msgbox "yay!!"
+        ElseIf ButtonPressed = Update_Before_TIKL then
+            Dialog Update_DISA_Dialog
+                If ButtonPressed = OK then
+                    Call Update_DISA_Panel_Loop()
+                    Do While ButtonPressed = Update_Again
+                        Call Update_DISA_Panel_Loop()
+                    Loop
+                    If ButtonPressed = TIKL_Correct then
+                        'Call create_TIKL()
+                        msgbox "we'll put the full call TIKL process here"
+                    End If
+                End If 
+        Else
+            msgbox "The verification source is listed as 'No Verification Provided'. Please update the DISA panel with the correct verification source before proceeding to create a TIKL."
+            Dialog Dialog_TIKL_checking
+        End If
+End If
+
+If DISA_option_list = "CASE/NOTE only" then
+MsgBox "why are we even here???"
+End If
+
+If DISA_option_list = "Delete DAIL" then
+    msgbox "This option is not yet available. Please delete the DAIL manually."
+End If
+
+
+'EMReadScreen cash_disa_status, 1, 11, 69
+'If cash_disa_status <> "1" then script_end_procedure("This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time.")
+
+
+
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("Medical Opinion Form sent 30 days ago. Please review case, and send another request/MOF if applicable.", 30, date, False, TIKL_note_text)
+'Call create_TIKL("Medical Opinion Form sent 30 days ago. Please review case, and send another request/MOF if applicable.", 30, date, False, TIKL_note_text)
 
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
-Call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-If cash_disa_status = 1 then Call write_variable_in_CASE_NOTE("* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client.")
-Call write_variable_in_CASE_NOTE(TIKL_note_text)
-Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
+'Call navigate_to_MAXIS_screen("CASE", "NOTE")
+'PF9
+'Call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
+'If cash_disa_status = 1 then Call write_variable_in_CASE_NOTE("* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client.")
+'Call write_variable_in_CASE_NOTE(TIKL_note_text)
+'Call write_variable_in_CASE_NOTE("---")
+'Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("Case note and TIKL made. Send a Medical Opinion Form and verification request form using " & EDMS_choice & ".")
+script_end_procedure("script done. This is testing only")
+
+' Before end procedure - dialog that says "do you wish to return to the DAIL scrubber? No will end the script."
