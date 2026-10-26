@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+        FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -53,61 +53,19 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 
-
-
-
-
-
 '-------new functions
 
-'Remove this one and keep in a testing file - just here to view arrays in Msgboxes as needed
-Sub DisplayArray(arr)
-    Dim dims, output, i, j
 
-    ' Determine number of dimensions
-    On Error Resume Next
-    dims = 1
-    Do While True
-        i = LBound(arr, dims)
-        If Err.Number <> 0 Then
-            Err.Clear
-            Exit Do
-        End If
-        dims = dims + 1
-    Loop
-    dims = dims - 1
-    On Error GoTo 0
-
-    output = "Array Contents:" & vbCrLf & vbCrLf
-
-    If dims = 1 Then
-        ' Handle 1D array
-        For i = LBound(arr) To UBound(arr)
-            output = output & "Index " & i & ": " & arr(i) & vbCrLf
-        Next
-
-    ElseIf dims = 2 Then
-        ' Handle 2D array
-        For i = LBound(arr, 1) To UBound(arr, 1)
-            For j = LBound(arr, 2) To UBound(arr, 2)
-                output = output & "Row " & i & ", Col " & j & ": " & arr(i, j) & vbCrLf
-            Next
-        Next
-    Else
-        output = "Unsupported array dimensions: " & dims
-    End If
-
-    MsgBox output, vbOKOnly, "Array Debug Output"
-End Sub
 
 Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS"
 
+Dim row, col, Original_DAIL
 Dim DISA_bgn_date, DISA_end_date
 Dim Cert_period_bgn, Cert_period_end
 Dim Eld_wavr_bgn, Eld_wavr_end, GRH_bgn, GRH_end
 Dim cash_disa_status, cash_disa_ver
 Dim fs_disa_status, fs_disa_ver, hc_disa_status, hc_disa_ver
-Dim MEMB_No, first_last_name, person_info
+Dim MEMB_No, last_first_name, person_info
 Dim form_to_send
 Dim GLOBAL_CASH_DISA_STATUS, GLOBAL_CASH_DISA_VER, GLOBAL_FS_DISA_STATUS, GLOBAL_FS_DISA_VER, GLOBAL_HC_DISA_STATUS, GLOBAL_HC_DISA_VER
 Dim origArray, newArray
@@ -200,7 +158,44 @@ GLOBAL_HC_DISA_VER = Array( _
     "BLANK" _
 )
 
+Function search_for_correct_DAIL_and_delete(last_first_name, Original_DAIL)
+    'Check on the right screen
+    EMReadScreen DAIL_check, 7, 2, 26
+    ' The (DAIL) is located on both the DAIL/"" page and the DAIL/DAIL page. The word "WORKERS" is in a different location on both pages. This will keep the DAIL script from getting stuck on the submenu
+    If DAIL_check <> "WORKERS" then script_end_procedure("You are not in DAIL for the final deletion. The script will now end")
 
+    row = 5
+    col = 4
+    
+    EMSearch last_first_name, row, col
+    
+    If row = 0 and col = 0 then
+        Do
+            PF8
+            EMReadScreen last_page_check, 21, 24, 2
+                If last_page_check = "THIS IS THE LAST PAGE" then script_end_procedure("The original DAIL could not be found for deletion. The script will now end.")
+                Exit Do
+            EMSearch last_first_name, row, col
+        Loop until row <> 0 and col <> 0
+    End if
+
+    EMSearch Original_DAIL, row, col 
+    'Failsafe for if the person is on one page and their DAIL is on the next 
+      If row = 0 and col = 0 then
+        Do
+          PF8
+          EMSearch last_first_name, row, col
+            If row = 0 and col = 0 then script_end_procedure("The original DAIL could not be found associated with that client. The script will now end.")
+            Exit Do
+          EMSearch Original_DAIL, row, col
+        Loop until row <> 0 and col <> 0
+      End If
+    
+      EMWriteScreen "D", row, 3
+      transmit
+      MsgBox "The original DAIL was found and deleted"
+
+End Function
 
 Function BuildDropDownList(currentValue, allOptions)
     Dim tempArray()
@@ -224,19 +219,21 @@ End Function
 
 
 Function BuildChangedList(origValues, newValues)
-    Dim changed(), i
-    ReDim changed(-1) 
+    Dim changed(), changedCount, i
+    ReDim changed(0)
+    changedCount = 0
 
     For i = 0 To UBound(origValues)
         If origValues(i) <> newValues(i) Then
-            ReDim Preserve changed(UBound(changed) + 1)
-            changed(UBound(changed)) = i   ' store the index of the changed item
+            If changedCount > 0 Then ReDim Preserve changed(changedCount)
+            changed(changedCount) = i
+            changedCount = changedCount + 1
         End If
     Next
 
+    If changedCount = 0 Then changed(0) = -1
     BuildChangedList = changed
-
-End Function 
+End Function
 
 
 Function Read_DISA()
@@ -246,9 +243,9 @@ Function Read_DISA()
 
     EMReadScreen MEMB_No, 2, 4, 33
     trim(MEMB_No)
-    EMReadScreen first_last_name, 33, 4, 37
-    trim(first_last_name)
-    person_info = MEMB_No & " " & first_last_name
+    EMReadScreen last_first_name, 33, 4, 37
+    trim(last_first_name)
+    person_info = MEMB_No & " " & last_first_name
 
     'Read and format the disability begin date
     EMReadScreen DISA_bgn_date_month, 2, 6, 47
@@ -344,7 +341,10 @@ Function Read_DISA()
         If cash_disa_status = "__" then cash_disa_status = "BLANK"
 
     EMReadScreen cash_disa_ver, 1, 11, 69
-        If cash_disa_ver = "1" then cash_disa_ver = "1 - DHS161/Dr Statement" 
+        If cash_disa_ver = "1" then 
+            cash_disa_ver = "1 - DHS161/Dr Statement" 
+            form_to_send = "Medical Opinion Form"
+        End If
         If cash_disa_ver = "2" then 
             cash_disa_ver = "2 - SMRT Certified"  
             form_to_send = "SMRT"
@@ -442,96 +442,121 @@ orig_hc_ver      = hc_disa_ver
 
 End Function
 
+
+
 Function Update_DISA_Panel_Loop()
-    'Create an array of existing values vs changed values
+    Dim changedIndexes, idx, i
+
     origArray = Array(orig_cash_status, orig_fs_status, orig_hc_status, orig_cash_ver, orig_fs_ver, orig_hc_ver)
-    newArray  = Array(CASH_disa_option_status, FS_disa_option_status, HC_disa_option_status, CASH_disa_ver_type, FS_disa_ver_type, HC_disa_ver_type)
- 
-    'double-check that user hasn't accidentally navigated away from the DISA panel
+    newArray = Array(CASH_disa_option_status, FS_disa_option_status, HC_disa_option_status, CASH_disa_ver_type, FS_disa_ver_type, HC_disa_ver_type)
+
     EMReadScreen DISA_chk, 4, 2, 45
-    If DISA_chk <> "DISA" then script_end_procedure("Not on a DISA message, the script will now end.")
+    If DISA_chk <> "DISA" Then script_end_procedure("Not on a DISA message, the script will now end.")
 
-    If DISA_chk = "DISA" then
-        changedIndexes = BuildChangedList(origArray, newArray)
-        If UBound(changedIndexes) = -1 then
-            MsgBox "No changes were made, please update your selections or move on to the TIKL process"
-            Dialog Final_Update_DISA_Dialog
-        Else
-        PF9
-        For i = 0 To UBound(changedIndexes)
-            idx = changedIndexes(i)
+    changedIndexes = BuildChangedList(origArray, newArray)
 
-            Select Case idx
-                Case 0
-                    EMWriteScreen newArray(Left(idx, 2)), 11, 59 ' CASH Status Update
-                Case 1
-                    EMWriteScreen newArray(Left(idx, 2)), 12, 59 ' FS Status Update
-                Case 2
-                    EMWriteScreen newArray(Left(idx, 2)), 13, 59 ' HC Status Update
-                Case 3
-                    EMWriteScreen newArray(Left(idx, 1)), 11, 69 ' CASH verification update
-                Case 4
-                    EMWriteScreen newArray(Left(idx, 1)), 12, 69 ' FS verification update
-                Case 5
-                    EMWriteScreen newArray(Left(idx, 1)), 13, 69 ' HC Status Update
-                End Select
-        Next
-        transmit
-        
-        'Redefine original statuses based on the new Array values so that the function can loop regarding panel updates
-        orig_cash_status = newArray(0)
-        orig_fs_status = newArray(1)
-        orig_hc_status = newArray(2)
-        orig_cash_ver = newArray(3)
-        orig_fs_ver = newArray(4)
-        orig_hc_ver = newArray(5)
-        
+If UBound(changedIndexes) = -1 Then
+    MsgBox "No changes were made..."
+    Exit Function
+End If
+
+    PF9
+
+    For i = 0 To UBound(changedIndexes)
+        idx = changedIndexes(i)
+
+        Select Case idx
+            Case 0
+                If newArray(idx) = "BLANK" Then
+                    EMWriteScreen "  ", 11, 59
+                Else
+                    EMWriteScreen Left(newArray(idx), 2), 11, 59
+                End If
+            Case 1
+                If newArray(idx) = "BLANK" then
+                    EMWriteScreen "  ", 12, 59
+                Else
+                    EMWriteScreen Left(newArray(idx), 2), 12, 59
+                End If
+            Case 2
+                If newArray(idx) = "BLANK" then
+                    EMWriteScreen "  ", 13, 59
+                Else
+                    EMWriteScreen Left(newArray(idx), 2), 13, 59
+                End If
+            Case 3
+                If newArray(idx) = "BLANK" then
+                    EMWriteScreen " ", 11, 69
+                Else
+                    EMWriteScreen Left(newArray(idx), 1), 11, 69
+                End If
+            Case 4
+                If newArray(idx) = "BLANK" then
+                    EMWriteScreen " ", 12, 69
+                Else
+                    EMWriteScreen Left(newArray(idx), 1), 12, 69
+                End If
+            Case 5
+                If newArray(idx) = "BLANK" then
+                    EMWriteScreen " ", 13, 69
+                Else
+                    EMWriteScreen Left(newArray(idx), 1), 13, 69
+                End If
+        End Select
+    Next
+    
+' Need additional handling in here for all blanks apeparing
 
 
-        Dialog1 = ""
+    transmit
 
-        BeginDialog Dialog1, 0, 0, 421, 115, "Update DISA Panel Options"
-        ButtonGroup ButtonPressed
-            CancelButton 320, 80, 50, 15
-            PushButton 300, 30, 95, 15, "Correct - Proceed to TIKL", TIKL_Correct
-            PushButton 290, 55, 115, 15, "More Changes Made - Update", Update_Again
-        DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
-        DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
-        DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
-        DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
-        DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
-        DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
-        Text 5, 20, 50, 15, "CASH"
-        Text 5, 50, 50, 15, "FS"
-        Text 5, 80, 50, 15, "HC"
-        Text 65, 5, 105, 15, "Disability Status"
-        Text 195, 5, 105, 15, "Verification Type"
-        EndDialog
+    orig_cash_status = newArray(0)
+    orig_fs_status = newArray(1)
+    orig_hc_status = newArray(2)
+    orig_cash_ver = newArray(3)
+    orig_fs_ver = newArray(4)
+    orig_hc_ver = newArray(5)
 
-                'dialog and dialog DO...Loop
-                Do
-                    Do
-                        Dialog Dialog1
 
-                        If ButtonPressed = select_a_file_button then call file_selection_dialog()
-                    Loop until ButtonPressed = OK and file_selection_path <> ""
-                    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-                Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-        End If
-    End If
 End Function
+
+Function DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type)
+    
+    DISA_Fields_Are_Valid = False
+
+    If CASH_disa_option_status = "BLANK" And CASH_disa_ver_type = "BLANK" And _
+       FS_disa_option_status = "BLANK" And FS_disa_ver_type = "BLANK" And _
+       HC_disa_option_status = "BLANK" And HC_disa_ver_type = "BLANK" Then
+        MsgBox "All disability status and verification fields are blank. Please correct the information before proceeding."
+        Exit Function
+    End If
+
+    If (CASH_disa_option_status = "BLANK") <> (CASH_disa_ver_type = "BLANK") Then
+        MsgBox "CASH Disability status and verification must either both be filled or both be blank."
+        Exit Function
+    End If
+
+    If (FS_disa_option_status = "BLANK") <> (FS_disa_ver_type = "BLANK") Then
+        MsgBox "SNAP/FS Disability status and verification must either both be filled or both be blank."
+        Exit Function
+    End If
+
+    If (HC_disa_option_status = "BLANK") <> (HC_disa_ver_type = "BLANK") Then
+        MsgBox "HC Disability status and verification must either both be filled or both be blank."
+        Exit Function
+    End If
+
+    DISA_Fields_Are_Valid = True
+
+End Function
+
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER------------------As such, it does NOT include protections to be ran independently--------------------
 
 'Connects to MAXIS
 EMConnect ""
 Dialog1 = ""
-DialogSTATDISA = ""
-Dialog_TIKL_checking = ""
-Update_DISA_Dialog = ""
-Final_Update_DISA_Dialog = ""
 
 'Opens the Edit Summary (SUMM) screen - note to Sam, this may eventually need adjusted based on how the scrubber gets updated. 
 'EMWriteScreen "S", 6, 3
@@ -578,91 +603,9 @@ HC_allVerOptions = GLOBAL_HC_DISA_VER
 HC_ver_optionsString = BuildDropDownList(currentHCver, HC_allVerOptions)
 
 
-' ======== Various dialog boxes for pathway
-' Initial Dialog Box that displays the STAT/DISA information
-BeginDialog DialogSTATDISA, 0, 0, 690, 275, "STAT/DISA Information"
-  ButtonGroup ButtonPressed
-    OkButton 570, 250, 50, 15
-    CancelButton 630, 250, 50, 15
-  GroupBox 10, 35, 320, 185, "DISA Dates"
-  Text 20, 55, 295, 15, "Disability Begin: " & DISA_bgn_date
-  Text 20, 75, 295, 15, "Disability End: " & DISA_end_date
-  Text 20, 95, 295, 15, "Certification Begin: " & Cert_period_bgn
-  Text 20, 115, 295, 15, "Certification End: " & Cert_period_end
-  Text 20, 135, 295, 15, "Elder Waiver Begin: " & Eld_wavr_bgn
-  Text 20, 155, 295, 15, "Elder Waiver End: " & Eld_wavr_end
-  Text 20, 175, 295, 15, "GRH Begin: " & GRH_bgn
-  Text 20, 195, 295, 15, "GRH End: " & GRH_end
-  GroupBox 345, 65, 330, 165, "DISA Status and Verification"
-  Text 355, 85, 310, 15, "Cash Status: " & cash_disa_status
-  Text 355, 105, 310, 15, "Cash Verification: " & cash_disa_ver
-  Text 355, 125, 310, 15, "FS Status: " & fs_disa_status
-  Text 355, 145, 310, 15, "FS Verification: " & fs_disa_ver
-  Text 355, 165, 310, 15, "HC Status: " & hc_disa_status
-  Text 355, 185, 310, 15, "HC Verification: " & hc_disa_ver
-  Text 355, 10, 135, 15, "CASE NUMBER: " & MAXIS_case_number
-  Text 15, 225, 300, 15, "Select Action You Would Like to Take"
-  Text 355, 30, 320, 15, "MEMBER: " & person_info
-  Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
-  DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE updated verif request"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
-EndDialog
-
-'Dialog for right after "TIKL and CASE/NOTE updated verif request"
-BeginDialog Dialog_TIKL_checking, 0, 0, 290, 105, "Verification Source Check"
-  ButtonGroup ButtonPressed
-    PushButton 170, 40, 100, 25, "YES - Proceed to TIKL", TIKL_button
-    PushButton 170, 70, 100, 25, "NO - Update DISA Panel", Update_Before_TIKL
-  Text 5, 5, 150, 20, "The current verification source(s) is listed as"
-  Text 5, 30, 155, 15, "CASH Verif" & cash_disa_ver
-  Text 5, 50, 155, 15, "FS Verif" & fs_disa_ver
-  Text 5, 70, 155, 15, "HC Verif" & hc_disa_ver
-  Text 175, 10, 95, 20, "Is this correct?"
-EndDialog
-
-'First dialog for updating the DISA panel if requested from Dialog_TIKL_checking
-BeginDialog Update_DISA_Dialog, 0, 0, 351, 115, "Update DISA Panel Options"
-  ButtonGroup ButtonPressed
-    OkButton 290, 65, 50, 15
-    CancelButton 290, 85, 50, 15
-  DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
-  DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
-  DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
-  DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
-  DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
-  DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
-  Text 5, 20, 50, 15, "CASH"
-  Text 5, 50, 50, 15, "FS"
-  Text 5, 80, 50, 15, "HC"
-  Text 65, 5, 105, 15, "Disability Status"
-  Text 195, 5, 105, 15, "Verification Type"
-EndDialog
 
 
-'Second/Final dialog for updating the DISA panel - it shows the new selection and allows for the user to either press "correct" and proceed to the TIKL and CASE/NOTE; or loop through making more changes
-BeginDialog Final_Update_DISA_Dialog, 0, 0, 421, 115, "Update DISA Panel Options"
-  ButtonGroup ButtonPressed
-    CancelButton 320, 80, 50, 15
-    PushButton 300, 30, 95, 15, "Correct - Proceed to TIKL", TIKL_Correct
-    PushButton 290, 55, 115, 15, "More Changes Made - Update", Update_Again
-  DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
-  DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
-  DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
-  DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
-  DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
-  DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
-  Text 5, 20, 50, 15, "CASH"
-  Text 5, 50, 50, 15, "FS"
-  Text 5, 80, 50, 15, "HC"
-  Text 65, 5, 105, 15, "Disability Status"
-  Text 195, 5, 105, 15, "Verification Type"
-EndDialog
-
-
-
-
-
-
-
+'===========
 
 
 
@@ -696,7 +639,6 @@ BeginDialog Dialog1, 0, 0, 690, 275, "STAT/DISA Information"
   DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE updated verif request"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
 EndDialog
 
-Do
     Do
         Dialog Dialog1
             If DISA_option_list = "TIKL and CASE/NOTE updated verif request" And ButtonPressed = OK then
@@ -715,122 +657,128 @@ Do
                 EndDialog
                 Do
                 Dialog Dialog1
+                cancel_confirmation
                     If ButtonPressed = Update_Before_TIKL then 
+                        
                         Dialog1 = ""
                         'First dialog for updating the DISA panel if requested from Dialog_TIKL_checking
-                        BeginDialog Dialog1, 0, 0, 351, 115, "Update DISA Panel Options"
-                        ButtonGroup ButtonPressed
-                            OkButton 290, 65, 50, 15
-                            CancelButton 290, 85, 50, 15
-                        DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
-                        DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
-                        DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
-                        DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
-                        DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
-                        DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
-                        Text 5, 20, 50, 15, "CASH"
-                        Text 5, 50, 50, 15, "FS"
-                        Text 5, 80, 50, 15, "HC"
-                        Text 65, 5, 105, 15, "Disability Status"
-                        Text 195, 5, 105, 15, "Verification Type"
-                        EndDialog
-                        Do
-                        Dialog dialog1
-                        if ButtonPressed = cancel
-                        call check_for_password(are_we_passworded_out)
-                        Loop until are_we_passworded_out = false and ButtonPressed = OK
-                        call Update_DISA_Panel_Loop()
+                            BeginDialog Dialog1, 0, 0, 351, 115, "Update DISA Panel Options"
+                            ButtonGroup ButtonPressed
+                                OkButton 290, 65, 50, 15
+                                CancelButton 290, 85, 50, 15
+                            DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+                            DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+                            DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+                            DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+                            DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+                            DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+                            Text 5, 20, 50, 15, "CASH - "
+                            Text 5, 50, 50, 15, "FS - "
+                            Text 5, 80, 50, 15, "HC - "
+                            Text 65, 5, 105, 15, "Disability Status"
+                            Text 195, 5, 105, 15, "Verification Type"
+                            EndDialog
                         
-                Loop until are_we_passworded_out = false and ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" and hc_disa_ver <> "N - No Verif Provided"
+                        Do
+                            
+                            Dialog dialog1
+                            cancel_confirmation
+                                If ButtonPressed = OK and DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type) = true then call Update_DISA_Panel_Loop()
+                                Dialog1 = ""
+                                'establish new dialog
+                                'Second/Final dialog for updating the DISA panel - it shows the new selection and allows for the user to either press "correct" and proceed to the TIKL and CASE/NOTE; or loop through making more changes
+                                    BeginDialog Dialog1, 0, 0, 421, 115, "Update DISA Panel Options"
+                                        ButtonGroup ButtonPressed
+                                            CancelButton 320, 80, 50, 15
+                                            PushButton 300, 30, 95, 15, "Correct - Proceed to TIKL", TIKL_Correct
+                                            PushButton 290, 55, 115, 15, "More Changes Made - Update", Update_Again
+                                        DropListBox 60, 20, 115, 20, CASH_status_optionsString, CASH_disa_option_status
+                                        DropListBox 60, 50, 115, 20, FS_status_optionsString, FS_disa_option_status
+                                        DropListBox 60, 80, 115, 20, HC_status_optionsString, HC_disa_option_status
+                                        DropListBox 195, 20, 80, 25, CASH_ver_optionsString, CASH_disa_ver_type
+                                        DropListBox 195, 50, 80, 25, FS_ver_optionsString, FS_disa_ver_type
+                                        DropListBox 195, 80, 80, 25, HC_ver_optionsString, HC_disa_ver_type
+                                        Text 5, 20, 50, 15, "CASH"
+                                        Text 5, 50, 50, 15, "FS"
+                                        Text 5, 80, 50, 15, "HC"
+                                        Text 65, 5, 105, 15, "Disability Status"
+                                        Text 195, 5, 105, 15, "Verification Type"
+                                    EndDialog
+                                Do 
+                                    Dialog Dialog1
+                                        If ButtonPressed = Update_Again and DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type) = true then 
+                                            call Update_DISA_Panel_Loop()
+                                        End If
+                                        If ButtonPressed = Cancel then
+                                            call script_end_procedure("You have cancelled the script. It will now end.")
+                                        End If
+                                        call check_for_password(are_we_passworded_out)
+                                Loop until ButtonPressed = TIKL_Correct and are_we_passworded_out = false and DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type) = true           
+                        Loop Until ButtonPressed <> Update_Before_TIKL
+                        If ButtonPressed = cancel then script_end_procedure("You have chosen to cancel the script, the script will now end.")
+                        If ButtonPressed = TIKL_Correct and DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type) then
+                            call create_TIKL(form_to_send & " was submitted 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                            call navigate_to_MAXIS_screen("CASE", "NOTE")
+                            PF9
+                            call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
+                            call write_variable_in_CASE_NOTE("---------")
+                            call write_variable_in_CASE_NOTE(person_info & " needs new verification for their disability status")
+                            call write_variable_in_CASE_NOTE("Client was sent " & form_to_send & " and a TIKL was created")
+                            call write_variable_in_CASE_NOTE(TIKL_note_text)
+                            Call write_variable_in_CASE_NOTE("---")
+                            call write_variable_in_CASE_NOTE(worker_signature)
+                            'Now for DAIL deletion
+                            call navigate_to_MAXIS_screen("DAIL", "DAIL") 
+                            EMWriteScreen MAXIS_case_number, 20, 38
+                            Transmit 
+                            call search_for_correct_DAIL_and_delete(last_first_name, Original_DAIL)
+
+                        End If
+                    End If
+                    If ButtonPressed = TIKL_button then
+                        call create_TIKL(form_to_send & " was submitted 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                        call navigate_to_MAXIS_screen("CASE", "NOTE")
+                        PF9
+                        call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
+                        call write_variable_in_CASE_NOTE("---------")
+                        call write_variable_in_CASE_NOTE(person_info & " needs new verification for their disability status")
+                        call write_variable_in_CASE_NOTE("Client was sent " & form_to_send & " and a TIKL was created")
+                        call write_variable_in_CASE_NOTE(TIKL_note_text)
+                        Call write_variable_in_CASE_NOTE("---")
+                        call write_variable_in_CASE_NOTE(worker_signature)
+                        'Now for DAIL deletion
+                        call navigate_to_MAXIS_screen("DAIL", "DAIL") 
+                        EMWriteScreen MAXIS_case_number, 20, 38
+                        Transmit 
+                        call search_for_correct_DAIL_and_delete(last_first_name, Original_DAIL)    
+                    End If
+                    Call check_for_password(are_we_passworded_out)
+                Loop until are_we_passworded_out = false 
+
             End If    
+            If DISA_option_list = "CASE/NOTE only" And ButtonPressed = OK Then
+                        call navigate_to_MAXIS_screen("CASE", "NOTE")
+                        PF9
+                        call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
+                        call write_variable_in_CASE_NOTE("---------")
+                        call write_variable_in_CASE_NOTE(person_info & " needs new verification for their disability status")
+                        call write_variable_in_CASE_NOTE("Client was sent " & form_to_send & " and a TIKL was created")
+                        call write_variable_in_CASE_NOTE(TIKL_note_text)
+                        Call write_variable_in_CASE_NOTE("---")
+                        call write_variable_in_CASE_NOTE(worker_signature)  
+            End If
+            If DISA_option_list = "Delete DAIL only" And ButtonPressed = OK Then
+                call navigate_to_MAXIS_screen("DAIL", "DAIL") 
+                EMWriteScreen MAXIS_case_number, 20, 38
+                Transmit 
+                call search_for_correct_DAIL_and_delete(last_first_name, Original_DAIL)
+            End If
+
+        
+        call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = false 
 
 
 
-
-
-
-
-    Dialog Dialog_TIKL_checking
-
-        If ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" then
-                'Call create_TIKL(form_to_send & " was sent 30 days ago. Please review case", 30, date, False, TIKL_note_text)
-                'Call navigate_to_MAXIS_screen("CASE", "NOTE")
-                'PF9
-                msgbox "yay!!"
-        ElseIf ButtonPressed = Update_Before_TIKL then
-            Dialog Update_DISA_Dialog
-                If ButtonPressed = OK then
-                    Call Update_DISA_Panel_Loop()
-                    Do While ButtonPressed = Update_Again
-                        Call Update_DISA_Panel_Loop()
-                    Loop
-                    If ButtonPressed = TIKL_Correct then
-                        'Call create_TIKL()
-                        msgbox "we'll put the full call TIKL process here"
-                    End If
-                End If 
-        Else
-            msgbox "The verification source is listed as 'No Verification Provided'. Please update the DISA panel with the correct verification source before proceeding to create a TIKL."
-            Dialog Dialog_TIKL_checking
-        End If
-End If
-
-    CALL check_for_password(are_we_passworded_out)	
-Loop until are_we_passworded_out = False	
-
-
-If DISA_option_list = "TIKL and CASE/NOTE updated verif request" then
-    Dialog Dialog_TIKL_checking
-
-        If ButtonPressed = TIKL_button and cash_disa_ver <> "N - No Verif Provided" and fs_disa_ver <> "N - No Verif Provided" then
-                'Call create_TIKL(form_to_send & " was sent 30 days ago. Please review case", 30, date, False, TIKL_note_text)
-                'Call navigate_to_MAXIS_screen("CASE", "NOTE")
-                'PF9
-                msgbox "yay!!"
-        ElseIf ButtonPressed = Update_Before_TIKL then
-            Dialog Update_DISA_Dialog
-                If ButtonPressed = OK then
-                    Call Update_DISA_Panel_Loop()
-                    Do While ButtonPressed = Update_Again
-                        Call Update_DISA_Panel_Loop()
-                    Loop
-                    If ButtonPressed = TIKL_Correct then
-                        'Call create_TIKL()
-                        msgbox "we'll put the full call TIKL process here"
-                    End If
-                End If 
-        Else
-            msgbox "The verification source is listed as 'No Verification Provided'. Please update the DISA panel with the correct verification source before proceeding to create a TIKL."
-            Dialog Dialog_TIKL_checking
-        End If
-End If
-
-If DISA_option_list = "CASE/NOTE only" then
-MsgBox "why are we even here???"
-End If
-
-If DISA_option_list = "Delete DAIL" then
-    msgbox "This option is not yet available. Please delete the DAIL manually."
-End If
-
-
-'EMReadScreen cash_disa_status, 1, 11, 69
-'If cash_disa_status <> "1" then script_end_procedure("This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time.")
-
-
-
-
-'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-'Call create_TIKL("Medical Opinion Form sent 30 days ago. Please review case, and send another request/MOF if applicable.", 30, date, False, TIKL_note_text)
-
-'Call navigate_to_MAXIS_screen("CASE", "NOTE")
-'PF9
-'Call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-'If cash_disa_status = 1 then Call write_variable_in_CASE_NOTE("* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client.")
-'Call write_variable_in_CASE_NOTE(TIKL_note_text)
-'Call write_variable_in_CASE_NOTE("---")
-'Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("script done. This is testing only")
-
-' Before end procedure - dialog that says "do you wish to return to the DAIL scrubber? No will end the script."
