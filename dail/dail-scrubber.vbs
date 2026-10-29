@@ -267,7 +267,7 @@ END IF
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
 EMReadScreen DISA_check, 58, 6, 20
-If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
+If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" or DISA_check = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" then
 	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and create a TIKL and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/disa-message.vbs")
 END IF

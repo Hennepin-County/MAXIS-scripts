@@ -59,16 +59,19 @@ changelog_display
 
 ' will need reordered based on usage order
 
-Dim row, col, Original_DAIL, MEMB_name_to_save
+Dim row, col, Original_DAIL, MEMB_name_to_save, MembNo_value, count
 Dim DISA_bgn_date, DISA_end_date
 Dim Cert_period_bgn, Cert_period_end
 Dim Eld_wavr_bgn, Eld_wavr_end, GRH_bgn, GRH_end
 Dim cash_disa_status, cash_disa_ver, fs_disa_status, fs_disa_ver, hc_disa_status, hc_disa_ver
 Dim MEMB_No, last_first_name, person_info
-Dim form_to_send, verification_process
+Dim form_to_send, verification_process, form_needed, short_verif_info
 Dim GLOBAL_CASH_DISA_STATUS, GLOBAL_CASH_DISA_VER, GLOBAL_FS_DISA_STATUS, GLOBAL_FS_DISA_VER, GLOBAL_HC_DISA_STATUS, GLOBAL_HC_DISA_VER
 Dim origArray, newArray
 Dim orig_cash_status, orig_cash_ver, orig_fs_status, orig_fs_ver, orig_hc_status, orig_hc_ver
+
+
+
 
 
 
@@ -158,8 +161,32 @@ GLOBAL_HC_DISA_VER = Array( _
     "BLANK" _
 )
 
-' This returns to the DAIL/DAIL screen for deletion. Prior iterations of disa-message did not have delete feature. This logic could probably be tightened up, but with only one potential string match, it should work as intended
-' leave the parameters (last_first_name, Original_DAIL) as written and they will use the variables already in use for CASE/NOTEing and TIKLing
+GLOBAL_CASH_VERIF_PROCESSES = Array( _
+        "MOF send through ECF", _
+        "SMI checked and verified", _
+        "HC Active - SMRT submitted through ISDS/ECF", _
+        "Other documentation (please note)", _
+        "Other client contact (please note)"_
+)
+
+GLOBAL_FS_VERIF_PROCESSES = Array( _
+        "MOF send through ECF", _
+        "HC Active - SMRT submitted through ISDS/ECF", _
+        "SMI checked and verified", _
+        "Other documentation (please note)", _
+        "Other client contact (please note)"_
+)
+
+GLOBAL_HC_VERIF_PROCESSES = Array( _
+        "MOF send through ECF", _
+        "SMRT submitted through ISDS/ECF", _
+        "SMI checked and verified", _
+        "Other documentation (please note)", _
+        "Other client contact (please note)"_
+)
+
+' This returns to the DAIL/DAIL screen for deletion. Will need to be put in the FuncLib eventually as all other scripts called from the DAIL scrubber should have this functionality
+' leave the parameters (MEMB_name_to_save, Original_DAIL) as written and they will use the variables already in use for CASE/NOTEing and TIKLing
 Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
     'Check on the right screen
     EMReadScreen WORKERS_check, 7, 2, 26
@@ -171,7 +198,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
     row = 5
     col = 4
     EMSearch MEMB_name_to_save, row, col
-    'If last_first_name cannot be found, loop through DAIL/DAIL with PF8. If the last_page_check triggers, end the script; otherwise, look for the name again and keep looping until the script finds it.
+    'If MEMB_name_to_save cannot be found, loop through DAIL/DAIL with PF8. If the last_page_check triggers, end the script; otherwise, look for the name again and keep looping until the script finds it.
     If row = 0 and col = 0 then
         Do
             PF8
@@ -204,7 +231,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
 End Function
 
 
-'Build the dropdown list for the dialog box. Using chr(9) with JOIN was the only way I found to split the string correctly
+'Build the dropdown list for the dialog box. Using chr(9) with JOIN was the only way I found to split the string correctly. 
 Function BuildDropDownList(currentValue, allOptions)
     Dim tempArray()
     Dim i
@@ -248,13 +275,13 @@ Function Read_DISA()
     'double-check that user hasn't accidentally navigated away from the DISA panel
     EMReadScreen DISA_chk, 4, 2, 45
     If DISA_chk <> "DISA" then script_end_procedure("Not on a DISA message, the script will now end.") 
-    
-    'Read the member number and name; trim for spaces; and create the person_info variable that's used for CASE/NOTEs and dialog boxes throughout
+
+
+    'Read the member number; trim for spaces; and add the matched name variable to create the person_info variable that's used for CASE/NOTEs and dialog boxes throughout
     EMReadScreen MEMB_No, 2, 4, 33
-    trim(MEMB_No)
-    EMReadScreen last_first_name, 33, 4, 37
-    trim(last_first_name)
-    person_info = MEMB_No & " " & last_first_name
+    MEMB_No = trim(MEMB_No)
+    person_info = MEMB_No & " " & MEMB_name_to_save
+
 
     'Read and format the disability begin date
     EMReadScreen DISA_bgn_date_month, 2, 6, 47
@@ -337,7 +364,7 @@ Function Read_DISA()
         GRH_end = GRH_end_month & "/" & GRH_end_day & "/" & GRH_end_year
     End if
     
-' afasdf
+' Disability statuses and verifications
     EMReadScreen cash_disa_status, 2, 11, 59
         If cash_disa_status = "01" then cash_disa_status = "01 - RSDI Only Disability"
         If cash_disa_status = "02" then cash_disa_status = "02 - RSDI Only Blindness"
@@ -414,6 +441,7 @@ Function Read_DISA()
         If hc_disa_ver = "N" then hc_disa_ver = "N - No Verif Provided"
         If hc_disa_ver = "_" then hc_disa_ver = "BLANK"
 
+
 ' Set the "original" variables to the variables used for displaying selections from the dropdown List. This allows for the creation of the changed array later; and enables correct displays on dropdowns.    
 orig_cash_status = cash_disa_status
 orig_cash_ver    = cash_disa_ver
@@ -422,7 +450,7 @@ orig_fs_ver      = fs_disa_ver
 orig_hc_status   = hc_disa_status
 orig_hc_ver      = hc_disa_ver  
 
-
+'create arrays of all statuses for dropdown boxes in dialogs later
 Dim results
     results = Array( _
         cash_disa_status, _
@@ -438,6 +466,27 @@ Dim results
         GLOBAL_HC_DISA_STATUS, _
         GLOBAL_HC_DISA_VER _
     )
+
+
+' this could be cleaner....
+    If CASH_disa_option_status <> "BLANK" and CASH_disa_ver_type <> "BLANK" then
+        CASH_active = true
+    Else
+        Cash_active = false
+    End If
+
+    If FS_disa_option_status <> "BLANK" and FS_disa_ver_type <> "BLANK" then
+        FS_active = true
+    Else
+        FS_active = false
+    End If
+
+    If HC_disa_option_status <> "BLANK" and HC_disa_ver_type <> "BLANK" then
+        HC_active = true
+    Else
+        HC_active = false
+    End If
+
 
 Read_DISA = results
 
@@ -564,7 +613,7 @@ Function DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_d
             MsgBox "Disability statuses related to SMRT must have a verification type of ""2 - SMRT Certified"". Please correct this error."
             Exit Function
         End If
-        MsgBox "Please note that most CASH programs should not be referred to SMRT for a disability determination. It is assumed you have selected this option due to the client having a usable SMRT determination from a different program."
+        ' MsgBox "Please note that most CASH programs should not be referred to SMRT for a disability determination. It is assumed you have selected this option due to the client having a usable SMRT determination from a different program."
         Form_needed = true
         form_to_send = "SMRT Referral"
         short_verif_info = "ISDS/ECF"
@@ -605,7 +654,7 @@ Function DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_d
             MsgBox "Disability statuses related to SMRT must have a verification type of ""2 - SMRT Certified"". Please correct this error."
             Exit Function
         End If
-        MsgBox "Please note that SNAP cases should not be referred to SMRT for a disability determination. It is assumed you have selected this option due to the client having a usable SMRT determination from a different program."
+        ' MsgBox "Please note that SNAP cases should not be referred to SMRT for a disability determination. It is assumed you have selected this option due to the client having a usable SMRT determination from a different program."
         Form_needed = true
         form_to_send = "SMRT Referral"
         short_verif_info = "ISDS/ECF"
@@ -667,16 +716,199 @@ Function DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_d
         Exit Function
     End If
 
+
+    If CASH_disa_option_status <> "BLANK" and CASH_disa_ver_type <> "BLANK" then
+        CASH_active = true
+    Else
+        Cash_active = false
+    End If
+
+    If FS_disa_option_status <> "BLANK" and FS_disa_ver_type <> "BLANK" then
+        FS_active = true
+    Else
+        FS_active = false
+    End If
+
+    If HC_disa_option_status <> "BLANK" and HC_disa_ver_type <> "BLANK" then
+        HC_active = true
+    Else
+        HC_active = false
+    End If
+
 DISA_Fields_Are_Valid = True
 
 End Function
 
+'Function-izing the logic to create an array of the HH MEMBs and loop through each of their panels, matching the MEMB_name_to_save from our DAIL selection to the name on the panel
+' MEMB_name_to_save = keep this written as the parameter
+Function MEMB_Name_DAIL_matching(MEMB_name_to_save)
 
-'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER------------------As such, it does NOT include protections to be ran independently--------------------
+    Dim MEMB_loop_array()
+    ReDim MEMB_loop_array(0)
 
-'Connects to MAXIS
-EMConnect ""
-Dialog1 = ""
+    count = 0
+
+    row = 5
+
+    Do
+        EMReadScreen MEMB_number_from_comparison, 2, row, 3
+
+        MembNo_value = Trim(MEMB_number_from_comparison)
+
+        If MembNo_value = "" then
+            Exit Do
+        End If
+
+        If IsNumeric(MembNo_value) then
+            ReDim Preserve MEMB_loop_array(count)
+            MEMB_loop_array(count) = MembNo_value
+            count = count + 1
+        End If
+
+        Row = row + 1
+    Loop
+
+    For i = 0 To UBound(MEMB_loop_array)
+        mna = MEMB_loop_array(i)
+
+        Do
+            EMWriteScreen mna, 20, 76
+            transmit
+            EMReadScreen panel_exist_check, 14, 24, 13
+                If panel_exist_check = "DOES NOT EXIST" then
+                    Exit Do
+                End If
+                
+                EMReadScreen name_comparison_on_panel, 30, 4, 37
+                name_comparison_on_panel = trim(name_comparison_on_panel)
+                    
+                name_comparison_on_panel = replace(name_comparison_on_panel, ", ", ",")
+                    If name_comparison_on_panel = MEMB_name_to_save then
+                        exit function
+                    Else
+                        Exit Do
+                    End If 
+                
+        Loop
+
+    Next
+
+    call script_end_procedure("no panel matching the Member Name: " & MEMB_name_to_save & " could be found. The script will now end.")
+
+End Function
+
+
+Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
+
+
+    'Creating logic for listing out active programs and potentially different disability statuses in the same casenote
+    If CASH_active = true and FS_active = true and HC_active = true then
+        current_programs_active = "CASH, FS, HC"
+        If CASH_disa_option_status = FS_disa_option_status and CASH_disa_option_status = HC_disa_option_status then
+            disability_type = CASH_disa_option_status
+        Elseif CASH_disa_option_status = FS_disa_option_status and CASH_disa_option_status <> HC_disa_option_status then
+            disability_type = CASH_disa_option_status & " , " & HC_disa_option_status
+        Elseif CASH_disa_option_status <> FS_disa_option_status and CASH_disa_option_status = HC_disa_option_status then
+            disability_type = CASH_disa_option_status & " , " & FS_disa_option_status
+        End If
+
+    Elseif CASH_active = true and FS_active = true and HC_active = false then
+        current_programs_active = "CASH, FS"
+        If CASH_disa_option_status = FS_disa_option_status then
+            disability_type = CASH_disa_option_status
+        Elseif CASH_disa_option_status <> FS_disa_option_status then
+            disability_type = CASH_disa_option_status & " , " & FS_disa_option_status
+        End if 
+    
+    Elseif CASH_active = false and FS_active = true and HC_active = true then
+        current_programs_active = "FS, HC"
+        If FS_disa_option_status = HC_disa_option_status then
+            disability_type = FS_disa_option_status
+        Elseif FS_disa_option_status <> HC_disa_option_status then
+            disability_type = FS_disa_option_status & " , " & HC_disa_option_status
+        End if
+
+    Elseif CASH_active = true and FS_active = false and HC_active = true then
+        current_programs_active = "CASH, HC"
+        If CASH_disa_option_status = HC_disa_option_status then
+            disability_type = CASH_disa_option_status
+        Elseif CASH_disa_option_status <> HC_disa_option_status then
+            disability_type = CASH_disa_option_status & " , " & HC_disa_option_status
+        End If
+
+    Elseif CASH_active = true and FS_active = false and HC_active = false then
+        current_programs_active = "CASH"
+        disability_type = CASH_disa_option_status
+
+    Elseif CASH_active = false and FS_active = true and HC_active = false then
+        current_programs_active = "FS"
+        disability_type = FS_disa_option_status
+
+    Elseif CASH_active = false and FS_active = false and HC_active = true then
+        current_programs_active = "HC"
+        disability_type = HC_disa_option_status
+
+    End If
+
+
+
+    If Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
+        '
+
+
+        ' if box is checked, do TIKL
+        call navigate_to_MAXIS_screen("CASE", "NOTE")
+        PF9
+        
+        call write_variable_in_CASE_NOTE(Original_DAIL)
+        call write_variable_in_CASE_NOTE("---------")
+        call write_variable_in_CASE_NOTE(trim(person_info) & " - needs new verification for their disability status") 
+        call write_variable_in_CASE_NOTE("Client's current disability status(es) are " & disability_type & " for " & current_programs_active)
+            If Still_need_TIKL = Checked then 
+            call write_variable_in_CASE_NOTE("Verification from client requested through and a TIKL was created. The case worker noted the following process was used: " & verification) 
+            Else 
+            call write_variable_in_CASE_NOTE("Verification was reveiwed from client through " & short_verif_info)
+            End if 
+        call write_variable_in_CASE_NOTE(TIKL_note_text)
+        call write_variable_in_CASE_NOTE("---")
+        call write_variable_in_CASE_NOTE(worker_signature)
+    
+    Elseif Original_DAIL = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" then
+        call navigate_to_MAXIS_screen("CASE", "NOTE")
+        PF9
+
+        call write_variable_in_CASE_NOTE(Original_DAIL)
+        call write_variable_in_CASE_NOTE("---------")
+        call write_variable_in_CASE_NOTE(trim(person_info) & "'s disability status has ended as of " & DISA_end_date) 
+        call write_variable_in_CASE_NOTE("Client's disability status(es) were " & disability_type & ". Updated documentation has not received.")
+        call write_variable_in_CASE_NOTE("The case worker noted the following information regarding eligibility change(s):")
+        If CASH_active = true then
+            call write_variable_in_CASE_NOTE("CASH eligibility: " & CASHedit)
+            call write_variable_in_CASE_NOTE("=======")
+        End if 
+        If FS_active = true then
+            call write_variable_in_CASE_NOTE("FS eligibility: " & FSedit)
+            call write_variable_in_CASE_NOTE("=======")
+        End If 
+        If HC_active = true then
+            call write_variable_in_CASE_NOTE("HC eligibility: " & HCedit)
+            call write_variable_in_CASE_NOTE("=======")
+        End if
+
+        Call write_variable_in_CASE_NOTE("---")
+        call write_variable_in_CASE_NOTE(worker_signature) 
+
+    End If
+
+End Function
+
+
+
+
+
+
+
+Function Find_MEMB_and_message_for_DAIL_string_match(MEMB_name_to_save, Original_DAIL)
 
 'Pulling DAIL-screen specifics for easier deletion later
 row = 1
@@ -699,13 +931,11 @@ End If
 
 row = 6
 col = 1
+
 'Double check DAIL message is still correct
-EMSearch "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS", row, col
-
-
+EMSearch Original_DAIL, row, col
 If row = 0 or col = 0 then
-    'Putting in skeleton of second message functionality because I think it would be easy to fold in the "disability has ended" message that's currently unhandled but in catch-all
-    EMSearch "HELLO", 6, col
+script_end_procedure("The script will now end because the DAIL went missing after the scrubber was started.")
 End If
 
 If col <> 0 and row = 6 then
@@ -713,57 +943,48 @@ If col <> 0 and row = 6 then
     EMWriteScreen "S", 6, 3
     transmit
 Else
-    script_end_procedure("ending because the DAIL went missing after the scrubber started")    
+    script_end_procedure("The script will now end because the DAIL went missing after the scrubber was started")    
 End If
 
+
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER------------------As such, it does NOT include protections to be ran independently--------------------
+
+'Connects to MAXIS
+EMConnect ""
+Dialog1 = ""
+
+'pulls and stores the MEMB name (since no number is listed); finds and saves the string of the original DAIL message
+Call Find_MEMB_and_message_for_DAIL_string_match(MEMB_name_to_save, Original_DAIL)
 
 ' Navigates to the STAT/DISA screen. 
 EMWriteScreen "DISA", 20, 71
 transmit
 
-'Compare name to panel that appeared - if a match doesn't happen, then find the correct name in the MEMB list on the left
-EMReadScreen name_comparison_on_panel, 30, 4, 37
-    name_comparison_on_panel = trim(name_comparison_on_panel)
-    name_comparison_on_panel = Replace(name_comparison_on_panel, ", ", ",")
-If name_comparison_on_panel = MEMB_name_to_save then
-    name_comparison_on_panel = MEMB_name_to_save
-    EMReadScreen MEMB_ref_num, 2, 4, 33
-Else 
-    commaPOS = InStr(MEMB_name_to_save, ",")
-        If commaPOS > 0 then
-            MEMB_name_to_save = Mid(MEMB_name_to_save, commaPOS + 1)
-            MEMB_name_to_save = trim(MEMB_name_to_save)
-            miPOS = InStr(MEMB_name_to_save, " ")
-            If miPOS > 0 then
-                MEMB_name_to_save = Left(MEMB_name_to_save, miPOS - 1)
-                MEMB_name_to_save = trim(MEMB_name_to_save)
-            Else
-                MsgBox "put in an end message"
-            End If
-        Else
-            MsgBox "put in an end message"
-        End If
-    'create MAXIS friendly length for substring searching
-    substring_name_comparison = Left(MEMB_name_to_save, 6)
-    row = 1
-    col = 12
-    EMSearch substring_name_comparison, row, col
-    If row <> 0 and col = 12 then
-        EMReadScreen MEMB_number_from_comparison, 2, row, 3
-        EMWriteScreen MEMB_number_from_comparison, 20, 76
-        transmit
-            EMReadScreen MEMB_ref_num, 2, 4, 33
-    Else
-        MsgBox "tee hee"
-    End if
-End If
-
+'Finds the correct panel based on looping through an array of all MEMB No.s on a case and comparing the name on the panel (if it exists) to the name found on the DAIL
+call MEMB_Name_DAIL_matching(MEMB_name_to_save)
 
 'Reading all of the data and creating arrays for dropdown lists in later dialogs
-'Pulls the case number
 Call MAXIS_case_number_finder(MAXIS_case_number)
 disaDATA = Read_DISA()
 
+
+
+'=========might need to be it's own function for cleanup?
 'Build CASH Status dropdown list from disaDATA
 currentCASHstatus = cash_disa_status
 CASH_allStatusOptions = GLOBAL_CASH_DISA_STATUS
@@ -794,6 +1015,17 @@ currentHCver = hc_disa_ver
 HC_allVerOptions = GLOBAL_HC_DISA_VER
 HC_ver_optionsString = BuildDropDownList(currentHCver, HC_allVerOptions)
 
+currentCASHverificationprocess = verification_process
+CASH_allverificationprocesses = GLOBAL_CASH_VERIF_PROCESSES
+CASH_combobox_string = BuildDropDownList(currentCASHverificationprocess, CASH_allverificationprocesses)
+
+currentFSverificationprocess = verification_process
+FS_allverificationprocesses = GLOBAL_FS_VERIF_PROCESSES
+FS_combobox_string = BuildDropDownList(currentFSverificationprocess, FS_allverificationprocesses)
+
+currentHCverificationprocess = verification_process
+HC_allverificationprocesses = GLOBAL_HC_VERIF_PROCESSES
+HC_combobox_string = BuildDropDownList(currentHCverificationprocess, HC_allverificationprocesses)
 
 'Clearing Dialog1
 Dialog1 = ""
@@ -822,17 +1054,17 @@ BeginDialog Dialog1, 0, 0, 690, 275, "STAT/DISA Information"
         Text 15, 225, 300, 15, "Select Action You Would Like to Take"
         Text 355, 30, 320, 15, "MEMBER: " & person_info
         Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
-    DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE updated verif request"+chr(9)+"Disability Ended - CASE/NOTE"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
+    DropListBox 15, 240, 180, 20, "TIKL and CASE/NOTE Updated Verification Request"+chr(9)+"Disability Ended - CASE/NOTE details"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
 EndDialog
 
 'Initialize [STAT/DISA Information] Dialog Box
 Do
     Dialog Dialog1
     cancel_confirmation
-        If DISA_option_list = "TIKL and CASE/NOTE updated verif request" And ButtonPressed = OK then
+        If DISA_option_list = "TIKL and CASE/NOTE Updated Verification Request" And ButtonPressed = OK then
             'clear the dialog for rebuilding
             Dialog1 = ""
-            'Dialog for right after "TIKL and CASE/NOTE updated verif request"
+            'Dialog for right after "TIKL and CASE/NOTE Updated Verification Request"
                 BeginDialog Dialog1, 0, 0, 290, 105, "Verification Source Check"
                     ButtonGroup ButtonPressed
                         PushButton 170, 40, 100, 25, "YES - Proceed to TIKL", TIKL_button
@@ -901,7 +1133,7 @@ Do
                                         cancel_confirmation
                                             If ButtonPressed = Update_Again Then
                                                 If DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_disa_option_status, FS_disa_ver_type, HC_disa_option_status, HC_disa_ver_type) then
-                                                call Update_DISA_Panel_Loop()
+                                                    call Update_DISA_Panel_Loop()
                                                 End If
                                             End If
                                             If ButtonPressed = TIKL_Correct then
@@ -913,21 +1145,38 @@ Do
                                             End If    
                                         call check_for_password(are_we_passworded_out)
                                     Loop until ButtonPressed = TIKL_Correct and are_we_passworded_out = false and DAIL_DISA_TIKL_goahead = true
+                                        Dialog1 = ""
+                                        Still_need_TIKL = checked
+                                        BeginDialog Dialog1, 0, 0, 326, 170, "Final Verification Submission Step"
+                                            ButtonGroup ButtonPressed
+                                                OkButton 230, 145, 40, 15
+                                                CancelButton 275, 145, 40, 15
+                                                PushButton 5, 145, 65, 15, "One Policy", verify_cash_disa_policy
+                                                PushButton 75, 145, 65, 15, "Two Policy", verify_snap_disa_policy
+                                                PushButton 145, 145, 65, 15, "Three Policy", verify_hc_disa_policy
+                                            GroupBox 5, 30, 95, 40, "CASH"
+                                            GroupBox 110, 30, 95, 40, "FS"
+                                            GroupBox 215, 30, 95, 40, "HC"
+                                            ComboBox 15, 45, 75, 15, CASH_combobox_string, CASH_Final_Dropbox
+                                            ComboBox 120, 45, 75, 15, FS_combobox_string, FS_Final_Dropbox
+                                            ComboBox 225, 45, 75, 15, HC_combobox_string, HC_Final_Dropbox
+                                            EditBox 10, 100, 300, 15, verif_notes_from_user
+                                            CheckBox 15, 125, 250, 10, "Uncheck if TIKL is no longer needed", Still_need_TIKL
+                                            Text 10, 75, 295, 20, "Enter any notes related to any actions you took or changes you made during the verification request process."
+                                            Text 10, 5, 300, 20, "Verify and/or change the method you used to request updated disability verification."
+                                        EndDialog
+                                            Do
+                                            Dialog dialog1
+                                            
+
+                                            call check_for_password(are_we_passworded_out)
+                                            Loop until are_we_passworded_out = false
+
                                         If DAIL_DISA_TIKL_goahead = true then
-                                            call create_TIKL(form_to_send & " was submitted 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
-                                            call navigate_to_MAXIS_screen("CASE", "NOTE")
-                                            PF9
-                                            call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-                                            call write_variable_in_CASE_NOTE("---------")
-                                            call write_variable_in_CASE_NOTE(trim(person_info) & " - needs new verification for their disability status")
-                                            If form_needed = false then
-                                                call write_variable_in_CASE_NOTE("Client's disability was verified through " & short_verif_info)
-                                            Else
-                                            call write_variable_in_CASE_NOTE("Client was sent " & form_to_send & " and a TIKL was created")
+                                            If Still_need_TIKL = checked then
+                                                call create_TIKL(form_to_send & " was submitted 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                             End If
-                                            call write_variable_in_CASE_NOTE(TIKL_note_text)
-                                            call write_variable_in_CASE_NOTE("---")
-                                            call write_variable_in_CASE_NOTE(worker_signature)
+                                            call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
                                             'Now for DAIL deletion
                                             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
                                             EMWriteScreen MAXIS_case_number, 20, 38
@@ -938,20 +1187,37 @@ Do
                                 Loop Until ButtonPressed <> Update_Before_TIKL
                             End If
                         If ButtonPressed = TIKL_button then
-                            call create_TIKL(form_to_send & " was submitted 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
-                            call navigate_to_MAXIS_screen("CASE", "NOTE")
-                            PF9
-                            call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-                            call write_variable_in_CASE_NOTE("---------")
-                            call write_variable_in_CASE_NOTE(person_info & " needs new verification for their disability status")
-                            If form_needed = false then
-                                call write_variable_in_CASE_NOTE("Client's disability was verified through " & short_verif_info)
-                            Else
-                            call write_variable_in_CASE_NOTE("Client was sent " & form_to_send & " and a TIKL was created")
-                            End If
-                            call write_variable_in_CASE_NOTE(TIKL_note_text)
-                            Call write_variable_in_CASE_NOTE("---")
-                            call write_variable_in_CASE_NOTE(worker_signature)
+                            Dialog1 = ""
+                            Still_need_TIKL = checked
+                            BeginDialog Dialog1, 0, 0, 326, 170, "Final Verification Submission Step"
+                                ButtonGroup ButtonPressed
+                                    OkButton 230, 145, 40, 15
+                                    CancelButton 275, 145, 40, 15
+                                    PushButton 5, 145, 65, 15, "One Policy", verify_cash_disa_policy
+                                    PushButton 75, 145, 65, 15, "Two Policy", verify_snap_disa_policy
+                                    PushButton 145, 145, 65, 15, "Three Policy", verify_hc_disa_policy
+                                GroupBox 5, 30, 95, 40, "CASH"
+                                GroupBox 110, 30, 95, 40, "FS"
+                                GroupBox 215, 30, 95, 40, "HC"
+                                ComboBox 15, 45, 75, 15, CASH_combobox_string, CASH_Final_Dropbox
+                                ComboBox 120, 45, 75, 15, "", FS_Final_Dropbox
+                                ComboBox 225, 45, 75, 15, "", HC_Final_Dropbox
+                                EditBox 10, 100, 300, 15, Edit1
+                                CheckBox 15, 125, 250, 10, "Uncheck if TIKL is no longer needed", Still_need_TIKL
+                                Text 10, 75, 295, 20, "Enter any notes related to any actions you took or changes you made during the verification request process."
+                                Text 10, 5, 300, 20, "Verify and/or change the method you used to request updated disability verification."
+                            EndDialog
+                                Do
+                                Dialog dialog1
+                                
+
+                                call check_for_password(are_we_passworded_out)
+                                Loop until are_we_passworded_out = false
+
+                                If Still_need_TIKL = checked then
+                                    call create_TIKL(form_to_send & " was submitted using" & short_verif_info & "30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                                End If
+                            call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
                             'Now for DAIL deletion
                             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
                             EMWriteScreen MAXIS_case_number, 20, 38
@@ -964,39 +1230,39 @@ Do
 
         If DISA_option_list = "Disability Ended - CASE/NOTE" then
             Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 191, 195, "Dialog"
-            ButtonGroup ButtonPressed
-                OkButton 70, 170, 50, 15
-                CancelButton 125, 170, 50, 15
-            GroupBox 10, 5, 155, 85, "Current End Dates"
-            Text 20, 25, 100, 20, "DISA end date: " & DISA_end_date
-            Text 20, 55, 100, 20, "Cert end date: " & Cert_period_end
-            Text 15, 145, 155, 25, "If end date(s) are incorrect, cancel the script and process case manually"
-            EditBox 15, 110, 150, 30, Ended_editbox
-            GroupBox 10, 95, 160, 45, "How do you know the disability ended?"
+            BeginDialog Dialog1, 0, 0, 316, 375, "Dialog"
+                ButtonGroup ButtonPressed
+                    OkButton 195, 345, 50, 15
+                    CancelButton 255, 345, 50, 15
+                GroupBox 10, 5, 285, 50, "Current End Dates"
+                Text 20, 25, 100, 20, "DISA end date:  & DISA_end_date"
+                Text 165, 25, 100, 20, "Cert end date:  & Cert_period_end"
+                Text 15, 60, 295, 10, "If end date(s) are incorrect, cancel the script and process case manually"
+            GroupBox 10, 75, 285, 70, "CASH Programs"
+                Text 20, 90, 120, 30, "CASH status:"
+                Text 150, 85, 135, 35, "***Please note: a disability ending can impact eligibility status for CASH programs. Please note below what eligibility changes, if any, occurred."
+                EditBox 15, 125, 275, 15, CASHedit
+            GroupBox 10, 155, 285, 100, "FS/SNAP Programs"
+                Text 20, 170, 120, 30, "FS/SNAP status:"
+                Text 145, 165, 135, 55, "***Please note: a disability ending can impact eligibility status for FS/SNAP programs. Please run the ABAWD exemption finder and note below what eligibility changes, if any, occurred."
+                EditBox 15, 230, 275, 15, FSedit
+                ButtonGroup ButtonPressed
+                PushButton 20, 205, 110, 15, "Run ABAWD Exemption Finder", ABAWD_script_trigger
+            GroupBox 10, 260, 285, 75, "HC Programs"
+                EditBox 15, 310, 275, 15, HCedit
+                Text 20, 275, 120, 30, "HC status:"
+                Text 150, 270, 135, 35, "***Please note: a disability ending can impact eligibility status for CASH programs. Please note below what eligibility changes, if any, occurred."
             EndDialog
             Do
             Dialog Dialog1
             cancel_confirmation
-                If FS_disa_option_status <> "BLANK" then
-                    MsgBox "This case has a SNAP program active. A disability that has ended can change eligibility status. The script will CASE/NOTE that the disability has ended, but manual processing of the case, including updating the WREG panel, may still be required"
-                Elseif CASH_disa_option_status <> "BLANK" then
-                    MsgBox "This case has a CASH program active. A disability that has ended can change eligibility status. The script will CASE/NOTE that the disability has ended, but manual processing of the case may still be required"
-                Elseif HC_disa_option_status <> "BLANK" then
-                    MsgBox "This case has an HC program active. A disability that has ended can change eligibility status. The script will CASE/NOTE that the disability has ended, but manual processing of the case may still be required"
-                End If
+                If ButtonPressed = ABAWD_script_trigger then
+                    call ABAWD_FSET_exemption_finder()
+                End if
 
             call check_for_password(are_we_passworded_out)
             Loop until are_we_passworded_out = false and ButtonPressed <> cancel
-            call navigate_to_MAXIS_screen("CASE", "NOTE")
-            PF9
-            call write_variable_in_CASE_NOTE("DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG")
-            call write_variable_in_CASE_NOTE("---------")
-            call write_variable_in_CASE_NOTE(DISA_end_date & " was listed as the end date of " & person_info & "'s documented disability. Updated documentation has not been received.")
-            call write_variable_in_CASE_NOTE("The case worker noted the reason for the end date was: " & Ended_editbox)
-            Call write_variable_in_CASE_NOTE("---")
-            call write_variable_in_CASE_NOTE(worker_signature) 
-            MsgBox "Case note completed. Please make any edits necessary - the script will return to delete the original DAIL once you press ""OK""" 
+            call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
             'Now for DAIL deletion
             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
             EMWriteScreen MAXIS_case_number, 20, 38
@@ -1004,18 +1270,7 @@ Do
             call search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)    
         End If
         If DISA_option_list = "CASE/NOTE only" And ButtonPressed = OK Then
-                    call navigate_to_MAXIS_screen("CASE", "NOTE")
-                    PF9
-                    call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-                    call write_variable_in_CASE_NOTE("---------")
-                    call write_variable_in_CASE_NOTE(person_info & " needs new verification for their disability status")
-                        If form_needed = false then
-                            call write_variable_in_CASE_NOTE("Client's disability was verified through " & short_verif_info)
-                        Else
-                        call write_variable_in_CASE_NOTE("Client was sent " & form_to_send)
-                        End If
-                    Call write_variable_in_CASE_NOTE("---")
-                    call write_variable_in_CASE_NOTE(worker_signature)  
+            call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
         End If
         'If "Delete DAIL only" is the selection from the drop-down menu of the main dialog, it will trigger a confirmation dialog box reminding the user that this is only deleting the DAIL and taking no action
         If DISA_option_list = "Delete DAIL only" And ButtonPressed = OK Then
@@ -1050,8 +1305,8 @@ script_end_procedure("script done. This is testing only")
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10-29-26------------------Discussed with Dave during early drafts
+'--Tab orders reviewed & confirmed----------------------------------------------n/a
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
 'Review dialog names for content and content fit in dialog----------------------
@@ -1062,8 +1317,8 @@ script_end_procedure("script done. This is testing only")
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------
 '--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------n/a-----------------------Due to deletion functionality add, CASE/NOTE not left in edit mode
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used --
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
@@ -1083,7 +1338,7 @@ script_end_procedure("script done. This is testing only")
 '--Confirm all GitHub tasks are complete----------------------------------------
 '--comment Code-----------------------------------------------------------------
 '--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
+'--Remove testing message boxes-------------------------------------------------SAM, check for all the "tee hees" you were testing with! 
 '--Remove testing code/unnecessary code-----------------------------------------
 '--Review/update SharePoint instructions----------------------------------------
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
