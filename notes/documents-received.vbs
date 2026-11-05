@@ -2064,62 +2064,68 @@ end function
 Dim shel_updated, hest_updated
 
 function diet_dialog()
-	EditBox 395, 0, 45, 15, diet_date_received
-	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number
-	DropListBox 55, 70, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
-	DropListBox 185, 70, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_1_dropdown
-	DropListBox 290, 70, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_1_dropdown
-	DropListBox 55, 85, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_2_dropdown
-	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_2_dropdown
- 	DropListBox 290, 85, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_2_dropdown
-	DropListBox 55, 100, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_3_dropdown
-	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_3_dropdown
-	DropListBox 290, 100, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_3_dropdown
-	DropListBox 55, 115, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_4_dropdown
-	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_4_dropdown
-	DropListBox 290, 115, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_4_dropdown
-	DropListBox 55, 130, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_5_dropdown
-	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_5_dropdown
-	DropListBox 290, 130, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_5_dropdown
-	DropListBox 55, 145, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_6_dropdown
-	DropListBox 185, 145, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_6_dropdown
-	DropListBox 290, 145, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_6_dropdown
-	DropListBox 55, 160, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_7_dropdown
-	DropListBox 185, 160, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_7_dropdown
-	DropListBox 290, 160, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_7_dropdown
-	DropListBox 55, 175, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_8_dropdown
-	DropListBox 185, 175, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_8_dropdown
-	DropListBox 290, 175, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_8_dropdown
-	EditBox 75, 195, 55, 15, diet_date_last_exam
-	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank", diet_treatment_plan_dropdown
-	EditBox 270, 215, 55, 15, diet_length_diet
-	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown
-	CheckBox 125, 235, 195, 10, "Check here to set TIKL for renewal", diet_tikl_checkbox
-	EditBox 50, 260, 290, 15, diet_comments
-	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
-    PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
-	Text 5, 5, 220, 10, diet_form_name
-	Text 340, 5, 55, 10, "Document Date:"
-	Text 20, 40, 30, 10, "Member"
-	Text 20, 20, 325, 10, diet_mfip_msa_status
-	Text 55, 60, 85, 10, "Select Applicable Diet"
-	Text 185, 60, 95, 10, "Relationship between diets"
-	Text 300, 60, 15, 10, "Ver"
-	Text 30, 70, 20, 10, "Diet 1"
-	Text 30, 85, 20, 10, "Diet 2"
-	Text 30, 100, 20, 10, "Diet 3"
-	Text 30, 115, 20, 10, "Diet 4"
-	Text 30, 130, 20, 10, "Diet 5"
-	Text 30, 145, 20, 10, "Diet 6"
-	Text 30, 160, 20, 10, "Diet 7"
-	Text 30, 175, 20, 10, "Diet 8"
-	Text 15, 200, 60, 10, "Date of last exam"
-	Text 15, 220, 115, 10, "Is person following treament plan?"
-	Text 185, 220, 85, 10, "Length of Prescribed Diet"
-	Text 15, 240, 40, 10, "Diet status?"
-	Text 15, 265, 35, 10, "Comments"
+  Text 260, 5, 55, 10, "Document Date:"
+  EditBox 315, 0, 45, 15, diet_date_received
+  Text 5, 15, 30, 10, "Member"
+  DropListBox 35, 15, 120, 15, "HH_Memb_DropDown", diet_member_number
+  Text 5, 5, 230, 10, "diet_mfip_msa_status"
+  Text 10, 40, 85, 10, "Select Applicable Diet:"
+  CheckBox 15, 60, 50, 10, "Antidumping", Antidumping_CheckBox
+  CheckBox 15, 80, 60, 10, "High Residue", High_Residue_CheckBox
+  CheckBox 15, 100, 65, 10, "Hypoglycemic", Hypoglycemic_CheckBox
+  CheckBox 15, 120, 50, 10, "Ketogenic", Ketogenic_CheckBox
+  CheckBox 15, 140, 50, 10, "Gluten Free", Gluten_Free_CheckBox
+  CheckBox 15, 160, 50, 10, "Lactose Free", Lactose_Free_CheckBox
+  CheckBox 15, 180, 70, 10, "Low Cholesterol", Low_Cholesterol_CheckBox
+  CheckBox 15, 200, 90, 10, "Pregnancy/Lactation", Pregnancy_Lactation_CheckBox
+  CheckBox 15, 220, 75, 10, "Protein Intake ", Protein_Intake_CheckBox
+  DropListBox 35, 245, 125, 15, "Select One:"+chr(9)+"Controlled Protein: 40-60 grams/day"+chr(9)+"Controlled Protein: Less than 40 grams/day"+chr(9)+"High Protein: Minimum 80 grams/day", Intake_Choice
+  Text 25, 235, 115, 10, "For Protein Intake Diet:"
+  Text 105, 40, 60, 15, "Date Prescribed:"
+  EditBox 110, 60, 45, 15, Anti_Diet_Date_Prescribed
+  EditBox 110, 80, 45, 15, HR_Date_Diet_Date_Prescribed
+  EditBox 110, 140, 45, 15, GF_Diet_Date_Prescribed
+  EditBox 110, 120, 45, 15, Keto_Diet_Date_Prescribed
+  EditBox 110, 100, 45, 15, Hypo_Diet_Date_Prescribed
+  EditBox 110, 160, 45, 15, LF_Diet_Date_Prescribed
+  EditBox 110, 180, 45, 15, Low_Diet_Date_Prescribed
+  EditBox 110, 200, 45, 15, Preg_Diet_Date_Prescribed
+  EditBox 110, 220, 45, 15, ProIn_Diet_Date_Prescribed
+  Text 15, 260, 295, 20, "If you have prescribed more than one diet, do any of the dietary components of those diets overlap?"
+  DropListBox 315, 260, 55, 15, "Yes"+chr(9)+"No", Diets_Overlap
+  EditBox 65, 280, 305, 25, Yes_Explain
+  Text 15, 285, 50, 10, "If yes, explain:"
+  Text 285, 30, 95, 15, "If Diet is Anticipated to End, End Date:"
+  CheckBox 210, 340, 195, 10, "Check here to set TIKL for renewal", diet_tikl_checkbox
+  ButtonGroup ButtonPressed
+    PushButton 5, 340, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
+    PushButton 90, 340, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
+  Text 185, 30, 95, 25, "If any diets overlap, select checkboxes for those diets:"
+  CheckBox 220, 60, 50, 10, "", Anti_Overlap
+  CheckBox 220, 80, 50, 10, "", HR_Overlap
+  CheckBox 220, 100, 50, 10, "", Hypo_Overlap
+  CheckBox 220, 120, 50, 10, "", Keto_Overlap
+  CheckBox 220, 140, 50, 10, "", Gluten_Overlap
+  CheckBox 220, 160, 50, 10, "", Lactose_Overlap
+  CheckBox 220, 180, 50, 10, "", Low_Overlap
+  CheckBox 220, 200, 50, 10, "", Preg_Overlap
+  CheckBox 220, 220, 50, 10, "", Protein_Overlap
+  EditBox 305, 60, 45, 15, Anti_End_Date
+  EditBox 305, 120, 45, 15, Keto_End_Date
+  EditBox 305, 100, 45, 15, Hypo_End_Date
+  EditBox 305, 80, 45, 15, HR_End_Date
+  EditBox 305, 140, 45, 15, Gluten_End_Date
+  EditBox 305, 160, 45, 15, Lac_End_Date
+  EditBox 305, 180, 45, 15, Low_End_Date
+  EditBox 305, 200, 45, 15, Preg_End_Date
+  EditBox 305, 220, 45, 15, Protein_End_Date
+  Text 15, 315, 145, 10, "Are any prescribed diets anticipated to end?"
+  DropListBox 165, 315, 60, 45, "Yes"+chr(9)+"No", Anticipated_To_End
+  Text 15, 325, 50, 10, "Diet Status?"
+  DropListBox 60, 325, 60, 45, "Approved"+chr(9)+"Denied", diet_status_dropdown
 end function
-Dim diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_5_dropdown, diet_6_dropdown, diet_7_dropdown, diet_8_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_relationship_5_dropdown, diet_relationship_6_dropdown, diet_relationship_7_dropdown, diet_relationship_8_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_verif_5_dropdown, diet_verif_6_dropdown, diet_verif_7_dropdown, diet_verif_8_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments, diet_tikl_checkbox
+Dim diet_date_received, diet_member_number, diet_mfip_msa_status, Antidumping_CheckBox, High_Residue_CheckBox, Hypoglycemic_CheckBox, Ketogenic_CheckBox, Gluten_Free_CheckBox, Lactose_Free_CheckBox, Low_Cholesterol_CheckBox, Pregnancy_Lactation_CheckBox, Protein_Intake_CheckBox, Intake_Choice, Anti_Diet_Date_Prescribed, HR_Date_Diet_Date_Prescribed, GF_Diet_Date_Prescribed, Keto_Diet_Date_Prescribed, Hypo_Diet_Date_Prescribed, LF_Diet_Date_Prescribed, Low_Diet_Date_Prescribed, Preg_Diet_Date_Prescribed, ProIn_Diet_Date_Prescribed, Diets_Overlap, Yes_Explain, diet_tikl_checkbox, Anti_Overlap, HR_Overlap, Hypo_Overlap, Keto_Overlap, Gluten_Overlap, Lactose_Overlap, Low_Overlap, Preg_Overlap, Protein_Overlap, Anti_End_Date, Keto_End_Date, Hypo_End_Date, HR_End_Date, Gluten_End_Date, Lac_End_Date, Low_End_Date, Preg_End_Date, Protein_End_Date, Anticipated_To_End, diet_status_dropdown
+
 
 function other_dialog()
 	EditBox 395, 0, 45, 15, other_date_received
@@ -2385,86 +2391,39 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
 
-				'Handling to ensure a relationship is selected if a diet has been entered on the line
-				If diet_1_dropdown <>"" and diet_relationship_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 1 relationship"
-				If diet_2_dropdown <>"" and diet_relationship_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 2 relationship"
-				If diet_3_dropdown <>"" and diet_relationship_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 3 relationship"
-				If diet_4_dropdown <>"" and diet_relationship_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 4 relationship"
-				If diet_5_dropdown <>"" and diet_relationship_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 5 relationship"
-				If diet_6_dropdown <>"" and diet_relationship_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 6 relationship"
-				If diet_7_dropdown <>"" and diet_relationship_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 7 relationship"
-				If diet_8_dropdown <>"" and diet_relationship_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 8 relationship"
+			If form_type_array(form_type_const, form_errors) = diet_form_name then'Handling to ensure if a diet is selected then a prescribed date is entered on the same line
+				If Antidumping_CheckBox = checked and Anti_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Anti Dumping Diet Prescribed Date."
+				If High_Residue_CheckBox = checked and HR_Date_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the High Residue Diet Prescribed Date."
+				If Hypoglycemic_CheckBox = checked and Hypo_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Hypoglycemic Diet Prescribed Date."
+				If Ketogenic_CheckBox = checked and Ketogenic_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Ketogenic Diet Prescribed Date."
+				If Gluten_Free_CheckBox = checked and Gluten_Free_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Gluten Free Diet Prescribed Date."
+				If Lactose_Free_CheckBox = checked and Lactose_Free_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Lactose Free Diet Prescribed Date."
+				If Low_Cholesterol_CheckBox = checked and Low_Cholesterol_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Low Cholesterol Diet Prescribed Date."
+				If Pregnancy_Lactation_CheckBox = checked and Preg_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Pregnancy/Lactation Diet Prescribed Date."
+				If ProIn_Diet_Date_Prescribed = checked and ProIn_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Protein Intake Diet Prescribed Date."
 
-				'Handling to ensure a diet is selected if a relationship has been entered on the line
-				If diet_relationship_1_dropdown <>"" and diet_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 1 diet"
-				If diet_relationship_2_dropdown <>"" and diet_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 2 diet"
-				If diet_relationship_3_dropdown <>"" and diet_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 3 diet"
-				If diet_relationship_4_dropdown <>"" and diet_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 4 diet"
-				If diet_relationship_5_dropdown <>"" and diet_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 5 diet"
-				If diet_relationship_6_dropdown <>"" and diet_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 6 diet"
-				If diet_relationship_7_dropdown <>"" and diet_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 7 diet"
-				If diet_relationship_8_dropdown <>"" and diet_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 8 diet"
+			If form_type_array(form_type_const, form_errors) = diet_form_name then'Handling to ensure a protein Intake Amount is selected if protein intake diet is selected
+				If ProIn_Diet_Date_Prescribed <> "" and Intake_Choice = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select a Protein Intake Amount for the Protein Intake Diet"
 
-				'Hnadling to ensure a verfication is selected if a diet and relationship have been entered on the same line
-				If (diet_1_dropdown <> "" AND diet_relationship_1_dropdown <> "") AND diet_verif_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 1"
-				If (diet_2_dropdown <> "" AND diet_relationship_2_dropdown <> "") AND diet_verif_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 2"
-				If (diet_3_dropdown <> "" AND diet_relationship_3_dropdown <> "") AND diet_verif_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 3"
-				If (diet_4_dropdown <> "" AND diet_relationship_4_dropdown <> "") AND diet_verif_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 4"
-				If (diet_5_dropdown <> "" AND diet_relationship_5_dropdown <> "") AND diet_verif_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 5"
-				If (diet_6_dropdown <> "" AND diet_relationship_6_dropdown <> "") AND diet_verif_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 6"
-				If (diet_7_dropdown <> "" AND diet_relationship_7_dropdown <> "") AND diet_verif_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 7"
-				If (diet_8_dropdown <> "" AND diet_relationship_8_dropdown <> "") AND diet_verif_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 8"
+				'Handling to ensure if diets components overlap there is comments explaining those components.
+				If Diets_Overlap = "yes" and Yes_Explain = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Diets overlap, please explain in the comments section."
 
-					'Handling to limit diet selections to 1 type of protein.
-				all_diet_string = "*"
+				'Handling to ensure if a diet is anticipated to end, an end date is entered.
+				If Anticipated_To_End = "yes" and Anti_End_Date = "" and HR_End_Date = "" and Keto_End_Date = "" and Gluten_End_Date = "" and Lactose_End_Date = "" and Low_Cholesterol_End_Date = "" and Preg_End_Date = "" and ProIn_End_Date = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Diet Anticipated to end is selected, please enter an end date for the diet(s)."
 
-				If diet_1_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_1_dropdown & "*"
-				End If
-				If diet_2_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_2_dropdown & "*"
-				End If
-				If diet_3_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_3_dropdown & "*"
-				End If
-				If diet_4_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_4_dropdown & "*"
-				End If
-				If diet_5_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_5_dropdown & "*"
-				End If
-				If diet_6_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_6_dropdown & "*"
-				End If
-				If diet_7_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_7_dropdown & "*"
-				End If
-				If diet_8_dropdown <>"" Then
-					all_diet_string = all_diet_string & diet_8_dropdown & "*"
-				End If
+				'Handling to ensure more than one diet is selected if diets overlap drop down is yes'
+				If Diets_Overlap = "yes" and (Antidumping_CheckBox + High_Residue_CheckBox + Hypoglycemic_CheckBox + Ketogenic_CheckBox + Gluten_Free_CheckBox + Lactose_Free_CheckBox + Low_Cholesterol_CheckBox + Pregnancy_Lactation_CheckBox + Protein_Intake_CheckBox) < 2 Then diet_err_msg = diet_err_msg & vbNewLine & "* Diets overlap is selected, please select more than one diet."
 
 				'TODO: Havent' tested on MFIP case handling to limit to 2 diets. Consider hiding extra boxes on dialog
 				If (diet_mfip_msa_status = "MFIP-Active - DIET Panel will update") OR (diet_mfip_msa_status = "MFIP-Pending - DIET Panel will update") Then
 					'MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
-						If diet_3_dropdown <>"" OR diet_4_dropdown <>"" OR diet_5_dropdown <>"" OR diet_6_dropdown <>"" OR diet_7_dropdown <>"" OR diet_8_dropdown <>"" Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
+						If Antidumping_CheckBox + High_Residue_CheckBox + Hypoglycemic_CheckBox + Ketogenic_CheckBox + Gluten_Free_CheckBox + Lactose_Free_CheckBox + Low_Cholesterol_CheckBox + Pregnancy_Lactation_CheckBox + ProIn_Diet_Date_Prescribed > 2 Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
 				End If
-
-				If Instr(all_diet_string, "*01-High Protein*") AND Instr(all_diet_string, "*02-Controlled protein 40-60 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
-				If Instr(all_diet_string, "*01-High Protein*") AND Instr(all_diet_string,"*03-Controlled protein <40 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
-				If Instr(all_diet_string, "*02-Controlled protein 40-60 grams*") AND Instr(all_diet_string,"*03-Controlled protein <40 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
-
-				If IsDate(diet_date_last_exam) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for Date of last exam."
-				If diet_treatment_plan_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select dropdown indicating person is following treatment plan"
-				If trim(diet_length_diet) = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter length of prescribed diet"
-				If diet_status_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet Status"
-				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason for ineligibility & benefit end date in Comments"
-			End If
 
 			If form_type_array(form_type_const, form_errors) = other_form_name then 'Error handling for Other Form
 				IF IsDate(other_date_received) = FALSE THEN other_err_msg = other_err_msg & vbCr & "* Enter a valid Document Date."
 				If Trim(other_list_form_names) = ""  THEN other_err_msg = other_err_msg & vbCr & "* Specify name of form(s)"
 			End If
-		Next
 	End If
 
 	'Complete button triggers the error message to populate. Formatting error meessage to: Adds headers for each form if there are applicable errors
@@ -2499,8 +2458,8 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 			If thing = form_type_array(the_last_const, thing) AND diet_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Diet form not complete~~"
 			If thing = form_type_array(the_last_const, thing) AND other_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Other form not complete~~"
 		Next
-	End If
-
+	End If 
+	
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 end function
 

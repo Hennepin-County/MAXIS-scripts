@@ -64,17 +64,62 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""
 
-BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
+BeginDialog Dialog1, 0, 0, 416, 365, "Verifying FSET and ABAWD Selection"
+  Text 260, 5, 55, 10, "Document Date:"
+  EditBox 315, 0, 45, 15, diet_date_received
+  Text 5, 15, 30, 10, "Member"
+  DropListBox 35, 15, 120, 15, "HH_Memb_DropDown", diet_member_number
+  Text 5, 5, 230, 10, "diet_mfip_msa_status"
+  Text 10, 40, 85, 10, "Select Applicable Diet:"
+  CheckBox 15, 60, 50, 10, "Antidumping", Antidumping_CheckBox
+  CheckBox 15, 80, 60, 10, "High Residue", High_Residue_CheckBox
+  CheckBox 15, 100, 65, 10, "Hypoglycemic", Hypoglycemic_CheckBox
+  CheckBox 15, 120, 50, 10, "Ketogenic", Ketogenic_CheckBox
+  CheckBox 15, 140, 50, 10, "Gluten Free", Gluten_Free_CheckBox
+  CheckBox 15, 160, 50, 10, "Lactose Free", Lactose_Free_CheckBox
+  CheckBox 15, 180, 70, 10, "Low Cholesterol", Low_Cholesterol_CheckBox
+  CheckBox 15, 200, 90, 10, "Pregnancy/Lactation", Pregnancy_Lactation_CheckBox
+  CheckBox 15, 220, 75, 10, "Protein Intake ", Protein_Intake_CheckBox
+  DropListBox 35, 245, 125, 15, "Select One:"+chr(9)+"Controlled Protein: 40-60 grams/day"+chr(9)+"Controlled Protein: Less than 40 grams/day"+chr(9)+"High Protein: Minimum 80 grams/day", Intake_Choice
+  Text 25, 235, 115, 10, "For Protein Intake Diet:"
+  Text 105, 40, 60, 15, "Date Prescribed:"
+  EditBox 110, 60, 45, 15, Anti_Diet_Date_Prescribed
+  EditBox 110, 80, 45, 15, HR_Date_Diet_Date_Prescribed
+  EditBox 110, 140, 45, 15, GF_Diet_Date_Prescribed
+  EditBox 110, 120, 45, 15, Keto_Diet_Date_Prescribed
+  EditBox 110, 100, 45, 15, Hypo_Diet_Date_Prescribed
+  EditBox 110, 160, 45, 15, LF_Diet_Date_Prescribed
+  EditBox 110, 180, 45, 15, Low_Diet_Date_Prescribed
+  EditBox 110, 200, 45, 15, Preg_Diet_Date_Prescribed
+  EditBox 110, 220, 45, 15, ProIn_Diet_Date_Prescribed
+  Text 15, 260, 295, 20, "If you have prescribed more than one diet, do any of the dietary components of those diets overlap?"
+  DropListBox 315, 260, 55, 15, "Yes"+chr(9)+"No", Diets_Overlap
+  EditBox 65, 280, 305, 25, Yes_Explain
+  Text 15, 285, 50, 10, "If yes, explain:"
+  Text 285, 30, 95, 15, "If Diet is Anticipated to End, End Date:"
+  CheckBox 210, 340, 195, 10, "Check here to set TIKL for renewal", diet_tikl_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  CheckBox 10, 10, 50, 10, "Blue", fav_color
-  EditBox 65, 55, 50, 15, MAXIS_case_number
-  EditBox 65, 80, 50, 15, worker_signature
-  CheckBox 10, 25, 50, 10, "Green", fav_color
-  CheckBox 10, 40, 50, 10, "Orange", fav_color
-  Text 0, 60, 55, 10, "Case Number:"
-  Text 0, 85, 65, 10, "Worker Signature:"
+    PushButton 5, 340, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
+    PushButton 90, 340, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
+  Text 185, 30, 95, 25, "If any diets overlap, select checkboxes for those diets:"
+  CheckBox 220, 60, 50, 10, "", Anti_Overlap
+  CheckBox 220, 80, 50, 10, "", HR_Overlap
+  CheckBox 220, 100, 50, 10, "", Hypo_Overlap
+  CheckBox 220, 120, 50, 10, "", Keto_Overlap
+  CheckBox 220, 140, 50, 10, "", Gluten_Overlap
+  CheckBox 220, 160, 50, 10, "", Lactose_Overlap
+  CheckBox 220, 180, 50, 10, "", Low_Overlap
+  CheckBox 220, 200, 50, 10, "", Preg_Overlap
+  CheckBox 220, 220, 50, 10, "", Protein_Overlap
+  EditBox 305, 60, 45, 15, Anti_End_Date
+  EditBox 305, 120, 45, 15, Keto_End_Date
+  EditBox 305, 100, 45, 15, Hypo_End_Date
+  EditBox 305, 80, 45, 15, HR_End_Date
+  EditBox 305, 140, 45, 15, Gluten_End_Date
+  EditBox 305, 160, 45, 15, Lac_End_Date
+  EditBox 305, 180, 45, 15, Low_End_Date
+  EditBox 305, 200, 45, 15, Preg_End_Date
+  EditBox 305, 220, 45, 15, Protein_End_Date
 EndDialog
 
 'This is the dialog loop`
