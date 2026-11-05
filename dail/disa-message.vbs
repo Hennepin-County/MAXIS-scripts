@@ -176,7 +176,7 @@ GLOBAL_HC_VERIF_PROCESSES = Array( _
         "", _
         "MOF send through ECF", _
         "SMI checked and verified", _
-        "HC Active - SMRT submitted through ISDS/ECF", _
+        "SMRT submitted through ISDS/ECF", _
         "Other documentation (please note)", _
         "Other client contact (please note)" _
 )
@@ -318,6 +318,7 @@ Function Read_DISA()
 
     call navigate_to_MAXIS_screen("STAT", "DISA")
     EMWriteScreen MEMB_no, 20, 76
+    transmit
 
 
     'Read and format the disability begin date
@@ -696,7 +697,6 @@ Function MEMB_Name_DAIL_matching(MEMB_name_to_save)
 
     Do
         EMReadScreen MEMB_number_from_comparison, 2, row, 3
-
         MembNo_value = Trim(MEMB_number_from_comparison)
 
         If MembNo_value = "" then
@@ -805,7 +805,11 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
         call navigate_to_MAXIS_screen("CASE", "NOTE")
         PF9
         
-        call write_variable_in_CASE_NOTE(Original_DAIL)
+        If CASH_Final_Dropbox = "SMI checked and verified" or FS_Final_Dropbox = "SMI checked and verified" or HC_Final_Dropbox = "SMI checked and verified" then
+            call write_variable_in_CASE_NOTE("UPDATED DISABILITY VERIFICATION REVIEWED")
+        else
+            write_variable_in_case_note("UPDATED DISABILITY VERIFICATION REQUEST SENT")
+        End If
         call write_variable_in_CASE_NOTE("---------")
         call write_variable_in_CASE_NOTE(trim(person_info) & " - needs new verification for their disability status") 
         call write_variable_in_CASE_NOTE("Client's current disability status(es) are " & disability_type & " for " & current_programs_active)
@@ -852,7 +856,7 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
         call navigate_to_MAXIS_screen("CASE", "NOTE")
         PF9
 
-        call write_variable_in_CASE_NOTE(Original_DAIL)
+        call write_variable_in_CASE_NOTE("DISABILITY STATUS HAS ENDED AND CASE WAS REVIEWED")
         call write_variable_in_CASE_NOTE("---------")
         call write_variable_in_CASE_NOTE(trim(person_info) & "'s disability status has ended as of " & DISA_end_date) 
         call write_variable_in_CASE_NOTE("Client's disability status(es) were " & disability_type & ". Updated documentation has not been received.")
@@ -1183,7 +1187,7 @@ Do
                                         ComboBox 10, 45, 125, 15, CASH_combobox_string, CASH_Final_Dropbox
                                         ComboBox 160, 45, 125, 15, FS_combobox_string, FS_Final_Dropbox
                                         ComboBox 310, 45, 125, 15, HC_combobox_string, HC_Final_Dropbox
-                                        EditBox 10, 105, 425, 25, case_worker_notes
+                                        EditBox 10, 105, 425, 15, case_worker_notes
                                         CheckBox 15, 135, 250, 10, "Uncheck if TIKL is no longer needed", Still_need_TIKL
                                         Text 15, 85, 420, 20, "Enter any notes related to any actions you took or changes you made during the verification request process."
                                         Text 10, 5, 300, 20, "Verify and/or change the method you used to request updated disability verification."
@@ -1197,9 +1201,11 @@ Do
 
                                         If DAIL_DISA_TIKL_goahead = true then
                                             If Still_need_TIKL = checked then
-                                                call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                                                'call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                             End If
                                             call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
+                                            ' for testing only MsgBox "now delete the case note"
+                                            ' for testing only PF10
                                             'Now for DAIL deletion
                                             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
                                             EMWriteScreen MAXIS_case_number, 20, 38
@@ -1223,7 +1229,7 @@ Do
                             ComboBox 10, 45, 125, 15, CASH_combobox_string, CASH_Final_Dropbox
                             ComboBox 160, 45, 125, 15, FS_combobox_string, FS_Final_Dropbox
                             ComboBox 310, 45, 125, 15, HC_combobox_string, HC_Final_Dropbox
-                            EditBox 10, 105, 425, 25, case_worker_notes
+                            EditBox 10, 105, 425, 15, case_worker_notes
                             CheckBox 15, 135, 250, 10, "Uncheck if TIKL is no longer needed", Still_need_TIKL
                             Text 15, 85, 420, 20, "Enter any notes related to any actions you took or changes you made during the verification request process."
                             Text 10, 5, 300, 20, "Verify and/or change the method you used to request updated disability verification."
@@ -1234,9 +1240,11 @@ Do
                                 call check_for_password(are_we_passworded_out)
                                 Loop until are_we_passworded_out = false
                                 If Still_need_TIKL = checked then
-                                    call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                                    'call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                 End If
                             call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
+                            ' for testing only Msgbox "Now delete the case note"
+                            ' for testing only PF10
                             'Now for DAIL deletion
                             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
                             EMWriteScreen MAXIS_case_number, 20, 38
@@ -1264,7 +1272,7 @@ Do
             GroupBox 10, 155, 285, 135, "FS/SNAP Programs"
             Text 20, 170, 120, 30, "FS/SNAP status: " & FS_program_status
             Text 145, 165, 135, 55, "***Please note: a disability ending can impact eligibility status for FS/SNAP programs. Please note below what eligibility changes, if any, occurred."
-            Text 15, 205, 120, 55, "SNAP exemptions should not be removed until all other potential exemptions are reviewed. Run the ABAWD Exemption Finder to review other potential exemptions"
+            Text 20, 205, 120, 55, "TLR exemptions should not be removed until other potential exemptions are reviewed, including contacting resident if necessary. Run the ABAWD Exemption Finder to review other potential exemptions"
             EditBox 15, 270, 275, 15, FSedit
             ButtonGroup ButtonPressed
                 PushButton 150, 225, 110, 15, "Run ABAWD Exemption Finder", ABAWD_script_trigger
@@ -1287,6 +1295,8 @@ Do
             call check_for_password(are_we_passworded_out)
             Loop until are_we_passworded_out = false and ButtonPressed = OK
             call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
+            ' for testing only Msgbox "delete the case note now"
+            ' for testing only PF10
             'Now for DAIL deletion
             call navigate_to_MAXIS_screen("DAIL", "DAIL") 
             EMWriteScreen MAXIS_case_number, 20, 38
