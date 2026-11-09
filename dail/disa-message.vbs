@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("11/01/2026", "Updated functionality - displays original DAIL PEPR/DISA message as well as the info from STAT/DISA. Allows HSR to then select whether to TIKL, create CASE/NOTE, or other. Significant logic added for error checking.", "Sam Begley-May, Hennepin County")
+call changelog_update("11/01/2026", "Updated functionality - displays original DAIL PEPR/DISA message as well as the info from STAT/DISA. Allows HSR to then select whether to TIKL, create CASE/NOTE, or other. Significant logic added for error checking. Now handles all verification types for CASE/NOTE. Now handles all DISA panel related DAIL messages.", "Sam Begley-May, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note. Updated background navigation coding.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
