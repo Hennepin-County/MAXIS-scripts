@@ -1188,7 +1188,7 @@ Do
                                         ComboBox 160, 45, 125, 15, FS_combobox_string, FS_Final_Dropbox
                                         ComboBox 310, 45, 125, 15, HC_combobox_string, HC_Final_Dropbox
                                         EditBox 10, 105, 425, 15, case_worker_notes
-                                        CheckBox 15, 135, 250, 10, "Uncheck if TIKL is no longer needed", Still_need_TIKL
+                                        CheckBox 15, 135, 250, 10, "Check here to TIKL", Still_need_TIKL
                                         Text 15, 85, 420, 20, "Enter any notes related to any actions you took or changes you made during the verification request process."
                                         Text 10, 5, 300, 20, "Verify and/or change the method you used to request updated disability verification."
                                         EndDialog
