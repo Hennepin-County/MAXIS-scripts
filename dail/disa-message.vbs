@@ -799,7 +799,7 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
 
     End If
 
-    If Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
+    If Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" or Original_DAIL = "DISA CERTIFICATION ENDS IN 60 DAYS - REVIEW DISA STATUS" then
 
         ' if box is checked, do TIKL
         call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -852,7 +852,7 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
         call write_variable_in_CASE_NOTE("------")
         call write_variable_in_CASE_NOTE(worker_signature)
 
-    Elseif Original_DAIL = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" then
+    Elseif Original_DAIL = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" or Original_DAIL = "DISABILITY ENDING. REDTERMINE ELIG" then
         call navigate_to_MAXIS_screen("CASE", "NOTE")
         PF9
 

@@ -270,7 +270,7 @@ END IF
 
 'Disability DAILs - 60 day review warning; and ending warning - fixed to use InStr 
 'Note to Sam - go through the PEPR DAIL report to find the two HC versions of these messages (the wording is slightly different but it's the same process)
-If InStr(full_message, "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS") or InStr(full_message, "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG") then
+If InStr(full_message, "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS") or InStr(full_message, "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG") or InStr(full_message, "DISA CERTIFICATION ENDS IN 60 DAYS - REVIEW DISA STATUS") or InStr(full_message, "DISABILITY ENDING. REDETERMINE ELIGIBILITY AND SUBMIT SMRT") then
 	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and create a TIKL and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/disa-message.vbs")
 END IF
