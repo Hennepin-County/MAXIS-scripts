@@ -1201,7 +1201,7 @@ Do
 
                                         If DAIL_DISA_TIKL_goahead = true then
                                             If Still_need_TIKL = checked then
-                                                'call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                                                call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                             End If
                                             call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
                                             ' for testing only MsgBox "now delete the case note"
@@ -1240,7 +1240,7 @@ Do
                                 call check_for_password(are_we_passworded_out)
                                 Loop until are_we_passworded_out = false
                                 If Still_need_TIKL = checked then
-                                    'call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
+                                    call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                 End If
                             call write_DISA_DAIL_CASE_NOTE(Original_DAIL)
                             ' for testing only Msgbox "Now delete the case note"
