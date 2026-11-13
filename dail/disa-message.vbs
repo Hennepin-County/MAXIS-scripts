@@ -130,8 +130,8 @@ GLOBAL_HC_DISA_STATUS = Array( _
     "03 - SSI, SSI/RSDI Disability", _
     "04 - SSI, SSI/RSDI Blindness", _
     "06 - SMRT/SSA Pend", _
-    "08 - Certified Blindness", _
-    "10 - Certified Disabled", _
+    "08 - SMRT Certified Blindness", _
+    "10 - SMRT Certified Disabled", _
     "11 - Spec Cat - Disa Child", _
     "20 - TEFRA - Disabled", _
     "21 - TEFRA - Blind", _
