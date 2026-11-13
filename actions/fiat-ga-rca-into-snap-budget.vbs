@@ -229,7 +229,7 @@ For i = 0 to ubound(footer_month_array)
 	transmit
 
 	'this enters the proration date in the initial month'
-	IF abs(MAXIS_footer_month) = abs(left(proration_date, 2)) THEN
+	IF abs(MAXIS_footer_month) = abs(left(proration_date, 2)) And abs(MAXIS_footer_year) = abs(right(proration_date, 2)) THEN
 		EMWriteScreen left(proration_date, 2), 11, 56
 		EMWriteScreen mid(proration_date, 4, 2), 11, 59
 		EMWriteScreen right(proration_date, 2), 11, 62
