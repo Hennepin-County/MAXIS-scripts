@@ -130,8 +130,8 @@ GLOBAL_HC_DISA_STATUS = Array( _
     "03 - SSI, SSI/RSDI Disability", _
     "04 - SSI, SSI/RSDI Blindness", _
     "06 - SMRT/SSA Pend", _
-    "08 - Certified Blindness", _
-    "10 - Certified Disabled", _
+    "08 - SMRT Certified Blindness", _
+    "10 - SMRT Certified Disabled", _
     "11 - Spec Cat - Disa Child", _
     "20 - TEFRA - Disabled", _
     "21 - TEFRA - Blind", _
@@ -214,6 +214,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
           EMSearch MEMB_name_to_save, row, col
             If row = 0 and col = 0 then script_end_procedure("The original DAIL could not be found associated with that client. The script will now end.")
           EMSearch Original_DAIL, row, col
+          If row = 0 and col = 0 then script_end_procedure("The original DAIL could not be found associated with that client. The script will now end.")
         Loop until row <> 0 and col <> 0
       End If
     
@@ -615,7 +616,7 @@ Function DISA_Fields_Are_Valid(CASH_disa_option_status, CASH_disa_ver_type, FS_d
         End If
     End If
 
-    If FS_disa_option_status = "11 - VA Determined Pd 100% Disa" or FS_disa_option_status = "12 - VA (Other Accept Disa)" or FS_disa_option_status = "13 - Cert RR Ret Disa & On Medi" or FS_disa_option_status = "14 - Othr Govt Perm Disa Ret Bnft" or FS_disa_option_status = "15 - Disability from MINE List" or FS_disa_option_status = "16 - Unable Prepare Purch Own Meals" then
+    If FS_disa_option_status = "11 - VA Determined Pd 100% Disa" or FS_disa_option_status = "12 - VA (Other Accept Disa)" or FS_disa_option_status = "13 - Cert RR Ret Disa & On Medi" or FS_disa_option_status = "14 - Othr Govt Perm Disa Ret Bnft" or FS_disa_option_status = "15 - Disability from MINE List" or FS_disa_option_status = "16 - Unable Prepare Purch Own Meal" then
         If FS_disa_ver_type <> "1 - DHS161/Dr Statement" and FS_disa_ver_type <> "N - No Verif Provided" and FS_disa_ver_type <> "4 - Receipt of HC For Disa/Blind" and FS_disa_ver_type <> "5 - Wrk Judgement" and FS_disa_ver_type <> "6 - Other Document" and FS_disa_ver_type <> "7 - Out of State Ver Pending" then
             MsgBox "The selected verification type does not match the disability status selected for the client's FS/SNAP program. Please correct this error."
             Exit Function
@@ -759,6 +760,8 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
             disability_type = CASH_disa_option_status & " , " & HC_disa_option_status
         Elseif CASH_disa_option_status <> FS_disa_option_status and CASH_disa_option_status = HC_disa_option_status then
             disability_type = CASH_disa_option_status & " , " & FS_disa_option_status
+        Elseif CASH_disa_option_status <> FS_disa_option_status and CASH_disa_option_status <> HC_disa_option_status then
+            disability_type = CASH_disa_option_status & " , " & FS_disa_option_status & " , " & HC_disa_option_status
         End If
 
     Elseif CASH_active = true and FS_active = true and HC_active = false then
@@ -802,8 +805,7 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
     If Original_DAIL = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" or Original_DAIL = "DISA CERTIFICATION ENDS IN 60 DAYS - REVIEW DISA STATUS" then
 
         ' if box is checked, do TIKL
-        call navigate_to_MAXIS_screen("CASE", "NOTE")
-        PF9
+        call start_a_blank_CASE_NOTE()
         
         If CASH_Final_Dropbox = "SMI checked and verified" or FS_Final_Dropbox = "SMI checked and verified" or HC_Final_Dropbox = "SMI checked and verified" then
             call write_variable_in_CASE_NOTE("UPDATED DISABILITY VERIFICATION REVIEWED")
@@ -852,9 +854,8 @@ Function write_DISA_DAIL_CASE_NOTE(Original_DAIL)
         call write_variable_in_CASE_NOTE("------")
         call write_variable_in_CASE_NOTE(worker_signature)
 
-    Elseif Original_DAIL = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" or Original_DAIL = "DISABILITY ENDING. REDTERMINE ELIG" then
-        call navigate_to_MAXIS_screen("CASE", "NOTE")
-        PF9
+    Elseif Original_DAIL = "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG" or Original_DAIL = "DISABILITY ENDING. REDETERMINE ELIGIBILITY AND SUBMIT SMRT" then
+        call start_a_blank_CASE_NOTE()
 
         call write_variable_in_CASE_NOTE("DISABILITY STATUS HAS ENDED AND CASE WAS REVIEWED")
         call write_variable_in_CASE_NOTE("---------")
@@ -966,7 +967,7 @@ Function Assign_verification_process()
         CASH_verification_process = "MOF send through ECF"
     End If
 
-    If CASH_disa_option_status = "BLANK" or CASH_disa_status = "BLANK" then
+    If CASH_disa_option_status = "BLANK" then
         CASH_verification_process = ""
     End If
 
@@ -974,7 +975,7 @@ Function Assign_verification_process()
         FS_verification_process = "SMI checked and verified"
     End If
 
-    If FS_disa_option_status = "09 - Ill/Incapacity" or FS_disa_option_status = "11 - VA Determined Pd 100% Disa" or FS_disa_option_status = "12 - VA (Other Accept Disa)" or FS_disa_option_status = "13 - Cert RR Ret Disa & On Medi" or FS_disa_option_status = "14 - Othr Govt Perm Disa Ret Bnft" or FS_disa_option_status = "15 - Disability from MINE List" or FS_disa_option_status = "16 - Unable Prepare Purch Own Meals" then
+    If FS_disa_option_status = "09 - Ill/Incapacity" or FS_disa_option_status = "11 - VA Determined Pd 100% Disa" or FS_disa_option_status = "12 - VA (Other Accept Disa)" or FS_disa_option_status = "13 - Cert RR Ret Disa & On Medi" or FS_disa_option_status = "14 - Othr Govt Perm Disa Ret Bnft" or FS_disa_option_status = "15 - Disability from MINE List" or FS_disa_option_status = "16 - Unable Prepare Purch Own Meal" then
         FS_verification_process = "MOF send through ECF"
     End If
 
@@ -982,7 +983,7 @@ Function Assign_verification_process()
         FS_verification_process = "HC Active - SMRT submitted through ISDS/ECF"
     End If
 
-    If FS_disa_option_status = "BLANK" or FS_disa_status = "BLANK" then
+    If FS_disa_option_status = "BLANK" then
         FS_verification_process = ""
     End If
 
@@ -998,7 +999,7 @@ Function Assign_verification_process()
         HC_verification_process = "MOF send through ECF"
     End If
 
-    If HC_disa_option_status = "BLANK" or HC_disa_status = "BLANK" then
+    If HC_disa_option_status = "BLANK" then
         HC_verification_process = ""
     End If
 
@@ -1010,6 +1011,8 @@ End Function
 'Connects to MAXIS
 EMConnect ""
 Dialog1 = ""
+
+
 
 'pulls and stores the MEMB name (since no number is listed); finds and saves the string of the original DAIL message
 Call Find_MEMB_and_message_for_DAIL_string_match(MEMB_name_to_save, Original_DAIL)
@@ -1023,6 +1026,7 @@ call MEMB_Name_DAIL_matching(MEMB_name_to_save)
 
 'Reading all of the data and creating arrays for dropdown lists in later dialogs
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
 disaDATA = Read_DISA()
 
 'Build CASH Status dropdown list from disaDATA
@@ -1083,6 +1087,8 @@ BeginDialog Dialog1, 0, 0, 690, 275, "STAT/DISA Information"
         Text 15, 225, 300, 15, "Select Action You Would Like to Take"
         Text 355, 30, 320, 15, "MEMBER: " & person_info
         Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
+        Text 355, 215, 75, 15, "Worker Signature:"
+        EditBox 435, 210, 230, 20, worker_signature
     DropListBox 15, 240, 200, 20, "TIKL and CASE/NOTE Updated Verification Request"+chr(9)+"Disability Ended - CASE/NOTE details"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
 EndDialog
 
@@ -1090,6 +1096,11 @@ EndDialog
 Do
     Dialog Dialog1
     cancel_confirmation
+        Do While ButtonPressed = OK And DISA_option_list <> "Delete DAIL only" And Trim(worker_signature) = ""
+            MsgBox "Enter a worker signature before creating a CASE/NOTE."
+            Dialog Dialog1
+            cancel_confirmation
+        Loop
         If DISA_option_list = "TIKL and CASE/NOTE Updated Verification Request" And ButtonPressed = OK then
             'clear the dialog for rebuilding
             Dialog1 = ""
@@ -1197,7 +1208,7 @@ Do
                                             cancel_confirmation
 
                                             call check_for_password(are_we_passworded_out)
-                                            Loop until are_we_passworded_out = false
+                                            Loop until ButtonPressed = OK and are_we_passworded_out = false
 
                                         If DAIL_DISA_TIKL_goahead = true then
                                             If Still_need_TIKL = checked then
@@ -1238,7 +1249,7 @@ Do
                                 Dialog dialog1
                                 cancel_confirmation
                                 call check_for_password(are_we_passworded_out)
-                                Loop until are_we_passworded_out = false
+                                Loop until ButtonPressed = OK and are_we_passworded_out = false
                                 If Still_need_TIKL = checked then
                                     call create_TIKL("A request for updated verification was sent 30 days ago. Please review case, and send another request if applicable.", 30, date, False, TIKL_note_text)
                                 End If
@@ -1286,6 +1297,8 @@ Do
             Dialog Dialog1
             cancel_confirmation
                 If ButtonPressed = ABAWD_script_trigger then
+                    'Evaluate dated exemptions for the footer month that we are on - the DAIL message will put us in correct month/year
+                    ABAWD_eval_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
                     call ABAWD_FSET_exemption_finder()
                 End if
                 If ButtonPressed = Combined_manual then
