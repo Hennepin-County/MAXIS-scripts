@@ -2390,8 +2390,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form
 				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
-
-			If form_type_array(form_type_const, form_errors) = diet_form_name then'Handling to ensure if a diet is selected then a prescribed date is entered on the same line
+					'Handling to ensure if a diet is selected then a prescribed date is entered on the same line
 				If Antidumping_CheckBox = checked and Anti_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Anti Dumping Diet Prescribed Date."
 				If High_Residue_CheckBox = checked and HR_Date_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the High Residue Diet Prescribed Date."
 				If Hypoglycemic_CheckBox = checked and Hypo_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Hypoglycemic Diet Prescribed Date."
@@ -2401,16 +2400,12 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If Low_Cholesterol_CheckBox = checked and Low_Cholesterol_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Low Cholesterol Diet Prescribed Date."
 				If Pregnancy_Lactation_CheckBox = checked and Preg_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Pregnancy/Lactation Diet Prescribed Date."
 				If ProIn_Diet_Date_Prescribed = checked and ProIn_Diet_Date_Prescribed = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a date for the Protein Intake Diet Prescribed Date."
-
-			If form_type_array(form_type_const, form_errors) = diet_form_name then'Handling to ensure a protein Intake Amount is selected if protein intake diet is selected
+'Handling to ensure a protein Intake Amount is selected if protein intake diet is selected
 				If ProIn_Diet_Date_Prescribed <> "" and Intake_Choice = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select a Protein Intake Amount for the Protein Intake Diet"
-
-				'Handling to ensure if diets components overlap there is comments explaining those components.
+'Handling to ensure if diets components overlap there is comments explaining those components.
 				If Diets_Overlap = "yes" and Yes_Explain = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Diets overlap, please explain in the comments section."
-
 				'Handling to ensure if a diet is anticipated to end, an end date is entered.
 				If Anticipated_To_End = "yes" and Anti_End_Date = "" and HR_End_Date = "" and Keto_End_Date = "" and Gluten_End_Date = "" and Lactose_End_Date = "" and Low_Cholesterol_End_Date = "" and Preg_End_Date = "" and ProIn_End_Date = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Diet Anticipated to end is selected, please enter an end date for the diet(s)."
-
 				'Handling to ensure more than one diet is selected if diets overlap drop down is yes'
 				If Diets_Overlap = "yes" and (Antidumping_CheckBox + High_Residue_CheckBox + Hypoglycemic_CheckBox + Ketogenic_CheckBox + Gluten_Free_CheckBox + Lactose_Free_CheckBox + Low_Cholesterol_CheckBox + Pregnancy_Lactation_CheckBox + Protein_Intake_CheckBox) < 2 Then diet_err_msg = diet_err_msg & vbNewLine & "* Diets overlap is selected, please select more than one diet."
 
@@ -2419,6 +2414,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 					'MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
 						If Antidumping_CheckBox + High_Residue_CheckBox + Hypoglycemic_CheckBox + Ketogenic_CheckBox + Gluten_Free_CheckBox + Lactose_Free_CheckBox + Low_Cholesterol_CheckBox + Pregnancy_Lactation_CheckBox + ProIn_Diet_Date_Prescribed > 2 Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
 				End If
+			END If
 
 			If form_type_array(form_type_const, form_errors) = other_form_name then 'Error handling for Other Form
 				IF IsDate(other_date_received) = FALSE THEN other_err_msg = other_err_msg & vbCr & "* Enter a valid Document Date."
