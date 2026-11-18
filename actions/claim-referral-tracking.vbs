@@ -5,7 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 200            'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
  'END OF stats block=========================================================================================================
-
+msgbox "line 8"
  'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
  IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
  	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -41,7 +41,7 @@ STATS_denomination = "C"        'C is for each case
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
-
+msgbox "line44"
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
@@ -53,6 +53,7 @@ call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+msgbox "line56"
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------------------------The script
 function claim_referral_tracking(action_taken, action_date)
