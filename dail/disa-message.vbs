@@ -188,7 +188,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
     'Check on the right screen
     EMReadScreen WORKERS_check, 7, 2, 26
     ' The (DAIL) is located in the same place on both the DAIL/"" submenu and the DAIL/DAIL page. The word "WORKERS" is in a different location on both pages. This will keep the DAIL script from getting stuck on the submenu
-    If WORKERS_check <> "WORKERS" then script_end_procedure("You are not in DAIL for the final deletion. The script will now end")
+    If WORKERS_check <> "WORKERS" then script_end_procedure_with_error_report("You are not in DAIL for the final deletion. The script will now end")
 
 
     'Setting the row/col markers to start on 5,4 coordinates to avoid the non-DAIL information triggering accidental matches
@@ -200,7 +200,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
         Do
             PF8
             EMReadScreen last_page_check, 21, 24, 2
-                If last_page_check = "THIS IS THE LAST PAGE" then script_end_procedure("The original DAIL could not be found for deletion. The script will now end.")
+                If last_page_check = "THIS IS THE LAST PAGE" then script_end_procedure_with_error_report("The original DAIL could not be found for deletion. The script will now end.")
             EMSearch MEMB_name_to_save, row, col
         Loop until row <> 0 and col <> 0
     End if
@@ -212,9 +212,9 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
         Do
           PF8
           EMSearch MEMB_name_to_save, row, col
-            If row = 0 and col = 0 then script_end_procedure("The original DAIL could not be found associated with that client. The script will now end.")
+            If row = 0 and col = 0 then script_end_procedure_with_error_report("The original DAIL could not be found associated with that client. The script will now end.")
           EMSearch Original_DAIL, row, col
-          If row = 0 and col = 0 then script_end_procedure("The original DAIL could not be found associated with that client. The script will now end.")
+          If row = 0 and col = 0 then script_end_procedure_with_error_report("The original DAIL could not be found associated with that client. The script will now end.")
         Loop until row <> 0 and col <> 0
       End If
     
@@ -224,7 +224,7 @@ Function search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
       transmit
       MsgBox "The original DAIL was found and deleted"
     Else
-        script_end_procedure("The original DAIL could not be found for deletion. The script will now end.")
+        script_end_procedure_with_error_report("The original DAIL could not be found for deletion. The script will now end.")
     End If
 End Function
 
@@ -273,7 +273,7 @@ End Function
 Function Read_DISA()
     'double-check that user hasn't accidentally navigated away from the DISA panel
     EMReadScreen DISA_chk, 4, 2, 45
-    If DISA_chk <> "DISA" then script_end_procedure("Not on a DISA message, the script will now end.") 
+    If DISA_chk <> "DISA" then script_end_procedure_with_error_report("Not on a DISA message, the script will now end.") 
 
     'Read the member number; trim for spaces; and add the matched name variable to create the person_info variable that's used for CASE/NOTEs and dialog boxes throughout
     EMReadScreen MEMB_No, 2, 4, 33
@@ -480,7 +480,7 @@ Function Update_DISA_Panel_Loop()
 
     Do
     EMReadScreen DISA_chk, 4, 2, 45
-    If DISA_chk <> "DISA" Then script_end_procedure("Not on a DISA message, the script will now end.")
+    If DISA_chk <> "DISA" Then script_end_procedure_with_error_report("Not on a DISA message, the script will now end.")
     call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = false
 
@@ -738,7 +738,7 @@ Function MEMB_Name_DAIL_matching(MEMB_name_to_save)
 
     Next
 
-    call script_end_procedure("no panel matching the Member Name: " & MEMB_name_to_save & " could be found. The script will now end.")
+    call script_end_procedure_with_error_report("no panel matching the Member Name: " & MEMB_name_to_save & " could be found. The script will now end.")
 
 End Function
 
@@ -911,7 +911,7 @@ col = 1
 'Double check DAIL message is still correct
 EMSearch Original_DAIL, row, col
 If row = 0 or col = 0 then
-script_end_procedure("The script will now end because the DAIL went missing after the scrubber was started.")
+script_end_procedure_with_error_report("The script will now end because the DAIL went missing after the scrubber was started.")
 End If
 
 If col <> 0 and row = 6 then
@@ -919,7 +919,7 @@ If col <> 0 and row = 6 then
     EMWriteScreen "S", 6, 3
     transmit
 Else
-    script_end_procedure("The script will now end because the DAIL went missing after the scrubber was started")    
+    script_end_procedure_with_error_report("The script will now end because the DAIL went missing after the scrubber was started")    
 End If
 
 End Function
@@ -1088,7 +1088,7 @@ BeginDialog Dialog1, 0, 0, 690, 275, "STAT/DISA Information"
         Text 355, 30, 320, 15, "MEMBER: " & person_info
         Text 15, 10, 320, 15, "DAIL MSG: " & original_DAIL
         Text 355, 215, 75, 15, "Worker Signature:"
-        EditBox 435, 210, 230, 20, worker_signature
+        EditBox 435, 210, 230, 15, worker_signature
     DropListBox 15, 240, 200, 20, "TIKL and CASE/NOTE Updated Verification Request"+chr(9)+"Disability Ended - CASE/NOTE details"+chr(9)+"CASE/NOTE only"+chr(9)+"Delete DAIL only", DISA_option_list
 EndDialog
 
@@ -1339,14 +1339,14 @@ Do
                     Transmit 
                     call search_for_correct_DAIL_and_delete(MEMB_name_to_save, Original_DAIL)
                 ElseIf ButtonPressed = End_script_no_delete_only then
-                    script_end_procedure("The script will now end.")
+                    script_end_procedure_with_error_report("The script will now end.")
                 End If
             Loop until ButtonPressed <> ""    
         End If
     call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false 
 
-script_end_procedure("Success! The DISA message script will now end.")
+script_end_procedure_with_error_report("Success! The DISA message script will now end.")
 
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation 
@@ -1372,9 +1372,9 @@ script_end_procedure("Success! The DISA message script will now end.")
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------n/a-------------------------------Happens in DAIL-scrubber
 '--MAXIS_background_check reviewed (if applicable)------------------------------
 '--PRIV Case handling reviewed -------------------------------------------------n/a---------------------------------happens in DAIL-scrubber
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11-3-26-------------------------------------will need one final check before merging
+'--Out-of-County handling reviewed----------------------------------------------n/a---------------------------------happens in DAIL-scrubber
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11-23-62
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11-3-26-------------------------------------
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------
@@ -1383,12 +1383,12 @@ script_end_procedure("Success! The DISA message script will now end.")
 '--Script name reviewed---------------------------------------------------------
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11-23-26
 '--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------11-3-26--------------------------------may need additional clarification before merging
-'--Remove testing message boxes-------------------------------------------------
+'--Update Changelog for release/update------------------------------------------11-3-26-------------------------------
+'--Remove testing message boxes-------------------------------------------------11-23-26
 '--Remove testing code/unnecessary code-----------------------------------------11-3-26-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------11-23-26
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------
