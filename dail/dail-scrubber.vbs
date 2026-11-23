@@ -156,6 +156,7 @@ If left(find_msg_details, 5) = " HIRE" Then			'if this a HIRE message, we need t
 End If
 
 'now we are reading the header information to make sure we get to the right person and case if we ever have to navigate away from and back to the DAIL
+'note for Sam - this can likely be removed when the name search DAIL function is put in the Master FuncLib. It makes more sense to pull this information AFTER the DAIL is selected and the script has been called. 
 header_row = dail_row-1
 EMReadScreen header_in_row_above, 3, header_row, 59
 Do While header_in_row_above <> "-->"
@@ -176,7 +177,9 @@ If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
 	call script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
 End If
 
+
 'The following reads the message in full for the end part (which tells the worker which message was selected)
+'This likely needs updated overall so that all scripts are pulling from full_message vs individual EMReadScreens. Updating disa-message for now, will fully update as we go sbm 11/3
 EMReadScreen full_message, 60, 6, 20
 full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
@@ -265,9 +268,9 @@ If instr(full_message, "REVIEW SVES RESPONSE") or instr(full_message, "REVIEW CL
     call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
 END IF
 
-'Disability certification ends in 60 days (loads DISA MESSAGE)
-EMReadScreen DISA_check, 58, 6, 20
-If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
+'Disability DAILs - 60 day review warning; and ending warning - fixed to use InStr 
+'Note to Sam - go through the PEPR DAIL report to find the two HC versions of these messages (the wording is slightly different but it's the same process)
+If InStr(full_message, "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS") or InStr(full_message, "DISA HAS ENDED - REVIEW DISA STATUS OR REDETERMINE ELIG") or InStr(full_message, "DISA CERTIFICATION ENDS IN 60 DAYS - REVIEW DISA STATUS") or InStr(full_message, "DISABILITY ENDING. REDETERMINE ELIGIBILITY AND SUBMIT SMRT") then
 	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and create a TIKL and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/disa-message.vbs")
 END IF
